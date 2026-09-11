@@ -1,0 +1,955 @@
+.home {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #020305;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+:global(html.cp-home-active),
+:global(body.cp-home-no-chrome) {
+  min-height: 100%;
+  margin: 0;
+  background: #020305 !important;
+}
+
+:global(body.cp-home-no-chrome > header),
+:global(body.cp-home-no-chrome > footer) {
+  display: none !important;
+}
+
+.stage {
+  position: relative;
+  width: min(100vw, calc(100svh * 1672 / 941));
+  height: min(100svh, calc(100vw * 941 / 1672));
+  aspect-ratio: 1672 / 941;
+  overflow: hidden;
+  background: #020305;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.8);
+  isolation: isolate;
+  animation: stageEntrance 900ms cubic-bezier(0.2, 0.78, 0.2, 1) both;
+}
+
+.mobilePortal {
+  display: none;
+}
+
+.ambientBackdrop {
+  position: absolute;
+  inset: -4%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 31% 52%, rgba(0, 139, 255, 0.19), transparent 34%),
+    radial-gradient(circle at 68% 52%, rgba(255, 183, 0, 0.18), transparent 34%);
+  filter: blur(18px);
+  animation: ambientBreath 7s ease-in-out infinite alternate;
+}
+
+.artwork {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+  /* Keep the artwork geometry fixed so the visual buttons and hit areas
+     always share the exact same coordinate system. */
+  transform: none;
+  animation: artworkLighting 7s ease-in-out infinite alternate;
+}
+
+.bluePortalGlow,
+.goldPortalGlow,
+.alexiaAura,
+.floorPulse,
+.scanline,
+.particles {
+  position: absolute;
+  pointer-events: none;
+}
+
+.bluePortalGlow {
+  left: 27.8%;
+  top: 19.5%;
+  width: 18%;
+  height: 54%;
+  z-index: 1;
+  border-radius: 14% 14% 10% 10%;
+  background: radial-gradient(ellipse at center, rgba(31, 165, 255, 0.28), transparent 70%);
+  box-shadow:
+    0 0 2.4vw rgba(0, 157, 255, 0.55),
+    inset 0 0 1.8vw rgba(83, 190, 255, 0.24);
+  mix-blend-mode: screen;
+  animation: portalBluePulse 2.8s ease-in-out infinite;
+}
+
+.goldPortalGlow {
+  left: 57.5%;
+  top: 19.5%;
+  width: 18%;
+  height: 54%;
+  z-index: 1;
+  border-radius: 14% 14% 10% 10%;
+  background: radial-gradient(ellipse at center, rgba(255, 195, 27, 0.29), transparent 70%);
+  box-shadow:
+    0 0 2.4vw rgba(255, 181, 0, 0.58),
+    inset 0 0 1.8vw rgba(255, 218, 96, 0.25);
+  mix-blend-mode: screen;
+  animation: portalGoldPulse 2.8s ease-in-out 1.4s infinite;
+}
+
+.alexiaAura {
+  left: 39.5%;
+  top: 18%;
+  width: 22%;
+  height: 65%;
+  z-index: 1;
+  border-radius: 45%;
+  background: radial-gradient(ellipse at center, rgba(255, 204, 72, 0.11), transparent 68%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  animation: alexiaAura 4.2s ease-in-out infinite;
+}
+
+.floorPulse {
+  left: 35%;
+  top: 69%;
+  width: 30%;
+  height: 18%;
+  z-index: 1;
+  border: 1px solid rgba(255, 205, 77, 0.2);
+  border-radius: 50%;
+  box-shadow:
+    0 0 2vw rgba(44, 151, 255, 0.18),
+    0 0 3vw rgba(255, 181, 0, 0.16),
+    inset 0 0 2vw rgba(255, 255, 255, 0.08);
+  animation: floorRing 3.8s ease-out infinite;
+}
+
+.scanline {
+  inset: -45% 0 auto;
+  z-index: 3;
+  height: 28%;
+  opacity: 0.25;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.045) 45%,
+    rgba(67, 184, 255, 0.16) 50%,
+    rgba(255, 202, 46, 0.12) 52%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: scanlineMove 8s linear infinite;
+}
+
+.particles {
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  left: var(--particle-x);
+  top: var(--particle-y);
+  width: clamp(2px, 0.22vw, 5px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat var(--particle-duration) ease-in-out var(--particle-delay) infinite;
+}
+
+.particleBlue {
+  background: #47bdff;
+  box-shadow: 0 0 0.6vw rgba(54, 181, 255, 0.95);
+}
+
+.particleGold {
+  background: #ffd45a;
+  box-shadow: 0 0 0.6vw rgba(255, 186, 24, 0.95);
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.hotspot {
+  --hotspot-rgb: 255, 198, 35;
+  position: absolute;
+  display: block;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+  overflow: hidden;
+  isolation: isolate;
+  clip-path: polygon(4% 0, 96% 0, 100% 18%, 100% 82%, 96% 100%, 4% 100%, 0 82%, 0 18%);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.hotspot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 1px solid rgba(var(--hotspot-rgb), 0);
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(var(--hotspot-rgb), 0.2), transparent 74%),
+    linear-gradient(180deg, rgba(var(--hotspot-rgb), 0.075), rgba(var(--hotspot-rgb), 0.02));
+  box-shadow: inset 0 0 clamp(10px, 1.1vw, 20px) rgba(var(--hotspot-rgb), 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, border-color 140ms ease;
+}
+
+.hotspot:hover,
+.hotspot:focus-visible {
+  /* Keep the light completely inside the real button geometry. A moving
+     shine makes the pointer feel offset even when the hit area is correct. */
+  transform: none;
+  background: rgba(var(--hotspot-rgb), 0.035);
+  box-shadow: inset 0 0 clamp(12px, 1.35vw, 24px) rgba(var(--hotspot-rgb), 0.3);
+}
+
+.hotspot:hover::after,
+.hotspot:focus-visible::after {
+  border-color: rgba(var(--hotspot-rgb), 0.58);
+  opacity: 1;
+}
+
+.hotspot:active {
+  transform: none;
+}
+
+.hotspot:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 2px;
+  box-shadow:
+    inset 0 0 clamp(12px, 1.35vw, 24px) rgba(var(--hotspot-rgb), 0.34),
+    0 0 0 4px rgba(var(--hotspot-rgb), 0.54);
+}
+
+.chat {
+  --hotspot-rgb: 37, 179, 255;
+  left: 6.94%;
+  top: 61.32%;
+  width: 20.39%;
+  height: 8.18%;
+}
+
+.marketplace {
+  --hotspot-rgb: 255, 194, 22;
+  left: 70.63%;
+  top: 61.96%;
+  width: 20.16%;
+  height: 7.12%;
+  clip-path: polygon(3% 0, 97% 0, 100% 12%, 100% 88%, 97% 100%, 3% 100%, 0 88%, 0 12%);
+}
+
+.how {
+  --hotspot-rgb: 58, 185, 255;
+  left: 5.92%;
+  top: 72.8%;
+  width: 11.3%;
+  height: 7.12%;
+}
+
+.about {
+  --hotspot-rgb: 58, 185, 255;
+  left: 17.94%;
+  top: 72.8%;
+  width: 10.47%;
+  height: 7.12%;
+}
+
+.help {
+  left: 69.32%;
+  top: 72.8%;
+  width: 11.18%;
+  height: 7.12%;
+}
+
+.contact {
+  left: 81.04%;
+  top: 72.8%;
+  width: 11%;
+  height: 7.12%;
+}
+
+.windows {
+  left: 34.63%;
+  top: 93.41%;
+  width: 13.16%;
+  height: 5.95%;
+}
+
+.android {
+  left: 48.68%;
+  top: 93.41%;
+  width: 13.1%;
+  height: 5.95%;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+  animation: modalBackdropIn 180ms ease-out both;
+}
+
+.modal {
+  width: min(520px, 100%);
+  border: 1px solid rgba(255, 194, 28, 0.5);
+  border-radius: 18px;
+  padding: 28px;
+  background: linear-gradient(
+    135deg,
+    rgba(17, 34, 55, 0.98),
+    rgba(28, 19, 5, 0.98)
+  );
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.72);
+  animation: modalIn 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.modalEyebrow {
+  margin: 0 0 8px;
+  color: #ffc52d;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+}
+
+.modal h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+}
+
+.modal p {
+  margin: 16px 0 24px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.modal button {
+  min-height: 44px;
+  border: 1px solid rgba(255, 199, 47, 0.55);
+  border-radius: 11px;
+  padding: 0 18px;
+  color: #090909;
+  background: #ffc52d;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.modal button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes stageEntrance {
+  from {
+    opacity: 0;
+    transform: scale(1.025);
+    filter: brightness(0.55) saturate(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+@keyframes artworkLighting {
+  0% {
+    filter: brightness(0.98) saturate(1);
+  }
+  100% {
+    filter: brightness(1.025) saturate(1.05);
+  }
+}
+
+@keyframes ambientBreath {
+  from {
+    opacity: 0.62;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes portalBluePulse {
+  0%, 100% {
+    opacity: 0.34;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.86;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes portalGoldPulse {
+  0%, 100% {
+    opacity: 0.36;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes alexiaAura {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.62;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes floorRing {
+  0% {
+    opacity: 0;
+    transform: scale(0.78);
+  }
+  28% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes scanlineMove {
+  from {
+    transform: translateY(-30%);
+  }
+  to {
+    transform: translateY(610%);
+  }
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.65);
+  }
+  28% {
+    opacity: 0.7;
+  }
+  72% {
+    opacity: 0.38;
+  }
+  100% {
+    transform: translate3d(8px, -52px, 0) scale(1.25);
+  }
+}
+
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 760px), (max-height: 520px) and (pointer: coarse) {
+  :global(html.cp-home-active),
+  :global(body.cp-home-no-chrome) {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .home {
+    min-height: 100svh;
+    display: block;
+    overflow: visible;
+    touch-action: pan-y;
+    background:
+      radial-gradient(circle at 10% 28%, rgba(0, 139, 255, 0.16), transparent 34%),
+      radial-gradient(circle at 90% 46%, rgba(255, 179, 0, 0.14), transparent 34%),
+      #020305;
+  }
+
+  .stage {
+    display: none;
+  }
+
+  .mobilePortal {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    box-sizing: border-box;
+    width: min(100%, 680px);
+    min-height: 100svh;
+    margin: 0 auto;
+    overflow: hidden;
+    padding:
+      max(14px, env(safe-area-inset-top))
+      clamp(14px, 4vw, 24px)
+      max(26px, env(safe-area-inset-bottom));
+    flex-direction: column;
+    background: #020305;
+  }
+
+  .mobilePortal *,
+  .mobilePortal *::before,
+  .mobilePortal *::after {
+    box-sizing: border-box;
+  }
+
+  .mobilePortal::before,
+  .mobilePortal::after {
+    display: none;
+  }
+
+  .mobilePageArtwork,
+  .mobilePageShade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .mobilePageArtwork {
+    z-index: 0;
+    object-fit: cover;
+    object-position: center top;
+    user-select: none;
+    filter: saturate(1.08) contrast(1.04);
+  }
+
+  .mobilePageShade {
+    z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.26) 30%, transparent 48%, rgba(0, 0, 0, 0.34) 64%, rgba(0, 0, 0, 0.9) 100%),
+      linear-gradient(90deg, rgba(0, 20, 40, 0.24), transparent 44%, rgba(55, 36, 0, 0.22));
+  }
+
+  .mobileHeader {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .mobileBrand {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    color: #f7f7f7;
+    font-size: clamp(0.9rem, 4vw, 1.05rem);
+    font-style: italic;
+    font-weight: 900;
+    letter-spacing: -0.045em;
+  }
+
+  .mobileBrand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 9px rgba(255, 194, 18, 0.28));
+  }
+
+  .mobileBrand strong {
+    color: #ffbf12;
+  }
+
+  .mobileHeader > p {
+    max-width: 126px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: clamp(0.46rem, 2vw, 0.58rem);
+    line-height: 1.45;
+    text-align: right;
+    letter-spacing: 0.04em;
+  }
+
+  .mobileHeader > p strong {
+    color: #ffc217;
+  }
+
+  .mobileTitle {
+    position: relative;
+    z-index: 2;
+    padding: clamp(18px, 5vw, 28px) 0 15px;
+    text-align: center;
+  }
+
+  .mobileTitle > p {
+    margin: 0 0 3px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: clamp(0.62rem, 2.7vw, 0.76rem);
+    font-weight: 800;
+    letter-spacing: 0.38em;
+    text-indent: 0.38em;
+  }
+
+  .mobileTitle h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(2.15rem, 11vw, 3.35rem);
+    font-style: italic;
+    font-weight: 1000;
+    line-height: 0.95;
+    letter-spacing: -0.08em;
+    text-shadow: 0 7px 26px rgba(0, 0, 0, 0.78);
+  }
+
+  .mobileTitle h1 span {
+    color: #ffbd00;
+  }
+
+  .mobileDivider,
+  .mobileSectionTitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: clamp(0.55rem, 2.45vw, 0.68rem);
+    font-weight: 800;
+    letter-spacing: 0.23em;
+  }
+
+  .mobileDivider {
+    margin-top: 11px;
+  }
+
+  .mobileDivider > span,
+  .mobileSectionTitle > span {
+    width: min(17vw, 80px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.58));
+  }
+
+  .mobileDivider > span:last-child,
+  .mobileSectionTitle > span:last-child {
+    transform: rotate(180deg);
+  }
+
+  .mobileArtFocus {
+    position: relative;
+    z-index: 2;
+    height: clamp(260px, 68vw, 320px);
+    pointer-events: none;
+  }
+
+  .mobileMenu {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+    padding: 0 7px;
+  }
+
+  .mobileWorldCard {
+    position: relative;
+    display: flex;
+    min-height: 150px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 9px;
+    border: 1px solid;
+    border-radius: 18px;
+    padding: 14px;
+    color: #ffffff;
+    text-decoration: none;
+    backdrop-filter: blur(18px);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease;
+  }
+
+  .mobileWorldCard:active {
+    transform: scale(0.985);
+  }
+
+  .mobileWorldCard:focus-visible,
+  .mobileUtilities button:focus-visible,
+  .mobileUtilities a:focus-visible,
+  .mobileDownloads :is(a, button):focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+  }
+
+  .mobileChatCard {
+    border-color: rgba(49, 176, 255, 0.58);
+    background:
+      linear-gradient(145deg, rgba(1, 35, 63, 0.88), rgba(2, 12, 23, 0.82)),
+      #041321;
+    box-shadow:
+      0 12px 30px rgba(0, 83, 145, 0.23),
+      inset 0 0 28px rgba(19, 156, 255, 0.08);
+  }
+
+  .mobileMarketCard {
+    border-color: rgba(255, 191, 19, 0.6);
+    background:
+      linear-gradient(145deg, rgba(58, 38, 0, 0.88), rgba(24, 16, 2, 0.82)),
+      #1d1401;
+    box-shadow:
+      0 12px 30px rgba(130, 85, 0, 0.22),
+      inset 0 0 28px rgba(255, 188, 16, 0.08);
+  }
+
+  .mobileWorldIcon {
+    display: grid;
+    width: 42px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 12px;
+    font-size: 1.2rem;
+  }
+
+  .mobileChatCard .mobileWorldIcon,
+  .mobileChatCard small,
+  .mobileChatCard .mobileArrow {
+    color: #45bdff;
+  }
+
+  .mobileMarketCard .mobileWorldIcon,
+  .mobileMarketCard small,
+  .mobileMarketCard .mobileArrow {
+    color: #ffc31c;
+  }
+
+  .mobileWorldCopy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .mobileWorldCopy small {
+    margin-bottom: 3px;
+    font-size: clamp(0.45rem, 1.95vw, 0.56rem);
+    font-weight: 900;
+    letter-spacing: 0.09em;
+  }
+
+  .mobileWorldCopy strong {
+    font-size: clamp(0.82rem, 3.7vw, 1.04rem);
+    line-height: 1.08;
+  }
+
+  .mobileWorldCopy > span {
+    margin-top: 5px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: clamp(0.62rem, 2.65vw, 0.74rem);
+    line-height: 1.3;
+  }
+
+  .mobileArrow {
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    font-size: 0.9rem;
+  }
+
+  .mobileUtilities {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin: 8px 7px 0;
+  }
+
+  .mobileUtilities button,
+  .mobileUtilities a {
+    display: flex;
+    min-height: 54px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    border: 1px solid rgba(255, 197, 35, 0.25);
+    border-radius: 13px;
+    padding: 0 13px;
+    background: rgba(7, 8, 10, 0.8);
+    backdrop-filter: blur(14px);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: clamp(0.73rem, 3.3vw, 0.84rem);
+    font-weight: 800;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobileUtilities svg {
+    flex: 0 0 auto;
+    color: #ffc31c;
+    font-size: 1rem;
+  }
+
+  .mobileDownloads {
+    position: relative;
+    z-index: 2;
+    padding: 20px 4px 0;
+  }
+
+  .mobileSectionTitle h2 {
+    margin: 0;
+    font: inherit;
+  }
+
+  .mobileDownloads > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .mobileDownloads :is(a, button) {
+    display: flex;
+    min-height: 56px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 13px;
+    background: linear-gradient(180deg, rgba(21, 22, 25, 0.96), rgba(8, 9, 11, 0.98));
+    color: #ffffff;
+    font-size: clamp(0.72rem, 3vw, 0.82rem);
+    font-family: inherit;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobileDownloads .mobileDownloadDesktop {
+    grid-column: 1 / -1;
+    min-height: 46px;
+  }
+
+  .mobileDownloads .mobileDownloadPrimary {
+    border-color: #ffd348;
+    background: linear-gradient(135deg, #ffd93d, #ffb800);
+    box-shadow: 0 10px 26px rgba(255, 188, 0, 0.24);
+    color: #07090d;
+  }
+
+  .mobileDownloads .mobileDownloadPrimary > svg {
+    color: #07090d;
+  }
+
+  .mobileDownloads .mobileDownloadPrimary small {
+    color: rgba(7, 9, 13, 0.62);
+  }
+
+  .mobileDownloads :is(a, button) > svg {
+    color: #ffc31c;
+    font-size: 1.35rem;
+  }
+
+  .mobileDownloads :is(a, button) > span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.15;
+  }
+
+  .mobileDownloads :is(a, button) small {
+    margin-bottom: 2px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .modalBackdrop {
+    align-items: end;
+    padding:
+      16px
+      16px
+      max(16px, env(safe-area-inset-bottom));
+  }
+
+  .modal {
+    border-radius: 20px;
+    padding: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .artwork,
+  .ambientBackdrop,
+  .bluePortalGlow,
+  .goldPortalGlow,
+  .alexiaAura,
+  .floorPulse,
+  .scanline,
+  .particle,
+  .modalBackdrop,
+  .modal {
+    animation: none !important;
+  }
+
+  .hotspot,
+  .modal button {
+    transition: none !important;
+  }
+}

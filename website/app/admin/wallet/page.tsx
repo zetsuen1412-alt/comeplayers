@@ -1,0 +1,589 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import type { User } from "@supabase/supabase-js";
+import { useCurrency } from "@/components/CurrencyProvider";
+import { supabase } from "@/lib/supabase";
+
+type Profile = {
+  id: string;
+  email: string | null;
+  username: string | null;
+  role: string | null;
+  seller_name: string | null;
+  avatar_url: string | null;
+};
+
+type Wallet = {
+  id: number;
+  user_id: string;
+  balance: string | number;
+  pending_balance: string | number;
+  total_earned: string | number;
+  total_spent: string | number;
+  total_withdrawn: string | number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  profiles: Profile | null;
+};
+
+type WalletTransaction = {
+  id: number;
+  wallet_id: number;
+  user_id: string;
+  type: string;
+  amount: string | number;
+  balance_before: string | number;
+  balance_after: string | number;
+  order_id: number | null;
+  description: string | null;
+  status: string;
+  created_at: string;
+  profiles: Profile | null;
+};
+
+type Withdrawal = {
+  id: number;
+  user_id: string;
+  wallet_id: number;
+  amount: string | number;
+  status: string;
+  created_at: string;
+};
+
+function formatPrice(value: string | number | null) {
+  const price = Number(value || 0);
+  if (!Number.isFinite(price)) return "Rp 0";
+  return `Rp ${price.toLocaleString("id-ID")}`;
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return "-";
+  return new Date(value).toLocaleString("id-ID");
+}
+
+function getStatusClass(status: string) {
+  if (status === "active" || status === "completed" || status === "approved") {
+    return "border-green-400/20 bg-green-400/10 text-green-300";
+  }
+
+  if (status === "pending") {
+    return "border-yellow-400/20 bg-yellow-400/10 text-yellow-300";
+  }
+
+  if (status === "frozen" || status === "rejected" || status === "cancelled") {
+    return "border-red-400/20 bg-red-400/10 text-red-300";
+  }
+
+  return "border-white/10 bg-white/[0.04] text-gray-300";
+}
+
+function getUserName(profile: Profile | null, fallback: string) {
+  return profile?.seller_name || profile?.username || profile?.email || fallback;
+}
+
+export default function AdminWalletDashboardV1Page() {
+  const { formatPrice, currency } = useCurrency();
+  const [user, setUser] = useState<User | null>(null);
+  const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [activeType, setActiveType] = useState("all");
+
+  const isAdmin = adminProfile?.role?.trim().toLowerCase() === "admin";
+
+  const totalWalletBalance = wallets.reduce(
+    (sum, wallet) => sum + Number(wallet.balance || 0),
+    0
+  );
+
+  const totalPendingBalance = wallets.reduce(
+    (sum, wallet) => sum + Number(wallet.pending_balance || 0),
+    0
+  );
+
+  const totalEarnings = wallets.reduce(
+    (sum, wallet) => sum + Number(wallet.total_earned || 0),
+    0
+  );
+
+  const totalWithdrawn = wallets.reduce(
+    (sum, wallet) => sum + Number(wallet.total_withdrawn || 0),
+    0
+  );
+
+  const totalPurchases = transactions
+    .filter((item) => item.type === "purchase")
+    .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+  const pendingWithdrawals = withdrawals.filter(
+    (item) => item.status === "pending"
+  );
+
+  const transactionTypes = useMemo(() => {
+    return [
+      "all",
+      ...Array.from(new Set(transactions.map((item) => item.type))).sort(),
+    ];
+  }, [transactions]);
+
+  const filteredTransactions = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return transactions.filter((item) => {
+      const profile = item.profiles;
+      const matchesType = activeType === "all" || item.type === activeType;
+
+      const matchesSearch =
+        !query ||
+        item.type.toLowerCase().includes(query) ||
+        item.status.toLowerCase().includes(query) ||
+        (item.description || "").toLowerCase().includes(query) ||
+        (profile?.email || "").toLowerCase().includes(query) ||
+        (profile?.username || "").toLowerCase().includes(query) ||
+        (profile?.seller_name || "").toLowerCase().includes(query) ||
+        String(item.id).includes(query) ||
+        String(item.order_id || "").includes(query) ||
+        item.user_id.toLowerCase().includes(query);
+
+      return matchesType && matchesSearch;
+    });
+  }, [transactions, search, activeType]);
+
+  const topEarners = useMemo(() => {
+    return [...wallets]
+      .sort((a, b) => Number(b.total_earned || 0) - Number(a.total_earned || 0))
+      .slice(0, 8);
+  }, [wallets]);
+
+  const topSpenders = useMemo(() => {
+    return [...wallets]
+      .sort((a, b) => Number(b.total_spent || 0) - Number(a.total_spent || 0))
+      .slice(0, 8);
+  }, [wallets]);
+
+  async function loadWalletDashboard() {
+    const [walletResult, transactionResult, withdrawalResult] =
+      await Promise.all([
+        supabase
+          .from("wallets")
+          .select(
+            `
+            *,
+            profiles:user_id (
+              id,
+              email,
+              username,
+              role,
+              seller_name,
+              avatar_url
+            )
+          `
+          )
+          .order("id", { ascending: false }),
+        supabase
+          .from("wallet_transactions")
+          .select(
+            `
+            *,
+            profiles:user_id (
+              id,
+              email,
+              username,
+              role,
+              seller_name,
+              avatar_url
+            )
+          `
+          )
+          .order("id", { ascending: false }),
+        supabase
+          .from("withdrawal_requests")
+          .select("id,user_id,wallet_id,amount,status,created_at")
+          .order("id", { ascending: false }),
+      ]);
+
+    if (walletResult.error) {
+      alert(walletResult.error.message);
+      return;
+    }
+
+    if (transactionResult.error) {
+      alert(transactionResult.error.message);
+      return;
+    }
+
+    if (withdrawalResult.error) {
+      alert(withdrawalResult.error.message);
+      return;
+    }
+
+    setWallets((walletResult.data || []) as unknown as Wallet[]);
+    setTransactions(
+      (transactionResult.data || []) as unknown as WalletTransaction[]
+    );
+    setWithdrawals((withdrawalResult.data || []) as Withdrawal[]);
+  }
+
+  useEffect(() => {
+    async function initializePage() {
+      setLoading(true);
+
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+
+      if (userError) {
+        alert(userError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!userData.user) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      setUser(userData.user);
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id,email,username,role,seller_name,avatar_url")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        alert(profileError.message);
+        setLoading(false);
+        return;
+      }
+
+      setAdminProfile(profileData || null);
+
+      if (profileData?.role?.trim().toLowerCase() === "admin") {
+        await loadWalletDashboard();
+      }
+
+      setLoading(false);
+    }
+
+    initializePage();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
+        <p className="text-xl font-black text-cyan-300">
+          Loading admin wallet dashboard...
+        </p>
+      </main>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
+        <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
+          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+
+          <p className="mt-4 text-gray-300">
+            Only admin accounts can access wallet dashboard.
+          </p>
+
+          <Link
+            href="/"
+            className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
+          >
+            Back to Home
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-[#020617] text-white">
+      <section className="relative overflow-hidden border-b border-white/10 px-8 py-14">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.20),transparent_32%),radial-gradient(circle_at_top_right,rgba(34,197,94,.16),transparent_34%)]" />
+
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
+          <div>
+            <p className="mb-4 inline-flex rounded-full border border-green-400/30 bg-green-400/10 px-4 py-2 text-sm font-black text-green-300">
+              Admin Wallet Dashboard
+            </p>
+
+            <h1 className="text-5xl font-black md:text-7xl">Wallets</h1>
+
+            <p className="mt-5 max-w-3xl text-gray-300">
+              Monitor wallet balances, earnings, wallet purchases, withdrawals,
+              and marketplace wallet transaction activity.
+            </p>
+
+            <p className="mt-3 text-sm text-gray-500">
+              Logged in as {user.email}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/admin/withdrawals"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-green-400 px-6 font-bold text-green-300 transition hover:bg-green-400 hover:text-black"
+            >
+              Withdrawals
+            </Link>
+
+            <Link
+              href="/admin"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
+            >
+              Admin Home
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-8 py-10">
+        <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-5">
+            <p className="text-sm text-gray-300">Total Wallet Balance</p>
+            <p className="mt-2 text-2xl font-black text-cyan-300">
+              {formatPrice(totalWalletBalance)}
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
+            <p className="text-sm text-gray-300">Pending Balance</p>
+            <p className="mt-2 text-2xl font-black text-yellow-300">
+              {formatPrice(totalPendingBalance)}
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-5">
+            <p className="text-sm text-gray-300">Total Earnings</p>
+            <p className="mt-2 text-2xl font-black text-green-300">
+              {formatPrice(totalEarnings)}
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-purple-400/20 bg-purple-400/10 p-5">
+            <p className="text-sm text-gray-300">Total Withdrawn</p>
+            <p className="mt-2 text-2xl font-black text-purple-300">
+              {formatPrice(totalWithdrawn)}
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-blue-400/20 bg-blue-400/10 p-5">
+            <p className="text-sm text-gray-300">Wallet Purchases</p>
+            <p className="mt-2 text-2xl font-black text-blue-300">
+              {formatPrice(totalPurchases)}
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-red-400/20 bg-red-400/10 p-5">
+            <p className="text-sm text-gray-300">Pending Withdrawals</p>
+            <p className="mt-2 text-2xl font-black text-red-300">
+              {pendingWithdrawals.length}
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-8 grid gap-8 lg:grid-cols-2">
+          <section className="rounded-3xl border border-green-400/20 bg-green-400/10 p-7 shadow-2xl shadow-black/30">
+            <h2 className="text-3xl font-black text-green-300">
+              Top Seller Earnings
+            </h2>
+
+            {topEarners.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
+                No wallet data.
+              </div>
+            ) : (
+              <div className="mt-6 space-y-4">
+                {topEarners.map((wallet, index) => (
+                  <div
+                    key={wallet.id}
+                    className="rounded-2xl border border-white/10 bg-black/30 p-5"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-black text-green-300">
+                          #{index + 1}
+                        </p>
+                        <h3 className="text-xl font-black">
+                          {getUserName(wallet.profiles, wallet.user_id)}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-400">
+                          Balance: {formatPrice(wallet.balance)}
+                        </p>
+                      </div>
+
+                      <p className="text-2xl font-black text-green-300">
+                        {formatPrice(wallet.total_earned)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-3xl border border-blue-400/20 bg-blue-400/10 p-7 shadow-2xl shadow-black/30">
+            <h2 className="text-3xl font-black text-blue-300">
+              Top Wallet Spenders
+            </h2>
+
+            {topSpenders.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
+                No wallet spending data.
+              </div>
+            ) : (
+              <div className="mt-6 space-y-4">
+                {topSpenders.map((wallet, index) => (
+                  <div
+                    key={wallet.id}
+                    className="rounded-2xl border border-white/10 bg-black/30 p-5"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-black text-blue-300">
+                          #{index + 1}
+                        </p>
+                        <h3 className="text-xl font-black">
+                          {getUserName(wallet.profiles, wallet.user_id)}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-400">
+                          Balance: {formatPrice(wallet.balance)}
+                        </p>
+                      </div>
+
+                      <p className="text-2xl font-black text-blue-300">
+                        {formatPrice(wallet.total_spent)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-7 shadow-2xl shadow-black/30">
+          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+            <div>
+              <h2 className="text-3xl font-black">Recent Wallet Transactions</h2>
+              <p className="mt-2 text-sm text-gray-400">
+                Search and filter wallet transaction activity.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {transactionTypes.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setActiveType(type)}
+                  className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+                    activeType === type
+                      ? "bg-cyan-400 text-black"
+                      : "border border-white/10 bg-black/30 text-gray-300 hover:border-cyan-400 hover:text-white"
+                  }`}
+                >
+                  {type === "all" ? "All" : type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search transactions by user, email, type, status, order ID, or description..."
+            className="mt-6 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
+          />
+
+          {filteredTransactions.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
+              No wallet transactions found.
+            </div>
+          ) : (
+            <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
+              <div className="hidden grid-cols-[1.2fr_.8fr_.8fr_.8fr_.8fr] gap-4 border-b border-white/10 bg-black/40 p-4 text-sm font-black text-gray-400 lg:grid">
+                <div>User</div>
+                <div>Type</div>
+                <div>Amount</div>
+                <div>Status</div>
+                <div>Date</div>
+              </div>
+
+              <div className="divide-y divide-white/10">
+                {filteredTransactions.slice(0, 40).map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="grid gap-4 p-4 lg:grid-cols-[1.2fr_.8fr_.8fr_.8fr_.8fr]"
+                  >
+                    <div>
+                      <p className="font-black">
+                        {getUserName(transaction.profiles, transaction.user_id)}
+                      </p>
+                      <p className="mt-1 break-words text-xs text-gray-500">
+                        {transaction.profiles?.email || transaction.user_id}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="font-bold text-cyan-300">
+                        {transaction.type}
+                      </p>
+                      {transaction.order_id && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          Order #{transaction.order_id}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="font-black text-green-300">
+                        {formatPrice(transaction.amount)}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        After: {formatPrice(transaction.balance_after)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
+                          transaction.status
+                        )}`}
+                      >
+                        {transaction.status}
+                      </span>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-300">
+                        {formatDate(transaction.created_at)}
+                      </p>
+                    </div>
+
+                    {transaction.description && (
+                      <div className="lg:col-span-5">
+                        <p className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-gray-400">
+                          {transaction.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      </section>
+    </main>
+  );
+}

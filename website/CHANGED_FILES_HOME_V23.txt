@@ -1,0 +1,9 @@
+app/HomeClient.tsx
+app/home.module.css
+app/page.tsx
+public/home-v23/comeplayers-home-alexia-1920.webp
+public/home-v23/comeplayers-home-alexia-2560.webp
+public/home-v23/comeplayers-home-alexia-3840.webp
+public/home-v23/comeplayers-home-alexia-source.png
+HOMEPAGE_STATIC_ALEXIA_V23_README.txt
+CHANGED_FILES_HOME_V23.txt

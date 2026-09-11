@@ -1,0 +1,149 @@
+name: ComePlayers Production Readiness
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_load_test:
+        description: Run the non-mutating load test
+        required: true
+        type: boolean
+        default: false
+      load_duration_seconds:
+        description: Load test duration in seconds
+        required: false
+        default: "30"
+      load_concurrency:
+        description: Concurrent load workers
+        required: false
+        default: "10"
+      run_mutation_load_test:
+        description: Run isolated staging mutation load test
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  deployed-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+      E2E_START_SERVER: "false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require deployed test URL
+        run: test -n "$E2E_BASE_URL"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Public smoke tests
+        run: npm run test:e2e:smoke
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results/playwright
+          if-no-files-found: ignore
+
+  non-mutating-load:
+    if: ${{ inputs.run_load_test }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LOAD_BASE_URL: ${{ secrets.E2E_BASE_URL }}
+      LOAD_DURATION_SECONDS: ${{ inputs.load_duration_seconds }}
+      LOAD_CONCURRENCY: ${{ inputs.load_concurrency }}
+      LOAD_P95_THRESHOLD_MS: "1500"
+      LOAD_MAX_ERROR_RATE: "0.01"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require deployed test URL
+        run: test -n "$LOAD_BASE_URL"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run safe load test
+        run: npm run test:load
+
+
+  staging-mutation-load:
+    if: ${{ inputs.run_mutation_load_test }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    env:
+      LOAD_BASE_URL: ${{ secrets.MUTATION_LOAD_BASE_URL }}
+      LOAD_ENVIRONMENT: staging
+      LOAD_ALLOW_MUTATIONS: "true"
+      LOAD_SCENARIOS_FILE: load-tests/mutation-scenarios.v20.example.json
+      LOAD_DURATION_SECONDS: ${{ inputs.load_duration_seconds }}
+      LOAD_CONCURRENCY: ${{ inputs.load_concurrency }}
+      LOAD_P95_THRESHOLD_MS: "2500"
+      LOAD_MAX_ERROR_RATE: "0.05"
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      E2E_FIXTURE_PASSWORD: ${{ secrets.E2E_FIXTURE_PASSWORD }}
+      E2E_FIXTURE_MANIFEST: e2e/fixtures.json
+      FIXTURE_ENV: staging
+      FIXTURE_CONFIRM: COMEPLAYERS_STAGING_ONLY
+      PAYPAL_ENV: sandbox
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require isolated staging configuration
+        run: |
+          test -n "$LOAD_BASE_URL"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          test "$LOAD_ENVIRONMENT" = "staging"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Seed deterministic staging fixtures
+        run: npm run fixtures:seed
+
+      - name: Export fixture tokens and IDs
+        run: node scripts/export-e2e-load-env.mjs
+
+      - name: Run staging mutation load test
+        run: npm run test:load:mutations
+
+      - name: Cleanup deterministic staging fixtures
+        if: always()
+        run: npm run fixtures:cleanup

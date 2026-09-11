@@ -1,0 +1,21 @@
+[
+  {
+    "AllowedOrigins": [
+      "https://comeplayers.com",
+      "https://www.comeplayers.com",
+      "http://localhost:3000"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "PUT",
+      "HEAD"
+    ],
+    "AllowedHeaders": [
+      "Content-Type"
+    ],
+    "ExposeHeaders": [
+      "ETag"
+    ],
+    "MaxAgeSeconds": 3600
+  }
+]

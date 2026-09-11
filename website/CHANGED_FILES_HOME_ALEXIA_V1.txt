@@ -1,0 +1,15 @@
+ALEXIA INTERACTIVE HOME V1
+
+REPLACE:
+- app/HomeClient.tsx
+- app/components/MainHeader.tsx
+- components/layout/SiteFooter.tsx
+
+ADD:
+- app/home.module.css
+- app/marketplace/page.tsx
+- app/marketplace/MarketplaceHomeClient.tsx
+- public/alexia/idle.webp
+- public/alexia/chat-hover.webp
+- public/alexia/marketplace-hover.webp
+- README_HOME_ALEXIA_REPLACE.txt

@@ -1,0 +1,10 @@
+ComePlayers Arcade V41 — CP Chess
+
+NEW:
+- website/components/arcade/ComePlayersChessGame.tsx
+- website/supabase/migrations/20260713224500_arcade_comeplayers_chess_v41.sql
+- website/ARCADE_V41_COMEPLAYERS_CHESS_INSTALL.md
+- website/CHANGED_FILES_V41.txt
+
+UPDATED:
+- website/components/arcade/ArcadeWindow.tsx

@@ -1,0 +1,424 @@
+.home {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #020304;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+:global(html.cp-home-active),
+:global(body.cp-home-no-chrome) {
+  min-height: 100%;
+  margin: 0;
+  background: #020304 !important;
+}
+
+:global(body.cp-home-no-chrome > header),
+:global(body.cp-home-no-chrome header),
+:global(body.cp-home-no-chrome > footer),
+:global(body.cp-home-no-chrome footer) {
+  display: none !important;
+}
+
+.stage {
+  --look-x: 0px;
+  --look-y: 0px;
+  --glow-x: 0px;
+  --glow-y: 0px;
+  position: relative;
+  width: min(100vw, calc(100svh * 1672 / 941));
+  height: min(100svh, calc(100vw * 941 / 1672));
+  aspect-ratio: 1672 / 941;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.72);
+  isolation: isolate;
+}
+
+.backgroundImage {
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.portalBlue,
+.portalGold {
+  position: absolute;
+  z-index: 1;
+  width: 26%;
+  height: 55%;
+  top: 20%;
+  border-radius: 24%;
+  filter: blur(18px);
+  opacity: 0.17;
+  pointer-events: none;
+  transform: translate(var(--glow-x), var(--glow-y));
+  transition: transform 180ms ease-out;
+  animation: portalPulse 4.8s ease-in-out infinite;
+}
+
+.portalBlue {
+  left: 24%;
+  background: radial-gradient(circle, rgba(44, 163, 255, 0.72), transparent 68%);
+}
+
+.portalGold {
+  right: 24%;
+  background: radial-gradient(circle, rgba(255, 190, 26, 0.74), transparent 68%);
+  animation-delay: -2.4s;
+}
+
+.characterMotion {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-image: url("/home-v14/dual-world-option-b.webp");
+  background-size: 100% 100%;
+  background-position: center;
+  clip-path: polygon(
+    44% 18%, 51% 18%, 57% 25%, 61% 39%, 59% 52%, 56% 61%,
+    56% 78%, 58% 94%, 41% 94%, 40% 78%, 39% 62%, 35% 52%,
+    35% 38%, 39% 26%
+  );
+  transform-origin: 50% 86%;
+  transform: translate(var(--look-x), var(--look-y));
+  animation: characterBreathing 4s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.98;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.07;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 3px,
+    rgba(255,255,255,0.12) 4px
+  );
+  mix-blend-mode: soft-light;
+}
+
+.actionButton,
+.supportButton,
+.downloadButton {
+  position: absolute;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: white;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.actionButton {
+  height: 7.8%;
+  border-radius: 0;
+  clip-path: polygon(4% 0, 96% 0, 100% 20%, 100% 80%, 96% 100%, 4% 100%, 0 80%, 0 20%);
+  gap: 10%;
+  font-size: clamp(0.72rem, 1.32vw, 1.35rem);
+  letter-spacing: 0.02em;
+}
+
+.actionButton b {
+  font-size: 1.8em;
+  line-height: 1;
+  transform: translateX(0);
+  transition: transform 180ms ease;
+}
+
+.actionButton:hover,
+.actionButton:focus-visible {
+  outline: none;
+  transform: translateY(-2px) scale(1.025);
+}
+
+.actionButton:hover b,
+.actionButton:focus-visible b {
+  transform: translateX(5px);
+}
+
+.chatButton {
+  left: 7.65%;
+  top: 60.75%;
+  width: 20.45%;
+  border-color: rgba(45, 174, 255, 0.78);
+  background: linear-gradient(180deg, rgba(16, 52, 82, 0.92), rgba(4, 20, 35, 0.95));
+  box-shadow: inset 0 0 18px rgba(39, 160, 255, 0.12);
+}
+
+.chatButton:hover,
+.chatButton:focus-visible {
+  border-color: #4cc2ff;
+  background: linear-gradient(180deg, rgba(22, 83, 132, 0.95), rgba(5, 31, 54, 0.97));
+  box-shadow: 0 0 28px rgba(39, 160, 255, 0.56), inset 0 0 22px rgba(39, 160, 255, 0.18);
+}
+
+.marketButton {
+  left: 69.85%;
+  top: 60.75%;
+  width: 21.0%;
+  border-color: rgba(255, 198, 30, 0.82);
+  color: #ffda59;
+  background: linear-gradient(180deg, rgba(70, 51, 4, 0.9), rgba(27, 18, 2, 0.96));
+  box-shadow: inset 0 0 18px rgba(255, 195, 25, 0.12);
+}
+
+.marketButton:hover,
+.marketButton:focus-visible {
+  border-color: #ffdc62;
+  color: white;
+  background: linear-gradient(180deg, rgba(105, 75, 5, 0.94), rgba(42, 28, 2, 0.97));
+  box-shadow: 0 0 28px rgba(255, 190, 24, 0.56), inset 0 0 22px rgba(255, 190, 24, 0.18);
+}
+
+.supportButton {
+  height: 7.1%;
+  border-radius: 0;
+  clip-path: polygon(7% 0, 93% 0, 100% 18%, 100% 82%, 93% 100%, 7% 100%, 0 82%, 0 18%);
+  gap: 8%;
+  font-size: clamp(0.55rem, 0.95vw, 1rem);
+  letter-spacing: 0.02em;
+}
+
+.supportButton span {
+  font-size: 1.35em;
+}
+
+.supportButton:hover,
+.supportButton:focus-visible,
+.downloadButton:hover,
+.downloadButton:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.howButton,
+.aboutButton {
+  border-color: rgba(52, 180, 255, 0.66);
+  background: linear-gradient(180deg, rgba(12, 48, 75, 0.92), rgba(3, 18, 30, 0.96));
+}
+
+.howButton:hover,
+.howButton:focus-visible,
+.aboutButton:hover,
+.aboutButton:focus-visible {
+  border-color: #4cc2ff;
+  box-shadow: 0 0 22px rgba(39, 160, 255, 0.46);
+}
+
+.helpButton,
+.contactButton {
+  border-color: rgba(255, 196, 30, 0.66);
+  background: linear-gradient(180deg, rgba(65, 48, 6, 0.92), rgba(24, 17, 2, 0.96));
+}
+
+.helpButton:hover,
+.helpButton:focus-visible,
+.contactButton:hover,
+.contactButton:focus-visible {
+  border-color: #ffda55;
+  box-shadow: 0 0 22px rgba(255, 190, 24, 0.44);
+}
+
+.howButton { left: 6.7%; top: 72.0%; width: 11.3%; }
+.aboutButton { left: 18.7%; top: 72.0%; width: 10.9%; }
+.helpButton { left: 68.8%; top: 72.0%; width: 11.2%; }
+.contactButton { left: 80.7%; top: 72.0%; width: 10.7%; }
+
+.downloadButton {
+  top: 90.9%;
+  height: 5.5%;
+  border-radius: 8px;
+  gap: 9%;
+  color: rgba(255,255,255,0.9);
+  background: rgba(6, 8, 11, 0.88);
+  font-size: clamp(0.55rem, 0.92vw, 0.95rem);
+  letter-spacing: 0.04em;
+}
+
+.downloadButton:hover,
+.downloadButton:focus-visible {
+  border-color: rgba(255,255,255,0.52);
+  background: rgba(18, 21, 27, 0.95);
+  box-shadow: 0 0 16px rgba(255,255,255,0.12);
+}
+
+.downloadButton span { font-size: 1.25em; }
+.windowsButton { left: 35.4%; width: 13.1%; }
+.androidButton { left: 49.5%; width: 13.1%; }
+
+.soundToggle {
+  position: absolute;
+  left: 1.4%;
+  bottom: 1.5%;
+  z-index: 20;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: rgba(255,255,255,0.78);
+  background: rgba(3, 4, 7, 0.76);
+  backdrop-filter: blur(10px);
+  font: inherit;
+  font-size: clamp(0.56rem, 0.75vw, 0.8rem);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.soundToggle[data-enabled="true"] {
+  border-color: rgba(255, 196, 45, 0.62);
+  color: #ffda63;
+  box-shadow: 0 0 18px rgba(255, 196, 45, 0.16);
+}
+
+.soundToggle kbd {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 20px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.55);
+  font: inherit;
+  font-size: 0.7em;
+}
+
+.notice {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6%;
+  z-index: 30;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: white;
+  background: rgba(0,0,0,0.76);
+  font-size: clamp(0.58rem, 0.74vw, 0.78rem);
+  pointer-events: none;
+}
+
+.notice:empty { display: none; }
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0,0,0,0.74);
+  backdrop-filter: blur(10px);
+}
+
+.modal {
+  position: relative;
+  width: min(520px, 100%);
+  border: 1px solid rgba(255, 197, 46, 0.45);
+  border-radius: 24px;
+  padding: 34px;
+  background:
+    linear-gradient(135deg, rgba(44,145,255,0.1), transparent 42%),
+    linear-gradient(315deg, rgba(255,190,28,0.11), transparent 42%),
+    #090b0f;
+  box-shadow: 0 24px 90px rgba(0,0,0,0.58), 0 0 34px rgba(255,190,28,0.12);
+}
+
+.modalEyebrow {
+  margin: 0 0 8px;
+  color: #ffc42d;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+}
+
+.modal h2 {
+  margin: 0 0 16px;
+  font-size: 2rem;
+}
+
+.modal p:last-child {
+  margin: 0;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.7;
+}
+
+.modalClose {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 50%;
+  color: white;
+  background: rgba(255,255,255,0.04);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+@keyframes portalPulse {
+  0%, 100% { opacity: 0.13; transform: translate(var(--glow-x), var(--glow-y)) scale(0.98); }
+  50% { opacity: 0.25; transform: translate(var(--glow-x), var(--glow-y)) scale(1.04); }
+}
+
+@keyframes characterBreathing {
+  0%, 100% { transform: translate(var(--look-x), var(--look-y)) scale(1); }
+  50% { transform: translate(var(--look-x), calc(var(--look-y) - 1px)) scale(1.0025); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portalBlue,
+  .portalGold,
+  .characterMotion {
+    animation: none;
+  }
+
+  .actionButton,
+  .supportButton,
+  .downloadButton {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  .home {
+    overflow: auto;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(31,135,235,0.2), transparent 35%),
+      radial-gradient(circle at 80% 80%, rgba(255,184,22,0.2), transparent 35%),
+      #05070b;
+  }
+
+  .stage {
+    width: 100vw;
+    height: auto;
+    min-height: calc(100vw * 941 / 1672);
+  }
+
+  .soundToggle span:nth-child(2),
+  .soundToggle kbd {
+    display: none;
+  }
+}

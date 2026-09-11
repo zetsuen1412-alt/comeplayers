@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "lib/rateGovernance.ts",
+    "lib/accounting.ts",
+    "lib/fx.ts",
+    "lib/paypalPayout.ts",
+    "lib/paypalPayoutServer.ts",
+    "lib/taxResidencyCrypto.ts",
+    "lib/adminOrderActions.ts",
+    "app/api/checkout/create-order/route.ts",
+    "app/api/orders/complete/route.ts",
+    "app/api/orders/[id]/invoice/route.ts",
+    "app/orders/[id]/invoice/page.tsx",
+    "app/api/cron/release-escrow/route.ts",
+    "app/api/withdrawals/route.ts",
+    "app/api/admin/withdrawals/route.ts",
+    "app/admin/withdrawals/page.tsx",
+    "app/api/admin/compliance/route.ts",
+    "app/admin/compliance/page.tsx",
+    "app/api/admin/operations/route.ts",
+    "app/api/seller/tax-profile/route.ts",
+    "app/seller/tax-profile/page.tsx",
+    "app/api/seller/tax-statements/route.ts",
+    "app/seller/tax-statements/page.tsx",
+    "app/seller/page.tsx",
+    "tests/rateGovernance.test.ts",
+    "tests/accounting.test.ts",
+    "tests/fx.test.ts",
+    "tests/paypalPayout.test.ts",
+    "app/api/withdrawals/quote/route.ts",
+    "app/seller/payouts/page.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

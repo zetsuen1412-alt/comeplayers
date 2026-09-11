@@ -1,0 +1,42 @@
+<!-- Subject: Selamat datang di ComePlayers — Verifikasi email Anda -->
+<!doctype html>
+<html lang="id">
+  <body style="margin:0;padding:0;background:#070b14;font-family:Arial,Helvetica,sans-serif;color:#e8eef8;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#070b14;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#0e1523;border:1px solid #263249;border-radius:18px;overflow:hidden;">
+            <tr>
+              <td align="center" style="padding:30px 32px 20px;background:#05080d;border-bottom:1px solid #263249;">
+                <img src="https://www.comeplayers.com/logo-transparent.png" width="246" alt="ComePlayers" style="display:block;width:246px;max-width:100%;height:auto;border:0;">
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:34px 38px 10px;">
+                <p style="margin:0 0 10px;color:#ffd400;font-size:13px;font-weight:700;letter-spacing:1.7px;text-transform:uppercase;">Registrasi berhasil diterima</p>
+                <h1 style="margin:0 0 18px;color:#ffffff;font-size:30px;line-height:1.25;">Selamat datang di ComePlayers!</h1>
+                <p style="margin:0 0 16px;color:#b9c5d8;font-size:16px;line-height:1.7;">Terima kasih telah bergabung. Tinggal satu langkah lagi untuk mengaktifkan akun Anda.</p>
+                <p style="margin:0 0 26px;color:#b9c5d8;font-size:16px;line-height:1.7;">Klik tombol di bawah untuk memverifikasi alamat email dan melanjutkan langsung ke ComePlayers.</p>
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 auto 28px;">
+                  <tr>
+                    <td align="center" bgcolor="#ffd400" style="border-radius:10px;">
+                      <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup&amp;next=/marketplace" style="display:inline-block;padding:15px 30px;color:#080b11;text-decoration:none;font-size:16px;font-weight:700;">Verifikasi Email</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#7f8da3;font-size:13px;line-height:1.6;">Jika tombol tidak berfungsi, salin tautan ini ke browser:</p>
+                <p style="margin:0;word-break:break-all;color:#8edfff;font-size:12px;line-height:1.6;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup&amp;next=/marketplace</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:26px 38px 30px;">
+                <p style="margin:0;color:#65748a;font-size:12px;line-height:1.6;">Jika Anda tidak membuat akun ini, abaikan email ini.</p>
+                <p style="margin:12px 0 0;color:#8a98ab;font-size:12px;">PT COME PLAYERS DIGITAL · ComePlayers</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

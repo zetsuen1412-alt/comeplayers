@@ -1,0 +1,157 @@
+.scene {
+  --mx: 0;
+  --my: 0;
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #02030d;
+  cursor: default;
+}
+
+.backdrop {
+  position: absolute;
+  inset: -2.5%;
+  z-index: 0;
+  background-image: url('/game-lobby/cyberpunk-home.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translate3d(calc(var(--mx) * -7px), calc(var(--my) * -4px), 0) scale(1.035);
+  transform-origin: center;
+  will-change: transform, filter;
+  animation: cinematicBreath 7s ease-in-out infinite;
+  transition: filter 350ms ease;
+}
+
+.scene[data-active='chat'] .backdrop { filter: brightness(1.08) saturate(1.08) hue-rotate(-4deg); }
+.scene[data-active='marketplace'] .backdrop { filter: brightness(1.08) saturate(1.1) hue-rotate(4deg); }
+.scene[data-active='pc'] .backdrop { filter: brightness(1.07) saturate(1.08); }
+.scene[data-active='android'] .backdrop { filter: brightness(1.07) saturate(1.06); }
+
+.rain {
+  position: absolute;
+  inset: -30%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .22;
+  background-image: repeating-linear-gradient(105deg, transparent 0 18px, rgba(95,145,255,.25) 19px, transparent 20px 38px);
+  background-size: 180px 260px;
+  animation: rainFall 1.25s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 72% 44%, transparent 0 28%, rgba(0,0,10,.05) 55%, rgba(0,0,8,.55) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.05), transparent 35%, rgba(0,0,0,.28));
+}
+
+.hotspots {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.hotspot {
+  position: absolute;
+  left: 10.3%;
+  width: 32.5%;
+  height: 16.8%;
+  border: 0;
+  border-radius: 20px;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  transition: transform 240ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms ease, background 260ms ease;
+  transform: translateZ(0) scale(1);
+}
+
+.hotspot span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.hotspot:hover,
+.hotspot:focus-visible {
+  transform: translateX(5px) scale(1.018);
+  background: rgba(80,90,255,.08);
+  box-shadow: 0 0 20px rgba(110,90,255,.65), 0 0 52px rgba(180,60,255,.45), inset 0 0 28px rgba(110,90,255,.16);
+}
+.hotspot:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+
+.chat { top: 15.4%; }
+.marketplace { top: 34.2%; }
+.pc { top: 53.1%; }
+.android { top: 71.7%; }
+
+.marketplace:hover,
+.marketplace:focus-visible { box-shadow: 0 0 20px rgba(255,40,200,.72), 0 0 52px rgba(255,40,200,.48), inset 0 0 28px rgba(255,40,200,.16); }
+.pc:hover,
+.pc:focus-visible { box-shadow: 0 0 20px rgba(40,150,255,.78), 0 0 52px rgba(40,150,255,.45), inset 0 0 28px rgba(40,150,255,.18); }
+.android:hover,
+.android:focus-visible { box-shadow: 0 0 20px rgba(65,255,120,.72), 0 0 52px rgba(65,255,120,.42), inset 0 0 28px rgba(65,255,120,.16); }
+
+.status {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(135,105,255,.45);
+  border-radius: 999px;
+  background: rgba(2,4,18,.62);
+  padding: 7px 11px;
+  color: rgba(226,220,255,.78);
+  font: 700 10px/1 system-ui, sans-serif;
+  letter-spacing: .13em;
+  backdrop-filter: blur(10px);
+}
+.statusDot { width: 7px; height: 7px; border-radius: 50%; background: #6dff9a; box-shadow: 0 0 12px #6dff9a; animation: pulse 1.8s ease-in-out infinite; }
+
+@keyframes cinematicBreath {
+  0%,100% { scale: 1; }
+  50% { scale: 1.004; }
+}
+@keyframes rainFall { from { transform: translate3d(0,-80px,0); } to { transform: translate3d(-30px,150px,0); } }
+@keyframes pulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+
+@media (max-aspect-ratio: 4/3) {
+  .backdrop { background-position: 57% center; }
+  .hotspot { left: 2.5%; width: 45%; }
+}
+
+@media (max-width: 720px) {
+  .scene { min-height: 100svh; }
+  .backdrop { background-position: 62% center; transform: scale(1.08); }
+  .hotspot { left: 3%; width: 47%; height: 14%; border-radius: 12px; }
+  .chat { top: 19%; }
+  .marketplace { top: 35%; }
+  .pc { top: 51%; }
+  .android { top: 67%; }
+  .status { display:none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .rain, .statusDot { animation: none !important; }
+  .backdrop { transform: scale(1.035); }
+}
+
+:global(body.cp-game-home > div),
+:global(body.cp-game-home > main) {
+  min-height: 100svh;
+}
+
+:global(body.cp-game-home header),
+:global(body.cp-game-home footer) {
+  display: none !important;
+}
+
+:global(body.cp-game-home) {
+  overflow: hidden;
+  background: #02030d;
+}

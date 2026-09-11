@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "plugins": []
+  },
+  "include": [
+    "next-env.d.ts",
+    "app/api/paypal/webhook/route.ts",
+    "app/api/admin/webhooks/paypal/replay/route.ts",
+    "app/api/admin/operations/route.ts",
+    "app/admin/operations/page.tsx",
+    "app/api/cron/reconcile-finance/route.ts",
+    "app/api/cron/expire-orders/route.ts",
+    "app/api/cron/mark-late-orders/route.ts",
+    "app/api/cron/release-escrow/route.ts",
+    "lib/alerting.ts",
+    "lib/operationalRuns.ts",
+    "lib/paypalWebhook.ts",
+    "lib/webhookInbox.ts",
+    "lib/reconciliationServer.ts",
+    "tests/alerting.test.ts",
+    "tests/paypalWebhook.test.ts"
+  ],
+  "exclude": ["node_modules"]
+}

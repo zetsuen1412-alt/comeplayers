@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "lib/tax.ts",
+    "lib/prohibitedProducts.ts",
+    "lib/productPolicyServer.ts",
+    "lib/providerSettlement.ts",
+    "lib/providerSettlementServer.ts",
+    "lib/fraudFeedback.ts",
+    "lib/riskFeedbackServer.ts",
+    "lib/privacyServer.ts",
+    "lib/commerceMetrics.ts",
+    "app/api/checkout/create-order/route.ts",
+    "app/api/seller/catalog/route.ts",
+    "app/api/seller/catalog/bulk/route.ts",
+    "app/api/orders/[id]/invoice/route.ts",
+    "app/api/account/privacy/route.ts",
+    "app/api/admin/compliance/route.ts",
+    "app/api/admin/disputes/route.ts",
+    "app/api/cron/commerce-compliance/route.ts",
+    "app/orders/[id]/invoice/page.tsx",
+    "app/account/privacy/page.tsx",
+    "app/admin/compliance/page.tsx",
+    "components/account/AccountShell.tsx",
+    "tests/tax.test.ts",
+    "tests/prohibitedProducts.test.ts",
+    "tests/providerSettlement.test.ts",
+    "tests/fraudFeedback.test.ts",
+    "tests/commerceMetrics.test.ts",
+    "app/api/account/billing/route.ts",
+    "app/account/billing/page.tsx",
+    "app/api/admin/operations/route.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

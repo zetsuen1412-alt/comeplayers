@@ -1,0 +1,645 @@
+.pet {
+  position: fixed;
+  right: clamp(14px, 2vw, 30px);
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 9999;
+  width: 177px;
+  height: 192px;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.petButton {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  border-radius: 46% 46% 28% 28%;
+  background: transparent;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+}
+
+.petButton:focus-visible {
+  outline: 2px solid #ffcc00;
+  outline-offset: 4px;
+}
+
+.sprite {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: block;
+  width: 192px;
+  height: 208px;
+  background-image: url("/pets/alexia/spritesheet.webp");
+  background-repeat: no-repeat;
+  background-position: var(--alexia-sprite-x) var(--alexia-sprite-y);
+  image-rendering: pixelated;
+  filter: drop-shadow(0 12px 11px rgba(0, 0, 0, 0.72));
+  transform: scale(0.92);
+  transform-origin: right bottom;
+  transition: filter 180ms ease, transform 180ms ease;
+  pointer-events: none;
+}
+
+.petButton:hover .sprite,
+.petButton:focus-visible .sprite {
+  filter:
+    drop-shadow(0 15px 12px rgba(0, 0, 0, 0.78))
+    drop-shadow(0 0 8px rgba(255, 204, 0, 0.2));
+  transform: translateY(-5px) scale(0.92);
+}
+
+.dragging .petButton {
+  cursor: grabbing;
+}
+
+.dragging .sprite,
+.dragging .petButton:hover .sprite {
+  filter:
+    drop-shadow(0 18px 14px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 12px rgba(255, 204, 0, 0.38));
+  transform: translateY(-8px) scale(0.94);
+}
+
+.perch {
+  position: absolute;
+  right: 34px;
+  bottom: 2px;
+  z-index: 1;
+  width: 64px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.88), transparent);
+  box-shadow: 0 0 14px rgba(255, 204, 0, 0.3);
+  opacity: 0.9;
+}
+
+.bubble {
+  position: absolute;
+  right: 18px;
+  bottom: calc(100% - 16px);
+  z-index: 3;
+  display: grid;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 36px));
+  gap: 3px;
+  padding: 10px 13px;
+  border: 1px solid rgba(255, 204, 0, 0.55);
+  border-radius: 14px 14px 4px 14px;
+  background: rgba(5, 5, 5, 0.94);
+  color: #e5e7eb;
+  box-shadow: 0 15px 34px rgba(0, 0, 0, 0.48), 0 0 18px rgba(255, 204, 0, 0.08);
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+  transform-origin: right bottom;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.bubble::after {
+  position: absolute;
+  right: 10px;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  border-right: 1px solid rgba(255, 204, 0, 0.55);
+  border-bottom: 1px solid rgba(255, 204, 0, 0.55);
+  background: #050505;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.petOnLeft .bubble {
+  right: auto;
+  left: 18px;
+  border-radius: 14px 14px 14px 4px;
+  transform-origin: left bottom;
+}
+
+.petOnLeft .bubble::after {
+  right: auto;
+  left: 10px;
+}
+
+.petNearTop .bubble {
+  top: calc(100% - 16px);
+  bottom: auto;
+  transform-origin: right top;
+}
+
+.petNearTop.petOnLeft .bubble {
+  transform-origin: left top;
+}
+
+.petNearTop .bubble::after {
+  top: -7px;
+  bottom: auto;
+  border: 0;
+  border-top: 1px solid rgba(255, 204, 0, 0.55);
+  border-left: 1px solid rgba(255, 204, 0, 0.55);
+}
+
+.bubble strong {
+  color: #ffcc00;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bubble span {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.bubbleVisible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.chatPanel {
+  position: absolute;
+  right: 8px;
+  bottom: calc(100% - 18px);
+  z-index: 5;
+  display: grid;
+  width: min(380px, calc(100vw - 24px));
+  max-height: min(540px, calc(100vh - 32px));
+  overflow: hidden;
+  border: 1px solid rgba(255, 204, 0, 0.48);
+  border-radius: 20px 20px 5px 20px;
+  background:
+    radial-gradient(circle at 12% 0, rgba(18, 180, 255, 0.14), transparent 32%),
+    linear-gradient(160deg, rgba(8, 19, 34, 0.98), rgba(4, 7, 14, 0.99));
+  color: #edf5ff;
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.66),
+    0 0 36px rgba(255, 204, 0, 0.1),
+    inset 0 1px rgba(255, 255, 255, 0.04);
+  pointer-events: auto;
+  transform-origin: right bottom;
+  animation: chatPanelIn 180ms ease-out;
+}
+
+.chatPanel::after {
+  position: absolute;
+  right: 16px;
+  bottom: -7px;
+  width: 13px;
+  height: 13px;
+  border-right: 1px solid rgba(255, 204, 0, 0.48);
+  border-bottom: 1px solid rgba(255, 204, 0, 0.48);
+  background: #050910;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.petOnLeft .chatPanel {
+  right: auto;
+  left: 8px;
+  border-radius: 20px 20px 20px 5px;
+  transform-origin: left bottom;
+}
+
+.petOnLeft .chatPanel::after {
+  right: auto;
+  left: 16px;
+}
+
+.petNearTop .chatPanel {
+  top: calc(100% - 18px);
+  bottom: auto;
+  transform-origin: right top;
+}
+
+.petNearTop.petOnLeft .chatPanel {
+  transform-origin: left top;
+}
+
+.petNearTop .chatPanel::after {
+  top: -7px;
+  bottom: auto;
+  border: 0;
+  border-top: 1px solid rgba(255, 204, 0, 0.48);
+  border-left: 1px solid rgba(255, 204, 0, 0.48);
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(115, 190, 238, 0.16);
+  background: rgba(3, 8, 17, 0.52);
+}
+
+.chatProfile {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  overflow: visible;
+  border: 2px solid rgba(255, 204, 0, 0.78);
+  border-radius: 50%;
+  background: #111827;
+  box-shadow: 0 0 22px rgba(255, 201, 24, 0.24);
+}
+
+.chatProfileImage {
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.chatProfile > i {
+  position: absolute;
+  right: -1px;
+  bottom: 0;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #07101c;
+  border-radius: 50%;
+  background: #45e7a7;
+  box-shadow: 0 0 8px #45e7a7;
+}
+
+.chatHeader > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.chatHeader strong {
+  color: #ffcf22;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+}
+
+.chatHeader small {
+  color: #91a9c5;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chatClose {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgba(140, 184, 222, 0.18);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #a8bad0;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.chatClose:hover,
+.chatClose:focus-visible {
+  border-color: rgba(255, 204, 0, 0.55);
+  color: #ffcf22;
+  outline: 0;
+}
+
+.chatMessages {
+  display: flex;
+  min-height: 150px;
+  max-height: 286px;
+  flex-direction: column;
+  gap: 9px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 13px;
+  scrollbar-color: rgba(91, 211, 255, 0.38) transparent;
+  scrollbar-width: thin;
+}
+
+.chatMessage {
+  width: fit-content;
+  max-width: 91%;
+  padding: 9px 11px;
+  border: 1px solid rgba(116, 187, 232, 0.15);
+  border-radius: 13px 13px 13px 4px;
+  background: rgba(18, 37, 59, 0.86);
+}
+
+.chatMessageRow {
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.userMessageRow {
+  justify-content: flex-end;
+}
+
+.messageAvatar {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid rgba(255, 204, 0, 0.6);
+  border-radius: 50%;
+  background: #111827;
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.12);
+}
+
+.messageAvatar img {
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.chatMessage b {
+  display: block;
+  margin-bottom: 3px;
+  color: #6fe0ff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.chatMessage p {
+  margin: 0;
+  color: #d8e4f2;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.userMessage {
+  align-self: flex-end;
+  border-color: rgba(255, 204, 0, 0.28);
+  border-radius: 13px 13px 4px 13px;
+  background: rgba(76, 58, 8, 0.72);
+}
+
+.userMessage b {
+  color: #ffd32b;
+}
+
+.chatTyping {
+  min-width: 164px;
+}
+
+.chatTyping > span {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.chatTyping > span i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #67dcff;
+  animation: chatDot 1s infinite;
+}
+
+.chatTyping > span i:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.chatTyping > span i:nth-child(3) {
+  animation-delay: 280ms;
+}
+
+.chatError {
+  border: 1px solid rgba(255, 106, 132, 0.32);
+  border-radius: 10px;
+  background: rgba(88, 18, 38, 0.48);
+  padding: 8px 10px;
+  color: #ffb2bf;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.chatRecommendations {
+  display: grid;
+  gap: 6px;
+  padding: 0 13px 10px;
+}
+
+.chatRecommendations > p {
+  margin: 0;
+  color: #7f95af;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chatPrompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 0 2px;
+}
+
+.chatPrompts button {
+  flex: none;
+  border: 1px solid rgba(83, 210, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(18, 54, 79, 0.54);
+  padding: 6px 9px;
+  color: #a5eaff;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.chatPrompts button:hover {
+  border-color: #61dcff;
+}
+
+.chatPrompts button:focus-visible {
+  border-color: #ffcf22;
+  outline: 2px solid rgba(255, 204, 0, 0.25);
+  outline-offset: 2px;
+}
+
+.chatPrompts button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.chatComposer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 13px;
+  border: 1px solid rgba(95, 207, 255, 0.3);
+  border-radius: 12px;
+  background: #050b14;
+  padding: 5px 5px 5px 10px;
+}
+
+.chatComposer:focus-within {
+  border-color: rgba(255, 204, 0, 0.68);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.06);
+}
+
+.chatComposer input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f7fbff;
+  font: inherit;
+  font-size: 12px;
+}
+
+.chatComposer input::placeholder {
+  color: #6f85a1;
+}
+
+.chatComposer button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #ffd52c, #ffb900);
+  color: #07101c;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.chatComposer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.chatSafety {
+  margin: 7px 13px 11px;
+  color: #6f829d;
+  font-size: 9px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+@keyframes chatPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes chatDot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.7);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 767px) {
+  .spreadsheetImport {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .pet {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    width: 129px;
+    height: 139px;
+  }
+
+  .sprite {
+    transform: scale(0.67);
+  }
+
+  .petButton:hover .sprite,
+  .petButton:focus-visible .sprite {
+    transform: translateY(-3px) scale(0.67);
+  }
+
+  .dragging .sprite,
+  .dragging .petButton:hover .sprite {
+    transform: translateY(-5px) scale(0.69);
+  }
+
+  .perch {
+    right: 22px;
+    width: 48px;
+  }
+
+  .bubble {
+    right: 8px;
+    bottom: calc(100% - 8px);
+    max-width: min(220px, calc(100vw - 24px));
+  }
+
+  .petOnLeft .bubble {
+    right: auto;
+    left: 8px;
+  }
+
+  .petNearTop .bubble {
+    top: calc(100% - 8px);
+    bottom: auto;
+  }
+
+  .chatPanel {
+    right: 0;
+    bottom: calc(100% - 10px);
+    width: min(348px, calc(100vw - 16px));
+    max-height: min(520px, calc(100vh - 20px));
+    border-radius: 17px 17px 5px 17px;
+  }
+
+  .petOnLeft .chatPanel {
+    right: auto;
+    left: 0;
+    border-radius: 17px 17px 17px 5px;
+  }
+
+  .petNearTop .chatPanel {
+    top: calc(100% - 10px);
+    bottom: auto;
+  }
+
+  .chatMessages {
+    max-height: min(255px, 36vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprite,
+  .bubble,
+  .chatPanel {
+    transition: none;
+    animation: none;
+  }
+}

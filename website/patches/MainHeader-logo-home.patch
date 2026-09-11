@@ -1,0 +1,16 @@
+diff --git a/app/components/MainHeader.tsx b/app/components/MainHeader.tsx
+--- a/app/components/MainHeader.tsx
++++ b/app/components/MainHeader.tsx
+@@
+-          <Link href="/marketplace" className="flex items-center">
++          <Link
++            href="/"
++            aria-label="Go to ComePlayers home"
++            className="flex items-center"
++          >
+             <img
+               src="/logo.png?v=2"
+               alt="ComePlayers"
+               className="h-16 w-auto object-contain md:h-20"
+             />
+           </Link>

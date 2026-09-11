@@ -1,0 +1,11 @@
+ComePlayers Order Delivery Proof V33
+
+Changed / added files:
+- website/app/orders/[id]/page.tsx
+- website/app/api/orders/[id]/route.ts
+- website/app/api/orders/deliver/route.ts
+- website/app/api/orders/delivery-attachments/route.ts
+- website/lib/deliveryCrypto.ts
+- website/lib/orderDeliveryAttachmentPolicy.ts
+
+No database migration is required. Delivery proof metadata is stored inside the existing encrypted order delivery vault payload. Files are stored privately in Cloudflare R2 and exposed to the buyer/seller through short-lived signed URLs.

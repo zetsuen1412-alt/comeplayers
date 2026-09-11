@@ -1,0 +1,440 @@
+.loaderPage {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #020407;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.frame {
+  position: relative;
+  width: min(100vw, calc(100svh * 1672 / 941));
+  height: min(100svh, calc(100vw * 941 / 1672));
+  aspect-ratio: 1672 / 941;
+  overflow: hidden;
+  background: #020407;
+  box-shadow: 0 0 90px rgba(0, 0, 0, 0.88);
+  isolation: isolate;
+}
+
+.artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+.overlay,
+.portalEnergy,
+.portalCore,
+.scanline {
+  position: absolute;
+  pointer-events: none;
+}
+
+.overlay {
+  inset: 0;
+  z-index: 4;
+}
+
+.portalEnergy {
+  left: 46.4%;
+  top: 4.8%;
+  width: 46%;
+  height: 72%;
+  z-index: 2;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg 18deg,
+      rgba(255, 208, 57, 0.24) 26deg 52deg,
+      transparent 61deg 102deg,
+      rgba(255, 174, 0, 0.18) 112deg 149deg,
+      transparent 160deg 219deg,
+      rgba(255, 220, 89, 0.22) 232deg 276deg,
+      transparent 286deg 340deg,
+      rgba(255, 190, 19, 0.22) 350deg
+    );
+  filter: blur(4px);
+  mix-blend-mode: screen;
+  animation: portalSpin 8s linear infinite;
+}
+
+.portalCore {
+  left: 57.1%;
+  top: 17.2%;
+  width: 25%;
+  height: 44%;
+  z-index: 2;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 196, 23, 0.14),
+    rgba(255, 161, 0, 0.035) 44%,
+    transparent 70%
+  );
+  box-shadow: 0 0 5vw rgba(255, 176, 0, 0.24);
+  mix-blend-mode: screen;
+  animation: portalPulse 1.8s ease-in-out infinite alternate;
+}
+
+.scanline {
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: -28%;
+  height: 20%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(70, 182, 255, 0.07),
+    rgba(255, 203, 57, 0.11),
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: scanlineMove 6s linear infinite;
+}
+
+/*
+  This panel deliberately covers the baked-in status list from the approved
+  artwork so the live status never overlaps or duplicates the image text.
+*/
+.statusPanel {
+  position: absolute;
+  left: 2.85%;
+  top: 55.3%;
+  width: 22.7%;
+  height: 31.5%;
+  padding: 1.2% 1.2% 1%;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(2, 6, 11, 0.985) 0%,
+      rgba(2, 7, 12, 0.97) 76%,
+      rgba(2, 7, 12, 0.82) 90%,
+      transparent 100%
+    );
+  border-left: 1px solid rgba(255, 190, 24, 0.18);
+}
+
+.statusList {
+  display: grid;
+  gap: clamp(12px, 1.23vw, 21px);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 0.78em;
+  min-height: clamp(28px, 2.65vw, 44px);
+  color: rgba(255, 255, 255, 0.58);
+  font-size: clamp(12px, 1.24vw, 21px);
+  line-height: 1.15;
+  transition:
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+.statusIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: clamp(24px, 2.4vw, 40px);
+  height: clamp(24px, 2.4vw, 40px);
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.42);
+  color: #071019;
+  font-size: clamp(12px, 1.25vw, 20px);
+  font-weight: 900;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.025);
+}
+
+.statusItemDone {
+  color: rgba(255, 255, 255, 0.93);
+}
+
+.statusIconDone {
+  border-color: #58ddff;
+  background: #071c2a;
+  color: #63e6ff;
+  box-shadow:
+    0 0 15px rgba(52, 207, 255, 0.68),
+    inset 0 0 10px rgba(38, 182, 255, 0.18);
+}
+
+.statusItemActive {
+  color: #ffd33f;
+  text-shadow: 0 0 12px rgba(255, 194, 22, 0.24);
+}
+
+.statusIconActive {
+  border-color: #ffd845;
+  background: #281a02;
+  color: transparent;
+  box-shadow:
+    0 0 19px rgba(255, 205, 49, 0.86),
+    inset 0 0 10px rgba(255, 194, 13, 0.22);
+  animation: statusPulse 1.05s ease-in-out infinite;
+}
+
+.statusIconActive::after {
+  content: "";
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: #ffd33f;
+  box-shadow: 0 0 12px rgba(255, 220, 91, 0.9);
+}
+
+/*
+  The dynamic card fully covers the static 68% card in the image. This keeps
+  the approved artwork while guaranteeing a single clean progress display.
+*/
+.progressCard {
+  position: absolute;
+  left: 18.45%;
+  top: 72.3%;
+  width: 63.4%;
+  min-height: 21.9%;
+  padding: 1.45% 4.2% 1.2%;
+  background:
+    linear-gradient(180deg, rgba(8, 14, 20, 0.995), rgba(3, 7, 11, 0.995));
+  border: 1px solid rgba(255, 184, 19, 0.5);
+  box-shadow:
+    0 0 34px rgba(0, 0, 0, 0.58),
+    inset 0 0 52px rgba(255, 184, 18, 0.025),
+    0 0 28px rgba(255, 176, 0, 0.07);
+  clip-path: polygon(
+    4.2% 0,
+    95.8% 0,
+    100% 23%,
+    100% 77%,
+    95.8% 100%,
+    4.2% 100%,
+    0 77%,
+    0 23%
+  );
+}
+
+.progressTitle {
+  margin-bottom: 0.62em;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.94);
+  font-weight: 800;
+  font-size: clamp(15px, 1.65vw, 28px);
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.12);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 3.1%;
+}
+
+.progressTrack {
+  position: relative;
+  flex: 1;
+  height: clamp(18px, 2vw, 33px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 196, 46, 0.55);
+  border-radius: 3px;
+  background: rgba(1, 5, 9, 0.98);
+  box-shadow:
+    inset 0 0 14px rgba(0, 0, 0, 0.9),
+    0 0 0 5px rgba(255, 185, 16, 0.08);
+}
+
+.progressBar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(
+      115deg,
+      #ffd24a 0 24px,
+      #ffad08 24px 48px
+    );
+  box-shadow:
+    0 0 18px rgba(255, 184, 17, 0.68),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
+  transition: width 90ms linear;
+  animation: barFlow 650ms linear infinite;
+}
+
+.progressGlow {
+  position: absolute;
+  top: 50%;
+  width: clamp(18px, 1.75vw, 28px);
+  height: clamp(18px, 1.75vw, 28px);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 252, 225, 1),
+    rgba(255, 216, 75, 0.86) 32%,
+    rgba(255, 188, 19, 0.12) 68%,
+    transparent 72%
+  );
+  filter: blur(0.4px);
+  transition: left 90ms linear;
+}
+
+.progressValue {
+  min-width: 14%;
+  text-align: right;
+  color: #ffc83d;
+  font-weight: 900;
+  font-size: clamp(20px, 2.9vw, 48px);
+  line-height: 1;
+  text-shadow: 0 0 18px rgba(255, 188, 23, 0.32);
+}
+
+.bottomSpecs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 1.75vw, 30px);
+  margin-top: 1.12em;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: clamp(8px, 0.95vw, 16px);
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+}
+
+.specItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+}
+
+.specIcon {
+  display: inline-grid;
+  place-items: center;
+  width: clamp(20px, 2vw, 32px);
+  height: clamp(20px, 2vw, 32px);
+  border: 2px solid rgba(255, 193, 24, 0.82);
+  border-radius: 50%;
+  color: #ffd23f;
+  font-weight: 900;
+}
+
+.specDivider {
+  width: 1px;
+  height: clamp(18px, 2vw, 32px);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.marketplaceReveal {
+  animation: revealMarketplace 420ms ease-out both;
+}
+
+@keyframes portalSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes portalPulse {
+  from {
+    opacity: 0.55;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes scanlineMove {
+  to {
+    transform: translateY(720%);
+  }
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px rgba(255, 198, 38, 0.5);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 24px rgba(255, 218, 91, 0.98);
+  }
+}
+
+@keyframes barFlow {
+  to {
+    background-position: 48px 0;
+  }
+}
+
+@keyframes revealMarketplace {
+  from {
+    opacity: 0;
+    transform: scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 720px) {
+  .statusPanel {
+    left: 2.2%;
+    width: 25%;
+  }
+
+  .statusItem {
+    font-size: clamp(8px, 1.8vw, 13px);
+    gap: 0.45em;
+  }
+
+  .statusIcon {
+    width: clamp(18px, 3vw, 25px);
+    height: clamp(18px, 3vw, 25px);
+  }
+
+  .progressCard {
+    left: 16.8%;
+    width: 66.4%;
+    padding-inline: 4.8%;
+  }
+
+  .bottomSpecs {
+    gap: 8px;
+    font-size: clamp(6px, 1.45vw, 10px);
+  }
+
+  .specIcon {
+    width: 18px;
+    height: 18px;
+    border-width: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portalEnergy,
+  .portalCore,
+  .scanline,
+  .progressBar,
+  .statusIconActive,
+  .marketplaceReveal {
+    animation: none !important;
+  }
+}

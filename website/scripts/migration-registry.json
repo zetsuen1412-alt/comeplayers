@@ -1,0 +1,436 @@
+{
+  "schemaVersion": 1,
+  "project": "ComePlayers",
+  "migrations": [
+    {
+      "id": "v2_1",
+      "title": "Transaction core prerequisite",
+      "file": "scripts/comeplayers_transaction_core_v2_1.sql",
+      "dependsOn": [],
+      "status": "active"
+    },
+    {
+      "id": "v3",
+      "title": "Foundation",
+      "file": "scripts/comeplayers_foundation_v3.sql",
+      "dependsOn": [
+        "v2_1"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v4",
+      "title": "Security boundary",
+      "file": "scripts/comeplayers_security_boundary_v4.sql",
+      "dependsOn": [
+        "v3"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v5",
+      "title": "Security boundary hardening",
+      "file": "scripts/comeplayers_security_boundary_v5.sql",
+      "dependsOn": [
+        "v4"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v6",
+      "title": "Encrypted delivery boundary",
+      "file": "scripts/comeplayers_security_boundary_v6.sql",
+      "dependsOn": [
+        "v5"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v7",
+      "title": "Stock reservation",
+      "file": "scripts/comeplayers_stock_reservation_v7.sql",
+      "dependsOn": [
+        "v6"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v8",
+      "title": "Seller service levels",
+      "file": "scripts/comeplayers_seller_service_levels_v8.sql",
+      "dependsOn": [
+        "v7"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v9",
+      "title": "Dispute resolution",
+      "file": "scripts/comeplayers_dispute_resolution_v9.sql",
+      "dependsOn": [
+        "v8"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v10",
+      "title": "Seller payout center",
+      "file": "scripts/comeplayers_seller_payout_center_v10.sql",
+      "dependsOn": [
+        "v9"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v11",
+      "title": "Trust and risk security",
+      "file": "scripts/comeplayers_trust_risk_security_v11.sql",
+      "dependsOn": [
+        "v10"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v12",
+      "title": "Messaging anti-scam",
+      "file": "scripts/comeplayers_messaging_antiscam_v12.sql",
+      "dependsOn": [
+        "v11"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v13",
+      "title": "Catalog variants",
+      "file": "scripts/comeplayers_catalog_variants_v13.sql",
+      "dependsOn": [
+        "v12"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v14",
+      "title": "Search ranking",
+      "file": "scripts/comeplayers_search_ranking_v14.sql",
+      "dependsOn": [
+        "v13"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v14_1",
+      "title": "Search ranking review summary",
+      "file": "scripts/comeplayers_search_ranking_v14_1.sql",
+      "dependsOn": [
+        "v14"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v15",
+      "title": "Verified reviews",
+      "file": null,
+      "dependsOn": [
+        "v14_1"
+      ],
+      "status": "documented_gap",
+      "notes": "Referenced by V16 install docs, but no V15 migration or install document is present in this repository."
+    },
+    {
+      "id": "v16",
+      "title": "Seller storefront",
+      "file": "scripts/comeplayers_seller_storefront_v16.sql",
+      "dependsOn": [
+        "v15"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v17",
+      "title": "Bulk listing import",
+      "file": null,
+      "dependsOn": [
+        "v16"
+      ],
+      "status": "no_schema_change",
+      "notes": "V17 is implemented in application code and docs without a database migration."
+    },
+    {
+      "id": "v18",
+      "title": "Production operations",
+      "file": "scripts/comeplayers_production_operations_v18.sql",
+      "dependsOn": [
+        "v17"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v19",
+      "title": "Launch readiness",
+      "file": "scripts/comeplayers_launch_readiness_v19.sql",
+      "dependsOn": [
+        "v18"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v20",
+      "title": "Controlled launch",
+      "file": "scripts/comeplayers_controlled_launch_v20.sql",
+      "dependsOn": [
+        "v19"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v21",
+      "title": "Commerce compliance",
+      "file": "scripts/comeplayers_commerce_compliance_v21.sql",
+      "dependsOn": [
+        "v20"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v22",
+      "title": "Seller tax and withdrawal withholding",
+      "file": "scripts/comeplayers_seller_tax_withholding_v22.sql",
+      "dependsOn": [
+        "v21"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23",
+      "title": "Finance governance",
+      "file": "scripts/comeplayers_finance_governance_v23.sql",
+      "dependsOn": [
+        "v22"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23_2",
+      "title": "IGDB catalog foundation",
+      "file": "scripts/comeplayers_igdb_catalog_v23_2.sql",
+      "dependsOn": [
+        "v23"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23_3",
+      "title": "Checkout product-level variant record fix",
+      "file": "scripts/comeplayers_checkout_variant_null_fix_v23_3.sql",
+      "dependsOn": [
+        "v23_2"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23_4",
+      "title": "Checkout coupon record safety fix",
+      "file": "scripts/comeplayers_checkout_coupon_record_fix_v23_4.sql",
+      "dependsOn": [
+        "v23_3"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23_5",
+      "title": "Profiles full name compatibility",
+      "file": "scripts/comeplayers_profiles_full_name_v23_5.sql",
+      "dependsOn": [
+        "v23_4"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23_6",
+      "title": "Wallet transaction type compatibility",
+      "file": "scripts/comeplayers_wallet_transaction_types_v23_6.sql",
+      "dependsOn": [
+        "v23_5"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v23_7",
+      "title": "Seller bulk catalog import history",
+      "file": "scripts/comeplayers_bulk_import_history_v23_7.sql",
+      "dependsOn": [
+        "v23_6"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v24",
+      "title": "Community group chat and group live streaming",
+      "file": "supabase/migrations/20260704201820_comeplayers_group_chat_streaming_v24.sql",
+      "dependsOn": [
+        "v23_7"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v24_1",
+      "title": "Marketplace analytics security hardening",
+      "file": "supabase/migrations/20260705150000_comeplayers_security_hardening_v24_1.sql",
+      "dependsOn": [
+        "v24"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v25",
+      "title": "Discord-style chat replies reactions and typing",
+      "file": "supabase/migrations/20260706234444_discord_message_interactions_v25.sql",
+      "dependsOn": [
+        "v24_1"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v26",
+      "title": "Mobile chat push notification tokens",
+      "file": "supabase/migrations/20260707010000_chat_push_tokens_v26.sql",
+      "dependsOn": [
+        "v25"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v27",
+      "title": "Discord community categories channels roles and permissions",
+      "file": "supabase/migrations/20260708130000_discord_community_foundation_v27.sql",
+      "dependsOn": [
+        "v26"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v28",
+      "title": "LiveKit voice channels",
+      "file": null,
+      "dependsOn": [
+        "v27"
+      ],
+      "status": "no_schema_change"
+    },
+    {
+      "id": "v29",
+      "title": "LiveKit video screen sharing and voice moderation permissions",
+      "file": "supabase/migrations/20260708160000_messages_livekit_video_moderation_v29.sql",
+      "dependsOn": [
+        "v28"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v30",
+      "title": "Upstash realtime chat transport",
+      "file": null,
+      "dependsOn": [
+        "v29"
+      ],
+      "status": "no_schema_change"
+    },
+    {
+      "id": "v31",
+      "title": "R2 chat attachment storage",
+      "file": null,
+      "dependsOn": [
+        "v30"
+      ],
+      "status": "no_schema_change"
+    },
+    {
+      "id": "v32",
+      "title": "Messages worker delivery pipeline",
+      "file": null,
+      "dependsOn": [
+        "v31"
+      ],
+      "status": "no_schema_change"
+    },
+    {
+      "id": "v33",
+      "title": "Member-owned groups squad finder and leader hierarchy",
+      "file": "supabase/migrations/20260710190000_messages_identity_squad_leaders_v33.sql",
+      "dependsOn": [
+        "v32"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v34",
+      "title": "Consent-based party invitations and random matchmaking",
+      "file": "supabase/migrations/20260711183000_messages_invite_accept_matchmaking_v34.sql",
+      "dependsOn": [
+        "v33"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v35",
+      "title": "Marketplace game category and server browsing UI",
+      "file": null,
+      "dependsOn": [
+        "v34"
+      ],
+      "status": "no_schema_change"
+    },
+    {
+      "id": "v36",
+      "title": "Marketplace faction-aware server and seller filters",
+      "file": "supabase/migrations/20260711223000_marketplace_offer_faction_v36.sql",
+      "dependsOn": [
+        "v35"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "v37",
+      "title": "Seller-selected pricing with USD marketplace base",
+      "file": "supabase/migrations/20260903170000_product_pricing_usd_v37.sql",
+      "dependsOn": [
+        "v36"
+      ],
+      "status": "active"
+    }
+  ],
+  "standaloneSql": [
+    {
+      "id": "recently_viewed",
+      "file": "scripts/create-recently-viewed.sql",
+      "dependsOn": [
+        "v3"
+      ],
+      "status": "unsequenced"
+    },
+    {
+      "id": "recently_viewed_games",
+      "file": "scripts/create-recently-viewed-games.sql",
+      "dependsOn": [
+        "v3"
+      ],
+      "status": "unsequenced"
+    },
+    {
+      "id": "marketplace_events",
+      "file": "scripts/create-marketplace-events.sql",
+      "dependsOn": [
+        "v13"
+      ],
+      "status": "unsequenced"
+    },
+    {
+      "id": "delivery_vault_backfill",
+      "file": "scripts/comeplayers_order_delivery_migration.sql",
+      "dependsOn": [
+        "v6"
+      ],
+      "status": "backfill"
+    }
+  ]
+}

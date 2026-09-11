@@ -1,0 +1,13 @@
+ComePlayers Arcade V38
+
+REPLACED / INCLUDED:
+- website/app/messages/page.tsx
+- website/app/arcade/page.tsx
+- website/app/arcade/ArcadeClient.tsx
+- website/components/arcade/ArcadeGames.tsx
+- website/app/sitemap.ts
+- website/ARCADE_V38_INSTALL.md
+- website/CHANGED_FILES_V38.txt
+
+RESULT:
+- All 10 browser games are available from the Games dropdown and the /arcade page.

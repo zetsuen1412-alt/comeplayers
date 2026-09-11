@@ -1,0 +1,42 @@
+name: ComePlayers CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Playwright TypeScript
+        run: npm run typecheck:e2e
+
+      - name: Playwright collection
+        run: npx playwright test --list
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Automated tests
+        run: npm run test
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high

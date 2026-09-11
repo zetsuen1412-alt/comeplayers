@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CP Empires &amp; Allies</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 50% 0%,rgba(34,211,238,.13),transparent 40%),#02070d; color: white; font-family: Inter,system-ui,sans-serif; }
+    main { max-width: 620px; padding: 34px; border: 1px solid rgba(248,113,113,.25); border-radius: 28px; background: rgba(7,19,31,.94); text-align: center; box-shadow: 0 30px 90px rgba(0,0,0,.6); }
+    .icon { margin: 0 auto; display: grid; place-items: center; width: 70px; height: 70px; border-radius: 22px; border: 1px solid rgba(248,113,113,.35); background: rgba(248,113,113,.1); color: #fecaca; font-size: 28px; font-weight: 1000; }
+    h1 { margin: 22px 0 0; font-size: 30px; }
+    p { margin: 12px 0 0; color: #cbd5e1; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="icon">!</div>
+    <h1>Unable to enter the campaign</h1>
+    <p>{{ message }}</p>
+  </main>
+</body>
+</html>

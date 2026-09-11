@@ -1,0 +1,20 @@
+ComePlayers Marketplace Game Flow V35
+
+NEW
+website/components/marketplace/GameCategoryServerBrowser.tsx
+website/lib/marketplaceTaxonomy.ts
+website/tests/marketplaceTaxonomy.test.ts
+website/tests/marketplaceGameFlow.test.ts
+MARKETPLACE_GAME_FLOW_V35_INSTALL.md
+CHANGED_FILES_V35.txt
+
+UPDATED
+website/app/games/[slug]/page.tsx
+website/app/games/[slug]/offers/page.tsx
+website/app/games/[slug]/offers/GameOffersClient.tsx
+website/app/api/products/by-game/route.ts
+website/app/seller/products/new/ProductUploadClient.tsx
+website/lib/offerRanking.ts
+
+DATABASE MIGRATION
+None required.

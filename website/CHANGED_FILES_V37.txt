@@ -1,0 +1,7 @@
+ARCADE_V37_INSTALL.md
+CHANGED_FILES_V37.txt
+app/arcade/page.tsx
+app/arcade/ArcadeClient.tsx
+components/arcade/ArcadeGames.tsx
+app/messages/page.tsx
+app/sitemap.ts

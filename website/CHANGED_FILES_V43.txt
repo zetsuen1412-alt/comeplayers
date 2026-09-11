@@ -1,0 +1,10 @@
+ComePlayers Arcade V43 — CP Monopoly
+
+Added:
+- website/components/arcade/ComePlayersMonopolyGame.tsx
+- website/supabase/migrations/20260713234500_arcade_cp_monopoly_v43.sql
+- website/ARCADE_V43_CP_MONOPOLY_INSTALL.md
+- website/CHANGED_FILES_V43.txt
+
+Updated:
+- website/components/arcade/ArcadeWindow.tsx

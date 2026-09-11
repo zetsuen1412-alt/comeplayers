@@ -1,0 +1,15 @@
+services:
+  empires-allies:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5005:5005"
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 5005
+      COMEPLAYERS_DATA_DIR: /app/data
+    volumes:
+      - ./instance:/app/instance
+      - ./data:/app/data

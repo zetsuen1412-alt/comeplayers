@@ -1,0 +1,5 @@
+﻿ComePlayers Game Lobby V5 installed: 2026-07-13 22:32:37
+Renderer: PixiJS 8.14.3
+Homepage: app\page.tsx
+Canvas: app\GameLobbyCanvas.tsx
+UI: app\GameLobbyV5.tsx

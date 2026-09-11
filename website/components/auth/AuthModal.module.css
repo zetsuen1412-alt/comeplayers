@@ -1,0 +1,282 @@
+.authViewport,
+.pageViewport {
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.authViewport {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.08), transparent 32%),
+    rgba(0, 0, 0, 0.82);
+}
+
+.pageViewport {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.08), transparent 32%),
+    linear-gradient(180deg, #0b0e14 0%, #05070b 100%);
+}
+
+.modalStage {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+}
+
+.modalShell {
+  max-height: calc(100dvh - 2rem);
+}
+
+.formPane {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(250, 204, 21, 0.5) rgba(255, 255, 255, 0.04);
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+/* Login mode is intentionally fixed to one viewport with no internal scrollbar. */
+.loginPane {
+  max-height: none !important;
+  overflow: hidden !important;
+  padding-top: 1.125rem !important;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+}
+
+.loginBrand {
+  line-height: 1;
+}
+
+.loginSecureBadge {
+  margin-top: 0.7rem;
+}
+
+.loginTitleBlock {
+  margin-top: 1rem;
+}
+
+.loginTitleBlock h2 {
+  font-size: 1.7rem;
+  line-height: 1.08;
+}
+
+.loginTitleBlock p {
+  margin-top: 0.4rem;
+  line-height: 1.35rem;
+}
+
+.loginContext {
+  margin-top: 0.65rem;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+.loginTabs {
+  margin-top: 0.85rem;
+}
+
+.loginTabs button {
+  min-height: 2.45rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+.loginNotice {
+  margin-top: 0.65rem;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+  line-height: 1.25rem;
+}
+
+.loginForm {
+  margin-top: 0.8rem;
+  gap: 0.7rem;
+}
+
+.loginForm label {
+  gap: 0.35rem;
+}
+
+.loginInput {
+  min-height: 2.7rem !important;
+  padding-top: 0.6rem !important;
+  padding-bottom: 0.6rem !important;
+}
+
+.loginForgot {
+  min-height: 1.75rem;
+}
+
+.loginRemember {
+  gap: 0.55rem;
+}
+
+.loginPrimaryButton {
+  min-height: 2.75rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.loginDivider {
+  margin-top: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.loginSocialButton {
+  min-height: 2.75rem;
+}
+
+.loginFooter {
+  margin-top: 0.85rem;
+  line-height: 1rem;
+}
+
+.formPane::-webkit-scrollbar {
+  width: 7px;
+}
+
+.formPane::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.formPane::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.52);
+  background-clip: padding-box;
+}
+
+.safeClose {
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+}
+
+@media (max-width: 480px) {
+  .authViewport .modalStage {
+    padding: 0;
+  }
+
+  .authViewport .modalShell {
+    min-height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+.authViewport .formPane {
+    max-height: 100dvh;
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+  }
+
+  .authViewport .loginPane {
+    max-height: none;
+    overflow: hidden;
+    padding-top: max(0.85rem, env(safe-area-inset-top)) !important;
+    padding-right: max(1rem, env(safe-area-inset-right)) !important;
+    padding-bottom: max(0.85rem, env(safe-area-inset-bottom)) !important;
+    padding-left: max(1rem, env(safe-area-inset-left)) !important;
+  }
+
+  .pageViewport .modalStage {
+    align-items: stretch;
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+  }
+
+  .pageViewport .modalShell {
+    align-self: center;
+    max-height: calc(100dvh - 1.5rem);
+  }
+
+  .pageViewport .formPane {
+    max-height: calc(100dvh - 1.5rem);
+  }
+}
+
+
+@media (max-height: 760px) {
+  .modalStage {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .modalShell {
+    max-height: calc(100dvh - 1rem);
+  }
+
+  .loginPane {
+    padding-top: 0.75rem !important;
+    padding-right: 1.15rem !important;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+    padding-left: 1.15rem !important;
+  }
+
+  .loginBrand {
+    transform: scale(0.9);
+    transform-origin: top center;
+    margin-bottom: -0.25rem;
+  }
+
+  .loginSecureBadge {
+    margin-top: 0.45rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .loginTitleBlock {
+    margin-top: 0.65rem;
+  }
+
+  .loginTitleBlock h2 {
+    font-size: 1.5rem;
+  }
+
+  .loginTitleBlock p {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    line-height: 1.1rem;
+  }
+
+  .loginTabs,
+  .loginForm {
+    margin-top: 0.55rem;
+  }
+
+  .loginForm {
+    gap: 0.5rem;
+  }
+
+  .loginDivider {
+    margin-top: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .loginFooter {
+    margin-top: 0.55rem;
+    font-size: 0.625rem;
+    line-height: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .authViewport *,
+  .authViewport *::before,
+  .authViewport *::after,
+  .pageViewport *,
+  .pageViewport *::before,
+  .pageViewport *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <base href="/" />
+  <title>CP Empires &amp; Allies</title>
+  <link rel="icon" type="image/png" href="/img/icon.png" />
+  <script src="{{ ruffle_script_url }}"></script>
+  <script>
+    let displayedProgress = 1;
+    let targetProgress = 1;
+    let hideWhenComplete = false;
+    let completionTimer = null;
+    let fallbackCompletionTimer = null;
+    let successfulGatewayBatches = 0;
+
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async (...args) => {
+      const response = await nativeFetch(...args);
+      const input = args[0];
+      const requestUrl = typeof input === "string" ? input : input?.url;
+      if (
+        response.ok &&
+        requestUrl &&
+        new URL(requestUrl, window.location.href).pathname.endsWith("/flashservices/gateway.php")
+      ) {
+        window.dispatchEvent(new Event("cp:gateway-ready"));
+      }
+      return response;
+    };
+
+    function renderProgress() {
+      const bar = document.getElementById("progress-fill");
+      const value = document.getElementById("progress-value");
+      const track = document.getElementById("progress-track");
+      const safeProgress = Math.max(1, Math.min(100, displayedProgress));
+      if (bar) bar.style.width = safeProgress + "%";
+      if (value) value.textContent = Math.floor(safeProgress) + "%";
+      if (track) track.setAttribute("aria-valuenow", String(Math.floor(safeProgress)));
+    }
+
+    function animateProgress() {
+      if (displayedProgress < targetProgress) {
+        const distance = targetProgress - displayedProgress;
+        displayedProgress = Math.min(
+          targetProgress,
+          displayedProgress + Math.min(1, Math.max(.16, distance * .045))
+        );
+        renderProgress();
+      }
+
+      if (
+        hideWhenComplete &&
+        displayedProgress >= 100 &&
+        completionTimer === null
+      ) {
+        const label = document.getElementById("loading-label");
+        if (label) label.textContent = "Download complete. Opening command center...";
+        completionTimer = window.setTimeout(() => {
+          const loading = document.getElementById("loading");
+          if (loading) loading.classList.add("hidden");
+        }, 520);
+      }
+      window.requestAnimationFrame(animateProgress);
+    }
+
+    window.setInterval(() => {
+      if (!hideWhenComplete && targetProgress < 92) {
+        targetProgress = Math.min(92, targetProgress + 1);
+      }
+    }, 850);
+
+    function setProgress(value, message) {
+      const label = document.getElementById("loading-label");
+      targetProgress = Math.max(
+        targetProgress,
+        Math.max(1, Math.min(100, Number(value) || 1))
+      );
+      if (label && message) label.textContent = message;
+    }
+
+    function getUserInfo() {
+      setProgress(36, "Downloading commander profile...");
+      return {
+        zid: {{ zid | default(-1000) }},
+        uid: {{ zid | default(-1000) }},
+        first_name: {{ worldname | tojson }},
+        name: {{ worldname | tojson }},
+        sex: "F",
+        pic_square: {{ picture | tojson }}
+      };
+    }
+
+    function getFriendData() {
+      setProgress(58, "Downloading allied empire data...");
+      return {{ allies | safe | default([]) }};
+    }
+
+    function getAppFriendIds() {
+      setProgress(74, "Downloading synchronized campaign data...");
+      if (fallbackCompletionTimer === null) {
+        fallbackCompletionTimer = window.setTimeout(onGameLoaded, 30000);
+      }
+      return {{ app_friends | safe | default([]) }};
+    }
+
+    function onGameLoaded() {
+      if (hideWhenComplete) return;
+      hideWhenComplete = true;
+      if (fallbackCompletionTimer !== null) {
+        window.clearTimeout(fallbackCompletionTimer);
+      }
+      setProgress(100, "Downloading final command center assets...");
+    }
+
+    window.addEventListener("cp:gateway-ready", () => {
+      successfulGatewayBatches += 1;
+      setProgress(
+        successfulGatewayBatches >= 2 ? 97 : 88,
+        successfulGatewayBatches >= 2
+          ? "Downloading final command center assets..."
+          : "Downloading online empire data..."
+      );
+      if (successfulGatewayBatches >= 2) {
+        if (fallbackCompletionTimer !== null) {
+          window.clearTimeout(fallbackCompletionTimer);
+        }
+        fallbackCompletionTimer = window.setTimeout(onGameLoaded, 3500);
+      }
+    });
+
+    const legacyNetworkBridge = {
+      ads: { WatchToEarn: { service: { available: () => false, initializeFlash: () => false } } }
+    };
+    window[String.fromCharCode(122, 121, 110, 103, 97)] = legacyNetworkBridge;
+    const statTracker = { logWorldObjectCount: () => undefined };
+    const legacyFrameManager = {
+      reloadApp: () => window.location.reload(),
+      navigateTo: () => undefined,
+      openTab: () => undefined,
+      switchToTab: () => undefined
+    };
+    window[String.fromCharCode(90, 89, 70, 114, 97, 109, 101, 77, 97, 110, 97, 103, 101, 114)] = legacyFrameManager;
+    function openInAppPurchaseAPI() { return undefined; }
+    function hasPermission() { return false; }
+    function showPermissions() { return undefined; }
+  </script>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #02070d; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    body { background: radial-gradient(circle at 50% 0%, rgba(34,211,238,.12), transparent 38%), linear-gradient(180deg,#071522,#02070d); }
+    #viewport { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
+    #stage { position: relative; width: min(100vw,133.333333vh); height: min(100vh,75vw); overflow: hidden; background: #030712; box-shadow: 0 30px 90px rgba(0,0,0,.72), 0 0 42px rgba(34,211,238,.11); }
+    #ruffle, ruffle-player { width: 100% !important; height: 100% !important; display: block; }
+    #loading { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 34px; isolation: isolate; overflow: hidden; background: radial-gradient(circle at 76% 42%, rgba(250,204,21,.16), transparent 34%), radial-gradient(circle at 20% 18%, rgba(34,211,238,.15), transparent 31%), linear-gradient(145deg,#061827,#02070d 68%); transition: opacity .42s ease, visibility .42s ease; }
+    #loading::before { content: ""; position: absolute; inset: -35%; z-index: -2; opacity: .35; background-image: linear-gradient(rgba(34,211,238,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,.08) 1px, transparent 1px); background-size: 42px 42px; transform: perspective(540px) rotateX(58deg) translateY(20%); animation: grid-drift 9s linear infinite; }
+    #loading::after { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: .2; background: repeating-linear-gradient(180deg, transparent 0, transparent 3px, rgba(255,255,255,.025) 4px); mix-blend-mode: screen; }
+    #loading.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .card { position: relative; display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(270px, .88fr); width: 870px; min-height: 520px; overflow: hidden; border: 1px solid rgba(250,204,21,.34); border-radius: 32px; background: linear-gradient(135deg,rgba(5,21,35,.98),rgba(3,11,20,.98)); box-shadow: 0 30px 100px rgba(0,0,0,.64), 0 0 0 1px rgba(34,211,238,.08), inset 0 1px rgba(255,255,255,.07); }
+    .card::before { content: ""; position: absolute; top: 0; left: 34px; right: 34px; height: 2px; background: linear-gradient(90deg,transparent,#22d3ee 26%,#fde047 72%,transparent); box-shadow: 0 0 20px rgba(34,211,238,.55); }
+    .loader-copy { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; padding: 46px 36px 42px 48px; }
+    .brand-row { display: flex; align-items: center; gap: 14px; }
+    .crest { display: grid; place-items: center; width: 58px; height: 58px; flex: 0 0 58px; border: 1px solid rgba(250,204,21,.48); border-radius: 18px; color: #fde68a; background: linear-gradient(145deg,rgba(250,204,21,.18),rgba(250,204,21,.05)); font-weight: 1000; font-size: 22px; box-shadow: 0 0 32px rgba(250,204,21,.14), inset 0 1px rgba(255,255,255,.08); }
+    .brand-name { color: #f8fafc; font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .16em; }
+    .brand-subtitle { margin-top: 4px; color: #22d3ee; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .18em; }
+    .kicker { display: inline-flex; align-items: center; gap: 9px; width: max-content; margin-top: 34px; color: #fde047; font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .2em; }
+    .kicker-dot { width: 8px; height: 8px; border-radius: 999px; background: #fde047; box-shadow: 0 0 16px #fde047; animation: pulse 1.3s ease-in-out infinite; }
+    h1 { margin: 12px 0 0; max-width: 420px; color: white; font-size: 42px; line-height: 1.02; letter-spacing: -.045em; text-shadow: 0 8px 24px rgba(0,0,0,.35); }
+    p { margin: 15px 0 0; max-width: 440px; color: #94a3b8; font-size: 13px; line-height: 1.65; }
+    .download-meta { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-top: 28px; }
+    .download-word { color: #f8fafc; font-size: 15px; font-weight: 950; text-transform: uppercase; letter-spacing: .14em; }
+    #progress-value { color: #fde047; font-variant-numeric: tabular-nums; font-size: 31px; font-weight: 1000; line-height: 1; letter-spacing: -.04em; text-shadow: 0 0 24px rgba(250,204,21,.25); }
+    .progress { position: relative; width: 100%; height: 15px; margin-top: 12px; overflow: hidden; border: 1px solid rgba(34,211,238,.2); border-radius: 999px; background: rgba(0,0,0,.5); box-shadow: inset 0 2px 8px rgba(0,0,0,.5); }
+    .progress::after { content: ""; position: absolute; inset: 2px; border-radius: inherit; background: repeating-linear-gradient(90deg,transparent 0,transparent 18px,rgba(2,7,13,.44) 19px,rgba(2,7,13,.44) 21px); pointer-events: none; }
+    #progress-fill { width: 1%; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#06b6d4 0%,#22d3ee 46%,#fde047 100%); box-shadow: 0 0 28px rgba(34,211,238,.6); }
+    #loading-label { min-height: 16px; margin-top: 11px; color: #cbd5e1; font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .13em; }
+    .status-row { display: flex; align-items: center; gap: 10px; margin-top: 20px; color: #67e8f9; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; }
+    .signal { display: inline-flex; align-items: end; gap: 3px; height: 13px; }
+    .signal span { display: block; width: 3px; border-radius: 999px; background: #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,.7); animation: signal 1s ease-in-out infinite; }
+    .signal span:nth-child(1) { height: 5px; }
+    .signal span:nth-child(2) { height: 9px; animation-delay: .12s; }
+    .signal span:nth-child(3) { height: 13px; animation-delay: .24s; }
+    .alexia-panel { position: relative; overflow: hidden; border-left: 1px solid rgba(34,211,238,.12); background: radial-gradient(circle at 50% 44%,rgba(250,204,21,.2),transparent 42%), linear-gradient(160deg,rgba(34,211,238,.07),rgba(2,7,13,.36)); }
+    .alexia-panel::before { content: ""; position: absolute; inset: 38px 28px 72px; border: 1px solid rgba(34,211,238,.15); border-radius: 50%; box-shadow: 0 0 60px rgba(34,211,238,.08), inset 0 0 50px rgba(250,204,21,.06); animation: orbit 8s linear infinite; }
+    .alexia-panel::after { content: ""; position: absolute; left: 50%; bottom: 66px; width: 230px; height: 36px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse,rgba(250,204,21,.28),transparent 68%); filter: blur(3px); }
+    .alexia { position: absolute; z-index: 2; left: 50%; bottom: 54px; width: 390px; height: 390px; transform: translateX(-50%); object-fit: contain; filter: drop-shadow(0 24px 26px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(250,204,21,.13)); animation: alexia-float 3.3s ease-in-out infinite; }
+    .alexia-chip { position: absolute; z-index: 3; left: 24px; right: 24px; bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid rgba(250,204,21,.26); border-radius: 15px; background: rgba(3,12,21,.78); box-shadow: 0 14px 34px rgba(0,0,0,.38); backdrop-filter: blur(10px); }
+    .alexia-name { color: #fff; font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .14em; }
+    .alexia-role { color: #fde047; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }
+    .online-pill { display: inline-flex; align-items: center; gap: 6px; color: #67e8f9; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }
+    .online-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 12px #22d3ee; }
+    @keyframes pulse { 0%,100% { opacity: .45; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.12); } }
+    @keyframes signal { 0%,100% { opacity: .35; transform: scaleY(.7); } 50% { opacity: 1; transform: scaleY(1); } }
+    @keyframes alexia-float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-8px); } }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    @keyframes grid-drift { to { transform: perspective(540px) rotateX(58deg) translateY(calc(20% + 42px)); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; } }
+  </style>
+</head>
+<body>
+  <main id="viewport">
+    <section id="stage" aria-label="CP Empires & Allies game">
+      <div id="ruffle"></div>
+      <div id="loading">
+        <div class="card">
+          <div class="loader-copy">
+            <div class="brand-row">
+              <div class="crest">CP</div>
+              <div>
+                <div class="brand-name">ComePlayers Arcade</div>
+                <div class="brand-subtitle">Online command network</div>
+              </div>
+            </div>
+            <div class="kicker"><span class="kicker-dot"></span>Preparing your empire</div>
+            <h1>CP Empires &amp; Allies</h1>
+            <p>Alexia is preparing the command center, campaign data, and browser game engine for your online empire.</p>
+            <div class="download-meta">
+              <span class="download-word">Downloading</span>
+              <span id="progress-value">1%</span>
+            </div>
+            <div id="progress-track" class="progress" role="progressbar" aria-label="Game download progress" aria-valuemin="1" aria-valuemax="100" aria-valuenow="1"><div id="progress-fill"></div></div>
+            <div id="loading-label" aria-live="polite">Connecting to ComePlayers download network...</div>
+            <div class="status-row">
+              <span class="signal"><span></span><span></span><span></span></span>
+              Secure asset stream • Ruffle ready
+            </div>
+          </div>
+          <div class="alexia-panel" aria-label="Alexia download operator">
+            <img class="alexia" src="/img/alexia-command-loader.png" alt="Alexia, ComePlayers mascot" />
+            <div class="alexia-chip">
+              <div>
+                <div class="alexia-name">Alexia</div>
+                <div class="alexia-role">Download operator</div>
+              </div>
+              <span class="online-pill">Online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    renderProgress();
+    window.requestAnimationFrame(animateProgress);
+
+    try {
+      window.RufflePlayer = window.RufflePlayer || {};
+      window.RufflePlayer.config = {
+        autoplay: "on",
+        unmuteOverlay: "hidden",
+        contextMenu: "off",
+        letterbox: "on",
+        warnOnUnsupportedContent: false,
+        allowScriptAccess: true,
+        logLevel: "error"
+      };
+      const ruffle = window.RufflePlayer.newest();
+      const player = document.getElementById("ruffle").appendChild(ruffle.createPlayer());
+      player.style.width = "100%";
+      player.style.height = "100%";
+      const flashParameters = `serverTime={{ time }}&is_staging=false&debugMode=false&generateSchema=1&sn_app_url=${window.location.origin}/&stats=1`;
+      player.load({
+        url: "/files/empire-s.assets.zgncdn.com/assets/109338/ZGame.109338.swf",
+        backgroundColor: "#333399",
+        allowScriptAccess: true,
+        allowFullscreen: true,
+        quality: "high",
+        parameters: flashParameters
+      }).then(() => {
+        setProgress(18, "Downloading core campaign assets...");
+      }).catch((error) => {
+        console.error(error);
+        document.getElementById("loading-label").textContent = "Unable to load game. Reload and try again.";
+      });
+    } catch (error) {
+      console.error(error);
+      document.getElementById("loading-label").textContent = "Ruffle could not start. Check the service connection.";
+    }
+  </script>
+</body>
+</html>

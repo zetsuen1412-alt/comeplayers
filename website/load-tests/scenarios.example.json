@@ -1,0 +1,27 @@
+[
+  {
+    "name": "authenticated-chat-rooms",
+    "method": "GET",
+    "path": "/api/messages/rooms",
+    "weight": 2,
+    "headers": {
+      "Authorization": "Bearer {{SELLER_TOKEN}}"
+    },
+    "expectedStatuses": [200]
+  },
+  {
+    "name": "bulk-listing-preview",
+    "method": "POST",
+    "path": "/api/seller/catalog/bulk",
+    "weight": 1,
+    "mutation": true,
+    "headers": {
+      "Authorization": "Bearer {{SELLER_TOKEN}}"
+    },
+    "body": {
+      "mode": "preview",
+      "csv": "action,product_id,title,category,price,stock,status\ncreate,,Load Test Listing,Game Coins,10000,1,draft"
+    },
+    "expectedStatuses": [200, 400]
+  }
+]

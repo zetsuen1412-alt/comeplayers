@@ -1,0 +1,6 @@
+ComePlayers Arcade V42 changed files
+
+website/components/arcade/ComePlayersChessGame.tsx
+website/supabase/migrations/20260713231500_arcade_chess_room_browser_matchmaking_v42.sql
+website/ARCADE_V42_CHESS_LOBBY_MATCHMAKING_INSTALL.md
+website/CHANGED_FILES_V42.txt

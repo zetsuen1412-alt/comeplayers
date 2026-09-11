@@ -1,0 +1,14 @@
+website/app/api/messages/invitations/route.ts
+website/app/api/messages/groups/route.ts
+website/app/api/messages/matchmaking/route.ts
+website/app/api/messages/rooms/[id]/members/route.ts
+website/app/messages/page.tsx
+website/components/messages/CommunityChannelSidebar.tsx
+website/scripts/migration-registry.json
+website/supabase/migrations/20260711183000_messages_invite_accept_matchmaking_v34.sql
+website/tests/integration/criticalFlows.test.ts
+website/tests/messagesInvitationsV34.test.ts
+website/tests/migrationRegistry.test.ts
+website/tests/securityHardeningV24_1.test.ts
+comeplayers-apps/packages/chat-core/src/client.ts
+comeplayers-apps/packages/chat-core/src/types.ts

@@ -1,0 +1,58 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.production
+logs/
+data/
+instance/
+.git/
+.vscode/
+.idea/
+*.log
+*.db
+*.sqlite
+*.sqlite3
+*.deploy.tar
+
+# Preservation archives that are not referenced by the active online server.
+# The deployed game serves assets/sol_assets_octdict/assets through /assets/.
+assets/sol_assets_unknown/
+assets/sol_assets_old/
+assets/sol_assets_dict1_only/
+assets/sol_assets_octdict/
+
+# All bundled legacy mods are disabled in mods/mods.conf. Keep the manifest,
+# but do not upload their duplicate game revisions in the production image.
+mods/active-limited-edition/
+mods/gameRevision_107829_settings/
+mods/gameRevision_107829_swf/
+mods/gameRevision_57372/
+
+# Superseded settings and debug SWFs; active routes use the *_with_fixes files
+# plus ZGame.109338_tracer2.swf.
+assets/29oct2012/gameSettings.xml
+assets/29oct2012/gameSettings_placeholders.xml
+assets/29oct2012/questSettings.xml
+assets/ZGame.109338.swf
+assets/ZGame.109338_tracer.swf
+assets/ZGame.109338_tracer_old.swf
+assets/ZGame.109338_tracer2a.swf
+
+# Large text assets are uploaded compressed and inflated in the image.
+gamesettings-converted.json
+questsettings-converted.json
+assets/29oct2012/gameSettings_with_fixes.xml
+assets/29oct2012/en_US.xml
+assets/29oct2012/questSettings_with_fixes.xml
+
+# Historical/example resources are not referenced by the active server.
+assets/32995/
+assets/cooking/
+assets/zh_CN.xml
+
+# Large artwork used only by the retired standalone legacy shell. ComePlayers
+# launches through /comeplayers/play and does not reference these files.
+templates/img/motds/
+templates/img/remake.png
+templates/img/loading_frame_remastered.png

@@ -1,0 +1,12 @@
+ComePlayers Arcade V40 — Alexia vs Ugly Bastards
+
+REPLACED:
+website/components/arcade/ArcadeGames.tsx
+
+ADDED:
+website/public/arcade/alexia-runner.svg
+website/public/arcade/ugly-bastard-1.svg
+website/public/arcade/ugly-bastard-2.svg
+website/public/arcade/ugly-bastard-3.svg
+website/ARCADE_V40_ALEXIA_UGLY_BASTARD_INSTALL.md
+website/CHANGED_FILES_V40.txt

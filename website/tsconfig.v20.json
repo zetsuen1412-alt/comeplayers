@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "lib/runtimeControlPolicy.ts",
+    "lib/runtimeControls.ts",
+    "lib/slo.ts",
+    "lib/paypalProvider.ts",
+    "lib/paypalProviderReconciliation.ts",
+    "lib/paypalProviderReconciliationServer.ts",
+    "app/api/health/**/*.ts",
+    "app/api/cron/monitor-uptime/route.ts",
+    "app/api/cron/reconcile-paypal-provider/route.ts",
+    "app/api/admin/operations/route.ts",
+    "app/api/checkout/create-order/route.ts",
+    "app/api/orders/pay-with-wallet/route.ts",
+    "app/api/paypal/create-checkout-order/route.ts",
+    "app/admin/operations/page.tsx",
+    "tests/runtimeControlPolicy.test.ts",
+    "tests/slo.test.ts",
+    "tests/paypalProviderReconciliation.test.ts"
+  ],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "code": "coin",
+    "url": "https://www.g2g.com/id/trending/game-coins",
+    "maxPage": 10
+  },
+  {
+    "code": "item",
+    "url": "https://www.g2g.com/id/trending/items",
+    "maxPage": 13
+  },
+  {
+    "code": "account",
+    "url": "https://www.g2g.com/id/trending/accounts",
+    "maxPage": 53
+  },
+  {
+    "code": "boosting",
+    "url": "https://www.g2g.com/id/trending/boosting",
+    "maxPage": 17
+  }
+]

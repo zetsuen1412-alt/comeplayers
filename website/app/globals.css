@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --cp-mobile-gutter: clamp(1rem, 4vw, 1.5rem);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+html,
+body {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: env(safe-area-inset-top);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+:where(main, header, nav, section, article, aside, footer, form, fieldset, div) {
+  min-width: 0;
+}
+
+img,
+video,
+svg,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+pre,
+table {
+  max-width: 100%;
+}
+
+pre {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+a,
+button,
+label,
+legend,
+p,
+li,
+dd,
+dt,
+th,
+td {
+  overflow-wrap: anywhere;
+}
+
+input,
+select,
+textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
+[class~="overflow-x-auto"],
+[class~="overflow-x-scroll"] {
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+[role="button"],
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+@supports (min-height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+@media (max-width: 639px) {
+  body {
+    overflow-wrap: break-word;
+  }
+
+  [role="dialog"],
+  [aria-modal="true"] {
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  [class~="px-8"],
+  [class~="px-10"],
+  [class~="px-12"],
+  [class~="px-16"],
+  [class~="px-20"],
+  [class~="px-24"] {
+    padding-right: var(--cp-mobile-gutter) !important;
+    padding-left: var(--cp-mobile-gutter) !important;
+  }
+
+  [class~="p-8"],
+  [class~="p-10"],
+  [class~="p-12"] {
+    padding: 1.25rem !important;
+  }
+
+  [class~="rounded-3xl"] {
+    border-radius: 1.25rem;
+  }
+
+  [class~="overflow-x-auto"],
+  [class~="overflow-x-scroll"] {
+    margin-right: calc(var(--cp-mobile-gutter) * -0.35);
+    margin-left: calc(var(--cp-mobile-gutter) * -0.35);
+    padding-right: calc(var(--cp-mobile-gutter) * 0.35);
+    padding-left: calc(var(--cp-mobile-gutter) * 0.35);
+    scrollbar-width: thin;
+  }
+}

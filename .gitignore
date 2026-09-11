@@ -1,0 +1,116 @@
+# =========================
+# DEPENDENCIES
+# =========================
+node_modules/
+**/node_modules/
+.pnpm-store/
+**/.pnpm-store/
+
+# =========================
+# NEXT.JS / WEB BUILD
+# =========================
+.next/
+**/.next/
+out/
+**/out/
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+**/coverage/
+
+# =========================
+# EXPO / REACT NATIVE
+# =========================
+.expo/
+**/.expo/
+.gradle/
+**/.gradle/
+android/.gradle/
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+ios/Pods/
+**/ios/Pods/
+
+# =========================
+# CACHE / TEMP
+# =========================
+.cache/
+**/.cache/
+.turbo/
+**/.turbo/
+temp/
+tmp/
+**/temp/
+**/tmp/
+
+# =========================
+# LOCAL AI / QA FILES
+# =========================
+.android-qa/
+.chatgpt-export/
+.codex-staging/
+.g/
+.video-review-deps/
+
+# =========================
+# GENERATED OUTPUT
+# =========================
+output/
+
+# =========================
+# OLD BACKUPS
+# =========================
+backup-*/
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# =========================
+# ENVIRONMENT / SECRETS
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# =========================
+# SUPABASE LOCAL
+# =========================
+supabase/.temp/
+**/supabase/.temp/
+
+# =========================
+# VERCEL
+# =========================
+.vercel/
+**/.vercel/
+
+# =========================
+# LOGS
+# =========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# =========================
+# WINDOWS / MAC
+# =========================
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# =========================
+# EDITORS
+# =========================
+.vscode/
+.idea/
+ComePlayersMarble/

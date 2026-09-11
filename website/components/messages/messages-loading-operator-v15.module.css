@@ -1,0 +1,323 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #020711;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.stage {
+  position: relative;
+  width: min(100vw, calc(100svh * 1.776833));
+  height: min(100svh, calc(100vw / 1.776833));
+  overflow: hidden;
+  isolation: isolate;
+  background: #020711;
+}
+
+.artwork {
+  z-index: 0;
+  object-fit: contain;
+  user-select: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 45%, transparent 42%, rgba(0, 5, 15, 0.28) 82%, rgba(0, 2, 8, 0.72) 100%),
+    linear-gradient(180deg, rgba(3, 9, 22, 0.02), rgba(0, 3, 12, 0.18));
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.13;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 3px,
+    rgba(92, 220, 255, 0.12) 4px
+  );
+  mix-blend-mode: screen;
+}
+
+.sweep {
+  position: absolute;
+  z-index: 4;
+  top: -30%;
+  left: -20%;
+  width: 24%;
+  height: 160%;
+  pointer-events: none;
+  opacity: 0.16;
+  background: linear-gradient(90deg, transparent, rgba(80, 221, 255, 0.8), transparent);
+  filter: blur(12px);
+  transform: rotate(10deg);
+  animation: sweepAcross 4.8s linear infinite;
+}
+
+.statusLights {
+  position: absolute;
+  z-index: 6;
+  left: 4.2%;
+  top: 47.8%;
+  width: 2.6%;
+  height: 29.2%;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  pointer-events: none;
+}
+
+.statusLights span {
+  width: clamp(12px, 1.35vw, 24px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(92, 222, 255, 0.5);
+  background: rgba(8, 39, 62, 0.72);
+  box-shadow: 0 0 8px rgba(71, 211, 255, 0.25);
+  transition: 240ms ease;
+}
+
+.statusLights span[data-state="active"] {
+  background: #5de2ff;
+  box-shadow: 0 0 10px #5de2ff, 0 0 28px rgba(93, 226, 255, 0.8);
+  animation: statusPulse 0.8s ease-in-out infinite alternate;
+}
+
+.statusLights span[data-state="done"] {
+  background: #4ef18a;
+  border-color: #4ef18a;
+  box-shadow: 0 0 16px rgba(78, 241, 138, 0.72);
+}
+
+.waveform {
+  position: absolute;
+  z-index: 6;
+  right: 5.8%;
+  top: 32.3%;
+  width: 21%;
+  height: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42%;
+  opacity: 0.62;
+  pointer-events: none;
+  filter: drop-shadow(0 0 7px rgba(255, 199, 40, 0.64));
+}
+
+.waveform i {
+  width: 1.2%;
+  min-width: 2px;
+  height: 16%;
+  border-radius: 99px;
+  background: #ffd02f;
+  animation: waveform 0.82s ease-in-out infinite alternate;
+}
+
+.waveform i:nth-child(3n) { animation-duration: 0.62s; }
+.waveform i:nth-child(4n) { animation-duration: 1.06s; }
+.waveform i:nth-child(5n) { animation-duration: 0.74s; }
+
+.radarPulse {
+  position: absolute;
+  z-index: 6;
+  right: 10.6%;
+  top: 51.9%;
+  width: 10.5%;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.radarPulse span {
+  position: absolute;
+  inset: 50%;
+  border: 1px solid rgba(78, 219, 255, 0.75);
+  border-radius: 50%;
+  opacity: 0;
+  animation: radar 2.4s ease-out infinite;
+}
+
+.radarPulse span:nth-child(2) { animation-delay: 0.8s; }
+.radarPulse span:nth-child(3) { animation-delay: 1.6s; }
+
+.progressPanel {
+  position: absolute;
+  z-index: 9;
+  left: 17.2%;
+  right: 20.4%;
+  bottom: 8.7%;
+  min-height: 15.4%;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  padding: 1.3% 4.1% 1.15%;
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
+  background:
+    linear-gradient(90deg, rgba(3, 16, 32, 0.97), rgba(5, 25, 47, 0.94) 50%, rgba(3, 14, 29, 0.97));
+  border: 1px solid rgba(78, 218, 255, 0.22);
+  box-shadow:
+    inset 0 0 28px rgba(30, 139, 205, 0.16),
+    0 0 28px rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(9px);
+}
+
+.progressPanel::before,
+.progressPanel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.2%;
+  background: linear-gradient(180deg, transparent, #ffd02f, transparent);
+  opacity: 0.9;
+}
+
+.progressPanel::before { left: 1.1%; }
+.progressPanel::after { right: 1.1%; }
+
+.progressTitle {
+  margin: 0 0 0.7%;
+  color: #66ddff;
+  text-align: center;
+  font-size: clamp(0.72rem, 1.45vw, 1.48rem);
+  font-weight: 800;
+  text-shadow: 0 0 12px rgba(75, 218, 255, 0.5);
+}
+
+.progressRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2.3%;
+}
+
+.progressTrack {
+  position: relative;
+  height: clamp(10px, 1.3vw, 22px);
+  overflow: hidden;
+  border: 1px solid rgba(85, 217, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(2, 10, 22, 0.94);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.86);
+}
+
+.progressFill {
+  position: relative;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #39cfff, #7cecff 58%, #d3fbff);
+  box-shadow: 0 0 16px rgba(58, 216, 255, 0.78);
+  transition: width 160ms linear;
+}
+
+.progressFill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(120deg, rgba(255,255,255,0.24) 0 8px, transparent 8px 16px);
+  animation: stripes 0.65s linear infinite;
+}
+
+.progressSpark {
+  position: absolute;
+  z-index: 3;
+  right: -3px;
+  top: 50%;
+  width: clamp(8px, 1vw, 17px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 8px white, 0 0 20px #5ee4ff, 0 0 36px #2ccfff;
+  transform: translateY(-50%);
+}
+
+.percentage {
+  min-width: 2.8em;
+  color: #59ddff;
+  font-size: clamp(1rem, 2.25vw, 2.3rem);
+  font-style: italic;
+  letter-spacing: -0.04em;
+  text-shadow: 0 0 14px rgba(75, 218, 255, 0.44);
+}
+
+.progressDetail {
+  margin: 0.45% 0 0;
+  color: rgba(255, 255, 255, 0.48);
+  text-align: center;
+  font-size: clamp(0.54rem, 0.72vw, 0.78rem);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.soundButton {
+  position: absolute;
+  z-index: 12;
+  right: 2%;
+  bottom: 2.2%;
+  min-height: 32px;
+  border: 1px solid rgba(78, 218, 255, 0.32);
+  border-radius: 999px;
+  padding: 0 14px;
+  color: rgba(203, 241, 255, 0.78);
+  background: rgba(2, 11, 24, 0.76);
+  font: inherit;
+  font-size: clamp(0.55rem, 0.7vw, 0.72rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.soundButton:hover,
+.soundButton:focus-visible {
+  color: white;
+  border-color: #65ddff;
+  box-shadow: 0 0 16px rgba(78, 218, 255, 0.28);
+  outline: none;
+}
+
+@keyframes sweepAcross {
+  from { transform: translateX(-25vw) rotate(10deg); }
+  to { transform: translateX(145vw) rotate(10deg); }
+}
+
+@keyframes statusPulse {
+  to { transform: scale(1.18); }
+}
+
+@keyframes waveform {
+  0% { height: 12%; opacity: 0.35; }
+  100% { height: 86%; opacity: 1; }
+}
+
+@keyframes radar {
+  0% { inset: 50%; opacity: 0.75; }
+  100% { inset: 0; opacity: 0; }
+}
+
+@keyframes stripes {
+  to { transform: translateX(16px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep,
+  .statusLights span,
+  .waveform i,
+  .radarPulse span,
+  .progressFill::after {
+    animation: none !important;
+  }
+}

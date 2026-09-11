@@ -1,0 +1,4 @@
+﻿ComePlayers Game Lobby V6 installed: 2026-07-13 22:39:38
+Renderer: PixiJS 8.14.3
+Controls: Mouse, keyboard, gamepad, touch
+Homepage: app\page.tsx

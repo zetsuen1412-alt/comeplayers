@@ -1,0 +1,4 @@
+﻿Alexia Home V4 installed: 2026-07-13 21:42:40
+Homepage file: app\page.tsx
+Component: app\AlexiaHomeV4.tsx
+Animation: requestAnimationFrame spring + smooth crossfade + breathing + hair sway

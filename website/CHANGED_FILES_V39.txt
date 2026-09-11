@@ -1,0 +1,12 @@
+ComePlayers Arcade V39 - In-App Game Window
+
+CHANGED
+- website/app/messages/page.tsx
+
+ADDED
+- website/components/arcade/ArcadeWindow.tsx
+- website/ARCADE_V39_OVERLAY_INSTALL.md
+- website/CHANGED_FILES_V39.txt
+
+INCLUDED DEPENDENCY
+- website/components/arcade/ArcadeGames.tsx

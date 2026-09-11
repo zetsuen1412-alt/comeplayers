@@ -1,0 +1,3 @@
+website/components/arcade/ArcadeWindow.tsx
+website/ARCADE_V44_1_MONOPOLY_VISIBILITY_FIX.md
+website/CHANGED_FILES_V44_1.txt

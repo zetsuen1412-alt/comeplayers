@@ -1,0 +1,5 @@
+VERIFIKASI TEKNIS
+- TypeScript/TSX syntax diagnostics: 0
+- CSS opening braces: 681
+- CSS closing braces: 681
+- Full Next.js build belum dijalankan karena arsip sumber tidak menyertakan node_modules.

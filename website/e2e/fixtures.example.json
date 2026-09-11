@@ -1,0 +1,12 @@
+{
+  "productId": 1001,
+  "variantId": 1002,
+  "sellerOrderId": 2001,
+  "buyerOrderId": 2001,
+  "completableOrderId": 2002,
+  "sellerPayoutAccountId": 4001,
+  "withdrawalAmount": 100000,
+  "withdrawalId": 5001,
+  "disputeOrderId": 2003,
+  "disputeId": 3001
+}

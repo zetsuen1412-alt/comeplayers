@@ -1,0 +1,18 @@
+[
+  {
+    "code": "boosting",
+    "url": "https://www.g2g.com/id/trending/boosting"
+  },
+  {
+    "code": "account",
+    "url": "https://www.g2g.com/id/trending/accounts"
+  },
+  {
+    "code": "coin",
+    "url": "https://www.g2g.com/id/trending/game-coins"
+  },
+  {
+    "code": "item",
+    "url": "https://www.g2g.com/id/trending/items"
+  }
+]

@@ -1,0 +1,9 @@
+Comeplayers-new/website/app/HomeClient.tsx
+Comeplayers-new/website/app/home.module.css
+Comeplayers-new/website/app/page.tsx
+Comeplayers-new/website/public/home-v23/comeplayers-home-alexia-1920.webp
+Comeplayers-new/website/public/home-v23/comeplayers-home-alexia-2560.webp
+Comeplayers-new/website/public/home-v23/comeplayers-home-alexia-3840.webp
+Comeplayers-new/website/public/home-v23/comeplayers-home-alexia-source.png
+Comeplayers-new/website/HOMEPAGE_ANIMATED_ALEXIA_V24_README.txt
+Comeplayers-new/website/CHANGED_FILES_HOME_V24.txt

@@ -1,0 +1,6 @@
+Delete these legacy files after installing Foundation V3:
+
+middleware.ts
+scripts/comeplayers_transaction_core_v2.sql
+
+Keep scripts/comeplayers_transaction_core_v2_1.sql.
