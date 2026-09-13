@@ -1,0 +1,14 @@
+COMEPLAYERS MARBLE V90 - BANKRUPTCY RESCUE & LIQUIDATION
+
+1. Rent payments no longer declare bankruptcy merely because cash reaches zero. Bankruptcy now occurs only when the full rent remains unpaid after every available rescue action.
+2. Added automatic asset liquidation when a player cannot cover rent from cash.
+3. Building levels are sold first at 70% of their original construction cost.
+4. Land is returned to the bank at 60% of its purchase price only if building sales are still insufficient.
+5. Liquidation order uses strategic preservation scoring to protect completed Color Monopoly groups, Tourism progress, Landmarks, protected cities, and high-rent properties as long as possible.
+6. Payment decisions now report cash before payment, recovered liquidation value, asset actions, unpaid balance, survival status, and bankruptcy state.
+7. The 3D board plays auction rings, recovery beams, and bank-seal effects on downgraded or repossessed properties.
+8. HUD includes a permanent Rescue Economy rail and detailed automatic-liquidation reporting in the rent window.
+9. Takeover availability is recalculated after rent and liquidation, preventing insolvent players from taking over property.
+10. Fixed the match result snapshot duplicate propertyValue field and corrected the previous cash-zero bankruptcy condition.
+11. V89 Special District Strategy, V88 Fortune Signal, V87 Development Planner, V86 Color Monopoly, classic victory conditions, career, ranked, replay, dice control, and authoritative multiplayer remain included.
+12. Save schema remains unchanged and V89 local save data stays compatible.

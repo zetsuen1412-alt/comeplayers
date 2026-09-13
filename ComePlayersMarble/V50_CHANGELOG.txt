@@ -1,0 +1,17 @@
+COMEPLAYERS MARBLE V50
+
+NEW
+- Cinematic READY / 3 / 2 / 1 / START match opening.
+- Player-colored turn banner and double extra-turn banner.
+- Persistent local level, XP, rank title, win rate, streak, and match history.
+- Persistent gameplay activity counters.
+- Four one-time career missions with automatic local rewards.
+- Match CP and XP rewards shown on the result screen.
+- Live career information in Lobby, Player Hub, and Missions.
+- Additive V49 save compatibility through normalized career defaults.
+
+UNCHANGED
+- Deterministic dice authority and existing board rules.
+- Character card packs, combine, upgrade, and equipped character.
+- Fortune, World Travel, Olympic, Game Center, takeover, and result ranking.
+- Original ComePlayers runtime assets and copyright boundary.

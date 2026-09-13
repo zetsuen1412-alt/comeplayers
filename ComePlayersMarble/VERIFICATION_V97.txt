@@ -1,0 +1,64 @@
+COMEPLAYERS MARBLE V97 VERIFICATION
+
+Version: 0.97.0
+Release: v97
+Cocos Creator target: 3.8.8
+
+Static source verification:
+- TypeScript files: 88
+- TypeScript syntax parse errors: 0
+- Strict TypeScript check for CareerJourneyService and CareerProgressionData: PASS
+- Strict TypeScript check for CareerProgressionService integration: PASS
+- LocalSaveData strict TypeScript check: PASS
+- Metadata files: 118
+- Unique metadata UUIDs: 118
+- JSON/scene/prefab/material targets: 122
+- Relative imports resolved: 251
+- Merge conflict markers: 0
+- Forbidden generated folders: 0
+
+V97 Rival Contract runtime logic:
+- Default Rival Rating 1,000 RR: PASS
+- Six-entry deterministic Rival Board: PASS
+- Board sorted by fixed seasonal Rival Rating: PASS
+- Positive rating change after elite victory: PASS
+- Negative/positive rating changes bounded: PASS
+- Rival Debut reward: PASS
+- Podium Hunter reward: PASS
+- Elite Signal reward: PASS
+- Rival Board Champion reward: PASS
+- Duplicate contract reward prevention: PASS
+- Rank #1 progression: PASS
+- Monthly Rival season reset: PASS
+- Final Rival Rating archive: PASS
+- Rival contract archive count: PASS
+- Lifetime Rival rewards preserved after rollover: PASS
+
+V97 Career integration:
+- V96 Career save normalized to Career version 6: PASS
+- Missing Rival fields migrated with safe defaults: PASS
+- Classic elite victory creates Highlight Reel entry: PASS
+- Highlight title preserved: TRIPLE MONOPOLY CHAMPION
+- Rival Contract completion exposed in Career reward: PASS
+- Player Rival Rating visible in local board snapshot: PASS
+- Local save version: 10
+
+Regression verification:
+- Twenty World Journey tiers: PRESENT
+- Ten Journey Prestige levels: PRESENT
+- Daily/weekly missions and Perfect Cycles: PRESENT
+- Season archive and lifetime Journey XP: PRESENT
+- Career Legacy and Match Legacy Awards: PRESENT
+- Triple/Line/Tourism victory modules: PRESENT
+- Color Monopoly x2 economy: PRESENT
+- Development Planner: PRESENT
+- Fortune draw-three: PRESENT
+- Special District Strategy: PRESENT
+- Bankruptcy rescue and liquidation: PRESENT
+- Strategic Takeover Director: PRESENT
+- Ranked, replay, and authoritative multiplayer modules: PRESENT
+
+Cocos build status:
+- Source verification: PASS
+- V97 runtime logic tests: PASS
+- Web Desktop build: NOT CREATED on this machine because the Cocos Creator 3.8.8 executable is unavailable.

@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "checks": 8,
+  "productionDatabaseModified": false,
+  "scenarios": [
+    "ownership preserved",
+    "new login supersedes old",
+    "older session cannot reclaim",
+    "RPC guard",
+    "storage guard",
+    "MFA before takeover",
+    "cross-user session rejected",
+    "deleted latest session stays revoked",
+    "anonymous catalog allowed"
+  ]
+}

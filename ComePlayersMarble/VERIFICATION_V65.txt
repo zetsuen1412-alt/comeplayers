@@ -1,0 +1,24 @@
+COMEPLAYERS MARBLE V65 — VERIFICATION
+
+PASS — 80 TypeScript source files strict-checked with the Cocos API declaration harness.
+PASS — 80 TypeScript metadata files are present.
+PASS — 105 Cocos UUID values were inspected with no duplicates.
+PASS — All relative TypeScript imports resolve.
+PASS — Competitive profile, queue, matched-room, leaderboard, tournament, and bracket payload normalizers pass deterministic tests.
+PASS — RP tier thresholds and invalid-payload rejection pass.
+PASS — All V57–V65 migrations parse as PostgreSQL SQL.
+PASS — V65 migration contains 79 complete statements.
+PASS — RLS and direct-access revokes verified for all six V65 tables.
+PASS — Public competitive RPC functions require authentication and are granted only to authenticated.
+PASS — Queue advisory locking, expanding rating window, room reservation, and expiration logic verified statically.
+PASS — Reserved membership room-claim fix verified statically.
+PASS — Competitive result uniqueness and one-time settlement verified statically.
+PASS — Tournament host, capacity, single-active-cup, bracket generation, advancement, and one-time champion reward verified statically.
+PASS — Tournament match room IDs, invite codes, and topics are hidden from non-participants except the tournament host.
+PASS — npm ci completed against the pinned lockfile.
+PASS — npm audit reports 0 vulnerabilities.
+PASS — Secret scan found no service-role or Supabase secret key.
+
+NOT RUN — Live Supabase migration execution (no user project credentials).
+NOT RUN — Multi-user queue/tournament test against a live project.
+NOT RUN — Visual Preview/Windows/Web build in Cocos Creator 3.8.8 (editor unavailable in this environment).

@@ -1,0 +1,31 @@
+{
+  "name": "comeplayers-apps",
+  "version": "0.4.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "desktop:dev": "npm run tauri:dev --workspace @comeplayers/desktop",
+    "desktop:build": "npm run tauri:build --workspace @comeplayers/desktop",
+    "mobile:start": "npm run start --workspace @comeplayers/mobile",
+    "mobile:android": "npm run android --workspace @comeplayers/mobile",
+    "mobile:ios": "npm run ios --workspace @comeplayers/mobile",
+    "mobile:doctor": "npm exec --workspace @comeplayers/mobile -- expo-doctor",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-android-apk.ps1",
+    "android:aab": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/07_BUILD_ANDROID_PRODUCTION.ps1",
+    "android:submit": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/submit-android-play.ps1",
+    "ios:preview": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-ios.ps1 -Profile preview",
+    "ios:archive": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-ios.ps1 -Profile production",
+    "ios:submit": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/submit-ios-app-store.ps1 -Latest",
+    "desktop:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-desktop-windows.ps1",
+    "release:apps": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-all-apps.ps1",
+    "mobile:update": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/publish-android-ota.ps1",
+    "desktop:update:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/prepare-desktop-update.ps1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

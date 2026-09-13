@@ -1,0 +1,12 @@
+COMEPLAYERS MARBLE V70 — CAREER PRESTIGE UPDATE
+
+- Upgraded project version to 0.70.0.
+- Expanded Career missions from 11 to 13.
+- Added WORLD CONQUEROR: win ten matches for CP 75,000.
+- Added UNSTOPPABLE: reach a five-match win streak for CP 80,000.
+- Added six Career Mastery tiers: Newcomer, Rising Player, Contender, City Master, Marble Elite, and World Class.
+- Added mastery tier progress and next-target information to the Career screen.
+- Added persistent achievement badge calculation from existing lifetime statistics.
+- Career badges include Debut, Champion, Hot Streak, Tycoon, Explorer, Takeover Ace, Arcade Ace, and Marble Elite.
+- Existing V69 save files remain compatible; no save schema migration is required.
+- Retained all previous 3D board, multiplayer, ranked, replay, progression, economy, lobby, and authoritative-match systems.

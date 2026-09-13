@@ -17,6 +17,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { createBrowserPasskeyRecovery, unlockBrowserPasskeyRecovery } from "@/lib/e2ee/browserPasskey";
 import SecureDirectCall from "@/components/messages/SecureDirectCall";
 import {
   activateVerifiedDevice,
@@ -101,6 +102,7 @@ export default function SecureDirectConversation({ userId, room }: Props) {
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [recoveryKey, setRecoveryKey] = useState("");
   const [recoverySaved, setRecoverySaved] = useState(false);
+  const [manualRecovery, setManualRecovery] = useState(false);
   const [removeDeviceIds, setRemoveDeviceIds] = useState<string[]>([]);
   const [messenger, setMessenger] = useState<WebMessenger | null>(null);
   const [messages, setMessages] = useState<SecurePrivateMessage[]>([]);
@@ -232,6 +234,25 @@ export default function SecureDirectConversation({ userId, room }: Props) {
     }
   }
 
+  async function recoverWithPasskey() {
+    if (!enrollment || busy) return;
+    setBusy(true); setError("");
+    try {
+      if (enrollment.kind === "first") {
+        if (!enrollment.plan.backup) throw new Error("The encrypted backup is missing.");
+        const passkey = await createBrowserPasskeyRecovery(enrollment.plan.recoveryIdentity);
+        await activate({ ...enrollment.plan, backup: { ...enrollment.plan.backup, passkey } });
+      } else {
+        const passkey = enrollment.snapshot.encrypted_backup.passkey;
+        if (!passkey) throw new Error("Aktifkan passkey dari perangkat lama terlebih dahulu.");
+        const key = await unlockBrowserPasskeyRecovery(passkey, enrollment.snapshot.roster.identity);
+        await activate(prepareRecoveredDevice(userId, { ...enrollment.snapshot, encrypted_backup: passkey.backup }, key,
+          { pinnedRoot: enrollment.snapshot.roster.identity, removeDeviceIds }));
+      }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Passkey tidak dapat dibuka."); }
+    finally { setBusy(false); }
+  }
+
   async function importRecoveryFile(selected: File) {
     try {
       const value = JSON.parse(await selected.text()) as { recoveryKey?: unknown };
@@ -320,8 +341,12 @@ export default function SecureDirectConversation({ userId, room }: Props) {
           <FaShieldAlt className="text-4xl text-emerald-300" />
           <h2 className="mt-4 text-2xl font-black">Aktifkan Messages terenkripsi</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            ComePlayers membuat identitas enkripsi untuk akun ini. Simpan recovery key agar chat lama dapat dipulihkan saat berganti perangkat.
+            Simpan passkey di pengelola sandi Anda. Di perangkat baru, login ke ComePlayers lalu gunakan sidik jari atau PIN perangkat untuk memulihkan chat terenkripsi.
           </p>
+          <button type="button" disabled={busy} onClick={() => void recoverWithPasskey()} className="mt-5 w-full rounded-xl bg-emerald-400 px-4 py-3 font-black text-black disabled:opacity-40">{busy ? "Menyiapkan…" : "Lindungi Messages dengan passkey"}</button>
+          <p className="mt-3 text-sm text-slate-300">Gunakan pengelola sandi tersinkron yang sama di perangkat baru. Kunci enkripsi tetap hanya dapat dibuka oleh Anda.</p>
+          <button type="button" onClick={() => setManualRecovery(value => !value)} className="mt-4 text-sm text-cyan-200">{manualRecovery ? "Sembunyikan recovery key" : "Gunakan recovery key sebagai alternatif"}</button>
+          {manualRecovery ? <>
           <div className="mt-5 break-all rounded-2xl border border-white/10 bg-black/30 p-4 font-mono text-sm text-emerald-200">
             {enrollment.recoveryKey}
           </div>
@@ -354,6 +379,8 @@ export default function SecureDirectConversation({ userId, room }: Props) {
             onClick={() => void activate(enrollment.plan)}
             className="mt-5 w-full rounded-xl bg-emerald-400 px-4 py-3 font-black text-black disabled:opacity-40"
           >{busy ? "Memverifikasi…" : "Aktifkan perangkat ini"}</button>
+          </> : null}
+          {!manualRecovery && error ? <p role="alert" className="mt-3 rounded-xl bg-red-500/10 p-3 text-sm text-red-200">{error}</p> : null}
         </section>
       </div>
     );
@@ -366,8 +393,13 @@ export default function SecureDirectConversation({ userId, room }: Props) {
           <FaLock className="text-4xl text-cyan-300" />
           <h2 className="mt-4 text-2xl font-black">Verifikasi perangkat baru</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            Masukkan recovery key untuk membuka identity backup dan menyinkronkan chat lama ke vault terenkripsi perangkat ini.
+            {enrollment.snapshot.encrypted_backup.passkey ? "Anda sudah login. Buka passkey akun ini untuk mengunduh dan memulihkan chat terenkripsi." : "Akun ini belum mengaktifkan passkey. Aktifkan dari perangkat lama yang terverifikasi, atau gunakan recovery key tersimpan satu kali."}
           </p>
+          {enrollment.snapshot.encrypted_backup.passkey ? <>
+            <button type="button" disabled={busy || (enrollment.snapshot.roster.devices.length >= 8 && !removeDeviceIds.length)} onClick={() => void recoverWithPasskey()} className="mt-5 w-full rounded-xl bg-cyan-300 px-4 py-3 font-black text-black disabled:opacity-40">{busy ? "Membuka…" : "Buka passkey dan pulihkan Messages"}</button>
+            <button type="button" onClick={() => setManualRecovery(value => !value)} className="mt-4 text-sm text-cyan-200">{manualRecovery ? "Sembunyikan recovery key" : "Gunakan recovery key"}</button>
+          </> : null}
+          {manualRecovery || !enrollment.snapshot.encrypted_backup.passkey ? <>
           <textarea
             value={recoveryKey}
             onChange={(event) => setRecoveryKey(event.target.value)}
@@ -383,6 +415,7 @@ export default function SecureDirectConversation({ userId, room }: Props) {
               if (selected) void importRecoveryFile(selected);
             }} />
           </label>
+          </> : null}
           {enrollment.snapshot.roster.devices.length >= 8 ? (
             <div className="mt-5 rounded-xl border border-amber-400/25 bg-amber-400/10 p-3 text-sm">
               <p className="font-bold text-amber-200">Batas 8 perangkat tercapai. Pilih perangkat lama yang akan diganti:</p>
@@ -402,12 +435,12 @@ export default function SecureDirectConversation({ userId, room }: Props) {
             </div>
           ) : null}
           {error ? <p className="mt-3 rounded-xl bg-red-500/10 p-3 text-sm text-red-200">{error}</p> : null}
-          <button
+          {manualRecovery || !enrollment.snapshot.encrypted_backup.passkey ? <button
             type="button"
             disabled={busy || recoveryKey.replace(/\s/g, "").length !== 64 || (enrollment.snapshot.roster.devices.length >= 8 && !removeDeviceIds.length)}
             onClick={() => void recover()}
             className="mt-5 w-full rounded-xl bg-cyan-300 px-4 py-3 font-black text-black disabled:opacity-40"
-          >{busy ? "Memverifikasi…" : "Verifikasi dan pulihkan chat"}</button>
+          >{busy ? "Memverifikasi…" : "Verifikasi dan pulihkan chat"}</button> : null}
         </section>
       </div>
     );

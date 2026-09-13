@@ -1,0 +1,30 @@
+COMEPLAYERS MARBLE V82 - WORLD MATCH CINEMATIC
+
+BOARD AND WORLD DENSITY
+- Added four spectator terraces around the board with animated crowd lights.
+- Added orbit lanes and four animated world racers around the center globe.
+- Added inset property faces and district crest badges to every board tile.
+- Added clearer property-level badges above upgraded city silhouettes.
+
+MOVEMENT AND LANDING
+- Rebuilt route preview with connected rails, directional arrows, destination ring, and beacon.
+- Rebuilt active tile focus as a layered ring, inner disc, and vertical light beam.
+- Added double landing shockwaves, radial particles, and vertical landing rays.
+- Reduced player hop height and vertical bounce for smoother board traversal.
+- Added a stronger but controlled final-step landing squash.
+
+CAMERA AND PRESENTATION
+- Brought the overview camera closer so the board fills more of widescreen displays.
+- Smoothed movement-follow transitions to reduce twitching between tiles.
+- Updated authoritative 3D framing to match local gameplay.
+- Restyled the arrival popup into blue/gold PC-client chrome.
+- Updated turn and dice-control copy for clearer match flow.
+
+DICE
+- Increased dice separation and widened the throw arc.
+- Kept authoritative dice results and multiplayer behavior unchanged.
+
+COMPATIBILITY
+- No save schema changes.
+- No multiplayer protocol changes.
+- Ranked, replay, career, dice control, and classic victory systems remain compatible with V81.

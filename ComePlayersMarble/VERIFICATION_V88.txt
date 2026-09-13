@@ -1,0 +1,31 @@
+COMEPLAYERS MARBLE V88 VERIFICATION
+
+Version: 0.88.0
+Release: Fortune Signal Director
+
+TypeScript files: 83
+Syntax diagnostics: 0 (TypeScript transpile parser)
+Metadata UUIDs: 113 unique
+JSON/scene/material targets: 117 valid
+Relative imports: 232 resolved
+Fortune cards: 24
+Conflict markers: 0
+Generated/cache folders: none
+
+V88 logic tests:
+- Fortune tile creates three choices: PASS
+- Three cards are unique inside each offer: PASS
+- Card is not resolved before selection: PASS
+- Selected card closes the other choices: PASS
+- Selected effect resolves and clears pending state: PASS
+- Strategic bot chooses one visible card: PASS
+- 50 repeated draw-three offers contained no duplicate card inside an offer: PASS
+- Four new original V88 cards are registered: PASS
+
+Observed deterministic test:
+- Selected card: Arena Champion
+- Bot selection ID: arena-champion
+- Resolution: YOU received CP 400,000.
+- Total card catalog: 24
+
+Build note: Cocos Creator 3.8.8 executable is not installed on this machine, so a Web Desktop build was not generated or claimed.

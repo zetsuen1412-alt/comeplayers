@@ -1,0 +1,17 @@
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const assert = (condition, message) => { if (!condition) throw new Error(message); };
+const root = path.resolve(__dirname, '..');
+const camera = fs.readFileSync(path.join(root, 'assets/scripts/camera/BoardCameraController.ts'), 'utf8');
+const preset = fs.readFileSync(path.join(root, 'assets/scripts/camera/ClassicComfortCameraPreset.ts'), 'utf8');
+const authority = fs.readFileSync(path.join(root, 'assets/scripts/ui/Authoritative3DBoardPresenter.ts'), 'utf8');
+const hud = fs.readFileSync(path.join(root, 'assets/scripts/ui/MatchHUD.ts'), 'utf8');
+assert(preset.includes('CLASSIC_COMFORT_CAMERA_FOV = 26'), 'V104 board-fit FOV is missing.');
+assert(preset.includes('x: 29.4, y: 38.8, z: 29.4'), 'V104 board-fit overview pose is missing.');
+assert(camera.includes('classicTargetPose(position, 0.03, -0.05)'), 'Turn-focus board-fit tuning is missing.');
+assert(camera.includes('classicTargetPose(destination, 0.04, -0.10)'), 'Movement board-fit framing is missing.');
+assert(camera.includes('V104 board-fit tuning keeps the entire board visible'), 'Board-fit marker comment is missing.');
+assert(authority.includes('classicTargetPose(position, 0.06, -0.22)'), 'Authoritative board-fit focus is missing.');
+assert(hud.includes('CLASSIC CAMERA  •  V104'), 'V104 HUD marker is missing.');
+console.log('V104 Board-Fit Camera checks passed.');

@@ -1,0 +1,33 @@
+COMEPLAYERS MARBLE V79 - CLASSIC DICE CONTROL & BOARD MOTION
+Version 0.79.0
+
+CLASSIC DICE CONTROL
+- Added a visible classic dice-control dock beside the central ROLL button.
+- Added AUTO, ODD, and EVEN parity targeting.
+- Added LOW (2-5), MID (6-8), and HIGH (9-12) range targeting.
+- Dice control improves probability without guaranteeing an exact result.
+- Local dice authority evaluates several seeded candidate rolls and chooses the best match.
+- Visual dice remain presentation-only and never decide the authoritative result.
+- Online/Supabase authority protocols are unchanged.
+
+BOARD MOVEMENT PRESENTATION
+- Replaced isolated route dots with connected glowing route rails.
+- Added an animated destination beacon on the final tile.
+- Preserved active-tile halo and landing burst presentation.
+- Added active-seat center lamps that clearly show whose turn is running.
+
+PROPERTY PRESENTATION
+- Added a construction sequence with rising light beams and a gold expansion ring.
+- Building and Landmark geometry still appears from the authoritative property level.
+- Construction effects destroy themselves after presentation and do not modify game state.
+
+HUD AND CAMERA
+- Rebuilt the bottom roll dock around the classic center ROLL composition.
+- Added readable selected-control status and target range labels.
+- Tightened local and authoritative overview cameras while preserving full-board framing.
+- Updated lobby and online chrome to V79 markers.
+
+COMPATIBILITY
+- No save schema changes.
+- No authoritative protocol changes.
+- V78 local saves, career data, ranked data, replay data, and online profiles remain compatible.

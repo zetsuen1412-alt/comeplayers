@@ -1,0 +1,23 @@
+name: Send ComePlayers Android updates
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        type: string
+        required: true
+        description: Catatan update yang akan dilihat di dashboard Expo
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  send_update:
+    name: Publish production Android OTA update
+    type: update
+    params:
+      platform: android
+      channel: production
+      message: ${{ inputs.message }}
+      rollout_percentage: 25

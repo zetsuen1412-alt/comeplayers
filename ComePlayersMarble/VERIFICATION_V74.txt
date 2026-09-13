@@ -1,0 +1,16 @@
+ComePlayers Marble V74 verification
+
+Semantic version: 0.74.0
+Release name: v74
+TypeScript files: 80
+TypeScript syntax error files: 0 (checked with TypeScript transpileModule)
+Metadata files: 110
+Unique metadata UUIDs: 110
+JSON targets: 114
+Relative imports: 221
+Conflict markers: 0
+Generated/cache folders included: no
+Expected Cocos build folder: build/web-desktop-v74
+Cocos web build available in this environment: no
+
+Source verification passed. A runtime Web/Desktop build must still be produced and visually reviewed in Cocos Creator 3.8.8.

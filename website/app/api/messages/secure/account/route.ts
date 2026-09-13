@@ -34,6 +34,6 @@ export async function POST(request: Request) {
     if (!existing.data && !backup) throw inputError("Save an encrypted recovery-key backup before activating this identity.");
     const saved = await db.rpc("cp_secure_authorize_account", { p_user: user.id, p_roster: roster, p_hash: signedRosterHash(roster), p_backup: backup });
     if (saved.error) throw inputError(/rate limit/i.test(saved.error.message) ? "Too many device changes. Try again later." : "Device authorization changed. Reload and verify the latest device list before trying again.", /rate limit/i.test(saved.error.message) ? 429 : 409);
-    return json({ revision: saved.data, rosterHash: signedRosterHash(roster) });
+    return json({ revision: saved.data, rosterHash: signedRosterHash(roster), passkeySignature: backup?.passkey?.signature ?? null });
   } catch (error) { return accountApiError(error); }
 }

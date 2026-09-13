@@ -1,0 +1,14 @@
+COMEPLAYERS MARBLE V65 — COMPETITIVE CIRCUIT
+
+- Added authenticated server competitive profiles and global top-20 standings.
+- Added Solo and Team server-ranked matchmaking queues.
+- Added expanding RP search window and queue expiration.
+- Added atomic private-room reservations protected by advisory locks.
+- Added idempotent authoritative result finalization.
+- Added four/eight-player Solo tournament creation and join codes.
+- Added automatic single-elimination bracket room generation.
+- Added server-validated bracket advancement and champion rewards.
+- Added COMPETE navigation page and tournament/queue UI.
+- Added reserved-room claim fix to the Realtime join RPC.
+- Kept all V57–V64 authoritative gameplay, spectator, and Replay Studio features.
+- Updated project version to 0.65.0.

@@ -1,0 +1,20 @@
+COMEPLAYERS MARBLE V103 — CLASSIC COMFORT CAMERA
+
+CAMERA
+- Added ClassicComfortCameraPreset as the shared camera source of truth.
+- Changed default perspective FOV from 30 to 24.
+- Replaced close per-event camera positions with full-board target bias.
+- Removed per-tile camera chasing during player movement.
+- Added one-shot destination framing before movement begins.
+- Reworked opening camera into a gentle fixed-yaw settle instead of a multi-angle orbit.
+- Reduced dice, landing, property, travel, hit, and celebration camera shake.
+- Unified local and authoritative camera framing.
+
+UI
+- Updated lobby and match labels to V103 Classic Comfort Camera.
+- Updated the camera settings label to distinguish Classic and Minimal motion.
+
+COMPATIBILITY
+- Preserved V102 Clean Match HUD.
+- Preserved all V101 Replay Academy data and save compatibility.
+- No gameplay rules, networking authority, ranked data, career data, or replay data were reset.

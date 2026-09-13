@@ -1,0 +1,14 @@
+COMEPLAYERS MARBLE V50 VERIFICATION
+
+PASS - all 54 TypeScript source files transpile with TypeScript 5.6.3.
+PASS - full source graph type-checks with strict mode using a local Cocos API declaration substitute.
+PASS - all relative TypeScript imports resolve to existing files.
+PASS - career reward test: rank, activity, mission credits, XP, history, streak, and level progression.
+PASS - mission rewards are claimed only once.
+PASS - recent match history is bounded to eight entries.
+PASS - failed career persistence rolls back active career state and awards zero CP.
+PASS - V49-style save data without careerProgression normalizes to a level-1 default career.
+PASS - character wallet grant adds the calculated career reward.
+PASS - new Cocos TypeScript asset metadata uses unique UUID values.
+
+NOT RUN - Cocos Creator 3.8.8 Editor Preview and Web Desktop/Windows build, because Cocos Creator is not installed in this environment.

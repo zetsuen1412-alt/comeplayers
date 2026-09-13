@@ -1,0 +1,11 @@
+COMEPLAYERS MARBLE V71 — CAREER INTELLIGENCE UPDATE
+
+- Upgraded project version to 0.71.0.
+- Added recent-form analysis based on the five latest saved matches.
+- Added a 0-100 momentum score weighted toward the newest matches.
+- Added recent average-rank reporting to the Career page.
+- Added automatic recommended-mission guidance based on nearest completion.
+- Added overall mission-completion percentage.
+- Fixed a duplicate level property in career save composition.
+- Preserved V70 save compatibility; no career schema migration is required.
+- Retained all existing 3D, multiplayer, ranked, replay, progression, lobby, and authoritative-match systems.

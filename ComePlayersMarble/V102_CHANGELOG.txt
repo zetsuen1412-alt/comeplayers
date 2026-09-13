@@ -1,0 +1,9 @@
+COMEPLAYERS MARBLE V102 — CLEAN MATCH HUD
+
+- Removed the permanent stacked information rails from the center of the board.
+- Added an optional INFO panel, hidden by default.
+- Moved turn order, city intelligence, Color Monopoly, Fortune status, special district, liquidation, Live Academy, and system messages into INFO.
+- INFO automatically hides while important decision dialogs are active.
+- Reduced top bar height, player card footprint, skill dock, roll dock, turn banner, dice reveal, and landing card.
+- Simplified player card text to rank, asset, cash, city/building count, and victory progress.
+- Preserved all V101 gameplay, save, replay, progression, ranked, and multiplayer systems.

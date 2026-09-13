@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import MessagesLoadingOperatorV15 from "@/components/messages/MessagesLoadingOperatorV15";
+import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 
 
 
@@ -4316,6 +4317,13 @@ export default function MessagesPage() {
       data-messages-page="true"
       className={`${styles.page} ${styles.messageTypography} relative overflow-hidden bg-[#02060d] text-white`}
     >
+      {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
+        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId);
+        const room = available.find(item => item.id === roomId);
+        if (!room) throw new Error("Conversation not found.");
+        setShowPrivateMessages(false); setShowFriendsMenu(false); setCommunityOverlay(null);
+        openRoom(room);
+      }} /> : null}
       <style>{`
         body.messages-shell > nav:first-of-type,
         body.messages-shell > header:first-of-type,

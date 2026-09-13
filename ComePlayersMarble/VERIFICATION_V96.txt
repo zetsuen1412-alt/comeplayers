@@ -1,0 +1,45 @@
+COMEPLAYERS MARBLE V96 VERIFICATION
+
+Version: 0.96.0
+Release: v96
+Cocos Creator target: 3.8.8
+
+Static source verification:
+- TypeScript files: 88
+- TypeScript syntax parse errors: 0
+- Metadata files: 118
+- Unique metadata UUIDs: 118
+- JSON/scene/prefab/material targets: 122
+- Relative imports resolved: 251
+- Merge conflict markers: 0
+- Forbidden generated folders: 0
+
+Season Archive runtime logic test:
+- Monthly UTC season rollover: PASS
+- Previous season archive creation: PASS
+- Archived XP, tier, Prestige, reward, Perfect Cycle, and season streak values: PASS
+- Duplicate season archive prevention: PASS
+- New-season counters reset without lifetime reset: PASS
+- Lifetime Journey XP preservation: PASS
+- Best season XP tracking: PASS
+- Six-entry Local Rival Board with YOU entry: PASS
+- V95 Career data normalization into V96 fields: PASS
+
+Regression verification:
+- Twenty base World Journey tiers: PRESENT
+- Ten Journey Prestige levels: PRESENT
+- Daily and weekly UTC resets: PRESENT
+- Perfect Journey Day and Week: PRESENT
+- Career Legacy and Match Legacy Awards: PRESENT
+- Triple/Line/Tourism victory modules: PRESENT
+- Color Monopoly x2 rent economy: PRESENT
+- Development Planner: PRESENT
+- Fortune draw-three selection: PRESENT
+- Special District Strategy: PRESENT
+- Bankruptcy rescue and liquidation: PRESENT
+- Strategic Takeover Director: PRESENT
+- Ranked, replay, and authoritative multiplayer modules: PRESENT
+
+Cocos build status:
+- Source verification: PASS
+- Web Desktop build: NOT CREATED on this machine because Cocos Creator 3.8.8 executable is unavailable.

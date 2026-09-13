@@ -1,0 +1,55 @@
+COMEPLAYERS MARBLE V87 VERIFICATION
+
+Version: 0.87.0
+Release: Classic Development Planner
+
+TypeScript files: 83
+Syntax diagnostics: 0 (TypeScript transpile parser)
+Metadata UUIDs: 113 unique
+JSON/scene/material targets: 117 valid
+Relative imports: 231 resolved
+Conflict markers: 0
+Generated/cache folders: none
+
+V87 logic tests:
+- Four purchase packages: PASS
+- Package cost increases by level: PASS
+- Projected rent increases by level: PASS
+- Direct Hotel development: PASS
+- Correct package charge: PASS
+- Color Monopoly completion preview: PASS
+- Color Monopoly completion after purchase: PASS
+- Landmark multi-upgrade package: PASS
+
+Observed purchase package test data:
+[
+  {
+    "targetLevel": 0,
+    "cost": 100000,
+    "projectedRent": 19000,
+    "reserveRisk": "SAFE"
+  },
+  {
+    "targetLevel": 1,
+    "cost": 130000,
+    "projectedRent": 38000,
+    "reserveRisk": "SAFE"
+  },
+  {
+    "targetLevel": 2,
+    "cost": 180000,
+    "projectedRent": 76000,
+    "reserveRisk": "SAFE"
+  },
+  {
+    "targetLevel": 3,
+    "cost": 260000,
+    "projectedRent": 133000,
+    "reserveRisk": "SAFE"
+  }
+]
+
+Final test Landmark level: 4
+Final test rent after Color Monopoly: CP 456,000
+
+Build note: Cocos Creator 3.8.8 executable is not installed on this machine, so a Web Desktop build was not generated or claimed.

@@ -13,6 +13,7 @@ import ConditionalChrome from "./components/ConditionalChrome";
 import DeploymentAutoRefresh from "./components/DeploymentAutoRefresh";
 import "./globals.css";
 import MfaSessionGate from "@/components/account/MfaSessionGate";
+import AccountSessionGuard from "@/components/account/AccountSessionGuard";
 
 
 
@@ -168,6 +169,7 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-[#020617] text-white">
         <DeploymentAutoRefresh />
         <MfaSessionGate />
+        <AccountSessionGuard />
         <CurrencyProvider
           key={`${country}:${locale}:${currency}`}
           country={country}

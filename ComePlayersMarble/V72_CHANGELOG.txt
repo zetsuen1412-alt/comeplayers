@@ -1,0 +1,12 @@
+ComePlayers Marble V72 - Premium 3D Dice Update
+
+- Rebuilt the runtime dice presentation with layered premium geometry.
+- Changed the default ComePlayers Gold dice to glossy black face panels with metallic gold shell and rails.
+- Added six inset face panels per die for stronger depth and reflections.
+- Added two-layer pips: metallic rings plus raised ivory pip caps.
+- Added twelve metallic edge rails and eight rounded corner caps per die.
+- Increased mesh segments on pips and corners for smoother silhouettes.
+- Improved PBR roughness, metallic, and specular tuning.
+- Raised and separated both dice slightly for clearer camera presentation.
+- Refined the toss height, squash, landing timing, and premium result pulse.
+- Preserved authoritative dice values, replay compatibility, multiplayer logic, and V71 save compatibility.

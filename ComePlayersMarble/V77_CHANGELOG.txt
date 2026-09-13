@@ -1,0 +1,22 @@
+COMEPLAYERS MARBLE V77 - CLASSIC PARITY OVERHAUL
+Version 0.77.0
+
+VISUAL GAMEPLAY
+- Rebuilt the 3D board as a warm classic tabletop instead of a neon prototype diorama.
+- Added mahogany table layers, ivory board mat, recessed center field, metallic trims, card decks, an original CP center emblem, and four original robot spectator mascots.
+- Reworked property tiles into classic card-like tiles with ivory surfaces, colored district bands, gold dividers, larger corner spaces, and rectangular side proportions.
+- Adjusted the overview and authoritative cameras for a denser, more readable full-board composition.
+
+MATCH HUD
+- Replaced dashboard panels with compact classic corner player cards.
+- Added wood/gold screen rails, round timer medallion, monopoly tracker, system ticker, and a purple centered roll control.
+- Restyled purchase, payment, fortune, game center, turn, and dice presentation toward classic PC board-game windows.
+
+LOBBY
+- Updated lobby into a brighter classic blue game client.
+- Enlarged Alexia character artwork and improved the character-card presentation.
+- Added a classic notice ticker and clearer game-client navigation.
+
+COMPATIBILITY
+- No save schema changes.
+- Classic victory, multiplayer, ranked, replay, economy, and career logic remain compatible with V76 saves.

@@ -1,0 +1,42 @@
+COMEPLAYERS MARBLE V59 VERIFICATION
+
+VERSION
+- package.json: 0.59.0
+- Cocos Creator target: 3.8.8
+
+SOURCE
+- TypeScript files checked: 72
+- Strict TypeScript: PASS
+- Missing relative imports: 0
+- Cocos UUID values checked: 97
+- Duplicate UUID values: 0
+
+SUPABASE / SQL
+- V57 parsed statements: 46
+- V58 parsed statements: 38
+- V59 parsed statements: 32
+- V59 RLS property table: PASS
+- Auth / current-turn / revision / idempotency validation: PASS (static + protocol tests)
+- Embedded actual secret-key patterns: 0
+
+TESTS
+- V59 snapshot, property, pending-action, event, coordinator commands: PASS
+- V58 authority regression: PASS
+- V57 Realtime / Presence / reconnect regression: PASS
+- V56 online profile / replay / save regression: PASS
+- V55 Ranked and extended Ranked regression: PASS
+- npm ci using public npm registry lockfile: PASS
+- npm audit vulnerabilities: 0
+
+V59 ECONOMY COVERAGE
+- Server purchase / upgrade / Landmark: PASS
+- Server rent / Team rent exemption: PASS
+- Server takeover validation: PASS
+- 70% asset liquidation / bankruptcy: PASS (SQL parse + deterministic rule inspection)
+- Tax / Bonus economy: PASS
+- Solo / Team / round-limit winner calculation: PASS (SQL parse + deterministic rule inspection)
+
+LIMITATIONS
+- Cocos Creator Editor Preview and native build were not executed in this environment.
+- The 3D board does not yet rebuild all visuals directly from remote property snapshots.
+- Fortune, Game Center, Olympic, World Travel, and Island choices remain outside the server reducer.

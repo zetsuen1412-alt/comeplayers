@@ -1,0 +1,16 @@
+ComePlayers Marble V57 — Supabase Realtime Rooms
+
+- Added exact @supabase/supabase-js 2.106.2 dependency and lockfile.
+- Added safe bundled/runtime configuration with publishable-key validation.
+- Added authenticated room create and invite-code join RPC integration.
+- Added private Supabase Realtime Broadcast and Presence channel adapter.
+- Added ready-state, room-state, Presence, reconnect, disconnect, and heartbeat flows.
+- Added Online Center status, room publishing, joining, synchronization, reconnect, and latency controls.
+- Added secure room registry and membership migration with RLS.
+- Added private realtime.messages policies scoped to active room membership.
+- Added local-save v6 and online-profile v2 migration while preserving V56 data.
+- Preserved all offline, AI, Team, Ranked, career, inventory, mission, and replay systems.
+- Added documentation and production-security checklist.
+
+Known boundary:
+V57 synchronizes online lobby/room state. Board turns are not yet server-authoritative.

@@ -1,0 +1,18 @@
+COMEPLAYERS MARBLE V68 — SOURCE VERIFICATION
+
+Status: PASSED
+Version: 0.68.0
+TypeScript files: 80
+Metadata files: 110
+Unique metadata UUIDs: 110
+JSON targets parsed: 114
+Relative TypeScript imports resolved: 221
+Expected Web Desktop output: build/web-desktop-v68
+Web Desktop V68 build included: NO
+Reason: Cocos Creator 3.8.8 Windows executable is not available in the current build environment.
+
+Important:
+- The source project is ready to open and build in Cocos Creator 3.8.8.
+- Generated folders library, temp, node_modules, and build are intentionally excluded from the clean release ZIP.
+- Cocos Creator will regenerate library and temp automatically.
+- All gameplay and save compatibility from V50-V67 is preserved.

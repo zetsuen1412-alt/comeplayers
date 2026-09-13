@@ -1,0 +1,30 @@
+COMEPLAYERS MARBLE V103 — REFERENCE CAMERA AUDIT
+
+Reference package inspected:
+- NetmarbleModuMarble(1).zip
+
+Inspected material:
+- Classic client configuration files.
+- Built-in help BMP images showing board and gameplay framing.
+- Game board and UI asset inventory.
+- Executable metadata and embedded resource names.
+
+Observed camera characteristics:
+1. The board is presented from a stable diagonal/isometric viewpoint.
+2. The complete board remains readable during ordinary turns.
+3. Player movement is presented on the board rather than through continuous close camera tracking.
+4. Dice and event emphasis are centered but do not abandon board context.
+5. HUD information stays near screen edges instead of forcing the camera into close shots.
+6. The visual feel is closer to a fixed 2.5D game client than a free cinematic 3D camera.
+
+V103 implementation response:
+- Low-FOV perspective camera to approximate the classic 2.5D composition while retaining 3D buildings.
+- Full-board overview as the primary pose.
+- Small clamped target bias for active tiles.
+- Destination-only movement framing.
+- Gentle landing and event emphasis.
+- Reduced impact shake and roll.
+- Shared camera preset for local and authoritative matches.
+
+Limitation:
+The Windows executable was not run in this Linux environment because Wine was not available. The camera update is grounded in the packaged client help images, visual resources, supplied gameplay references, and direct comparison with the V102 camera source.

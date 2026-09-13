@@ -1,0 +1,43 @@
+COMEPLAYERS MARBLE V78 - RELEASE VERIFICATION
+
+Project: ComePlayersMarble
+Version: 0.78.0
+Expected Cocos version: 3.8.8
+Expected build folder: build/web-desktop-v78
+
+SOURCE VERIFICATION
+- TypeScript files: 82
+- TypeScript syntax parse errors: 0
+- Metadata files: 112
+- Unique metadata UUIDs: 112
+- JSON/scene/material targets parsed: 116
+- Relative imports resolved: 226
+- Merge conflict markers: 0
+- package.json and package-lock.json versions match: YES
+- Forbidden generated folders included: NO
+
+GAMEPLAY PRESENTATION CHECKS
+- Widescreen fixed-height UI policy: PRESENT
+- Viewport-pinned preview/build templates: PRESENT
+- Dynamic lobby service ribbon: PRESENT
+- Active player TURN indicators: PRESENT
+- Turn phase ribbon: PRESENT
+- Dynamic three-message system ticker: PRESENT
+- Tile arrival card: PRESENT
+- Movement route preview: PRESENT
+- Active tile halo: PRESENT
+- Landing celebration: PRESENT
+- Center turn lamps: PRESENT
+- Property price badges: PRESENT
+- Denser authoritative overview camera: PRESENT
+
+CLASSIC GAMEPLAY CHECKS
+- Tourism tiles: 4
+- Triple Monopoly: PRESENT
+- Line Monopoly: PRESENT
+- Tourism Monopoly: PRESENT
+
+BUILD STATUS
+- Source verification: PASSED
+- Web build created on this machine: NO
+- Reason: Cocos Creator 3.8.8 executable is not installed in this Linux verification environment.

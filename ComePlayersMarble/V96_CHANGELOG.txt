@@ -1,0 +1,15 @@
+COMEPLAYERS MARBLE V96 - SEASON ARCHIVE & RIVAL BOARD
+
+1. Added duplicate-safe monthly World Journey season archiving.
+2. Added twelve-entry Journey season history with XP, tier, Prestige, reward, Perfect Cycle, and streak statistics.
+3. Added lifetime Journey XP, completed-season count, and best-season XP tracking.
+4. Added season-specific Journey reward CP and Perfect Day/Week counters.
+5. Added a deterministic six-entry Local Rival Board that clearly identifies the local player as YOU.
+6. Added current local rival rank to Career and match-result presentation.
+7. Added season archive details to the Career command center.
+8. Added result-screen season rollover reporting.
+9. Added a turquoise 3D Season Archive ring, core, and pillar presentation.
+10. Prevented duplicate archive creation on repeated matches after rollover.
+11. Upgraded Career progression data from version 4 to version 5.
+12. Upgraded the local save bundle from version 8 to version 9 while preserving V95 saves.
+13. Preserved World Journey tiers, Prestige, Perfect Cycles, Career Legacy, Match Legacy Awards, ranked, replay, multiplayer, Development Planner, Fortune Signal, Special District Strategy, liquidation, takeover, and classic victory systems.

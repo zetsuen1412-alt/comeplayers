@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaComments, FaSearch, FaShieldAlt, FaShoppingBag } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
@@ -50,9 +51,6 @@ type Room = {
 };
 type RoomsResponse = { rooms: Room[] };
 
-function isTradeRoom(room: Room) {
-  return room.room_type !== "group" && Boolean(room.product_id || room.order_id || room.product || room.order);
-}
 function profileName(profile?: Profile | null) {
   return profile?.full_name?.trim() || profile?.username?.trim() || "ComePlayers User";
 }
@@ -119,7 +117,7 @@ export default function ChatClient() {
     if (!silent) setLoadingRooms(true);
     try {
       const result = await authenticatedFetchJson<RoomsResponse>("/api/messages/rooms?limit=100&scope=direct");
-      const next = (result.rooms || []).filter(isTradeRoom);
+      const next = (result.rooms || []).filter(room => room.room_type !== "group");
       setRooms(next);
       setSelectedRoomId((current) => {
         const requested = preferredRoomId || current;
@@ -204,6 +202,14 @@ export default function ChatClient() {
 
   return (
     <main className={styles.page}>
+      {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
+        if (!rooms.some(room => room.id === roomId)) {
+          const result = await authenticatedFetchJson<{ room: Room }>(`/api/messages/rooms/${encodeURIComponent(roomId)}`);
+          if (!result.room || result.room.room_type === "group") throw new Error("Private conversation is unavailable.");
+          setRooms(current => [result.room, ...current.filter(room => room.id !== roomId)]);
+        }
+        setSelectedRoomId(roomId); setMobileChatOpen(true);
+      }} /> : null}
       <section className={styles.shell} aria-label="Customer and seller encrypted chat">
         <aside className={`${styles.sidebar} ${mobileChatOpen ? styles.sidebarHiddenMobile : ""}`}>
           <div className={styles.sidebarHeader}>
@@ -214,11 +220,11 @@ export default function ChatClient() {
             <FaSearch /><span className={styles.srOnly}>Search chats</span>
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name, product, or order" />
           </label>
-          <div className={styles.listHeading}><span>Customer &amp; Seller</span><small>End-to-end encrypted</small></div>
+          <div className={styles.listHeading}><span>Private conversations</span><small>End-to-end encrypted</small></div>
           {error ? <div className={styles.errorBanner}>{error}</div> : null}
           <div className={styles.roomList}>
             {loadingRooms ? <div className={styles.listLoading}><span className={styles.spinner} /> Loading chats…</div> : filteredRooms.length ? filteredRooms.map((room) => {
-              const title = room.order?.product_title || room.product?.title || "Transaction chat";
+              const title = room.order?.product_title || room.product?.title || "Direct message";
               return (
                 <button type="button" key={room.id} onClick={() => { setSelectedRoomId(room.id); setMobileChatOpen(true); }} className={`${styles.roomItem} ${selectedRoomId === room.id ? styles.roomItemActive : ""}`}>
                   <Avatar profile={room.other} />

@@ -1,0 +1,75 @@
+{
+    "$schema":  "https://schema.tauri.app/config/2",
+    "productName":  "ComePlayers",
+    "version":  "0.5.4",
+    "identifier":  "com.comeplayers.desktop",
+    "build":  {
+                  "beforeDevCommand":  "npm run dev",
+                  "devUrl":  "http://localhost:1420",
+                  "beforeBuildCommand":  "npm run build",
+                  "frontendDist":  "../dist"
+              },
+    "app":  {
+                "windows":  [
+                                {
+                                    "label":  "main",
+                                    "title":  "ComePlayers",
+                                    "width":  1440,
+                                    "height":  900,
+                                    "minWidth":  360,
+                                    "minHeight":  600,
+                                    "center":  true,
+                                    "resizable":  true
+                                }
+                            ],
+                "security":  {
+                                 "csp":  "default-src \u0027self\u0027; img-src \u0027self\u0027 data: https:; style-src \u0027self\u0027 \u0027unsafe-inline\u0027; script-src \u0027self\u0027; connect-src \u0027self\u0027 https: wss:; font-src \u0027self\u0027 data:;"
+                             }
+            },
+    "bundle":  {
+                   "active":  true,
+                   "publisher":  "PT COME PLAYERS DIGITAL",
+                   "copyright":  "Copyright © 2026 PT COME PLAYERS DIGITAL",
+                   "category":  "SocialNetworking",
+                   "homepage":  "https://www.comeplayers.com",
+                   "targets":  [
+                                   "nsis"
+                               ],
+                   "createUpdaterArtifacts":  true,
+                   "icon":  [
+                                "icons/32x32.png",
+                                "icons/128x128.png",
+                                "icons/128x128@2x.png",
+                                "icons/icon.ico"
+                            ],
+                   "shortDescription":  "Play. Trade. Connect.",
+                   "longDescription":  "ComePlayers desktop application for the marketplace, communities, tournaments, payments, and conversations."
+                   ,
+                   "windows":  {
+                                   "allowDowngrades":  false,
+                                   "webviewInstallMode":  {
+                                                               "type":  "downloadBootstrapper",
+                                                               "silent":  true
+                                                           }
+                               }
+               },
+    "plugins":  {
+                    "updater":  {
+                                    "pubkey":  "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQyOEQ2Q0JEMTYzN0JERkYKUldUL3ZUY1d2V3lOMGhnZUNOcDVHcllBMHZyRTBZNVB2aktHWUpzanVOeVRocy8rMlUyc2I4K0kK",
+                                    "endpoints":  [
+                                                      "https://comeplayers.com/api/desktop/update/{{target}}/{{arch}}/{{current_version}}",
+                                                      "https://www.comeplayers.com/api/desktop/update/{{target}}/{{arch}}/{{current_version}}"
+                                                  ],
+                                    "windows":  {
+                                                    "installMode":  "passive"
+                                                }
+                                },
+                    "deep-link":  {
+                                      "desktop":  {
+                                                      "schemes":  [
+                                                                      "comeplayers"
+                                                                  ]
+                                                  }
+                                  }
+                }
+}

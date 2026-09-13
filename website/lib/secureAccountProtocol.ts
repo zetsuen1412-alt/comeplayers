@@ -6,7 +6,7 @@ import { hash, uuid, verifySignature } from "./privateMessaging";
 export type RootPublic = { userId: string; encryptionKey: string; signingKey: string };
 export type AuthorizedDevice = { id: string; identity: RootPublic; createdAt: string };
 export type SignedRoster = { v: 2; identity: RootPublic; revision: number; previous: string | null; devices: AuthorizedDevice[]; signature: string };
-export type RootBackup = { v: 2; id: string; userId: string; rootFingerprint: string; createdAt: string; ciphertext: string; signature: string };
+export type RootBackup = { v: 2; id: string; userId: string; rootFingerprint: string; createdAt: string; ciphertext: string; signature: string; passkey?: import("./e2ee/passkeyRecovery").PasskeyRecovery };
 const key = /^[0-9a-f]{64}$/;
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw inputError("Invalid encryption data.");
@@ -79,6 +79,15 @@ export function verifyRootBackup(value: unknown, root: RootPublic): RootBackup {
   const backup: RootBackup = { v: 2, id: uuid(raw.id), userId: root.userId, rootFingerprint: rootFingerprint(root), createdAt: timestamp(raw.createdAt), ciphertext: raw.ciphertext, signature: typeof raw.signature === "string" ? raw.signature : "" };
   const bytes = JSON.stringify(["cp-root-backup-v2", backup.v, backup.id, backup.userId, backup.rootFingerprint, backup.createdAt, backup.ciphertext]);
   if (!verifySignature(root.signingKey, backup.signature, bytes)) throw inputError("Invalid encrypted backup signature.", 403);
+  if (raw.passkey != null) {
+    const p = record(raw.passkey), inner = record(p.backup);
+    if (p.v !== 1 || p.rpId !== "www.comeplayers.com" || typeof p.credentialId !== "string" || !/^[A-Za-z0-9_-]{16,2048}$/.test(p.credentialId) || typeof p.salt !== "string" || !key.test(p.salt) || inner.passkey != null) throw inputError("Invalid encrypted passkey backup.");
+    const b = verifyRootBackup(inner, root);
+    const signature = typeof p.signature === "string" ? p.signature : "";
+    const data = JSON.stringify(["cp-passkey-recovery-v1", 1, p.rpId, p.credentialId, p.salt, b.v, b.id, b.userId, b.rootFingerprint, b.createdAt, b.ciphertext, b.signature]);
+    if (!verifySignature(root.signingKey, signature, data)) throw inputError("Invalid passkey backup signature.", 403);
+    backup.passkey = { v: 1, rpId: p.rpId, credentialId: p.credentialId, salt: p.salt, backup: b, signature };
+  }
   return backup;
 }
 export function verifyDeviceRequest(request: Request, body: string, userId: string, devices: AuthorizedDevice[], now = Date.now()): AuthorizedDevice {

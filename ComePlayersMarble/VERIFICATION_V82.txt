@@ -1,0 +1,68 @@
+COMEPLAYERS MARBLE V82 - RELEASE VERIFICATION
+
+Release: World Match Cinematic
+Semantic version: 0.82.0
+Cocos Creator target: 3.8.8
+
+SOURCE CHECKS
+- TypeScript source files: 82
+- TypeScript syntax errors: 0
+- Metadata UUID files: 112
+- Unique metadata UUIDs: 112
+- JSON/scene/prefab/material targets: 116
+- Relative imports resolved: 227
+- Merge conflict markers: 0
+- Generated/cache folders included: 0
+
+V82 FEATURE CHECKS
+- Four spectator terraces: PASS
+- Animated crowd lights: PASS
+- Center-world orbit racers: PASS
+- Inset tile faces and district crests: PASS
+- Property-level badges: PASS
+- Connected movement rails and arrows: PASS
+- Destination ring and beacon: PASS
+- Layered active-tile focus beam: PASS
+- Landing shockwaves and vertical rays: PASS
+- Flatter, less bouncy player movement: PASS
+- Closer complete-board camera: PASS
+- Smoother movement-follow camera: PASS
+- Blue/gold arrival presentation: PASS
+- Wider premium dice throw: PASS
+- Local and authoritative camera parity: PASS
+- V81 save compatibility retained: PASS
+- Multiplayer protocol unchanged: PASS
+
+BUILD STATUS
+- Source verification: PASS
+- Web Desktop build: NOT GENERATED on this machine because Cocos Creator 3.8.8 is unavailable
+
+VERIFY JSON
+{
+  "project": "ComePlayersMarble",
+  "semanticVersion": "0.82.0",
+  "releaseName": "v82",
+  "typeScriptFiles": 82,
+  "metaFiles": 112,
+  "uniqueMetaUuids": 112,
+  "jsonTargets": 116,
+  "relativeImports": 227,
+  "tourismTileCount": 4,
+  "classicVictoryConditions": 3,
+  "spectatorTerraces": true,
+  "orbitRacers": true,
+  "districtCrests": true,
+  "propertyLevelBadges": true,
+  "routeDirectionArrows": true,
+  "destinationRing": true,
+  "layeredActiveTileFocus": true,
+  "landingShockwaves": true,
+  "flatterPlayerMovement": true,
+  "closerBoardCamera": true,
+  "authoritativeCameraParity": true,
+  "packageLockVersionMatches": true,
+  "conflictMarkers": 0,
+  "cleanGeneratedFolders": true,
+  "expectedBuild": "web-desktop-v82",
+  "buildAvailable": false
+}

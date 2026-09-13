@@ -1,0 +1,31 @@
+ComePlayers Marble V105 – Reference Video Audit
+================================================
+Reference file: monopoli1(1).mp4
+Resolution: 638x360
+Frame rate: 30000/1001 fps
+Duration: 1535.071 seconds
+
+Sample timestamps reviewed:
+0s, 30s, 75s, 120s, 180s, 240s, 330s, 420s,
+510s, 600s, 720s, 840s, 960s, 1080s, 1260s, 1440s.
+
+Key findings:
+- The camera is essentially locked to one full-board isometric pose.
+- Normal movement does not trigger close tracking shots.
+- Dice are presented in the center without hiding the surrounding board.
+- Player panels remain in the four corners.
+- The top bar is thin and uses a dark brown/gold client style.
+- The board has a dark wood surround, an ivory track, and a gray center.
+- Property groups use strong saturated bands.
+- Buildings remain compact enough to read from the overview.
+- Money stacks are placed around the outside of the track.
+- Event popups are small and centered.
+- The bottom-center roll control remains the main action target.
+
+V105 response:
+- Fixed full-board camera.
+- Reduced event zoom and camera movement.
+- Video-reference wood/ivory/gray board palette.
+- Compact corner HUD and bottom roll dock.
+- Simplified route and landing effects.
+- Compact property silhouettes.

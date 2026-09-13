@@ -3,6 +3,7 @@ import {
   type SupabaseClient,
   type User,
 } from "@supabase/supabase-js";
+import { singleDeviceSessionsEnabled } from "@/lib/auth/accountSessionConfig";
 
 function getSupabaseUrl() {
   const value = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -78,7 +79,8 @@ export function getBearerToken(request: Request) {
   return authorization.slice(7).trim();
 }
 
-export async function requireAuthenticatedUser(request: Request): Promise<User> {
+// Session activation must verify identity/MFA before it can replace an older session.
+export async function requireAccountIdentity(request: Request): Promise<User> {
   const token = getBearerToken(request);
 
   if (!token) {
@@ -89,6 +91,9 @@ export async function requireAuthenticatedUser(request: Request): Promise<User> 
   const { data, error } = await supabase.auth.getUser(token);
 
   if (error || !data.user) {
+    if (error && (!error.status || error.status >= 500 || error.name === "AuthRetryableFetchError")) {
+      throw Object.assign(new Error("Sign-in verification is temporarily unavailable."), { status: 503 });
+    }
     throw new Error("Invalid authentication token.");
   }
 
@@ -100,6 +105,19 @@ export async function requireAuthenticatedUser(request: Request): Promise<User> 
   }
 
   return data.user;
+}
+
+export async function requireAuthenticatedUser(request: Request): Promise<User> {
+  if (!singleDeviceSessionsEnabled()) return requireAccountIdentity(request);
+  const token = getBearerToken(request);
+  if (!token) throw new Error("Authentication required.");
+  const [user, { data, error }] = await Promise.all([
+    requireAccountIdentity(request),
+    createSupabaseUserClient(token).rpc("cp_account_session_state"),
+  ]);
+  if (error) throw new Error("Authentication session could not be verified. Please try again.");
+  if (!data?.active) throw Object.assign(new Error("This authentication session was replaced by a newer login."), { status: 401, code: "SESSION_REPLACED" });
+  return user;
 }
 
 export function authErrorStatus(message: string) {

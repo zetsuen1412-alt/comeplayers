@@ -1,0 +1,9 @@
+V104 – Full Board-Fit Comfort Camera
+------------------------------------
+- Reworked classic comfort camera into a board-fit variant.
+- Increased overview framing distance and height.
+- Reduced turn-start focus bias.
+- Reduced movement/landing/property zoom intensity.
+- Reduced authoritative board focus intensity.
+- Updated visible UI markers from V103 to V104.
+- Added README_TRY_V104.md and docs/V104_FULL_BOARD_FIT_CAMERA.md.

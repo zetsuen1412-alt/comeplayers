@@ -1,0 +1,23 @@
+ComePlayers Marble V63 Verification
+Date: 2026-07-20
+
+PASS — TypeScript strict type-check for 78 source files using the project Cocos API surrogate declarations.
+PASS — 78 TypeScript files have matching Cocos .meta files.
+PASS — 103 asset UUID values checked with no duplicates.
+PASS — All relative TypeScript imports resolve.
+PASS — Replay history normalization sorts and deduplicates event sequences.
+PASS — Replay baseline, dice movement, property state, turn progression, bankruptcy, and match-finish reducers tested.
+PASS — Replay player completion, speed control, restart foundation, and skip-to-end tested with 8 deterministic events.
+PASS — Live server actions are disabled while replay is playing or paused.
+PASS — Online refresh and action-result synchronization do not overwrite an active replay frame.
+PASS — V63 SQL passed static lexical and security validation as 4 statements.
+PASS — Replay RPC checks auth.uid(), room membership, 180-event cap, event ordering, SHA-256 checksum, and empty search_path.
+PASS — Replay RPC execution revoked from PUBLIC and anon; granted to authenticated only.
+PASS — package.json and package-lock.json version synchronized to 0.63.0.
+PASS — npm ci completed using the pinned lockfile.
+PASS — npm audit reported 0 vulnerabilities.
+PASS — No sb_secret or service-role credential found in source.
+
+NOT RUN — Migration execution against a live PostgreSQL/Supabase project because project credentials were not provided.
+NOT RUN — Cocos Creator 3.8.8 visual preview/build because the editor is not installed in this environment.
+NOT RUN — Live three-client player/player/spectator test because Supabase project credentials were not provided.

@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "browser": "149.0.7827.55",
+  "actualWebAuthnPrf": true,
+  "restoredAfterRuntimeReset": true,
+  "verifiedUserRequired": true,
+  "productionDataModified": false,
+  "realProviderSyncTested": false
+}

@@ -1,0 +1,15 @@
+COMEPLAYERS MARBLE V95 - JOURNEY PRESTIGE & PERFECT STREAKS
+
+1. Added ten World Journey Prestige levels after the twenty base Journey tiers.
+2. Added automatic Prestige CP rewards with larger milestone rewards at Prestige 5 and Prestige 10.
+3. Added Perfect Journey Day rewards for completing all three daily missions in one UTC cycle.
+4. Added Perfect Journey Week rewards for completing all four weekly missions in one UTC cycle.
+5. Added active-day streak and best-streak tracking with a once-per-day Journey XP bonus.
+6. Added duplicate-safe reward identifiers for tiers, Prestige levels, Perfect Days, and Perfect Weeks.
+7. Expanded the Career page with Prestige progress, active streak, best streak, and Perfect Cycle totals.
+8. Expanded the result screen with Perfect Cycle, Prestige reward, and streak Journey XP breakdowns.
+9. Added a 3D Journey Prestige ring and crown around the human player when Prestige rewards unlock.
+10. Upgraded Career progression data from version 3 to version 4.
+11. Upgraded the local save bundle from version 7 to version 8 while preserving V94 saves.
+12. Added TypeScript syntax parsing to release verification in addition to JSON, UUID, import, and conflict checks.
+13. Preserved Career Legacy, Match Legacy Awards, World Journey missions, Development Planner, Fortune Signal, Special District Strategy, liquidation, takeover, multiplayer, ranked, replay, and classic victory systems.

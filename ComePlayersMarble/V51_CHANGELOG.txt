@@ -1,0 +1,25 @@
+COMEPLAYERS MARBLE V51 - CINEMATIC POLISH
+
+ADDED
+- Multi-stage procedural dice launch, spin, bounce, settle, and result pulse.
+- Large animated dice-result card with DOUBLE BONUS and POWER ROLL states.
+- Direction-aware hopping movement with squash-and-stretch on every board step.
+- Animated owner markers and skyline growth for purchases and upgrades.
+- Deterministic multi-node VFX bursts with bounded object pools.
+- Double Bonus, Coin Burst, and Level Up VFX cues.
+- Turn Start, Dice Land, Double Bonus, Player Land, Property Purchase, Building Upgrade, and Level Up audio cues.
+- START salary, Game Center jackpot, takeover, victory, and level-up presentation hooks.
+- Closer dice-result camera framing for doubles and high rolls.
+
+CHANGED
+- VFX requests can safely specify a bounded count and radius.
+- Runtime VFX snapshots now report bursts and emitted nodes.
+- Dice snapshots now report roll count and the previous result classification.
+- Movement snapshots now report completed steps and cancellations.
+- Match intro and turn banners use animated scale and slide transitions.
+
+COMPATIBILITY
+- No save-schema migration is required.
+- Existing V49 and V50 local progress remains valid.
+- Existing authored audio clips remain optional.
+- Cocos Creator target remains 3.8.8.

@@ -1,0 +1,20 @@
+COMEPLAYERS MARBLE V67 — CHANGELOG
+
+- Added an original generated 3D world-diorama lobby backdrop with a procedural fallback and readability overlay.
+- Rebuilt the runtime board surface as a glossy midnight-blue and gold tabletop diorama.
+- Added PBR matte, glossy, and metallic material profiles plus unlit emissive accents.
+- Added animated center globe, orbiting lights, and four unique corner landmarks.
+- Added semantic 3D props for Fortune, Game Center, Olympic, Tax, and Tourist spaces.
+- Improved property cities with lit windows, roofs, foundation detail, and animated landmark beacons.
+- Improved procedural player pieces with legs, shoes, arms, visor, and travel pack detail.
+- Upgraded dice to PBR materials with shared gold corner accents.
+- Enabled 2048 directional shadow maps with two CSM levels.
+- Added an explicit V67 standard-material resource so optimized web builds retain Cocos' PBR effect.
+- Added safe unlit fallbacks when a player enters a match before the lobby material preload completes.
+- Fixed inventory normalization for Cocos web transpilation by materializing Map entries with Array.from.
+- Fixed the modal EditBox/Graphics renderer conflict so the final browser build has no warnings.
+- Added offline command-line build and local preview helpers in tools/.
+- Fixed the authoritative replay slider to use the Cocos 3.8 Sprite handle API and slide event.
+- Set the TypeScript library target to ES2020 + DOM so the strict project check runs without manual overrides.
+- Isolated the Supabase browser SDK behind a runtime bridge so Cocos 3.8.8 can register and compile the local scene without evaluating the incompatible mixed ESM/CommonJS dependency graph.
+- Preserved V50–V66 gameplay, save compatibility, replay compatibility, and server-authoritative boundaries.

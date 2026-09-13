@@ -1,0 +1,17 @@
+{
+  "project": "ComePlayersMarble",
+  "semanticVersion": "0.69.0",
+  "releaseName": "v69",
+  "typeScriptFiles": 80,
+  "metaFiles": 110,
+  "uniqueMetaUuids": 110,
+  "jsonTargets": 114,
+  "relativeImports": 221,
+  "conflictMarkers": 0,
+  "cleanGeneratedFolders": true,
+  "expectedBuild": "web-desktop-v69",
+  "buildAvailable": false,
+  "buildFiles": 0,
+  "buildBytes": 0,
+  "packageSha256": "088d347b3399a914e6a2695c5ef1518efc1d1957bc02a78859c12796f6fb2302"
+}

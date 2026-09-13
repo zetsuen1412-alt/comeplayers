@@ -90,7 +90,7 @@ export default function PortalHome() {
             <span><small>DOWNLOAD FOR</small>Windows Desktop</span>
           </a>
           <a
-            href="/api/downloads/android/ComePlayers_0.12.1_android.apk"
+            href="/api/downloads/android/ComePlayers_0.13.0_android.apk"
             className={styles.downloadButton}
             download
           >

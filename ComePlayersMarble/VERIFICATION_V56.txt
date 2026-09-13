@@ -1,0 +1,38 @@
+COMEPLAYERS MARBLE V56 VERIFICATION
+Date: 2026-07-19
+Target editor: Cocos Creator 3.8.8
+
+PASSED
+- Strict TypeScript check across all 65 source files using a Cocos API declaration substitute.
+- All relative TypeScript imports resolve.
+- All inspected Cocos meta UUIDs are unique.
+- V55 local-save version 4 normalizes to V56 local-save version 5.
+- Runtime migration reads the legacy v4 key, writes the v5 key, and removes the migrated key.
+- Importing a legacy v4 save preserves an existing V56 online identity and replay library.
+- Existing save sections remain and new online/replay sections receive safe defaults.
+- Stable local online identity and six-character friend code are generated and persisted.
+- Friend rooms enforce four player slots and two spectator slots.
+- Team friend rooms assign Blue/Gold teams to player slots.
+- Disconnect state and reconnect-token recovery pass.
+- Ten-minute reconnect expiry is represented in the room contract.
+- Cloud backup manifest checksum is deterministic.
+- Simulated server acknowledgement changes READY_TO_LINK to SYNCED.
+- Mismatched remote generation/checksum produces CONFLICT without overwriting local data.
+- Failed online-profile persistence restores previous data.
+- Replay recorder stores roll, movement, action, and final result events.
+- Replay checksum, library save, export, deletion, and rollback pass.
+- Replay records are capped at 180 events and the library is capped at 12 records.
+- V55 Ranked placement, weekly reward, season rollover, Team Ranked, and rollback regression tests pass.
+
+NOT EXECUTED IN THIS ENVIRONMENT
+- Cocos Creator Editor Preview.
+- Native Windows build.
+- Web build and device performance profiling.
+- Real Supabase/WebSocket/REST connection.
+- Multi-device friend-room synchronization.
+- Live spectator playback camera.
+
+NOTES
+- Friend-room guests and cloud acknowledgements are simulated locally in V56.
+- V56 does not upload personal data or claim public multiplayer availability.
+- Reference media remains isolated under references/ and is not loaded by runtime code.

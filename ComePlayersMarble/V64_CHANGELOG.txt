@@ -1,0 +1,14 @@
+COMEPLAYERS MARBLE V64 — REPLAY STUDIO & SHARE CODES
+
+- Added seekable Replay Studio timeline with a native slider.
+- Added checkpoint-based arbitrary seek and ±10-event stepping.
+- Added replay progress, sequence, and timestamp status.
+- Added multi-page authoritative event loading up to 2,160 events.
+- Added permanent Supabase replay archives copied from finished matches.
+- Added eight-character replay share codes.
+- Added PRIVATE, UNLISTED, and PUBLIC visibility.
+- Added server replay library for owned and public archives.
+- Added replay deletion for archive owners.
+- Kept all authoritative gameplay controls disabled during replay.
+- Added RLS-enabled archive tables with direct Data API access revoked.
+- Updated project version to 0.64.0.

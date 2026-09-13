@@ -1,0 +1,26 @@
+COMEPLAYERS MARBLE V66 — VERIFICATION
+
+PASS — 80 TypeScript source files strict-checked with the Cocos API harness and the installed @supabase/supabase-js 2.106.2 types.
+PASS — 80 TypeScript metadata files are present.
+PASS — 105 Cocos UUID values were inspected with no duplicates.
+PASS — All relative TypeScript imports resolve.
+PASS — Competitive profile, season, queue, Team tournament, entry, and bracket payload normalization tests pass.
+PASS — Realtime queue client uses a private per-user topic and refreshes state through bounded RPC after notification.
+PASS — Reconnect-safe subscription setup and explicit unsubscribe paths compile.
+PASS — Native competitive input uses Cocos EditBox and no competitive workflow depends on browser prompt().
+PASS — All V57–V66 migrations parse as PostgreSQL SQL.
+PASS — V66 migration contains 62 complete statements.
+PASS — Team tournament tables have RLS enabled and direct Data API access revoked.
+PASS — V66 public RPC functions are revoked from public/anon and granted only to authenticated.
+PASS — Queue notification trigger, private topic authorization, and private Broadcast flag verified statically.
+PASS — Monthly season rollover archives current statistics and resets seasonal progress under an advisory transaction lock.
+PASS — Optional pg_cron schedule and lazy competitive-RPC rollover fallback verified.
+PASS — Deterministic Team seeding, alternating BLUE/GOLD room ordering, semifinals, final, and team reward logic verified.
+PASS — Cross-mode active tournament and cross-table code-collision guards verified.
+PASS — npm ci completed against the pinned lockfile.
+PASS — npm audit reports 0 vulnerabilities.
+PASS — Secret scan found no bundled Supabase service-role or sb_secret key.
+
+NOT RUN — Live Supabase migration execution (no user project credentials).
+NOT RUN — Multi-user Realtime ranked and Team Cup test against a live project.
+NOT RUN — Visual Preview/Windows/Android/Web build in Cocos Creator 3.8.8 (editor unavailable in this environment).

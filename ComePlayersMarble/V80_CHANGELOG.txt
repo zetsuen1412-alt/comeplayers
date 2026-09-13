@@ -1,0 +1,21 @@
+COMEPLAYERS MARBLE V80 - FULL CLASSIC VISUAL REMAKE
+
+VISUAL BOARD REMAKE
+- Denser world-map tabletop composition with a central globe showcase.
+- Deeper property cards, group pips, district silhouettes, and larger corner tiles.
+- More readable villa, building, hotel, and landmark silhouettes.
+- Stronger ownership flags and construction staging.
+
+HUD AND CAMERA
+- V80 match mode and threat rails.
+- More compact classic player information with status strips.
+- Closer, lower isometric camera for the board, movement, properties, and dice.
+- Longer event holds so property and special-tile outcomes are readable.
+
+LOBBY
+- V80 classic client markers and persistent bottom client navigation.
+- World-map room lobby labeling and denser game-client composition.
+
+COMPATIBILITY
+- No save schema, replay schema, ranked, career, or multiplayer protocol changes.
+- V79 saves remain compatible.

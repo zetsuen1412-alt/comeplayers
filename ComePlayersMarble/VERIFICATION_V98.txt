@@ -1,0 +1,63 @@
+COMEPLAYERS MARBLE V98 VERIFICATION
+
+Version: 0.98.0
+Release: v98
+Cocos Creator target: 3.8.8
+
+Static source verification:
+- TypeScript files: 88
+- TypeScript syntax parse errors: 0
+- Strict TypeScript diagnostics for Career Journey, Career Progression, save data, and result services: 0
+- Metadata files: 118
+- Unique metadata UUIDs: 118
+- JSON/scene/prefab/material targets: 122
+- Relative imports resolved: 251
+- Merge conflict markers: 0
+- Forbidden generated folders: 0
+
+V98 Rival Gauntlet runtime logic:
+- New-season Gauntlet score starts at zero: PASS
+- Six seasonal Gauntlet circuits exposed: PASS
+- Elite classic victory score calculation: PASS (215 points)
+- Qualifier Signal reward: PASS
+- Bronze Circuit reward: PASS
+- Duplicate circuit reward prevention: PASS
+- Podium streak increment: PASS
+- Non-podium streak reset: PASS
+- Best podium streak persistence: PASS
+- Gauntlet Champion completion: PASS
+- Monthly Gauntlet archive: PASS
+- New-season Gauntlet reset: PASS
+- Lifetime Gauntlet reward persistence: PASS
+
+V98 Career and replay integration:
+- V97 Career save normalized to Career version 7: PASS
+- V97 local save normalized to local version 11: PASS
+- Missing Gauntlet fields migrated with safe defaults: PASS
+- Career reward exposes Gauntlet score and circuit rewards: PASS
+- Gauntlet credits included in total match reward: PASS
+- Classic victory tactical tag: PASS (TRIPLE MONOPOLY STUDY)
+- Tactical replay priority: PASS (198/200 in integration fixture)
+- Career Command Tactical Replay Reel: PRESENT
+- Replay Studio tactical study display: PRESENT
+- V98 3D Rival Gauntlet presentation: PRESENT
+
+Regression verification:
+- Rival Rating and seasonal Rival Contracts: PRESENT
+- Twenty World Journey tiers and ten Prestige levels: PRESENT
+- Daily/weekly missions and Perfect Cycles: PRESENT
+- Season archive and local Rival Board: PRESENT
+- Career Legacy and Match Legacy Awards: PRESENT
+- Triple/Line/Tourism victory modules: PRESENT
+- Color Monopoly x2 economy: PRESENT
+- Development Planner: PRESENT
+- Fortune draw-three: PRESENT
+- Special District Strategy: PRESENT
+- Bankruptcy rescue and liquidation: PRESENT
+- Strategic Takeover Director: PRESENT
+- Ranked, replay, and authoritative multiplayer modules: PRESENT
+
+Cocos build status:
+- Source verification: PASS
+- V98 runtime logic tests: PASS
+- Web Desktop build: NOT CREATED on this machine because the Cocos Creator 3.8.8 executable is unavailable.

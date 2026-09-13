@@ -94,6 +94,10 @@ export default function ContactsWorkspace(props: Props) {
   }, [visible, active, mode, query, selectedId]);
   useEffect(() => {
     if (!visible || !selectedId) return;
+    if (selected?.room_type !== "group") {
+      window.location.assign(`/chat?room=${encodeURIComponent(selectedId)}`);
+      return;
+    }
     let live = true; let running = false;
     let lastId = "";
     setConversationLoading(true); setMessages([]); setDraft(""); setInvite("");
@@ -117,7 +121,7 @@ export default function ContactsWorkspace(props: Props) {
     };
     void refresh(); const timer = setInterval(() => void refresh(), 5000);
     return () => { live = false; clearInterval(timer); };
-  }, [selectedId, visible, loadRooms]);
+  }, [selectedId, selected?.room_type, visible, loadRooms]);
 
   const action = async (fn: () => Promise<void>) => {
     if (busy) return;

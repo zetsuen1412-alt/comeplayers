@@ -1,0 +1,107 @@
+{
+  "expo": {
+    "name": "ComePlayers",
+    "slug": "comeplayers",
+    "version": "0.13.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "scheme": "comeplayers",
+    "userInterfaceStyle": "dark",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a663aa70-99b7-4c8f-93ea-5f8637baa2df",
+      "checkAutomatically": "NEVER",
+      "fallbackToCacheTimeout": 0,
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
+    },
+    "plugins": [
+      "./plugins/withAndroidReleaseSigning",
+      [
+        "@livekit/react-native-expo-plugin",
+        {
+          "android": {
+            "audioType": "communication",
+            "enableScreenShareService": false
+          },
+          "ios": {
+            "enableMultitaskingCameraAccess": false
+          }
+        }
+      ],
+      "@config-plugins/react-native-webrtc",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ComePlayers accesses only the photos and videos you choose for messages, status, or your profile.",
+          "cameraPermission": "ComePlayers uses your camera when you take photos, create a status, or turn on video in calls and community lobbies.",
+          "microphonePermission": "ComePlayers uses your microphone when you record a voice message or join a voice or video call."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#080b12",
+          "imageWidth": 200
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "ComePlayers uses your microphone when you record a voice message or join a voice or video call.",
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-video",
+      "expo-secure-store"
+    ],
+    "android": {
+      "package": "com.comeplayers.app",
+      "versionCode": 15,
+      "runtimeVersion": "0.13.0",
+      "allowBackup": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#080b12"
+      },
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION",
+        "android.permission.FOREGROUND_SERVICE_CAMERA"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.comeplayers.app",
+      "supportsTablet": true,
+      "requireFullScreen": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "ComePlayers uses your camera when you take photos, create a status, or turn on video in calls and community lobbies.",
+        "NSMicrophoneUsageDescription": "ComePlayers uses your microphone when you record a voice message or join a voice or video call.",
+        "NSPhotoLibraryUsageDescription": "ComePlayers accesses only the photos and videos you choose for messages, status, or your profile."
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a663aa70-99b7-4c8f-93ea-5f8637baa2df"
+      }
+    },
+    "owner": "comeplayers"
+  }
+}

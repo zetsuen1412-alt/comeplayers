@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.comeplayers.app",
+      "sha256_cert_fingerprints": ["0A:75:BC:67:BF:7E:34:BA:4E:80:A1:DB:B4:0C:D9:B8:A3:E9:1C:6C:B2:20:4A:74:2B:54:93:51:2B:D4:8C:F2"]
+    }
+  }
+]

@@ -1,0 +1,19 @@
+COMEPLAYERS MARBLE V64 — VERIFICATION
+
+PASS — 78 TypeScript source files strict-checked with the Cocos API declaration harness.
+PASS — All relative TypeScript imports resolve.
+PASS — Replay archive metadata, visibility, and eight-character codes normalize correctly.
+PASS — Overlapping replay pages merge in ascending sequence order with deduplication.
+PASS — Event history is capped at 2,160 normalized events.
+PASS — Replay slider seek, ±10 event step, checkpoint restore, and skip-to-end tests pass.
+PASS — Replay reconstruction restores movement, property state, turn state, bankruptcy, and winner state in deterministic tests.
+PASS — V64 SQL split into 26 complete statements by the lexical validator.
+PASS — RLS, direct table revokes, auth.uid checks, host/finished-match checks, private owner checks, page limits, and RPC grants verified statically.
+PASS — npm ci completed against the pinned lockfile.
+PASS — npm audit reports 0 vulnerabilities.
+PASS — Secret scan found no service-role or Supabase secret key.
+PASS — Cocos UUID and metadata validation completed without duplicates.
+PASS — Full Source and Replace Files ZIP integrity verified.
+
+NOT RUN — Live Supabase migration execution (no user project credentials).
+NOT RUN — Visual Preview/Windows/Web build in Cocos Creator 3.8.8 (editor unavailable in this environment).

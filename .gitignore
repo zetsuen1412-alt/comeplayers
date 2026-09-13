@@ -54,6 +54,9 @@ tmp/
 .codex-staging/
 .g/
 .video-review-deps/
+.cua-node-modules/
+.agents/
+.codex/
 
 # =========================
 # GENERATED OUTPUT
@@ -80,6 +83,14 @@ backup-*/
 *.key
 *.p12
 *.pfx
+*.jks
+*.keystore
+*.apk
+*.aab
+*.msix
+*.msixbundle
+**/credentials.json
+**/credentials/
 
 # =========================
 # SUPABASE LOCAL
@@ -113,4 +124,6 @@ desktop.ini
 # =========================
 .vscode/
 .idea/
-ComePlayersMarble/
+# Cocos source and authored assets are included; generated/editor state is not.
+ComePlayersMarble/.creator/
+ComePlayersMarble/references/

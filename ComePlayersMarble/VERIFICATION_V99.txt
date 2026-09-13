@@ -1,0 +1,39 @@
+COMEPLAYERS MARBLE V99 VERIFICATION
+
+Version: 0.99.0
+Release: v99
+Expected Cocos build: web-desktop-v99
+
+SOURCE VALIDATION
+- TypeScript files: 89
+- TypeScript syntax errors: 0
+- Targeted strict TypeScript check for Replay Coach modules: PASS
+- Metadata files: 119
+- Unique metadata UUIDs: 119
+- JSON/scene/prefab/material targets: 123
+- Relative imports checked: 253
+- Merge conflict markers: 0
+- Generated/cache folders included: NO
+
+V99 REPLAY COACH
+- Replay Library version 2 migration: PASS
+- Automatic analysis for V98 replay records: PASS
+- Coaching grade and score: PASS
+- Tempo, economy, control, and resilience metrics: PASS
+- Strength and focus-area generation: PASS
+- Key decision moment extraction: PASS
+- Replay Studio Decision Review integration: PASS
+- Single server replay initialization: PASS
+
+REGRESSION TESTS
+- V99 Replay Coach tests: PASS
+- V98 Rival Gauntlet tests: PASS
+- V98 Career integration tests: PASS
+
+BUILD STATUS
+- Cocos Creator executable available: NO
+- Web Desktop build generated: NO
+- Source verification: PASS
+
+NOTE
+A full-project semantic TypeScript check requires Cocos Creator-generated temp/tsconfig.cocos.json and the cc module declarations. The new V99 Replay Coach, Replay Library, and replay-data modules pass a standalone strict TypeScript check.

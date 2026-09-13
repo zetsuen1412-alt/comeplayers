@@ -1,0 +1,12 @@
+ComePlayers Marble V101 — Live Replay Academy
+
+- Added adaptive live-match objectives selected from Replay Academy focus metrics.
+- Added Tempo, Economy, Control, and Resilience objective templates.
+- Added real-time objective progress rail to the match HUD.
+- Added objective completion VFX and audio feedback.
+- Added persistent completion count, current streak, best streak, and total reward credits.
+- Added streak-scaled rewards from CP 6,000 to CP 10,000.
+- Added objective result summary to Final Honors and the result screen.
+- Added V100 save migration: Local Save v12 to v13 and Replay Library v3 to v4.
+- Added V101 automated tests and release verification markers.
+- Preserved all V100 gameplay, replay, Academy, Career, Journey, Rival, ranked, and multiplayer systems.

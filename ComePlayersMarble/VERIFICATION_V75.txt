@@ -1,0 +1,33 @@
+ComePlayers Marble V75 Verification
+
+Version: 0.75.0
+Release: v75
+Cocos Creator target: 3.8.8
+
+Static verification:
+- TypeScript files: 82
+- TypeScript syntax errors: 0
+- Metadata files: 112
+- Unique metadata UUIDs: 112
+- JSON targets: 116
+- Relative imports checked: 226
+- Tourism tiles: 4
+- Classic structural victory conditions: 3
+- package.json and package-lock.json versions match: yes
+- Merge-conflict markers: 0
+- Generated/cache folders included: no
+
+Behavior checks:
+- Solo Triple Monopoly: passed
+- Solo Line Monopoly: passed
+- Solo Tourism Monopoly: passed
+- Team combined Triple Monopoly: passed
+- Live structural progress calculation: passed
+- Authoritative snapshot local-victory reset: implemented
+
+Build status:
+- Expected output: build/web-desktop-v75
+- Cocos Creator executable available in verification environment: no
+- Runtime/Web build produced here: no
+
+The source archive passed static checks. Final visual and runtime regression testing must be performed inside Cocos Creator 3.8.8 on the target machine.

@@ -1,0 +1,13 @@
+COMEPLAYERS MARBLE V98 — RIVAL GAUNTLET & TACTICAL REPLAYS
+
+- Added a seasonal Rival Gauntlet score alongside Rival Rating.
+- Added placement, performance, award, classic-victory, and podium-streak score calculation.
+- Added six duplicate-safe Gauntlet circuits from Qualifier Signal to Gauntlet Champion.
+- Added CP and Journey XP rewards for each completed circuit.
+- Added current and best podium streak tracking with reset on non-podium results.
+- Added season archive fields for final Gauntlet score, best podium streak, and completed circuits.
+- Added tactical tags and replay-priority scores to Career Highlight Reel entries.
+- Added Tactical Replay information to Career Command and Replay Studio.
+- Added V98 result HUD, Final Honors, and 3D Rival Gauntlet presentation.
+- Upgraded Career progression to version 7 and local save data to version 11.
+- Preserved V97 save compatibility and all existing gameplay, ranked, replay, and multiplayer systems.

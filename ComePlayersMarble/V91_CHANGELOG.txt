@@ -1,0 +1,13 @@
+COMEPLAYERS MARBLE V91 - STRATEGIC TAKEOVER DIRECTOR
+
+1. Added TakeoverStrategyService for non-mutating takeover forecasting before a property changes ownership.
+2. Every takeover quote now reports reserve after purchase, reserve risk, projected rent, Color Monopoly completion, rival Color Monopoly disruption, victory-path progress, strategic score, and tactical tags.
+3. The payment window now shows buyer and rival color-group progress before and after the proposed takeover.
+4. Takeover buttons display the cost and post-acquisition reserve risk instead of presenting a blind purchase.
+5. Bot takeover logic now uses strategic score, reserve safety, Color Monopoly completion, rival-set disruption, and victory progress.
+6. Added a V91 takeover director status rail to the classic HUD.
+7. Added a new 3D takeover presentation with old-owner collapse rings, new-owner control rings, control beams, district fins, and a final ownership seal.
+8. High-impact takeovers that complete a color set, break a rival set, or materially advance a victory path receive stronger camera and VFX emphasis.
+9. Takeover result messages include strategic tags and the remaining reserve after acquisition.
+10. V90 bankruptcy rescue and liquidation, V89 special districts, V88 Fortune Signal, V87 Development Planner, V86 Color Monopoly, classic victories, multiplayer, ranked, career, replay, and dice control remain included.
+11. No save-schema changes were introduced. V90 local saves remain compatible.

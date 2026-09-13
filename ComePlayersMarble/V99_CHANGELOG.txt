@@ -1,0 +1,11 @@
+COMEPLAYERS MARBLE V99 — REPLAY COACH & DECISION REVIEW
+
+- Added Replay Coach analysis to every local replay.
+- Added coaching score, grade, tempo, economy, control, and resilience metrics.
+- Added strengths, improvement focus, and key decision moments.
+- Added automatic analysis migration for V98 replay records.
+- Upgraded replay library data from version 1 to version 2.
+- Updated Replay Studio with Decision Review cards and coach metrics.
+- Fixed duplicate server replay playback initialization.
+- Updated lobby and match HUD markers to V99.
+- Preserved V98 Career, Rival Gauntlet, multiplayer, ranked, replay, and save compatibility.

@@ -1,0 +1,9 @@
+COMEPLAYERS MARBLE V92 - MATCH LEGACY AWARDS
+
+1. Added a deterministic post-match awards service.
+2. Added Match MVP, City Tycoon, Master Builder, Cash Reserve, and Iron Survivor honors.
+3. Added per-player performance scores and S/A/B/C/D grades.
+4. Rebuilt the result panel with four award cards and a performance-grade rail.
+5. Added 3D award rings, crowns, and beacons around honored players.
+6. Added a final honors presentation before the result screen.
+7. Preserved V91 takeover strategy, V90 liquidation, multiplayer, ranked, replay, career, and save compatibility.

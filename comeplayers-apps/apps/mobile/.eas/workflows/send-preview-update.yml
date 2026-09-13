@@ -1,0 +1,20 @@
+name: Send ComePlayers Android preview update
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  send_preview_update:
+    name: Publish Android preview OTA update
+    type: update
+    params:
+      platform: android
+      channel: preview
+      message: ${{ github.commit_message || 'ComePlayers Android preview update' }}

@@ -145,7 +145,7 @@ export async function activateVerifiedDevice(
     ...(plan.backup ? { backup: plan.backup } : {}),
   });
   const proof = proveDeviceRequest(session.device, "POST", path, body);
-  const result = await transport<{ revision: number; rosterHash: string }>(path, {
+  const result = await transport<{ revision: number; rosterHash: string; passkeySignature?: string | null }>(path, {
     method: "POST",
     body,
     headers: {
@@ -157,7 +157,8 @@ export async function activateVerifiedDevice(
   });
   if (
     result.revision !== session.roster.revision ||
-    result.rosterHash !== rosterHash(session.roster)
+    result.rosterHash !== rosterHash(session.roster) ||
+    (plan.backup?.passkey && result.passkeySignature !== plan.backup.passkey.signature)
   ) {
     throw new Error("The server did not confirm this device authorization.");
   }

@@ -1,0 +1,20 @@
+/** Use the app domain for Auth so carrier DNS failures for Supabase do not block sign-in. */
+export function authTransport(supabaseUrl: string, apiUrl: string, transport: typeof fetch): typeof fetch {
+  const authOrigin = new URL(supabaseUrl).origin;
+  return async (input, init) => {
+    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+    if (url.origin !== authOrigin || !url.pathname.startsWith("/auth/v1/")) return transport(input, init);
+    const relay = new URL(`/api/auth/mobile/${url.pathname.slice("/auth/v1/".length)}${url.search}`, apiUrl);
+    if (relay.protocol !== "https:") throw new Error("Secure sign-in connection required.");
+    // The Supabase SDK supplies a URL plus init; retain Request bodies too for callers using Request.
+    return transport(typeof input === "object" && !(input instanceof URL) ? new Request(relay, input) : relay.toString(), init);
+  };
+}
+
+export function authenticationMessage(reason: unknown): string {
+  const message = reason instanceof Error ? reason.message : "Sign-in failed. Please try again.";
+  if (/UnknownHostException|Unable to resolve host|Network request failed|fetch failed|Failed to fetch|NetworkError|timed? ?out/i.test(message)) {
+    return "Cannot connect to ComePlayers. Check your internet connection and try again.";
+  }
+  return message;
+}

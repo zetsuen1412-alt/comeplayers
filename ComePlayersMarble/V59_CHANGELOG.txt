@@ -1,0 +1,9 @@
+COMEPLAYERS MARBLE V59 — AUTHORITATIVE ECONOMY
+
+- Added authoritative property table and read-only room-member snapshots.
+- Added PURCHASE, UPGRADE, TAKEOVER, and optional END/SKIP command flow.
+- Added server rent, Team rent waiver, tax, bonus, liquidation, and bankruptcy.
+- Added Solo/Team victory and round-limit net-worth winner.
+- Added landing, pending action, properties, net worth, and winner fields to client protocol.
+- Added V59 Economy Authority controls to Online Center.
+- Preserved V55-V58 local progression, replay, Ranked, room, Presence, and reconnect behavior.

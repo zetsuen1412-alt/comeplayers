@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "ciphertextOnly": true,
+  "passkeyRestoredHistoryAfterLocalVaultRemoval": true,
+  "productionDataModified": false,
+  "events": 1,
+  "epochs": 1,
+  "screenshot": "C:\\Comeplayers-new\\tmp\\web-passkey-restored-history.png"
+}

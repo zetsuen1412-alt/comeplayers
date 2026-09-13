@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-09-13T09:55:32.667Z",
+  "origin": "https://www.comeplayers.com",
+  "productionDataModified": false,
+  "checks": {
+    "anonymousPasskeyEnrollment": {
+      "status": 401
+    },
+    "androidAssociation": {
+      "status": 200,
+      "certificateMatched": true,
+      "redirect": false
+    },
+    "authRelay": {
+      "status": 400,
+      "upstreamValidationReached": true,
+      "noLoginAttempted": true
+    },
+    "accountSession": {
+      "status": 200,
+      "enabled": false
+    },
+    "homepage": {
+      "status": 200,
+      "apkVersion": "0.13.0"
+    },
+    "publicApk": {
+      "downloadPath": "/api/downloads/android/ComePlayers_0.13.0_android.apk",
+      "version": "0.13.0",
+      "status": 200,
+      "bytes": 107716792,
+      "sha256": "d4dba4b9863239d50d3221dd4ecb8b134efce45a604176077c72f100c1193133"
+    }
+  },
+  "ok": true
+}

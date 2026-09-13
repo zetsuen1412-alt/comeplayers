@@ -1,0 +1,46 @@
+COMEPLAYERS MARBLE V79 - RELEASE VERIFICATION
+
+Version: 0.79.0
+Release: Classic Dice Control & Board Motion
+Expected build folder: build/web-desktop-v79
+
+SOURCE VERIFICATION
+- TypeScript source files: 82
+- TypeScript syntax diagnostics: 0 errors
+- Metadata files: 112
+- Unique metadata UUIDs: 112
+- JSON/scene/material targets: 116 valid
+- Relative imports resolved: 227
+- Merge-conflict markers: 0
+- Package and lock versions match: yes
+- Generated/cache folders included: no
+
+V79 FEATURE CHECKS
+- Classic dice-control dock: present
+- AUTO / ODD / EVEN parity controls: present
+- LOW / MID / HIGH range controls: present
+- Local seeded authority control: present
+- Online authority protocol changes: none
+- Connected movement-route rails: present
+- Final destination beacon: present
+- Active-seat center lamps: present
+- Construction beam sequence: present
+- Fullscreen landscape templates: present
+- Classic victory conditions preserved: Triple, Line, Tourism
+- Tourism destinations: 4
+
+DETERMINISTIC DICE-CONTROL TEST
+Seeded samples per case: 1000
+- LOW range hit rate: 87.4%, mean total 4.409
+- MID range hit rate: 97.7%, mean total 7.005
+- HIGH range hit rate: 86.1%, mean total 9.739
+- ODD + MID parity hit rate: 67.5%
+- EVEN + MID parity hit rate: 87.3%
+
+The control changes probability and does not guarantee an exact roll.
+
+BUILD STATUS
+- Cocos Creator executable available in this environment: no
+- Web build generated here: no
+- Source verification: passed
+- ZIP integrity verification: performed after packaging

@@ -1,0 +1,11 @@
+COMEPLAYERS MARBLE V61
+
+- Added server-validated character, pendant, and booster loadouts.
+- Added six server-authoritative active skills, usable once per match.
+- Added authoritative free-upgrade credit consumption and refund.
+- Added six World Events resolved every two rounds when enabled.
+- Added world-event and loadout fields to authoritative snapshots.
+- Added append-only LOADOUT_APPLIED, CHARACTER_SKILL_ACTIVATED, and WORLD_EVENT_RESOLVED events.
+- Added bounded event-sequence presentation queue with deduplication.
+- Added animated remote event banner, dice reveal, player-marker movement, and tile pulse.
+- Preserved V57-V60 room, turn, economy, special-tile, replay, ranked, and reconnect behavior.

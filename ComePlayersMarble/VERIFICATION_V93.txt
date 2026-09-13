@@ -1,0 +1,27 @@
+COMEPLAYERS MARBLE V93 VERIFICATION
+
+Version: 0.93.0
+Release: v93
+Cocos Creator target: 3.8.8
+
+Static source verification:
+- TypeScript files: 87
+- Metadata files: 117
+- Unique metadata UUIDs: 117
+- JSON/scene/prefab/material targets: 121
+- Relative imports resolved: 249
+- Merge conflict markers: 0
+- Forbidden generated folders: 0
+
+Career Legacy runtime logic test:
+- S-grade calculation: PASS
+- Triple Monopoly highlight: PASS
+- Classic Finisher milestone: PASS
+- Millionaire Board milestone: PASS
+- Legacy milestone CP reward: PASS
+- Highest net worth persistence: PASS
+- V1-to-V2 career save normalization: PASS
+
+Cocos build status:
+- Source verification: PASS
+- Web Desktop build: NOT CREATED on this machine because Cocos Creator 3.8.8 executable is unavailable.

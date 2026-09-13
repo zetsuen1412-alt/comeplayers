@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "package": "com.comeplayers.app",
+  "version": "0.13.0",
+  "versionCode": 15,
+  "runtime": "0.13.0",
+  "device": "emulator-5554 (cp011qa)",
+  "installedAsUpdate": true,
+  "appDataCleared": false,
+  "loginScreenRendered": true,
+  "startupAndroidRuntimeErrors": 0,
+  "startupReactNativeJsErrors": 0,
+  "physicalDevicePasskeySyncTested": false,
+  "screenshot": "C:\\Comeplayers-new\\tmp\\cp013-startup.png",
+  "apkSizeBytes": 107716792,
+  "apkSha256": "d4dba4b9863239d50d3221dd4ecb8b134efce45a604176077c72f100c1193133"
+}

@@ -1,0 +1,12 @@
+COMEPLAYERS MARBLE V97 — RIVAL CONTRACTS & HIGHLIGHT REEL
+
+- Added a persistent local Rival Rating that changes after every completed match.
+- Rebuilt the six-player local Rival Board around deterministic season ratings instead of player-relative offsets.
+- Added four duplicate-safe seasonal Rival Contracts.
+- Added CP and Journey XP contract rewards.
+- Added lifetime and seasonal Rival statistics.
+- Added monthly archive fields for final Rival Rating, final rank, and contract completion.
+- Added a Career Highlight Reel generated from A/S grades, classic victories, and notable match highlights.
+- Added V97 Career, result HUD, Final Honors, and 3D Rival Champion presentation.
+- Upgraded Career progression to version 6 and local saves to version 10.
+- Preserved V96 save compatibility and all existing gameplay systems.
