@@ -1,0 +1,135 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { PageHeader } from "@/components/page-header";
+import { useDemoOrders } from "@/lib/demo-order-store";
+import { useDemoEmployees } from "@/lib/demo-employee-store";
+import { useDemoPayrollSettings } from "@/lib/demo-payroll-settings-store";
+import { useDemoAdvances } from "@/lib/demo-advance-store";
+import { buildLivePayrollRows, isPayrollEligible } from "@/lib/payroll-live";
+import { formatMoney } from "@/lib/money";
+import { formatDateTimeID } from "@/lib/date";
+import { getAssignmentGrossMinor, getOrderAssignments } from "@/lib/order-workers";
+import { exportPayrollSpreadsheet } from "@/lib/spreadsheet-export";
+
+type TeamFilter = "SEMUA" | "FH1" | "FH2" | "FH3" | "ADMIN" | "BANDAR";
+
+function statusClass(status: string) {
+  if (status === "SAKIT" || status === "IJIN") return "bg-amber-500/15 text-amber-200";
+  if (status === "RESIGN") return "bg-red-500/15 text-red-200";
+  if (status === "FULL") return "bg-violet-500/15 text-violet-200";
+  if (status === "NEW") return "bg-sky-500/15 text-sky-200";
+  return "bg-emerald-500/15 text-emerald-200";
+}
+
+export default function PayrollPage() {
+  const { allOrders } = useDemoOrders();
+  const { employees } = useDemoEmployees();
+  const { settings, setEmployeeSharePercent, updateEmployeeAdjustment, resetPayrollSettings } = useDemoPayrollSettings();
+  const { outstandingByEmployee } = useDemoAdvances();
+  const [team, setTeam] = useState<TeamFilter>("SEMUA");
+  const [detailEmployeeCode, setDetailEmployeeCode] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const payrollOptions = useMemo(() => ({
+    defaultSharePercent: settings.defaultSharePercent,
+    employeeSharePercent: settings.employeeSharePercent,
+    employees,
+    adjustments: settings.adjustments,
+    kasbonByEmployee: outstandingByEmployee,
+  }), [employees, outstandingByEmployee, settings]);
+
+  const liveRows = useMemo(() => buildLivePayrollRows(allOrders, payrollOptions), [allOrders, payrollOptions]);
+  const rows = useMemo(() => liveRows.filter((row) => team === "SEMUA" || row.team === team), [liveRows, team]);
+  const totalWorkValue = rows.reduce((sum, row) => sum + row.gross, 0);
+  const totalIncome = rows.reduce((sum, row) => sum + row.earning, 0);
+  const totalNet = rows.reduce((sum, row) => sum + row.net, 0);
+  const waitingCheck = allOrders.filter((x) => x.operationalStatus === "completed" && getOrderAssignments(x).length > 0).length;
+
+  const detailRow = detailEmployeeCode ? liveRows.find((row) => row.employeeCode === detailEmployeeCode) : undefined;
+  const detailOrders = useMemo(() => {
+    if (!detailEmployeeCode) return [];
+    return allOrders.filter((order) => isPayrollEligible(order) && getOrderAssignments(order).some((a) => a.employeeCode === detailEmployeeCode));
+  }, [allOrders, detailEmployeeCode]);
+
+  return (
+    <>
+      <PageHeader title="Gaji" description="Persentase gaji diatur per karyawan. Order yang sudah Closing tidak akan dihitung lagi pada gajian berikutnya." />
+
+      <section className="mb-5 rounded-2xl border border-yellow-500/25 bg-yellow-500/10 p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="text-sm font-semibold text-yellow-200">Persentase per karyawan</div>
+            <p className="mt-1 text-sm leading-6 text-zinc-400">Karyawan baru memakai bawaan {settings.defaultSharePercent}%. Persentase setiap karyawan bisa diubah sendiri, misalnya 40%, 50%, atau 60%.</p>
+          </div>
+          <button onClick={() => confirm("Reset persentase dan potongan gaji demo?") && resetPayrollSettings()} className="rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Reset pengaturan</button>
+        </div>
+      </section>
+
+      <section className="cp-card mb-5 p-5">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div><div className="text-sm text-zinc-500">Nilai pekerjaan selesai</div><div className="mt-1 text-2xl font-semibold">{formatMoney(totalWorkValue)}</div></div>
+          <div><div className="text-sm text-zinc-500">Gaji sebelum potongan</div><div className="mt-1 text-2xl font-semibold text-yellow-300">{formatMoney(totalIncome)}</div></div>
+          <div><div className="text-sm text-zinc-500">Total gaji bersih</div><div className={`mt-1 text-2xl font-semibold ${totalNet < 0 ? "text-red-300" : "text-emerald-300"}`}>{formatMoney(totalNet)}</div></div>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {(["SEMUA", "FH1", "FH2", "FH3", "ADMIN", "BANDAR"] as TeamFilter[]).map((value) => (
+              <button key={value} onClick={() => setTeam(value)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${team === value ? "bg-yellow-400 text-black" : "bg-zinc-800"}`}>{value === "SEMUA" ? "Semua" : value}</button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={async () => { setExporting(true); try { await exportPayrollSpreadsheet(rows, team); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Export Gaji (${rows.length})`}</button>
+            <Link href="/admin/advances" className="rounded-xl bg-violet-500 px-4 py-2 text-sm font-bold text-white">Kelola Kasbon →</Link>
+          </div>
+        </div>
+        <div className="mt-3 text-xs text-zinc-500">Export Gaji mengikuti filter Semua / FH1 / FH2 / FH3 / ADMIN / BANDAR yang sedang dipilih.</div>
+      </section>
+
+      {waitingCheck > 0 ? <div className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">Ada <strong>{waitingCheck} order</strong> selesai tetapi belum dimasukkan ke Gaji. Buka <Link href="/admin/mutations" className="font-semibold underline">Mutasi</Link>.</div> : null}
+
+      <div className="cp-card overflow-x-auto">
+        <table className="cp-table">
+          <thead><tr><th>Karyawan</th><th>Bagian / FH</th><th>Status</th><th>Order selesai</th><th>Nilai pekerjaan</th><th>Persentase</th><th>Gaji awal</th><th>Operasional</th><th>Kasbon</th><th>Denda</th><th>Bonus / Tips</th><th>Gaji bersih</th></tr></thead>
+          <tbody>
+            {rows.map((row) => {
+              const adjustment = settings.adjustments[row.employeeCode] ?? { operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
+              return (
+                <tr key={row.employeeCode}>
+                  <td className="font-semibold">{row.employee}<div className="text-xs font-normal text-zinc-500">{row.employeeCode}</div></td>
+                  <td>{row.team}</td>
+                  <td><span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass(row.employeeStatus)}`}>{row.employeeStatus}</span></td>
+                  <td className="min-w-[140px]">{row.orderRefs.length ? <button onClick={() => setDetailEmployeeCode(row.employeeCode)} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold hover:bg-zinc-700">Perlihatkan ({row.orderRefs.length})</button> : <span className="text-zinc-600">Belum ada</span>}</td>
+                  <td>{formatMoney(row.gross)}</td>
+                  <td className="min-w-[190px]">
+                    <div className="flex items-center gap-2"><input type="number" min="0" max="100" step="0.01" value={row.sharePercent} onChange={(e) => setEmployeeSharePercent(row.employeeCode, Number(e.target.value) || 0)} className="w-20 rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm font-bold text-yellow-300" /><span>%</span></div>
+                    <div className="mt-2 flex gap-1">{[40, 50, 60].map((v) => <button key={v} onClick={() => setEmployeeSharePercent(row.employeeCode, v)} className="rounded bg-zinc-800 px-2 py-1 text-[11px]">{v}%</button>)}</div>
+                  </td>
+                  <td className="font-semibold text-yellow-300">{formatMoney(row.earning)}</td>
+                  <td className="min-w-[150px]"><select value={adjustment.operationalMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { operationalMinor: Number(e.target.value) as 0 | 25000 | 50000 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm"><option value={0}>Rp 0</option><option value={25000}>Rp 25.000</option><option value={50000}>Rp 50.000</option></select></td>
+                  <td className="min-w-[145px]"><div className="font-semibold text-amber-200">- {formatMoney(row.kasbon)}</div>{row.kasbonRemaining > 0 ? <div className="mt-1 text-xs text-zinc-500">Sisa {formatMoney(row.kasbonRemaining)}</div> : row.kasbonOutstanding > 0 ? <div className="mt-1 text-xs text-emerald-400">Terpotong penuh</div> : <div className="mt-1 text-xs text-zinc-600">Tidak ada</div>}</td>
+                  <td className="min-w-[145px]"><input type="number" min="0" step="1000" value={adjustment.penaltyMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { penaltyMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm" /></td>
+                  <td className="min-w-[145px]"><input type="number" min="0" step="1000" value={adjustment.bonusTipsMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { bonusTipsMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm" /></td>
+                  <td className={`font-bold ${row.net < 0 ? "text-red-300" : "text-emerald-300"}`}>{formatMoney(row.net)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {!rows.length ? <div className="p-8 text-center text-sm text-zinc-500">Belum ada data gaji.</div> : null}
+      </div>
+
+      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">Nilai pekerjaan × persentase karyawan + Bonus/Tips − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
+
+      {detailEmployeeCode ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onMouseDown={() => setDetailEmployeeCode(null)}>
+          <section className="max-h-[80vh] w-full max-w-2xl overflow-auto rounded-2xl border border-zinc-700 bg-zinc-950 p-5 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-4"><div><div className="text-sm text-zinc-500">Order selesai</div><h2 className="mt-1 text-xl font-semibold">{detailRow?.employee ?? detailEmployeeCode}</h2></div><button onClick={() => setDetailEmployeeCode(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Tutup</button></div>
+            <div className="mt-4 space-y-2">{detailOrders.map((order) => { const a = getOrderAssignments(order).find((x) => x.employeeCode === detailEmployeeCode); return <Link key={order.id} href={`/admin/orders/${order.externalReference}`} className="block rounded-xl border border-zinc-800 bg-black/40 p-4 hover:border-yellow-500/40"><div className="flex flex-wrap justify-between gap-2"><strong>{order.externalReference}</strong><span className="text-yellow-300">{a ? formatMoney(getAssignmentGrossMinor(order, a)) : "—"}</span></div><div className="mt-1 text-xs text-zinc-500">{order.source} · {order.gameName ?? order.game} · selesai {formatDateTimeID(order.verifiedAt ?? order.completedAt ?? order.orderedAt)}</div></Link>; })}</div>
+          </section>
+        </div>
+      ) : null}
+    </>
+  );
+}

@@ -127,3 +127,4 @@ desktop.ini
 # Cocos source and authored assets are included; generated/editor state is not.
 ComePlayersMarble/.creator/
 ComePlayersMarble/references/
+EvoCP_Payroll/*.tsbuildinfo

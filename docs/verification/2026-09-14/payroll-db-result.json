@@ -1,0 +1,8 @@
+{
+  "anonymousDenied": true,
+  "authenticatedDirectDenied": true,
+  "nonAdminDenied": true,
+  "atomicAudit": true,
+  "staleRevisionDenied": true,
+  "invalidActionNoWrite": true
+}

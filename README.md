@@ -4,6 +4,8 @@ Repository sumber ComePlayers: website marketplace dan Community, Messages priba
 
 **Mulai melanjutkan pekerjaan dari [panduan serah terima](ChatGPT-Handoff-2026-09-13/MULAI-DI-SINI.md).** Dokumen itu merangkum keputusan pengguna, arsitektur, file penting, hasil pengujian, dan pekerjaan yang belum aktif.
 
+Pembaruan 14 September: [integrasi payroll final v0.15.5](docs/PAYROLL_FINAL_INTEGRATION_2026-09-14.md) menggantikan halaman admin/payroll menggunakan sumber `EvoCP_Payroll/` dan penyimpanan database khusus admin.
+
 ## Sumber
 
 | Folder | Isi |

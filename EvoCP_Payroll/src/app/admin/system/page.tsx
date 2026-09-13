@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { PageHeader } from "@/components/page-header";
+
+export default function SystemPage(){return <><PageHeader eyebrow="Kontrol sistem" title="Sistem" description="Kontrol keamanan operasional, kesehatan sistem, kesiapan cadangan, dan penanganan insiden dipisahkan dari alur keuangan normal."/><div className="grid gap-4 md:grid-cols-2"><Link className="cp-card p-6 hover:border-yellow-500/40" href="/admin/system/health"><div className="font-semibold">Kesehatan & integritas</div><p className="mt-2 text-sm text-zinc-500">Aplikasi, aturan integritas keuangan, pekerjaan latar belakang, dan sakelar pengaman.</p></Link><Link className="cp-card p-6 hover:border-yellow-500/40" href="/admin/system/backup"><div className="font-semibold">Cadangan & pemulihan</div><p className="mt-2 text-sm text-zinc-500">Status cadangan, pengujian pemulihan, dan target pemulihan data.</p></Link></div></>}

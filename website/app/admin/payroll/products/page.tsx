@@ -1,0 +1,11 @@
+import { PageHeader } from "@/features/payroll/components/page-header";
+import { ProductCatalogManager } from "@/features/payroll/components/product-catalog-manager";
+
+export default function ProductsPage() {
+  return (
+    <>
+      <PageHeader title="Produk / Game" description="Atur game, Region, dan Server yang boleh dipilih saat membuat Pesanan." />
+      <ProductCatalogManager />
+    </>
+  );
+}

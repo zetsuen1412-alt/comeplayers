@@ -1,0 +1,58 @@
+.evocp-payroll {
+  color-scheme: dark;
+  --bg: #090a0c;
+  --panel: #111318;
+  --panel-2: #171a20;
+  --border: #292d35;
+  --muted: #9399a6;
+  --gold: #f5c542;
+  --danger: #ff6b6b;
+  --ok: #66d19e;
+  --warn: #f0b35a;
+}
+
+.evocp-payroll * { box-sizing: border-box; }
+.evocp-payroll, .evocp-payroll { min-height: 100%; }
+.evocp-payroll {
+  margin: 0;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(245, 197, 66, 0.08), transparent 32rem),
+    linear-gradient(180deg, #090a0c, #0d0f13 50%, #090a0c);
+  color: #f7f7f8;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.evocp-payroll a { color: inherit; text-decoration: none; }
+.evocp-payroll button, .evocp-payroll input, .evocp-payroll select { font: inherit; }
+
+.evocp-payroll .cp-card {
+  border: 1px solid var(--border);
+  background: rgba(17, 19, 24, 0.92);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.18);
+}
+.evocp-payroll .cp-muted { color: var(--muted); }
+.evocp-payroll .cp-gold { color: var(--gold); }
+.evocp-payroll .cp-grid { display: grid; gap: 16px; }
+.evocp-payroll .cp-table { width: 100%; border-collapse: collapse; }
+.evocp-payroll .cp-table th, .evocp-payroll .cp-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+.evocp-payroll .cp-table th { color: #b7bdc9; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.evocp-payroll .cp-table tr:last-child td { border-bottom: 0; }
+
+/* UI sederhana: lebih lega, lebih mudah dibaca */
+.evocp-payroll .cp-card { box-shadow: none; }
+.evocp-payroll .cp-table th { text-transform: none; letter-spacing: 0; font-size: 13px; }
+.evocp-payroll .cp-table th, .evocp-payroll .cp-table td { padding: 14px 16px; }
+@media (max-width: 640px) {
+  .evocp-payroll .cp-table th, .evocp-payroll .cp-table td { padding: 12px; }
+}
+
+/* Saat periode Closing dikunci, seluruh form di luar halaman Closing menjadi read-only. */
+.evocp-payroll .cp-system-readonly:disabled :is(button, input, select, textarea) {
+  cursor: not-allowed !important;
+  opacity: .48 !important;
+}
+.evocp-payroll .cp-system-readonly:disabled :is(input, select, textarea) {
+  pointer-events: none;
+}
+
+.evocp-payroll { min-height: 100vh; width: 100%; color-scheme: dark; }

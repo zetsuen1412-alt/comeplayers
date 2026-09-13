@@ -1,0 +1,181 @@
+{
+  "project": "ComePlayers Operations & Finance System",
+  "code": "CP-OFS",
+  "package_version": "V2",
+  "spec_status": "implementation-ready specification; not executable application source",
+  "generated_date": "2026-09-10",
+  "document_count": 33,
+  "includes_legacy_reference": true,
+  "files": [
+    {
+      "path": "00_PROJECT_CONTEXT.md",
+      "size_bytes": 2851,
+      "sha256": "4fbc1185e47c3c07a0dd7dda50246b64f12d1733a68e6f82922cb92fe4f3a9c8"
+    },
+    {
+      "path": "01_PRODUCT_REQUIREMENTS.md",
+      "size_bytes": 5933,
+      "sha256": "c48a701f34da54f3f5fff85e97c8ecafe076ba62427a2e7ecd2acc5481276717"
+    },
+    {
+      "path": "02_LEGACY_WORKBOOK_ANALYSIS.md",
+      "size_bytes": 5469,
+      "sha256": "de4d14de667ca2e703df5c24ccb2715dfbd1f6d7c20d6a2d68545b320ab4523e"
+    },
+    {
+      "path": "03_BUSINESS_RULES.md",
+      "size_bytes": 12237,
+      "sha256": "e275d5b7cdcc9bbcffb54c4f877399594b6813167278b6e1b1ac5eb786315e6f"
+    },
+    {
+      "path": "04_DATABASE_SCHEMA.md",
+      "size_bytes": 24959,
+      "sha256": "9fa88b4fc8e5cc821061dbd2dfa52ceef7940788baa645ff14afacc9681c1797"
+    },
+    {
+      "path": "05_SECURITY_RLS.md",
+      "size_bytes": 5446,
+      "sha256": "4b1496284004a95b5eaa986222b58f8706a5295685bfcd7ee2cd93895b8bc064"
+    },
+    {
+      "path": "06_API_CONTRACTS.md",
+      "size_bytes": 7508,
+      "sha256": "ab722dd4c205b977e1bc60b39b1f88517e8af3e54b67519695a12c4ca141c62d"
+    },
+    {
+      "path": "07_UI_ROUTES.md",
+      "size_bytes": 3656,
+      "sha256": "d1fccfd71ed790752927295a4d926b7c21e84cabef4548eb13540a8524540a01"
+    },
+    {
+      "path": "08_FINANCE_ENGINE.md",
+      "size_bytes": 3760,
+      "sha256": "76208c4538452bc36e24c688c566267ca7d3a3556d4549e5e7a5998770d27ece"
+    },
+    {
+      "path": "09_PAYROLL_ENGINE.md",
+      "size_bytes": 4299,
+      "sha256": "bfbf9e18520c913d0cfb3e07ee33c0d099203401050dbdb0202e3a7e3552928e"
+    },
+    {
+      "path": "10_RECONCILIATION.md",
+      "size_bytes": 2462,
+      "sha256": "c84da9cf93a7371d98213152051559d8c8a021f9b7a7ec6475e13866c56e53ec"
+    },
+    {
+      "path": "11_CLOSING_AUDIT.md",
+      "size_bytes": 2519,
+      "sha256": "ed4f8971d6f9b2b84f899d853ea0a42d14c066bfe3145305ccbbf90dd3a08d55"
+    },
+    {
+      "path": "12_AI_AUDITOR.md",
+      "size_bytes": 2155,
+      "sha256": "b492fd62c4f84b45550c66d52e85a1b9fba372a20531c51ebb31a091bfa486c8"
+    },
+    {
+      "path": "13_LEGACY_MIGRATION.md",
+      "size_bytes": 2938,
+      "sha256": "9202c5de70a65e91356816f4c73c163aff8100ac52f2d59ec2b5a55806457b71"
+    },
+    {
+      "path": "14_TEST_MATRIX.md",
+      "size_bytes": 5822,
+      "sha256": "fa698968cf877defbf5d14a24cb168a6334996c34db80441605741cfe48be5d0"
+    },
+    {
+      "path": "15_ERROR_CODES.md",
+      "size_bytes": 2719,
+      "sha256": "3ac4c7871c3c5f4c0d8a9796b54cce39aa55ca625dfe22a1f1c6928dcfa5cf3c"
+    },
+    {
+      "path": "16_IMPLEMENTATION_MILESTONES.md",
+      "size_bytes": 6343,
+      "sha256": "db987b3599897bb7fb2c6615cc670bd6204345b046e86c8cecf0e8f231e01ded"
+    },
+    {
+      "path": "17_REPORTING_ANALYTICS.md",
+      "size_bytes": 2242,
+      "sha256": "03d9674194ee747891fcff3ccd7da2d77971996b0283e9f948da2e65b0432912"
+    },
+    {
+      "path": "18_NOTIFICATION_AUTOMATION.md",
+      "size_bytes": 1516,
+      "sha256": "25c2e1a2d196e24426bdb92208b955892561b85daaa65f8182f78a4a5e408f5c"
+    },
+    {
+      "path": "19_OPERATIONS_SLA.md",
+      "size_bytes": 1287,
+      "sha256": "bc0bcd2cd150f7ad4b3f56ab3f4ec03d948311cd80ff08dc714001c0354254b9"
+    },
+    {
+      "path": "20_OWNER_CONTROL_CENTER.md",
+      "size_bytes": 1435,
+      "sha256": "b52981b9db9ce620552cb00977c2e5cacf6adf5fe35374a94c69c60599746f1e"
+    },
+    {
+      "path": "21_VENDOR_PROCUREMENT.md",
+      "size_bytes": 1513,
+      "sha256": "fbb0900f7fec77411cf933f326716cddc567fd829398cf9cdf78ac334f4163cd"
+    },
+    {
+      "path": "22_INVENTORY_ENGINE.md",
+      "size_bytes": 1955,
+      "sha256": "c005bf3b093a1da18241347ac33e316e17bd6817cceef6b11682463159634124"
+    },
+    {
+      "path": "23_ORDER_FULFILLMENT.md",
+      "size_bytes": 1285,
+      "sha256": "145793c5ee9e8c3042445d10768af2afc2fd117d13a48a752e23c14307d9d433"
+    },
+    {
+      "path": "24_WORKFORCE_ENGINE.md",
+      "size_bytes": 1478,
+      "sha256": "3e476aa66820cd4408e9496cd1d686a0e9638ffafa32bde815f8457858f249a1"
+    },
+    {
+      "path": "25_SCHEDULING_CAPACITY.md",
+      "size_bytes": 1142,
+      "sha256": "ce958b7ca983486e3b6b3460420d87c4c376f64301afeebf532b0c16d57172a5"
+    },
+    {
+      "path": "26_WORKER_SELF_SERVICE.md",
+      "size_bytes": 1081,
+      "sha256": "83b651b7ee2e76c71e908307ac18e2e37e70433dcfe6d18f1696c16ae226de42"
+    },
+    {
+      "path": "27_BACKUP_DISASTER_RECOVERY.md",
+      "size_bytes": 1896,
+      "sha256": "339d97ca2d91c7ff86e7d6d13aad9a020f5b216a4bd00c84f167b8fd7ffa5a1a"
+    },
+    {
+      "path": "28_PRODUCTION_MONITORING.md",
+      "size_bytes": 1579,
+      "sha256": "51b1d046430ecc204a81d00b89141fc76995963a4942ddcb98bcf75efbad4e5d"
+    },
+    {
+      "path": "29_INCIDENT_RESPONSE.md",
+      "size_bytes": 1428,
+      "sha256": "78e3322b4fbba6f5c56bb62c172289f2a34675313cb126e1c811ff9bba2c71b0"
+    },
+    {
+      "path": "30_DEPLOYMENT_OPERATIONS.md",
+      "size_bytes": 1823,
+      "sha256": "77c7597037cb0818361b0ee8bf5c6f0d3cd19304dbcc76b554b2597c1654d132"
+    },
+    {
+      "path": "CODEX_MASTER_PROMPT.md",
+      "size_bytes": 8206,
+      "sha256": "a1d72c2d3934258b9d8ff4ec5ec059668d291fd1277241962e357cba66a61032"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 4827,
+      "sha256": "1380d86f6309dc437eccef6f0b1233440f6a3a3269ca110af8fd42e2fb44b5f1"
+    },
+    {
+      "path": "references/EVO GAMING 2026.xlsx",
+      "size_bytes": 3161367,
+      "sha256": "09d4f929d94e0f62c3086444830d3bbd0ae867e05e1da10a84fa5661998fb9eb"
+    }
+  ]
+}

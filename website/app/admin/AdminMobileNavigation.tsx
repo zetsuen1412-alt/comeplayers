@@ -82,7 +82,7 @@ export default function AdminMobileNavigation() {
     };
   }, [open]);
 
-  if (pathname === "/admin") return null;
+  if (pathname === "/admin" || pathname.startsWith("/admin/payroll")) return null;
 
   return (
     <>

@@ -1,0 +1,4 @@
+"use client";
+import { PageHeader } from '@/features/payroll/components/page-header';
+import { payrollStatus } from '@/features/payroll/lib/workspace-store';
+export default function HealthPage(){const status=payrollStatus();return <><PageHeader title="Kesehatan sistem" description="Status penyimpanan terkini juga ditampilkan pada bar di atas setiap halaman."/><div className="cp-card p-6 space-y-4"><p>Database: {status.error?'Koneksi memerlukan perhatian':status.ready?'Terhubung · revisi '+status.revision:'Memuat'}</p><p>Akses: hanya admin, diperiksa pada setiap permintaan server.</p><p>Closing: transaksi atomik dengan pemeriksaan revisi dan audit perubahan.</p><p>Asisten: pemeriksaan berbasis aturan; tidak memakai layanan AI berbayar.</p></div></>}

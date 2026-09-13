@@ -1,0 +1,15 @@
+{
+  "desktop": true,
+  "mobileNoOverflow": true,
+  "employeeSaved": true,
+  "reloadPersistence": true,
+  "noPayrollLocalStorage": true,
+  "excelExport": true,
+  "closingSaved": true,
+  "unlockSaved": true,
+  "conflictBlocked": true,
+  "anonymousPageBlocked": true,
+  "anonymousApiStatus": 401,
+  "pageErrors": [],
+  "posts": 5
+}
