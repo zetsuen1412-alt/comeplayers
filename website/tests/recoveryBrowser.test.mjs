@@ -90,7 +90,9 @@ test('real browser PRF restores encrypted history after a complete page reload w
     if (JSON.stringify(event).includes('Synthetic retained private history')) throw new Error('History was not encrypted');
     await cp.closeBrowserVault(plan.session.root.userId);
     await new Promise((resolve, reject) => { const r = indexedDB.deleteDatabase('cp-e2ee-v2-' + plan.session.root.userId); r.onsuccess = resolve; r.onerror = () => reject(r.error); });
-    return { account: { roster: plan.session.roster, roster_hash: cp.rosterHash(plan.session.roster), encrypted_backup: plan.backup, updated_at: new Date().toISOString() }, event, epoch, deviceId: plan.session.device.id };
+    // Retain public trust anchors from the original invitation independently
+    // from downloaded epoch metadata. No root or conversation secret is returned.
+    return { account: { roster: plan.session.roster, roster_hash: cp.rosterHash(plan.session.roster), encrypted_backup: plan.backup, updated_at: new Date().toISOString() }, event, epoch, trustedRoots: [...roots], trustedFounder: plan.session.root.userId, deviceId: plan.session.device.id };
   });
   await page.reload();
   const result = await page.evaluate(async retained => {
@@ -99,14 +101,18 @@ test('real browser PRF restores encrypted history after a complete page reload w
     const passkey = account.encrypted_backup.passkey;
     const derived = await cp.unlockBrowserPasskeyRecovery(passkey, account.roster.identity);
     const plan = cp.prepareRecoveredDevice(userId, { ...account, encrypted_backup: passkey.backup }, derived, { pinnedRoot: account.roster.identity });
+    let unverifiedRejected = false;
+    try { await cp.openEpochKey(retained.epoch, plan.recoveryIdentity); } catch { unverifiedRejected = true; }
+    if (!unverifiedRejected) throw new Error('A serialized epoch was used without re-verification');
+    cp.verifyEpoch(retained.epoch, new Map(retained.trustedRoots), undefined, retained.trustedFounder);
     const key = await cp.openEpochKey(retained.epoch, plan.recoveryIdentity);
     const message = cp.decryptHistory(retained.event, retained.epoch, key);
     await cp.activateVerifiedDevice(plan, async () => ({ revision: plan.session.roster.revision, rosterHash: cp.rosterHash(plan.session.roster) }), cp.persistVerifiedBrowserSession);
     const vault = await cp.openBrowserVault(userId);
     await vault.put('synthetic-message', 'restored', message);
-    return { text: (await vault.get('synthetic-message', 'restored')).text, rootMatches: cp.fingerprint(plan.recoveryIdentity) === cp.fingerprint(account.roster.identity), newDevice: plan.session.device.id !== retained.deviceId };
+    return { text: (await vault.get('synthetic-message', 'restored')).text, rootMatches: cp.fingerprint(plan.recoveryIdentity) === cp.fingerprint(account.roster.identity), newDevice: plan.session.device.id !== retained.deviceId, unverifiedRejected };
   }, retained);
-  assert.deepEqual(result, { text: 'Synthetic retained private history', rootMatches: true, newDevice: true });
+  assert.deepEqual(result, { text: 'Synthetic retained private history', rootMatches: true, newDevice: true, unverifiedRejected: true });
   assert.equal(await page.locator('input,textarea').count(), 0);
 });
 
