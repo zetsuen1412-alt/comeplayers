@@ -17,7 +17,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: account-recovery-${{ github.ref }}
+  group: account-recovery-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   source-checks:
@@ -44,17 +44,18 @@ jobs:
       - name: Website typecheck
         working-directory: website
         run: npm run typecheck
-      - name: Recovery policy and existing cryptographic tests
+      - name: Recovery policy, storage isolation and existing cryptographic tests
         working-directory: website
-        run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts
+        run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/recoveryStorage.test.mjs tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile
       - name: Shared recovery policy parity
         run: cmp website/lib/e2ee/recoveryPolicy.ts comeplayers-apps/apps/mobile/src/secure/recoveryPolicy.ts
+      # Run from website so the server-side @/ aliases use website/tsconfig.json.
       - name: Existing private-message protocol tests
-        working-directory: comeplayers-apps
-        run: ../website/node_modules/.bin/tsx --test tests/privateAccountRecovery.test.ts tests/privateMultiDevice.test.ts tests/privateHistorySync.test.ts tests/privateVerifiedBackup.test.ts
+        working-directory: website
+        run: npx --no-install tsx --test ../comeplayers-apps/tests/privateAccountRecovery.test.ts ../comeplayers-apps/tests/privateMultiDevice.test.ts ../comeplayers-apps/tests/privateHistorySync.test.ts ../comeplayers-apps/tests/privateVerifiedBackup.test.ts
       - name: Build web application without production credentials
         working-directory: website
         env:
