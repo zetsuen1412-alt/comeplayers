@@ -1,0 +1,87 @@
+name: Account recovery checks
+on:
+  push:
+    branches: [chatgpt/account-integrated-e2ee-recovery]
+  pull_request:
+    paths:
+      - 'website/lib/e2ee/**'
+      - 'website/components/messages/Secure*'
+      - 'website/app/api/messages/secure/**'
+      - 'website/supabase/migrations/*account_recovery*'
+      - 'website/tests/*recovery*'
+      - 'website/tests/*Recovery*'
+      - 'website/tests/sql/recoveryPolicy.sql'
+      - 'comeplayers-apps/apps/mobile/src/secure/**'
+      - 'comeplayers-apps/apps/mobile/src/screens/PrivateBackupSettings.tsx'
+      - '.github/workflows/account-recovery.yml'
+permissions:
+  contents: read
+concurrency:
+  group: account-recovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website
+            comeplayers-apps
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install locked website dependencies
+        working-directory: website
+        run: npm ci --no-audit --no-fund
+      - name: Website typecheck
+        working-directory: website
+        run: npm run typecheck
+      - name: Recovery policy and existing cryptographic tests
+        working-directory: website
+        run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts
+      - name: Install locked application dependencies
+        working-directory: comeplayers-apps
+        run: npm ci --no-audit --no-fund
+      - name: Mobile typecheck
+        working-directory: comeplayers-apps
+        run: npm run typecheck --workspace @comeplayers/mobile
+      - name: Shared recovery policy parity
+        run: cmp website/lib/e2ee/recoveryPolicy.ts comeplayers-apps/apps/mobile/src/secure/recoveryPolicy.ts
+      - name: Existing private-message protocol tests
+        working-directory: comeplayers-apps
+        run: ../website/node_modules/.bin/tsx --test tests/privateAccountRecovery.test.ts tests/privateMultiDevice.test.ts tests/privateHistorySync.test.ts tests/privateVerifiedBackup.test.ts
+      - name: Build web application without production credentials
+        working-directory: website
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-production-key
+        run: npm run build
+  sql-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-local-fixture-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website/tests/sql
+            website/supabase/migrations
+      - name: Isolated PostgreSQL generation guard checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+        run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/recoveryPolicy.sql
