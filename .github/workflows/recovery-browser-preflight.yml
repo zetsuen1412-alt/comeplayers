@@ -1,0 +1,88 @@
+name: Recovery browser and Android preflight
+on:
+  push:
+    branches: [chatgpt/account-integrated-e2ee-recovery]
+    paths:
+      - 'website/lib/e2ee/**'
+      - 'website/tests/recoveryBrowser.test.mjs'
+      - 'comeplayers-apps/scripts/recovery-release-preflight.mjs'
+      - 'comeplayers-apps/apps/mobile/app.json'
+      - 'comeplayers-apps/apps/mobile/eas.json'
+      - '.github/workflows/recovery-browser-preflight.yml'
+  pull_request:
+    paths:
+      - 'website/lib/e2ee/**'
+      - 'website/tests/recoveryBrowser.test.mjs'
+      - 'comeplayers-apps/scripts/recovery-release-preflight.mjs'
+      - 'comeplayers-apps/apps/mobile/app.json'
+      - 'comeplayers-apps/apps/mobile/eas.json'
+      - '.github/workflows/recovery-browser-preflight.yml'
+permissions:
+  contents: read
+concurrency:
+  group: recovery-browser-preflight-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  real-browser-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website
+            comeplayers-apps
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm ci --no-audit --no-fund
+        working-directory: website
+      - name: Install Chromium test browser
+        working-directory: website
+        run: npx --no-install playwright install --with-deps chromium
+      - name: WebAuthn PRF, encrypted history restore, and real IndexedDB reset
+        working-directory: website
+        run: node --test tests/recoveryBrowser.test.mjs
+      - name: Check existing Android project, runtime and public signing association
+        run: node comeplayers-apps/scripts/recovery-release-preflight.mjs static
+  eas-read-access:
+    # Only trusted same-repository PRs or this work branch. This is not a build
+    # or release job. No pull_request_target and no write permissions.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website/public/.well-known
+            comeplayers-apps
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Require Expo token in secure Actions configuration
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          node --input-type=module -e '
+            import { appendFileSync } from "node:fs";
+            if (!process.env.EXPO_TOKEN?.trim()) {
+              const message = "EXPO_TOKEN is not available to this Actions job. Store it as a GitHub Actions secret, never in chat or source. No build was requested.";
+              console.error("::error::" + message);
+              appendFileSync(process.env.GITHUB_STEP_SUMMARY, "## Android release blocked\n\n" + message + "\n");
+              process.exit(2);
+            }
+            console.log("Expo token is configured; its value is not displayed.");
+          '
+      - name: Install locked application dependencies without exposing the Expo token
+        working-directory: comeplayers-apps
+        run: npm ci --no-audit --no-fund
+      - name: Verify EAS project access without creating or publishing a build
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_TELEMETRY: '1'
+        run: node comeplayers-apps/scripts/recovery-release-preflight.mjs access
