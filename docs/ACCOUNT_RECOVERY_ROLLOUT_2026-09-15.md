@@ -104,3 +104,15 @@ The current branch was checked at `ec004c0e9c1e9c8c0c937b378c21cb6225518999`; no
 Use a functioning authorized local Expo/signing host, or configure `EXPO_TOKEN` directly in repository Actions secrets and rerun the existing preflight. For a local check, install `eas-cli@24.5.0` separately without release secrets, set `COMEPLAYERS_EAS_CLI_PATH` to the absolute `node_modules/eas-cli/bin/run` path, then run `node comeplayers-apps/scripts/recovery-release-preflight.mjs local-access`. This lists builds only. Never paste secrets into chat.
 
 Reconnect the Supabase plugin before refreshing the actual migration/control/inventory state. Complete original-certificate Android artifact verification, remote version checking, an update install without clearing app data, two physical-device passkey/history restoration, and the supported Windows path before any reset. The prior scope approval remains valid; release readiness is still unfulfilled.
+
+
+### Verified source checkpoint from this continuation
+
+Implementation/test checkpoint: `dd52b147b01c507383349de7076d3e54b85854d7` (parent implementation `17dff0e58f9f6cceb1188aaac58233125a231b5d`). The subsequent evidence update is documentation only.
+
+- [Account recovery checks, run 35028842059](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35028842059): source job `104582727160` and SQL job `104582727389` succeeded. Full web/mobile typechecks, 40 recovery/policy/storage/passkey/server tests, 32 private protocol/history/backup tests, helper parity and the web build passed. The build generated 231 pages with dummy configuration.
+- [Browser and Android preflight, run 35028842141](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35028842141): browser job `104582297517` passed all 7 Chromium tests and 15 release-preflight tests. EAS job `104582297769` failed at the missing `EXPO_TOKEN` prerequisite. The workflow as a whole remains failed; it is not an Android build.
+- Total across these four test groups: **94 passed**. Local synthetic tests are included in these groups, not additional unique tests.
+- The first CI attempt at `17dff0e` exposed a pre-existing nondeterministic history-tampering fixture: replacing the first ciphertext byte with 00 sometimes did not change that byte. The follow-up always changes a hex digit and asserts that the fixture differs; the actual rejection/cursor/persistence assertions remain intact. No production cryptographic check was changed to make this pass.
+- Public read-only checks returned HTTP 200 with `enabled: false` for `/api/account/session` and HTTP 200 with the original Android package/certificate in assetlinks. A range GET of the existing 0.13.0 APK returned HTTP 206 and a total size of 107,716,792 bytes. Only one byte was requested; its full hash/signature was not reverified here, and it is not a replacement recovery artifact.
+- Web deployment, replacement APK/AAB/OTA, physical-device tests and database reset remain **not performed** in this continuation. Supabase live state remains unavailable through the failed connector. Do not turn these CI results into `verified_release` or `rollout_verified`.
