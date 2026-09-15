@@ -6,6 +6,7 @@ on:
       - 'website/lib/e2ee/**'
       - 'website/tests/recoveryBrowser.test.mjs'
       - 'comeplayers-apps/scripts/recovery-release-preflight.mjs'
+      - 'comeplayers-apps/tests/recoveryReleasePreflight.test.mjs'
       - 'comeplayers-apps/apps/mobile/app.json'
       - 'comeplayers-apps/apps/mobile/eas.json'
       - '.github/workflows/recovery-browser-preflight.yml'
@@ -14,6 +15,7 @@ on:
       - 'website/lib/e2ee/**'
       - 'website/tests/recoveryBrowser.test.mjs'
       - 'comeplayers-apps/scripts/recovery-release-preflight.mjs'
+      - 'comeplayers-apps/tests/recoveryReleasePreflight.test.mjs'
       - 'comeplayers-apps/apps/mobile/app.json'
       - 'comeplayers-apps/apps/mobile/eas.json'
       - '.github/workflows/recovery-browser-preflight.yml'
@@ -47,6 +49,8 @@ jobs:
         run: node --test tests/recoveryBrowser.test.mjs
       - name: Check existing Android project, runtime and public signing association
         run: node comeplayers-apps/scripts/recovery-release-preflight.mjs static
+      - name: Release preflight failure and local-session checks
+        run: node --test comeplayers-apps/tests/recoveryReleasePreflight.test.mjs
   eas-read-access:
     # Only trusted same-repository PRs or this work branch. This is not a build
     # or release job. No pull_request_target and no write permissions.
@@ -81,8 +85,11 @@ jobs:
       - name: Install locked application dependencies without exposing the Expo token
         working-directory: comeplayers-apps
         run: npm ci --no-audit --no-fund
+      - name: Install pinned EAS CLI without the Expo token
+        run: npm install --prefix "$RUNNER_TEMP/comeplayers-eas" --no-audit --no-fund --ignore-scripts eas-cli@24.5.0
       - name: Verify EAS project access without creating or publishing a build
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_NO_TELEMETRY: '1'
+          COMEPLAYERS_EAS_CLI_PATH: ${{ runner.temp }}/comeplayers-eas/node_modules/eas-cli/bin/run
         run: node comeplayers-apps/scripts/recovery-release-preflight.mjs access

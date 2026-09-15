@@ -78,3 +78,29 @@ The reset does not delete personal exports, Google Drive files, old passkeys fro
 The new bootstrap needs a successful server policy check before exposing an old local vault; offline starts keep Messages locked rather than silently ignoring a potential reset. Other app areas remain available on mobile. Test this tradeoff explicitly.
 
 Before destructive cutover, old clients remain compatible with generation zero. After cutover, a source-code rollback cannot recover deleted identities/history, and the database guard intentionally blocks old enrollment. Never move generation backwards, disable the guard or mix old snapshots with new identities as an improvised rollback.
+
+## Codex continuation — 16 September 2026
+
+The current branch was checked at `ec004c0e9c1e9c8c0c937b378c21cb6225518999`; no newer head was overwritten. No checkout was present in the Codex workspace, searched Documents/Desktop locations, or the historical `C:\Comeplayers-new` path. Git HTTPS authentication was unavailable. An authorized GitHub connector provided a partial source snapshot for review and targeted local tests; this snapshot is not a complete Git checkout. Changes are submitted against the existing branch through the connector, preserving its parent history.
+
+### Code changes
+
+- Native backup/export now validates the server policy against the locally recorded generation, the signed roster against the trusted root, and this device's current authorization. Restore repeats those checks inside its transaction before commit; reset, account switch, revocation, or a failed final request rolls back imported records. Export repeats the check before returning its temporary file and deletes that file on failure.
+- Closing/changing the backup context aborts its transfer. An interrupted restore reopens Messages through its policy check instead of resuming a potentially stale messenger directly.
+- Read-only release preflight now supports `local-access`, which attempts an existing Expo session without imposing the Actions token prerequisite on a local PC. Actions still require `EXPO_TOKEN`. It runs a separately installed, pinned EAS CLI directly with Node, without a command shell or dependency download while carrying the Expo token. Raw CLI output remains suppressed. Host-profile failures have a separate diagnostic.
+- Static preflight checks owner, minimum native runtime, and source versionCode, and explicitly leaves artifact/signature/remote-version verification false. These configuration checks cannot certify an APK. The existing local signing plugin still has a debug fallback; do not distribute its output without verifying the actual original certificate. No signed build was possible in this environment.
+
+### Observed validation and environment
+
+- New local tests: 14 backup transaction/authorization cases and 15 release-preflight cases passed. Eight existing storage-isolation cases also passed. They use synthetic storage/CLI adapters; none establishes physical-device passkey synchronization or real native SQLite behavior.
+- Both locked dependency installations completed (`npm ci`, website and application workspaces). The standard `tsx` protocol commands failed before running tests because this Windows runtime's `os.userInfo()` returns `uv_os_get_passwd` / `ENOMEM`. Full-source typechecks, protocol tests and build must be checked on the resulting GitHub Actions commit; do not count these local attempts as passed.
+- Fresh CI evidence on the incoming handoff commit: source and SQL run `35025183065` succeeded; browser/configuration job `104570392093` in run `35025183077` succeeded; EAS job `104570392452` failed at the missing Actions secret prerequisite.
+- No `EXPO_TOKEN` or named Android signing/SDK environment variables were present. Standard `.expo`, `.eas`, `.android`, `.gradle`, Android SDK and user npm installation paths were absent. `java`, `adb`, `eas` and `expo` were not on PATH. EAS CLI 24.5.0 was then installed in workspace tooling. Both `whoami` and the new `local-access` probe hit the Windows profile error, so authenticated project access remains unverified. No replacement Expo project, signing key, APK, AAB, or OTA was created.
+- Connected Vercel production was READY at `dpl_FPpB7nzKh4cKZErcQ3gQjyFFc5cB`, source `0b81bd4b28656bf86c946739deb1ae33f3816b1b`. The project listing retains the old repository name `evo-gaming`, while deployment metadata identifies `comeplayers`. No deployment from this recovery branch was found in the current listing, and this continuation did not deploy.
+- Supabase `list_migrations`, the read-only migration query, and `list_projects` all returned connector internal errors. Current generation and aggregate inventory could not be reverified. The recorded applied migration remains `20260915134209`; it was not reapplied. No production SQL mutation, dry-run reset, release-evidence update, or reset was executed.
+
+### Remaining access and cutover requirements
+
+Use a functioning authorized local Expo/signing host, or configure `EXPO_TOKEN` directly in repository Actions secrets and rerun the existing preflight. For a local check, install `eas-cli@24.5.0` separately without release secrets, set `COMEPLAYERS_EAS_CLI_PATH` to the absolute `node_modules/eas-cli/bin/run` path, then run `node comeplayers-apps/scripts/recovery-release-preflight.mjs local-access`. This lists builds only. Never paste secrets into chat.
+
+Reconnect the Supabase plugin before refreshing the actual migration/control/inventory state. Complete original-certificate Android artifact verification, remote version checking, an update install without clearing app data, two physical-device passkey/history restoration, and the supported Windows path before any reset. The prior scope approval remains valid; release readiness is still unfulfilled.

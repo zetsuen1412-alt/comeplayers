@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as Sharing from "expo-sharing";
@@ -18,6 +18,7 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
   const { messenger, reopen } = usePrivateMessenger();
   const [busy, setBusy] = useState(false), [status, setStatus] = useState("");
   const running = useRef(false), controller = useRef<AbortController | null>(null);
+  useEffect(() => () => { controller.current?.abort(); }, [userId, messenger]);
   async function assertUser() {
     const { data } = await supabase.auth.getSession();
     if (data.session?.user.id !== userId) throw new Error("The signed-in account changed. Reopen backup settings.");
@@ -63,7 +64,8 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
       setStatus(abort.signal.aborted ? "Transfer cancelled. Completed backups and existing history are unchanged." : passkeyError(reason));
     } finally {
       try { if (file?.exists) file.delete(); } finally {
-        if (paused) messenger.resume();
+        // Recheck account policy instead of resuming a possibly revoked vault.
+        if (paused) reopen();
         running.current = false; controller.current = null; setBusy(false);
       }
     }

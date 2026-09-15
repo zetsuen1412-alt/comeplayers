@@ -1,7 +1,8 @@
 import { File, Paths } from "expo-file-system";
 import { encodeBackup, decodeBackup } from "./backupFormat";
 import { fingerprint, newId, publicIdentity, unhex, utf8, type PublicIdentity } from "./crypto";
-import { fetchRecoveryAccount } from "./accountRecovery";
+import { createBackupRecoveryGuard } from "./backupRecoveryGuard";
+import { readNativeRecoveryGeneration } from "./nativeRecoveryPolicy";
 import { verifyRoster, type AccountRoster } from "./multiDevice";
 import { openAccountBackup } from "./passkeyRecovery";
 import { mobileSecureTransport } from "./mobileSecureTransport";
@@ -20,17 +21,17 @@ async function backupContext(userId: string, recoveryKey: string, checkRecovery:
   // The signed roster carries the root identity; verify before trusting it.
   const root = roster.identity;
   verifyRoster(roster, root);
+  const { snapshot, assertCurrent } = await createBackupRecoveryGuard(userId, root, vault.descriptor.deviceId, await readNativeRecoveryGeneration(userId), mobileSecureTransport);
   if (checkRecovery) {
-    const snapshot = await fetchRecoveryAccount(mobileSecureTransport);
-    if (!snapshot) throw new Error("The encrypted account recovery backup is unavailable.");
     const recovered = openAccountBackup(snapshot.encrypted_backup, normalized, root);
     if (fingerprint(recovered) !== fingerprint(root)) throw new Error("The recovery key does not match this account.");
   }
-  return { vault, root: publicIdentity(root), key: unhex(normalized) };
+  return { vault, root: publicIdentity(root), key: unhex(normalized), assertCurrent };
 }
 
 export async function exportVerifiedBackup(userId: string, recoveryKey: string, signal?: AbortSignal): Promise<File> {
-  const { vault, root, key } = await backupContext(userId, recoveryKey, true);
+  checkBackupCancellation(signal);
+  const { vault, root, key, assertCurrent } = await backupContext(userId, recoveryKey, true);
   const file = new File(Paths.cache, `ComePlayers-${new Date().toISOString().slice(0, 10)}-${newId()}.cpbackup`);
   let handle: ReturnType<File["open"]> | undefined;
   try {
@@ -51,6 +52,9 @@ export async function exportVerifiedBackup(userId: string, recoveryKey: string, 
         if ((handle!.offset || 0) > 2 * 1024 ** 3) throw new Error("This backup exceeds the 2 GB archive limit.");
       }
     });
+    // A reset or device revocation during encoding must not produce a usable export.
+    await assertCurrent();
+    checkBackupCancellation(signal);
     return file;
   } catch (error) {
     handle?.close(); handle = undefined;
@@ -74,7 +78,8 @@ async function* lines(file: File) {
 }
 
 export async function restoreVerifiedBackup(userId: string, uri: string, recoveryKey: string, signal?: AbortSignal): Promise<void> {
-  const { vault, root, key } = await backupContext(userId, recoveryKey, false);
+  checkBackupCancellation(signal);
+  const { vault, root, key, assertCurrent } = await backupContext(userId, recoveryKey, false);
   try {
     // One transaction rolls back every imported record if authentication, footer
     // validation or the download fails. The verified device pointer never changes.
@@ -91,6 +96,9 @@ export async function restoreVerifiedBackup(userId: string, uri: string, recover
         if (++count % 32 === 0) await new Promise(resolve => setTimeout(resolve, 0));
       }
       if (first) throw new Error("The backup has no verified history header.");
+      // Keep this inside the transaction so a reset, lost access, or failed
+      // policy request rolls back every imported record before the commit.
+      await assertCurrent();
       checkBackupCancellation(signal);
     });
   } finally { key.fill(0); }

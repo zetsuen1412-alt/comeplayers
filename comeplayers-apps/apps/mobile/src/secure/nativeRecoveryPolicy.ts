@@ -9,6 +9,10 @@ const options: SecureStore.SecureStoreOptions = { keychainAccessible: SecureStor
 const pending = new Map<string, Promise<boolean>>();
 const databaseName = /^cp-private-[0-9a-f-]{36}\.db$/;
 
+export async function readNativeRecoveryGeneration(userId: string): Promise<number> {
+  return readRecoveryGeneration(await SecureStore.getItemAsync(recoveryGenerationKey(userId), options));
+}
+
 /** Reset only the signed-in account's private vault; never Auth or app storage. */
 export function applyNativeRecoveryPolicy(userId: string, policy: RecoveryPolicy): Promise<boolean> {
   const key = recoveryGenerationKey(userId), cleanupKey = `${key}.cleanup`;
