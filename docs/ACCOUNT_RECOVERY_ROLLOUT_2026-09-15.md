@@ -440,3 +440,10 @@ The owner requested APK 18 on the official website. Website source commit `58427
 - Cloud CI on `5842748`: account recovery run **35088013452** passed source/typechecks, isolated SQL and web build. **124 tests passed, zero skipped**: 10 version, 45 recovery/download, 15 signing, 32 protocol, 7 browser, 15 preflight. Browser job in run **35088013435** passed; EAS access still failed because Actions lacks EXPO_TOKEN. That workflow is not wholly green.
 - Production smoke at **11:10:53 UTC**: live/ready 200, database ready, unauthenticated secure account/history 401 without data, categories 200, original signing association 200. Browser home exposes the new Android path. A browser download event wait timed out; the independent complete HTTP download and digest above establish artifact delivery.
 - No database writes/reset/readiness flags/migration reapplication were performed in this distribution step. Physical update installation, two-physical-device passkey/history restoration and supported Windows recovery remain unverified. Website availability does not satisfy those reset gates.
+
+
+## 2026-09-16 11:52 UTC — reset executed with explicit device-test waiver
+
+The owner subsequently instructed Codex to skip the two-physical-device and Windows test results and reset immediately. The E2EE-only reset committed at 11:52:09.241719 UTC. Generation is now 1 and passkey enrollment is required. The one identity, device and roster were removed; all 174 protected Auth/non-E2EE tables matched within the transaction. Physical/Windows tests and rollout_verified remain false; no test result was fabricated. This later explicit instruction supersedes the earlier device-test execution prerequisite for this cutover only, not the protected-data scope, runtime guards or tool approvals.
+
+See [the executed reset record](E2EE_RESET_EXECUTED_2026-09-16.md) for exact inventory, releases, checks, unverified flows and the archived ROLLBACK script. Do not repeat the reset or lower generation.

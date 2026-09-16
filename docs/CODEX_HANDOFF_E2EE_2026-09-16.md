@@ -95,3 +95,10 @@ This reset does not erase personal exports, Drive files, password-manager passke
 ## Completion report to the owner
 
 Respond in Indonesian; write code and comments in English. Report actual edits, branch/commit/PR, commands and test results, web deployment status, Android artifact/signature verification, device tests and database reset state separately. Distinguish done, not done and blocked. Update the rollout record and PR with verified evidence. Do not call the job complete merely because the UI no longer contains the recovery-code field, or merely repeat the previous plan without performing the next feasible work.
+
+
+## 2026-09-16 11:52 UTC — reset executed with explicit device-test waiver
+
+The owner subsequently instructed Codex to skip the two-physical-device and Windows test results and reset immediately. The E2EE-only reset committed at 11:52:09.241719 UTC. Generation is now 1 and passkey enrollment is required. The one identity, device and roster were removed; all 174 protected Auth/non-E2EE tables matched within the transaction. Physical/Windows tests and rollout_verified remain false; no test result was fabricated. This later explicit instruction supersedes the earlier device-test execution prerequisite for this cutover only, not the protected-data scope, runtime guards or tool approvals.
+
+See [the executed reset record](E2EE_RESET_EXECUTED_2026-09-16.md) for exact inventory, releases, checks, unverified flows and the archived ROLLBACK script. Do not repeat the reset or lower generation.
