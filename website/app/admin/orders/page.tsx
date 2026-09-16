@@ -108,7 +108,7 @@ function getStatusClass(status: string | null) {
 
 
 export default function AdminOrderManagementV1Page() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);

@@ -92,7 +92,7 @@ function createSafeFileName(fileName: string) {
 }
 
 export default function PaymentUploadV3NotificationPage() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order");
 

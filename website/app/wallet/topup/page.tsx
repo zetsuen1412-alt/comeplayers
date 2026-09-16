@@ -86,7 +86,7 @@ function createSafeFileName(fileName: string) {
 }
 
 export default function WalletTopUpPageV1() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [topups, setTopups] = useState<WalletTopup[]>([]);
