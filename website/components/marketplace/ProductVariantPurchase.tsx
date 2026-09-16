@@ -202,11 +202,11 @@ export default function ProductVariantPurchase({
             Order Summary
           </p>
           <p className="mt-1.5 text-3xl font-black text-cyan-300">
-            {quote ? formatIdrAmount(quote.total) : "—"}
+            {quote ? formatIdrPrice(quote.total) : "—"}
           </p>
         </div>
         <span className="rounded-full border border-cyan-400/20 bg-black/25 px-3 py-1.5 text-[10px] font-black text-cyan-200">
-          IDR
+          {currency}
         </span>
       </div>
 
@@ -292,22 +292,22 @@ export default function ProductVariantPurchase({
       <div className="mt-4 space-y-2 border-y border-white/10 py-4 text-sm">
         <div className="flex justify-between gap-4 text-slate-300">
           <span>Item price</span>
-          <span className="font-bold text-white">{quote ? formatIdrAmount(quote.unit_price) : "—"}</span>
+          <span className="font-bold text-white">{quote ? formatIdrPrice(quote.unit_price) : "—"}</span>
         </div>
         <div className="flex justify-between gap-4 text-slate-300">
           <span>Subtotal</span>
-          <span className="font-bold text-white">{quote ? formatIdrAmount(quote.subtotal) : "—"}</span>
+          <span className="font-bold text-white">{quote ? formatIdrPrice(quote.subtotal) : "—"}</span>
         </div>
         {quote && quote.discount > 0 ? (
           <div className="flex justify-between gap-4 text-emerald-300">
             <span>Coupon</span>
-            <span className="font-bold">-{formatIdrAmount(quote.discount)}</span>
+            <span className="font-bold">-{formatIdrPrice(quote.discount)}</span>
           </div>
         ) : null}
-        <div className="flex justify-between gap-4 text-slate-300"><span>Payment fee</span><span>{quote ? formatIdrAmount(quote.payment_fee) : "—"}</span></div>
+        <div className="flex justify-between gap-4 text-slate-300"><span>Payment fee</span><span>{quote ? formatIdrPrice(quote.payment_fee) : "—"}</span></div>
         <div className="flex justify-between gap-4 pt-1 text-base">
           <span className="font-black">Total</span>
-          <span className="font-black text-cyan-300">{quote ? formatIdrAmount(quote.total) : "—"}</span>
+          <span className="font-black text-cyan-300">{quote ? formatIdrPrice(quote.total) : "—"}</span>
         </div>
       </div>
 
@@ -356,7 +356,12 @@ export default function ProductVariantPurchase({
         </div>
       </div>
 
-      {quote && currency !== "IDR" ? <p className="mt-3 text-xs text-slate-400">Approximately {formatIdrPrice(quote.total)}. Your order is billed in IDR; PayPal shows its USD conversion before approval.</p> : null}
+      {quote && currency !== "IDR" ? (
+        <p className="mt-3 text-xs text-slate-400">
+          Prices are shown in {currency}. DOKU charges {formatIdrAmount(quote.total)} (IDR).
+          {" "}PayPal confirms its USD amount before approval.
+        </p>
+      ) : null}
       {quoteError ? <div className="mt-4 text-sm text-red-300" role="alert">{quoteError} <button type="button" className="underline" onClick={() => setQuoteRevision(value => value + 1)}>Refresh price</button></div> : null}
       {checkoutError ? (
         <p className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-xs font-bold text-red-200">

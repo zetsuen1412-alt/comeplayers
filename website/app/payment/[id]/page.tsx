@@ -1407,7 +1407,7 @@ export default function PaymentPage() {
           <aside className={styles.summaryCard}>
             <div className={styles.summaryHeading}>
               <h2>Summary</h2>
-              <span>IDR</span>
+              <span>{currency}</span>
             </div>
 
             <dl className={styles.summaryRows}>
@@ -1436,17 +1436,20 @@ export default function PaymentPage() {
             </dl>
 
             <dl className={styles.summaryRows}>
-              {order?.subtotal_amount != null ? <div><dt>Subtotal</dt><dd>{formatBasePrice(order.subtotal_amount)}</dd></div> : null}
-              {Number(order?.discount_amount) > 0 ? <div><dt>Coupon discount</dt><dd>-{formatBasePrice(order?.discount_amount)}</dd></div> : null}
-              {order?.payment_fee_amount != null ? <div><dt>Payment fee</dt><dd>{formatBasePrice(order.payment_fee_amount)}</dd></div> : null}
+              {order?.subtotal_amount != null ? <div><dt>Subtotal</dt><dd>{formatPrice(order.subtotal_amount)}</dd></div> : null}
+              {Number(order?.discount_amount) > 0 ? <div><dt>Coupon discount</dt><dd>-{formatPrice(order?.discount_amount)}</dd></div> : null}
+              {order?.payment_fee_amount != null ? <div><dt>Payment fee</dt><dd>{formatPrice(order.payment_fee_amount)}</dd></div> : null}
             </dl>
             <div className={styles.totalRow}>
               <span>Total</span>
-              <strong>{formatBasePrice(total)}</strong>
+              <strong>{formatPrice(total)}</strong>
             </div>
             {currency !== "IDR" ? (
               <p className={styles.convertedPrice}>
-                Approximately {formatPrice(total)} in your display currency
+                Prices are shown in {currency}.{" "}
+                {selectedPaymentMethod === "paypal"
+                  ? "PayPal confirms its final USD amount before approval."
+                  : <>DOKU charges {formatBasePrice(total)} (IDR).</>}
               </p>
             ) : null}
 
