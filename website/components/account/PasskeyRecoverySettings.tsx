@@ -20,7 +20,7 @@ export default function PasskeyRecoverySettings() {
       ]);
       const vault = await openBrowserVault(userId);
       const root = await vault?.get<Identity>("root-recovery-v2", userId);
-      if (!vault || !root) throw new Error("Buka halaman ini di perangkat yang masih memiliki chat terverifikasi, atau pulihkan Messages dengan recovery key terlebih dahulu.");
+      if (!vault || !root) throw new Error("Open Messages to finish passkey setup or recovery, then return here. If this account has no synced passkey yet, use a device with verified chat history.");
       const { account } = await authenticatedFetchJson<{ account: AccountSnapshot | null }>("/api/messages/secure/account");
       if (!account) throw new Error("Aktifkan Messages terenkripsi terlebih dahulu.");
       if (account.encrypted_backup.passkey) { setMessage("Pemulihan passkey sudah aktif. Gunakan passkey yang sama saat login di perangkat baru."); return; }

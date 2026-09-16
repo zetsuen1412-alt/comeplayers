@@ -28,6 +28,6 @@ export function validateRecoveryAssertion(authenticatorData: Uint8Array, prf: Ui
       (authenticatorData[32]! & 0x1d) !== 0x1d) {
     throw new Error("Choose a synced passkey and verify with your device PIN or fingerprint. Enable sync in your password manager first.");
   }
-  if (!prf || prf.length !== 32) throw new Error("This passkey does not support encrypted recovery. Choose another provider or use your recovery key.");
+  if (!prf || prf.length !== 32) throw new Error("This passkey does not support encrypted recovery here. Open ComePlayers in a supported browser with your synced passkey provider.");
   return prf;
 }
