@@ -374,3 +374,54 @@ Before-deployment audit at **07:51:33 UTC** and after-deployment audit at **2026
 Physical evidence is still missing: Android update without uninstall/clear-data, history restoration through the same synced passkey on a second physical device, cancellation/non-Messages behavior, offline/reconnect and the supported Windows path. No answer to the device-installation question was available during this verification. Native device control/ADB is not available in this session; the OS hardware inventory query returned access denied, which does not prove no device is attached. Desktop source review confirms the existing hosted-site shell, not WebView PRF support. No Windows installer was built.
 
 Use candidate **17** for the next update test; an already-installed candidate 16 can serve as its baseline. Record actual device/browser/provider metadata and outcomes, without secrets or personal-message contents. Do not promote automated tests or artifact inspection into physical evidence. Complete the Android distribution and guarded inventory/dry-run/cutover only once genuine device verification satisfies the handoff.
+
+## Android locked-screen fixes and candidate 18 — 16 September 2026
+
+Two owner-provided Android screenshots exposed defects still present in candidate 17: native Account recovery suggested a manual recovery key when no verified vault was available, and a locked private conversation displayed a mirrored empty state with a retry action that did nothing. These are source-confirmed defects; they must not all be dismissed as an old APK. The screenshots did not independently establish the installed versionCode or successful update installation.
+
+### Implementation
+
+Commit **`dd0f459cd9d2df72199d09d140e4ebf650cf5703`**, fast-forward from `cace94fe66e037869dcd38812a0294f826693d29`, changes only the two native screens:
+
+- Account recovery offers **Open Messages verification** when the messenger is unavailable, closing settings and reopening the existing secure setup. Its missing-vault error no longer suggests entering a recovery key.
+- Locked conversations show a dedicated verification state. Retry and the security-code action reopen verification when no messenger exists instead of silently doing nothing or dereferencing null.
+- The message composer is hidden and private-call buttons are disabled while locked. Locked, loading and truly empty history are distinct.
+- The additional `scaleY: -1` empty-state transform is removed. Installed React Native 0.86.3 already composes its Android inversion style onto `ListEmptyComponent`; the override caused the mirrored text.
+- Existing passkey creation, verified-vault checks, cryptographic protocol, generation policy and server authorization are unchanged. Legacy exported-backup compatibility remains.
+
+### Validation
+
+[Account recovery checks 35074259380](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35074259380): source `104724277128`, SQL `104724276851`, and web build `104724277044` passed, including web/mobile typechecks and helper parity.
+
+[Browser/preflight 35074259349](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35074259349): browser job `104722774530` passed; EAS-access job `104722773981` failed because Actions still lacks `EXPO_TOKEN`. This workflow remains failed overall. Duplicate push run `35074255395` was cancelled under the shared concurrency configuration; the subsequent PR run completed.
+
+Logs confirm **119 automated tests passed, zero failed, zero skipped**: 40 recovery/policy/storage/passkey/server, 32 protocol/history/backup, 15 signing, 7 browser, 15 preflight, 10 version guards. Both edited TSX files also passed local syntax parsing. These tests do not establish native visual correctness or physical passkey restoration.
+
+### Verified candidate 18
+
+- EAS build: [528222d7-3c51-4f66-b21e-e177764ffbb3](https://expo.dev/accounts/comeplayers/projects/comeplayers/builds/528222d7-3c51-4f66-b21e-e177764ffbb3), source **`dd0f459cd9d2df72199d09d140e4ebf650cf5703`**.
+- Android internal profile/environment/channel **preview**, original project **`a663aa70-99b7-4c8f-93ea-5f8637baa2df`**. No replacement keystore/project or automatic store submission.
+- Native version **0.13.0 (18)**, package **com.comeplayers.app**, runtime **0.13.0**. Remote autoIncrement preserved increasing versionCodes.
+- Build **9m 46s**, total **9m 54s**. Expo Doctor **20/21**, with 16 packages behind recommended patches; native build completed successfully.
+- APK size **139,143,054 bytes**.
+- APK SHA256 **`86e9e45cff6abdbf7b51dee6b2302808cd83684d5e2c75fa41688046d0a8d1a6`**.
+- Full `apksigner verify --verbose --print-certs` **passed**, v2, one signer. Certificate SHA256 **`0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2`**, matching the original release.
+- aapt2 confirms minSdk 24, targetSdk 36, non-debuggable, allowBackup false, original EAS update URL, preview channel, runtime resource 0.13.0 and automatic launch checks NEVER. The app still has its existing explicit update checks; no OTA was published by this work.
+- Embedded bundle contains **Open Messages verification** and **Tap to open account verification**. The screenshot's old missing-vault recovery-key message, old manual setup paragraph and **Verify and restore this device** label are absent.
+- Official APK: https://expo.dev/artifacts/eas/jPvpoifHAlFCPQBuxNKeJlzI7yKP07fTxIG0LolBt9U.apk
+
+This remains an internal candidate. Public website Android download, AAB/Play Store distribution and OTA were not changed. No Windows installer was produced.
+
+### Web and database state
+
+Web production remains **`dpl_9WFpkutUdP6wL2X7uMvCjRqhQGmm`**, **READY**, source **`87326013f7ddefb1dca56f0a4b2853bd8a50b046`**, aliased to www.comeplayers.com and comeplayers.com. The candidate-18 commit changes native screens only; no new web production promotion or main merge was performed.
+
+Read-only database audit at **2026-09-16 08:35:41.928586 UTC**: generation 0, reset_at null, require_passkey false, rollout_verified false, verified_release null; 67 Auth users, 67 profiles, 1 E2EE account/device, **0 E2EE accounts with a passkey backup**, 0 encrypted events/blobs, 6 group rooms, 42 legacy messages. Preparation migration `20260915134209` appears once.
+
+No reset, dry-run reset, readiness-flag write, migration reapplication or single-device-session change occurred. The approved narrow reset scope remains valid.
+
+### Remaining physical verification
+
+Install candidate 18 as an update without uninstall/clear-data and repeat the two reported screens. Confirm that settings and locked-chat actions reopen verification and that empty history is upright. Then verify actual history restore on a second physical device with the same synced passkey provider and the supported Windows path. No physical result is marked passed from the screenshots, source review, automated tests or artifact inspection.
+
+An existing E2EE identity without a passkey cannot be unlocked merely by updating the APK. A previous verified device can enable the account passkey; if unavailable, use a separately owned test account suitable for pre-cutover passkey testing and keep the production legacy identity protected until all guarded reset prerequisites are genuinely met. Do not ask for a key, token, password or keystore in chat.
