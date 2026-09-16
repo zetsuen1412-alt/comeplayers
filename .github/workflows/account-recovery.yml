@@ -61,6 +61,9 @@ jobs:
       - name: Account messaging access and incoming call checks
         working-directory: website
         run: npx --no-install tsx --test tests/accountMessaging.test.ts tests/chatSecureGate.test.ts tests/incomingCalls.test.ts tests/chatInteractions.test.ts
+      - name: Marketplace pricing, signed quotes and currency regression checks
+        working-directory: website
+        run: npx --no-install tsx --test tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/marketplaceGameFlow.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile
@@ -129,3 +132,9 @@ jobs:
         env:
           PGPASSWORD: ci-local-fixture-only
         run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/accountMessaging.sql
+
+
+      - name: Isolated marketplace pricing and atomic checkout checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+        run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/marketplacePricing.sql

@@ -1,3 +1,4 @@
+import { orderTotalIdr } from "@/lib/money";
 import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import {
@@ -226,10 +227,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const amount =
-      numberPrice(order.total_amount) ||
-      numberPrice(order.total_price) ||
-      numberPrice(order.price);
+    const amount = orderTotalIdr(order);
 
     if (!Number.isSafeInteger(amount) || amount <= 0) {
       return NextResponse.json(

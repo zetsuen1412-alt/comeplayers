@@ -111,6 +111,13 @@ export default async function GameDetailPage({ params, searchParams }: PageProps
     if (category) categoryCounts[category] += 1;
   }
 
+  // A generic game link should open an available category instead of an empty coin tab.
+  if (!query.category && categoryCounts.coin === 0) {
+    const availableCategory = MARKETPLACE_CATEGORY_DEFINITIONS
+      .filter(definition => categoryCounts[definition.code] > 0)
+      .sort((a, b) => categoryCounts[b.code] - categoryCounts[a.code])[0];
+    if (availableCategory) redirect(`/games/${encodeURIComponent(slug)}/offers?category=${availableCategory.code}`);
+  }
   const servers = groupCoinServers(products, variants);
   const heroImage = imageFor(game);
 

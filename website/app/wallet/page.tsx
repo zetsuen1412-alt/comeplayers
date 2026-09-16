@@ -55,7 +55,7 @@ function transactionLabel(type?: string | null) {
 }
 
 export default function WalletOverviewPage() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [data, setData] = useState<WalletOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

@@ -122,7 +122,7 @@ function getInitial(name?: string | null) {
 }
 
 function MainHeaderContent() {
-  const { formatPrice, currency, locale, t } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency, locale, t } = useCurrency();
   const router = useRouter();
   const pathname = usePathname();
 

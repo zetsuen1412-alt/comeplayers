@@ -20,6 +20,7 @@ import {
   FaShieldAlt,
   FaWallet,
 } from "react-icons/fa";
+import { orderTotalIdr, storedMoney } from "@/lib/money";
 import { useCurrency } from "@/components/CurrencyProvider";
 import {
   deliverySlaState,
@@ -107,11 +108,7 @@ type DisputeSummary = {
 
 type UserRole = "buyer" | "seller" | null;
 
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return value;
-  return Number(String(value).replace(/[^\d]/g, "") || 0);
-}
+const numberPrice = storedMoney;
 
 function normalizeStatus(value?: string | null) {
   return String(value || "pending").trim().toLowerCase();
@@ -214,7 +211,7 @@ function isCompleted(order: Order | null) {
 export default function OrderDetailPage() {
   const params = useParams();
   const orderId = Number(params?.id || 0);
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
 
   const [role, setRole] = useState<UserRole>(null);
   const [order, setOrder] = useState<Order | null>(null);
@@ -248,10 +245,7 @@ export default function OrderDetailPage() {
   const quantity = Number(order?.quantity || 1);
   const total = useMemo(
     () =>
-      numberPrice(order?.total_amount) ||
-      numberPrice(order?.total_price) ||
-      numberPrice(order?.price) ||
-      numberPrice(product?.price),
+      orderTotalIdr(order),
     [order, product]
   );
 

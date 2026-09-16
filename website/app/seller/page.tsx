@@ -85,7 +85,7 @@ function prettyStatus(value?: string | null) {
 }
 
 export default function SellerDashboardPage() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

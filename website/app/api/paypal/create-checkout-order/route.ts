@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
+import { orderTotalIdr } from "@/lib/money";
+import { fetchFrankfurterRates } from "@/lib/frankfurter";
 import { quotePayPalUsd } from "@/lib/checkoutCurrency";
 import { isTrustedPayPalCheckoutUrl } from "@/lib/paypalCheckout";
 import {
@@ -38,12 +40,7 @@ type OrderRow = {
   product_title: string | null;
   status: string | null;
   payment_status: string | null;
-};
-
-type ProductRow = {
-  id: number;
-  title: string | null;
-  price: string | number | null;
+  currency_code: string | null;
 };
 
 type PayPalCreateResponse = {
@@ -53,23 +50,8 @@ type PayPalCreateResponse = {
   error_description?: string;
 };
 
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return value;
-  return Number(String(value).replace(/[^\d]/g, "") || 0);
-}
-
 function normalize(value?: string | null) {
   return String(value || "").trim().toLowerCase();
-}
-
-function getOrderTotal(order: OrderRow, product: ProductRow | null) {
-  return (
-    numberPrice(order.total_amount) ||
-    numberPrice(order.total_price) ||
-    numberPrice(order.price) ||
-    numberPrice(product?.price)
-  );
 }
 
 async function getPayPalAccessToken() {
@@ -132,7 +114,7 @@ export async function POST(request: Request) {
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
       .select(
-        "id,buyer_id,seller_id,product_id,quantity,total_amount,total_price,price,product_title,status,payment_status"
+        "id,buyer_id,seller_id,product_id,quantity,total_amount,total_price,price,product_title,status,payment_status,currency_code"
       )
       .eq("id", marketplaceOrderId)
       .maybeSingle();
@@ -167,6 +149,9 @@ export async function POST(request: Request) {
       );
     }
 
+    if (normalize(orderRow.currency_code || "IDR") !== "idr") {
+      return NextResponse.json({ error: "PayPal checkout requires an IDR order." }, { status: 400 });
+    }
     const { data: reservation, error: reservationError } =
       await supabaseAdmin.rpc("cp_prepare_order_payment", {
         p_order_id: marketplaceOrderId,
@@ -202,19 +187,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let product: ProductRow | null = null;
-
-    if (orderRow.product_id) {
-      const { data: productData } = await supabaseAdmin
-        .from("products")
-        .select("id,title,price")
-        .eq("id", orderRow.product_id)
-        .maybeSingle();
-
-      product = (productData || null) as ProductRow | null;
-    }
-
-    const totalIdr = getOrderTotal(orderRow, product);
+    const totalIdr = orderTotalIdr(orderRow);
 
     if (!totalIdr || totalIdr <= 0) {
       return NextResponse.json(
@@ -223,8 +196,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const paypalQuote = quotePayPalUsd(totalIdr);
-    const amountUsd = Math.max(MIN_USD, paypalQuote.amount);
+    const liveRate = await fetchFrankfurterRates().then(result => result.rates.IDR?.units_per_usd).catch(() => undefined);
+    const paypalQuote = quotePayPalUsd(totalIdr, liveRate);
+    const amountUsd = paypalQuote.amount;
+    if (amountUsd < MIN_USD) {
+      return NextResponse.json({ error: "This order is below the PayPal minimum. Choose another payment method." }, { status: 400 });
+    }
     const accessToken = await getPayPalAccessToken();
     const origin = new URL(request.url).origin;
 

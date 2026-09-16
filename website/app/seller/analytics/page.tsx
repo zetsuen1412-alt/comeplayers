@@ -140,7 +140,7 @@ function renderStars(rating: number) {
 }
 
 export default function SellerAnalyticsV2Page() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);

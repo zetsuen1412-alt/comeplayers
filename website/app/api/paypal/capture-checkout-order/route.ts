@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { quotePayPalUsd } from "@/lib/checkoutCurrency";
 import { recordTrustedMarketplaceEvent } from "@/lib/marketplaceEventsServer";
 import {
   authErrorStatus,
@@ -67,12 +66,6 @@ function normalize(value?: string | null) {
   return String(value || "")
     .trim()
     .toLowerCase();
-}
-
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return value;
-  return Number(String(value).replace(/[^\d]/g, "") || 0);
 }
 
 async function getPayPalAccessToken() {
@@ -143,18 +136,6 @@ function getCaptureId(data: PayPalOrderResponse) {
   return data.purchase_units?.[0]?.payments?.captures?.[0]?.id || null;
 }
 
-function expectedUsd(order: OrderRow) {
-  const stored = Number(order.paypal_amount_usd || 0);
-  if (stored > 0) return stored;
-
-  const totalIdr =
-    numberPrice(order.total_amount) ||
-    numberPrice(order.total_price) ||
-    numberPrice(order.price);
-
-  return Math.max(1, quotePayPalUsd(totalIdr).amount);
-}
-
 export async function POST(request: Request) {
   try {
     const user = await requireAuthenticatedUser(request);
@@ -217,13 +198,18 @@ export async function POST(request: Request) {
     }
 
     if (
-      orderRow.paypal_order_id &&
+      !orderRow.paypal_order_id ||
       orderRow.paypal_order_id !== paypalOrderId
     ) {
       return NextResponse.json(
         { error: "PayPal order ID does not match this marketplace order." },
         { status: 403 },
       );
+    }
+
+    const requiredUsd = Number(orderRow.paypal_amount_usd);
+    if (!Number.isFinite(requiredUsd) || requiredUsd <= 0) {
+      return NextResponse.json({ error: "The saved PayPal quote is missing. Restart payment." }, { status: 409 });
     }
 
     const { error: reservationError } = await supabaseAdmin.rpc(
@@ -268,6 +254,12 @@ export async function POST(request: Request) {
     }
 
     const accessToken = await getPayPalAccessToken();
+    const approved = await readPayPalOrder(paypalOrderId, accessToken);
+    const approvedUnit = approved.purchase_units?.[0];
+    if (approved.purchase_units?.length !== 1 || approvedUnit?.custom_id !== `${marketplaceOrderId}:${user.id}` ||
+        approvedUnit?.amount?.currency_code !== "USD" || Math.round(Number(approvedUnit?.amount?.value) * 100) !== Math.round(requiredUsd * 100)) {
+      return NextResponse.json({ error: "PayPal amount or owner does not match this order." }, { status: 409 });
+    }
     const captureResponse = await fetch(
       `${PAYPAL_API}/v2/checkout/orders/${paypalOrderId}/capture`,
       {
@@ -333,12 +325,12 @@ export async function POST(request: Request) {
     }
 
     const capturedUsd = getCapturedUsd(capturedData);
-    const requiredUsd = expectedUsd(orderRow);
 
     if (
       !capturedUsd ||
       !requiredUsd ||
-      Math.abs(capturedUsd - requiredUsd) > 0.01
+      capturedData.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.currency_code !== "USD" ||
+      Math.round(capturedUsd * 100) !== Math.round(requiredUsd * 100)
     ) {
       console.error("PayPal checkout amount mismatch:", {
         marketplaceOrderId,

@@ -22,6 +22,7 @@ import {
   FaUniversity,
   FaWallet,
 } from "react-icons/fa";
+import { orderTotalIdr, storedMoney } from "@/lib/money";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { isTrustedDokuPaymentUrl } from "@/lib/dokuPaymentResponse";
 import { isTrustedPayPalCheckoutUrl } from "@/lib/paypalCheckout";
@@ -38,6 +39,9 @@ type Order = {
   buyer_id?: string | null;
   seller_id?: string | null;
   quantity?: number | null;
+  subtotal_amount?: string | number | null;
+  discount_amount?: string | number | null;
+  payment_fee_amount?: string | number | null;
   total_amount?: string | number | null;
   total_price?: string | number | null;
   payment_status?: string | null;
@@ -101,16 +105,7 @@ type QrisInstructions = {
   terminalId: string | null;
 };
 
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-
-  const direct = Number(value.replace(/,/g, "").trim());
-  if (Number.isFinite(direct)) return direct;
-
-  const sanitized = Number(value.replace(/[^\d.-]/g, ""));
-  return Number.isFinite(sanitized) ? sanitized : 0;
-}
+const numberPrice = storedMoney;
 
 function normalize(value?: string | null) {
   return String(value || "").trim().toLowerCase();
@@ -132,10 +127,7 @@ function fallbackImage(title: string) {
 
 function getOrderTotal(order: Order | null, product: Product | null) {
   return (
-    numberPrice(order?.total_amount) ||
-    numberPrice(order?.total_price) ||
-    numberPrice(order?.price) ||
-    numberPrice(product?.price)
+    orderTotalIdr(order)
   );
 }
 
@@ -205,7 +197,7 @@ export default function PaymentPage() {
   const params = useParams<{ id?: string | string[] }>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { formatPrice, formatBasePrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, formatIdrAmount: formatBasePrice, currency } = useCurrency();
   const rawOrderId = params?.id;
   const orderId = Array.isArray(rawOrderId)
     ? rawOrderId[0] || ""
@@ -1443,6 +1435,11 @@ export default function PaymentPage() {
               </div>
             </dl>
 
+            <dl className={styles.summaryRows}>
+              {order?.subtotal_amount != null ? <div><dt>Subtotal</dt><dd>{formatBasePrice(order.subtotal_amount)}</dd></div> : null}
+              {Number(order?.discount_amount) > 0 ? <div><dt>Coupon discount</dt><dd>-{formatBasePrice(order?.discount_amount)}</dd></div> : null}
+              {order?.payment_fee_amount != null ? <div><dt>Payment fee</dt><dd>{formatBasePrice(order.payment_fee_amount)}</dd></div> : null}
+            </dl>
             <div className={styles.totalRow}>
               <span>Total</span>
               <strong>{formatBasePrice(total)}</strong>

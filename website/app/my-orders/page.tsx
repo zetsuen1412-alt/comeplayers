@@ -13,6 +13,7 @@ import {
   FaShoppingBag,
   FaStore,
 } from "react-icons/fa";
+import { orderTotalIdr, storedMoney } from "@/lib/money";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
@@ -56,18 +57,11 @@ const FILTERS = [
   { label: "Cancelled", value: "cancelled" },
 ];
 
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return value;
-  return Number(String(value).replace(/[^\d]/g, "") || 0);
-}
+const numberPrice = storedMoney;
 
 function getOrderTotal(order: Order, product?: Product | null) {
   return (
-    numberPrice(order.total_amount) ||
-    numberPrice(order.total_price) ||
-    numberPrice(order.price) ||
-    numberPrice(product?.price)
+    orderTotalIdr(order)
   );
 }
 
@@ -123,7 +117,7 @@ function formatDate(value?: string | null) {
 }
 
 export default function MyOrdersPage() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<ProductMap>({});
