@@ -18,6 +18,10 @@ on:
       - 'comeplayers-apps/apps/mobile/src/screens/PrivateBackupSettings.tsx'
       - 'comeplayers-apps/apps/mobile/plugins/**'
       - 'comeplayers-apps/tests/androidReleaseSigning.test.cjs'
+      - 'comeplayers-apps/scripts/reconcile-android-version.mjs'
+      - 'comeplayers-apps/tests/reconcileAndroidVersion.test.mjs'
+      - 'comeplayers-apps/apps/mobile/.eas/workflows/**'
+      - 'comeplayers-apps/apps/mobile/eas.json'
       - '.github/workflows/account-recovery.yml'
 permissions:
   contents: read
@@ -46,6 +50,8 @@ jobs:
       - name: Install locked application dependencies
         working-directory: comeplayers-apps
         run: npm ci --no-audit --no-fund
+      - name: Android remote version reconciliation guards
+        run: node --test comeplayers-apps/tests/reconcileAndroidVersion.test.mjs
       - name: Website typecheck
         working-directory: website
         run: npm run typecheck
