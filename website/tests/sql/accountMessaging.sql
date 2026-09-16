@@ -64,7 +64,7 @@ reset role;
 -- requires zero identities and never deletes them in this migration.
 update public.cp_secure_recovery_control set messaging_mode='account';
 set local role service_role;
-do $
+do $$
 begin
   begin
     perform public.cp_secure_authorize_account_recovery('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','{}','fixture','{"passkey":{}}',1);
@@ -75,12 +75,12 @@ begin
     raise exception 'Account mode accepted encrypted backup mutation';
   exception when object_not_in_prerequisite_state then null; end;
   if (select count(*) from public.cp_secure_accounts) <> 1 then raise exception 'Mode change deleted identity data'; end if;
-end; $;
+end; $$;
 reset role;
-do $
+do $$
 begin
   if has_table_privilege('authenticated','public.cp_secure_recovery_control','UPDATE') then raise exception 'Users can change mode'; end if;
   if (select generation from public.cp_secure_recovery_control) <> 1 then raise exception 'Generation changed'; end if;
-end; $;
+end; $$;
 select 'account messaging mode, no deletion, retained client and prior generation checks passed' as test_result;
 rollback;
