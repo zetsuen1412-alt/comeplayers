@@ -247,3 +247,79 @@ Code/configuration checkpoint: **`6adc58dc2e08c823e13e25734c60ebda6434b23e`**. T
 - [Source, SQL and web build, run 35061539946](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35061539946): jobs `104682719175`, `104682719338`, and `104682719442` succeeded. Full web/mobile typechecks, helper parity and the isolated web dependency build (231 pages) passed.
 - [Browser and preflight, run 35061539888](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35061539888): browser job `104682717638` passed; EAS job `104682717454` failed at the missing Actions token prerequisite.
 - Logs confirm **109 tests passed, zero skipped**: 40 recovery/policy/storage/passkey/server, 32 protocol/history/backup, 15 signing, 7 browser, 15 preflight. This is not an EAS build or physical-device test result, and the preflight workflow remains failed overall.
+
+## Connected EAS release preparation — 16 September 2026
+
+This entry supersedes the earlier installation and remote-version blockers.
+
+The owner authorized Expo GitHub App access. Existing installation `162106771` was restricted from all repositories to only `zetsuen1412-alt/comeplayers`. The original personal-account project `a663aa70-99b7-4c8f-93ea-5f8637baa2df` is now connected with base directory `/comeplayers-apps/apps/mobile`. No replacement account, project, signing key, or store submission was created.
+
+### Verified version reconciliation
+
+Manual, read-only workflow [01a0a8e3-5841-758c-b21b-b5815146bf7a](https://expo.dev/accounts/comeplayers/projects/comeplayers/workflows/01a0a8e3-5841-758c-b21b-b5815146bf7a), source `75da6d0acd6f0cf015421a89aee122ca81298333`, completed successfully and displayed the actual remote Android counter **3**, compared with the distributed code **15**.
+
+Commit **`b40eb5a8319759f6801b4613d58cb88bc6c42fbf`** adds guarded manual reconciliation and 10 focused tests, includes those tests in source CI, and enables `preview.autoIncrement`. The script validates the original project, owner, package and remote-version source; checks for the independently observed value 3 twice; preserves counters already >=15; performs a non-retried version write to 15; and verifies the result. Unexpected or concurrent changes fail closed. It uses the existing EAS worker authorization and the query/mutation implementation from pinned EAS CLI 24.5.0, without exporting credentials.
+
+Manual [reconciliation 01a0a8e9-7c1a-7867-bbc7-64d06552feae](https://expo.dev/accounts/comeplayers/projects/comeplayers/workflows/01a0a8e9-7c1a-7867-bbc7-64d06552feae) completed in 33 seconds at source `b40eb5a`. Its public report verified **before 3, after 15, changed true**. Do not rerun it to lower any counter allocated by later builds.
+
+### Current source and browser checks
+
+- [Account recovery checks 35063915781](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35063915781): source `104689947458`, SQL `104689947654`, and isolated web build `104689947703` succeeded. Web/mobile typechecks and helper parity passed.
+- [Browser and preflight 35063915809](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35063915809): browser job `104691110424` succeeded; logs confirm 7 browser and 15 preflight passes, zero skipped. EAS-access job `104691110277` still failed at the missing Actions `EXPO_TOKEN` prerequisite.
+- **119 tests passed**, zero skipped: 40 recovery/policy/storage/passkey/server, 32 protocol/history/backup, 15 signing, 7 browser, 15 preflight, and 10 version-reconciliation tests. These are synthetic/isolated checks, not physical-device evidence.
+- Actual authenticated EAS worker reads, reconciliation and the GitHub-triggered candidate build establish available cloud access independently of the still-failing Actions token check.
+
+### Candidate build and web preview
+
+The exact source `b40eb5a8319759f6801b4613d58cb88bc6c42fbf` was submitted to the original project as an Android-only internal `preview` build. EAS allocated **0.13.0 (16)**, runtime **0.13.0**, channel **preview**. Auto-submit to stores was unchecked. Build: [97e757b5-48ff-4806-9c95-018cd1a1355c](https://expo.dev/accounts/comeplayers/projects/comeplayers/builds/97e757b5-48ff-4806-9c95-018cd1a1355c).
+
+Existing preview environment configuration points to `https://www.comeplayers.com` and Supabase project `uyehruetoxedmookyfcd`, with its existing public client key. No variable values were changed or private signing material downloaded.
+
+Expo Doctor reported 20/21 checks passing, with 16 Expo packages behind the currently recommended patch versions. Native compilation continued. This warning is not reported as a clean Doctor result.
+
+Current web preview [dpl_BjYMm3uAxAv4q6d8oCnsdnmfoafM](https://vercel.com/ilham-evogaming-s-projects/evo-gaming/BjYMm3uAxAv4q6d8oCnsdnmfoafM) is READY from the same source. Its home page and Community sign-in gate were opened successfully. No authenticated application recovery result is implied.
+
+### Database state
+
+Read-only check at **2026-09-16 06:45:22.578433 UTC**: preparation migration `20260915134209` appears once; generation 0; reset_at null; require_passkey false; rollout_verified false; verified_release null; 67 Auth users, 67 profiles, 1 E2EE account, 1 E2EE device, 0 E2EE events/blobs, 6 group rooms and 42 legacy messages.
+
+No production database mutation, migration reapplication, readiness-flag update, reset dry run, reset or single-device-session change has occurred. The owner's narrow reset authorization remains valid. Physical update installation, two-device synced-passkey/history recovery, and the supported Windows path remain required before reset.
+
+### Finished APK and direct artifact verification
+
+The EAS candidate completed successfully in **10m 59s** total (10m 50s build). The original release-signing guard remained enabled. The artifact was downloaded from the build's official Download build link and inspected using Android SDK Build Tools 36.0.0 `apksigner verify --verbose --print-certs` and `aapt2`, with a checksum-verified Eclipse Temurin 17 JRE installed only in workspace tooling.
+
+- APK size: **139,142,070 bytes**.
+- APK SHA256: **`e14d2bb92e5ea1de4f2636eceb40e900b978ef3fbf5879f018d8839625419066`**.
+- Full signature verification: **passed**, one signer, APK Signature Scheme v2.
+- Effective signer SHA256: **`0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2`**, matching the original identity.
+- Manifest package **`com.comeplayers.app`**, versionName **0.13.0**, versionCode **16**, minSdk **24**, targetSdk **36**, non-debuggable, Android backup disabled.
+- The runtime resource referenced by the native manifest resolves to **0.13.0**. Native update URL points to the original EAS project; channel **preview**; automatic launch checks **NEVER**.
+- APK download: https://expo.dev/artifacts/eas/COHgMagKgYkZummxLHbm1EpCjX0V--4tYwmMeANcMrE.apk
+
+This is an internal candidate, not a Play Store submission or a replacement of the public website's existing Android download. No new AAB or OTA was published. Full signature verification does not establish a successful update installation or physical passkey restoration.
+
+### Production web release and smoke verification
+
+After artifact verification and a fresh read-only database check, Vercel rebuilt the same exact source using the existing Production environment. Production deployment **`dpl_BG787RNZW9RqtoCYddHPVqjMaNhe`** is **READY**, source **`b40eb5a8319759f6801b4613d58cb88bc6c42fbf`**, aliased to **www.comeplayers.com**, **comeplayers.com**, and the existing Vercel production alias.
+
+Deployment: https://vercel.com/ilham-evogaming-s-projects/evo-gaming/BG787RNZW9RqtoCYddHPVqjMaNhe
+
+This promotion did not merge main or trigger the main-push Expo OTA workflow. The previous web deployment is `dpl_FPpB7nzKh4cKZErcQ3gQjyFFc5cB`; database generation was not changed.
+
+Read-only production smoke checks at **2026-09-16T06:56:12.339Z**:
+- `/api/health/live`: 200, ok true.
+- `/api/health/ready`: 200, database ready.
+- `/api/messages/secure/account` and `/api/messages/secure/history`, without credentials: 401, authentication required, no account/history returned, no-store.
+- `/api/game-categories`: 200, eight categories.
+- `/.well-known/assetlinks.json`: 200, original Android certificate and package association present.
+- Browser: production home and fully loaded Marketplace/categories/game recommendations opened successfully.
+- Deployment-scoped 5xx log query for the initial smoke window returned no entries. This is a short observation, not a sustained reliability claim.
+
+A post-deployment read-only check at **2026-09-16 06:56:45.761811 UTC** still returned generation 0, reset_at null, require_passkey false, rollout_verified false, verified_release null, 67 Auth users, 67 profiles, 1 E2EE account/device, 0 encrypted events/blobs, 6 group rooms and 42 legacy messages.
+
+### Remaining release and reset gates
+
+The owner must perform or provide access for genuine device testing: install candidate code 16 over the existing app without uninstall/clear-data, restore encrypted test history through the same synced passkey on a second physical device, and verify the supported Windows path. Record device/browser/provider versions and actual outcomes without collecting passwords, passkeys or customer messages. Cancellation and non-Messages usage must also be checked.
+
+Do not fill `physicalPasskeyRestore`, `desktopPasskeyRestore`, `verified_release` or `rollout_verified` from the 119 automated tests, APK inspection, unauthenticated API smoke checks or an unanswered device-availability question. Only after real device evidence, complete Android distribution, refresh protected inventory, and perform the guarded reset dry run/cutover under the existing narrow approval.
