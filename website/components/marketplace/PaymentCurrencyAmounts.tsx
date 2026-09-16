@@ -3,13 +3,14 @@
 import { useCurrency } from "@/components/CurrencyProvider";
 
 export function CardPaymentTotal({ amountIdr, className }: { amountIdr: number; className?: string }) {
-  const { currency, formatIdrPrice, formatIdrAmount } = useCurrency();
+  const { currency, formatIdrPrice } = useCurrency();
+  const chargeIdr = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(amountIdr);
   return (
     <div className={className}>
       <small>Total in {currency}</small>
       <strong>{formatIdrPrice(amountIdr)}</strong>
-      <p>DOKU charges <b>{formatIdrAmount(amountIdr)} (IDR)</b>.</p>
-      {currency !== "IDR" ? <p>Your card issuer determines any conversion to your card&apos;s currency.</p> : null}
+      <p><b>Your card will be charged IDR {chargeIdr}.</b></p>
+      {currency !== "IDR" ? <p>The {currency} amount is an estimate. Your bank may apply currency conversion and fees.</p> : null}
     </div>
   );
 }

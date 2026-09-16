@@ -15,20 +15,22 @@ test("card modal retains USD as its primary total and discloses the IDR charge",
   const html = renderCurrency("USD", <CardPaymentTotal amountIdr={349310} />);
   assert.match(html, /<small>Total in USD<\/small>/);
   assert.match(html, /<strong>\$21\.50<\/strong>/);
-  assert.match(html, /DOKU charges.*349,310.*IDR/);
+  assert.match(html, /The USD amount is an estimate\. Your bank may apply currency conversion and fees\./);
+  assert.match(html, /Your card will be charged IDR 349,310\./);
 });
 
 test("card modal retains SGD instead of unexpectedly switching its primary total to IDR", () => {
   const html = renderCurrency("SGD", <CardPaymentTotal amountIdr={349310} />);
   assert.match(html, /<small>Total in SGD<\/small>/);
   assert.match(html, /<strong>SGD[^<]+<\/strong>/);
-  assert.match(html, /DOKU charges.*349,310.*IDR/);
+  assert.match(html, /The SGD amount is an estimate\. Your bank may apply currency conversion and fees\./);
+  assert.match(html, /Your card will be charged IDR 349,310\./);
 });
 
 test("Indonesian IDR card display uses the original order amount", () => {
   const html = renderCurrency("IDR", <CardPaymentTotal amountIdr={349310} />, "id-ID");
   assert.match(html, /<strong>Rp[^<]*349\.310<\/strong>/);
-  assert.doesNotMatch(html, /card issuer/);
+  assert.doesNotMatch(html, /amount is an estimate|currency conversion/);
 });
 
 test("PayPal review shows the exact server USD amount even with SGD selected", () => {
