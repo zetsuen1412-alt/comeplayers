@@ -10,42 +10,42 @@ import { PrivateMediaEncryption } from "../secure/PrivateMediaEncryption";
 import { unhex } from "../secure/crypto";
 import { colors } from "../theme";
 
-export function DirectCallScreen({ connection, call, peerId, sharedKey, onLeave }: { connection: VoiceToken; call: CallRecord; peerId: string; sharedKey: string; onLeave: () => void }) {
+export function DirectCallScreen({ connection, call, peerId, sharedKey, onLeave }: { connection: VoiceToken; call: CallRecord; peerId: string; sharedKey?: string; onLeave: () => void }) {
   const [room, setRoom] = useState<Room | null>(null), [error, setError] = useState(""), [mic, setMic] = useState(true), [video, setVideo] = useState(call.media === "video"), [speaker, setSpeaker] = useState(call.media === "video");
   const audioTrack = useRef<LocalAudioTrack | null>(null), videoTrack = useRef<LocalVideoTrack | null>(null), [seconds, setSeconds] = useState(0);
   const leaveRef = useRef(onLeave); leaveRef.current = onLeave;
   useEffect(() => {
     let alive = true;
-    const encryption = new PrivateMediaEncryption(peerId, e => { if (alive) setError(e.message); });
-    const next = new Room({ e2ee: { e2eeManager: encryption }, adaptiveStream: true, dynacast: true, publishDefaults: { simulcast: false, videoCodec: "vp8" }, videoCaptureDefaults: { resolution: { width: 640, height: 480, frameRate: 24 } } });
+    const encryption = sharedKey ? new PrivateMediaEncryption(peerId, e => { if (alive) setError(e.message); }) : null;
+    const next = new Room({ ...(encryption ? { e2ee: { e2eeManager: encryption } } : {}), adaptiveStream: true, dynacast: true, publishDefaults: { simulcast: false, videoCodec: "vp8" }, videoCaptureDefaults: { resolution: { width: 640, height: 480, frameRate: 24 } } });
     const tracks: (LocalAudioTrack | LocalVideoTrack)[] = [];
     void (async () => {
-      await encryption.initialize(unhex(sharedKey)); await next.setE2EEEnabled(true);
+      if (encryption && sharedKey) { await encryption.initialize(unhex(sharedKey)); await next.setE2EEEnabled(true); }
       await AudioSession.startAudioSession();
-      await next.connect(connection.serverUrl, connection.participantToken, { autoSubscribe: false });
+      await next.connect(connection.serverUrl, connection.participantToken, { autoSubscribe: !encryption });
       if (!alive) return;
-      if (!next.isE2EEEnabled) throw new Error("Encrypted media could not be enabled.");
+      if (encryption && !next.isE2EEEnabled) throw new Error("Encrypted media could not be enabled.");
       const audio = await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true }); audio.mediaStreamTrack.enabled = false; tracks.push(audio);
       const audioPub = await next.localParticipant.publishTrack(audio, { source: Track.Source.Microphone });
-      await encryption.waitForTrack(audioPub.trackSid); if (!alive) return;
+      await encryption?.waitForTrack(audioPub.trackSid); if (!alive) return;
       audio.mediaStreamTrack.enabled = true; audioTrack.current = audio;
       if (call.media === "video") {
         const camera = await createLocalVideoTrack({ resolution: { width: 640, height: 480, frameRate: 24 } }); camera.mediaStreamTrack.enabled = false; tracks.push(camera);
         const publication = await next.localParticipant.publishTrack(camera, { source: Track.Source.Camera, simulcast: false, videoCodec: "vp8" });
-        await encryption.waitForTrack(publication.trackSid); if (!alive) return;
+        await encryption?.waitForTrack(publication.trackSid); if (!alive) return;
         camera.mediaStreamTrack.enabled = true; videoTrack.current = camera;
       }
       if (alive) setRoom(next);
       await AudioSession.selectAudioOutput(call.media === "video" ? "speaker" : "earpiece").catch(() => undefined);
     })().catch(e => { for (const track of tracks) track.stop(); void next.disconnect(); if (alive) setError(e.message); }).finally(() => { if (!alive) { for (const track of tracks) track.stop(); void next.disconnect(); } });
     const timer = setInterval(() => { if (next.state === "connected") setSeconds(value => value + 1); }, 1000);
-    return () => { alive = false; clearInterval(timer); for (const track of tracks) track.stop(); void next.disconnect().finally(() => encryption.dispose()); void AudioSession.stopAudioSession(); };
+    return () => { alive = false; clearInterval(timer); for (const track of tracks) track.stop(); void next.disconnect().finally(() => encryption?.dispose()); void AudioSession.stopAudioSession(); };
   }, [connection, call.id, call.media, peerId, sharedKey]);
   const control = async (work: () => Promise<void>) => { try { await work(); } catch (e) { setError(e instanceof Error ? e.message : "Call control failed."); } };
   return <Modal visible animationType="slide" onRequestClose={onLeave}><View style={s.page}>
-    <Text style={s.secure}>🔒 End-to-end encrypted private call</Text>
+    <Text style={s.secure}>{sharedKey ? "End-to-end encrypted private call" : "Private call · ComePlayers account"}</Text>
     {room ? <LiveKitRoom room={room} serverUrl={connection.serverUrl} token={connection.participantToken} connect={false}><PrivateVideoTiles /></LiveKitRoom> : <ActivityIndicator color={colors.yellow} />}
-    <View style={s.contact}><Avatar name={call.other?.username || "Contact"} uri={call.other?.avatar_url} size={90} /><Text style={s.name}>{call.other?.username || call.other?.full_name || "ComePlayers contact"}</Text><Text style={s.note}>{error || (room ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Connecting encrypted call…")}</Text></View>
+    <View style={s.contact}><Avatar name={call.other?.username || "Contact"} uri={call.other?.avatar_url} size={90} /><Text style={s.name}>{call.other?.username || call.other?.full_name || "ComePlayers contact"}</Text><Text style={s.note}>{error || (room ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Connecting call…")}</Text></View>
     <View style={s.controls}><Control icon={mic ? "mic" : "mic-off"} label={mic ? "Mute" : "Unmute"} onPress={() => void control(async () => { if (!audioTrack.current) return; if (mic) await audioTrack.current.mute(); else await audioTrack.current.unmute(); setMic(!mic); })} />{call.media === "video" ? <><Control icon={video ? "videocam" : "videocam-off"} label="Camera" onPress={() => void control(async () => { if (!videoTrack.current) return; if (video) await videoTrack.current.mute(); else await videoTrack.current.unmute(); setVideo(!video); })} /><Control icon="camera-reverse" label="Flip" onPress={() => void control(async () => { const track = videoTrack.current; if (track) await track.restartTrack({ facingMode: track.mediaStreamTrack.getSettings().facingMode === "user" ? "environment" : "user" }); })} /></> : null}<Control icon={speaker ? "volume-high" : "ear"} label="Speaker" onPress={() => void control(async () => { await AudioSession.selectAudioOutput(speaker ? "earpiece" : "speaker"); setSpeaker(!speaker); })} /><Control icon="call" label="End" danger onPress={onLeave} /></View>
   </View></Modal>;
 }

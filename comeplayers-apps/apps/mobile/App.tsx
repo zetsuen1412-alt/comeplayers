@@ -13,7 +13,6 @@ import { colors } from "./src/theme";
 import type { AppTab } from "./src/types";
 import { CommunityScreen } from "./src/screens/CommunityScreen";
 import { ConversationScreen } from "./src/screens/ConversationScreen";
-import { PrivateConversationScreen } from "./src/screens/PrivateConversationScreen";
 import { NewsScreen } from "./src/screens/NewsScreen";
 import { MarketplaceScreen } from "./src/screens/MarketplaceScreen";
 import { MessagesScreen } from "./src/screens/MessagesScreen";
@@ -23,7 +22,6 @@ import { loadPreferences, type AccountPreferences } from "./src/messagingApi";
 import { MfaChallenge } from "./src/screens/MfaChallenge";
 import { MessageAlerts } from "./src/MessageAlerts";
 import { InboxProvider } from "./src/InboxProvider";
-import { PrivateProvider } from "./src/secure/PrivateProvider";
 import { AccountSessionGuard } from "./src/AccountSessionGuard";
 
 type UpdateStage = "checking" | "downloading" | "applying" | "ready" | "warning";
@@ -164,8 +162,8 @@ function NativeComePlayersApp() {
 
   const title = tab === "home" ? "News" : tab === "community" ? "Community" : tab === "marketplace" ? "Marketplace" : tab === "messages" ? "Messages" : "Your profile";
   const subtitle = session ? `Connected as ${session.user.email || "player"}` : "ComePlayers mobile";
-  const Conversation = room?.room_type === "group" ? ConversationScreen : PrivateConversationScreen;
-  return <PrivateProvider key={session.user.id} userId={session.user.id} enabled={!(account?.phoneRequired && !account.phoneVerified)}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
+  const Conversation = ConversationScreen;
+  return <InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
     {tab !== "messages" ? <ScreenHeader title={title} subtitle={subtitle} /> : null}
     <View style={styles.content}>
       {tab === "home" ? <NewsScreen /> : null}
@@ -176,7 +174,7 @@ function NativeComePlayersApp() {
     </View>
     <BottomTabs active={tab} onChange={(next) => { setRoom(null); setTab(next); }} unread={unread} />
     {updateUi.visible && updateUi.stage !== "ready" ? <View pointerEvents="none" style={styles.updateToast}><ActivityIndicator size="small" color={colors.yellow} /><Text style={styles.updateText}>{updateUi.message}</Text></View> : null}
-  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider></PrivateProvider>;
+  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider>;
 }
 
 export default function App() {

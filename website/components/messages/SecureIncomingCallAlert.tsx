@@ -61,7 +61,7 @@ export default function SecureIncomingCallAlert({ userId, onOpenRoom }: {
   return <aside role="status" aria-live="polite" className="fixed inset-x-4 top-4 z-[120] mx-auto max-w-md rounded-2xl border border-yellow-400/40 bg-[#101923] p-5 text-white shadow-2xl">
     <p className="text-xs font-bold uppercase tracking-wide text-yellow-300">Incoming {call.media} call</p>
     <p className="mt-2 truncate text-lg font-bold">{call.other?.full_name || call.other?.username || "ComePlayers user"}</p>
-    <p className="mt-1 text-sm text-slate-300">Open the encrypted conversation to verify and answer.</p>
+    <p className="mt-1 text-sm text-slate-300">Open the conversation to answer.</p>
     {error ? <p role="alert" className="mt-2 text-sm text-red-300">{error}</p> : null}
     <div className="mt-4 flex gap-3">
       <button type="button" disabled={opening} onClick={() => void open()} className="rounded-xl bg-yellow-400 px-4 py-2 font-bold text-black disabled:opacity-50">{opening ? "Opening…" : "Open conversation"}</button>

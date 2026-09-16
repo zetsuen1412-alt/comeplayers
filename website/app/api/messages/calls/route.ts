@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin, requireAuthenticatedUser } from "@/lib/serverSupabase";
 import { accountApiError, inputError } from "@/lib/accountApi";
-import { requireChatRoomAccess } from "@/lib/chatServer";
+import { assertLegacyDirectMessagingAllowed, requireChatRoomAccess } from "@/lib/chatServer";
 import { assertContactAllowed } from "@/lib/chatContacts";
 import { createDirectCallToken, createLiveKitRoomServiceClient, getLiveKitServerUrl } from "@/lib/livekitServer";
 import { limitedBody, privateActor, privateRoom, uuid } from "@/lib/privateMessaging";
@@ -32,17 +32,21 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   try {
-    const bodyText = await limitedBody(request), { user, db, device } = await secureActor(request, bodyText);
+    const user = await requireAuthenticatedUser(request), db = createSupabaseAdmin();
+    const bodyText = await limitedBody(request, 4096);
     let body: { roomId?: unknown; media?: unknown; scheduledAt?: unknown; secureEventId?: unknown };
-    try { body = JSON.parse(bodyText); } catch { throw inputError("Invalid encrypted call request."); }
-    const roomId = uuid(body.roomId), eventId = uuid(body.secureEventId);
+    try { body = JSON.parse(bodyText); } catch { throw inputError("Invalid call request."); }
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw inputError("Invalid call request.");
+    if (body.secureEventId != null || request.headers.has("x-cp-device")) throw inputError("Update ComePlayers to use account-based calls.", 426);
+    const roomId = uuid(body.roomId);
     const { room, target } = await privateRoom(db, user.id, roomId);
+    await assertLegacyDirectMessagingAllowed(db, room);
     const scheduled = body.scheduledAt ? String(body.scheduledAt) : null;
     if (scheduled && !Number.isFinite(Date.parse(scheduled))) throw inputError("Choose a valid call time.");
     getLiveKitServerUrl();
-    const result = await db.rpc("cp_start_secure_call", { p_actor: user.id, p_device: device.id, p_target: target, p_room: room.id, p_media: body.media === "video" ? "video" : "audio", p_event: eventId, p_scheduled: scheduled });
+    const result = await db.rpc("cp_start_call", { p_actor: user.id, p_target: target, p_room: room.id, p_media: body.media === "video" ? "video" : "audio", p_scheduled: scheduled });
     if (result.error) throw inputError(/already in a call|limit|blocked|accepting|scheduled|verification/i.test(result.error.message) ? result.error.message : "The call could not be started.", 409);
-    return NextResponse.json({ call: result.data }, { status: 201 });
+    return NextResponse.json({ call: result.data }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }
 export async function PATCH(request: Request) {
@@ -50,7 +54,9 @@ export async function PATCH(request: Request) {
     const user = await requireAuthenticatedUser(request);
     const db = createSupabaseAdmin();
     const bodyText = await limitedBody(request, 4096);
-    const body = JSON.parse(bodyText);
+    let body;
+    try { body = JSON.parse(bodyText); } catch { throw inputError("Invalid call request."); }
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw inputError("Invalid call request.");
     const found = await db.from("cp_calls").select("*").eq("id", String(body.id || "")).or(`caller_id.eq.${user.id},callee_id.eq.${user.id}`).maybeSingle();
     if (found.error) throw found.error;
     const call = found.data;

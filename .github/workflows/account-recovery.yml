@@ -58,6 +58,9 @@ jobs:
       - name: Recovery policy, storage isolation and existing cryptographic tests
         working-directory: website
         run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/recoveryStorage.test.mjs tests/recoveryBackup.test.mjs tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts tests/appDownloads.test.ts
+      - name: Account messaging access and incoming call checks
+        working-directory: website
+        run: npx --no-install tsx --test tests/accountMessaging.test.ts tests/chatSecureGate.test.ts tests/incomingCalls.test.ts tests/chatInteractions.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile
@@ -121,3 +124,8 @@ jobs:
         env:
           PGPASSWORD: ci-local-fixture-only
         run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/recoveryPolicy.sql
+
+      - name: Isolated account messaging mode checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+        run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/accountMessaging.sql

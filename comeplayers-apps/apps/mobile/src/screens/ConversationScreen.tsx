@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   loadingText: { marginTop: 10, color: colors.textMuted, fontSize: 10 },
   messages: { flexGrow: 1, paddingHorizontal: 14, paddingVertical: 16 },
-  empty: { alignItems: "center", padding: 30 },
+  empty: { alignItems: "center", padding: 30, transform: [{ scaleY: -1 }] },
   emptyIcon: { color: colors.yellow, fontSize: 35 },
   emptyTitle: { marginTop: 12, color: colors.text, fontSize: 19, fontWeight: "900" },
   emptyText: { marginTop: 7, color: colors.textMuted, fontSize: 11, lineHeight: 17, textAlign: "center" },

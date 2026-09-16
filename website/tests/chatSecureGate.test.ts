@@ -22,7 +22,7 @@ test("legacy plaintext writes are blocked after either direct participant enroll
   const db = database({ data: [{ user_id: direct.buyer_id }], error: null });
   await assert.rejects(assertLegacyDirectMessagingAllowed(db.client as never, direct), (error: Error & { status?: number }) => {
     assert.equal(error.status, 426);
-    assert.match(error.message, /end-to-end encrypted/i);
+    assert.match(error.message, /encrypted identity/i);
     return true;
   });
   assert.equal(db.queried(), true);

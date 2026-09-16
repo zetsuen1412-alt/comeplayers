@@ -169,7 +169,7 @@ export async function assertLegacyDirectMessagingAllowed(
   if (secure.error && /does not exist|schema cache/i.test(secure.error.message)) return;
   if (secure.error) throw new Error(secure.error.message);
   if (secure.data?.length) {
-    const upgrade = new Error("Update ComePlayers to send end-to-end encrypted messages in this chat.");
+    const upgrade = new Error("This conversation still has an encrypted identity. Contact support before switching its message history.");
     Object.assign(upgrade, { status: 426 });
     throw upgrade;
   }
