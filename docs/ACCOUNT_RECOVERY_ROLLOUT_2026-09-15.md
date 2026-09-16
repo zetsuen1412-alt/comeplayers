@@ -170,3 +170,39 @@ Code checkpoint: `a62ce9eed974221516d21fe74fda5ddc32fb3ecd`.
 - Additional read-only audit at `2026-09-16T01:58:10.811272+00:00`: 3 call rows, 0 non-null encrypted-event references, and no non-internal DELETE triggers on the eight reset-allowlisted E2EE tables.
 - Expo's dashboard also reached its login page. No Vercel CLI token or standard CLI authentication file was found. The direct Vercel deployment tool requires complete source files; its input-validation probes created no deployment. A final deployment listing still showed the same main production deployment. The partial local snapshot was not deployed.
 - No replacement artifact, physical-device/Windows restore result, deployment or production reset is implied by these passes. The subsequent evidence commit changes documentation only.
+
+## Connected Git deployment and web build fix — 16 September 2026
+
+This entry supersedes the earlier Vercel login/deployment blocker. GitHub and Vercel browser sessions are now authenticated.
+
+### Existing Vercel project repaired
+
+The project `prj_J2lxF1Dv7PsmiWbyj9mea1hoYAl3` (`evo-gaming`) was still connected to the old `zetsuen1412-alt/evo-gaming` repository, ID `1247255641`. Its Create Deployment form rejected the ComePlayers commit URL as a different repository. The existing Vercel GitHub installation already listed ComePlayers. The same project was reconnected to `zetsuen1412-alt/comeplayers`, ID `1365296560`, and its previously empty Root Directory was set to `website`. No replacement Vercel project was created. Existing Supabase variable names/scopes were checked without revealing values: service-role key covers Production and Preview; public URL/anon key cover all environments.
+
+The first recovery preview, `dpl_FxSXq9b7ovy54sW8FrganG4BtWQw` at `8a35ea8`, failed after compilation: the web TypeScript configuration included cross-platform tests that import native crypto, whose `hpke` dependency was not installed beside the mobile source. Prior CI installed both workspaces and therefore did not expose this deployment failure.
+
+### Source fix and verified CI
+
+Commit **`6e502159278f5b0544385a56ceaa33d22f7f5a06`** adds `website/tsconfig.build.json` and selects it in Next.js. It inherits the existing strict compiler options and excludes the test directory from the deployed web build. The original full `tsconfig.json`, full web/mobile typechecks and cross-platform tests remain unchanged. Production type checking is still enabled.
+
+The web build now runs in its own CI job with sibling mobile source present but only locked website dependencies installed, matching Vercel's dependency boundary.
+
+- [Account recovery checks, run 35053356423](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35053356423): source `104658293043`, SQL `104658293177`, and isolated web build `104658293251` all succeeded. Source logs confirm 40 recovery/policy/storage/passkey/server tests, 15 signing tests (zero skipped), and 32 private protocol/history/backup tests passed. Both typechecks and helper parity passed. The isolated web build generated 231 pages with dummy credentials.
+- [Browser and Android preflight, run 35053356385](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35053356385): browser job `104658283863` passed 7 browser and 15 preflight tests. EAS job `104658284094` failed at the missing `EXPO_TOKEN` prerequisite. Total remains **109 tests passed**, with the EAS workflow failed overall.
+- Local TypeScript configuration parsing confirmed strict mode, no configuration errors and no test files among build roots. The local source snapshot remains partial; this is not a local full-build claim.
+
+### Ready preview and observed UI
+
+Preview **`dpl_8SPkMM4Q5isVxUTrRPt6PTteP6D9`** is READY, source `6e502159278f5b0544385a56ceaa33d22f7f5a06`, completed at 03:52:59 UTC:
+
+https://evo-gaming-kfbotxtue-ilham-evogaming-s-projects.vercel.app
+
+Authenticated Vercel browser access opened the home page, Community sign-in gate, and private chat sign-in gate. Closing the chat login dialog and navigating to Marketplace successfully loaded the categories and game recommendations. No ComePlayers account was signed in and no customer message was opened or submitted. Direct connector API probes encountered Vercel protection/SSO redirects, and direct browser JSON navigation was blocked by the client; these probes are not counted as successful application API tests.
+
+This is a Preview deployment. Production remains the earlier main deployment `dpl_FPpB7nzKh4cKZErcQ3gQjyFFc5cB`. No production promotion, main merge, Android publication or physical passkey restoration is implied. Actual authenticated recovery still needs the supported relying-party origin and real devices.
+
+### Remaining Expo and reset gates
+
+GitHub's repository secrets UI explicitly showed no repository or environment Actions secrets. Expo's GitHub sign-in reached **new-account onboarding**, not the existing ComePlayers account. No account was created. The official Expo login page was left open for the owner to sign into the existing account that controls project `a663aa70-99b7-4c8f-93ea-5f8637baa2df`. Local EAS/profile and signing-tool limitations recorded above remain unresolved. No new APK/AAB/OTA, signing key or Expo project was created.
+
+A fresh read-only database check at **2026-09-16T03:48:13.278063+00:00** returned: migration version `20260915134209` appears once; generation 0; reset_at null; require_passkey false; rollout_verified false; verified_release null; 67 Auth users, 67 profiles, 1 E2EE account, 1 E2EE device, zero E2EE events and blobs. No production database mutation, migration reapply, reset dry run or reset occurred. The original narrow reset approval remains valid, but original-certificate Android release/update tests, two physical devices and Windows verification are still required.
