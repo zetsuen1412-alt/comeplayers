@@ -152,6 +152,8 @@ export async function POST(request: Request) {
     if (normalize(orderRow.currency_code || "IDR") !== "idr") {
       return NextResponse.json({ error: "PayPal checkout requires an IDR order." }, { status: 400 });
     }
+    const { error: claimError } = await supabaseAdmin.rpc("cp_claim_external_order_payment", { p_order_id: marketplaceOrderId, p_buyer_id: user.id });
+    if (claimError) return NextResponse.json({ error: "This order is no longer available for payment. Refresh its status." }, { status: 409 });
     const { data: reservation, error: reservationError } =
       await supabaseAdmin.rpc("cp_prepare_order_payment", {
         p_order_id: marketplaceOrderId,

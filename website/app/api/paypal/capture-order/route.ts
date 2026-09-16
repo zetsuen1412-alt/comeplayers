@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { createClient } from "@supabase/supabase-js";
+import { requireAuthenticatedUser } from "@/lib/serverSupabase";
+import { matchesPayPalUsdAmount } from "@/lib/paypalCheckout";
 
 const PAYPAL_API =
   process.env.PAYPAL_ENV === "live"
@@ -27,6 +29,8 @@ type PayPalOrderResponse = {
     };
     payments?: {
       captures?: Array<{
+        id?: string;
+        status?: string;
         amount?: {
           currency_code?: string;
           value?: string;
@@ -179,11 +183,11 @@ function getPayerName(data: PayPalOrderResponse) {
 
 export async function POST(request: Request) {
   try {
-    const authenticatedUserId = await getAuthenticatedUserId(request);
+    const authenticatedUserId = (await requireAuthenticatedUser(request)).id;
     const body = (await request.json()) as { orderId?: string };
     const orderId = String(body.orderId || "").trim();
 
-    if (!orderId) {
+    if (!/^[A-Z0-9]{8,64}$/.test(orderId)) {
       return NextResponse.json(
         { error: "Missing PayPal order ID." },
         { status: 400 }
@@ -202,13 +206,16 @@ export async function POST(request: Request) {
 
     const customUserId = getPayPalCustomUserId(orderLookup.data);
 
-    if (customUserId !== authenticatedUserId) {
+    if (orderLookup.data.id !== orderId || orderLookup.data.purchase_units?.length !== 1 || customUserId !== authenticatedUserId) {
       return NextResponse.json(
         { error: "PayPal order does not belong to the authenticated user." },
         { status: 403 }
       );
     }
 
+    let capturedData = orderLookup.data;
+    if (capturedData.status !== "COMPLETED") {
+    if (capturedData.status !== "APPROVED") return NextResponse.json({ error: "PayPal payment has not been approved." }, { status: 409 });
     const captureResponse = await fetch(
       `${PAYPAL_API}/v2/checkout/orders/${orderId}/capture`,
       {
@@ -216,12 +223,13 @@ export async function POST(request: Request) {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
+          "PayPal-Request-Id": `cpw-legacy-${orderId}`.slice(0,38),
         },
         cache: "no-store",
       }
     );
 
-    const capturedData = (await captureResponse.json()) as PayPalOrderResponse;
+    capturedData = (await captureResponse.json()) as PayPalOrderResponse;
 
     if (!captureResponse.ok) {
       console.error("PayPal top-up capture failed:", {
@@ -233,14 +241,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (capturedData.status !== "COMPLETED") {
+    }
+    const captures = capturedData.purchase_units?.[0]?.payments?.captures;
+    if (capturedData.id !== orderId || capturedData.purchase_units?.length !== 1 || capturedData.status !== "COMPLETED" || captures?.length !== 1 || !captures[0].id || captures[0].status !== "COMPLETED" || !matchesPayPalUsdAmount(captures[0].amount?.value, captures[0].amount?.currency_code, orderLookup.data.purchase_units?.[0]?.amount?.value)) {
       return NextResponse.json(
         { error: "PayPal payment is not completed." },
         { status: 400 },
       );
     }
 
-    if (getPayPalCustomUserId(capturedData) !== authenticatedUserId) {
+    if (getPayPalCustomUserId(capturedData) && getPayPalCustomUserId(capturedData) !== authenticatedUserId) {
       return NextResponse.json(
         { error: "Captured PayPal order owner mismatch." },
         { status: 403 }
@@ -275,6 +285,7 @@ export async function POST(request: Request) {
       throw new Error(rpcError.message);
     }
 
+    if (!(rpcResult as { duplicated?: boolean } | null)?.duplicated) {
     const { error: notificationError } = await supabaseAdmin
       .from("notifications")
       .insert({
@@ -290,6 +301,7 @@ export async function POST(request: Request) {
 
     if (notificationError) {
       console.error("Notification insert error:", notificationError.message);
+    }
     }
 
     return NextResponse.json({

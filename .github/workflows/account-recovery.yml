@@ -64,6 +64,9 @@ jobs:
       - name: Marketplace pricing, signed quotes and currency regression checks
         working-directory: website
         run: npx --no-install tsx --test tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/marketplaceGameFlow.test.ts tests/paymentCurrency.test.tsx
+      - name: CPWallet quote and payment validation
+        working-directory: website
+        run: npx --no-install tsx --test tests/cpWallet.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile
@@ -138,3 +141,14 @@ jobs:
         env:
           PGPASSWORD: ci-local-fixture-only
         run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/marketplacePricing.sql
+      - name: CPWallet isolated ledger, refunds and concurrent spending
+        env:
+          PGPASSWORD: ci-local-fixture-only
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+        run: |
+          createdb cpwallet_test
+          psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/cpWallet.sql
+          pgbench --no-vacuum --client=10 --jobs=5 --transactions=5 --file=website/tests/sql/cpWalletCredit.pgbench cpwallet_test
+          pgbench --no-vacuum --client=10 --jobs=5 --transactions=10 --file=website/tests/sql/cpWalletSpend.pgbench cpwallet_test
+          psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/cpWalletVerify.sql

@@ -1,6 +1,5 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { refundPayPalCapture } from "@/lib/paypalServer";
 
 type OrderRecord = {
   id: number;
@@ -38,95 +37,13 @@ export async function refundMarketplaceOrder(input: {
   manualReference?: string | null;
 }) {
   const order = await getAdminOrder(input.supabaseAdmin, input.orderId);
-  const paymentProof = String(order.payment_proof || "").toLowerCase();
-  const method = String(
-    order.payment_method ||
-      (order.paypal_capture_id ? "paypal" : paymentProof.includes("wallet") ? "wallet" : "manual")
-  )
-    .trim()
-    .toLowerCase();
-  let externalReference = input.manualReference?.trim() || null;
-  let externalStatus = "completed";
-
-  if (
-    String(order.status || "").toLowerCase() === "refunded" ||
-    String(order.payment_status || "").toLowerCase() === "refunded"
-  ) {
-    return { alreadyProcessed: true, order };
-  }
-
-  if (
-    String(order.escrow_status || "").toLowerCase() === "released" ||
-    String(order.seller_payout_status || "").toLowerCase() === "released"
-  ) {
-    throw new Error(
-      "Escrow has already been released. Reverse the seller payout before refunding."
-    );
-  }
-
-  if (method === "paypal") {
-    const refund = await refundPayPalCapture({
-      captureId: String(order.paypal_capture_id || ""),
-      idempotencyKey: `cp-order-${input.orderId}-refund`,
-    });
-
-    externalReference = refund.id;
-    externalStatus = refund.status.toLowerCase();
-
-    if (!new Set(["completed", "pending"]).has(externalStatus)) {
-      throw new Error(`PayPal refund status is ${refund.status}.`);
-    }
-  } else if (method !== "wallet") {
-    if (!externalReference) {
-      throw new Error(
-        "A bank, QRIS, or manual refund reference is required for this payment method."
-      );
-    }
-  }
-
-  if (externalStatus === "pending") {
-    const { error } = await input.supabaseAdmin
-      .from("orders")
-      .update({
-        status: "refund_pending",
-        payment_status: "refund_pending",
-        refund_reason: input.reason,
-        refund_reference: externalReference,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", input.orderId);
-
-    if (error) throw new Error(error.message);
-
-    return {
-      alreadyProcessed: false,
-      pending: true,
-      externalReference,
-      order,
-    };
-  }
-
-  const { data, error } = await input.supabaseAdmin.rpc(
-    "cp_admin_finalize_order_refund",
-    {
-      p_order_id: input.orderId,
-      p_admin_id: input.adminId,
-      p_reason: input.reason,
-      p_refund_channel: method,
-      p_external_reference: externalReference,
-    }
-  );
-
+  const { data, error } = await input.supabaseAdmin.rpc("cp_refund_order_to_wallet", {
+    p_order_id: input.orderId, p_admin_id: input.adminId, p_reason: input.reason,
+  });
   if (error) throw new Error(error.message);
-
   return {
-    alreadyProcessed: Boolean(
-      (data as { already_refunded?: boolean } | null)?.already_refunded
-    ),
-    pending: false,
-    externalReference,
-    result: data,
-    order,
+    alreadyProcessed: Boolean((data as { already_refunded?: boolean } | null)?.already_refunded),
+    pending: false, externalReference: `CPW-REFUND-${input.orderId}`, result: data, order,
   };
 }
 

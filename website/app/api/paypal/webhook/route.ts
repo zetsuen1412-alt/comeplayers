@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { processWalletPayPalWebhook } from "@/lib/cpWalletServer";
 import {
   createAlertFingerprint,
   dispatchOperationalAlert,
@@ -170,7 +171,9 @@ export async function POST(request: Request) {
     }
 
     await markWebhookProcessing({ supabaseAdmin, rowId: inboxRowId });
-    const result = await processVerifiedPayPalWebhookEvent({ supabaseAdmin, event });
+    const result = await processWalletPayPalWebhook(supabaseAdmin, event)
+      ? { status: "processed" as const, eventType: String(event.event_type || ""), orderId: null, action: "cpwallet_payment_processed" }
+      : await processVerifiedPayPalWebhookEvent({ supabaseAdmin, event });
     await completeWebhookInboxEvent({
       supabaseAdmin,
       rowId: inboxRowId,

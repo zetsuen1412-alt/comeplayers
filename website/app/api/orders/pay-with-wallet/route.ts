@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as { orderId?: number | string };
     const orderId = Number(body.orderId || 0);
 
-    if (!Number.isFinite(orderId) || orderId <= 0) {
+    if (!Number.isSafeInteger(orderId) || orderId <= 0) {
       return NextResponse.json({ error: "Invalid order ID." }, { status: 400 });
     }
 
@@ -35,6 +35,9 @@ export async function POST(request: Request) {
     if (rpcError) {
       const normalized = String(rpcError.message || "").toLowerCase();
       console.error("Wallet payment RPC failed:", rpcError.message);
+      if (rpcError.code === "P0001" && ["frozen", "external payment", "expired", "not active"].some(text => normalized.includes(text))) {
+        return NextResponse.json({ error: rpcError.message }, { status: 409 });
+      }
 
       if (normalized.includes("not found")) {
         return NextResponse.json(

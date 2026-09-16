@@ -234,14 +234,10 @@ export default function AdminOrderManagementV1Page() {
     if (!isAdmin) return;
 
     let note = "";
-    let manualReference: string | undefined;
 
     if (action === "refund") {
       note = prompt("Refund reason:")?.trim() || "";
       if (!note) return;
-      manualReference =
-        prompt("Bank/QRIS/manual refund reference (leave blank for PayPal or wallet):")?.trim() ||
-        undefined;
     } else if (status === "cancelled" || status === "disputed") {
       note = prompt(`Admin note for ${status}:`)?.trim() || "";
       if (!note) return;
@@ -251,7 +247,7 @@ export default function AdminOrderManagementV1Page() {
       setUpdatingOrderId(orderId);
       await authenticatedFetchJson("/api/admin/orders", {
         method: "PATCH",
-        body: JSON.stringify({ orderId, action, status, note, manualReference }),
+        body: JSON.stringify({ orderId, action, status, note }),
       });
       await loadOrders();
     } catch (error) {
@@ -276,7 +272,7 @@ export default function AdminOrderManagementV1Page() {
   }
 
   async function refundOrder(orderId: number) {
-    if (!confirm("Refund this order? This can trigger a real PayPal refund.")) return;
+    if (!confirm("Refund this order to the buyer's CPWallet? The amount will be available for future purchases.")) return;
     await updateOrderStatus(orderId, "refund");
   }
 

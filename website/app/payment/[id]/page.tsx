@@ -29,6 +29,7 @@ import { readPayPalCheckoutReview, type PayPalCheckoutReview } from "@/lib/paypa
 import { CardPaymentTotal, PayPalPaymentReview } from "@/components/marketplace/PaymentCurrencyAmounts";
 import { supabase } from "@/lib/supabase";
 import PaymentWaitGame from "./PaymentWaitGame";
+import WalletPaymentChoice from "@/components/wallet/WalletPaymentChoice";
 import styles from "./payment.module.css";
 
 type Order = {
@@ -65,6 +66,7 @@ type Product = {
 };
 
 type PaymentChoice =
+  | "wallet"
   | "bank_transfer"
   | "card"
   | "doku_wallet"
@@ -733,6 +735,19 @@ export default function PaymentPage() {
   }
 
   async function startSelectedPayment() {
+    if (selectedPaymentMethod === "wallet") {
+      if (!order || paying) return;
+      setPaying(true); setError("");
+      try {
+        const accessToken = await getAccessToken();
+        const response = await fetch("/api/orders/pay-with-wallet", { method: "POST", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ orderId: order.id }) });
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.error || "Unable to pay with CPWallet.");
+        router.replace(`/order-success/${order.id}`);
+      } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to pay with CPWallet."); }
+      finally { setPaying(false); }
+      return;
+    }
     if (selectedPaymentMethod === "paypal") {
       await payWithPayPal();
       return;
@@ -981,6 +996,7 @@ export default function PaymentPage() {
                     <span>Wallets &amp; other methods</span>
                     <small>Choose an available provider</small>
                   </div>
+                  <WalletPaymentChoice selected={selectedPaymentMethod === "wallet"} disabled={paying || Boolean(virtualAccount || qris)} total={total} onSelect={() => choosePaymentMethod("wallet")} />
                   <div className={styles.walletGrid}>
                     <button
                       type="button"
@@ -1428,7 +1444,7 @@ export default function PaymentPage() {
               <div>
                 <dt>Payment</dt>
                 <dd>
-                  {selectedPaymentMethod === "bank_transfer"
+                  {selectedPaymentMethod === "wallet" ? "CPWallet" : selectedPaymentMethod === "bank_transfer"
                     ? "Bank Transfer"
                     : selectedPaymentMethod === "card"
                       ? "Visa / Mastercard"
@@ -1453,7 +1469,7 @@ export default function PaymentPage() {
             {currency !== "IDR" ? (
               <p className={styles.convertedPrice}>
                 Prices are shown in {currency}.{" "}
-                {selectedPaymentMethod === "paypal"
+                {selectedPaymentMethod === "wallet" ? <>CPWallet deducts {formatBasePrice(total)} (IDR) from your balance.</> : selectedPaymentMethod === "paypal"
                   ? "PayPal confirms its final USD amount before approval."
                   : <>DOKU charges {formatBasePrice(total)} (IDR).</>}
               </p>
@@ -1512,7 +1528,7 @@ export default function PaymentPage() {
                       ? qrisExpired
                         ? "Generate new QRIS"
                         : "View QRIS code"
-                      : selectedPaymentMethod === "bank_transfer"
+                      : selectedPaymentMethod === "wallet" ? "Pay with CPWallet" : selectedPaymentMethod === "bank_transfer"
                         ? "Continue with bank transfer"
                         : selectedPaymentMethod === "card"
                           ? "Continue with Visa / Mastercard"
@@ -1524,7 +1540,7 @@ export default function PaymentPage() {
             </button>
             <p className={styles.paymentNote}>
               <FaShieldAlt />
-              {selectedPaymentMethod === "bank_transfer"
+              {selectedPaymentMethod === "wallet" ? "Your CPWallet balance pays the full order total. Approved refunds return to CPWallet." : selectedPaymentMethod === "bank_transfer"
                 ? virtualAccount
                   ? "Use the exact VA number and transfer amount shown on this page."
                   : `A DOKU VA will be created for transfer from ${sourceBank}.`
