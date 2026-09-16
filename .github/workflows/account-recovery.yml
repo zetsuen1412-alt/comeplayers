@@ -4,6 +4,9 @@ on:
     branches: [chatgpt/account-integrated-e2ee-recovery]
   pull_request:
     paths:
+      - 'website/next.config.ts'
+      - 'website/tsconfig*.json'
+      - 'website/package*.json'
       - 'website/lib/e2ee/**'
       - 'website/components/messages/Secure*'
       - 'website/app/api/messages/secure/**'
@@ -62,6 +65,24 @@ jobs:
       - name: Existing private-message protocol tests
         working-directory: website
         run: npx --no-install tsx --test ../comeplayers-apps/tests/privateAccountRecovery.test.ts ../comeplayers-apps/tests/privateMultiDevice.test.ts ../comeplayers-apps/tests/privateHistorySync.test.ts ../comeplayers-apps/tests/privateVerifiedBackup.test.ts
+  web-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website
+            comeplayers-apps
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      # Match Vercel: retain sibling source but install only website dependencies.
+      - name: Install locked website dependencies
+        working-directory: website
+        run: npm ci --no-audit --no-fund
       - name: Build web application without production credentials
         working-directory: website
         env:

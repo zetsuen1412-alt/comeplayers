@@ -61,6 +61,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Cross-platform tests are checked separately with both workspaces installed.
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   images: {
     remotePatterns: [
       {
