@@ -239,3 +239,11 @@ After authorization, link the existing project with base directory `comeplayers-
 Actions run `35053667129` on documentation head `c6250c0` still failed at the missing secure `EXPO_TOKEN` prerequisite (job `104659201343`); its browser/preflight job `104659201235` passed. Browser Expo login does not establish CLI authentication. The local EAS CLI host-profile error remains unresolved.
 
 No replacement Android build was requested, and no APK/AAB/OTA was published. The verified web preview remains available; production remains on the earlier main commit. Two physical-device passkey/history restore tests and Windows verification remain outstanding. No database mutation, migration reapplication, readiness flag, reset dry run, reset or single-device-session change occurred in this step.
+
+### Verified Android configuration checkpoint
+
+Code/configuration checkpoint: **`6adc58dc2e08c823e13e25734c60ebda6434b23e`**. The subsequent evidence update changes documentation only.
+
+- [Source, SQL and web build, run 35061539946](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35061539946): jobs `104682719175`, `104682719338`, and `104682719442` succeeded. Full web/mobile typechecks, helper parity and the isolated web dependency build (231 pages) passed.
+- [Browser and preflight, run 35061539888](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35061539888): browser job `104682717638` passed; EAS job `104682717454` failed at the missing Actions token prerequisite.
+- Logs confirm **109 tests passed, zero skipped**: 40 recovery/policy/storage/passkey/server, 32 protocol/history/backup, 15 signing, 7 browser, 15 preflight. This is not an EAS build or physical-device test result, and the preflight workflow remains failed overall.
