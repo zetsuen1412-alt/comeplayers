@@ -7,7 +7,7 @@ CREATE TABLE seller_applications(status text);
 CREATE TABLE disputes(status text);
 CREATE TABLE withdrawal_requests(status text);
 CREATE TABLE support_tickets(status text);
-\ir ../../supabase/migrations/20260916174623_admin_workspace_overview.sql
+\ir ../../supabase/migrations/20260916182015_admin_workspace_overview.sql
 DO $$ DECLARE before_snapshot jsonb; after_snapshot jsonb; BEGIN
  before_snapshot:=cp_admin_workspace_overview();
  INSERT INTO orders(id,total_amount,total_price,marketplace_fee_amount,status,payment_status,currency_code)

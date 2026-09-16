@@ -25,7 +25,7 @@ CREATE FUNCTION cp_consume_order_reservation(p_order_id bigint,p_buyer_id uuid) 
 CREATE FUNCTION checkout_wallet_order(p_product_id bigint,p_buyer_note text,p_coupon_id bigint,p_discount_amount numeric) RETURNS jsonb LANGUAGE sql AS $$ SELECT '{}'::jsonb $$;
 GRANT EXECUTE ON FUNCTION checkout_wallet_order(bigint,text,bigint,numeric) TO anon,authenticated;
 
-\ir ../../supabase/migrations/20260916165658_cpwallet_payments.sql
+\ir ../../supabase/migrations/20260916173800_cpwallet_payments.sql
 
 INSERT INTO profiles VALUES('00000000-0000-4000-8000-000000000001','buyer'),('00000000-0000-4000-8000-000000000002','seller'),('00000000-0000-4000-8000-000000000003','admin');
 INSERT INTO wallets(user_id,balance) VALUES('00000000-0000-4000-8000-000000000001',50000);
