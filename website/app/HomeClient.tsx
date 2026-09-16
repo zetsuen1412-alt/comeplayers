@@ -22,7 +22,7 @@ type InfoPanel = "how" | "about" | "help" | "ios" | null;
 const WINDOWS_URL =
   "/api/downloads/windows/ComePlayers_0.5.3_x64-setup.exe";
 const ANDROID_URL =
-  "/api/downloads/android/ComePlayers_0.13.0_18_android.apk";
+  "/api/downloads/android/ComePlayers_0.13.0_19_android.apk";
 const SUPPORT_EMAIL =
   process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@comeplayers.com";
 

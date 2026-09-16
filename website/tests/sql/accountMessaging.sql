@@ -17,7 +17,7 @@ begin
 end; $$;
 grant select,insert,update on public.cp_secure_accounts to service_role;
 \ir ../../supabase/migrations/20260915134209_account_recovery_policy.sql
-\ir ../../supabase/migrations/20260916123452_account_messaging_mode.sql
+\ir ../../supabase/migrations/20260916134702_account_messaging_mode.sql
 
 do $$
 begin
