@@ -13,6 +13,8 @@ on:
       - 'website/tests/sql/recoveryPolicy.sql'
       - 'comeplayers-apps/apps/mobile/src/secure/**'
       - 'comeplayers-apps/apps/mobile/src/screens/PrivateBackupSettings.tsx'
+      - 'comeplayers-apps/apps/mobile/plugins/**'
+      - 'comeplayers-apps/tests/androidReleaseSigning.test.cjs'
       - '.github/workflows/account-recovery.yml'
 permissions:
   contents: read
@@ -52,6 +54,10 @@ jobs:
         run: npm run typecheck --workspace @comeplayers/mobile
       - name: Shared recovery policy parity
         run: cmp website/lib/e2ee/recoveryPolicy.ts comeplayers-apps/apps/mobile/src/secure/recoveryPolicy.ts
+      - name: Original Android certificate guard in isolated Gradle fixtures
+        env:
+          COMEPLAYERS_TEST_GRADLE: ${{ github.workspace }}/comeplayers-apps/node_modules/@react-native/gradle-plugin/gradlew
+        run: node --test comeplayers-apps/tests/androidReleaseSigning.test.cjs
       # Run from website so the server-side @/ aliases use website/tsconfig.json.
       - name: Existing private-message protocol tests
         working-directory: website

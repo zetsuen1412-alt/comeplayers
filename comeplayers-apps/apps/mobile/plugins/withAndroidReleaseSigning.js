@@ -1,38 +1,25 @@
+const fs = require("node:fs");
+const path = require("node:path");
 const { withAppBuildGradle } = require("expo/config-plugins");
 
-const RELEASE_SIGNING_CONFIG = `        release {
-            def releaseKeystorePath = System.getenv("COMEPLAYERS_ANDROID_KEYSTORE_PATH")
-            if (releaseKeystorePath) {
-                storeFile file(releaseKeystorePath)
-                storePassword System.getenv("COMEPLAYERS_ANDROID_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("COMEPLAYERS_ANDROID_KEY_ALIAS")
-                keyPassword System.getenv("COMEPLAYERS_ANDROID_KEY_PASSWORD")
-            }
-        }
-`;
+const MARKER = "// ComePlayers original release signing guard";
+const signingGuard = fs.readFileSync(path.join(__dirname, "original-release-signing.gradle"), "utf8").trim();
 
 module.exports = function withAndroidReleaseSigning(config) {
   return withAppBuildGradle(config, (gradleConfig) => {
-    if (gradleConfig.modResults.language !== "groovy") return gradleConfig;
-
-    let contents = gradleConfig.modResults.contents;
-    if (!contents.includes("COMEPLAYERS_ANDROID_KEYSTORE_PATH")) {
-      contents = contents.replace(
-        "        }\n    }\n    buildTypes {",
-        `        }
-${RELEASE_SIGNING_CONFIG}    }
-    buildTypes {`
-      );
-      contents = contents.replace(
-        "            signingConfig signingConfigs.debug\n            def enableShrinkResources",
-        `            signingConfig System.getenv("COMEPLAYERS_ANDROID_KEYSTORE_PATH")
-                ? signingConfigs.release
-                : signingConfigs.debug
-            def enableShrinkResources`
-      );
+    if (gradleConfig.modResults.language !== "groovy") {
+      throw new Error("ComePlayers release signing requires the reviewed Groovy Gradle configuration.");
     }
-
-    gradleConfig.modResults.contents = contents;
+    const contents = gradleConfig.modResults.contents.replace(/\r\n/g, "\n");
+    if (contents.includes(MARKER)) {
+      if (!contents.includes(signingGuard)) {
+        throw new Error("ComePlayers signing guard changed. Regenerate the native project before building.");
+      }
+      return gradleConfig;
+    }
+    // Append an explicit override instead of matching indentation in Expo's
+    // template. EAS may populate this same release config after prebuild.
+    gradleConfig.modResults.contents = `${contents.trimEnd()}\n\n${signingGuard}\n`;
     return gradleConfig;
   });
 };

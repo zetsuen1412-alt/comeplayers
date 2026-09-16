@@ -116,3 +116,45 @@ Implementation/test checkpoint: `dd52b147b01c507383349de7076d3e54b85854d7` (pare
 - The first CI attempt at `17dff0e` exposed a pre-existing nondeterministic history-tampering fixture: replacing the first ciphertext byte with 00 sometimes did not change that byte. The follow-up always changes a hex digit and asserts that the fixture differs; the actual rejection/cursor/persistence assertions remain intact. No production cryptographic check was changed to make this pass.
 - Public read-only checks returned HTTP 200 with `enabled: false` for `/api/account/session` and HTTP 200 with the original Android package/certificate in assetlinks. A range GET of the existing 0.13.0 APK returned HTTP 206 and a total size of 107,716,792 bytes. Only one byte was requested; its full hash/signature was not reverified here, and it is not a replacement recovery artifact.
 - Web deployment, replacement APK/AAB/OTA, physical-device tests and database reset remain **not performed** in this continuation. Supabase live state remains unavailable through the failed connector. Do not turn these CI results into `verified_release` or `rollout_verified`.
+
+## Signing guard and refreshed production audit — 16 September 2026
+
+This entry supersedes the earlier connector-outage and debug-fallback status; earlier observations remain historical.
+
+### Read-only database evidence
+
+Supabase access succeeded. Migration history still contains `20260915134209 / account_recovery_policy`; it was not reapplied. Aggregate query time: `2026-09-16T01:42:40.540874+00:00`.
+
+| State / inventory | Observed |
+| --- | --- |
+| generation / reset_at | 0 / null |
+| require_passkey / rollout_verified / verified_release | false / false / null |
+| Auth users / profiles | 67 / 67 |
+| E2EE accounts / devices / rosters | 1 / 1 / 1 |
+| E2EE epochs / events / event users / blobs / usage | 0 / 0 / 0 / 0 / 0 |
+| Chat rooms / Community group rooms / legacy messages | 13 / 6 / 42 |
+| Wallets / wallet transactions / wallet topups | 51 / 5 / 1 |
+| Products / orders | 532 / 35 |
+| Payroll employees / entries / periods / workspaces | 1 / 0 / 1 / 1 |
+| Friendships | 1 |
+
+The account generation trigger is enabled. Anonymous control-table SELECT and authenticated control-table UPDATE privileges are false. Foreign-key inspection found `cp_calls -> cp_secure_events` uses SET NULL; a future reset may clear that event reference but must preserve the call row. This is dependency evidence, not authorization for unrelated deletion. Refresh protected business counts and dependency/trigger evidence again before cutover; point-in-time counts alone do not prove row contents unchanged.
+
+No production mutation, release-readiness flag update, dry-run reset or reset was performed. The reset script remains ROLLBACK-only until the real release/device prerequisites are fulfilled. Single-device sessions were not enabled.
+
+### Android signing change
+
+The local plugin no longer selects debug signing when release credentials are missing. It appends an explicit release configuration after Expo's template, so indentation changes cannot silently remove the override. Unsupported Gradle languages and stale generated guards fail clearly.
+
+A Gradle task-graph guard checks the effective release configuration after EAS's late signing injection. It requires an existing signing key entry and compares its public certificate SHA256 with the fixed original ComePlayers certificate. Missing credentials, unreadable keystores and other certificates stop release tasks without printing credential values or paths. Release configuration caching is rejected because it could skip the verification callback. Debug tasks remain usable without release credentials. APK package/version/runtime/signature verification remains mandatory before distribution.
+
+The integration order follows [Expo's Android build documentation](https://docs.expo.dev/build-reference/android-builds/). No EAS project, signing key or replacement Android artifact was created. No native-passkey OTA was published.
+
+New checks use the locked Expo Gradle template plus isolated Gradle/JVM fixtures and Expo's already-public debug keystore. They generate no keystore. A test-only expected public fingerprint exercises the successful comparison; the unchanged production constant must reject the same debug certificate. These are guard tests, not a real Android build, original-credential validation, physical passkey test, or EAS signing verification.
+
+### Access and deployment status
+
+- Retrying the current-head EAS workflow still failed at the missing `EXPO_TOKEN` prerequisite (run `35029358444`, latest job `104633736275`). The browser job passed again. No build request was sent.
+- The local EAS probe still fails with `uv_os_get_passwd / ENOMEM`; authenticated local access remains unverified.
+- The existing Vercel project remains `prj_J2lxF1Dv7PsmiWbyj9mea1hoYAl3`; production is `dpl_FPpB7nzKh4cKZErcQ3gQjyFFc5cB`, source `0b81bd4b28656bf86c946739deb1ae33f3816b1b`. The available browser reached Vercel's login page. No recovery preview or production deployment was created by this step.
+- Physical Android restore/update tests and Windows WebView PRF recovery remain outstanding. Do not populate production release evidence from these synthetic checks.
