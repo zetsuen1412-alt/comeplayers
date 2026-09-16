@@ -40,7 +40,7 @@ BEGIN
  RETURN jsonb_set(result,'{payment_method}','"doku"');
 END $$;
 
-\ir ../../supabase/migrations/20260916142914_marketplace_pricing_consistency.sql
+\ir ../../supabase/migrations/20260916144937_marketplace_pricing_consistency.sql
 
 INSERT INTO products(id,title,price,seller_id,stock,status,has_variants) VALUES
  (1,'Fixture product','4.0582','00000000-0000-0000-0000-000000000001',200,'active',false),

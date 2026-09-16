@@ -76,7 +76,7 @@ export default function ProductVariantPurchase({
     setQuoteLoading(true);
     setQuoteState(null);
     setQuoteError("");
-    void fetch("/api/checkout/quote", {
+    void fetch("/api/marketplace/quote", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: quoteKey, signal: controller.signal,
     }).then(async response => {
       const payload = await response.json();
