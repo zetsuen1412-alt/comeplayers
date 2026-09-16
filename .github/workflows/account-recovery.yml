@@ -152,3 +152,4 @@ jobs:
           pgbench --no-vacuum --client=10 --jobs=5 --transactions=5 --file=website/tests/sql/cpWalletCredit.pgbench cpwallet_test
           pgbench --no-vacuum --client=10 --jobs=5 --transactions=10 --file=website/tests/sql/cpWalletSpend.pgbench cpwallet_test
           psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/cpWalletVerify.sql
+          psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/adminWorkspace.sql

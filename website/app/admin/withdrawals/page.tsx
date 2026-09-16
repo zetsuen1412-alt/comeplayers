@@ -125,7 +125,7 @@ function statusClass(status: string) {
 }
 
 export default function AdminWithdrawalManagementPage() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -416,3 +416,4 @@ function Metric({ label, value }: { label: string; value: string }) {
 function Info({ label, value, subvalue }: { label: string; value: string; subvalue?: string }) {
   return <div className="rounded-2xl border border-white/10 bg-black/30 p-4"><p className="text-xs text-slate-500">{label}</p><p className="mt-1 break-words font-black">{value || "-"}</p>{subvalue ? <p className="mt-1 break-words text-xs text-slate-400">{subvalue}</p> : null}</div>;
 }
+

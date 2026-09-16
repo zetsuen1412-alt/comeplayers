@@ -51,7 +51,7 @@ function isExpired(coupon: Coupon) {
 }
 
 export default function AdminCouponAnalyticsV1Page() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [coupons, setCoupons] = useState<Coupon[]>([]);

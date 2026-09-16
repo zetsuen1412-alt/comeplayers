@@ -57,7 +57,7 @@ function normalizeCouponCode(value: string) {
 }
 
 export default function AdminCouponManagerV1Page() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -468,7 +468,7 @@ export default function AdminCouponManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Discount Value
+                Discount Value (% or IDR)
               </label>
               <input
                 type="number"
@@ -502,7 +502,7 @@ export default function AdminCouponManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Minimum Order Amount
+                Minimum Order Amount (IDR)
               </label>
               <input
                 type="number"
@@ -515,7 +515,7 @@ export default function AdminCouponManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Maximum Discount Amount
+                Maximum Discount Amount (IDR)
               </label>
               <input
                 type="number"

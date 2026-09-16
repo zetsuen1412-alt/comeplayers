@@ -131,3 +131,40 @@ export async function PATCH(request: Request) {
     );
   }
 }
+
+const orderStatusGroups: Record<string, string[]> = {
+  pending: ["pending", "pending_payment", "Pending Payment", "Menunggu Pembayaran"],
+  verification: ["payment_verification", "Payment Verification", "Menunggu Cek Pembayaran"],
+  processing: ["paid", "processing", "Processing", "Diproses"],
+  delivered: ["delivered"],
+  completed: ["completed", "Completed", "Selesai"],
+  cancelled: ["cancelled", "Cancelled", "Dibatalkan", "expired"],
+  refunded: ["refunded", "Refunded", "refund_pending", "Refund Pending"],
+  disputed: ["disputed", "Disputed"],
+};
+
+export async function GET(request: Request) {
+  try {
+    const { supabaseAdmin } = await requireAdmin(request);
+    const params = new URL(request.url).searchParams;
+    const page = Math.max(1, Math.min(100000, Number(params.get("page")) || 1));
+    if (!Number.isInteger(page)) return NextResponse.json({ error: "Invalid page." }, { status: 400 });
+    const status = params.get("status") || "all";
+    if (status !== "all" && !orderStatusGroups[status]) return NextResponse.json({ error: "Invalid status filter." }, { status: 400 });
+    let query = supabaseAdmin.from("orders").select("id,buyer,buyer_id,seller_id,product,product_title,quantity,total_amount,total_price,payment_status,payment_method,payment_proof,status,escrow_status,seller_payout_status,created_at", { count: "exact" });
+    if (status !== "all") query = query.in("status", orderStatusGroups[status]);
+    const search = (params.get("q") || "").slice(0, 120).replace(/[(),%_"\\]/g, " ").trim();
+    if (/^\d+$/.test(search)) {
+      if (!Number.isSafeInteger(Number(search))) return NextResponse.json({ error: "Invalid order reference." }, { status: 400 });
+      query = query.eq("id", Number(search));
+    } else if (search) {
+      query = query.or(`product_title.ilike.%${search}%,product.ilike.%${search}%,buyer.ilike.%${search}%`);
+    }
+    const { data, error, count } = await query.order("id", { ascending: false }).range((page - 1) * 25, page * 25 - 1);
+    if (error) throw new Error(error.message);
+    return NextResponse.json({ orders: data || [], total: count || 0, page, pageSize: 25 }, { headers: { "Cache-Control": "private, no-store" } });
+  } catch (error) {
+    const status = adminErrorStatus(error);
+    return NextResponse.json({ error: status < 500 && error instanceof Error ? error.message : "Unable to load orders." }, { status });
+  }
+}
