@@ -206,3 +206,36 @@ This is a Preview deployment. Production remains the earlier main deployment `dp
 GitHub's repository secrets UI explicitly showed no repository or environment Actions secrets. Expo's GitHub sign-in reached **new-account onboarding**, not the existing ComePlayers account. No account was created. The official Expo login page was left open for the owner to sign into the existing account that controls project `a663aa70-99b7-4c8f-93ea-5f8637baa2df`. Local EAS/profile and signing-tool limitations recorded above remain unresolved. No new APK/AAB/OTA, signing key or Expo project was created.
 
 A fresh read-only database check at **2026-09-16T03:48:13.278063+00:00** returned: migration version `20260915134209` appears once; generation 0; reset_at null; require_passkey false; rollout_verified false; verified_release null; 67 Auth users, 67 profiles, 1 E2EE account, 1 E2EE device, zero E2EE events and blobs. No production database mutation, migration reapply, reset dry run or reset occurred. The original narrow reset approval remains valid, but original-certificate Android release/update tests, two physical devices and Windows verification are still required.
+
+## Existing Expo access and Android build preparation — 16 September 2026
+
+The owner completed Expo login. Browser access now confirms the original **personal account `comeplayers`**, project `a663aa70-99b7-4c8f-93ea-5f8637baa2df`, and Android package `com.comeplayers.app`. The similarly named project in `comeplayerss-team` has no build history and was not selected for release. No account, project, or keystore was created or transferred.
+
+### Signing evidence and its limits
+
+The original project's Android credentials page lists the existing default JKS build credentials `ri4dNOy_7Y` (ID `f62c0517-e92b-482a-8b0d-c2059d3e412a`). Its displayed SHA256 is truncated, so this UI alone does not establish the full current remote fingerprint. No private keystore or password was downloaded or revealed.
+
+The existing successful production AAB, [build 74241b27-16e4-4718-9486-7bdf04795cfb](https://expo.dev/accounts/comeplayers/projects/comeplayers/builds/74241b27-16e4-4718-9486-7bdf04795cfb), was downloaded and inspected. It is historical version **0.7.0 (3)** from source `040826f`, not a replacement recovery release.
+
+- Size: 52,986,781 bytes.
+- Artifact SHA256: `8d218ed42e1bda5d8dd525c6a3b4962d70d354def9b79147712dfaba46dd557d`.
+- Embedded signing certificate SHA256: `0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2`, matching the original expected certificate.
+- PKCS7 certificate extraction is not complete JAR signature verification. The candidate APK still requires full signature, package, version, runtime and artifact-hash verification, in addition to the release signing guard.
+
+### Build configuration and version gate
+
+Both Android preview and production profiles now explicitly select `ubuntu-26.04-jdk-17-ndk-r27b-sdk-57`, the [documented SDK 57 build image](https://docs.expo.dev/build-reference/infrastructure/). An explicit image is a prerequisite for [builds through the Expo GitHub App](https://docs.expo.dev/build/building-from-github/). Preview remains an internal APK; production remains an AAB. This change does not run a build, submit to a store or publish an OTA.
+
+Local static preflight and all **15 existing preflight tests passed**, zero skipped. These checks do not verify remote signing or version allocation and do not add 15 unique tests to the earlier 109-test total.
+
+The latest listed EAS preview is **0.8.0 (3)**, build `ab573846-841b-48eb-aba6-3583a7c725ed`; the previously distributed local release is **0.13.0 (15)**. Historical build codes do not prove the current EAS remote counter. Keep `appVersionSource: remote`; before requesting a replacement build, read the actual counter with `eas build:version:get --platform android --profile preview --json --non-interactive` on an authorized functioning host. Reconcile it with the last distributed code using the supported version-set command if needed, never lower a newer remote counter, and ensure the candidate uses a new code greater than 15. Source app.json alone is not the effective version when remote versioning is enabled. See [Expo app version management](https://docs.expo.dev/build-reference/app-versions/).
+
+### GitHub connection and remaining gates
+
+The original project has no linked GitHub repository. The verified Expo GitHub App installation form is prepared for **only `zetsuen1412-alt/comeplayers`**. Installation remains pending the owner's action-time permission confirmation because it grants new repository access, including read/write code, workflows and administration. The final Install & Authorize action has not been performed. This is unrelated to the already approved narrow E2EE reset.
+
+After authorization, link the existing project with base directory `comeplayers-apps/apps/mobile`, then verify version allocation and build the reviewed recovery branch. The existing EAS preview OTA workflow triggers on main/master pushes; the production OTA workflow is manual. Do not merge or publish an OTA as a side effect of connecting the repository.
+
+Actions run `35053667129` on documentation head `c6250c0` still failed at the missing secure `EXPO_TOKEN` prerequisite (job `104659201343`); its browser/preflight job `104659201235` passed. Browser Expo login does not establish CLI authentication. The local EAS CLI host-profile error remains unresolved.
+
+No replacement Android build was requested, and no APK/AAB/OTA was published. The verified web preview remains available; production remains on the earlier main commit. Two physical-device passkey/history restore tests and Windows verification remain outstanding. No database mutation, migration reapplication, readiness flag, reset dry run, reset or single-device-session change occurred in this step.
