@@ -323,3 +323,54 @@ A post-deployment read-only check at **2026-09-16 06:56:45.761811 UTC** still re
 The owner must perform or provide access for genuine device testing: install candidate code 16 over the existing app without uninstall/clear-data, restore encrypted test history through the same synced passkey on a second physical device, and verify the supported Windows path. Record device/browser/provider versions and actual outcomes without collecting passwords, passkeys or customer messages. Cancellation and non-Messages usage must also be checked.
 
 Do not fill `physicalPasskeyRestore`, `desktopPasskeyRestore`, `verified_release` or `rollout_verified` from the 119 automated tests, APK inspection, unauthenticated API smoke checks or an unanswered device-availability question. Only after real device evidence, complete Android distribution, refresh protected inventory, and perform the guarded reset dry run/cutover under the existing narrow approval.
+
+## Passkey guidance correction and candidate 17 — 16 September 2026
+
+This entry supersedes the candidate-16/current-production status above. Candidate 16 remains a historical verified build; no evidence from it is being relabeled as candidate 17.
+
+### Source changes and checks
+
+Source **`87326013f7ddefb1dca56f0a4b2853bd8a50b046`**, a fast-forward from documentation commit `0a8bdc7681fa97defe48e8f76dbd7c6a83bea797`, corrects two remaining ordinary-flow messages that suggested manual recovery-key use. The shared web/mobile PRF-unavailable message directs users to a supported browser and synced passkey provider. Account security directs users to finish Messages passkey setup/recovery or use a device with verified history. Legacy exported-file compatibility and cryptographic guards are unchanged.
+
+The corrupt-ciphertext fixture now XORs the first byte instead of replacing it with 00, removing the 1/256 chance that the fixture made no change. No cryptographic implementation was changed.
+
+- [Account recovery checks 35070096420](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35070096420): source job `104709370693`, web-build job `104709370735`, and SQL job `104709370796` succeeded. Web/mobile typechecks and helper parity passed.
+- [Browser/preflight 35070096485](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35070096485): browser job `104709364535` succeeded. EAS-access job `104709364357` still failed at the missing Actions `EXPO_TOKEN` prerequisite; the workflow remains failed overall.
+- Logs confirm **119 passed, zero failed, zero skipped** across the same six automated groups: 40 recovery/policy/storage/passkey/server, 32 protocol/history/backup, 15 signing, 7 browser, 15 preflight, 10 version guards. Virtual authenticators do not establish physical passkey synchronization.
+
+### Verified Android artifact
+
+The existing authenticated EAS/GitHub route built source `8732601` on the original project and existing signing identity. No replacement project/keystore, store submission or OTA was created.
+
+- Build: [10763521-a510-4c4c-821f-bc011bf82091](https://expo.dev/accounts/comeplayers/projects/comeplayers/builds/10763521-a510-4c4c-821f-bc011bf82091), finished in **8m 57s** total (**8m 50s** build).
+- Internal profile/environment/channel: **preview**.
+- Package **com.comeplayers.app**; version **0.13.0 (17)**; runtime **0.13.0**. Remote autoIncrement allocated 17; no counter was lowered.
+- APK size **139,142,102 bytes**; SHA256 **`9a522ea0634444d16547102251e075d42d93f573c920fb9db1f6843d2a2c573d`**.
+- Full `apksigner verify --verbose --print-certs`: **passed**, APK Signature Scheme v2, one signer.
+- Effective signer SHA256 **`0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2`**, identical to the original release.
+- aapt2 manifest/resources: minSdk 24, targetSdk 36, non-debuggable, allowBackup false; original EAS update project, preview channel, automatic checks NEVER, runtime resource 0.13.0.
+- The embedded Android bundle contains the corrected passkey guidance and no occurrence of the replaced obsolete PRF-error message.
+- Official artifact: https://expo.dev/artifacts/eas/KcOTQ27UuHNOPTmsZ6-FWy5lBJmQVFopFbHXbZmP23s.apk
+- Expo Doctor remains **20/21**, with 16 packages behind recommended patches. Native build succeeded; Doctor is not reported as clean.
+
+The APK is available as an internal test candidate. The public website Android download has not been replaced; no AAB, Play Store release or OTA was published. Update installation and physical recovery remain unverified.
+
+### Production web
+
+Preview `dpl_9JWdeDjuYcePKJxWSvXF6xvrEiDk` passed. Vercel rebuilt the same source using the existing Production environment: **`dpl_9WFpkutUdP6wL2X7uMvCjRqhQGmm`**, **READY**, aliased to **www.comeplayers.com**, **comeplayers.com** and the existing production alias.
+
+Deployment: https://vercel.com/ilham-evogaming-s-projects/evo-gaming/9WFpkutUdP6wL2X7uMvCjRqhQGmm
+
+Previous production: `dpl_BG787RNZW9RqtoCYddHPVqjMaNhe` (source `b40eb5a`). Main was not merged and its push-triggered OTA workflow was not invoked.
+
+Read-only smoke checks at **2026-09-16T07:54:26.716Z** passed: live/ready 200 with database ready; unauthenticated E2EE account/history 401 with no account/history returned; categories 200 with eight categories; assetlinks matches the original Android signer. Browser home and fully loaded Marketplace opened successfully. A deployment-scoped initial 5xx query returned no entries. These are short, unauthenticated observations, not authenticated recovery or sustained reliability evidence.
+
+### Database and remaining device gate
+
+Before-deployment audit at **07:51:33 UTC** and after-deployment audit at **2026-09-16 07:54:28.684682 UTC** agree: generation **0**, reset_at **null**, require_passkey **false**, rollout_verified **false**, verified_release **null**; 67 Auth users, 67 profiles, 1 E2EE account/device, 0 encrypted events/blobs, 6 group rooms and 42 legacy messages. Preparation migration `20260915134209` is recorded exactly once.
+
+**No reset, reset dry-run, migration reapplication or readiness-flag write was performed. Single-device sessions remain unchanged.** The existing narrow reset approval remains valid.
+
+Physical evidence is still missing: Android update without uninstall/clear-data, history restoration through the same synced passkey on a second physical device, cancellation/non-Messages behavior, offline/reconnect and the supported Windows path. No answer to the device-installation question was available during this verification. Native device control/ADB is not available in this session; the OS hardware inventory query returned access denied, which does not prove no device is attached. Desktop source review confirms the existing hosted-site shell, not WebView PRF support. No Windows installer was built.
+
+Use candidate **17** for the next update test; an already-installed candidate 16 can serve as its baseline. Record actual device/browser/provider metadata and outcomes, without secrets or personal-message contents. Do not promote automated tests or artifact inspection into physical evidence. Complete the Android distribution and guarded inventory/dry-run/cutover only once genuine device verification satisfies the handoff.
