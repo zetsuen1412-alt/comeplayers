@@ -2,7 +2,7 @@ name: Inspect Android recovery release version
 
 # Manual and read-only. Never builds, updates versions, signs, or publishes.
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   inspect_android_version:
