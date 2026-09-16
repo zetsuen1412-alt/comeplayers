@@ -158,3 +158,15 @@ New checks use the locked Expo Gradle template plus isolated Gradle/JVM fixtures
 - The local EAS probe still fails with `uv_os_get_passwd / ENOMEM`; authenticated local access remains unverified.
 - The existing Vercel project remains `prj_J2lxF1Dv7PsmiWbyj9mea1hoYAl3`; production is `dpl_FPpB7nzKh4cKZErcQ3gQjyFFc5cB`, source `0b81bd4b28656bf86c946739deb1ae33f3816b1b`. The available browser reached Vercel's login page. No recovery preview or production deployment was created by this step.
 - Physical Android restore/update tests and Windows WebView PRF recovery remain outstanding. Do not populate production release evidence from these synthetic checks.
+
+### Verified signing checkpoint
+
+Code checkpoint: `a62ce9eed974221516d21fe74fda5ddc32fb3ecd`.
+
+- [Account recovery checks, run 35046090619](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35046090619) succeeded: source job `104637098176`, SQL job `104637098334`. Both TypeScript checks, 40 recovery/policy/storage/passkey/server tests, 32 private-protocol/history/backup tests, helper parity, isolated PostgreSQL and the dummy-config web build (231 pages) passed.
+- All **15 signing checks passed, zero skipped** in that source job: 5 plugin/template cases and 10 real Gradle/JVM fixture cases. Local runs passed the 5 plugin cases; the 10 JVM cases were explicitly skipped locally because this host lacks Java. Do not confuse the local skip with the successful CI execution.
+- [Browser and Android preflight, run 35046090639](https://github.com/zetsuen1412-alt/comeplayers/actions/runs/35046090639): browser job `104636095428` passed 7 WebAuthn/IndexedDB tests and 15 preflight tests. EAS job `104636095263` failed at the missing `EXPO_TOKEN` prerequisite. Total across the five test groups: **109 passed**. The preflight workflow is still failed overall.
+- The duplicate push run `35046087925` was cancelled by workflow concurrency; its result is not the validation evidence above.
+- Additional read-only audit at `2026-09-16T01:58:10.811272+00:00`: 3 call rows, 0 non-null encrypted-event references, and no non-internal DELETE triggers on the eight reset-allowlisted E2EE tables.
+- Expo's dashboard also reached its login page. No Vercel CLI token or standard CLI authentication file was found. The direct Vercel deployment tool requires complete source files; its input-validation probes created no deployment. A final deployment listing still showed the same main production deployment. The partial local snapshot was not deployed.
+- No replacement artifact, physical-device/Windows restore result, deployment or production reset is implied by these passes. The subsequent evidence commit changes documentation only.
