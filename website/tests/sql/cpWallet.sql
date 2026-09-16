@@ -84,6 +84,14 @@ BEGIN
  ASSERT (SELECT balance FROM wallets WHERE user_id=buyer)=150000;
  ASSERT (SELECT stock FROM product_variants WHERE product_variants.id=1)=7 AND (SELECT stock FROM products WHERE products.id=1)=20,'refund restores only the variant once';
  ASSERT (SELECT count(*) FROM wallet_transactions WHERE order_id=1 AND type='order_refund')=1;
+ UPDATE orders SET payment_status='paid',status='paid',escrow_status='holding' WHERE orders.id=2;
+ INSERT INTO product_stock_reservations(order_id,status) VALUES(2,'released');
+ t:=cp_refund_order_to_wallet(2,admin_id,'Previously released reservation');
+ ASSERT (SELECT stock FROM products WHERE products.id=1)=20,'an already released reservation must not restore stock twice';
+ PERFORM set_config('request.jwt.claims','{"role":"service_role"}',true);
+ t:=credit_wallet_paypal_topup(other_user,'FIXTURE-LEGACY',15000,1);
+ t:=credit_wallet_paypal_topup(other_user,'FIXTURE-LEGACY',15000,1);
+ ASSERT t->>'duplicated'='true' AND (SELECT balance FROM wallets WHERE user_id=other_user)=15000,'legacy capture supports modern JWT claims and credits once';
  t:=cp_create_wallet_topup_quote(buyer,'00000000-0000-4000-8000-000000000011','doku',q); id:=(t->>'id')::uuid;
  UPDATE cp_wallet_topup_intents SET quote_expires_at=now()-interval '1 second' WHERE cp_wallet_topup_intents.id=(t->>'id')::uuid;
  caught:=false; BEGIN PERFORM cp_start_wallet_topup(id,buyer); EXCEPTION WHEN raise_exception THEN caught:=true; END; ASSERT caught,'expired quote cannot start payment';

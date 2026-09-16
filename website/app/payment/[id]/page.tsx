@@ -996,7 +996,7 @@ export default function PaymentPage() {
                     <span>Wallets &amp; other methods</span>
                     <small>Choose an available provider</small>
                   </div>
-                  <WalletPaymentChoice selected={selectedPaymentMethod === "wallet"} disabled={paying || Boolean(virtualAccount || qris)} total={total} onSelect={() => choosePaymentMethod("wallet")} />
+                  <WalletPaymentChoice selected={selectedPaymentMethod === "wallet"} disabled={paying || Boolean(virtualAccount || qris || cardPaymentUrl || activePayPalReview)} total={total} onSelect={() => choosePaymentMethod("wallet")} />
                   <div className={styles.walletGrid}>
                     <button
                       type="button"
@@ -1415,7 +1415,7 @@ export default function PaymentPage() {
                 <FaShieldAlt />
                 <div>
                   <h2>Buyer protection included</h2>
-                  <p>Your payment and delivery stay inside ComePlayers.</p>
+                  <p>Your payment and delivery stay inside ComePlayers. Approved product refunds are credited to your CPWallet balance for future purchases.</p>
                 </div>
               </div>
               <div className={styles.protectionList}>

@@ -10,7 +10,7 @@ import {
 } from "@/lib/dokuServer";
 import { recordTrustedMarketplaceEvent } from "@/lib/marketplaceEventsServer";
 import { createSupabaseAdmin } from "@/lib/serverSupabase";
-import { walletIdFromInvoice } from "@/lib/cpWallet";
+import { matchesWalletCharge, walletIdFromInvoice } from "@/lib/cpWallet";
 
 export const runtime = "nodejs";
 
@@ -18,6 +18,7 @@ type DokuNotification = {
   order?: {
     invoice_number?: string;
     amount?: string | number;
+    currency?: string;
   };
   transaction?: {
     status?: string;
@@ -339,6 +340,11 @@ export async function POST(request: Request) {
     const walletIntentId = walletIdFromInvoice(invoiceNumber);
     if (walletIntentId) {
       if (transactionStatus === "SUCCESS") {
+        const rawAmount = isSnapNotification ? snapNotification.amount?.value : checkoutNotification.order?.amount;
+        const currency = isSnapNotification ? snapNotification.amount?.currency : checkoutNotification.order?.currency || "IDR";
+        if (!matchesWalletCharge(rawAmount, currency, { charge_amount: amount, charge_currency: "IDR" })) {
+          throw new Error("Invalid CPWallet payment amount or currency.");
+        }
         const { error } = await supabaseAdmin.rpc("cp_credit_wallet_topup", {
           p_id: walletIntentId, p_provider: "doku", p_provider_order_id: invoiceNumber,
           p_capture_id: invoiceNumber, p_amount: amount, p_currency: "IDR",

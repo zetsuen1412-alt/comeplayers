@@ -193,10 +193,12 @@ BEGIN
  UPDATE wallets SET balance=balance+total,updated_at=now() WHERE id=w.id;
  -- Restore the reserved variant, not the parent product, exactly once under the order lock.
  quantity:=greatest(coalesce(o.quantity,1),1);
- IF o.variant_id IS NOT NULL THEN
-  UPDATE product_variants SET stock=coalesce(stock,0)+quantity,updated_at=now() WHERE id=o.variant_id AND product_id=o.product_id;
- ELSE
-  UPDATE products SET stock=coalesce(stock,0)+quantity,updated_at=now() WHERE id=o.product_id;
+ IF NOT EXISTS(SELECT FROM product_stock_reservations WHERE order_id=o.id AND status='released') THEN
+  IF o.variant_id IS NOT NULL THEN
+   UPDATE product_variants SET stock=coalesce(stock,0)+quantity,updated_at=now() WHERE id=o.variant_id AND product_id=o.product_id;
+  ELSE
+   UPDATE products SET stock=coalesce(stock,0)+quantity,updated_at=now() WHERE id=o.product_id;
+  END IF;
  END IF;
  UPDATE product_stock_reservations SET status='released',released_at=now(),release_reason='cpwallet_refund',updated_at=now() WHERE order_id=o.id AND status='consumed';
  UPDATE orders SET status='refunded',payment_status='refunded',escrow_status='refunded',seller_payout_status='cancelled',refund_amount=total,
@@ -228,7 +230,7 @@ declare
   v_existing_topup wallet_topups%rowtype;
   v_balance_before numeric := 0;
   v_balance_after numeric := 0;
-  v_jwt_role text := current_setting('request.jwt.claim.role', true);
+  v_jwt_role text := coalesce(nullif(current_setting('request.jwt.claim.role', true),''),nullif(current_setting('request.jwt.claims', true),'')::jsonb->>'role');
 begin
   if coalesce(v_jwt_role, '') <> 'service_role' then
     raise exception 'Unauthorized. PayPal topup must be executed by server service role.';

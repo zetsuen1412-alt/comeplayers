@@ -27,6 +27,7 @@ export default function WalletTopup() {
   const requestKey = useRef("");
   const returned = useRef(false);
   const returnToken = useRef("");
+  useEffect(() => { requestKey.current = ""; }, [currency]);
   const money = (value: number, code: string) => new Intl.NumberFormat(locale, { style: "currency", currency: code, currencyDisplay: "code", maximumFractionDigits: ["IDR", "JPY", "KRW", "VND"].includes(code) ? 0 : 2 }).format(value);
   const load = useCallback(async () => {
     const [list, overview] = await Promise.all([
@@ -116,7 +117,7 @@ export default function WalletTopup() {
     {loading ? <div className="cpw-loading" role="status">Loading your payment options…</div> : <div className="cpw-grid"><section className="cpw-card">
       {!intent ? <form onSubmit={review}><span className="cpw-step">01 / AMOUNT & PAYMENT</span><label className="cpw-field" htmlFor="cpw-amount">How much would you like to add?<span className="cpw-amount-input"><input id="cpw-amount" type="text" inputMode="decimal" autoComplete="off" required placeholder="0" value={amount} onChange={event => { setAmount(event.target.value); requestKey.current = ""; }} /><span>{currency}</span></span></label><p className="cpw-info">Minimum {formatIdrPrice(10000)} · Maximum {formatIdrPrice(10000000)} per top-up. Your exact credit and provider charge appear before payment.</p>
         <h2>Payment method</h2>
-        <button className="cpw-provider" type="button" disabled={!history?.methods.doku || busy} aria-pressed={provider === "doku"} onClick={() => { setProvider("doku"); requestKey.current = ""; }}><FaCreditCard /><span><strong>DOKU</strong><small>Bank transfers, Visa / Mastercard, QRIS and e-wallets. Choose from your merchant&apos;s enabled methods on the secure payment page.{!history?.methods.doku && " Currently unavailable."}</small></span></button>
+        <button className="cpw-provider" type="button" disabled={!history?.methods.doku || busy} aria-pressed={provider === "doku"} onClick={() => { setProvider("doku"); requestKey.current = ""; }}><FaCreditCard /><span><strong>DOKU</strong><small>Bank transfers, Visa / Mastercard, QRIS and e-wallets. Choose an available method on the secure payment page.{!history?.methods.doku && " Currently unavailable."}</small></span></button>
         <button className="cpw-provider" type="button" disabled={!history?.methods.paypal || busy} aria-pressed={provider === "paypal"} onClick={() => { setProvider("paypal"); requestKey.current = ""; }}><FaPaypal /><span><strong>PayPal</strong><small>Pay with your PayPal account. The confirmed charge is in USD.{!history?.methods.paypal && " Currently unavailable."}</small></span></button>
         {walletStatus !== "active" && <p role="status" className="cpw-alert">Your CPWallet is frozen. Contact support before adding funds.</p>}
         <button className="cpw-button cpw-full" disabled={busy || !amount || walletStatus !== "active" || !history?.methods[provider]}>{busy ? "Preparing your quote…" : "Review top-up"}</button>
