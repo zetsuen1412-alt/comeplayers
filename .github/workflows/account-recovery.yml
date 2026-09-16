@@ -57,7 +57,7 @@ jobs:
         run: npm run typecheck
       - name: Recovery policy, storage isolation and existing cryptographic tests
         working-directory: website
-        run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/recoveryStorage.test.mjs tests/recoveryBackup.test.mjs tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts
+        run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/recoveryStorage.test.mjs tests/recoveryBackup.test.mjs tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts tests/appDownloads.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile

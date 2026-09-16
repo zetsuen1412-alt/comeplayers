@@ -19,13 +19,13 @@ test("Windows release manifest points at the signed 0.5.3 installer", () => {
   assert.match(release.downloadPath, /^\/api\/downloads\/windows\//);
 });
 
-test("Android release manifest points at the signed 0.12.1 APK", () => {
+test("Android release manifest points at the signed 0.13.0 build 18 APK", () => {
   const release = getAppRelease("android");
   assert.equal(release.available, true);
-  assert.equal(release.version, "0.12.1");
-  assert.equal(release.sizeBytes, 109_168_865);
-  assert.equal(release.sha256, "F6F300C37FA7B1957FBD0D1967F1B84E66A0C10F69BF1C50E795BA3155B4BD26");
-  assert.match(release.fileName, /ComePlayers_0\.12\.1_android\.apk/);
+  assert.equal(release.version, "0.13.0 (18)");
+  assert.equal(release.sizeBytes, 139_143_054);
+  assert.equal(release.sha256, "86E9E45CFF6ABDBF7B51DEE6B2302808CD83684D5E2C75FA41688046D0A8D1A6");
+  assert.match(release.fileName, /ComePlayers_0\.13\.0_18_android\.apk/);
   assert.match(release.downloadPath, /^\/api\/downloads\/android\//);
 });
 
@@ -46,7 +46,7 @@ test("home download buttons start the official installers directly", () => {
   );
   assert.match(
     source,
-    /\/api\/downloads\/android\/ComePlayers_0\.12\.1_android\.apk/
+    /\/api\/downloads\/android\/ComePlayers_0\.13\.0_18_android\.apk/
   );
   assert.match(source, /href=\{WINDOWS_URL\}[\s\S]*?download/);
   assert.match(source, /href=\{ANDROID_URL\}[\s\S]*?download/);
