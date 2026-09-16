@@ -63,7 +63,7 @@ jobs:
         run: npx --no-install tsx --test tests/accountMessaging.test.ts tests/chatSecureGate.test.ts tests/incomingCalls.test.ts tests/chatInteractions.test.ts
       - name: Marketplace pricing, signed quotes and currency regression checks
         working-directory: website
-        run: npx --no-install tsx --test tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/marketplaceGameFlow.test.ts
+        run: npx --no-install tsx --test tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/marketplaceGameFlow.test.ts tests/paymentCurrency.test.tsx
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile

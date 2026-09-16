@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as { orderId?: string | number };
     const marketplaceOrderId = Number(body.orderId || 0);
 
-    if (!Number.isFinite(marketplaceOrderId) || marketplaceOrderId <= 0) {
+    if (!Number.isSafeInteger(marketplaceOrderId) || marketplaceOrderId <= 0) {
       return NextResponse.json(
         { error: "Invalid marketplace order ID." },
         { status: 400 }
@@ -283,6 +283,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       paypalOrderId: data.id,
       approveUrl,
+      currency: "USD",
       amountUsd,
       amountIdr: totalIdr,
       rate: paypalQuote.idrPerUnit,

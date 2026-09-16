@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { recordTrustedMarketplaceEvent } from "@/lib/marketplaceEventsServer";
+import { matchesPayPalUsdAmount } from "@/lib/paypalCheckout";
 import {
   authErrorStatus,
   createSupabaseAdmin,
@@ -149,7 +150,7 @@ export async function POST(request: Request) {
 
     if (
       !paypalOrderId ||
-      !Number.isFinite(marketplaceOrderId) ||
+      !Number.isSafeInteger(marketplaceOrderId) ||
       marketplaceOrderId <= 0
     ) {
       return NextResponse.json(
@@ -257,7 +258,7 @@ export async function POST(request: Request) {
     const approved = await readPayPalOrder(paypalOrderId, accessToken);
     const approvedUnit = approved.purchase_units?.[0];
     if (approved.purchase_units?.length !== 1 || approvedUnit?.custom_id !== `${marketplaceOrderId}:${user.id}` ||
-        approvedUnit?.amount?.currency_code !== "USD" || Math.round(Number(approvedUnit?.amount?.value) * 100) !== Math.round(requiredUsd * 100)) {
+        !matchesPayPalUsdAmount(approvedUnit?.amount?.value, approvedUnit?.amount?.currency_code, requiredUsd)) {
       return NextResponse.json({ error: "PayPal amount or owner does not match this order." }, { status: 409 });
     }
     const captureResponse = await fetch(
@@ -326,12 +327,11 @@ export async function POST(request: Request) {
 
     const capturedUsd = getCapturedUsd(capturedData);
 
-    if (
-      !capturedUsd ||
-      !requiredUsd ||
-      capturedData.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.currency_code !== "USD" ||
-      Math.round(capturedUsd * 100) !== Math.round(requiredUsd * 100)
-    ) {
+    const captures = capturedData.purchase_units?.[0]?.payments?.captures;
+    const completedCapture = captures?.[0];
+    if (capturedData.purchase_units?.length !== 1 || captures?.length !== 1 ||
+      !completedCapture?.id || completedCapture.status !== "COMPLETED" ||
+      !matchesPayPalUsdAmount(completedCapture.amount?.value, completedCapture.amount?.currency_code, requiredUsd)) {
       console.error("PayPal checkout amount mismatch:", {
         marketplaceOrderId,
         capturedUsd,

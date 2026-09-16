@@ -2057,3 +2057,40 @@
     animation: none;
   }
 }
+
+/* Keep the display currency visible beside the actual provider charge. */
+.cardCheckoutTotal p {
+  margin: 2px 0 0;
+  color: #475569;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.cardCheckoutTotal b {
+  color: #172033;
+}
+
+.paypalReview {
+  margin-top: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  padding: 14px;
+  color: #172033;
+}
+
+.paypalReview p {
+  margin: 0 0 5px;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.paypalReview strong {
+  display: block;
+  color: #0070ba;
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+

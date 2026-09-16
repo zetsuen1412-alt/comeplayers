@@ -1,3 +1,4 @@
+import { matchesPayPalUsdAmount } from "./paypalCheckout";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logEvent } from "@/lib/observability";
 
@@ -162,9 +163,11 @@ export async function processVerifiedPayPalWebhookEvent(input: {
     const expectedAmountUsd = Number(order.paypal_amount_usd || 0);
 
     if (
-      !Number.isFinite(amountUsd) ||
-      amountUsd <= 0 ||
-      (expectedAmountUsd > 0 && Math.abs(amountUsd - expectedAmountUsd) > 0.01)
+      !matchesPayPalUsdAmount(
+        input.event.resource?.amount?.value,
+        input.event.resource?.amount?.currency_code,
+        expectedAmountUsd,
+      )
     ) {
       throw Object.assign(
         new Error("PayPal webhook amount does not match the marketplace order."),
