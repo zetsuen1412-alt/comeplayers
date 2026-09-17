@@ -2,7 +2,6 @@
 
 import { adminLabel } from "@/lib/adminLocale";
 import { flushPayroll, withPayrollBatch } from "@/features/payroll/lib/workspace-store";
-import { authenticatedFetch } from "@/lib/authenticatedFetch";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
@@ -11,7 +10,9 @@ import { searchGames, serversForRegion } from "@/features/payroll/lib/product-ca
 import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { getAvailableStock } from "@/features/payroll/lib/inventory";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
-import { formatDateTimeID } from "@/features/payroll/lib/date";
+import { jakartaDateTimeLocalNow } from "@/features/payroll/lib/date";
+import { parseManualOrderTime } from "@/features/payroll/lib/manual-order-time";
+import { ManualOrderDateField } from "@/features/payroll/components/manual-order-date-field";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { checkAllocationQuantity } from "@/features/payroll/lib/order-allocation";
@@ -37,20 +38,12 @@ function newStockRow(quantity = 0): DraftStock {
   return { rowId: `stock-${Date.now()}-${Math.random().toString(36).slice(2)}`, inventoryStockId: "", quantity };
 }
 
-async function getServerTime() {
-  const response = await authenticatedFetch("/api/admin/payroll/workspace/time", { cache: "no-store" });
-  if (!response.ok) throw new Error("SERVER_TIME_UNAVAILABLE");
-  const data = await response.json() as { now?: string };
-  if (!data.now || Number.isNaN(new Date(data.now).getTime())) throw new Error("SERVER_TIME_INVALID");
-  return data.now;
-}
-
 export function OrderEntryForm() {
   const { allOrders, addOrder } = useDemoOrders();
   const { inventory, reserveAllocations } = useDemoInventory();
   const { employees } = useDemoEmployees();
   const { games } = useDemoProductGames();
-  const [serverTime, setServerTime] = useState<string | null>(null);
+  const [orderDateTime, setOrderDateTime] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("boosting");
   const [source, setSource] = useState("G2G");
   const [manualCode, setManualCode] = useState("");
@@ -69,19 +62,11 @@ export function OrderEntryForm() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    const refresh = async () => {
-      try {
-        const now = await getServerTime();
-        if (active) setServerTime(now);
-      } catch {
-        if (active) setServerTime(null);
-      }
-    };
-    void refresh();
-    const timer = window.setInterval(() => void refresh(), 60_000);
-    return () => { active = false; window.clearInterval(timer); };
+    // Initialize once after hydration. Manual edits are never refreshed by a timer.
+    setOrderDateTime(current => current || jakartaDateTimeLocalNow());
   }, []);
+
+  const orderTimeResult = useMemo(() => parseManualOrderTime(orderDateTime), [orderDateTime]);
 
   const orderCode = manualCode.trim();
   let codeError = "";
@@ -144,7 +129,7 @@ export function OrderEntryForm() {
   });
   const stockMatches = !needsStock || (stockAllocationCheck.matches && !hasBlankStock && !hasInvalidStockQuantity && !hasDuplicateStock && !hasWrongStockType && !hasInsufficientStock && !hasWrongGameStock && !hasWrongRegionStock && !hasWrongServerStock);
 
-  const canSave = Boolean(serverTime)
+  const canSave = orderTimeResult.ok
     && !codeError
     && Boolean(buyer.trim())
     && Boolean(selectedGame)
@@ -211,7 +196,10 @@ export function OrderEntryForm() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (saving) return;
     setMessage(null);
+    const submittedTime = parseManualOrderTime(orderDateTime);
+    if (!submittedTime.ok) return setMessage({ type: "error", text: submittedTime.error });
 
     if (!buyer.trim()) return setMessage({ type: "error", text: "Nama pembeli wajib diisi." });
     if (orderType !== "gold" && !orderName.trim()) return setMessage({ type: "error", text: "Nama pesanan wajib diisi." });
@@ -250,9 +238,7 @@ export function OrderEntryForm() {
 
     setSaving(true);
     try {
-      const orderTime = await getServerTime();
-      setServerTime(orderTime);
-      const due = new Date(new Date(orderTime).getTime() + 24 * 60 * 60 * 1000).toISOString();
+      const { orderedAt: orderTime, dueAt: due } = submittedTime;
       const nowCode = Date.now();
 
       const assignments: OrderWorkerAssignment[] = workerRows.map((row, index) => {
@@ -357,14 +343,12 @@ export function OrderEntryForm() {
     <form onSubmit={submit} className="space-y-5">
       <section className="cp-card p-5 sm:p-6">
         <div className="mb-5 rounded-xl border border-yellow-500/25 bg-yellow-500/10 p-4 text-sm leading-6 text-yellow-100">
-          <strong>Isi kode pesanan secara manual. Tanggal diambil dari server.</strong> Untuk jenis <strong>Gold</strong> atau <strong>Item</strong>, stok wajib dipilih dari Gudang.
+          <strong>Isi kode, tanggal, dan jam pesanan secara manual (WIB).</strong> Tanggal lama dapat dipilih sesuai data spreadsheet. Untuk jenis <strong>Gold</strong> atau <strong>Item</strong>, stok wajib dipilih dari Gudang.
         </div>
 
         <h2 className="text-xl font-semibold">1. Data Pesanan</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="text-sm">Hari &amp; tanggal pesanan
-            <div className="mt-2 min-h-[50px] rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 font-medium">{serverTime ? formatDateTimeID(serverTime) : "Mengambil waktu server..."}</div>
-          </div>
+          <ManualOrderDateField value={orderDateTime} onChange={setOrderDateTime} disabled={saving} inputClass={inputClass} />
           <label className="text-sm">Kode pesanan manual
             <input value={manualCode} onChange={e=>setManualCode(e.target.value)} maxLength={64} required autoComplete="off" placeholder="Contoh: G2G-20260917-001" aria-describedby="order-code-help" aria-invalid={!!manualCode && !!codeError} className={inputClass} />
             <span id="order-code-help" className={`mt-1 block text-xs ${manualCode && codeError ? "text-red-300" : "text-zinc-400"}`}>{manualCode && codeError ? codeError : "1–64 karakter: huruf, angka, titik, tanda hubung atau garis bawah. Kode harus unik."}</span>
@@ -577,7 +561,7 @@ export function OrderEntryForm() {
       ) : null}
 
       <button type="submit" disabled={!canSave} className="w-full rounded-2xl bg-yellow-400 px-5 py-4 text-base font-bold text-black disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 sm:w-auto">
-        {saving ? "Menyimpan..." : canSave ? "Simpan Pesanan & Buat Mutasi" : needsStock && !stockMatches ? "Periksa Stok Sebelum Simpan" : "Periksa Pembagian Karyawan Sebelum Simpan"}
+        {saving ? "Menyimpan..." : canSave ? "Simpan Pesanan & Buat Mutasi" : !orderTimeResult.ok ? "Periksa Tanggal & Jam Sebelum Simpan" : needsStock && !stockMatches ? "Periksa Stok Sebelum Simpan" : "Periksa Pembagian Karyawan Sebelum Simpan"}
       </button>
     </form>
   );
