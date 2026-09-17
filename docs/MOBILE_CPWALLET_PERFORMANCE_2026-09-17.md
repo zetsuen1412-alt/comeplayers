@@ -23,13 +23,31 @@ Do not reset to an earlier handoff/checkpoint. Read the latest commits and this 
 - Supabase read-only inspection confirms chat_messages, chat_rooms and chat_message_reactions are already in supabase_realtime. Existing participant/channel SELECT policy remains unchanged.
 - Production order status/required-column checks passed. No migration is needed for this release.
 
-## Pending release work (do not claim completed)
-1. CI website build/typecheck, new regression tests and existing recovery/payment/SQL checks.
-2. Browser verification of web/native-component fixtures and production routes.
-3. EAS preview APK build from the latest reviewed source; verify version, package and original signing certificate.
-4. Publish the APK through the existing R2 release/download pipeline.
-5. Deploy/promote the reviewed website and verify live routes.
-6. Update this document and PR with actual build/deployment/test identifiers.
+## Verified release checkpoint
+- Implementation commit: a8dbbd7dafc37179f8a9c3681948fa75a70fa7b9.
+- Application CI 35174473770: web build, web/mobile typechecks, source checks and SQL policy/concurrency fixtures passed. 164 code tests passed, including 12 new mobile commerce/chat tests.
+- Browser/preflight run 35174473872: real-browser-recovery passed. The separate EAS-access job still fails because GitHub Actions EXPO_TOKEN is absent. The existing authenticated Expo browser session successfully produced the APK below; no replacement project, keystore or token was created.
+- Synthetic component browser checks passed: Profile balance, USD/IDR conversion, top-up quote showing exact IDR charge, pending reconciliation without credit, delivered-order filtering/detail, and web account overview. No console errors in these fixtures. Native components were rendered through a local adapter; this is not physical-device evidence.
+- Application production deployment dpl_Ax7nbTKTZGc7TQvYTrX7EpJKTCCM is READY, source a8dbbd7, with www.comeplayers.com and comeplayers.com aliases.
+- Production checks at 2026-09-17T02:48:11.789Z: account, wallet, top-up, app payment-return and health pages returned 200. Account commerce, wallet payments and order APIs rejected anonymous requests with 401; private/no-store headers remained present.
+- Production error/fatal log scan since 2026-09-17T02:41:00Z returned no matching entries at this checkpoint. Real-user Speed Insights is not enabled; no measured physical-device speed claim is made.
+
+## Android 20
+- EAS build e290bb3b-a5b7-457e-8820-75c03d95ce7c, finished in 8m 47s from a8dbbd7.
+- Version 0.14.0, versionCode 20, runtime 0.14.0, preview channel, com.comeplayers.app.
+- APK size 138803610 bytes.
+- SHA-256 e40ab1da352f8a25d8be74a2bac05b7b5fa77c2e5cffb610c71c4b1e21e4c396.
+- Full apksigner verification passed (v2, one signer), matching the original certificate below. Backup remains disabled and the APK is not debuggable.
+- Embedded bundle contains CPWallet, order confirmation and account-storage disclosure. It omits the retired passkey gate and manual 64-character key prompt.
+- Staging commit 3e92a1b2ab1caf6871de77ab38684760c41edf86; R2 upload/full byte hash verified at 2026-09-17T02:47:52Z in deployment dpl_3PNXaPJAFAd9jHrF7qJSd8YwiQEW.
+- Release key: app-releases/android/0.14.0-20/ComePlayers_0.14.0_20_android.apk.
+- This follow-up restores the normal Vercel build command. The final download-pointer deployment and complete website download verification remain to be recorded after they succeed.
+- Intended official URL: https://www.comeplayers.com/api/downloads/android/ComePlayers_0.14.0_20_android.apk
+- Install over the previous app without uninstalling or clearing data. Physical installation remains unverified.
+
+## Honest remaining verification
+Use a real account/device to verify top-up approval, return to app, exact single wallet credit, wallet purchase, delivered/completed order progress, and chat/camera/microphone/call behavior. No live payment, refund, account reset, balance adjustment or physical-device timing measurement was performed.
+Read the final release entry below before assuming the download pointer is live.
 
 ## Fixed identities and previous artifacts
 Expo project: a663aa70-99b7-4c8f-93ea-5f8637baa2df; owner/slug comeplayers/comeplayers.
