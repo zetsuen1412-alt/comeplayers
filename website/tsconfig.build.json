@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": ".next/cache/tsconfig.build.tsbuildinfo"
+  },
+  "exclude": [
+    "node_modules",
+    ".next/dev",
+    "e2e",
+    "playwright.config.ts",
+    "load-tests",
+    "backup-*",
+    "_*",
+    "tests"
+  ]
+}
