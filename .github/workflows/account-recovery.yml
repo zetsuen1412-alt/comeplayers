@@ -67,6 +67,9 @@ jobs:
       - name: CPWallet quote and payment validation
         working-directory: website
         run: npx --no-install tsx --test tests/cpWallet.test.ts tests/mobileCommerce.test.ts
+      - name: Payroll delegated access, audit and manual reference checks
+        working-directory: website
+        run: npx --no-install tsx --test tests/payroll-access.test.ts tests/payroll-final-workspace.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile
@@ -153,3 +156,11 @@ jobs:
           pgbench --no-vacuum --client=10 --jobs=5 --transactions=10 --file=website/tests/sql/cpWalletSpend.pgbench cpwallet_test
           psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/cpWalletVerify.sql
           psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/adminWorkspace.sql
+      - name: Payroll scoped permissions and immutable audit checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+        run: |
+          createdb payroll_test
+          psql --dbname=payroll_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/payrollAccess.sql

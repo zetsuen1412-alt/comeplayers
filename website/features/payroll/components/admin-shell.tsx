@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePayrollActor } from "../lib/workspace-store";
 import { usePathname } from "next/navigation";
 import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { formatJakartaDateTimeInput } from "@/features/payroll/lib/date";
@@ -23,9 +24,10 @@ const links = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const demo = false;
+  const actor = usePayrollActor();
   const pathname = usePathname();
   const { lock, isLocked } = useDemoPeriodLock();
-  const readOnlyAllowedPage = pathname === "/admin/payroll/finance/closing" || pathname === "/admin/payroll/export";
+  const readOnlyAllowedPage = pathname === "/admin/payroll/finance/closing" || pathname === "/admin/payroll/export" || pathname === "/admin/payroll/history" || pathname === "/admin/payroll/access";
   const readOnly = isLocked && !readOnlyAllowedPage;
 
   return (
@@ -47,7 +49,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
         ) : null}
 
-        <Link href="/admin/payroll/legacy" className="mt-4 block text-xs text-zinc-400">Arsip payroll sebelumnya</Link>
+        <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-xs text-zinc-400"><span className="block font-semibold text-zinc-100">{actor?.name}</span>{actor?.isAdmin ? "Administrator" : "Akses khusus payroll"}</div>
+        {actor?.isAdmin && <><Link href="/admin/payroll/access" className="mt-4 block rounded-xl border border-yellow-500/30 p-3 text-sm font-semibold text-yellow-300">Kelola akses & tautan</Link><Link href="/admin/payroll/legacy" className="mt-4 block text-xs text-zinc-400">Arsip payroll sebelumnya</Link></>}
         <nav className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
           {links.map(([icon, label, href]) => (
             <Link key={href} href={href} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800 hover:text-white">

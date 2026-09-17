@@ -56,7 +56,8 @@ export function useDemoOrders() {
 
   const addOrder = useCallback((order: Order) => {
     const existing = readStoredOrders();
-    const next = [order, ...existing.filter((x) => x.externalReference.toLowerCase() !== order.externalReference.toLowerCase())];
+    if (mergeOrders(existing).some(x => x.id === order.id || x.externalReference.trim().toLowerCase() === order.externalReference.trim().toLowerCase())) throw new Error("Kode order sudah digunakan.");
+    const next = [order, ...existing];
     writeStoredOrders(next);
     setStoredOrders(next);
   }, []);
@@ -66,7 +67,8 @@ export function useDemoOrders() {
     if (!current) return false;
     const updated: Order = { ...current, ...patch };
     const existing = readStoredOrders();
-    const next = [updated, ...existing.filter((x) => x.externalReference.toLowerCase() !== updated.externalReference.toLowerCase())];
+    if (mergeOrders(existing).some(x => x.id !== orderId && x.externalReference.trim().toLowerCase() === updated.externalReference.trim().toLowerCase())) throw new Error("Kode order sudah digunakan.");
+    const next = [updated, ...existing.filter((x) => x.id !== orderId)];
     writeStoredOrders(next);
     setStoredOrders(next);
     return true;

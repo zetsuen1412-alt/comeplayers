@@ -35,7 +35,7 @@ export async function authenticatedFetch(
   );
 
   if (error || !data.session?.access_token) {
-    throw new Error("Please login again before continuing.");
+    throw Object.assign(new Error("Please login again before continuing."), { status: 401 });
   }
 
   const headers = new Headers(init.headers);
@@ -67,9 +67,9 @@ export async function authenticatedFetch(
         .clone()
         .json()
         .catch(() => ({}))) as { error?: string };
-      throw new Error(
+      throw Object.assign(new Error(
         payload.error || `Request failed with status ${response.status}.`,
-      );
+      ), { status: response.status });
     }
 
     return response;
