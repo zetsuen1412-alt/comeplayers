@@ -1,5 +1,7 @@
 # Mobile CPWallet and performance release — 2026-09-17
 
+> **Latest continuation:** [Payroll access and audit release](PAYROLL_ACCESS_AUDIT_2026-09-17.md). This mobile release remains valid; follow the latest branch head for payroll changes.
+
 ## Continuation point
 Continue branch `chatgpt/account-integrated-e2ee-recovery`, PR #1.
 Base before this work: `f23f6ed2227e0e81b9f0b35a09a1c65d96c4212f`.

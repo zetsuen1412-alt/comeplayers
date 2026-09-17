@@ -16,7 +16,7 @@ INSERT INTO public.profiles VALUES
  ('00000000-0000-4000-8000-000000000002','buyer','Operator',null,'operator@example.test'),
  ('00000000-0000-4000-8000-000000000003',null,'No role',null,'null@example.test');
 \ir ../../supabase/migrations/20260913234226_payroll_final_workspace.sql
-\ir ../../supabase/migrations/20260917031321_payroll_delegated_access_audit.sql
+\ir ../../supabase/migrations/20260917034322_payroll_delegated_access_audit.sql
 SET ROLE service_role;
 DO $$ DECLARE a uuid='00000000-0000-4000-8000-000000000001'; u uuid='00000000-0000-4000-8000-000000000002'; n uuid='00000000-0000-4000-8000-000000000003'; saved jsonb;
 BEGIN
