@@ -1,4 +1,6 @@
 "use client";
+
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { getPayrollActor } from "@/features/payroll/lib/workspace-store";
 
 import { useMemo, useState } from "react";
@@ -46,8 +48,8 @@ const sortLabels: Record<SortMode, string> = {
   highest: "Nilai terbesar",
   lowest: "Nilai terkecil",
   source_az: "Sumber A-Z",
-  buyer_az: "Buyer A-Z",
-  game_az: "Game A-Z",
+  buyer_az: "Pembeli A-Z",
+  game_az: "Permainan A-Z",
 };
 
 export default function MutationsPage() {
@@ -122,7 +124,7 @@ export default function MutationsPage() {
     `Sumber: ${source === "SEMUA" ? "Semua" : source}`,
     `Jenis: ${type === "SEMUA" ? "Semua" : type === "gold" ? "Gold" : type === "item" ? "Item" : "Boosting"}`,
     `Buyer: ${buyer === "SEMUA" ? "Semua" : buyer}`,
-    `Game: ${game === "SEMUA" ? "Semua" : game}`,
+    `Permainan: ${game === "SEMUA" ? "Semua" : game}`,
     search.trim() ? `Kode: ${search.trim()}` : "Kode: Semua",
     `Urutan: ${sortLabels[sort]}`,
   ].join(" • ");
@@ -139,16 +141,16 @@ export default function MutationsPage() {
 
   function setMutationStatus(order: Order, nextStatus: "assigned" | "in_progress" | "on_hold" | "verified") {
     if (order.payrollClosedAt) {
-      setNotice(`Pesanan ${order.externalReference} sudah masuk Closing/Gaji dan dikunci.`);
+      setNotice(`Pesanan ${order.externalReference} sudah masuk Tutup Buku/Gaji dan dikunci.`);
       return;
     }
     if (order.operationalStatus === "verified") {
-      setNotice(`Pesanan ${order.externalReference} sudah selesai dan sedang menunggu Closing/Gaji.`);
+      setNotice(`Pesanan ${order.externalReference} sudah selesai dan sedang menunggu Tutup Buku/Gaji.`);
       return;
     }
     const assignments = getOrderAssignments(order);
     if (!assignments.length) {
-      setNotice(`Order ${order.externalReference} belum punya karyawan.`);
+      setNotice(`Pesanan ${order.externalReference} belum punya karyawan.`);
       return;
     }
 
@@ -161,7 +163,7 @@ export default function MutationsPage() {
         verifiedAt: now,
         inventoryConsumedAt: order.inventoryAllocations?.length ? (order.inventoryConsumedAt ?? now) : order.inventoryConsumedAt,
       });
-      setNotice(`✓ ${order.externalReference} selesai. Order sekarang masuk daftar Gaji berikutnya.`);
+      setNotice(`✓ ${order.externalReference} selesai. Pesanan sekarang masuk daftar Gaji berikutnya.`);
       return;
     }
 
@@ -177,7 +179,7 @@ export default function MutationsPage() {
     addHistory({
       orderId: order.id,
       orderReference: order.externalReference,
-      editedBy: getPayrollActor()?.name ?? "Pengguna payroll",
+      editedBy: getPayrollActor()?.name ?? "Pengguna penggajian",
       reason,
       wasCompleted,
       wasPayrollClosed,
@@ -185,15 +187,15 @@ export default function MutationsPage() {
     });
     setEditingOrder(null);
     setNotice(wasPayrollClosed
-      ? `✓ ${order.externalReference} berhasil diedit. History tersimpan sebagai perubahan setelah Closing.`
+      ? `✓ ${order.externalReference} berhasil diedit. Riwayat tersimpan sebagai perubahan setelah Tutup Buku.`
       : wasCompleted
-        ? `✓ ${order.externalReference} berhasil diedit. History tersimpan sebagai perubahan setelah order selesai.`
-        : `✓ ${order.externalReference} berhasil diedit dan dicatat di History Perubahan.`);
+        ? `✓ ${order.externalReference} berhasil diedit. Riwayat tersimpan sebagai perubahan setelah pesanan selesai.`
+        : `✓ ${order.externalReference} berhasil diedit dan dicatat di Riwayat Perubahan.`);
   }
 
   return (
     <>
-      <PageHeader title="Mutasi" description="Atur periode, Sumber, Jenis, Buyer, Game, kode order, dan urutan. Tampilan serta Excel mengikuti filter yang sedang dipilih." />
+      <PageHeader title="Mutasi" description={"Atur periode, Sumber, Jenis, Pembeli, Permainan, kode pesanan, dan urutan. Tampilan serta Excel mengikuti filter yang sedang dipilih."} />
 
       <section className="cp-card p-5 sm:p-6">
         <div>
@@ -216,50 +218,50 @@ export default function MutationsPage() {
         <div className="mt-5 border-t border-zinc-800 pt-5">
           <div className="text-sm font-semibold">Tampilkan Mutasi berdasarkan</div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
             <label className="text-sm">Jenis<select value={type} onChange={(e) => setType(e.target.value as TypeFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua jenis</option><option value="gold">Gold</option><option value="item">Item</option><option value="boosting">Boosting</option></select></label>
-            <label className="text-sm">Buyer<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua buyer</option>{buyers.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-            <label className="text-sm">Game<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua game</option>{games.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+            <label className="text-sm">Gim<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
-            <label className="text-sm">Cari kode order<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: EG25" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Buyer A-Z</option><option value="game_az">Game A-Z</option></select></label>
-            <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Reset filter</button>
+            <label className="text-sm">Cari kode pesanan<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: EG25" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
+            <label className="text-sm">Sortir / urutkan<select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
+            <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
           </div>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-zinc-800 pt-5">
           <button onClick={async () => { setExporting(true); try { await exportMutationsSpreadsheet(rows, exportLabel); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black disabled:opacity-50">
-            {exporting ? "Membuat Excel..." : `⬇ Export Mutasi (${rows.length})`}
+            {exporting ? "Membuat Excel..." : `⬇ Ekspor Mutasi (${rows.length})`}
           </button>
           <span className="text-sm text-zinc-500">Excel memuat ringkasan di atas dan tabel data Mutasi di bawah, sesuai seluruh filter serta urutan yang sedang tampil.</span>
         </div>
       </section>
 
-      {notice ? <div className="mt-4 rounded-xl border border-yellow-500/25 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">{notice}</div> : null}
+      {notice ? <div className="mt-4 rounded-xl border border-yellow-500/25 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">{adminText(notice)}</div> : null}
 
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="cp-card p-4"><div className="text-sm text-zinc-500">Jumlah order</div><div className="mt-1 text-2xl font-semibold">{rows.length}</div></div>
-        <div className="cp-card p-4"><div className="text-sm text-zinc-500">Total nilai order</div><div className="mt-1 text-2xl font-semibold">{formatMoney(total)}</div></div>
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4"><div className="text-sm text-zinc-500">Menunggu Closing/Gaji</div><div className="mt-1 text-2xl font-semibold text-emerald-300">{formatMoney(payrollReady)}</div></div>
+        <div className="cp-card p-4"><div className="text-sm text-zinc-500">Jumlah pesanan</div><div className="mt-1 text-2xl font-semibold">{rows.length}</div></div>
+        <div className="cp-card p-4"><div className="text-sm text-zinc-500">Total nilai pesanan</div><div className="mt-1 text-2xl font-semibold">{formatMoney(total)}</div></div>
+        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4"><div className="text-sm text-zinc-500">Menunggu Tutup Buku/Gaji</div><div className="mt-1 text-2xl font-semibold text-emerald-300">{formatMoney(payrollReady)}</div></div>
       </div>
 
       <section className="cp-card mt-5 p-5">
         <h2 className="text-lg font-semibold">Ringkasan berdasarkan sumber</h2>
-        <p className="mt-1 text-sm text-zinc-500">Ringkasan ini ikut mengikuti Periode, Jenis, Buyer, Game, dan kode order. Klik sumber untuk memfilter tabel.</p>
+        <p className="mt-1 text-sm text-zinc-500">Ringkasan ini ikut mengikuti Periode, Jenis, Pembeli, Permainan, dan kode pesanan. Klik sumber untuk memfilter tabel.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {sourceSummary.map((item) => <button key={item.source} onClick={() => setSource(item.source)} className={`rounded-xl border p-4 text-left ${source === item.source ? "border-yellow-400 bg-yellow-400/10" : "border-zinc-800 bg-zinc-950/60"}`}><div className="font-semibold">{item.source}</div><div className="mt-2 text-xl font-bold">{formatMoney(item.total)}</div><div className="mt-1 text-xs text-zinc-500">{item.orders} order · {item.done} selesai · {item.problem} bermasalah</div></button>)}
+          {sourceSummary.map((item) => <button key={item.source} onClick={() => setSource(item.source)} className={`rounded-xl border p-4 text-left ${source === item.source ? "border-yellow-400 bg-yellow-400/10" : "border-zinc-800 bg-zinc-950/60"}`}><div className="font-semibold">{item.source}</div><div className="mt-2 text-xl font-bold">{formatMoney(item.total)}</div><div className="mt-1 text-xs text-zinc-500">{item.orders} pesanan · {item.done} selesai · {item.problem} bermasalah</div></button>)}
           {!sourceSummary.length ? <div className="text-sm text-zinc-500">Belum ada data pada filter ini.</div> : null}
         </div>
       </section>
 
       <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4 text-sm leading-6 text-zinc-300">
-        <strong>Status:</strong> Proses → Dikerjakan → Pesanan ini selesai. <strong className="text-yellow-300">Mutasi tetap bisa diedit walaupun sudah selesai</strong>; setiap edit dicatat di menu History Perubahan. <span className="text-red-300">Bermasalah</span> tidak masuk Gaji. <span className="text-emerald-300">Selesai</span> masuk Gaji berikutnya, dan setelah Closing akan ditandai sudah digaji.
+        <strong>Status:</strong> Proses → Dikerjakan → Pesanan ini selesai. <strong className="text-yellow-300">Mutasi tetap bisa diedit walaupun sudah selesai</strong>; setiap edit dicatat di menu Riwayat Perubahan. <span className="text-red-300">Bermasalah</span> tidak masuk Gaji. <span className="text-emerald-300">Selesai</span> masuk Gaji berikutnya, dan setelah Tutup Buku akan ditandai sudah digaji.
       </section>
 
       <div className="cp-card mt-5 overflow-x-auto">
         <table className="cp-table">
-          <thead><tr><th>Hari & tanggal</th><th>Kode</th><th>Sumber</th><th>Jenis</th><th>Buyer</th><th>Nama order</th><th>Karyawan</th><th>Game</th><th>Region</th><th>Server</th><th>Jumlah</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+          <thead><tr><th>Hari & tanggal</th><th>Kode</th><th>Sumber</th><th>Jenis</th><th>Pembeli</th><th>Nama pesanan</th><th>Karyawan</th><th>Gim</th><th>Wilayah</th><th>Server</th><th>Jumlah</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
           <tbody>
             {rows.map((order) => {
               const status = workStatus(order);
@@ -280,8 +282,8 @@ export default function MutationsPage() {
                   <td className="min-w-[360px]">
                     <div className="flex flex-wrap gap-2">
                       <button onClick={() => setEditingOrder(order)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
-                      {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">History ({countsByOrder.get(order.id)})</Link> : null}
-                      {order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Closing</Link> : <>
+                      {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}
+                      {order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link> : <>
                         <button onClick={() => setMutationStatus(order, "assigned")} className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-bold text-violet-100">Proses</button>
                         <button onClick={() => setMutationStatus(order, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-bold text-sky-100">Dikerjakan</button>
                         <button onClick={() => setMutationStatus(order, "on_hold")} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">Bermasalah</button>

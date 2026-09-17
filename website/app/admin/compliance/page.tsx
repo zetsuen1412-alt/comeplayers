@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
@@ -45,7 +46,7 @@ export default function AdminCompliancePage() {
       const payload = await authenticatedFetchJson<Dashboard>("/api/admin/compliance", { cache: "no-store" });
       setData(payload);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load compliance dashboard.");
+      setError(loadError instanceof Error ? loadError.message : "Gagal memuat dasbor kepatuhan.");
     }
   }, []);
 
@@ -55,7 +56,7 @@ export default function AdminCompliancePage() {
   }, [load]);
 
   async function review(reviewId: number, decision: "approved" | "rejected") {
-    const note = window.prompt(decision === "approved" ? "Approval evidence / note:" : "Rejection reason:")?.trim();
+    const note = window.prompt(decision === "approved" ? "Bukti / catatan persetujuan:" : "Alasan penolakan:")?.trim();
     if (!note) return;
     setBusy(`review:${reviewId}`); setError(""); setMessage("");
     try {
@@ -63,25 +64,25 @@ export default function AdminCompliancePage() {
         method: "PATCH",
         body: JSON.stringify({ reviewId, decision, note }),
       });
-      setMessage(`Policy review ${decision}.`);
+      setMessage(`Peninjauan kebijakan ${decision}.`);
       await load();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Review failed.");
+      setError(actionError instanceof Error ? actionError.message : "Peninjauan gagal.");
     } finally { setBusy(""); }
   }
 
   async function retryPrivacyDeletion(requestId: string) {
-    if (!window.confirm("Retry this failed account deletion now?")) return;
+    if (!window.confirm("Coba ulang penghapusan akun yang gagal ini sekarang?")) return;
     setBusy(`privacy:${requestId}`); setError(""); setMessage("");
     try {
       await authenticatedFetchJson("/api/admin/compliance", {
         method: "POST",
         body: JSON.stringify({ action: "retry_privacy_deletion", requestId }),
       });
-      setMessage("Privacy deletion queued for retry.");
+      setMessage("Penghapusan data privasi masuk antrean untuk dicoba kembali.");
       await load();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Privacy retry failed.");
+      setError(actionError instanceof Error ? actionError.message : "Percobaan ulang penghapusan privasi gagal.");
     } finally { setBusy(""); }
   }
 
@@ -94,94 +95,94 @@ export default function AdminCompliancePage() {
         method: "POST",
         body: JSON.stringify({ action: "generate_settlement", periodStart, periodEnd }),
       });
-      setMessage("Provider settlement report generated.");
+      setMessage("Laporan penyelesaian pembayaran penyedia dibuat.");
       await load();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Settlement report failed.");
+      setError(actionError instanceof Error ? actionError.message : "Gagal membuat laporan penyelesaian pembayaran.");
     } finally { setBusy(""); }
   }
 
   async function proposeRateChange(rateType: "marketplace_fee" | "seller_sales_tax") {
-    const ratePercent = window.prompt(rateType === "marketplace_fee" ? "New marketplace fee percentage:" : "New seller sales-tax percentage:", "5")?.trim();
+    const ratePercent = window.prompt(rateType === "marketplace_fee" ? "Persentase biaya marketplace baru:" : "Persentase pajak penjualan penjual baru:", "5")?.trim();
     if (ratePercent === undefined || ratePercent === null || ratePercent === "") return;
-    const sourceReference = window.prompt("Policy/legal source reference:")?.trim();
-    const reason = window.prompt("Reason for the rate change:")?.trim();
+    const sourceReference = window.prompt("Referensi sumber kebijakan/hukum:")?.trim();
+    const reason = window.prompt("Alasan perubahan tarif:")?.trim();
     if (!sourceReference || !reason) return;
     setBusy(`rate:${rateType}`); setError(""); setMessage("");
     try {
       await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "propose_rate_change", rateType, ratePercent: Number(ratePercent), fixedAmount: 0, effectiveFrom: new Date().toISOString(), sourceReference, reason }) });
-      setMessage("Rate change proposed. Two distinct admin approvals are required.");
+      setMessage("Perubahan tarif diajukan. Diperlukan persetujuan dua admin yang berbeda.");
       await load();
-    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Rate proposal failed."); }
+    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Pengajuan tarif gagal."); }
     finally { setBusy(""); }
   }
 
   async function reviewRateChange(requestId: string, decision: "approve" | "reject") {
-    const note = window.prompt(decision === "approve" ? "Approval note:" : "Rejection reason:")?.trim();
+    const note = window.prompt(decision === "approve" ? "Catatan persetujuan:" : "Alasan penolakan:")?.trim();
     if (decision === "reject" && !note) return;
     setBusy(`rate-review:${requestId}`); setError(""); setMessage("");
     try {
       await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "review_rate_change", requestId, decision, note }) });
-      setMessage(`Rate request ${decision === "approve" ? "approved" : "rejected"}.`);
+      setMessage(`Permintaan tarif ${decision === "approve" ? "approved" : "rejected"}.`);
       await load();
-    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Rate review failed."); }
+    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Peninjauan tarif gagal."); }
     finally { setBusy(""); }
   }
 
   async function addFxRate() {
-    const baseCurrency = window.prompt("Wallet/base currency:", "IDR")?.trim().toUpperCase();
-    const quoteCurrency = window.prompt("Payout/quote currency:", "USD")?.trim().toUpperCase();
-    const rate = window.prompt(`1 ${baseCurrency || "IDR"} equals how many ${quoteCurrency || "USD"}?`)?.trim();
-    const sourceReference = window.prompt("FX provider/source reference:")?.trim();
+    const baseCurrency = window.prompt("Mata uang dompet/dasar:", "IDR")?.trim().toUpperCase();
+    const quoteCurrency = window.prompt("Mata uang pencairan/penawaran:", "USD")?.trim().toUpperCase();
+    const rate = window.prompt(`1 ${baseCurrency || "IDR"} setara dengan berapa ${quoteCurrency || "USD"}?`)?.trim();
+    const sourceReference = window.prompt("Referensi penyedia/sumber kurs:")?.trim();
     if (!baseCurrency || !quoteCurrency || !rate || !sourceReference) return;
     setBusy("fx"); setError(""); setMessage("");
     try {
       await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "save_fx_rate", baseCurrency, quoteCurrency, rate: Number(rate), provider: "manual", sourceReference, validFrom: new Date().toISOString() }) });
-      setMessage("FX rate saved."); await load();
-    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : "FX rate failed."); }
+      setMessage("Kurs disimpan."); await load();
+    } catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Gagal menyimpan kurs."); }
     finally { setBusy(""); }
   }
 
   async function createAccountingPeriod() {
-    const periodKey = window.prompt("Accounting month (YYYY-MM):", new Date().toISOString().slice(0, 7))?.trim();
+    const periodKey = window.prompt("Bulan pembukuan (YYYY-MM):", new Date().toISOString().slice(0, 7))?.trim();
     if (!periodKey) return;
     setBusy("period-create"); setError(""); setMessage("");
-    try { await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "create_accounting_period", periodKey }) }); setMessage("Accounting period created."); await load(); }
-    catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Accounting period failed."); }
+    try { await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "create_accounting_period", periodKey }) }); setMessage("Periode pembukuan dibuat."); await load(); }
+    catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Gagal membuat periode pembukuan."); }
     finally { setBusy(""); }
   }
 
   async function closeAccountingPeriod(periodId: string) {
-    if (!window.confirm("Close this accounting period and freeze all seller tax statements?")) return;
+    if (!window.confirm("Tutup periode pembukuan ini dan kunci seluruh laporan pajak penjual?")) return;
     setBusy(`period:${periodId}`); setError(""); setMessage("");
-    try { await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "close_accounting_period", periodId }) }); setMessage("Accounting period closed."); await load(); }
-    catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Accounting close failed."); }
+    try { await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "close_accounting_period", periodId }) }); setMessage("Periode pembukuan ditutup."); await load(); }
+    catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Penutupan pembukuan gagal."); }
     finally { setBusy(""); }
   }
 
   async function reviewResidency(sellerId: string, decision: "verified" | "rejected") {
-    const note = window.prompt(decision === "verified" ? "Verification note (optional):" : "Rejection reason:")?.trim() || "";
+    const note = window.prompt(decision === "verified" ? "Catatan verifikasi (opsional):" : "Alasan penolakan:")?.trim() || "";
     if (decision === "rejected" && !note) return;
     setBusy(`residency:${sellerId}`); setError(""); setMessage("");
-    try { await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "review_tax_residency", sellerId, decision, note }) }); setMessage(`Tax residency ${decision}.`); await load(); }
-    catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Residency review failed."); }
+    try { await authenticatedFetchJson("/api/admin/compliance", { method: "POST", body: JSON.stringify({ action: "review_tax_residency", sellerId, decision, note }) }); setMessage(`Domisili pajak ${decision}.`); await load(); }
+    catch (actionError) { setError(actionError instanceof Error ? actionError.message : "Peninjauan domisili pajak gagal."); }
     finally { setBusy(""); }
   }
 
   async function createWithdrawalTaxRate() {
-    const countryCode = window.prompt("Seller payout country code (for example ID):")?.trim().toUpperCase();
+    const countryCode = window.prompt("Kode negara pencairan penjual (contoh ID):")?.trim().toUpperCase();
     if (!countryCode) return;
-    const payoutMethod = window.prompt("Payout method: bank_transfer, paypal, or wise", "bank_transfer")?.trim().toLowerCase();
+    const payoutMethod = window.prompt("Metode pencairan: bank_transfer, paypal, atau wise", "bank_transfer")?.trim().toLowerCase();
     if (!payoutMethod) return;
-    const ratePercent = window.prompt("Withdrawal tax percentage:", "0")?.trim();
+    const ratePercent = window.prompt("Persentase pajak penarikan:", "0")?.trim();
     if (ratePercent === undefined || ratePercent === null || ratePercent === "") return;
-    const fixedAmount = window.prompt("Fixed withholding amount in payout currency:", "0")?.trim();
+    const fixedAmount = window.prompt("Potongan tetap dalam mata uang pencairan:", "0")?.trim();
     if (fixedAmount === undefined || fixedAmount === null || fixedAmount === "") return;
-    const currency = window.prompt("Currency code:", countryCode === "ID" ? "IDR" : "USD")?.trim().toUpperCase();
+    const currency = window.prompt("Kode mata uang:", countryCode === "ID" ? "IDR" : "USD")?.trim().toUpperCase();
     if (!currency) return;
-    const sourceReference = window.prompt("Legal/source reference and review date (required for active rules):")?.trim();
-    const activate = window.confirm("Request activation through dual approval? Cancel creates it as draft.");
-    const reason = activate ? window.prompt("Reason for this withdrawal-tax change:")?.trim() : "Draft withdrawal tax rule";
+    const sourceReference = window.prompt("Referensi hukum/sumber dan tanggal peninjauan (wajib untuk aturan aktif):")?.trim();
+    const activate = window.confirm("Ajukan pengaktifan melalui persetujuan ganda? Pilih Batal untuk menyimpan sebagai draf.");
+    const reason = activate ? window.prompt("Alasan perubahan pajak penarikan ini:")?.trim() : "Draf aturan pajak penarikan";
     if (activate && !reason) return;
     setBusy("withdrawal-tax"); setError(""); setMessage("");
     try {
@@ -200,15 +201,15 @@ export default function AdminCompliancePage() {
           validFrom: new Date().toISOString(),
         }),
       });
-      setMessage(activate ? "Withdrawal tax change proposed for dual approval." : "Withdrawal tax draft saved.");
+      setMessage(activate ? "Perubahan pajak penarikan diajukan untuk persetujuan ganda." : "Draf pajak penarikan disimpan.");
       await load();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "Withdrawal tax rule failed.");
+      setError(actionError instanceof Error ? actionError.message : "Gagal menyimpan aturan pajak penarikan.");
     } finally { setBusy(""); }
   }
 
   if (!data) {
-    return <main className="min-h-screen bg-slate-950 p-10 text-center text-white">{error || "Loading commerce compliance..."}</main>;
+    return <main className="min-h-screen bg-slate-950 p-10 text-center text-white">{adminText(error || "Memuat kepatuhan perdagangan...")}</main>;
   }
 
   const pendingReviews = data.policyReviews.filter((row) => row.status === "pending");
@@ -217,108 +218,108 @@ export default function AdminCompliancePage() {
     <main className="min-h-screen bg-[#050816] text-white">
       <section className="border-b border-cyan-400/20 px-4 py-12">
         <div className="mx-auto max-w-7xl">
-          <Link href="/admin" className="font-black text-cyan-300">← Admin dashboard</Link>
-          <p className="mt-6 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">V23 Finance Governance</p>
-          <h1 className="mt-4 text-5xl font-black md:text-7xl">Post-launch control center</h1>
-          <p className="mt-4 max-w-3xl text-slate-400">Immutable order-rate snapshots, dual-approved fee changes, verified seller tax residency, FX evidence, accounting close, provider payout execution, and post-launch compliance.</p>
+          <Link href="/admin" className="font-black text-cyan-300">← Dasbor admin</Link>
+          <p className="mt-6 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">Tata Kelola Keuangan V23</p>
+          <h1 className="mt-4 text-5xl font-black md:text-7xl">Pusat kendali setelah peluncuran</h1>
+          <p className="mt-4 max-w-3xl text-slate-400">Rekaman tarif pesanan yang terkunci, perubahan biaya dengan persetujuan ganda, verifikasi domisili pajak penjual, bukti kurs, tutup buku, pencairan melalui penyedia, dan kepatuhan setelah peluncuran.</p>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10">
-        {(error || message) && <div className={`mb-6 rounded-2xl border p-4 ${error ? "border-red-400/30 bg-red-400/10 text-red-200" : "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"}`}>{error || message}</div>}
+        {(error || message) && <div className={`mb-6 rounded-2xl border p-4 ${error ? "border-red-400/30 bg-red-400/10 text-red-200" : "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"}`}>{adminText(error || message)}</div>}
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Metric label="30d created orders" value={String(n(data.metrics.createdOrders))} />
-          <Metric label="Checkout → paid" value={`${n(data.metrics.checkoutToPaidPercent).toFixed(1)}%`} />
-          <Metric label="Gross volume" value={money(data.metrics.grossVolume)} />
-          <Metric label="Seller sales tax withheld" value={money(data.metrics.sellerSalesTaxWithheld)} />
-          <Metric label="Withdrawal tax withheld" value={money(data.metrics.withdrawalTaxWithheld)} />
-          <Metric label="Marketplace fees" value={money(data.metrics.marketplaceFees)} />
-          <Metric label="Delivery p95" value={`${n(data.metrics.deliveryP95Minutes).toFixed(0)} min`} />
-          <Metric label="Pending policy reviews" value={String(pendingReviews.length)} attention />
-          <Metric label="Pending privacy ops" value={String(pendingPrivacy.length)} attention />
+          <Metric label={"Pesanan dibuat dalam 30 hari"} value={String(n(data.metrics.createdOrders))} />
+          <Metric label={"Pembayaran → lunas"} value={`${n(data.metrics.checkoutToPaidPercent).toFixed(1)}%`} />
+          <Metric label={"Nilai transaksi bruto"} value={money(data.metrics.grossVolume)} />
+          <Metric label={"Pajak penjualan penjual dipotong"} value={money(data.metrics.sellerSalesTaxWithheld)} />
+          <Metric label={"Pajak penarikan dipotong"} value={money(data.metrics.withdrawalTaxWithheld)} />
+          <Metric label={"Biaya marketplace"} value={money(data.metrics.marketplaceFees)} />
+          <Metric label={"Waktu pengiriman p95"} value={`${n(data.metrics.deliveryP95Minutes).toFixed(0)} menit`} />
+          <Metric label={"Peninjauan kebijakan menunggu"} value={String(pendingReviews.length)} attention />
+          <Metric label={"Permintaan privasi menunggu"} value={String(pendingPrivacy.length)} attention />
         </div>
 
         <div className="mt-10 grid gap-8 xl:grid-cols-2">
-          <Panel title="Governed marketplace fee" action={<button disabled={Boolean(busy)} onClick={() => proposeRateChange("marketplace_fee")} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Propose change</button>}>
+          <Panel title={"Tata kelola biaya marketplace"} action={<button disabled={Boolean(busy)} onClick={() => proposeRateChange("marketplace_fee")} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Ajukan perubahan</button>}>
             {(data.marketplaceFeeSettings || []).slice(0, 5).map((row) => <Card key={String(row.id)} title={`${n(row.rate_percent).toFixed(2)}% · ${row.status}`} meta={`Effective ${date(row.valid_from)} · ${String(row.source_reference || "No source")}`} />)}
-            {(data.marketplaceFeeSettings || []).length === 0 && <Empty text="No marketplace fee history." />}
+            {(data.marketplaceFeeSettings || []).length === 0 && <Empty text={"Belum ada riwayat biaya marketplace."} />}
           </Panel>
 
-          <Panel title="Governed seller sales tax" action={<button disabled={Boolean(busy)} onClick={() => proposeRateChange("seller_sales_tax")} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Propose change</button>}>
+          <Panel title={"Tata kelola pajak penjualan penjual"} action={<button disabled={Boolean(busy)} onClick={() => proposeRateChange("seller_sales_tax")} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Ajukan perubahan</button>}>
             {(data.sellerTaxRates || []).slice(0, 5).map((row) => <Card key={String(row.id)} title={`${n(row.rate_percent).toFixed(2)}% · ${row.status}`} meta={`Effective ${date(row.valid_from)} · ${String(row.source_reference || "No source")}`} />)}
-            {(data.sellerTaxRates || []).length === 0 && <Empty text="No seller tax rate history." />}
+            {(data.sellerTaxRates || []).length === 0 && <Empty text={"Belum ada riwayat tarif pajak penjual."} />}
           </Panel>
 
-          <Panel title="Dual-approval rate requests">
-            {(data.rateChangeRequests || []).length === 0 ? <Empty text="No rate change requests." /> : data.rateChangeRequests.slice(0, 20).map((row) => <div key={String(row.id)} className="rounded-2xl border border-white/10 bg-black/30 p-4"><h3 className="font-black">{String(row.rate_type).replace(/_/g, " ")} · {n(row.proposed_rate_percent)}% · {String(row.status)}</h3><p className="mt-2 text-sm text-slate-400">Effective {date(row.effective_from)} · requested by {String(row.requested_by)}</p>{["pending","partially_approved"].includes(String(row.status)) && <div className="mt-3 flex gap-2"><button disabled={Boolean(busy)} onClick={() => reviewRateChange(String(row.id), "approve")} className="rounded-lg bg-emerald-300 px-3 py-2 font-black text-black">Approve</button><button disabled={Boolean(busy)} onClick={() => reviewRateChange(String(row.id), "reject")} className="rounded-lg bg-red-300 px-3 py-2 font-black text-black">Reject</button></div>}</div>)}
+          <Panel title={"Permintaan tarif dengan persetujuan ganda"}>
+            {(data.rateChangeRequests || []).length === 0 ? <Empty text={"Belum ada permintaan perubahan tarif."} /> : data.rateChangeRequests.slice(0, 20).map((row) => <div key={String(row.id)} className="rounded-2xl border border-white/10 bg-black/30 p-4"><h3 className="font-black">{String(row.rate_type).replace(/_/g, " ")} · {n(row.proposed_rate_percent)}% · {adminLabel(String(row.status))}</h3><p className="mt-2 text-sm text-slate-400">Berlaku {date(row.effective_from)} · diajukan oleh {String(row.requested_by)}</p>{["pending","partially_approved"].includes(String(row.status)) && <div className="mt-3 flex gap-2"><button disabled={Boolean(busy)} onClick={() => reviewRateChange(String(row.id), "approve")} className="rounded-lg bg-emerald-300 px-3 py-2 font-black text-black">Setujui</button><button disabled={Boolean(busy)} onClick={() => reviewRateChange(String(row.id), "reject")} className="rounded-lg bg-red-300 px-3 py-2 font-black text-black">Tolak</button></div>}</div>)}
           </Panel>
 
-          <Panel title="FX rates" action={<button disabled={Boolean(busy)} onClick={addFxRate} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Add FX rate</button>}>
-            {(data.fxRates || []).length === 0 ? <Empty text="No FX rates configured." /> : data.fxRates.slice(0, 15).map((row) => <Card key={String(row.id)} title={`${row.base_currency} → ${row.quote_currency} · ${row.rate}`} meta={`${row.status} · ${row.provider} · from ${date(row.valid_from)}`} />)}
+          <Panel title={"Kurs mata uang"} action={<button disabled={Boolean(busy)} onClick={addFxRate} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Tambah kurs</button>}>
+            {(data.fxRates || []).length === 0 ? <Empty text={"Belum ada kurs yang dikonfigurasi."} /> : data.fxRates.slice(0, 15).map((row) => <Card key={String(row.id)} title={`${row.base_currency} → ${row.quote_currency} · ${row.rate}`} meta={`${row.status} · ${row.provider} · from ${date(row.valid_from)}`} />)}
           </Panel>
 
-          <Panel title="Accounting periods" action={<button disabled={Boolean(busy)} onClick={createAccountingPeriod} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Open month</button>}>
-            {(data.accountingPeriods || []).length === 0 ? <Empty text="No accounting periods." /> : data.accountingPeriods.slice(0, 12).map((row) => <div key={String(row.id)} className="rounded-2xl border border-white/10 bg-black/30 p-4"><h3 className="font-black">{String(row.period_key)} · {String(row.status)}</h3><p className="mt-2 text-sm text-slate-400">{date(row.period_start)} → {date(row.period_end)}</p>{row.status === "open" && <button disabled={Boolean(busy)} onClick={() => closeAccountingPeriod(String(row.id))} className="mt-3 rounded-lg bg-yellow-300 px-3 py-2 font-black text-black">Close period</button>}</div>)}
+          <Panel title={"Periode pembukuan"} action={<button disabled={Boolean(busy)} onClick={createAccountingPeriod} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Buka bulan</button>}>
+            {(data.accountingPeriods || []).length === 0 ? <Empty text={"Belum ada periode pembukuan."} /> : data.accountingPeriods.slice(0, 12).map((row) => <div key={String(row.id)} className="rounded-2xl border border-white/10 bg-black/30 p-4"><h3 className="font-black">{String(row.period_key)} · {adminLabel(String(row.status))}</h3><p className="mt-2 text-sm text-slate-400">{date(row.period_start)} → {date(row.period_end)}</p>{row.status === "open" && <button disabled={Boolean(busy)} onClick={() => closeAccountingPeriod(String(row.id))} className="mt-3 rounded-lg bg-yellow-300 px-3 py-2 font-black text-black">Tutup periode</button>}</div>)}
           </Panel>
 
-          <Panel title="Seller tax residency review">
-            {(data.taxResidencies || []).length === 0 ? <Empty text="No seller tax residency submissions." /> : data.taxResidencies.slice(0, 20).map((row) => <div key={String(row.seller_id)} className="rounded-2xl border border-white/10 bg-black/30 p-4"><h3 className="font-black">{String(row.legal_name)} · {String(row.country_code)} · {String(row.status)}</h3><p className="mt-2 text-sm text-slate-400">Tax ID ending {String(row.tax_identifier_last4 || "—")} · submitted {date(row.submitted_at)}</p>{row.status === "pending" && <div className="mt-3 flex gap-2"><button disabled={Boolean(busy)} onClick={() => reviewResidency(String(row.seller_id), "verified")} className="rounded-lg bg-emerald-300 px-3 py-2 font-black text-black">Verify</button><button disabled={Boolean(busy)} onClick={() => reviewResidency(String(row.seller_id), "rejected")} className="rounded-lg bg-red-300 px-3 py-2 font-black text-black">Reject</button></div>}</div>)}
+          <Panel title={"Peninjauan domisili pajak penjual"}>
+            {(data.taxResidencies || []).length === 0 ? <Empty text={"Belum ada pengajuan domisili pajak penjual."} /> : data.taxResidencies.slice(0, 20).map((row) => <div key={String(row.seller_id)} className="rounded-2xl border border-white/10 bg-black/30 p-4"><h3 className="font-black">{String(row.legal_name)} · {String(row.country_code)} · {adminLabel(String(row.status))}</h3><p className="mt-2 text-sm text-slate-400">Akhiran nomor pajak {String(row.tax_identifier_last4 || "—")} · diajukan {date(row.submitted_at)}</p>{row.status === "pending" && <div className="mt-3 flex gap-2"><button disabled={Boolean(busy)} onClick={() => reviewResidency(String(row.seller_id), "verified")} className="rounded-lg bg-emerald-300 px-3 py-2 font-black text-black">Verifikasi</button><button disabled={Boolean(busy)} onClick={() => reviewResidency(String(row.seller_id), "rejected")} className="rounded-lg bg-red-300 px-3 py-2 font-black text-black">Tolak</button></div>}</div>)}
           </Panel>
 
-          <Panel title="Legacy tax compatibility">
+          <Panel title={"Kompatibilitas pajak lama"}>
             <Card
-              title="V22 compatibility row"
+              title={"Baris kompatibilitas V22"}
               meta={`${n(data.sellerTaxSettings?.sales_tax_rate_percent || 5).toFixed(2)}% · ${String(data.sellerTaxSettings?.status || "active")} · buyer checkout tax disabled`}
             />
-            <p className="text-sm leading-6 text-slate-400">V23 order settlement uses the effective version in seller_sales_tax_rates and freezes it per order. This row remains synchronized for legacy reporting paths.</p>
+            <p className="text-sm leading-6 text-slate-400">Penyelesaian pesanan V23 menggunakan versi yang berlaku di seller_sales_tax_rates dan menguncinya per pesanan. Baris ini tetap disinkronkan untuk jalur pelaporan lama.</p>
           </Panel>
 
-          <Panel title="Withdrawal tax rules" action={<button disabled={Boolean(busy)} onClick={createWithdrawalTaxRate} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Add rule</button>}>
-            {data.withdrawalTaxRates.length === 0 ? <Empty text="No withdrawal tax rules. Seller withdrawals remain blocked until an active country + payout-method + currency rule exists." /> : data.withdrawalTaxRates.map((row) => (
+          <Panel title={"Aturan pajak penarikan"} action={<button disabled={Boolean(busy)} onClick={createWithdrawalTaxRate} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Tambah aturan</button>}>
+            {data.withdrawalTaxRates.length === 0 ? <Empty text={"Belum ada aturan pajak penarikan. Penarikan penjual tetap diblokir sampai tersedia aturan aktif untuk negara + metode pencairan + mata uang."} /> : data.withdrawalTaxRates.map((row) => (
               <Card key={String(row.id)} title={`${row.country_code} · ${String(row.payout_method).replace(/_/g, " ")}`} meta={`${n(row.rate_percent)}%${n(row.fixed_amount) ? ` + ${currencyMoney(row.fixed_amount, row.currency)}` : ""} · ${row.currency} · ${row.status} · from ${date(row.valid_from)}`} />
             ))}
           </Panel>
 
-          <Panel title="Provider settlement" action={<button disabled={Boolean(busy)} onClick={generateSettlement} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Generate 24h report</button>}>
-            {data.settlements.length === 0 ? <Empty text="No settlement reports yet." /> : data.settlements.slice(0, 10).map((row) => (
+          <Panel title={"Penyelesaian pembayaran penyedia"} action={<button disabled={Boolean(busy)} onClick={generateSettlement} className="rounded-xl bg-cyan-400 px-4 py-2 font-black text-black">Buat laporan 24 jam</button>}>
+            {data.settlements.length === 0 ? <Empty text={"Belum ada laporan penyelesaian pembayaran."} /> : data.settlements.slice(0, 10).map((row) => (
               <Card key={String(row.id)} title={`${row.provider} · ${row.status}`} meta={`${row.line_count} lines · gross delta ${row.gross_delta} · ${date(row.period_end)}`} />
             ))}
           </Panel>
 
-          <Panel title="Product policy queue">
-            {pendingReviews.length === 0 ? <Empty text="No pending product reviews." /> : pendingReviews.map((row) => {
+          <Panel title={"Antrean kebijakan produk"}>
+            {pendingReviews.length === 0 ? <Empty text={"Tidak ada peninjauan produk yang menunggu."} /> : pendingReviews.map((row) => {
               const product = (row.product || {}) as Record<string, unknown>;
               const seller = (row.seller || {}) as Record<string, unknown>;
               return (
                 <div key={String(row.id)} className="rounded-2xl border border-white/10 bg-black/30 p-5">
-                  <div className="flex flex-wrap justify-between gap-3"><h3 className="font-black">{String(product.title || `Product #${row.product_id}`)}</h3><span className="text-yellow-300">{String(row.severity)}</span></div>
-                  <p className="mt-2 text-sm text-slate-400">Seller: {String(seller.seller_name || seller.username || seller.email || row.seller_id)}</p>
-                  <p className="mt-3 text-sm text-red-200">{Array.isArray(row.reasons) ? row.reasons.join(" · ") : "Policy match"}</p>
-                  <div className="mt-4 flex gap-3"><button disabled={busy === `review:${row.id}`} onClick={() => review(Number(row.id), "approved")} className="rounded-lg bg-emerald-400 px-4 py-2 font-black text-black">Approve</button><button disabled={busy === `review:${row.id}`} onClick={() => review(Number(row.id), "rejected")} className="rounded-lg bg-red-400 px-4 py-2 font-black text-black">Reject + strike</button></div>
+                  <div className="flex flex-wrap justify-between gap-3"><h3 className="font-black">{String(product.title || `Produk #${row.product_id}`)}</h3><span className="text-yellow-300">{adminLabel(String(row.severity))}</span></div>
+                  <p className="mt-2 text-sm text-slate-400">Penjual: {String(seller.seller_name || seller.username || seller.email || row.seller_id)}</p>
+                  <p className="mt-3 text-sm text-red-200">{Array.isArray(row.reasons) ? row.reasons.join(" · ") : "Kecocokan kebijakan"}</p>
+                  <div className="mt-4 flex gap-3"><button disabled={busy === `review:${row.id}`} onClick={() => review(Number(row.id), "approved")} className="rounded-lg bg-emerald-400 px-4 py-2 font-black text-black">Setujui</button><button disabled={busy === `review:${row.id}`} onClick={() => review(Number(row.id), "rejected")} className="rounded-lg bg-red-400 px-4 py-2 font-black text-black">Tolak + beri pelanggaran</button></div>
                 </div>
               );
             })}
           </Panel>
 
-          <Panel title="Privacy operations">
-            {data.privacyRequests.length === 0 ? <Empty text="No privacy requests." /> : data.privacyRequests.slice(0, 20).map((row) => (
+          <Panel title={"Pengelolaan privasi"}>
+            {data.privacyRequests.length === 0 ? <Empty text={"Belum ada permintaan privasi."} /> : data.privacyRequests.slice(0, 20).map((row) => (
               <div key={String(row.id)} className="rounded-2xl border border-white/10 bg-black/30 p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="font-black capitalize">{String(row.request_type)} · {String(row.status)}</h3>
-                    <p className="mt-2 text-sm text-slate-400">User {String(row.user_id)} · requested {date(row.requested_at)} · scheduled {date(row.scheduled_for)}</p>
+                    <h3 className="font-black capitalize">{String(row.request_type)} · {adminLabel(String(row.status))}</h3>
+                    <p className="mt-2 text-sm text-slate-400">Pengguna {String(row.user_id)} · diminta {date(row.requested_at)} · dijadwalkan {date(row.scheduled_for)}</p>
                     {row.failure_reason ? <p className="mt-2 text-sm text-red-300">{String(row.failure_reason)}</p> : null}
                   </div>
                   {row.request_type === "delete" && row.status === "failed" ? (
-                    <button disabled={busy === `privacy:${row.id}`} onClick={() => retryPrivacyDeletion(String(row.id))} className="rounded-lg bg-yellow-300 px-4 py-2 font-black text-black disabled:opacity-50">Retry</button>
+                    <button disabled={busy === `privacy:${row.id}`} onClick={() => retryPrivacyDeletion(String(row.id))} className="rounded-lg bg-yellow-300 px-4 py-2 font-black text-black disabled:opacity-50">Coba Lagi</button>
                   ) : null}
                 </div>
               </div>
             ))}
           </Panel>
 
-          <Panel title="Fraud feedback loop">
-            {data.riskFeedback.length === 0 ? <Empty text="No dispute outcomes have fed the risk model yet." /> : data.riskFeedback.slice(0, 20).map((row) => (
+          <Panel title={"Umpan balik penipuan"}>
+            {data.riskFeedback.length === 0 ? <Empty text={"Belum ada hasil sengketa yang menjadi masukan model risiko."} /> : data.riskFeedback.slice(0, 20).map((row) => (
               <Card key={String(row.id)} title={`${row.reason} · ${n(row.score_delta) >= 0 ? "+" : ""}${row.score_delta}`} meta={`User ${row.subject_user_id} · ${row.outcome} · ${date(row.created_at)}`} />
             ))}
           </Panel>

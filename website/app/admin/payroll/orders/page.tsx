@@ -6,7 +6,7 @@ export default function OrdersPage() {
     <>
       <PageHeader
         title="Tambah Pesanan"
-        description="Kode order diisi manual; tanggal mengikuti server. Game, Region, dan Server dipilih dari daftar Produk / Game. Gold/Item wajib mengambil stok Gudang yang sesuai."
+        description={"Kode pesanan diisi manual; tanggal mengikuti server. Permainan, Wilayah, dan Server dipilih dari daftar Produk / Permainan. Gold/Item wajib mengambil stok Gudang yang sesuai."}
       />
       <OrderEntryForm />
     </>

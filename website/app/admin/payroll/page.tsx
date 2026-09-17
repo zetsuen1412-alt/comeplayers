@@ -23,7 +23,7 @@ export default function ControlCenterPage() {
   const unfinished = allOrders.filter((order) => !["verified", "cancelled"].includes(order.operationalStatus)).length;
 
   const steps = [
-    ["1", "Pesanan", "Catat order satu kali", "/admin/payroll/orders"],
+    ["1", "Pesanan", "Catat pesanan satu kali", "/admin/payroll/orders"],
     ["2", "Mutasi", "Cek & tandai selesai", "/admin/payroll/mutations"],
     ["3", "Gaji", "Atur % & potongan", "/admin/payroll/gaji"],
     ["4", "Kasbon", "Catat pinjaman karyawan", "/admin/payroll/advances"],
@@ -53,10 +53,10 @@ export default function ControlCenterPage() {
 
       <section className="mt-6 grid gap-3 md:grid-cols-5">
         <Link href="/admin/payroll/mutations" className="cp-card p-4"><div className="font-semibold">🔄 Mutasi</div><div className="mt-1 text-sm text-zinc-500">Klik selesai supaya otomatis masuk Gaji.</div></Link>
-        <Link href="/admin/payroll/gaji" className="cp-card p-4"><div className="font-semibold">💰 Gaji</div><div className="mt-1 text-sm text-zinc-500">Pendapatan order selesai dihitung otomatis.</div></Link>
+        <Link href="/admin/payroll/gaji" className="cp-card p-4"><div className="font-semibold">💰 Gaji</div><div className="mt-1 text-sm text-zinc-500">Pendapatan pesanan selesai dihitung otomatis.</div></Link>
         <Link href="/admin/payroll/ai" className="cp-card p-4"><div className="font-semibold">🤖 Asisten AI</div><div className="mt-1 text-sm text-zinc-500">Cek Mutasi, Gaji, dan kesiapan Tutup Buku.</div></Link>
         <Link href="/admin/payroll/finance/closing" className="cp-card p-4"><div className="font-semibold">📕 Tutup Buku</div><div className="mt-1 text-sm text-zinc-500">Atur periode sendiri & download Excel.</div></Link>
-        <Link href="/admin/payroll/inventory" className="cp-card p-4"><div className="font-semibold">📦 Stok / Gudang</div><div className="mt-1 text-sm text-zinc-500">Gabungan gudang game.</div></Link>
+        <Link href="/admin/payroll/inventory" className="cp-card p-4"><div className="font-semibold">📦 Stok / Gudang</div><div className="mt-1 text-sm text-zinc-500">Gabungan gudang permainan.</div></Link>
       </section>
     </>
   );

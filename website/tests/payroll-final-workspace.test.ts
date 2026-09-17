@@ -15,5 +15,5 @@ test('auditor uses explicit operational fixtures, not removed demo records',()=>
   const completed={...order,operationalStatus:'completed' as const};
   assert.ok(auditPayroll([completed]).some(f=>f.area==='gaji'&&f.entity==='X1'));
   assert.ok(auditClosing([completed],[]).some(f=>f.entity==='X1'));
-  assert.match(answerLocalBusinessQuestion('Berapa omzet?',[order],[]),/total nilai order/i);
+  assert.match(answerLocalBusinessQuestion('Berapa omzet?',[order],[]),/total nilai pesanan/i);
 });

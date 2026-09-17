@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -126,8 +127,8 @@ function getOrderStatusClass(status: string | null) {
 }
 
 function readableDisputeStatus(status: string) {
-  if (status === "buyer_win") return "Buyer Wins";
-  if (status === "seller_win") return "Seller Wins";
+  if (status === "buyer_win") return "Pembeli Menang";
+  if (status === "seller_win") return "Penjual Menang";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
@@ -193,7 +194,7 @@ export default function AdminDisputesV2Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -207,7 +208,7 @@ export default function AdminDisputesV2Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -227,7 +228,7 @@ export default function AdminDisputesV2Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -253,16 +254,16 @@ export default function AdminDisputesV2Page() {
     const note =
       adminNotes[dispute.id]?.trim() ||
       (newStatus === "investigating"
-        ? "Admin is investigating this dispute."
-        : `Dispute resolved as ${readableDisputeStatus(newStatus)}.`);
+        ? "Admin sedang menyelidiki sengketa ini."
+        : `Sengketa diselesaikan sebagai ${readableDisputeStatus(newStatus)}.`);
 
     if (newStatus === "buyer_win") {
-      if (!confirm("Resolve this dispute as BUYER WINS and credit the approved refund to CPWallet?")) return;
+      if (!confirm("Tetapkan PEMBELI MENANG dan tambahkan pengembalian dana yang disetujui ke CPWallet?")) return;
     } else if (newStatus === "seller_win") {
-      if (!confirm("Resolve as SELLER WINS? Escrow is released only when delivery is complete.")) return;
+      if (!confirm("Tetapkan PENJUAL MENANG? Dana yang ditahan hanya dilepas setelah pengiriman selesai.")) return;
     } else if (newStatus === "closed") {
-      if (!confirm("Close this dispute without changing the financial result?")) return;
-    } else if (!confirm("Mark this dispute as investigating?")) {
+      if (!confirm("Tutup sengketa ini tanpa mengubah hasil keuangan?")) return;
+    } else if (!confirm("Tandai sengketa ini sedang diselidiki?")) {
       return;
     }
 
@@ -279,7 +280,7 @@ export default function AdminDisputesV2Page() {
 
       await loadDisputes();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update dispute.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui sengketa."));
     } finally {
       setUpdatingDisputeId(null);
     }
@@ -289,7 +290,7 @@ export default function AdminDisputesV2Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading dispute center...
+          Memuat pusat sengketa...
         </p>
       </main>
     );
@@ -299,17 +300,17 @@ export default function AdminDisputesV2Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access dispute center.
+            Hanya akun admin yang dapat mengakses pusat sengketa.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -324,17 +325,17 @@ export default function AdminDisputesV2Page() {
         <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-sm font-black text-orange-300">
-              Admin Dispute Center V3
+              Pusat Sengketa Admin V3
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Disputes</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Sengketa</h1>
 
             <p className="mt-5 max-w-2xl text-gray-300">
-              Review dispute reports, investigate buyer and seller claims, and resolve marketplace cases from the dedicated disputes table.
+              Tinjau laporan sengketa, selidiki klaim pembeli dan penjual, serta selesaikan kasus marketplace melalui tabel sengketa khusus.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -343,14 +344,14 @@ export default function AdminDisputesV2Page() {
               href="/admin/orders"
               className="inline-flex h-12 items-center justify-center rounded-full border border-orange-400 px-6 font-bold text-orange-300 transition hover:bg-orange-400 hover:text-black"
             >
-              All Orders
+              Semua Pesanan
             </Link>
 
             <Link
               href="/admin"
               className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
             >
-              Admin Home
+              Beranda Admin
             </Link>
           </div>
         </div>
@@ -359,27 +360,27 @@ export default function AdminDisputesV2Page() {
       <section className="px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-3xl border border-orange-400/20 bg-orange-400/10 p-5">
-            <p className="text-sm text-orange-200">Open</p>
+            <p className="text-sm text-orange-200">Terbuka</p>
             <p className="mt-2 text-4xl font-black text-orange-300">{openCount}</p>
           </div>
 
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-            <p className="text-sm text-yellow-200">Investigating</p>
+            <p className="text-sm text-yellow-200">Dalam Penyelidikan</p>
             <p className="mt-2 text-4xl font-black text-yellow-300">{investigatingCount}</p>
           </div>
 
           <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-5">
-            <p className="text-sm text-green-200">Buyer Wins</p>
+            <p className="text-sm text-green-200">Pembeli Menang</p>
             <p className="mt-2 text-4xl font-black text-green-300">{buyerWinCount}</p>
           </div>
 
           <div className="rounded-3xl border border-blue-400/20 bg-blue-400/10 p-5">
-            <p className="text-sm text-blue-200">Seller Wins</p>
+            <p className="text-sm text-blue-200">Penjual Menang</p>
             <p className="mt-2 text-4xl font-black text-blue-300">{sellerWinCount}</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Disputed Value</p>
+            <p className="text-sm text-gray-400">Nilai Sengketa</p>
             <p className="mt-2 text-2xl font-black text-purple-300">
               {formatPrice(disputedValue)}
             </p>
@@ -390,7 +391,7 @@ export default function AdminDisputesV2Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by dispute ID, order ID, buyer, seller, product, reason, category, or game..."
+            placeholder={"Cari berdasarkan ID sengketa, ID pesanan, pembeli, penjual, produk, alasan, kategori, atau gim..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-orange-400"
           />
 
@@ -405,7 +406,7 @@ export default function AdminDisputesV2Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-orange-400 hover:text-white"
                 }`}
               >
-                {status === "all" ? "All" : readableDisputeStatus(status)}
+                {status === "all" ? "Semua" : readableDisputeStatus(status)}
               </button>
             ))}
           </div>
@@ -413,10 +414,10 @@ export default function AdminDisputesV2Page() {
 
         {filteredDisputes.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
-            <h2 className="text-3xl font-black">No disputes found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada sengketa ditemukan.</h2>
 
             <p className="mt-3 text-gray-400">
-              Dispute reports will appear here when buyer or seller opens a dispute.
+              Laporan muncul di sini ketika pembeli atau penjual membuka sengketa.
             </p>
           </div>
         ) : (
@@ -437,7 +438,7 @@ export default function AdminDisputesV2Page() {
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
                         <h2 className="text-2xl font-black">
-                          Dispute #{dispute.id}
+                          Sengketa #{dispute.id}
                         </h2>
 
                         <span
@@ -445,7 +446,7 @@ export default function AdminDisputesV2Page() {
                             dispute.status
                           )}`}
                         >
-                          {readableDisputeStatus(dispute.status)}
+                          {adminLabel(readableDisputeStatus(dispute.status))}
                         </span>
 
                         {order && (
@@ -454,7 +455,7 @@ export default function AdminDisputesV2Page() {
                               order.status
                             )}`}
                           >
-                            Order: {orderStatus}
+                            Pesanan: {adminLabel(orderStatus)}
                           </span>
                         )}
                       </div>
@@ -464,59 +465,59 @@ export default function AdminDisputesV2Page() {
                       </p>
 
                       <div className="mt-5 rounded-2xl border border-orange-400/20 bg-orange-400/10 p-5">
-                        <p className="text-sm font-black text-orange-300">Reason</p>
+                        <p className="text-sm font-black text-orange-300">Alasan</p>
                         <h3 className="mt-2 text-xl font-black text-white">
                           {dispute.reason}
                         </h3>
                         <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-300">
-                          {dispute.description || "No description provided."}
+                          {dispute.description || "Tidak ada deskripsi yang diberikan."}
                         </p>
                       </div>
 
                       <div className="mt-5 grid gap-4 md:grid-cols-2">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Order ID</p>
+                          <p className="text-xs text-gray-500">ID Pesanan</p>
                           <p className="mt-1 font-bold">#{dispute.order_id}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Product</p>
+                          <p className="text-xs text-gray-500">Produk</p>
                           <p className="mt-1 font-bold">
-                            {order?.product || "Unknown Product"}
+                            {order?.product || "Produk Tidak Dikenal"}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Buyer</p>
+                          <p className="text-xs text-gray-500">Pembeli</p>
                           <p className="mt-1 break-words font-bold">
                             {order?.buyer || dispute.buyer_id || "-"}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Seller ID</p>
+                          <p className="text-xs text-gray-500">ID Penjual</p>
                           <p className="mt-1 break-words font-bold">
                             {dispute.seller_id || order?.seller_id || "-"}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Category</p>
+                          <p className="text-xs text-gray-500">Kategori</p>
                           <p className="mt-1 font-bold">{order?.category_name || "-"}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Game</p>
+                          <p className="text-xs text-gray-500">Gim</p>
                           <p className="mt-1 font-bold">{order?.game_name || "-"}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Opened At</p>
+                          <p className="text-xs text-gray-500">Waktu Dibuka</p>
                           <p className="mt-1 font-bold">{formatDate(dispute.created_at)}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Resolved At</p>
+                          <p className="text-xs text-gray-500">Waktu Diselesaikan</p>
                           <p className="mt-1 font-bold">{formatDate(dispute.resolved_at)}</p>
                         </div>
                       </div>
@@ -524,7 +525,7 @@ export default function AdminDisputesV2Page() {
                       {order?.payment_proof && (
                         <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
                           <p className="text-sm font-black text-cyan-300">
-                            Payment Details
+                            Rincian Pembayaran
                           </p>
 
                           <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-300">
@@ -536,7 +537,7 @@ export default function AdminDisputesV2Page() {
                       {order?.payment_image && (
                         <div className="mt-5">
                           <p className="mb-3 font-bold text-orange-300">
-                            Payment Proof Image
+                            Gambar Bukti Pembayaran
                           </p>
 
                           <a
@@ -547,7 +548,7 @@ export default function AdminDisputesV2Page() {
                           >
                             <img
                               src={order.payment_image}
-                              alt="Payment Proof"
+                              alt={"Bukti Pembayaran"}
                               className="h-40 w-72 rounded-xl border border-orange-400/20 object-cover transition hover:scale-105"
                             />
                           </a>
@@ -557,7 +558,7 @@ export default function AdminDisputesV2Page() {
 
                     <div className="flex flex-col gap-3">
                       <label className="text-sm font-bold text-gray-400">
-                        Admin Note
+                        Catatan Admin
                       </label>
 
                       <textarea
@@ -568,7 +569,7 @@ export default function AdminDisputesV2Page() {
                             [dispute.id]: event.target.value,
                           }))
                         }
-                        placeholder="Write admin decision note..."
+                        placeholder={"Tulis catatan keputusan admin..."}
                         rows={6}
                         disabled={updatingDisputeId === dispute.id || isFinal}
                         className="w-full resize-none rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-orange-400 disabled:opacity-60"
@@ -579,7 +580,7 @@ export default function AdminDisputesV2Page() {
                         disabled={updatingDisputeId === dispute.id || isFinal}
                         className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Mark Investigating
+                        Tandai Dalam Penyelidikan
                       </button>
 
                       <button
@@ -587,7 +588,7 @@ export default function AdminDisputesV2Page() {
                         disabled={updatingDisputeId === dispute.id || isFinal}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Buyer Wins / Refund
+                        Pembeli Menang / Kembalikan Dana
                       </button>
 
                       <button
@@ -595,7 +596,7 @@ export default function AdminDisputesV2Page() {
                         disabled={updatingDisputeId === dispute.id || isFinal}
                         className="rounded-2xl bg-blue-500 px-5 py-3 font-black text-white hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Seller Wins / Complete
+                        Penjual Menang / Selesaikan
                       </button>
 
                       <button
@@ -603,21 +604,21 @@ export default function AdminDisputesV2Page() {
                         disabled={updatingDisputeId === dispute.id || isFinal}
                         className="rounded-2xl bg-gray-500 px-5 py-3 font-black text-white hover:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Close Only
+                        Tutup Saja
                       </button>
 
                       <Link
                         href={`/resolution-center/${dispute.id}`}
                         className="rounded-2xl bg-orange-400 px-5 py-3 text-center font-black text-black transition hover:bg-orange-300"
                       >
-                        Open Full Case File
+                        Buka Berkas Kasus Lengkap
                       </Link>
 
                       <Link
                         href={`/orders/${dispute.order_id}`}
                         className="rounded-2xl border border-orange-400/40 px-5 py-3 text-center font-black text-orange-300 transition hover:bg-orange-400 hover:text-black"
                       >
-                        View Order Detail
+                        Lihat Rincian Pesanan
                       </Link>
 
                       {order?.product_id && (
@@ -625,7 +626,7 @@ export default function AdminDisputesV2Page() {
                           href={`/product/${order.product_id}`}
                           className="rounded-2xl border border-cyan-400/40 px-5 py-3 text-center font-black text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
                         >
-                          View Product
+                          Lihat Produk
                         </Link>
                       )}
 
@@ -634,13 +635,13 @@ export default function AdminDisputesV2Page() {
                           href={`/seller-profile/${dispute.seller_id}`}
                           className="rounded-2xl border border-white/10 px-5 py-3 text-center font-black text-gray-300 transition hover:bg-white hover:text-black"
                         >
-                          View Seller
+                          Lihat Penjual
                         </Link>
                       )}
 
                       {updatingDisputeId === dispute.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating dispute...
+                          Memperbarui sengketa...
                         </p>
                       )}
                     </div>

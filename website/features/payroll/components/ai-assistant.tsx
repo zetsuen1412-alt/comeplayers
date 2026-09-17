@@ -119,7 +119,7 @@ export function AiAssistant() {
             <button onClick={() => setTab("gaji")} className="cp-card p-5 text-left transition hover:border-yellow-500/40">
               <div className="text-sm text-zinc-500">Cek Gaji</div>
               <div className="mt-2 text-3xl font-semibold">{payrollSummary.total}</div>
-              <div className="mt-2 text-sm text-zinc-400">Order selesai yang belum masuk gaji dan masalah payroll.</div>
+              <div className="mt-2 text-sm text-zinc-400">Pesanan selesai yang belum masuk gaji dan masalah penggajian.</div>
             </button>
             <button onClick={() => setTab("tutup_buku")} className={`rounded-2xl border p-5 text-left ${closingSummary.safe ? "border-emerald-500/30 bg-emerald-500/10" : "border-red-500/30 bg-red-500/10"}`}>
               <div className="text-sm text-zinc-400">Kesiapan Tutup Buku</div>
@@ -156,7 +156,7 @@ export function AiAssistant() {
           <h3 className="text-xl font-semibold">Tanya dengan bahasa biasa</h3>
           <p className="mt-2 text-sm text-zinc-500">Asisten berbasis aturan memeriksa data bisnis Anda tanpa layanan AI berbayar.</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {["Ada masalah apa?", "Berapa omzet?", "Berapa uang masuk?", "Order mana yang belum selesai?", "Berapa total gaji?", "Siapa pendapatan terbesar?", "Apakah siap tutup buku?"].map((text) => (
+            {["Ada masalah apa?", "Berapa omzet?", "Berapa uang masuk?", "Pesanan mana yang belum selesai?", "Berapa total gaji?", "Siapa pendapatan terbesar?", "Apakah siap tutup buku?"].map((text) => (
               <button key={text} onClick={() => ask(text)} className="rounded-xl bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700">{text}</button>
             ))}
           </div>

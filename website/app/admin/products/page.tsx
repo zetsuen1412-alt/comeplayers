@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -86,7 +87,7 @@ export default function AdminProductManagementV1Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -100,7 +101,7 @@ export default function AdminProductManagementV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -120,7 +121,7 @@ export default function AdminProductManagementV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -148,7 +149,7 @@ export default function AdminProductManagementV1Page() {
 
       await loadProducts();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update product status.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui status produk."));
     } finally {
       setUpdatingProductId(null);
     }
@@ -156,7 +157,7 @@ export default function AdminProductManagementV1Page() {
 
   async function deleteProduct(productId: number) {
     const confirmed = confirm(
-      "Delete this product? Products used by existing orders will be removed from the marketplace while order history is preserved.",
+      "Hapus produk ini? Produk yang digunakan pesanan lama akan disembunyikan dari marketplace, sedangkan riwayat pesanan tetap disimpan.",
     );
 
     if (!confirmed) return;
@@ -176,10 +177,10 @@ export default function AdminProductManagementV1Page() {
       await loadProducts();
 
       if (result.mode === "archived") {
-        alert(result.message || "Product removed and order history preserved.");
+        alert(adminText(result.message || "Produk dihapus dari marketplace dan riwayat pesanan dipertahankan."));
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to delete product.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menghapus produk."));
     } finally {
       setUpdatingProductId(null);
     }
@@ -188,7 +189,7 @@ export default function AdminProductManagementV1Page() {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
-        <p className="text-xl font-black text-cyan-300">Loading admin products...</p>
+        <p className="text-xl font-black text-cyan-300">Memuat produk admin...</p>
       </main>
     );
   }
@@ -197,10 +198,10 @@ export default function AdminProductManagementV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
-          <p className="mt-4 text-gray-300">Only admin can access this page.</p>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
+          <p className="mt-4 text-gray-300">Hanya admin yang dapat mengakses halaman ini.</p>
           <Link href="/" className="mt-6 inline-flex h-12 items-center rounded-full bg-cyan-400 px-6 font-black text-black">
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -219,13 +220,13 @@ export default function AdminProductManagementV1Page() {
         <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-              Admin Dashboard
+              Dasbor Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Product Management</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Pengelolaan Produk</h1>
 
             <p className="mt-5 max-w-2xl text-gray-300">
-              Review, hide, approve, reject, or delete seller products.
+              Tinjau, sembunyikan, setujui, tolak, atau hapus produk penjual.
             </p>
           </div>
 
@@ -233,7 +234,7 @@ export default function AdminProductManagementV1Page() {
             href="/admin"
             className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
           >
-            Back to Admin
+            Kembali ke Admin
           </Link>
         </div>
       </section>
@@ -241,22 +242,22 @@ export default function AdminProductManagementV1Page() {
       <section className="px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-4">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Products</p>
+            <p className="text-sm text-gray-400">Total Produk</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">{products.length}</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Active</p>
+            <p className="text-sm text-gray-400">Aktif</p>
             <p className="mt-2 text-3xl font-black text-green-300">{activeCount}</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Hidden</p>
+            <p className="text-sm text-gray-400">Disembunyikan</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">{hiddenCount}</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Pending</p>
+            <p className="text-sm text-gray-400">Menunggu</p>
             <p className="mt-2 text-3xl font-black text-blue-300">{pendingCount}</p>
           </div>
         </div>
@@ -265,7 +266,7 @@ export default function AdminProductManagementV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by product, seller, category, game, or ID..."
+            placeholder={"Cari berdasarkan produk, penjual, kategori, gim, atau ID..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -280,7 +281,7 @@ export default function AdminProductManagementV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {status === "all" ? "All" : status}
+                {adminLabel(status === "all" ? "Semua" : status)}
               </button>
             ))}
           </div>
@@ -288,8 +289,8 @@ export default function AdminProductManagementV1Page() {
 
         {filteredProducts.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
-            <h2 className="text-3xl font-black">No products found.</h2>
-            <p className="mt-3 text-gray-400">Products will appear here after sellers upload listings.</p>
+            <h2 className="text-3xl font-black">Tidak ada produk ditemukan.</h2>
+            <p className="mt-3 text-gray-400">Produk muncul di sini setelah penjual mengunggah penawaran.</p>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -304,7 +305,7 @@ export default function AdminProductManagementV1Page() {
                   <div className="grid gap-6 xl:grid-cols-[180px_1fr_280px]">
                     <div className="flex h-40 items-center justify-center overflow-hidden rounded-2xl bg-black">
                       {product.image_url ? (
-                        <img src={product.image_url} alt={product.title || "Product"} className="h-full w-full object-cover" />
+                        <img src={product.image_url} alt={product.title || "Produk"} className="h-full w-full object-cover" />
                       ) : (
                         <span className="text-5xl">🎮</span>
                       )}
@@ -312,9 +313,9 @@ export default function AdminProductManagementV1Page() {
 
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
-                        <h2 className="text-2xl font-black">{product.title || "Untitled Product"}</h2>
+                        <h2 className="text-2xl font-black">{product.title || "Produk Tanpa Judul"}</h2>
                         <span className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(status)}`}>
-                          {status}
+                          {adminLabel(status)}
                         </span>
                       </div>
 
@@ -324,34 +325,34 @@ export default function AdminProductManagementV1Page() {
 
                       <div className="mt-5 grid gap-4 md:grid-cols-2">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Product ID</p>
+                          <p className="text-xs text-gray-500">ID Produk</p>
                           <p className="mt-1 font-bold">#{product.id}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Seller</p>
+                          <p className="text-xs text-gray-500">Penjual</p>
                           <p className="mt-1 break-words font-bold">
                             {product.seller_name || product.seller || product.seller_id || "-"}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Category</p>
+                          <p className="text-xs text-gray-500">Kategori</p>
                           <p className="mt-1 font-bold">{product.category || "-"}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Game</p>
+                          <p className="text-xs text-gray-500">Gim</p>
                           <p className="mt-1 font-bold">{product.game_name || "-"}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Stock</p>
+                          <p className="text-xs text-gray-500">Stok</p>
                           <p className="mt-1 font-bold">{product.stock || 0}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Created</p>
+                          <p className="text-xs text-gray-500">Dibuat</p>
                           <p className="mt-1 font-bold">
                             {product.created_at ? new Date(product.created_at).toLocaleString() : "-"}
                           </p>
@@ -360,7 +361,7 @@ export default function AdminProductManagementV1Page() {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                      <label className="text-sm font-bold text-gray-400">Admin Status</label>
+                      <label className="text-sm font-bold text-gray-400">Status Admin</label>
 
                       <select
                         value={status}
@@ -380,7 +381,7 @@ export default function AdminProductManagementV1Page() {
                         disabled={updatingProductId === product.id}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                       >
-                        Approve / Show
+                        Setujui / Tampilkan
                       </button>
 
                       <button
@@ -388,7 +389,7 @@ export default function AdminProductManagementV1Page() {
                         disabled={updatingProductId === product.id}
                         className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300 disabled:opacity-60"
                       >
-                        Hide Product
+                        Sembunyikan Produk
                       </button>
 
                       <button
@@ -396,14 +397,14 @@ export default function AdminProductManagementV1Page() {
                         disabled={updatingProductId === product.id}
                         className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400 disabled:opacity-60"
                       >
-                        Reject Product
+                        Tolak Produk
                       </button>
 
                       <Link
                         href={`/product/${product.id}`}
                         className="rounded-2xl border border-cyan-400/40 px-5 py-3 text-center font-black text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
                       >
-                        View Product
+                        Lihat Produk
                       </Link>
 
                       {product.seller_id && (
@@ -411,7 +412,7 @@ export default function AdminProductManagementV1Page() {
                           href={`/seller-profile/${product.seller_id}`}
                           className="rounded-2xl border border-white/10 px-5 py-3 text-center font-black text-gray-300 transition hover:bg-white hover:text-black"
                         >
-                          View Seller
+                          Lihat Penjual
                         </Link>
                       )}
 
@@ -420,11 +421,11 @@ export default function AdminProductManagementV1Page() {
                         disabled={updatingProductId === product.id}
                         className="rounded-2xl border border-red-400/40 px-5 py-3 font-black text-red-300 transition hover:bg-red-500 hover:text-white disabled:opacity-60"
                       >
-                        Delete Product
+                        Hapus Produk
                       </button>
 
                       {updatingProductId === product.id && (
-                        <p className="text-center text-sm text-gray-400">Updating product...</p>
+                        <p className="text-center text-sm text-gray-400">Memperbarui produk...</p>
                       )}
                     </div>
                   </div>

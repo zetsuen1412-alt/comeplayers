@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -210,17 +211,17 @@ export default function AdminWalletDashboardV1Page() {
       ]);
 
     if (walletResult.error) {
-      alert(walletResult.error.message);
+      alert(adminText(walletResult.error.message));
       return;
     }
 
     if (transactionResult.error) {
-      alert(transactionResult.error.message);
+      alert(adminText(transactionResult.error.message));
       return;
     }
 
     if (withdrawalResult.error) {
-      alert(withdrawalResult.error.message);
+      alert(adminText(withdrawalResult.error.message));
       return;
     }
 
@@ -238,7 +239,7 @@ export default function AdminWalletDashboardV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -258,7 +259,7 @@ export default function AdminWalletDashboardV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -279,7 +280,7 @@ export default function AdminWalletDashboardV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading admin wallet dashboard...
+          Memuat dasbor dompet admin...
         </p>
       </main>
     );
@@ -289,17 +290,17 @@ export default function AdminWalletDashboardV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access wallet dashboard.
+            Hanya akun admin yang dapat mengakses dasbor dompet.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -314,18 +315,17 @@ export default function AdminWalletDashboardV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-green-400/30 bg-green-400/10 px-4 py-2 text-sm font-black text-green-300">
-              Admin Wallet Dashboard
+              Dasbor Dompet Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Wallets</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Dompet</h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Monitor wallet balances, earnings, wallet purchases, withdrawals,
-              and marketplace wallet transaction activity.
+              Pantau saldo dompet, pendapatan, pembelian dengan dompet, penarikan, dan aktivitas transaksi dompet marketplace.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -334,14 +334,14 @@ export default function AdminWalletDashboardV1Page() {
               href="/admin/withdrawals"
               className="inline-flex h-12 items-center justify-center rounded-full border border-green-400 px-6 font-bold text-green-300 transition hover:bg-green-400 hover:text-black"
             >
-              Withdrawals
+              Penarikan Dana
             </Link>
 
             <Link
               href="/admin"
               className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
             >
-              Admin Home
+              Beranda Admin
             </Link>
           </div>
         </div>
@@ -350,42 +350,42 @@ export default function AdminWalletDashboardV1Page() {
       <section className="mx-auto max-w-7xl px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-6">
           <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-5">
-            <p className="text-sm text-gray-300">Total Wallet Balance</p>
+            <p className="text-sm text-gray-300">Total Saldo Dompet</p>
             <p className="mt-2 text-2xl font-black text-cyan-300">
               {formatPrice(totalWalletBalance)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-            <p className="text-sm text-gray-300">Pending Balance</p>
+            <p className="text-sm text-gray-300">Saldo Menunggu</p>
             <p className="mt-2 text-2xl font-black text-yellow-300">
               {formatPrice(totalPendingBalance)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-5">
-            <p className="text-sm text-gray-300">Total Earnings</p>
+            <p className="text-sm text-gray-300">Total Pendapatan</p>
             <p className="mt-2 text-2xl font-black text-green-300">
               {formatPrice(totalEarnings)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-purple-400/20 bg-purple-400/10 p-5">
-            <p className="text-sm text-gray-300">Total Withdrawn</p>
+            <p className="text-sm text-gray-300">Total Penarikan</p>
             <p className="mt-2 text-2xl font-black text-purple-300">
               {formatPrice(totalWithdrawn)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-blue-400/20 bg-blue-400/10 p-5">
-            <p className="text-sm text-gray-300">Wallet Purchases</p>
+            <p className="text-sm text-gray-300">Pembelian dengan Dompet</p>
             <p className="mt-2 text-2xl font-black text-blue-300">
               {formatPrice(totalPurchases)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-red-400/20 bg-red-400/10 p-5">
-            <p className="text-sm text-gray-300">Pending Withdrawals</p>
+            <p className="text-sm text-gray-300">Penarikan Menunggu</p>
             <p className="mt-2 text-2xl font-black text-red-300">
               {pendingWithdrawals.length}
             </p>
@@ -395,12 +395,12 @@ export default function AdminWalletDashboardV1Page() {
         <div className="mb-8 grid gap-8 lg:grid-cols-2">
           <section className="rounded-3xl border border-green-400/20 bg-green-400/10 p-7 shadow-2xl shadow-black/30">
             <h2 className="text-3xl font-black text-green-300">
-              Top Seller Earnings
+              Pendapatan Penjual Tertinggi
             </h2>
 
             {topEarners.length === 0 ? (
               <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
-                No wallet data.
+                Tidak ada data dompet.
               </div>
             ) : (
               <div className="mt-6 space-y-4">
@@ -418,7 +418,7 @@ export default function AdminWalletDashboardV1Page() {
                           {getUserName(wallet.profiles, wallet.user_id)}
                         </h3>
                         <p className="mt-1 text-sm text-gray-400">
-                          Balance: {formatPrice(wallet.balance)}
+                          Saldo: {formatPrice(wallet.balance)}
                         </p>
                       </div>
 
@@ -434,12 +434,12 @@ export default function AdminWalletDashboardV1Page() {
 
           <section className="rounded-3xl border border-blue-400/20 bg-blue-400/10 p-7 shadow-2xl shadow-black/30">
             <h2 className="text-3xl font-black text-blue-300">
-              Top Wallet Spenders
+              Pembelanja Dompet Terbesar
             </h2>
 
             {topSpenders.length === 0 ? (
               <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
-                No wallet spending data.
+                Tidak ada data pengeluaran dompet.
               </div>
             ) : (
               <div className="mt-6 space-y-4">
@@ -457,7 +457,7 @@ export default function AdminWalletDashboardV1Page() {
                           {getUserName(wallet.profiles, wallet.user_id)}
                         </h3>
                         <p className="mt-1 text-sm text-gray-400">
-                          Balance: {formatPrice(wallet.balance)}
+                          Saldo: {formatPrice(wallet.balance)}
                         </p>
                       </div>
 
@@ -475,9 +475,9 @@ export default function AdminWalletDashboardV1Page() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-7 shadow-2xl shadow-black/30">
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
             <div>
-              <h2 className="text-3xl font-black">Recent Wallet Transactions</h2>
+              <h2 className="text-3xl font-black">Transaksi Dompet Terbaru</h2>
               <p className="mt-2 text-sm text-gray-400">
-                Search and filter wallet transaction activity.
+                Cari dan saring aktivitas transaksi dompet.
               </p>
             </div>
 
@@ -492,7 +492,7 @@ export default function AdminWalletDashboardV1Page() {
                       : "border border-white/10 bg-black/30 text-gray-300 hover:border-cyan-400 hover:text-white"
                   }`}
                 >
-                  {type === "all" ? "All" : type}
+                  {adminLabel(type === "all" ? "Semua" : type)}
                 </button>
               ))}
             </div>
@@ -501,22 +501,22 @@ export default function AdminWalletDashboardV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search transactions by user, email, type, status, order ID, or description..."
+            placeholder={"Cari transaksi berdasarkan pengguna, email, jenis, status, ID pesanan, atau deskripsi..."}
             className="mt-6 w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
           {filteredTransactions.length === 0 ? (
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
-              No wallet transactions found.
+              Tidak ada transaksi dompet ditemukan.
             </div>
           ) : (
             <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
               <div className="hidden grid-cols-[1.2fr_.8fr_.8fr_.8fr_.8fr] gap-4 border-b border-white/10 bg-black/40 p-4 text-sm font-black text-gray-400 lg:grid">
-                <div>User</div>
-                <div>Type</div>
-                <div>Amount</div>
+                <div>Pengguna</div>
+                <div>Jenis</div>
+                <div>Jumlah</div>
                 <div>Status</div>
-                <div>Date</div>
+                <div>Tanggal</div>
               </div>
 
               <div className="divide-y divide-white/10">
@@ -536,11 +536,11 @@ export default function AdminWalletDashboardV1Page() {
 
                     <div>
                       <p className="font-bold text-cyan-300">
-                        {transaction.type}
+                        {adminLabel(transaction.type)}
                       </p>
                       {transaction.order_id && (
                         <p className="mt-1 text-xs text-gray-500">
-                          Order #{transaction.order_id}
+                          Pesanan #{transaction.order_id}
                         </p>
                       )}
                     </div>
@@ -550,7 +550,7 @@ export default function AdminWalletDashboardV1Page() {
                         {formatPrice(transaction.amount)}
                       </p>
                       <p className="mt-1 text-xs text-gray-500">
-                        After: {formatPrice(transaction.balance_after)}
+                        Sesudah: {formatPrice(transaction.balance_after)}
                       </p>
                     </div>
 
@@ -560,7 +560,7 @@ export default function AdminWalletDashboardV1Page() {
                           transaction.status
                         )}`}
                       >
-                        {transaction.status}
+                        {adminLabel(transaction.status)}
                       </span>
                     </div>
 

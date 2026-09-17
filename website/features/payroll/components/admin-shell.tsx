@@ -11,13 +11,13 @@ const links = [
   ["🧾", "Pesanan", "/admin/payroll/orders"],
   ["💵", "Penjualan", "/admin/payroll/sales"],
   ["🔄", "Mutasi", "/admin/payroll/mutations"],
-  ["🕘", "History Perubahan", "/admin/payroll/history"],
+  ["🕘", "Riwayat Perubahan", "/admin/payroll/history"],
   ["👥", "Karyawan", "/admin/payroll/employees"],
   ["💰", "Gaji", "/admin/payroll/gaji"],
   ["💳", "Kasbon", "/admin/payroll/advances"],
   ["📊", "Keuangan", "/admin/payroll/finance"],
   ["🤖", "Asisten AI", "/admin/payroll/ai"],
-  ["🎮", "Produk / Game", "/admin/payroll/products"],
+  ["🎮", "Produk / Permainan", "/admin/payroll/products"],
   ["📦", "Stok / Gudang", "/admin/payroll/inventory"],
   ["❓", "Panduan", "/admin/payroll/guide"],
 ];
@@ -49,8 +49,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
         ) : null}
 
-        <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-xs text-zinc-400"><span className="block font-semibold text-zinc-100">{actor?.name}</span>{actor?.isAdmin ? "Administrator" : "Akses khusus payroll"}</div>
-        {actor?.isAdmin && <><Link href="/admin/payroll/access" className="mt-4 block rounded-xl border border-yellow-500/30 p-3 text-sm font-semibold text-yellow-300">Kelola akses & tautan</Link><Link href="/admin/payroll/legacy" className="mt-4 block text-xs text-zinc-400">Arsip payroll sebelumnya</Link></>}
+        <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-xs text-zinc-400"><span className="block font-semibold text-zinc-100">{actor?.name}</span>{actor?.isAdmin ? "Administrator" : "Akses khusus penggajian"}</div>
+        {actor?.isAdmin && <><Link href="/admin/payroll/access" className="mt-4 block rounded-xl border border-yellow-500/30 p-3 text-sm font-semibold text-yellow-300">Kelola akses & tautan</Link><Link href="/admin/payroll/legacy" className="mt-4 block text-xs text-zinc-400">Arsip penggajian sebelumnya</Link></>}
         <nav className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
           {links.map(([icon, label, href]) => (
             <Link key={href} href={href} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800 hover:text-white">
@@ -61,7 +61,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-6 hidden rounded-xl bg-zinc-900/80 p-3 text-xs leading-5 text-zinc-400 lg:block">
           <div className="font-semibold text-zinc-200">Urutan paling mudah</div>
-          <div className="mt-1">Pesanan → Penjualan → Mutasi → History → Gaji/Kasbon → AI Cek → Keuangan → Tutup Buku</div>
+          <div className="mt-1">Pesanan → Penjualan → Mutasi → Riwayat → Gaji/Kasbon → AI Cek → Keuangan → Tutup Buku</div>
         </div>
       </aside>
       <main className="min-w-0 p-4 sm:p-6 lg:p-8">

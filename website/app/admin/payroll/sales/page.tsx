@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel } from "@/lib/adminLocale";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
@@ -52,8 +53,8 @@ const sortLabels: Record<SortMode, string> = {
   highest: "Penjualan terbesar",
   lowest: "Penjualan terkecil",
   source_az: "Sumber A-Z",
-  buyer_az: "Buyer A-Z",
-  game_az: "Game A-Z",
+  buyer_az: "Pembeli A-Z",
+  game_az: "Permainan A-Z",
 };
 
 export default function SalesPage() {
@@ -131,7 +132,7 @@ export default function SalesPage() {
     `Sumber: ${source === "SEMUA" ? "Semua" : source}`,
     `Jenis: ${type === "SEMUA" ? "Semua" : type === "gold" ? "Gold" : type === "item" ? "Item" : "Boosting"}`,
     `Buyer: ${buyer === "SEMUA" ? "Semua" : buyer}`,
-    `Game: ${game === "SEMUA" ? "Semua" : game}`,
+    `Permainan: ${game === "SEMUA" ? "Semua" : game}`,
     search.trim() ? `Kode: ${search.trim()}` : "Kode: Semua",
     `Urutan: ${sortLabels[sort]}`,
   ].join(" • ");
@@ -148,7 +149,7 @@ export default function SalesPage() {
 
   return (
     <>
-      <PageHeader title="Penjualan" description="Atur periode, Sumber, Jenis, Buyer, Game, dan urutan. Tabel serta Excel mengikuti pengaturan yang sedang dipilih." />
+      <PageHeader title="Penjualan" description={"Atur periode, Sumber, Jenis, Pembeli, Permainan, dan urutan. Tabel serta Excel mengikuti pengaturan yang sedang dipilih."} />
 
       <section className="cp-card mb-5 p-5">
         <div>
@@ -171,28 +172,28 @@ export default function SalesPage() {
         <div className="mt-5 border-t border-zinc-800 pt-5">
           <div className="text-sm font-semibold">Tampilkan penjualan berdasarkan</div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
             <label className="text-sm">Jenis<select value={type} onChange={(e) => setType(e.target.value as TypeFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua jenis</option><option value="gold">Gold</option><option value="item">Item</option><option value="boosting">Boosting</option></select></label>
-            <label className="text-sm">Buyer<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua buyer</option>{buyers.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-            <label className="text-sm">Game<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua game</option>{games.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+            <label className="text-sm">Gim<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
-            <label className="text-sm">Cari kode order<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: EG25" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Penjualan terbesar</option><option value="lowest">Penjualan terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Buyer A-Z</option><option value="game_az">Game A-Z</option></select></label>
-            <div className="flex items-end"><button type="button" onClick={resetFilters} className="w-full rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold hover:bg-zinc-700">Reset filter</button></div>
+            <label className="text-sm">Cari kode pesanan<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: EG25" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3" /></label>
+            <label className="text-sm">Sortir / urutkan<select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Penjualan terbesar</option><option value="lowest">Penjualan terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
+            <div className="flex items-end"><button type="button" onClick={resetFilters} className="w-full rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold hover:bg-zinc-700">Atur Ulang filter</button></div>
           </div>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-zinc-800 pt-5">
-          <button onClick={async () => { setExporting(true); try { await exportSalesSpreadsheet(rows, exportLabel); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Export Penjualan (${rows.length})`}</button>
+          <button onClick={async () => { setExporting(true); try { await exportSalesSpreadsheet(rows, exportLabel); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor Penjualan (${rows.length})`}</button>
           <span className="text-sm text-zinc-500">Excel sekarang memuat ringkasan per sumber di atas dan tabel data Penjualan di bawah, sesuai filter dan urutan yang sedang tampil.</span>
         </div>
       </section>
 
       <section className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="cp-card p-5"><div className="text-sm text-zinc-500">Total Penjualan</div><div className="mt-2 text-3xl font-bold text-yellow-300">{formatMoney(totalSales)}</div><div className="mt-1 text-xs text-zinc-500">Sesuai filter saat ini</div></div>
-        <div className="cp-card p-5"><div className="text-sm text-zinc-500">Jumlah Order</div><div className="mt-2 text-3xl font-bold">{rows.length}</div><div className="mt-1 text-xs text-zinc-500">Sesuai filter</div></div>
-        <div className="cp-card p-5"><div className="text-sm text-zinc-500">Penjualan Selesai</div><div className="mt-2 text-3xl font-bold text-emerald-300">{formatMoney(finishedSales)}</div><div className="mt-1 text-xs text-zinc-500">{finishedRows.length} order selesai</div></div>
+        <div className="cp-card p-5"><div className="text-sm text-zinc-500">Jumlah Pesanan</div><div className="mt-2 text-3xl font-bold">{rows.length}</div><div className="mt-1 text-xs text-zinc-500">Sesuai filter</div></div>
+        <div className="cp-card p-5"><div className="text-sm text-zinc-500">Penjualan Selesai</div><div className="mt-2 text-3xl font-bold text-emerald-300">{formatMoney(finishedSales)}</div><div className="mt-1 text-xs text-zinc-500">{finishedRows.length} pesanan selesai</div></div>
         <div className="cp-card p-5"><div className="text-sm text-zinc-500">Bermasalah</div><div className="mt-2 text-3xl font-bold text-red-300">{problemRows.length}</div><div className="mt-1 text-xs text-zinc-500">Tidak dihitung sebagai selesai</div></div>
       </section>
 
@@ -204,7 +205,7 @@ export default function SalesPage() {
               <button key={name} onClick={() => setSource(name)} className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-4 text-left transition hover:border-yellow-500/40">
                 <div className="text-sm font-semibold">{name}</div>
                 <div className="mt-2 text-xl font-bold">{formatMoney(data.total)}</div>
-                <div className="mt-1 text-xs text-zinc-500">{data.count} order</div>
+                <div className="mt-1 text-xs text-zinc-500">{data.count} pesanan</div>
               </button>
             ))}
           </div>
@@ -213,7 +214,7 @@ export default function SalesPage() {
 
       <div className="cp-card overflow-x-auto">
         <table className="cp-table">
-          <thead><tr><th>Waktu</th><th>Kode</th><th>Sumber</th><th>Jenis</th><th>Buyer</th><th>Game</th><th>Jumlah</th><th>Total Penjualan</th><th>Status</th></tr></thead>
+          <thead><tr><th>Waktu</th><th>Kode</th><th>Sumber</th><th>Jenis</th><th>Pembeli</th><th>Gim</th><th>Jumlah</th><th>Total Penjualan</th><th>Status</th></tr></thead>
           <tbody>
             {rows.map((order) => {
               const status = statusLabel(order);

@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -256,7 +257,7 @@ export default function AdminAnnouncementManagerV1Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -270,7 +271,7 @@ export default function AdminAnnouncementManagerV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -290,7 +291,7 @@ export default function AdminAnnouncementManagerV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -376,17 +377,17 @@ export default function AdminAnnouncementManagerV1Page() {
     const finalSlug = createSlug(slug || title);
 
     if (!title.trim()) {
-      alert("Title is required.");
+      alert("Judul wajib diisi.");
       return;
     }
 
     if (!finalSlug) {
-      alert("Slug is required.");
+      alert("Alamat singkat wajib diisi.");
       return;
     }
 
     if (!content.trim()) {
-      alert("Content is required.");
+      alert("Isi pengumuman wajib diisi.");
       return;
     }
 
@@ -395,7 +396,7 @@ export default function AdminAnnouncementManagerV1Page() {
       expireAt &&
       new Date(expireAt).getTime() <= new Date(publishAt).getTime()
     ) {
-      alert("Expire date must be after publish date.");
+      alert("Tanggal berakhir harus setelah tanggal terbit.");
       return;
     }
 
@@ -410,12 +411,12 @@ export default function AdminAnnouncementManagerV1Page() {
         .eq("id", editingId);
 
       if (error) {
-        alert(error.message);
+        alert(adminText(error.message));
         setSaving(false);
         return;
       }
 
-      alert("Announcement updated.");
+      alert("Pengumuman diperbarui.");
     } else {
       const { error } = await supabase.from("announcements").insert({
         ...payload,
@@ -423,12 +424,12 @@ export default function AdminAnnouncementManagerV1Page() {
       });
 
       if (error) {
-        alert(error.message);
+        alert(adminText(error.message));
         setSaving(false);
         return;
       }
 
-      alert("Announcement created.");
+      alert("Pengumuman dibuat.");
     }
 
     await loadAnnouncements();
@@ -451,7 +452,7 @@ export default function AdminAnnouncementManagerV1Page() {
       .eq("id", item.id);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setUpdatingId(null);
       return;
     }
@@ -472,7 +473,7 @@ export default function AdminAnnouncementManagerV1Page() {
       .eq("id", item.id);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setUpdatingId(null);
       return;
     }
@@ -482,7 +483,7 @@ export default function AdminAnnouncementManagerV1Page() {
   }
 
   async function deleteAnnouncement(item: Announcement) {
-    if (!confirm(`Delete announcement "${item.title}"?`)) return;
+    if (!confirm(`Hapus pengumuman "${item.title}"?`)) return;
 
     setUpdatingId(item.id);
 
@@ -492,7 +493,7 @@ export default function AdminAnnouncementManagerV1Page() {
       .eq("id", item.id);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setUpdatingId(null);
       return;
     }
@@ -505,7 +506,7 @@ export default function AdminAnnouncementManagerV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading announcement manager...
+          Memuat pengelola pengumuman...
         </p>
       </main>
     );
@@ -515,17 +516,17 @@ export default function AdminAnnouncementManagerV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access announcement manager.
+            Hanya akun admin yang dapat mengakses pengelola pengumuman.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -540,20 +541,19 @@ export default function AdminAnnouncementManagerV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
-              Admin Announcement Manager
+              Pengelola Pengumuman Admin
             </p>
 
             <h1 className="text-5xl font-black md:text-7xl">
-              Announcements
+              Pengumuman
             </h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Publish platform news, maintenance notices, promo updates,
-              security alerts, wallet notices, and seller announcements.
+              Terbitkan berita platform, pemberitahuan pemeliharaan, promosi, peringatan keamanan, informasi dompet, dan pengumuman penjual.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -562,14 +562,14 @@ export default function AdminAnnouncementManagerV1Page() {
               href="/announcements"
               className="inline-flex h-12 items-center justify-center rounded-full border border-yellow-400 px-6 font-bold text-yellow-300 transition hover:bg-yellow-400 hover:text-black"
             >
-              Public Page
+              Halaman Publik
             </Link>
 
             <Link
               href="/admin"
               className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
             >
-              Admin Home
+              Beranda Admin
             </Link>
           </div>
         </div>
@@ -585,28 +585,28 @@ export default function AdminAnnouncementManagerV1Page() {
           </div>
 
           <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-5">
-            <p className="text-sm text-gray-300">Published</p>
+            <p className="text-sm text-gray-300">Diterbitkan</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {publishedCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-            <p className="text-sm text-gray-300">Draft</p>
+            <p className="text-sm text-gray-300">Draf</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {draftCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-purple-400/20 bg-purple-400/10 p-5">
-            <p className="text-sm text-gray-300">Pinned</p>
+            <p className="text-sm text-gray-300">Disematkan</p>
             <p className="mt-2 text-3xl font-black text-purple-300">
               {pinnedCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-red-400/20 bg-red-400/10 p-5">
-            <p className="text-sm text-gray-300">Urgent</p>
+            <p className="text-sm text-gray-300">Mendesak</p>
             <p className="mt-2 text-3xl font-black text-red-300">
               {urgentCount}
             </p>
@@ -620,11 +620,11 @@ export default function AdminAnnouncementManagerV1Page() {
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
               <h2 className="text-3xl font-black text-yellow-300">
-                {editingId ? "Edit Announcement" : "Create Announcement"}
+                {editingId ? "Ubah Pengumuman" : "Buat Pengumuman"}
               </h2>
 
               <p className="mt-2 text-sm text-gray-300">
-                Write platform announcements for users and sellers.
+                Tulis pengumuman platform untuk pengguna dan penjual.
               </p>
             </div>
 
@@ -634,7 +634,7 @@ export default function AdminAnnouncementManagerV1Page() {
                 onClick={resetForm}
                 className="rounded-full border border-white/10 px-5 py-2 font-bold text-gray-300 hover:bg-white hover:text-black"
               >
-                Cancel Edit
+                Batalkan Perubahan
               </button>
             )}
           </div>
@@ -642,19 +642,19 @@ export default function AdminAnnouncementManagerV1Page() {
           <div className="mt-7 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Title
+                Judul
               </label>
               <input
                 value={title}
                 onChange={(event) => handleTitleChange(event.target.value)}
-                placeholder="Example: Wallet Maintenance Notice"
+                placeholder={"Contoh: Pemberitahuan Pemeliharaan Dompet"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Slug
+                Alamat Singkat
               </label>
               <input
                 value={slug}
@@ -668,7 +668,7 @@ export default function AdminAnnouncementManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Type
+                Jenis
               </label>
               <select
                 value={type}
@@ -687,7 +687,7 @@ export default function AdminAnnouncementManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Priority
+                Prioritas
               </label>
               <select
                 value={priority}
@@ -730,18 +730,18 @@ export default function AdminAnnouncementManagerV1Page() {
                 onChange={(event) => setIsPinned(event.target.checked)}
                 className="h-5 w-5"
               />
-              <span className="font-black text-yellow-300">Pinned</span>
+              <span className="font-black text-yellow-300">Disematkan</span>
             </label>
           </div>
 
           <div className="mt-5">
             <label className="mb-2 block text-sm font-bold text-gray-300">
-              Summary
+              Ringkasan
             </label>
             <textarea
               value={summary}
               onChange={(event) => setSummary(event.target.value)}
-              placeholder="Short announcement summary..."
+              placeholder={"Ringkasan singkat pengumuman..."}
               rows={3}
               className="w-full resize-none rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
             />
@@ -749,12 +749,12 @@ export default function AdminAnnouncementManagerV1Page() {
 
           <div className="mt-5">
             <label className="mb-2 block text-sm font-bold text-gray-300">
-              Content
+              Isi
             </label>
             <textarea
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="Write full announcement content..."
+              placeholder={"Tulis isi lengkap pengumuman..."}
               rows={10}
               className="w-full resize-none rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
             />
@@ -763,24 +763,24 @@ export default function AdminAnnouncementManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Image URL
+                URL Gambar
               </label>
               <input
                 value={imageUrl}
                 onChange={(event) => setImageUrl(event.target.value)}
-                placeholder="Optional image URL"
+                placeholder={"URL gambar (opsional)"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Link URL
+                URL Tautan
               </label>
               <input
                 value={linkUrl}
                 onChange={(event) => setLinkUrl(event.target.value)}
-                placeholder="Optional external/internal link"
+                placeholder={"Tautan internal/eksternal (opsional)"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
@@ -789,7 +789,7 @@ export default function AdminAnnouncementManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Publish At
+                Waktu Terbit
               </label>
               <input
                 type="datetime-local"
@@ -801,7 +801,7 @@ export default function AdminAnnouncementManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Expire At
+                Waktu Berakhir
               </label>
               <input
                 type="datetime-local"
@@ -818,10 +818,10 @@ export default function AdminAnnouncementManagerV1Page() {
             className="mt-7 w-full rounded-2xl bg-yellow-400 py-4 text-lg font-black text-black transition hover:bg-yellow-300 disabled:opacity-60"
           >
             {saving
-              ? "Saving Announcement..."
+              ? "Menyimpan Pengumuman..."
               : editingId
-              ? "Update Announcement"
-              : "Create Announcement"}
+              ? "Perbarui Pengumuman"
+              : "Buat Pengumuman"}
           </button>
         </form>
 
@@ -829,7 +829,7 @@ export default function AdminAnnouncementManagerV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search announcement by title, slug, type, priority, status, or content..."
+            placeholder={"Cari pengumuman berdasarkan judul, alamat singkat, jenis, prioritas, status, atau isi..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -844,7 +844,7 @@ export default function AdminAnnouncementManagerV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {item === "all" ? "All" : item}
+                {item === "all" ? "Semua" : item}
               </button>
             ))}
           </div>
@@ -861,17 +861,17 @@ export default function AdminAnnouncementManagerV1Page() {
                   : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-yellow-400 hover:text-white"
               }`}
             >
-              {item === "all" ? "All Types" : item}
+              {item === "all" ? "Semua Jenis" : item}
             </button>
           ))}
         </div>
 
         {filteredAnnouncements.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-12 text-center shadow-2xl shadow-black/30">
-            <h2 className="text-3xl font-black">No announcements found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada pengumuman ditemukan.</h2>
 
             <p className="mt-3 text-gray-400">
-              Create your first announcement using the form above.
+              Buat pengumuman pertama melalui formulir di atas.
             </p>
           </div>
         ) : (
@@ -890,7 +890,7 @@ export default function AdminAnnouncementManagerV1Page() {
                       <div className="flex flex-wrap items-center gap-3">
                         {item.is_pinned && (
                           <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300">
-                            pinned
+                            disematkan
                           </span>
                         )}
 
@@ -899,7 +899,7 @@ export default function AdminAnnouncementManagerV1Page() {
                             item.status
                           )}`}
                         >
-                          {item.status}
+                          {adminLabel(item.status)}
                         </span>
 
                         <span
@@ -915,18 +915,18 @@ export default function AdminAnnouncementManagerV1Page() {
                             item.type
                           )}`}
                         >
-                          {item.type}
+                          {adminLabel(item.type)}
                         </span>
 
                         {scheduled && (
                           <span className="rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1 text-xs font-black text-blue-300">
-                            scheduled
+                            terjadwal
                           </span>
                         )}
 
                         {expired && (
                           <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-xs font-black text-red-300">
-                            expired
+                            kedaluwarsa
                           </span>
                         )}
 
@@ -947,28 +947,28 @@ export default function AdminAnnouncementManagerV1Page() {
 
                       <div className="mt-5 grid gap-4 md:grid-cols-2">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Publish At</p>
+                          <p className="text-xs text-gray-500">Waktu Terbit</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.publish_at)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Expire At</p>
+                          <p className="text-xs text-gray-500">Waktu Berakhir</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.expire_at)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Created</p>
+                          <p className="text-xs text-gray-500">Dibuat</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.created_at)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Updated</p>
+                          <p className="text-xs text-gray-500">Diperbarui</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.updated_at)}
                           </p>
@@ -982,7 +982,7 @@ export default function AdminAnnouncementManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-cyan-400 px-5 py-3 font-black text-black hover:bg-cyan-300 disabled:opacity-60"
                       >
-                        Edit
+                        Ubah
                       </button>
 
                       <button
@@ -990,7 +990,7 @@ export default function AdminAnnouncementManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                       >
-                        Publish
+                        Terbitkan
                       </button>
 
                       <button
@@ -998,7 +998,7 @@ export default function AdminAnnouncementManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black hover:bg-yellow-300 disabled:opacity-60"
                       >
-                        Draft
+                        Draf
                       </button>
 
                       <button
@@ -1006,7 +1006,7 @@ export default function AdminAnnouncementManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-gray-500 px-5 py-3 font-black text-white hover:bg-gray-400 disabled:opacity-60"
                       >
-                        Archive
+                        Arsipkan
                       </button>
 
                       <button
@@ -1014,7 +1014,7 @@ export default function AdminAnnouncementManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl border border-yellow-400 px-5 py-3 font-black text-yellow-300 hover:bg-yellow-400 hover:text-black disabled:opacity-60"
                       >
-                        {item.is_pinned ? "Unpin" : "Pin"}
+                        {item.is_pinned ? "Lepas Sematan" : "Sematkan"}
                       </button>
 
                       {item.status === "published" && (
@@ -1022,7 +1022,7 @@ export default function AdminAnnouncementManagerV1Page() {
                           href={`/announcements/${item.slug}`}
                           className="rounded-2xl border border-cyan-400 px-5 py-3 text-center font-black text-cyan-300 hover:bg-cyan-400 hover:text-black"
                         >
-                          View Public
+                          Lihat Halaman Publik
                         </Link>
                       )}
 
@@ -1031,12 +1031,12 @@ export default function AdminAnnouncementManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl border border-red-400/40 px-5 py-3 font-black text-red-300 hover:bg-red-500 hover:text-white disabled:opacity-60"
                       >
-                        Delete
+                        Hapus
                       </button>
 
                       {updatingId === item.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating announcement...
+                          Memperbarui pengumuman...
                         </p>
                       )}
                     </div>

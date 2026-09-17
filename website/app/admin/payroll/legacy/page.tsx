@@ -1,5 +1,6 @@
 "use client";
 
+import { adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -106,7 +107,7 @@ function today(offsetDays = 0) {
 
 function statusLabel(status: PayrollPeriod["status"]) {
   return {
-    draft: "Draft",
+    draft: "Draf",
     calculated: "Sudah dihitung",
     finalized: "Final",
     paid: "Dibayar",
@@ -330,7 +331,7 @@ export default function AdminPayrollPage() {
   async function transition(target: PayrollPeriod["status"]) {
     if (!selectedPeriodId) return;
     const prompts: Partial<Record<PayrollPeriod["status"], string>> = {
-      calculated: "Hitung dan simpan snapshot periode ini? Setelah itu data harus dibuka kembali ke Draft untuk diedit.",
+      calculated: "Hitung dan simpan snapshot periode ini? Setelah itu data harus dibuka kembali ke Draf untuk diedit.",
       finalized: "Finalisasi periode ini? Data gaji tidak dapat diubah lagi setelah final.",
       paid: "Tandai seluruh periode ini sudah dibayar? Status ini permanen.",
       draft: "Buka kembali hasil perhitungan agar dapat diedit?",
@@ -351,8 +352,8 @@ export default function AdminPayrollPage() {
       <main className="min-h-screen bg-[#050812] p-6 text-white">
         <div className="mx-auto max-w-xl rounded-2xl border border-red-400/20 bg-red-400/10 p-6">
           <FaLock className="text-3xl text-red-300" />
-          <h1 className="mt-4 text-2xl font-black">Akses payroll dibatasi</h1>
-          <p className="mt-2 text-sm text-red-100">{error || "Hanya administrator ComePlayers yang dapat membuka halaman ini."}</p>
+          <h1 className="mt-4 text-2xl font-black">Akses penggajian dibatasi</h1>
+          <p className="mt-2 text-sm text-red-100">{adminText(error || "Hanya administrator ComePlayers yang dapat membuka halaman ini.")}</p>
           <Link href="/" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 font-bold text-black">
             <FaArrowLeft /> Kembali
           </Link>
@@ -369,7 +370,7 @@ export default function AdminPayrollPage() {
         <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <Link href="/admin" className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-cyan-200">
-              <FaArrowLeft /> Admin Center
+              <FaArrowLeft /> Pusat Admin
             </Link>
             <div className="flex items-center gap-3">
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-yellow-300 text-xl text-black"><FaCalculator /></span>
@@ -384,8 +385,8 @@ export default function AdminPayrollPage() {
           </div>
         </header>
 
-        {notice ? <div className="mb-4 rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">{notice}</div> : null}
-        {error ? <div className="mb-4 rounded-xl border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div> : null}
+        {notice ? <div className="mb-4 rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">{adminText(notice)}</div> : null}
+        {error ? <div className="mb-4 rounded-xl border border-red-400/25 bg-red-400/10 px-4 py-3 text-sm text-red-200">{adminText(error)}</div> : null}
 
         <section className="mb-6 grid gap-4 xl:grid-cols-2">
           <form onSubmit={saveEmployee} className="rounded-2xl border border-white/10 bg-[#0b1120] p-5 shadow-xl">
@@ -431,7 +432,7 @@ export default function AdminPayrollPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`rounded-full border px-3 py-2 text-xs font-black ${statusClass(selectedPeriod.status)}`}>{statusLabel(selectedPeriod.status)}</span>
                 {selectedPeriod.status === "draft" ? <button onClick={() => void transition("calculated")} disabled={Boolean(busy)} className="cp-payroll-action bg-yellow-300 text-black"><FaCalculator /> Hitung periode</button> : null}
-                {selectedPeriod.status === "calculated" ? <><button onClick={() => void transition("draft")} disabled={Boolean(busy)} className="cp-payroll-action bg-slate-700"><FaEdit /> Buka Draft</button><button onClick={() => void transition("finalized")} disabled={Boolean(busy)} className="cp-payroll-action bg-cyan-300 text-black"><FaLock /> Finalisasi</button></> : null}
+                {selectedPeriod.status === "calculated" ? <><button onClick={() => void transition("draft")} disabled={Boolean(busy)} className="cp-payroll-action bg-slate-700"><FaEdit /> Buka Draf</button><button onClick={() => void transition("finalized")} disabled={Boolean(busy)} className="cp-payroll-action bg-cyan-300 text-black"><FaLock /> Finalisasi</button></> : null}
                 {selectedPeriod.status === "finalized" ? <button onClick={() => void transition("paid")} disabled={Boolean(busy)} className="cp-payroll-action bg-emerald-400 text-black"><FaMoneyCheckAlt /> Tandai dibayar</button> : null}
               </div>
             ) : null}
@@ -454,7 +455,7 @@ export default function AdminPayrollPage() {
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-[1500px] w-full text-left text-sm">
-                  <thead className="bg-black/25 text-xs uppercase tracking-wide text-slate-400"><tr><th className="p-3">Karyawan</th><th className="p-3">Nilai pekerjaan</th><th className="p-3">Persentase</th><th className="p-3">Gaji awal</th><th className="p-3">Bonus/tips</th><th className="p-3">Operasional</th><th className="p-3">Denda</th><th className="p-3">Kasbon</th><th className="p-3">Gaji bersih</th><th className="p-3">Catatan</th><th className="p-3">Aksi</th></tr></thead>
+                  <thead className="bg-black/25 text-xs uppercase tracking-wide text-slate-400"><tr><th className="p-3">Karyawan</th><th className="p-3">Nilai pekerjaan</th><th className="p-3">Persentase</th><th className="p-3">Gaji awal</th><th className="p-3">Bonus/uang tip</th><th className="p-3">Operasional</th><th className="p-3">Denda</th><th className="p-3">Kasbon</th><th className="p-3">Gaji bersih</th><th className="p-3">Catatan</th><th className="p-3">Aksi</th></tr></thead>
                   <tbody className="divide-y divide-white/5">
                     {visibleEmployees.map((employee) => {
                       const draft = drafts[Number(employee.id)] || emptyEntry(employee.default_share_basis_points);
@@ -462,7 +463,7 @@ export default function AdminPayrollPage() {
                       const savedEntry = entryMap.get(Number(employee.id));
                       return (
                         <tr key={employee.id} className="align-top hover:bg-white/[0.025]">
-                          <td className="p-3"><strong>{employee.full_name}</strong><div className="mt-1 text-xs text-slate-500">{employee.employee_code}{employee.team ? ` · ${employee.team}` : ""}</div><button onClick={() => editEmployee(employee)} className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-cyan-300"><FaEdit /> Edit</button></td>
+                          <td className="p-3"><strong>{employee.full_name}</strong><div className="mt-1 text-xs text-slate-500">{employee.employee_code}{employee.team ? ` · ${employee.team}` : ""}</div><button onClick={() => editEmployee(employee)} className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-cyan-300"><FaEdit /> Ubah</button></td>
                           <PayrollInput value={draft.workValue} onChange={(value) => updateDraft(employee.id, "workValue", value)} disabled={!editable} />
                           <td className="p-3"><div className="flex items-center gap-1"><input type="number" min="0" max="100" step="0.01" value={draft.sharePercent} onChange={(event) => updateDraft(employee.id, "sharePercent", event.target.value)} disabled={!editable} className="cp-payroll-table-input w-24" /><span>%</span></div></td>
                           <td className="p-3 font-bold text-yellow-200">{result ? money(result.baseEarnings) : "Periksa input"}</td>

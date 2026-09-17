@@ -3,7 +3,7 @@ import { PageHeader } from "@/features/payroll/components/page-header";
 
 export default function InventoryPage() {
   return <>
-    <PageHeader title="Stok / Gudang" description="Kelola stok per karyawan, FH, Game, Region, dan Server. Nama karyawan menjadi identitas gudang." />
+    <PageHeader title="Stok / Gudang" description={"Kelola stok per karyawan, FH, Permainan, Wilayah, dan Server. Nama karyawan menjadi identitas gudang."} />
     <InventoryManager />
   </>;
 }

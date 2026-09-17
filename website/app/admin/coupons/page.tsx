@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -119,7 +120,7 @@ export default function AdminCouponManagerV1Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -133,7 +134,7 @@ export default function AdminCouponManagerV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -153,7 +154,7 @@ export default function AdminCouponManagerV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -229,16 +230,16 @@ export default function AdminCouponManagerV1Page() {
     event.preventDefault();
 
     const finalCode = normalizeCouponCode(code);
-    if (!finalCode) return alert("Coupon code is required.");
-    if (!name.trim()) return alert("Coupon name is required.");
+    if (!finalCode) return alert("Kode kupon wajib diisi.");
+    if (!name.trim()) return alert("Nama kupon wajib diisi.");
     if (Number(discountValue || 0) <= 0) {
-      return alert("Discount value must be greater than 0.");
+      return alert("Nilai diskon harus lebih besar dari 0.");
     }
     if (discountType === "percent" && Number(discountValue) > 100) {
-      return alert("Percent discount cannot be more than 100.");
+      return alert("Persentase diskon tidak boleh melebihi 100.");
     }
     if (usageLimit && Number(usageLimit) <= 0) {
-      return alert("Usage limit must be empty or greater than 0.");
+      return alert("Batas penggunaan harus kosong atau lebih besar dari 0.");
     }
 
     try {
@@ -252,11 +253,11 @@ export default function AdminCouponManagerV1Page() {
         ),
       });
 
-      alert(editingId ? "Coupon updated successfully." : "Coupon created successfully.");
+      alert(adminText(editingId ? "Kupon berhasil diperbarui." : "Kupon berhasil dibuat."));
       await loadCoupons();
       resetForm();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to save coupon.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menyimpan kupon."));
     } finally {
       setSaving(false);
     }
@@ -275,14 +276,14 @@ export default function AdminCouponManagerV1Page() {
       });
       await loadCoupons();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update coupon.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui kupon."));
     } finally {
       setUpdatingCouponId(null);
     }
   }
 
   async function deleteCoupon(coupon: Coupon) {
-    if (!confirm(`Delete coupon ${coupon.code}?`)) return;
+    if (!confirm(`Hapus kupon ${coupon.code}?`)) return;
 
     try {
       setUpdatingCouponId(coupon.id);
@@ -292,7 +293,7 @@ export default function AdminCouponManagerV1Page() {
       });
       await loadCoupons();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to delete coupon.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menghapus kupon."));
     } finally {
       setUpdatingCouponId(null);
     }
@@ -302,7 +303,7 @@ export default function AdminCouponManagerV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading coupon manager...
+          Memuat pengelola kupon...
         </p>
       </main>
     );
@@ -312,17 +313,17 @@ export default function AdminCouponManagerV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access coupon manager.
+            Hanya akun admin yang dapat mengakses pengelola kupon.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -337,11 +338,11 @@ export default function AdminCouponManagerV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
-              Admin Coupon Manager
+              Pengelola Kupon Admin
             </p>
 
             <h1 className="text-5xl font-black md:text-7xl">
-              Coupons & Promo
+              Kupon &amp; Promosi
             </h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
@@ -350,7 +351,7 @@ export default function AdminCouponManagerV1Page() {
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -358,7 +359,7 @@ export default function AdminCouponManagerV1Page() {
             href="/admin"
             className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
           >
-            Admin Home
+            Beranda Admin
           </Link>
         </div>
       </section>
@@ -366,28 +367,28 @@ export default function AdminCouponManagerV1Page() {
       <section className="mx-auto max-w-7xl px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-4">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Coupons</p>
+            <p className="text-sm text-gray-400">Total Kupon</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {coupons.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Active</p>
+            <p className="text-sm text-gray-400">Aktif</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {activeCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Inactive</p>
+            <p className="text-sm text-gray-400">Nonaktif</p>
             <p className="mt-2 text-3xl font-black text-red-300">
               {inactiveCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Used</p>
+            <p className="text-sm text-gray-400">Total Penggunaan</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {totalUsed}
             </p>
@@ -401,11 +402,11 @@ export default function AdminCouponManagerV1Page() {
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
               <h2 className="text-3xl font-black text-cyan-300">
-                {editingId ? "Edit Coupon" : "Create Coupon"}
+                {editingId ? "Ubah Kupon" : "Buat Kupon"}
               </h2>
 
               <p className="mt-2 text-sm text-gray-300">
-                Coupon codes are automatically normalized to uppercase.
+                Kode kupon otomatis diubah menjadi huruf kapital.
               </p>
             </div>
 
@@ -415,7 +416,7 @@ export default function AdminCouponManagerV1Page() {
                 onClick={resetForm}
                 className="rounded-full border border-white/10 px-5 py-2 font-bold text-gray-300 hover:bg-white hover:text-black"
               >
-                Cancel Edit
+                Batalkan Perubahan
               </button>
             )}
           </div>
@@ -423,7 +424,7 @@ export default function AdminCouponManagerV1Page() {
           <div className="mt-7 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Coupon Code
+                Kode Kupon
               </label>
               <input
                 value={code}
@@ -435,12 +436,12 @@ export default function AdminCouponManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Coupon Name
+                Nama Kupon
               </label>
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Welcome Promo"
+                placeholder={"Promosi Selamat Datang"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
               />
             </div>
@@ -449,7 +450,7 @@ export default function AdminCouponManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Discount Type
+                Jenis Diskon
               </label>
               <select
                 value={discountType}
@@ -468,7 +469,7 @@ export default function AdminCouponManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Discount Value (% or IDR)
+                Nilai Diskon (% atau IDR)
               </label>
               <input
                 type="number"
@@ -502,7 +503,7 @@ export default function AdminCouponManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Minimum Order Amount (IDR)
+                Nilai Pesanan Minimum (IDR)
               </label>
               <input
                 type="number"
@@ -515,26 +516,26 @@ export default function AdminCouponManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Maximum Discount Amount (IDR)
+                Nilai Diskon Maksimum (IDR)
               </label>
               <input
                 type="number"
                 value={maximumDiscountAmount}
                 onChange={(event) => setMaximumDiscountAmount(event.target.value)}
-                placeholder="Optional"
+                placeholder={"Opsional"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Usage Limit
+                Batas Penggunaan
               </label>
               <input
                 type="number"
                 value={usageLimit}
                 onChange={(event) => setUsageLimit(event.target.value)}
-                placeholder="Optional"
+                placeholder={"Opsional"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
               />
             </div>
@@ -543,7 +544,7 @@ export default function AdminCouponManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Start At
+                Waktu Mulai
               </label>
               <input
                 type="datetime-local"
@@ -555,7 +556,7 @@ export default function AdminCouponManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                End At
+                Waktu Berakhir
               </label>
               <input
                 type="datetime-local"
@@ -568,12 +569,12 @@ export default function AdminCouponManagerV1Page() {
 
           <div className="mt-5">
             <label className="mb-2 block text-sm font-bold text-gray-300">
-              Description
+              Deskripsi
             </label>
             <textarea
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Describe this coupon promo..."
+              placeholder={"Jelaskan promosi kupon ini..."}
               rows={4}
               className="w-full resize-none rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
             />
@@ -585,10 +586,10 @@ export default function AdminCouponManagerV1Page() {
             className="mt-7 w-full rounded-2xl bg-cyan-400 py-4 text-lg font-black text-black transition hover:bg-cyan-300 disabled:opacity-60"
           >
             {saving
-              ? "Saving Coupon..."
+              ? "Menyimpan Kupon..."
               : editingId
-              ? "Update Coupon"
-              : "Create Coupon"}
+              ? "Perbarui Kupon"
+              : "Buat Kupon"}
           </button>
         </form>
 
@@ -596,7 +597,7 @@ export default function AdminCouponManagerV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search coupons by code, name, description, or ID..."
+            placeholder={"Cari kupon berdasarkan kode, nama, deskripsi, atau ID..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -612,7 +613,7 @@ export default function AdminCouponManagerV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {item === "all" ? "All" : item}
+                {item === "all" ? "Semua" : item}
               </button>
             ))}
           </div>
@@ -620,10 +621,10 @@ export default function AdminCouponManagerV1Page() {
 
         {filteredCoupons.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-12 text-center shadow-2xl shadow-black/30">
-            <h2 className="text-3xl font-black">No coupons found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada kupon ditemukan.</h2>
 
             <p className="mt-3 text-gray-400">
-              Create your first marketplace promo code using the form above.
+              Buat kode promosi marketplace pertama melalui formulir di atas.
             </p>
           </div>
         ) : (
@@ -652,7 +653,7 @@ export default function AdminCouponManagerV1Page() {
                             coupon.status
                           )}`}
                         >
-                          {coupon.status}
+                          {adminLabel(coupon.status)}
                         </span>
 
                         <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-black text-gray-300">
@@ -665,12 +666,12 @@ export default function AdminCouponManagerV1Page() {
                       </h2>
 
                       <p className="mt-3 leading-7 text-gray-300">
-                        {coupon.description || "No description."}
+                        {coupon.description || "Tidak ada deskripsi."}
                       </p>
 
                       <div className="mt-6 grid gap-4 md:grid-cols-3">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Discount</p>
+                          <p className="text-xs text-gray-500">Diskon</p>
                           <p className="mt-1 text-xl font-black text-cyan-300">
                             {isPercent
                               ? `${coupon.discount_value}%`
@@ -679,14 +680,14 @@ export default function AdminCouponManagerV1Page() {
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Minimum Order</p>
+                          <p className="text-xs text-gray-500">Pesanan Minimum</p>
                           <p className="mt-1 font-black">
                             {formatPrice(coupon.minimum_order_amount)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Max Discount</p>
+                          <p className="text-xs text-gray-500">Diskon Maksimum</p>
                           <p className="mt-1 font-black">
                             {coupon.maximum_discount_amount === null
                               ? "-"
@@ -695,19 +696,19 @@ export default function AdminCouponManagerV1Page() {
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Usage</p>
+                          <p className="text-xs text-gray-500">Penggunaan</p>
                           <p className="mt-1 font-black">{usageText}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Start</p>
+                          <p className="text-xs text-gray-500">Mulai</p>
                           <p className="mt-1 font-black">
                             {formatDate(coupon.start_at)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">End</p>
+                          <p className="text-xs text-gray-500">Berakhir</p>
                           <p className="mt-1 font-black">
                             {formatDate(coupon.end_at)}
                           </p>
@@ -721,7 +722,7 @@ export default function AdminCouponManagerV1Page() {
                         disabled={updatingCouponId === coupon.id}
                         className="rounded-2xl bg-cyan-400 px-5 py-3 font-black text-black hover:bg-cyan-300 disabled:opacity-60"
                       >
-                        Edit Coupon
+                        Ubah Kupon
                       </button>
 
                       <button
@@ -729,7 +730,7 @@ export default function AdminCouponManagerV1Page() {
                         disabled={updatingCouponId === coupon.id}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                       >
-                        Set Active
+                        Aktifkan
                       </button>
 
                       <button
@@ -737,7 +738,7 @@ export default function AdminCouponManagerV1Page() {
                         disabled={updatingCouponId === coupon.id}
                         className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400 disabled:opacity-60"
                       >
-                        Set Inactive
+                        Nonaktifkan
                       </button>
 
                       <button
@@ -745,12 +746,12 @@ export default function AdminCouponManagerV1Page() {
                         disabled={updatingCouponId === coupon.id}
                         className="rounded-2xl border border-red-400/40 px-5 py-3 font-black text-red-300 hover:bg-red-500 hover:text-white disabled:opacity-60"
                       >
-                        Delete Coupon
+                        Hapus Kupon
                       </button>
 
                       {updatingCouponId === coupon.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating coupon...
+                          Memperbarui kupon...
                         </p>
                       )}
                     </div>

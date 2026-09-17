@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel } from "@/lib/adminLocale";
 import { flushPayroll, withPayrollBatch } from "@/features/payroll/lib/workspace-store";
 import { authenticatedFetch } from "@/lib/authenticatedFetch";
 import Link from "next/link";
@@ -85,7 +86,7 @@ export function OrderEntryForm() {
   const orderCode = manualCode.trim();
   let codeError = "";
   try { manualOrderCode(orderCode,allOrders.map(row=>row.externalReference)); }
-  catch(e) { codeError=e instanceof Error?e.message:"Kode order tidak valid."; }
+  catch(e) { codeError=e instanceof Error?e.message:"Kode pesanan tidak valid."; }
 
   const selectedGame = useMemo(() => games.find((row) => row.id === selectedGameId) ?? null, [games, selectedGameId]);
   const gameSuggestions = useMemo(() => searchGames(games, gameQuery), [games, gameQuery]);
@@ -212,34 +213,34 @@ export function OrderEntryForm() {
     event.preventDefault();
     setMessage(null);
 
-    if (!buyer.trim()) return setMessage({ type: "error", text: "Nama buyer wajib diisi." });
-    if (orderType !== "gold" && !orderName.trim()) return setMessage({ type: "error", text: "Nama order wajib diisi." });
-    if (!selectedGame) return setMessage({ type: "error", text: "Game harus dipilih dari rekomendasi Produk / Game." });
-    if (!region) return setMessage({ type: "error", text: "Region wajib dipilih dari daftar game." });
-    if (!server) return setMessage({ type: "error", text: "Server wajib dipilih dari daftar game." });
-    if (quantity <= 0) return setMessage({ type: "error", text: "Jumlah order harus lebih dari 0." });
-    if (rate < 0) return setMessage({ type: "error", text: "Rate tidak boleh minus." });
+    if (!buyer.trim()) return setMessage({ type: "error", text: "Nama pembeli wajib diisi." });
+    if (orderType !== "gold" && !orderName.trim()) return setMessage({ type: "error", text: "Nama pesanan wajib diisi." });
+    if (!selectedGame) return setMessage({ type: "error", text: "Permainan harus dipilih dari rekomendasi Produk / Permainan." });
+    if (!region) return setMessage({ type: "error", text: "Wilayah wajib dipilih dari daftar permainan." });
+    if (!server) return setMessage({ type: "error", text: "Server wajib dipilih dari daftar permainan." });
+    if (quantity <= 0) return setMessage({ type: "error", text: "Jumlah pesanan harus lebih dari 0." });
+    if (rate < 0) return setMessage({ type: "error", text: "Tarif tidak boleh minus." });
     if (hasBlankWorker) return setMessage({ type: "error", text: "Pilih karyawan pada semua baris pembagian." });
     if (hasInvalidWorkerQuantity) return setMessage({ type: "error", text: "Jumlah yang dikerjakan setiap karyawan harus lebih dari 0." });
-    if (hasDuplicateWorker) return setMessage({ type: "error", text: "Karyawan yang sama tidak boleh dimasukkan dua kali dalam satu order." });
+    if (hasDuplicateWorker) return setMessage({ type: "error", text: "Karyawan yang sama tidak boleh dimasukkan dua kali dalam satu pesanan." });
     if (workerQuantityMustMatch && !workerAllocationMatches) {
       const text = workerDifference > 0
-        ? `Pembagian karyawan melebihi jumlah order sebanyak ${workerDifference.toLocaleString("id-ID")}. Kurangi jumlah sebelum menyimpan.`
+        ? `Pembagian karyawan melebihi jumlah pesanan sebanyak ${workerDifference.toLocaleString("id-ID")}. Kurangi jumlah sebelum menyimpan.`
         : `Pembagian karyawan masih kurang ${Math.abs(workerDifference).toLocaleString("id-ID")}. Total pembagian harus sama dengan jumlah order.`;
       return setMessage({ type: "error", text });
     }
 
     if (needsStock) {
-      if (!stockRows.length || hasBlankStock) return setMessage({ type: "error", text: `Pilih stok gudang untuk order ${orderTypeLabels[orderType]}.` });
+      if (!stockRows.length || hasBlankStock) return setMessage({ type: "error", text: `Pilih stok gudang untuk pesanan ${orderTypeLabels[orderType]}.` });
       if (hasDuplicateStock) return setMessage({ type: "error", text: "Stok gudang yang sama tidak boleh dipilih dua kali." });
       if (hasWrongStockType) return setMessage({ type: "error", text: `Stok yang dipilih harus berjenis ${orderTypeLabels[orderType]}.` });
-      if (hasWrongGameStock) return setMessage({ type: "error", text: "Game stok harus sama dengan game pada pesanan." });
-      if (hasWrongRegionStock) return setMessage({ type: "error", text: "Region stok harus sama dengan Region pesanan." });
+      if (hasWrongGameStock) return setMessage({ type: "error", text: "Permainan stok harus sama dengan permainan pada pesanan." });
+      if (hasWrongRegionStock) return setMessage({ type: "error", text: "Wilayah stok harus sama dengan Wilayah pesanan." });
       if (hasWrongServerStock) return setMessage({ type: "error", text: "Server stok harus sama dengan Server pesanan." });
       if (hasInsufficientStock) return setMessage({ type: "error", text: "Ada jumlah yang melebihi stok tersedia. Kurangi jumlah atau pilih gudang lain." });
       if (!stockAllocationCheck.matches) {
         const text = stockDifference > 0
-          ? `Jumlah stok yang diambil melebihi order sebanyak ${stockDifference.toLocaleString("id-ID")}.`
+          ? `Jumlah stok yang diambil melebihi pesanan sebanyak ${stockDifference.toLocaleString("id-ID")}.`
           : `Jumlah stok yang dipilih masih kurang ${Math.abs(stockDifference).toLocaleString("id-ID")}.`;
         return setMessage({ type: "error", text });
       }
@@ -356,42 +357,42 @@ export function OrderEntryForm() {
     <form onSubmit={submit} className="space-y-5">
       <section className="cp-card p-5 sm:p-6">
         <div className="mb-5 rounded-xl border border-yellow-500/25 bg-yellow-500/10 p-4 text-sm leading-6 text-yellow-100">
-          <strong>Isi kode order secara manual. Tanggal diambil dari server.</strong> Untuk jenis <strong>Gold</strong> atau <strong>Item</strong>, stok wajib dipilih dari Gudang.
+          <strong>Isi kode pesanan secara manual. Tanggal diambil dari server.</strong> Untuk jenis <strong>Gold</strong> atau <strong>Item</strong>, stok wajib dipilih dari Gudang.
         </div>
 
         <h2 className="text-xl font-semibold">1. Data Pesanan</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="text-sm">Hari & tanggal order
+          <div className="text-sm">Hari &amp; tanggal pesanan
             <div className="mt-2 min-h-[50px] rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 font-medium">{serverTime ? formatDateTimeID(serverTime) : "Mengambil waktu server..."}</div>
           </div>
-          <label className="text-sm">Kode order manual
+          <label className="text-sm">Kode pesanan manual
             <input value={manualCode} onChange={e=>setManualCode(e.target.value)} maxLength={64} required autoComplete="off" placeholder="Contoh: G2G-20260917-001" aria-describedby="order-code-help" aria-invalid={!!manualCode && !!codeError} className={inputClass} />
             <span id="order-code-help" className={`mt-1 block text-xs ${manualCode && codeError ? "text-red-300" : "text-zinc-400"}`}>{manualCode && codeError ? codeError : "1–64 karakter: huruf, angka, titik, tanda hubung atau garis bawah. Kode harus unik."}</span>
           </label>
           <label className="text-sm">Sumber
-            <select value={source} onChange={(e) => setSource(e.target.value)} className={inputClass}>{sources.map((x) => <option key={x}>{x}</option>)}</select>
+            <select value={source} onChange={(e) => setSource(e.target.value)} className={inputClass}>{sources.map((x) => <option key={x} value={x}>{x}</option>)}</select>
           </label>
-          <label className="text-sm">Jenis Order
+          <label className="text-sm">Jenis Pesanan
             <select value={orderType} onChange={(e) => changeOrderType(e.target.value as OrderType)} className={inputClass}>
               <option value="gold">Gold</option>
               <option value="item">Item</option>
               <option value="boosting">Boosting</option>
             </select>
           </label>
-          <label className="text-sm">Nama buyer
-            <input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder="Nama buyer" className={inputClass} required />
+          <label className="text-sm">Nama pembeli
+            <input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder={"Nama pembeli"} className={inputClass} required />
           </label>
           {orderType !== "gold" ? (
-            <label className="text-sm">Nama order
+            <label className="text-sm">Nama pesanan
               <input value={orderName} onChange={(e) => setOrderName(e.target.value)} placeholder={orderType === "item" ? "Contoh: Ancient Core x10" : "Contoh: Level 1-60"} className={inputClass} required />
             </label>
           ) : null}
-          <div className="relative text-sm">Game
+          <div className="relative text-sm">Gim
             <input
               value={gameQuery}
               onChange={(e) => changeGameQuery(e.target.value)}
               onFocus={() => setShowGameSuggestions(true)}
-              placeholder="Ketik nama game, lalu pilih rekomendasi"
+              placeholder={"Ketik nama permainan, lalu pilih rekomendasi"}
               className={inputClass}
               autoComplete="off"
             />
@@ -402,21 +403,21 @@ export function OrderEntryForm() {
                     <div className="font-semibold">{row.name}</div>
                     <div className="text-xs text-zinc-500">{row.code}{row.aliases?.length ? ` · ${row.aliases.join(", ")}` : ""}</div>
                   </button>
-                )) : <div className="px-3 py-3 text-xs text-zinc-500">Tidak ada game. Tambahkan dulu di menu Produk / Game.</div>}
+                )) : <div className="px-3 py-3 text-xs text-zinc-500">Tidak ada permainan. Tambahkan dulu di menu Produk / Permainan.</div>}
               </div>
             ) : null}
-            <div className="mt-1 text-xs text-zinc-500">Game tidak bisa diketik bebas; harus dipilih dari daftar Produk / Game.</div>
+            <div className="mt-1 text-xs text-zinc-500">Permainan tidak bisa diketik bebas; harus dipilih dari daftar Produk / Permainan.</div>
           </div>
-          <label className="text-sm">Region
+          <label className="text-sm">Wilayah
             <select value={region} onChange={(e) => changeRegion(e.target.value)} className={inputClass} disabled={!selectedGame}>
-              <option value="">Pilih Region</option>
+              <option value="">Pilih Wilayah</option>
               {availableRegions.map((row) => <option key={row.name} value={row.name}>{row.name}</option>)}
             </select>
           </label>
           <label className="text-sm">Server
             <select value={server} onChange={(e) => setServer(e.target.value)} className={inputClass} disabled={!region}>
               <option value="">Pilih Server</option>
-              {availableServers.map((value) => <option key={value} value={value}>{value}</option>)}
+              {availableServers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}
             </select>
           </label>
         </div>
@@ -426,7 +427,7 @@ export function OrderEntryForm() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold">2. Karyawan, Proses & Jumlah</h2>
-            <p className="mt-1 text-sm text-zinc-500">Satu order boleh dikerjakan beberapa karyawan. Untuk Boosting, harga otomatis dibagi rata. Untuk Gold/Item, total jumlah karyawan harus sama dengan jumlah order.</p>
+            <p className="mt-1 text-sm text-zinc-500">Satu pesanan boleh dikerjakan beberapa karyawan. Untuk Boosting, harga otomatis dibagi rata. Untuk Gold/Item, total jumlah karyawan harus sama dengan jumlah pesanan.</p>
           </div>
           <button type="button" onClick={() => setWorkerRows((rows) => [...rows, newWorkerRow(orderType === "boosting" ? Math.max(1, quantity) : 0)])} className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold hover:bg-zinc-700">+ Tambah karyawan</button>
         </div>
@@ -447,14 +448,14 @@ export function OrderEntryForm() {
                   <label className="text-sm">Karyawan
                     <select value={row.employeeId} onChange={(e) => updateWorker(row.rowId, { employeeId: e.target.value })} className={inputClass}>
                       <option value="">Pilih karyawan</option>
-                      {employees.filter((x) => x.workforceStatus !== "RESIGN").map((x) => <option key={x.id} value={x.id}>{x.name} — {x.team} — {x.workforceStatus}</option>)}
+                      {employees.filter((x) => x.workforceStatus !== "RESIGN").map((x) => <option key={x.id} value={x.id}>{x.name} — {x.team} — {adminLabel(x.workforceStatus)}</option>)}
                     </select>
                   </label>
                   <div className="text-sm">FH
                     <div className="mt-2 flex min-h-[50px] items-center rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 font-semibold text-yellow-300">{employee?.team ?? "Otomatis"}</div>
                   </div>
                   <label className="text-sm">Proses
-                    <select value={row.process} onChange={(e) => updateWorker(row.rowId, { process: e.target.value })} className={inputClass}>{processes.map((x) => <option key={x}>{x}</option>)}</select>
+                    <select value={row.process} onChange={(e) => updateWorker(row.rowId, { process: e.target.value })} className={inputClass}>{processes.map((x) => <option key={x} value={x}>{x}</option>)}</select>
                   </label>
                   {orderType === "boosting" ? (
                     <div className="text-sm">Pembagian harga
@@ -512,9 +513,9 @@ export function OrderEntryForm() {
                     </label>
                   </div>
                   {stock ? <div className={`mt-3 rounded-xl p-3 text-sm ${over || wrongGame || wrongRegion || wrongServer ? "bg-red-500/10 text-red-200" : "bg-emerald-500/10 text-emerald-100"}`}>
-                    {stock.stockType === "item" ? <><strong>{stock.itemName}</strong> · </> : null}Game {stock.game} · Region {stock.region ?? "—"} · Server {stock.server ?? "—"} · Stok {stock.onHand.toLocaleString("id-ID")} · Sudah dipesan {stock.reserved.toLocaleString("id-ID")} · <strong>Bisa dipakai {available.toLocaleString("id-ID")}</strong>
-                    {wrongGame ? <div className="mt-1 font-semibold">⚠ Game stok berbeda dengan game pesanan.</div> : null}
-                    {wrongRegion ? <div className="mt-1 font-semibold">⚠ Region stok berbeda dengan Region pesanan.</div> : null}
+                    {stock.stockType === "item" ? <><strong>{stock.itemName}</strong> · </> : null}Gim {stock.game} · Wilayah {stock.region ?? "—"} · Server {stock.server ?? "—"} · Stok {stock.onHand.toLocaleString("id-ID")} · Sudah dipesan {stock.reserved.toLocaleString("id-ID")} · <strong>Bisa dipakai {available.toLocaleString("id-ID")}</strong>
+                    {wrongGame ? <div className="mt-1 font-semibold">⚠ Permainan stok berbeda dengan permainan pesanan.</div> : null}
+                    {wrongRegion ? <div className="mt-1 font-semibold">⚠ Wilayah stok berbeda dengan Wilayah pesanan.</div> : null}
                     {wrongServer ? <div className="mt-1 font-semibold">⚠ Server stok berbeda dengan Server pesanan.</div> : null}
                     {over ? <div className="mt-1 font-semibold">⚠ Jumlah yang diambil melebihi stok tersedia.</div> : null}
                   </div> : null}
@@ -524,28 +525,28 @@ export function OrderEntryForm() {
           </div>
 
           <div className={`mt-4 rounded-2xl border p-4 ${stockMatches ? "border-emerald-500/30 bg-emerald-500/10" : hasInsufficientStock || hasWrongGameStock || hasWrongRegionStock || hasWrongServerStock || hasWrongStockType || hasDuplicateStock ? "border-red-500/30 bg-red-500/10" : "border-amber-500/30 bg-amber-500/10"}`}>
-            <div className="font-semibold">Pengecekan stok: Order {quantity.toLocaleString("id-ID")} · Diambil {stockAssignedQuantity.toLocaleString("id-ID")}</div>
-            <div className="mt-1 text-sm">{stockMatches ? "✓ Stok cocok dan cukup." : hasInsufficientStock ? "⚠ Ada stok yang tidak cukup." : hasWrongStockType ? "⚠ Jenis stok tidak cocok dengan jenis order." : hasWrongGameStock ? "⚠ Ada stok dari game yang berbeda." : hasWrongRegionStock ? "⚠ Ada stok dari Region yang berbeda." : hasWrongServerStock ? "⚠ Ada stok dari Server yang berbeda." : hasDuplicateStock ? "⚠ Stok yang sama dipilih dua kali." : stockDifference > 0 ? `⚠ Melebihi ${stockDifference.toLocaleString("id-ID")}.` : `⚠ Masih kurang ${Math.abs(stockDifference).toLocaleString("id-ID")}.`}</div>
+            <div className="font-semibold">Pengecekan stok: Pesanan {quantity.toLocaleString("id-ID")} · Diambil {stockAssignedQuantity.toLocaleString("id-ID")}</div>
+            <div className="mt-1 text-sm">{stockMatches ? "✓ Stok cocok dan cukup." : hasInsufficientStock ? "⚠ Ada stok yang tidak cukup." : hasWrongStockType ? "⚠ Jenis stok tidak cocok dengan jenis pesanan." : hasWrongGameStock ? "⚠ Ada stok dari permainan yang berbeda." : hasWrongRegionStock ? "⚠ Ada stok dari Wilayah yang berbeda." : hasWrongServerStock ? "⚠ Ada stok dari Server yang berbeda." : hasDuplicateStock ? "⚠ Stok yang sama dipilih dua kali." : stockDifference > 0 ? `⚠ Melebihi ${stockDifference.toLocaleString("id-ID")}.` : `⚠ Masih kurang ${Math.abs(stockDifference).toLocaleString("id-ID")}.`}</div>
           </div>
         </section>
       ) : null}
 
       <section className="cp-card p-5 sm:p-6">
         <h2 className="text-xl font-semibold">{needsStock ? "4" : "3"}. Harga</h2>
-        <p className="mt-1 text-sm text-zinc-500">Di Pesanan hanya dicatat nilai order. Persentase gaji tidak lagi diatur di sini.</p>
+        <p className="mt-1 text-sm text-zinc-500">Di Pesanan hanya dicatat nilai pesanan. Persentase gaji tidak lagi diatur di sini.</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <label className="text-sm">Jumlah order
+          <label className="text-sm">Jumlah pesanan
             <input type="number" min="0.00000001" step="any" value={quantity} onChange={(e) => changeOrderQuantity(Number(e.target.value))} className={inputClass} />
           </label>
-          <label className="text-sm">Rate / harga per unit
+          <label className="text-sm">Tarif / harga per unit
             <input type="number" min="0" step="1" value={rate} onChange={(e) => setRate(Math.max(0, Number(e.target.value)))} className={inputClass} />
           </label>
         </div>
 
         <div className="mt-5 rounded-xl bg-zinc-950 p-4">
-          <div className="text-sm text-zinc-500">Total harga order</div>
+          <div className="text-sm text-zinc-500">Total harga pesanan</div>
           <div className="mt-1 text-3xl font-semibold">{formatMoney(total)}</div>
-          <div className="mt-1 text-xs text-zinc-600">Jumlah × Rate · Persentase gaji diatur per karyawan melalui menu Gaji.</div>
+          <div className="mt-1 text-xs text-zinc-600">Jumlah × Tarif · Persentase gaji diatur per karyawan melalui menu Gaji.</div>
         </div>
 
         <div className={`mt-5 rounded-2xl border p-4 ${workerSplitOk ? "border-emerald-500/30 bg-emerald-500/10" : workerDifference > 0 || hasDuplicateWorker ? "border-red-500/30 bg-red-500/10" : "border-amber-500/30 bg-amber-500/10"}`}>
@@ -553,23 +554,23 @@ export function OrderEntryForm() {
             <div>
               <div className="text-sm text-zinc-400">Pengecekan pembagian karyawan</div>
               {orderType === "boosting" ? (
-                <div className="mt-1 text-lg font-semibold">1 order · {workerRows.length} karyawan · harga {formatMoney(total)} dibagi otomatis</div>
+                <div className="mt-1 text-lg font-semibold">1 pesanan · {workerRows.length} karyawan · harga {formatMoney(total)} dibagi otomatis</div>
               ) : (
-                <div className="mt-1 text-lg font-semibold">Order: {quantity.toLocaleString("id-ID")} · Dibagi: {assignedQuantity.toLocaleString("id-ID")}</div>
+                <div className="mt-1 text-lg font-semibold">Pesanan: {quantity.toLocaleString("id-ID")} · Dibagi: {assignedQuantity.toLocaleString("id-ID")}</div>
               )}
             </div>
             <div className={`rounded-full px-3 py-1 text-xs font-bold ${workerSplitOk ? "bg-emerald-500 text-black" : workerDifference > 0 || hasDuplicateWorker ? "bg-red-500 text-white" : "bg-amber-400 text-black"}`}>
               {hasDuplicateWorker ? "KARYAWAN DUPLIKAT" : hasBlankWorker ? "PILIH KARYAWAN" : hasInvalidWorkerQuantity ? "JUMLAH BELUM BENAR" : orderType === "boosting" ? "HARGA DIBAGI OTOMATIS" : workerAllocationMatches ? "JUMLAH COCOK" : workerDifference > 0 ? `MELEBIHI ${workerDifference.toLocaleString("id-ID")}` : `KURANG ${Math.abs(workerDifference).toLocaleString("id-ID")}`}
             </div>
           </div>
-          {workerQuantityMustMatch && !workerAllocationMatches ? <p className="mt-2 text-sm">Untuk Gold/Item, total jumlah yang dikerjakan semua karyawan harus sama persis dengan jumlah order.</p> : null}
-          {orderType === "boosting" && workerRows.length > 1 ? <p className="mt-2 text-sm">Contoh: order Rp10.000 dengan 2 karyawan = nilai pekerjaan Rp5.000 per karyawan, tetapi tetap hanya 1 order di Mutasi.</p> : null}
+          {workerQuantityMustMatch && !workerAllocationMatches ? <p className="mt-2 text-sm">Untuk Gold/Item, total jumlah yang dikerjakan semua karyawan harus sama persis dengan jumlah pesanan.</p> : null}
+          {orderType === "boosting" && workerRows.length > 1 ? <p className="mt-2 text-sm">Contoh: pesanan Rp10.000 dengan 2 karyawan = nilai pekerjaan Rp5.000 per karyawan, tetapi tetap hanya 1 pesanan di Mutasi.</p> : null}
         </div>
       </section>
 
       {message ? (
         <section className={`rounded-2xl border p-5 ${message.type === "ok" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100" : "border-red-500/30 bg-red-500/10 text-red-100"}`}>
-          <div className="font-semibold">{message.type === "ok" ? "✓ Berhasil" : "⚠ Periksa lagi"}</div>
+          <div className="font-semibold">{adminLabel(message.type === "ok" ? "✓ Berhasil" : "⚠ Periksa lagi")}</div>
           <div className="mt-1 text-sm">{message.text}</div>
           {message.type === "ok" ? <div className="mt-4 flex flex-wrap gap-2"><Link href="/admin/payroll/mutations" className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black">Lihat di Mutasi</Link><Link href="/admin/payroll/inventory" className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold">Lihat Gudang</Link></div> : null}
         </section>

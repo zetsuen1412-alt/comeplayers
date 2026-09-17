@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -104,7 +105,7 @@ export default function IgdbCatalogAdminPage() {
       setPayload(data);
       setSelected([]);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load IGDB queue.");
+      setError(loadError instanceof Error ? loadError.message : "Gagal memuat antrean IGDB.");
     }
   }, [page, status]);
 
@@ -140,10 +141,10 @@ export default function IgdbCatalogAdminPage() {
           }),
         }
       );
-      setMessage(`${action.toUpperCase()} completed: ${JSON.stringify(response.result || {})}`);
+      setMessage(`${action.toUpperCase()} selesai: ${JSON.stringify(response.result || {})}`);
       await loadData();
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : `${action} failed.`);
+      setError(actionError instanceof Error ? actionError.message : `${action} gagal.`);
     } finally {
       setBusy("");
     }
@@ -156,19 +157,19 @@ export default function IgdbCatalogAdminPage() {
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
             <div>
               <p className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-                IGDB Catalog Migration
+                Migrasi Katalog IGDB
               </p>
-              <h1 className="mt-5 text-4xl font-black md:text-6xl">Provider staging & review</h1>
+              <h1 className="mt-5 text-4xl font-black md:text-6xl">Penampungan &amp; peninjauan data penyedia</h1>
               <p className="mt-4 max-w-3xl text-slate-300">
-                IGDB records are staged first. Nothing becomes publicly active until an administrator reviews the candidate and later activates the game in Game Catalog.
+                Data IGDB ditampung terlebih dahulu. Tidak ada data yang aktif di publik sebelum admin meninjau kandidat dan mengaktifkan gim di Katalog Gim.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link href="/admin/games" className="rounded-xl border border-white/10 px-5 py-3 font-black hover:border-cyan-400">
-                Game Catalog
+                Katalog Gim
               </Link>
               <Link href="/admin" className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-black hover:bg-cyan-300">
-                Admin Home
+                Beranda Admin
               </Link>
             </div>
           </div>
@@ -178,11 +179,11 @@ export default function IgdbCatalogAdminPage() {
       <section className="mx-auto max-w-7xl space-y-8 px-4 py-10">
         {!payload?.configured && (
           <div className="rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-5 text-yellow-100">
-            IGDB is not configured. Add server-only TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, and IGDB_SYNC_ENABLED=true.
+            IGDB belum dikonfigurasi. Tambahkan TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, dan IGDB_SYNC_ENABLED=true hanya di server.
           </div>
         )}
-        {error && <div className="rounded-2xl border border-red-400/30 bg-red-400/10 p-5 text-red-200">{error}</div>}
-        {message && <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-5 text-emerald-200">{message}</div>}
+        {error && <div className="rounded-2xl border border-red-400/30 bg-red-400/10 p-5 text-red-200">{adminText(error)}</div>}
+        {message && <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-5 text-emerald-200">{adminText(message)}</div>}
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {Object.entries(payload?.counts || {}).map(([key, value]) => (
@@ -203,10 +204,10 @@ export default function IgdbCatalogAdminPage() {
 
         <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <h2 className="text-2xl font-black">Import controls</h2>
+            <h2 className="text-2xl font-black">Pengaturan impor</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm font-bold text-slate-300">
-                Batch size (max 100 in admin)
+                Ukuran kelompok (maksimal 100 di admin)
                 <input
                   type="number"
                   min={1}
@@ -217,7 +218,7 @@ export default function IgdbCatalogAdminPage() {
                 />
               </label>
               <label className="grid gap-2 text-sm font-bold text-slate-300">
-                IGDB offset
+                Posisi awal IGDB
                 <input
                   type="number"
                   min={0}
@@ -234,7 +235,7 @@ export default function IgdbCatalogAdminPage() {
                 onClick={() => void runAction("stage", { limit: stageLimit, offset: stageOffset, gameTypes: [0] })}
                 className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 font-black text-black disabled:opacity-50"
               >
-                <FaCloudDownloadAlt /> {busy === "stage" ? "Staging..." : "Stage popular games"}
+                <FaCloudDownloadAlt /> {busy === "stage" ? "Menampung data..." : "Tampung gim populer"}
               </button>
               <button
                 type="button"
@@ -242,7 +243,7 @@ export default function IgdbCatalogAdminPage() {
                 onClick={() => void runAction("sync", { limit: 100 })}
                 className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/30 px-5 py-3 font-black text-cyan-200 disabled:opacity-50"
               >
-                <FaRedo /> {busy === "sync" ? "Syncing..." : "Sync linked games"}
+                <FaRedo /> {busy === "sync" ? "Menyinkronkan..." : "Sinkronkan gim tertaut"}
               </button>
               <button
                 type="button"
@@ -250,19 +251,19 @@ export default function IgdbCatalogAdminPage() {
                 onClick={() => void runAction("apply", { limit: 100 })}
                 className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/30 px-5 py-3 font-black text-emerald-200 disabled:opacity-50"
               >
-                <FaDatabase /> {busy === "apply" ? "Applying..." : "Apply approved"}
+                <FaDatabase /> {busy === "apply" ? "Menerapkan..." : "Terapkan yang disetujui"}
               </button>
             </div>
           </div>
 
           <aside className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <h2 className="text-xl font-black">Safety model</h2>
+            <h2 className="text-xl font-black">Model keamanan</h2>
             <ul className="mt-4 space-y-3 text-sm text-slate-300">
-              <li>• Provider payload is stored separately for audit.</li>
-              <li>• Existing admin fields are only filled when blank.</li>
-              <li>• Local override fields are never overwritten.</li>
-              <li>• New games enter as inactive and require activation.</li>
-              <li>• RAWG and Steam identifiers remain as legacy references.</li>
+              <li>• Data penyedia disimpan terpisah untuk audit.</li>
+              <li>• Kolom admin yang sudah ada hanya diisi jika kosong.</li>
+              <li>• Penyesuaian lokal tidak pernah ditimpa.</li>
+              <li>• Gim baru masuk dalam keadaan nonaktif dan perlu diaktifkan.</li>
+              <li>• ID RAWG dan Steam dipertahankan sebagai referensi lama.</li>
             </ul>
           </aside>
         </div>
@@ -270,8 +271,8 @@ export default function IgdbCatalogAdminPage() {
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <h2 className="text-2xl font-black">Review queue</h2>
-              <p className="mt-1 text-sm text-slate-400">{payload?.pagination.count || 0} candidate(s) in this filter.</p>
+              <h2 className="text-2xl font-black">Antrean peninjauan</h2>
+              <p className="mt-1 text-sm text-slate-400">{payload?.pagination.count || 0} kandidat pada filter ini.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               {statuses.map((item) => (
@@ -297,16 +298,16 @@ export default function IgdbCatalogAdminPage() {
                 checked={allVisibleSelected}
                 onChange={(event) => setSelected(event.target.checked ? (payload?.candidates || []).map((item) => item.id) : [])}
               />
-              Select visible
+              Pilih yang terlihat
             </label>
-            <span className="text-sm text-slate-500">{selected.length} selected</span>
+            <span className="text-sm text-slate-500">{selected.length} dipilih</span>
             <button
               type="button"
               disabled={Boolean(busy) || selected.length === 0}
               onClick={() => void runAction("approve")}
               className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/30 px-4 py-2 text-sm font-black text-emerald-200 disabled:opacity-50"
             >
-              <FaCheck /> Approve
+              <FaCheck /> Setujui
             </button>
             <button
               type="button"
@@ -314,7 +315,7 @@ export default function IgdbCatalogAdminPage() {
               onClick={() => void runAction("reject")}
               className="inline-flex items-center gap-2 rounded-lg border border-red-400/30 px-4 py-2 text-sm font-black text-red-200 disabled:opacity-50"
             >
-              <FaTimes /> Reject
+              <FaTimes /> Tolak
             </button>
           </div>
 
@@ -334,27 +335,27 @@ export default function IgdbCatalogAdminPage() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-lg font-black">{candidate.proposed_name}</h3>
-                    <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${statusClass(candidate.status)}`}>{candidate.status}</span>
+                    <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${statusClass(candidate.status)}`}>{adminLabel(candidate.status)}</span>
                     <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-slate-400">IGDB #{candidate.igdb_id}</span>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-sm text-slate-400">{candidate.proposed_summary || "No IGDB summary."}</p>
+                  <p className="mt-2 line-clamp-2 text-sm text-slate-400">{candidate.proposed_summary || "Tidak ada ringkasan IGDB."}</p>
                   <div className="mt-3 grid gap-1 text-xs text-slate-400 sm:grid-cols-2">
-                    <p>Release: {candidate.proposed_release_date || "-"}</p>
-                    <p>Rating: {Number(candidate.proposed_rating || 0).toFixed(1)}</p>
-                    <p>Platforms: {names(candidate.proposed_platforms) || "-"}</p>
-                    <p>Genres: {names(candidate.proposed_genres) || "-"}</p>
+                    <p>Rilis: {candidate.proposed_release_date || "-"}</p>
+                    <p>Penilaian: {Number(candidate.proposed_rating || 0).toFixed(1)}</p>
+                    <p>Platform: {names(candidate.proposed_platforms) || "-"}</p>
+                    <p>Genre: {names(candidate.proposed_genres) || "-"}</p>
                   </div>
-                  {candidate.last_error && <p className="mt-3 text-xs text-red-300">{candidate.last_error}</p>}
+                  {candidate.last_error && <p className="mt-3 text-xs text-red-300">{adminText(candidate.last_error)}</p>}
                 </div>
                 <div className="text-right text-xs text-slate-400">
-                  <p className="font-black text-cyan-300">Match {Number(candidate.match_score || 0).toFixed(0)}%</p>
-                  <p className="mt-1">{candidate.match_reason || "no match"}</p>
-                  <p className="mt-1">Game #{candidate.match_game_id || candidate.imported_game_id || "new"}</p>
+                  <p className="font-black text-cyan-300">Kecocokan {Number(candidate.match_score || 0).toFixed(0)}%</p>
+                  <p className="mt-1">{candidate.match_reason || "tidak ada kecocokan"}</p>
+                  <p className="mt-1">Gim #{candidate.match_game_id || candidate.imported_game_id || "new"}</p>
                   <p className="mt-4">{formatDate(candidate.updated_at)}</p>
                 </div>
               </article>
             ))}
-            {payload?.candidates.length === 0 && <p className="rounded-2xl border border-white/10 p-8 text-center text-slate-400">No candidates in this filter.</p>}
+            {payload?.candidates.length === 0 && <p className="rounded-2xl border border-white/10 p-8 text-center text-slate-400">Tidak ada kandidat pada filter ini.</p>}
           </div>
 
           <div className="mt-6 flex items-center justify-between">
@@ -364,30 +365,30 @@ export default function IgdbCatalogAdminPage() {
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               className="rounded-xl border border-white/10 px-4 py-2 font-black disabled:opacity-40"
             >
-              Previous
+              Sebelumnya
             </button>
-            <span className="text-sm text-slate-400">Page {payload?.pagination.page || 1} / {payload?.pagination.totalPages || 1}</span>
+            <span className="text-sm text-slate-400">Halaman {payload?.pagination.page || 1} / {payload?.pagination.totalPages || 1}</span>
             <button
               type="button"
               disabled={(payload?.pagination.page || 1) >= (payload?.pagination.totalPages || 1)}
               onClick={() => setPage((current) => current + 1)}
               className="rounded-xl border border-white/10 px-4 py-2 font-black disabled:opacity-40"
             >
-              Next
+              Berikutnya
             </button>
           </div>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-          <h2 className="text-2xl font-black">Recent runs</h2>
+          <h2 className="text-2xl font-black">Proses terbaru</h2>
           <div className="mt-5 space-y-3">
             {(payload?.runs || []).map((run) => (
               <div key={run.id} className="grid gap-2 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm md:grid-cols-[100px_100px_1fr_auto]">
-                <span className="font-black text-cyan-300">{run.action}</span>
-                <span>{run.status}</span>
-                <span className="text-slate-400">Fetched {run.fetched_count} · staged {run.staged_count} · matched {run.matched_count} · imported {run.imported_count} · failed {run.failed_count}</span>
+                <span className="font-black text-cyan-300">{adminLabel(run.action)}</span>
+                <span>{adminLabel(run.status)}</span>
+                <span className="text-slate-400">Diambil {run.fetched_count} · ditampung {run.staged_count} · dicocokkan {run.matched_count} · diimpor {run.imported_count} · gagal {run.failed_count}</span>
                 <span className="text-slate-500">{formatDate(run.finished_at || run.started_at)}</span>
-                {run.error_message && <p className="text-red-300 md:col-span-4">{run.error_message}</p>}
+                {run.error_message && <p className="text-red-300 md:col-span-4">{adminText(run.error_message)}</p>}
               </div>
             ))}
           </div>

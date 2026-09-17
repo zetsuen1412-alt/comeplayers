@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -75,7 +76,7 @@ export default function SellerApplicationsAdminPage() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -90,7 +91,7 @@ export default function SellerApplicationsAdminPage() {
         await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -110,7 +111,7 @@ export default function SellerApplicationsAdminPage() {
         .maybeSingle();
 
       if (profileByIdError) {
-        alert(profileByIdError.message);
+        alert(adminText(profileByIdError.message));
         setLoading(false);
         return;
       }
@@ -126,7 +127,7 @@ export default function SellerApplicationsAdminPage() {
             .maybeSingle();
 
         if (profileByEmailError) {
-          alert(profileByEmailError.message);
+          alert(adminText(profileByEmailError.message));
           setLoading(false);
           return;
         }
@@ -149,7 +150,7 @@ export default function SellerApplicationsAdminPage() {
   }, []);
 
   async function approveApplication(application: SellerApplication) {
-    if (!confirm(`Approve ${application.seller_name} as a seller?`)) return;
+    if (!confirm(`Setujui ${application.seller_name} sebagai penjual?`)) return;
 
     setUpdatingApplicationId(application.id);
 
@@ -160,9 +161,9 @@ export default function SellerApplicationsAdminPage() {
       });
 
       await loadApplications();
-      alert("Seller application approved successfully.");
+      alert("Pendaftaran penjual berhasil disetujui.");
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to approve seller application.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menyetujui pendaftaran penjual."));
     } finally {
       setUpdatingApplicationId(null);
     }
@@ -170,15 +171,15 @@ export default function SellerApplicationsAdminPage() {
 
   async function rejectApplication(application: SellerApplication) {
     const rejectionNote = prompt(
-      `Reject ${application.seller_name}? Add a required note:`,
-      "Seller application rejected."
+      `Tolak ${application.seller_name}? Tambahkan catatan wajib:`,
+      "Pendaftaran penjual ditolak."
     );
 
     if (rejectionNote === null) return;
     const note = rejectionNote.trim();
 
     if (!note) {
-      alert("A rejection note is required.");
+      alert("Catatan penolakan wajib diisi.");
       return;
     }
 
@@ -191,16 +192,16 @@ export default function SellerApplicationsAdminPage() {
       });
 
       await loadApplications();
-      alert("Seller application rejected.");
+      alert("Pendaftaran penjual ditolak.");
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to reject seller application.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menolak pendaftaran penjual."));
     } finally {
       setUpdatingApplicationId(null);
     }
   }
 
   async function resetApplication(application: SellerApplication) {
-    if (!confirm(`Reset ${application.seller_name} application to pending?`)) return;
+    if (!confirm(`Atur Ulang ${application.seller_name} pendaftarannya menjadi menunggu?`)) return;
 
     setUpdatingApplicationId(application.id);
 
@@ -211,9 +212,9 @@ export default function SellerApplicationsAdminPage() {
       });
 
       await loadApplications();
-      alert("Seller application reset to pending.");
+      alert("Pendaftaran penjual diatur kembali menjadi menunggu.");
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to reset seller application.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal mengatur ulang pendaftaran penjual."));
     } finally {
       setUpdatingApplicationId(null);
     }
@@ -251,7 +252,7 @@ export default function SellerApplicationsAdminPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading seller applications...
+          Memuat pendaftaran penjual...
         </p>
       </main>
     );
@@ -261,17 +262,17 @@ export default function SellerApplicationsAdminPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
-          <h1 className="text-3xl font-black text-cyan-300">Login Required</h1>
+          <h1 className="text-3xl font-black text-cyan-300">Harus Masuk</h1>
 
           <p className="mt-4 text-gray-400">
-            Please login first to access the admin dashboard.
+            Masuk terlebih dahulu untuk mengakses dasbor admin.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-block rounded-full bg-cyan-400 px-6 py-3 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -282,22 +283,22 @@ export default function SellerApplicationsAdminPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only administrator accounts can access seller applications.
+            Hanya akun admin yang dapat mengakses pendaftaran penjual.
           </p>
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4 text-left text-sm text-gray-300">
-            <p>Current user: {user.email}</p>
-            <p>Detected role: {adminProfile?.role || "No profile found"}</p>
+            <p>Pengguna saat ini: {user.email}</p>
+            <p>Peran terdeteksi: {adminLabel(adminProfile?.role || "Profil tidak ditemukan")}</p>
           </div>
 
           <Link
             href="/"
             className="mt-6 inline-block rounded-full bg-cyan-400 px-6 py-3 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -312,20 +313,19 @@ export default function SellerApplicationsAdminPage() {
         <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-              Admin Dashboard
+              Dasbor Admin
             </p>
 
             <h1 className="text-5xl font-black md:text-7xl">
-              Seller Applications
+              Pendaftaran Penjual
             </h1>
 
             <p className="mt-5 max-w-2xl text-gray-300">
-              Review seller verification requests, approve trusted sellers, and
-              protect the ComePlayers marketplace.
+              Tinjau permintaan verifikasi penjual, setujui penjual tepercaya, dan lindungi marketplace ComePlayers.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -333,7 +333,7 @@ export default function SellerApplicationsAdminPage() {
             href="/admin"
             className="inline-flex h-12 shrink-0 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
           >
-            Back to Admin
+            Kembali ke Admin
           </Link>
         </div>
       </section>
@@ -344,7 +344,7 @@ export default function SellerApplicationsAdminPage() {
             onClick={() => setActiveStatus("all")}
             className="rounded-3xl border border-white/10 bg-white/[0.035] p-5 text-left transition hover:border-cyan-400"
           >
-            <p className="text-sm text-gray-400">Total Applications</p>
+            <p className="text-sm text-gray-400">Total Pendaftaran</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {applications.length}
             </p>
@@ -354,7 +354,7 @@ export default function SellerApplicationsAdminPage() {
             onClick={() => setActiveStatus("pending")}
             className="rounded-3xl border border-white/10 bg-white/[0.035] p-5 text-left transition hover:border-yellow-400"
           >
-            <p className="text-sm text-gray-400">Pending</p>
+            <p className="text-sm text-gray-400">Menunggu</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {pendingCount}
             </p>
@@ -364,7 +364,7 @@ export default function SellerApplicationsAdminPage() {
             onClick={() => setActiveStatus("approved")}
             className="rounded-3xl border border-white/10 bg-white/[0.035] p-5 text-left transition hover:border-green-400"
           >
-            <p className="text-sm text-gray-400">Approved</p>
+            <p className="text-sm text-gray-400">Disetujui</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {approvedCount}
             </p>
@@ -374,7 +374,7 @@ export default function SellerApplicationsAdminPage() {
             onClick={() => setActiveStatus("rejected")}
             className="rounded-3xl border border-white/10 bg-white/[0.035] p-5 text-left transition hover:border-red-400"
           >
-            <p className="text-sm text-gray-400">Rejected</p>
+            <p className="text-sm text-gray-400">Ditolak</p>
             <p className="mt-2 text-3xl font-black text-red-300">
               {rejectedCount}
             </p>
@@ -385,7 +385,7 @@ export default function SellerApplicationsAdminPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by seller name, email, full name, phone, or ID..."
+            placeholder={"Cari berdasarkan nama penjual, email, nama lengkap, telepon, atau ID..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -400,9 +400,9 @@ export default function SellerApplicationsAdminPage() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {status === "all"
-                  ? "All"
-                  : status.charAt(0).toUpperCase() + status.slice(1)}
+                {adminLabel(status === "all"
+                  ? "Semua"
+                  : adminLabel(status))}
               </button>
             ))}
           </div>
@@ -410,10 +410,9 @@ export default function SellerApplicationsAdminPage() {
 
         {filteredApplications.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
-            <h2 className="text-3xl font-black">No applications found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada pendaftaran ditemukan.</h2>
             <p className="mt-3 text-gray-400">
-              Seller applications will appear here after users submit their
-              verification forms.
+              Pendaftaran penjual muncul di sini setelah pengguna mengirim formulir verifikasi.
             </p>
           </div>
         ) : (
@@ -435,12 +434,12 @@ export default function SellerApplicationsAdminPage() {
                           application.status
                         )}`}
                       >
-                        {application.status || "pending"}
+                        {adminLabel(application.status || "pending")}
                       </span>
                     </div>
 
                     <p className="mt-2 text-sm text-gray-400">
-                      Application ID: #{application.id}
+                      ID Pendaftaran: #{application.id}
                     </p>
 
                     <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -452,14 +451,14 @@ export default function SellerApplicationsAdminPage() {
                       </div>
 
                       <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                        <p className="text-xs text-gray-500">Full Name</p>
+                        <p className="text-xs text-gray-500">Nama Lengkap</p>
                         <p className="mt-1 font-bold">
                           {application.full_name}
                         </p>
                       </div>
 
                       <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                        <p className="text-xs text-gray-500">Phone</p>
+                        <p className="text-xs text-gray-500">Telepon</p>
                         <p className="mt-1 font-bold">{application.phone}</p>
                       </div>
 
@@ -472,7 +471,7 @@ export default function SellerApplicationsAdminPage() {
 
                       <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                         <p className="text-xs text-gray-500">
-                          Identity Number
+                          Nomor Identitas
                         </p>
                         <p className="mt-1 break-words font-bold">
                           {application.identity_number}
@@ -480,7 +479,7 @@ export default function SellerApplicationsAdminPage() {
                       </div>
 
                       <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                        <p className="text-xs text-gray-500">Submitted At</p>
+                        <p className="text-xs text-gray-500">Waktu Pengajuan</p>
                         <p className="mt-1 font-bold">
                           {formatDate(application.created_at)}
                         </p>
@@ -489,11 +488,11 @@ export default function SellerApplicationsAdminPage() {
 
                     {application.identity_image ? (
                       <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4">
-                        <p className="text-xs text-gray-500">Identity Image</p>
+                        <p className="text-xs text-gray-500">Gambar Identitas</p>
 
                         <img
                           src={application.identity_image}
-                          alt="Seller identity preview"
+                          alt={"Pratinjau identitas penjual"}
                           className="mt-3 max-h-72 w-full rounded-2xl border border-white/10 object-cover"
                         />
 
@@ -503,14 +502,14 @@ export default function SellerApplicationsAdminPage() {
                           rel="noopener noreferrer"
                           className="mt-3 inline-block font-bold text-cyan-300 hover:text-cyan-200"
                         >
-                          Open Full Identity Image
+                          Buka Gambar Identitas Lengkap
                         </a>
                       </div>
                     ) : null}
 
                     {application.notes ? (
                       <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
-                        <p className="text-xs text-cyan-300">Admin Notes</p>
+                        <p className="text-xs text-cyan-300">Catatan Admin</p>
                         <p className="mt-2 text-sm text-gray-300">
                           {application.notes}
                         </p>
@@ -524,7 +523,7 @@ export default function SellerApplicationsAdminPage() {
                       disabled={updatingApplicationId === application.id}
                       className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white transition hover:bg-green-400 disabled:opacity-60"
                     >
-                      Approve Seller
+                      Setujui Penjual
                     </button>
 
                     <button
@@ -532,7 +531,7 @@ export default function SellerApplicationsAdminPage() {
                       disabled={updatingApplicationId === application.id}
                       className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white transition hover:bg-red-400 disabled:opacity-60"
                     >
-                      Reject Seller
+                      Tolak Penjual
                     </button>
 
                     <button
@@ -540,19 +539,19 @@ export default function SellerApplicationsAdminPage() {
                       disabled={updatingApplicationId === application.id}
                       className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black transition hover:bg-yellow-300 disabled:opacity-60"
                     >
-                      Reset to Pending
+                      Kembalikan ke Menunggu
                     </button>
 
                     <Link
                       href={`/seller-profile/${application.user_id}`}
                       className="rounded-2xl border border-cyan-400/40 px-5 py-3 text-center font-black text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
                     >
-                      View Seller Profile
+                      Lihat Profil Penjual
                     </Link>
 
                     {updatingApplicationId === application.id ? (
                       <p className="text-center text-sm text-gray-400">
-                        Updating application...
+                        Memperbarui pendaftaran...
                       </p>
                     ) : null}
                   </div>

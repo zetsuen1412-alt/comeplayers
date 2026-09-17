@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import GameCsvTools from "@/components/admin/GameCsvTools";
 
 import { useEffect, useMemo, useState } from "react";
@@ -155,7 +156,7 @@ export default function AdminGameMasterManagementV1Page() {
       .order("name", { ascending: true });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -169,7 +170,7 @@ export default function AdminGameMasterManagementV1Page() {
       .order("id", { ascending: true });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -185,7 +186,7 @@ export default function AdminGameMasterManagementV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -205,7 +206,7 @@ export default function AdminGameMasterManagementV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -249,12 +250,12 @@ export default function AdminGameMasterManagementV1Page() {
     if (!currentGame) return;
 
     if (!editName.trim()) {
-      alert("Game name is required.");
+      alert("Nama gim wajib diisi.");
       return;
     }
 
     if (!editSlug.trim()) {
-      alert("Game slug is required.");
+      alert("Alamat singkat gim wajib diisi.");
       return;
     }
 
@@ -292,7 +293,7 @@ export default function AdminGameMasterManagementV1Page() {
       .eq("id", gameId);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setSavingGameId(null);
       return;
     }
@@ -311,7 +312,7 @@ export default function AdminGameMasterManagementV1Page() {
       .eq("id", gameId);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setSavingGameId(null);
       return;
     }
@@ -324,7 +325,7 @@ export default function AdminGameMasterManagementV1Page() {
     event.preventDefault();
 
     if (!newGameName.trim()) {
-      alert("Game name is required.");
+      alert("Nama gim wajib diisi.");
       return;
     }
 
@@ -353,7 +354,7 @@ export default function AdminGameMasterManagementV1Page() {
     });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -364,7 +365,7 @@ export default function AdminGameMasterManagementV1Page() {
   async function deleteGame(game: GameMaster) {
     if (
       !confirm(
-        `Delete ${game.name}? This can affect category mapping and existing products.`
+        `Hapus ${game.name}? Ini dapat memengaruhi pemetaan kategori dan produk yang sudah ada.`
       )
     ) {
       return;
@@ -375,7 +376,7 @@ export default function AdminGameMasterManagementV1Page() {
     const { error } = await supabase.from("game_master").delete().eq("id", game.id);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setSavingGameId(null);
       return;
     }
@@ -388,7 +389,7 @@ export default function AdminGameMasterManagementV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading game master...
+          Memuat data induk gim...
         </p>
       </main>
     );
@@ -398,17 +399,17 @@ export default function AdminGameMasterManagementV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access game master management.
+            Hanya akun admin yang dapat mengakses pengelolaan data induk gim.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -423,21 +424,20 @@ export default function AdminGameMasterManagementV1Page() {
         <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-              Admin Game Master
+              Data Induk Gim Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Games A-Z</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Gim A–Z</h1>
 
             <Link
               href="/admin/games/igdb"
               className="mt-5 inline-flex rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-5 py-3 font-black text-cyan-200 transition hover:bg-cyan-400 hover:text-black"
             >
-              Open IGDB staging →
+              Buka penampungan IGDB →
             </Link>
 
             <p className="mt-5 max-w-2xl text-gray-300">
-              Manage ComePlayers game catalog, assets, banners, logos, and game
-              marketplace data.
+              Kelola katalog gim ComePlayers, aset, spanduk, logo, dan data marketplace gim.
             </p>
           </div>
 
@@ -445,7 +445,7 @@ export default function AdminGameMasterManagementV1Page() {
             href="/admin"
             className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
           >
-            Back to Admin
+            Kembali ke Admin
           </Link>
         </div>
       </section>
@@ -453,21 +453,21 @@ export default function AdminGameMasterManagementV1Page() {
       <section className="px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-3">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Games</p>
+            <p className="text-sm text-gray-400">Total Gim</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {games.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Active</p>
+            <p className="text-sm text-gray-400">Aktif</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {activeCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Inactive</p>
+            <p className="text-sm text-gray-400">Nonaktif</p>
             <p className="mt-2 text-3xl font-black text-red-300">
               {inactiveCount}
             </p>
@@ -478,13 +478,13 @@ export default function AdminGameMasterManagementV1Page() {
           onSubmit={createGame}
           className="mb-8 rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/30"
         >
-          <h2 className="text-2xl font-black">Add New Game</h2>
+          <h2 className="text-2xl font-black">Tambah Gim Baru</h2>
 
           <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_260px_180px]">
             <input
               value={newGameName}
               onChange={(event) => setNewGameName(event.target.value)}
-              placeholder="Example: Mobile Legends"
+              placeholder={"Contoh: Mobile Legends"}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
             />
 
@@ -493,7 +493,7 @@ export default function AdminGameMasterManagementV1Page() {
               onChange={(event) => setNewGameCategoryId(event.target.value)}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-cyan-400"
             >
-              <option value="">No category</option>
+              <option value="">Tanpa kategori</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.icon ? `${category.icon} ` : ""}
@@ -506,7 +506,7 @@ export default function AdminGameMasterManagementV1Page() {
               type="submit"
               className="rounded-2xl bg-cyan-400 px-5 py-4 font-black text-black transition hover:bg-cyan-300"
             >
-              Add Game
+              Tambah Gim
             </button>
           </div>
         </form>
@@ -516,7 +516,7 @@ export default function AdminGameMasterManagementV1Page() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by game name, slug, or ID..."
+              placeholder={"Cari berdasarkan nama gim, alamat singkat, atau ID..."}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
             />
 
@@ -532,7 +532,7 @@ export default function AdminGameMasterManagementV1Page() {
                   }`}
                   type="button"
                 >
-                  {letter === "all" ? "All" : letter}
+                  {letter === "all" ? "Semua" : letter}
                 </button>
               ))}
             </div>
@@ -541,9 +541,9 @@ export default function AdminGameMasterManagementV1Page() {
 
         {filteredGames.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
-            <h2 className="text-3xl font-black">No games found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada gim ditemukan.</h2>
             <p className="mt-3 text-gray-400">
-              Try another keyword or letter filter.
+              Coba kata kunci atau filter huruf lain.
             </p>
           </div>
         ) : (
@@ -582,33 +582,33 @@ export default function AdminGameMasterManagementV1Page() {
                               game.status
                             )}`}
                           >
-                            {game.status || "inactive"}
+                            {adminLabel(game.status || "inactive")}
                           </span>
                         </div>
 
                         <p className="mt-2 text-sm text-gray-400">
-                          slug: {game.slug}
+                          alamat singkat: {game.slug}
                         </p>
 
                         <p className="mt-4 line-clamp-3 text-gray-300">
-                          {game.description || "No description yet."}
+                          {game.description || "Belum ada deskripsi."}
                         </p>
 
                         <div className="mt-5 grid gap-4 md:grid-cols-4">
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                            <p className="text-xs text-gray-500">Game ID</p>
+                            <p className="text-xs text-gray-500">ID Gim</p>
                             <p className="mt-1 font-bold">#{game.id}</p>
                           </div>
 
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                            <p className="text-xs text-gray-500">Letter</p>
+                            <p className="text-xs text-gray-500">Huruf</p>
                             <p className="mt-1 font-bold">
                               {game.first_letter || "-"}
                             </p>
                           </div>
 
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                            <p className="text-xs text-gray-500">Category</p>
+                            <p className="text-xs text-gray-500">Kategori</p>
                             <p className="mt-1 font-bold">
                               {game.category_id
                                 ? categoryNameById.get(Number(game.category_id)) || "-"
@@ -617,7 +617,7 @@ export default function AdminGameMasterManagementV1Page() {
                           </div>
 
                           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                            <p className="text-xs text-gray-500">Created</p>
+                            <p className="text-xs text-gray-500">Dibuat</p>
                             <p className="mt-1 font-bold">
                               {game.created_at
                                 ? new Date(game.created_at).toLocaleString()
@@ -632,7 +632,7 @@ export default function AdminGameMasterManagementV1Page() {
                           onClick={() => startEditing(game)}
                           className="rounded-2xl bg-cyan-400 px-5 py-3 font-black text-black hover:bg-cyan-300"
                         >
-                          Edit Game
+                          Ubah Gim
                         </button>
 
                         <button
@@ -640,7 +640,7 @@ export default function AdminGameMasterManagementV1Page() {
                           disabled={savingGameId === game.id}
                           className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                         >
-                          Set Active
+                          Aktifkan
                         </button>
 
                         <button
@@ -648,7 +648,7 @@ export default function AdminGameMasterManagementV1Page() {
                           disabled={savingGameId === game.id}
                           className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400 disabled:opacity-60"
                         >
-                          Set Inactive
+                          Nonaktifkan
                         </button>
 
                         <button
@@ -656,14 +656,14 @@ export default function AdminGameMasterManagementV1Page() {
                           disabled={savingGameId === game.id}
                           className="rounded-2xl border border-red-400/40 px-5 py-3 font-black text-red-300 hover:bg-red-500 hover:text-white disabled:opacity-60"
                         >
-                          Delete Game
+                          Hapus Gim
                         </button>
                       </div>
                     </div>
                   ) : (
                     <div>
                       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                        <h2 className="text-3xl font-black">Edit {game.name}</h2>
+                        <h2 className="text-3xl font-black">Ubah {game.name}</h2>
 
                         <div className="flex gap-3">
                           <button
@@ -671,7 +671,7 @@ export default function AdminGameMasterManagementV1Page() {
                             onClick={cancelEditing}
                             className="rounded-full border border-white/10 px-5 py-2 font-bold text-gray-300 hover:bg-white hover:text-black"
                           >
-                            Cancel
+                            Batal
                           </button>
 
                           <button
@@ -680,7 +680,7 @@ export default function AdminGameMasterManagementV1Page() {
                             disabled={savingGameId === game.id}
                             className="rounded-full bg-cyan-400 px-5 py-2 font-black text-black hover:bg-cyan-300 disabled:opacity-60"
                           >
-                            {savingGameId === game.id ? "Saving..." : "Save"}
+                            {savingGameId === game.id ? "Menyimpan..." : "Simpan"}
                           </button>
                         </div>
                       </div>
@@ -688,7 +688,7 @@ export default function AdminGameMasterManagementV1Page() {
                       <div className="mt-6 grid gap-5 md:grid-cols-2">
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Name
+                            Nama
                           </label>
                           <input
                             value={editName}
@@ -702,7 +702,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Slug
+                            Alamat Singkat
                           </label>
                           <input
                             value={editSlug}
@@ -722,7 +722,7 @@ export default function AdminGameMasterManagementV1Page() {
                           >
                             {statusOptions.map((status) => (
                               <option key={status} value={status}>
-                                {status}
+                                {adminLabel(status)}
                               </option>
                             ))}
                           </select>
@@ -730,14 +730,14 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Marketplace Category
+                            Kategori Marketplace
                           </label>
                           <select
                             value={editCategoryId}
                             onChange={(event) => setEditCategoryId(event.target.value)}
                             className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-cyan-400"
                           >
-                            <option value="">No category</option>
+                            <option value="">Tanpa kategori</option>
                             {categories.map((category) => (
                               <option key={category.id} value={category.id}>
                                 {category.icon ? `${category.icon} ` : ""}
@@ -749,7 +749,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Image URL
+                            URL Gambar
                           </label>
                           <input
                             value={editImageUrl}
@@ -760,7 +760,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Icon URL
+                            URL Ikon
                           </label>
                           <input
                             value={editIconUrl}
@@ -771,7 +771,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Logo URL
+                            URL Logo
                           </label>
                           <input
                             value={editLogoUrl}
@@ -782,7 +782,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Banner URL
+                            URL Spanduk
                           </label>
                           <input
                             value={editBannerUrl}
@@ -793,7 +793,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Mobile Banner URL
+                            URL Spanduk Seluler
                           </label>
                           <input
                             value={editMobileBannerUrl}
@@ -806,7 +806,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Background URL
+                            URL Latar Belakang
                           </label>
                           <input
                             value={editBackgroundUrl}
@@ -819,7 +819,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                         <div>
                           <label className="mb-2 block text-sm font-bold text-gray-300">
-                            Hero URL
+                            URL Gambar Utama
                           </label>
                           <input
                             value={editHeroUrl}
@@ -831,7 +831,7 @@ export default function AdminGameMasterManagementV1Page() {
 
                       <div className="mt-5">
                         <label className="mb-2 block text-sm font-bold text-gray-300">
-                          Description
+                          Deskripsi
                         </label>
                         <textarea
                           value={editDescription}
