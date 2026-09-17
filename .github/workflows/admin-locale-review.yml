@@ -16,6 +16,8 @@ jobs:
           sparse-checkout: |
             website/app
             website/components
+            website/features
+            website/hooks
             website/lib
             website/tests
             website/types
@@ -27,7 +29,7 @@ jobs:
           mkdir -p admin-locale-review
           python3 - <<'PY'
           import pathlib, subprocess, tarfile
-          roots = ('website/app/', 'website/components/', 'website/lib/', 'website/tests/', 'website/types/', 'website/scripts/', '.github/workflows/')
+          roots = ('website/app/', 'website/components/', 'website/features/', 'website/hooks/', 'website/lib/', 'website/tests/', 'website/types/', 'website/scripts/', '.github/workflows/')
           files = {'website/AGENTS.md', 'website/package.json', 'website/package-lock.json', 'website/tsconfig.json', 'website/next.config.ts'}
           paths = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
           with tarfile.open('admin-locale-review/source.tar', 'w') as archive:
