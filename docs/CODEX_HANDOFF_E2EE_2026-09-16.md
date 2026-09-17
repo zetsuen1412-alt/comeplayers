@@ -1,5 +1,7 @@
 # Codex handoff: finish account-integrated E2EE recovery
 
+> **Historical handoff — superseded on 17 September 2026.** Continue from [Mobile CPWallet and performance release](MOBILE_CPWALLET_PERFORMANCE_2026-09-17.md) and the latest PR #1/branch head. The owner later selected ordinary account login with server-readable messaging (not E2EE). Website CPWallet/admin and Android 0.14.0 (20) are released. Do not restore an old checkpoint, repeat migrations/reset, or follow the original passkey-only product target below as current instructions.
+
 Prepared 16 September 2026 at the owner's request to continue in Codex, using their selected GPT-6 Astra / Extra high reasoning setting. This file transfers project context; it does not launch Codex or change the actual model setting.
 
 ## Start from the existing work, not main alone

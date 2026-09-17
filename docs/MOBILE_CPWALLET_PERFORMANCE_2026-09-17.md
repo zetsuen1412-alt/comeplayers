@@ -41,13 +41,13 @@ Do not reset to an earlier handoff/checkpoint. Read the latest commits and this 
 - Embedded bundle contains CPWallet, order confirmation and account-storage disclosure. It omits the retired passkey gate and manual 64-character key prompt.
 - Staging commit 3e92a1b2ab1caf6871de77ab38684760c41edf86; R2 upload/full byte hash verified at 2026-09-17T02:47:52Z in deployment dpl_3PNXaPJAFAd9jHrF7qJSd8YwiQEW.
 - Release key: app-releases/android/0.14.0-20/ComePlayers_0.14.0_20_android.apk.
-- This follow-up restores the normal Vercel build command. The final download-pointer deployment and complete website download verification remain to be recorded after they succeed.
-- Intended official URL: https://www.comeplayers.com/api/downloads/android/ComePlayers_0.14.0_20_android.apk
+- Normal Vercel build configuration was restored in d2d1ab745674bca70c74b8aa38526da91730e070. No release-upload command remains in the website build.
+- Verified official URL: https://www.comeplayers.com/api/downloads/android/ComePlayers_0.14.0_20_android.apk
 - Install over the previous app without uninstalling or clearing data. Physical installation remains unverified.
 
 ## Honest remaining verification
 Use a real account/device to verify top-up approval, return to app, exact single wallet credit, wallet purchase, delivered/completed order progress, and chat/camera/microphone/call behavior. No live payment, refund, account reset, balance adjustment or physical-device timing measurement was performed.
-Read the final release entry below before assuming the download pointer is live.
+
 
 ## Fixed identities and previous artifacts
 Expo project: a663aa70-99b7-4c8f-93ea-5f8637baa2df; owner/slug comeplayers/comeplayers.
@@ -65,3 +65,22 @@ No repeat of the historical E2EE reset. Account-readable messaging was explicitl
 Keep accounts, wallets, products, orders, Community and groups.
 User authorized website deployment and GitHub updates. Never collect passwords, tokens or signing keys through chat.
 Physical-device speed, incoming-call reliability and real provider payment completion still require genuine device/payment evidence; do not invent it.
+
+## Final production/download verification
+- Website production deployment: dpl_4TeYjdKmrd2DSbqhGWkNXQY8M7hj.
+- Source: d2d1ab745674bca70c74b8aa38526da91730e070; READY, aliases www.comeplayers.com and comeplayers.com confirmed.
+- Final release CI 35175933742: source-checks, web-build and sql-policy all passed. Browser job in 35175933784 passed; the separate Actions EAS-token job retains the documented missing-token failure.
+- Homepage browser inspection confirms Download Android points at ComePlayers_0.14.0_20_android.apk.
+- At 2026-09-17T02:58:59.414Z the website returned its signed 307 redirect, storage returned 200, and the complete downloaded file matched 138803610 bytes and SHA-256 e40ab1da352f8a25d8be74a2bac05b7b5fa77c2e5cffb610c71c4b1e21e4c396.
+- Windows 0.5.3 download remained available: 307 redirect and HTTP 206 range response, total 4165396 bytes.
+- Error/fatal log scan for this production deployment since 2026-09-17T02:53:00Z returned no matching entries at release verification.
+- This final documentation commit changes no application runtime. Production intentionally stays on the tested release source above.
+
+## Continue in another ChatGPT/Codex session
+1. Inspect actual branch/local changes and PR #1. Fetch latest without reset/force push. The old ec004c0/13997a2 handoff checkpoints are historical, not the continuation head.
+2. Start with this document. CPWallet/administration were already implemented and deployed; do not recreate them or replay their migrations.
+3. Update the physical Android app to 0.14.0 (20) without uninstalling/clearing data. Collect genuine results for full-app responsiveness, opening/sending chats, media and calls.
+4. Verify payment completion with the owner controlling provider approval: top-up once, return/resume reconciliation, exact balance/ledger credit, CPWallet purchase, delivery/completion and approved refund. Automated tests are not evidence of a live financial transaction.
+5. If performance remains slow, record device model, app version, network and measured operation timings, then trace the specific API/render path. Do not label remaining delays as E2EE: the selected product mode is account-readable messaging.
+6. Keep the same package, Expo project, signing certificate and multi-device sessions. Do not request tokens/passwords/keys in chat. The secure browser Expo build route works even though Actions EXPO_TOKEN is missing.
+7. User approval for scoped fixes, website deployment and GitHub updates already exists. Never bypass tool approval or claim physical/financial tests that were not run.
