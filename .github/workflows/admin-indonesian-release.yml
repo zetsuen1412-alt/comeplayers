@@ -1,0 +1,115 @@
+name: Verify Indonesian admin release
+on:
+  push:
+    branches: [release/admin-indonesian-20260917]
+    paths: ['.github/workflows/admin-indonesian-release.yml']
+permissions:
+  contents: write
+concurrency:
+  group: admin-indonesian-release-20260917
+  cancel-in-progress: true
+jobs:
+  verify-admin-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            website
+            comeplayers-apps
+            .github
+      - name: Restore only the prepared admin translation inputs
+        env:
+          PREPARATION_SHA: ee49cd8c88f8208ecd676599f1f802670daebf0c
+        run: |
+          test "$GITHUB_REF_NAME" = 'release/admin-indonesian-20260917'
+          git fetch --no-tags --depth=1 origin "$PREPARATION_SHA"
+          git restore --source="$PREPARATION_SHA" --worktree -- .github/admin-locale website/lib/adminLocale.ts website/tests/adminLocale.test.ts website/tests/helpers/adminLocaleContracts.ts website/tests/adminLocale.browser.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          file = Path('.github/admin-locale/apply.py')
+          source = file.read_text()
+          old = "if os.environ.get('GITHUB_REF_NAME') != 'chatgpt/admin-indonesian':"
+          assert source.count(old) == 1
+          file.write_text(source.replace(old, "if os.environ.get('GITHUB_REF_NAME') != 'release/admin-indonesian-20260917':"))
+          PY
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked dependencies
+        run: |
+          npm ci --prefix website --no-audit --no-fund
+          npm ci --prefix comeplayers-apps --no-audit --no-fund
+      - name: Capture original machine contracts
+        working-directory: website
+        run: npx --no-install tsx ../.github/admin-locale/baseline.ts
+      - name: Apply verified display-only translation and align the wording assertion
+        run: |
+          python3 .github/admin-locale/apply.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          file = Path('website/features/payroll/lib/ai-auditor.ts')
+          source = file.read_text()
+          old = '${orders.length} order.'
+          assert source.count(old) == 1
+          file.write_text(source.replace(old, '${orders.length} pesanan.'))
+          test_file = Path('website/tests/payroll-final-workspace.test.ts')
+          source = test_file.read_text()
+          old = '/total nilai order/i'
+          assert source.count(old) == 1
+          test_file.write_text(source.replace(old, '/total nilai pesanan/i'))
+          manifest = Path('.github/admin-locale/changed-paths.json')
+          paths = json.loads(manifest.read_text())
+          paths.append(str(test_file))
+          manifest.write_text(json.dumps(sorted(set(paths)), indent=2))
+          PY
+      - name: Full website typecheck
+        working-directory: website
+        run: npm run typecheck
+      - name: Locale, payroll, payment and notification regression tests
+        working-directory: website
+        run: |
+          npx --no-install tsx --test tests/adminLocale.test.ts tests/payroll-access.test.ts tests/payroll-final-workspace.test.ts tests/cpWallet.test.ts tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/paymentCurrency.test.tsx
+          if test -f tests/notificationInbox.test.ts; then npx --no-install tsx --test tests/notificationInbox.test.ts; fi
+      - name: Install isolated browser
+        working-directory: website
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Desktop and mobile fixtures with production network access blocked
+        working-directory: website
+        run: node --test tests/adminLocale.browser.mjs
+      - name: Build without production credentials
+        working-directory: website
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-production-key
+        run: npm run build
+      - name: Commit verified source to the release branch only
+        run: |
+          test "$GITHUB_REF_NAME" = 'release/admin-indonesian-20260917'
+          python3 - <<'PY'
+          import json, subprocess
+          paths = json.load(open('.github/admin-locale/changed-paths.json'))
+          assert len(paths) == 73 and all(p.startswith('website/') and '..' not in p.split('/') for p in paths)
+          subprocess.run(['git', 'add', '--', *paths], check=True)
+          staged = subprocess.check_output(['git', 'diff', '--cached', '--name-only']).decode().splitlines()
+          if not staged or not set(staged).issubset(set(paths)):
+              raise SystemExit('Unexpected staged paths; refusing to commit.')
+          PY
+          git config user.name 'ComePlayers CI'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(admin): apply verified Indonesian administration interface'
+          git push origin HEAD:refs/heads/release/admin-indonesian-20260917
+          echo "VERIFIED_ADMIN_COMMIT=$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: admin-indonesian-release-verification
+          retention-days: 3
+          path: |
+            website/test-results/admin-locale
+            .github/admin-locale/changed-paths.json
+          if-no-files-found: ignore
