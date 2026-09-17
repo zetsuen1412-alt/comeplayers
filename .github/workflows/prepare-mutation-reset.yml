@@ -1,0 +1,70 @@
+name: Prepare and verify mutation reset
+on:
+  push:
+    branches: [prepare/payroll-mutation-reset-20260917]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: payroll_reset_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Prepare exact checked persistence changes
+        run: node scripts/prepare-mutation-reset.mjs
+      - name: Install locked website dependencies
+        working-directory: website
+        run: npm ci --ignore-scripts
+      - name: Resolve existing mobile interoperability dependencies
+        working-directory: website
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),path=require('node:path');
+          const web=require('./package.json'),mobile=require('../comeplayers-apps/apps/mobile/package.json');
+          for(const name of ['hpke','@panva/hpke-noble','@noble/curves','@noble/ciphers','@noble/hashes']){
+            if(web.dependencies[name]!==mobile.dependencies[name])throw new Error('Dependency mismatch: '+name);
+            const target=path.resolve('node_modules',name),link=path.resolve('../comeplayers-apps/apps/mobile/node_modules',name);
+            if(!fs.existsSync(target))throw new Error('Missing locked dependency: '+name);
+            fs.mkdirSync(path.dirname(link),{recursive:true});fs.symlinkSync(target,link,'dir');
+          }
+          NODE
+      - name: Full website typecheck
+        working-directory: website
+        run: npm run typecheck
+      - name: Reset, manual date and import regression tests
+        working-directory: website
+        run: npx --no-install tsx --test tests/payroll-mutation-reset.test.ts tests/payroll-manual-order-time.test.ts tests/payroll-mutasi-fh-import.test.ts
+      - name: Test real reset SQL in an isolated database
+        working-directory: website
+        env:
+          PGPASSWORD: fixture_only
+        run: psql -h 127.0.0.1 -U postgres -d payroll_reset_test -v ON_ERROR_STOP=1 -f tests/payroll-mutation-reset.database.sql
+      - name: Install isolated browser
+        working-directory: website
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Confirm destructive action requires explicit UI approval
+        working-directory: website
+        run: node tests/payroll-mutation-reset.browser.mjs
+      - name: Commit only verified persistence changes to the preparation branch
+        run: |
+          git config user.name 'ComePlayers CI'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add website/features/payroll/lib/workspace-store.ts website/app/api/admin/payroll/workspace/route.ts
+          git commit -m 'feat(payroll): connect audited mutation reset and reject unaudited deletion [skip ci]'
+          git push origin HEAD:prepare/payroll-mutation-reset-20260917
