@@ -1,0 +1,61 @@
+name: Prepare and verify manual payroll date
+on:
+  push:
+    branches: [prepare/payroll-manual-date-20260917]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: prepare-payroll-manual-date
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/prepare/payroll-manual-date-20260917'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Apply exact reviewed form changes
+        run: node scripts/prepare-payroll-manual-date.mjs
+      - name: Install locked dependencies
+        working-directory: website
+        run: npm ci --ignore-scripts
+      - name: Resolve existing mobile interoperability dependencies without changing manifests
+        working-directory: website
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs'), path = require('node:path');
+          const web = require('./package.json'), mobile = require('../comeplayers-apps/apps/mobile/package.json');
+          for (const name of ['hpke', '@panva/hpke-noble', '@noble/curves', '@noble/ciphers', '@noble/hashes']) {
+            if (web.dependencies[name] !== mobile.dependencies[name]) throw new Error(`Dependency mismatch: ${name}`);
+            const target = path.resolve('node_modules', name), link = path.resolve('../comeplayers-apps/apps/mobile/node_modules', name);
+            if (!fs.existsSync(target)) throw new Error(`Missing dependency: ${name}`);
+            fs.mkdirSync(path.dirname(link), { recursive: true }); fs.symlinkSync(target, link, 'dir');
+          }
+          NODE
+      - name: Full website TypeScript validation
+        working-directory: website
+        run: npm run typecheck
+      - name: Manual time, workspace lock, audit, and existing import regression tests
+        working-directory: website
+        run: npx --no-install tsx --test tests/payroll-manual-order-time.test.ts tests/payroll-mutasi-fh-import.test.ts
+      - name: Install isolated browser
+        working-directory: website
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Real entry-form browser tests without production access
+        working-directory: website
+        run: node tests/payroll-manual-date.browser.mjs
+      - name: Commit only the verified form and route changes to the preparation branch
+        run: |
+          git diff --check
+          git add website/features/payroll/components/order-entry-form.tsx website/app/admin/payroll/orders/page.tsx website/app/admin/payroll/orders/new/page.tsx
+          git config user.name 'ComePlayers CI'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(payroll): enable manual historical order dates in WIB [skip ci]'
+          git push origin HEAD:refs/heads/prepare/payroll-manual-date-20260917
+          echo "VERIFIED_COMMIT=$(git rev-parse HEAD)"
