@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { supabase } from "@/lib/supabase";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import AdminWalletPayments from "@/components/wallet/AdminWalletPayments";
 
 type Profile = {
   id: string;
@@ -79,7 +80,7 @@ function getDisplayName(profile: Profile | null, fallback: string) {
 }
 
 export default function AdminWalletTopUpManagementV1Page() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
   const [topups, setTopups] = useState<WalletTopup[]>([]);
@@ -303,6 +304,7 @@ export default function AdminWalletTopUpManagementV1Page() {
 
   return (
     <main className="min-h-screen bg-[#020617] text-white">
+      <AdminWalletPayments />
       <section className="relative overflow-hidden border-b border-white/10 px-8 py-14">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.20),transparent_32%),radial-gradient(circle_at_top_right,rgba(34,197,94,.16),transparent_34%)]" />
 

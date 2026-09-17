@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const orderId = Number(body.orderId || 0);
     const method = String(body.method || "") as ManualMethod;
 
-    if (!Number.isFinite(orderId) || orderId <= 0) {
+    if (!Number.isSafeInteger(orderId) || orderId <= 0) {
       return NextResponse.json({ error: "Invalid order ID." }, { status: 400 });
     }
 
@@ -68,6 +68,11 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!["pending_payment", "waiting_payment", "pending"].includes(status) ||
+        ["expired", "cancelled", "refunded", "failed"].includes(paymentStatus)) {
+      return NextResponse.json({ error: "This order can no longer be paid. Create a new checkout." }, { status: 409 });
+    }
+
     const paymentProof =
       method === "qris"
         ? "Waiting QRIS payment confirmation"
@@ -85,8 +90,10 @@ export async function POST(request: Request) {
       })
       .eq("id", orderId)
       .eq("buyer_id", buyer.id)
+      .eq("status", order.status)
+      .eq("payment_status", order.payment_status)
       .select("id,status,payment_status,payment_method,escrow_status")
-      .single();
+      .maybeSingle();
 
     if (updateError) {
       console.error(
@@ -99,6 +106,9 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!updatedOrder) {
+      return NextResponse.json({ error: "The order changed. Refresh before selecting payment." }, { status: 409 });
+    }
     return NextResponse.json({ ok: true, order: updatedOrder });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";

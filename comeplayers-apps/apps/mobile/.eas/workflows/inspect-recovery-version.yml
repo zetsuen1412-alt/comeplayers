@@ -1,0 +1,76 @@
+name: Inspect Android recovery release version
+
+# Manual and read-only. Never builds, updates versions, signs, or publishes.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  inspect_android_version:
+    name: Read the existing Android remote version
+    environment: preview
+    image: ubuntu-26.04-jdk-17-ndk-r27b-sdk-57
+    outputs:
+      version_code: ${{ steps.read_version.outputs.version_code }}
+    steps:
+      - uses: eas/checkout
+      - name: Verify the original project and source release configuration
+        run: node ../../scripts/recovery-release-preflight.mjs static
+      - name: Install locked dependencies without the Expo token
+        working_directory: ../..
+        run: env -u EXPO_TOKEN npm ci --ignore-scripts --no-audit --no-fund
+      - name: Prepare the pinned CLI without the Expo token
+        run: env -u EXPO_TOKEN npm install --prefix /tmp/comeplayers-release-tools --ignore-scripts --no-audit --no-fund --no-package-lock eas-cli@24.5.0
+      - id: read_version
+        name: Read the remote version without exposing CLI account output
+        run: |
+          node <<'NODE'
+          const { spawnSync } = require('node:child_process');
+          const { readFileSync } = require('node:fs');
+          const projectId = 'a663aa70-99b7-4c8f-93ea-5f8637baa2df';
+          const packageName = 'com.comeplayers.app';
+          const app = JSON.parse(readFileSync('app.json', 'utf8')).expo;
+          const eas = JSON.parse(readFileSync('eas.json', 'utf8'));
+          if (app.extra?.eas?.projectId !== projectId || app.android?.package !== packageName ||
+              process.env.EAS_BUILD_PROJECT_ID !== projectId || eas.cli?.appVersionSource !== 'remote') {
+            throw new Error('Unexpected project or version source. No remote change was made.');
+          }
+          const result = spawnSync(process.execPath, [
+            '/tmp/comeplayers-release-tools/node_modules/eas-cli/bin/run',
+            'build:version:get', '--platform', 'android', '--profile', 'preview',
+            '--json', '--non-interactive',
+          ], { cwd: process.cwd(), encoding: 'utf8', timeout: 180000,
+            maxBuffer: 1024 * 1024, env: { ...process.env, CI: '1', EXPO_NO_TELEMETRY: '1' } });
+          if (result.error || result.status !== 0) {
+            console.log(JSON.stringify({ status: 'blocked', code: 'EAS_VERSION_READ_FAILED',
+              message: 'The worker could not read the version with its available authentication.',
+              buildRequested: false, remoteVersionChanged: false }));
+            process.exit(1);
+          }
+          let response;
+          try { response = JSON.parse(result.stdout); } catch {
+            throw new Error('Unexpected version response. Raw CLI output is suppressed.');
+          }
+          const value = response?.versionCode;
+          if (!/^[1-9][0-9]*$/.test(String(value)) || !Number.isSafeInteger(Number(value))) {
+            throw new Error('No valid remote Android counter was returned.');
+          }
+          const output = spawnSync('set-output', ['version_code', String(Number(value))], { stdio: 'ignore' });
+          if (output.error || output.status !== 0) throw new Error('Could not publish the public version counter.');
+          console.log(JSON.stringify({ status: 'remote-version-read', projectId, packageName,
+            remoteVersionCode: Number(value), lastDistributedVersionCode: 15,
+            candidateMustExceed: Math.max(15, Number(value)),
+            buildRequested: false, remoteVersionChanged: false }, null, 2));
+          NODE
+
+  version_report:
+    name: Android version evidence
+    needs: [inspect_android_version]
+    type: doc
+    params:
+      md: |
+        ## Existing Android remote counter
+        Project: a663aa70-99b7-4c8f-93ea-5f8637baa2df
+        Package: com.comeplayers.app
+        Remote versionCode: ${{ needs.inspect_android_version.outputs.version_code }}
+        Last distributed versionCode: 15
+        A replacement must exceed both values. No build or version change was requested.

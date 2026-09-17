@@ -62,6 +62,8 @@ type Order = {
   seller_id: string | null;
   product: string | null;
   price: string | number | null;
+  total_amount: string | number | null;
+  payment_status: string | null;
   total_price: string | number | null;
   status: string | null;
   escrow_status: string | null;
@@ -117,7 +119,7 @@ function getDate(value: string | null | undefined) {
 }
 
 export default function AdminFinanceDashboardPage() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -161,19 +163,19 @@ export default function AdminFinanceDashboardPage() {
     const totalEscrowReleased = orders
       .filter((order) => order.escrow_status === "released")
       .reduce(
-        (sum, order) => sum + Number(order.total_price || order.price || 0),
+        (sum, order) => sum + Number(order.total_amount || order.total_price || order.price || 0),
         0
       );
 
     const pendingEscrow = orders
       .filter(
         (order) =>
-          isCompletedOrder(order.status) &&
-          order.escrow_status !== "released" &&
+          order.payment_status === "paid" &&
+          order.escrow_status === "holding" &&
           !order.escrow_released_at
       )
       .reduce(
-        (sum, order) => sum + Number(order.total_price || order.price || 0),
+        (sum, order) => sum + Number(order.total_amount || order.total_price || order.price || 0),
         0
       );
 
@@ -239,7 +241,7 @@ export default function AdminFinanceDashboardPage() {
       supabase
         .from("orders")
         .select(
-          "id,buyer_id,seller_id,product,price,total_price,status,escrow_status,escrow_released_at,completed_at,created_at"
+          "id,buyer_id,seller_id,product,price,total_amount,total_price,payment_status,status,escrow_status,escrow_released_at,completed_at,created_at"
         )
         .order("id", { ascending: false }),
       supabase
@@ -651,3 +653,4 @@ export default function AdminFinanceDashboardPage() {
     </main>
   );
 }
+

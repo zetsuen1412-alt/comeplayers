@@ -1,4 +1,5 @@
 "use client";
+import { getPayrollActor } from "@/features/payroll/lib/workspace-store";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -176,7 +177,7 @@ export default function MutationsPage() {
     addHistory({
       orderId: order.id,
       orderReference: order.externalReference,
-      editedBy: "Admin DEMO",
+      editedBy: getPayrollActor()?.name ?? "Pengguna payroll",
       reason,
       wasCompleted,
       wasPayrollClosed,

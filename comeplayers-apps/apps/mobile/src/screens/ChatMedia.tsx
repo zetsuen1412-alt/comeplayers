@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Image, Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AudioModule, RecordingPresets, setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus, useAudioRecorder, useAudioRecorderState } from "expo-audio";
@@ -8,7 +8,7 @@ import { chatClient } from "../runtime";
 import { colors } from "../theme";
 
 export type PendingAttachment = { uri: string; name: string; type: string; size?: number };
-export function ChatMedia({ attachment }: { attachment: ChatAttachment }) {
+export const ChatMedia = memo(function ChatMedia({ attachment }: { attachment: ChatAttachment }) {
   const [url, setUrl] = useState("");
   const [viewing, setViewing] = useState(false);
   const [error, setError] = useState("");
@@ -27,7 +27,7 @@ export function ChatMedia({ attachment }: { attachment: ChatAttachment }) {
     finally { setBusy(false); }
   };
   return <><Pressable accessibilityLabel={`Open ${attachment.file_name}`} onPress={() => void open()} style={s.attachment}>{isImage && url ? <Image source={{ uri: url }} resizeMode="cover" style={s.preview} onError={() => { setUrl(""); setError("Image unavailable. Tap to retry."); }} /> : <View style={s.file}><Ionicons name={isAudio ? "mic" : attachment.mime_type.startsWith("video/") ? "videocam" : "document-text-outline"} size={30} color={colors.yellow} /><View style={{ flex: 1 }}><Text numberOfLines={2} style={s.text}>{isAudio ? "Voice message" : attachment.file_name}</Text><Text style={s.note}>{(attachment.size_bytes / 1024).toFixed(0)} KB · Tap to open</Text></View></View>}{busy ? <ActivityIndicator color={colors.yellow} /> : null}{error ? <Text style={s.error}>{error}</Text> : null}</Pressable><Modal visible={viewing} onRequestClose={() => setViewing(false)} animationType="fade"><View style={s.viewer}><Pressable style={s.close} onPress={() => setViewing(false)}><Text style={s.text}>Close</Text></Pressable>{viewing && url ? isImage ? <Image source={{ uri: url }} style={s.fullImage} resizeMode="contain" /> : isAudio ? <AudioPlayback url={url} /> : <VideoPlayback url={url} /> : null}</View></Modal></>;
-}
+});
 export function AudioPlayback({ url, compact = false }: { url: string; compact?: boolean }) {
   const player = useAudioPlayer(url);
   const state = useAudioPlayerStatus(player);

@@ -85,7 +85,7 @@ function getUserName(profile: Profile | null, fallback: string) {
 }
 
 export default function AdminWalletDashboardV1Page() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);

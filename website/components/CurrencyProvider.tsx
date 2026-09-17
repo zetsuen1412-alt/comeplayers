@@ -22,6 +22,8 @@ import {
 } from "@/lib/localization";
 import type { ExchangeRateMap } from "@/lib/frankfurter";
 
+import { formatIdrAmount, formatIdrInCurrency, type MoneyValue } from "@/lib/money";
+
 type CurrencyContextValue = {
   country: string;
   locale: string;
@@ -29,6 +31,8 @@ type CurrencyContextValue = {
   rateSource: "live" | "backup";
   rateUpdatedAt: string | null;
   ratesLoading: boolean;
+  formatIdrPrice: (amount: MoneyValue) => string;
+  formatIdrAmount: (amount: MoneyValue) => string;
   formatPrice: (amountUsd: string | number | null | undefined) => string;
   formatBasePrice: (amountUsd: string | number | null | undefined) => string;
   t: (key: TranslationKey, values?: Record<string, string | number>) => string;
@@ -141,6 +145,8 @@ export function CurrencyProvider({
       rateSource,
       rateUpdatedAt,
       ratesLoading,
+      formatIdrPrice: (amount) => formatIdrInCurrency(amount, preferences.locale, preferences.currency, exchangeRates),
+      formatIdrAmount: (amount) => formatIdrAmount(amount, preferences.locale),
       formatPrice: (amountUsd) =>
         formatLocalizedPrice(
           amountUsd,
@@ -186,6 +192,8 @@ export function useCurrency() {
       rateSource: "backup" as const,
       rateUpdatedAt: null,
       ratesLoading: false,
+      formatIdrPrice: (amount: MoneyValue) => formatIdrInCurrency(amount, "en-US", "IDR"),
+      formatIdrAmount: (amount: MoneyValue) => formatIdrAmount(amount),
       formatPrice: (amountUsd: string | number | null | undefined) =>
         formatLocalizedPrice(amountUsd, "en-US", "USD"),
       formatBasePrice: (amountUsd: string | number | null | undefined) =>

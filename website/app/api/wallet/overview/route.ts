@@ -30,21 +30,27 @@ export async function GET(request: Request) {
 
     if (walletError) throw new Error(walletError.message);
 
-    const { data: transactions, error: transactionError } = await supabaseAdmin
+    const before = new URL(request.url).searchParams.get("before");
+    if (before && (!/^\d+$/.test(before) || !Number.isSafeInteger(Number(before)))) return NextResponse.json({ error: "Invalid history cursor." }, { status: 400 });
+    let transactionQuery = supabaseAdmin
       .from("wallet_transactions")
       .select(
         "id,order_id,type,transaction_type,amount,balance_before,balance_after,status,description,metadata,created_at"
       )
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(50);
+      .order("id", { ascending: false })
+      .limit(51);
+    if (before) transactionQuery = transactionQuery.lt("id", Number(before));
+    const { data: transactions, error: transactionError } = await transactionQuery;
 
     if (transactionError) throw new Error(transactionError.message);
 
     return NextResponse.json({
       wallet,
-      transactions: transactions || [],
-    });
+      transactions: (transactions || []).slice(0,50),
+      nextCursor: transactions && transactions.length > 50 ? transactions[49].id : null,
+      ledgerCurrency: "IDR",
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unexpected wallet overview error.";

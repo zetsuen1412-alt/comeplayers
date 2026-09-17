@@ -1,0 +1,39 @@
+name: Reconcile Android recovery version
+
+# Manual one-time reconciliation only; this does not build or publish.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  reconcile_version:
+    name: Reconcile the original Android version counter
+    environment: preview
+    image: ubuntu-26.04-jdk-17-ndk-r27b-sdk-57
+    outputs:
+      before: ${{ steps.reconcile.outputs.before }}
+      after: ${{ steps.reconcile.outputs.after }}
+      changed: ${{ steps.reconcile.outputs.changed }}
+    steps:
+      - uses: eas/checkout
+      - name: Verify the original release configuration
+        run: node ../../scripts/recovery-release-preflight.mjs static
+      - name: Verify reconciliation guards
+        run: node --test ../../tests/reconcileAndroidVersion.test.mjs
+      - name: Prepare the pinned CLI without the Expo token
+        run: env -u EXPO_TOKEN npm install --prefix /tmp/comeplayers-release-tools --ignore-scripts --no-audit --no-fund --no-package-lock eas-cli@24.5.0
+      - id: reconcile
+        name: Reconcile and verify the remote counter
+        run: node ../../scripts/reconcile-android-version.mjs
+  version_report:
+    name: Version reconciliation evidence
+    needs: [reconcile_version]
+    type: doc
+    params:
+      md: |
+        ## Android version reconciliation
+        Project: a663aa70-99b7-4c8f-93ea-5f8637baa2df
+        Package: com.comeplayers.app
+        Before: ${{ needs.reconcile_version.outputs.before }}
+        After: ${{ needs.reconcile_version.outputs.after }}
+        Changed: ${{ needs.reconcile_version.outputs.changed }}
+        No build, signing change, store submission or OTA was requested.

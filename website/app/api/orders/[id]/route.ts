@@ -24,6 +24,8 @@ type OrderRow = {
   status?: string | null;
   payment_status?: string | null;
   payment_method?: string | null;
+  paypal_order_id?: string | null;
+  paypal_amount_usd?: number | string | null;
   product_id?: number | null;
   variant_id?: number | null;
   variant_name?: string | null;
@@ -73,6 +75,8 @@ const ORDER_DETAIL_FIELDS = [
   "status",
   "payment_status",
   "payment_method",
+  "paypal_order_id",
+  "paypal_amount_usd",
   "product_id",
   "variant_id",
   "variant_name",
@@ -80,6 +84,10 @@ const ORDER_DETAIL_FIELDS = [
   "buyer_id",
   "seller_id",
   "quantity",
+  "subtotal_amount",
+  "discount_amount",
+  "payment_fee_amount",
+  "currency_code",
   "total_amount",
   "total_price",
   "product_title",
@@ -171,7 +179,7 @@ export async function GET(request: Request, context: RouteContext) {
     const orderRow = order as unknown as OrderRow;
     const isBuyer =
       orderRow.buyer_id === user.id ||
-      Boolean(user.email && orderRow.buyer === user.email);
+      !orderRow.buyer_id && Boolean(user.email && orderRow.buyer === user.email);
     const isSeller = orderRow.seller_id === user.id;
 
     if (!isBuyer && !isSeller) {
@@ -311,6 +319,8 @@ export async function GET(request: Request, context: RouteContext) {
 
     const safeOrder = {
       ...orderRow,
+      paypal_order_id: isBuyer ? orderRow.paypal_order_id : null,
+      paypal_amount_usd: isBuyer ? orderRow.paypal_amount_usd : null,
       buyer: isSeller ? maskEmail(orderRow.buyer) : null,
       buyer_name: isSeller ? buyerName || null : null,
       buyer_username: isSeller ? buyerUsername || null : null,
@@ -344,7 +354,7 @@ export async function GET(request: Request, context: RouteContext) {
       role: isSeller ? "seller" : "buyer",
       deliveryEncrypted: Boolean(vault),
       dispute: disputeSummary || null,
-    });
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unexpected order detail error.";

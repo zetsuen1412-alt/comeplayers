@@ -22,11 +22,14 @@ import {
   FaUniversity,
   FaWallet,
 } from "react-icons/fa";
+import { orderTotalIdr, storedMoney } from "@/lib/money";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { isTrustedDokuPaymentUrl } from "@/lib/dokuPaymentResponse";
-import { isTrustedPayPalCheckoutUrl } from "@/lib/paypalCheckout";
+import { readPayPalCheckoutReview, type PayPalCheckoutReview } from "@/lib/paypalCheckout";
+import { CardPaymentTotal, PayPalPaymentReview } from "@/components/marketplace/PaymentCurrencyAmounts";
 import { supabase } from "@/lib/supabase";
 import PaymentWaitGame from "./PaymentWaitGame";
+import WalletPaymentChoice from "@/components/wallet/WalletPaymentChoice";
 import styles from "./payment.module.css";
 
 type Order = {
@@ -38,6 +41,9 @@ type Order = {
   buyer_id?: string | null;
   seller_id?: string | null;
   quantity?: number | null;
+  subtotal_amount?: string | number | null;
+  discount_amount?: string | number | null;
+  payment_fee_amount?: string | number | null;
   total_amount?: string | number | null;
   total_price?: string | number | null;
   payment_status?: string | null;
@@ -60,6 +66,7 @@ type Product = {
 };
 
 type PaymentChoice =
+  | "wallet"
   | "bank_transfer"
   | "card"
   | "doku_wallet"
@@ -101,16 +108,7 @@ type QrisInstructions = {
   terminalId: string | null;
 };
 
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-
-  const direct = Number(value.replace(/,/g, "").trim());
-  if (Number.isFinite(direct)) return direct;
-
-  const sanitized = Number(value.replace(/[^\d.-]/g, ""));
-  return Number.isFinite(sanitized) ? sanitized : 0;
-}
+const numberPrice = storedMoney;
 
 function normalize(value?: string | null) {
   return String(value || "").trim().toLowerCase();
@@ -132,10 +130,7 @@ function fallbackImage(title: string) {
 
 function getOrderTotal(order: Order | null, product: Product | null) {
   return (
-    numberPrice(order?.total_amount) ||
-    numberPrice(order?.total_price) ||
-    numberPrice(order?.price) ||
-    numberPrice(product?.price)
+    orderTotalIdr(order)
   );
 }
 
@@ -205,7 +200,7 @@ export default function PaymentPage() {
   const params = useParams<{ id?: string | string[] }>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { formatPrice, formatBasePrice, currency } = useCurrency();
+  const { formatIdrPrice: formatPrice, formatIdrAmount: formatBasePrice, currency } = useCurrency();
   const rawOrderId = params?.id;
   const orderId = Array.isArray(rawOrderId)
     ? rawOrderId[0] || ""
@@ -243,6 +238,7 @@ export default function PaymentPage() {
   const [qrisNow, setQrisNow] = useState(() => Date.now());
   const [cardPaymentUrl, setCardPaymentUrl] = useState("");
   const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [paypalReview, setPaypalReview] = useState<(PayPalCheckoutReview & { orderId: number }) | null>(null);
   const cardFrameRef = useRef<HTMLIFrameElement | null>(null);
   const cardModalCloseRef = useRef<HTMLButtonElement | null>(null);
   const paymentDetailsRef = useRef<HTMLElement | null>(null);
@@ -263,6 +259,7 @@ export default function PaymentPage() {
 
   const total = useMemo(() => getOrderTotal(order, product), [order, product]);
   const loadedOrderId = order?.id;
+  const activePayPalReview = paypalReview?.orderId === loadedOrderId && paypalReview?.amountIdr === total ? paypalReview : null;
   const currentOrderPaid = orderIsPaid(order);
   const quantity = Number(order?.quantity || 1);
   const productTitle =
@@ -695,6 +692,10 @@ export default function PaymentPage() {
 
   async function payWithPayPal() {
     if (!order || paying) return;
+    if (activePayPalReview) {
+      window.location.assign(activePayPalReview.approveUrl);
+      return;
+    }
     setPaying(true);
     setError("");
     setNotice("");
@@ -712,16 +713,17 @@ export default function PaymentPage() {
       const json = (await response.json()) as {
         error?: string;
         approveUrl?: string;
+        amountUsd?: number;
+        amountIdr?: number;
+        currency?: string;
       };
 
       if (!response.ok || !json.approveUrl) {
         throw new Error(json.error || "Unable to start PayPal checkout.");
       }
-      if (!isTrustedPayPalCheckoutUrl(json.approveUrl)) {
-        throw new Error("PayPal returned an invalid checkout address.");
-      }
-
-      window.location.assign(json.approveUrl);
+      const review = readPayPalCheckoutReview(json, total);
+      setPaypalReview({ ...review, orderId: order.id });
+      setPaying(false);
     } catch (paymentError) {
       setError(
         paymentError instanceof Error
@@ -733,6 +735,19 @@ export default function PaymentPage() {
   }
 
   async function startSelectedPayment() {
+    if (selectedPaymentMethod === "wallet") {
+      if (!order || paying) return;
+      setPaying(true); setError("");
+      try {
+        const accessToken = await getAccessToken();
+        const response = await fetch("/api/orders/pay-with-wallet", { method: "POST", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ orderId: order.id }) });
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.error || "Unable to pay with CPWallet.");
+        router.replace(`/order-success/${order.id}`);
+      } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to pay with CPWallet."); }
+      finally { setPaying(false); }
+      return;
+    }
     if (selectedPaymentMethod === "paypal") {
       await payWithPayPal();
       return;
@@ -749,6 +764,7 @@ export default function PaymentPage() {
   function choosePaymentMethod(method: PaymentChoice) {
     if (virtualAccount || qris || method === selectedPaymentMethod) return;
     setSelectedPaymentMethod(method);
+    setPaypalReview(null);
     setCopied(false);
     setError("");
     setNotice("");
@@ -980,6 +996,7 @@ export default function PaymentPage() {
                     <span>Wallets &amp; other methods</span>
                     <small>Choose an available provider</small>
                   </div>
+                  <WalletPaymentChoice selected={selectedPaymentMethod === "wallet"} disabled={paying || Boolean(virtualAccount || qris || cardPaymentUrl || activePayPalReview)} total={total} onSelect={() => choosePaymentMethod("wallet")} />
                   <div className={styles.walletGrid}>
                     <button
                       type="button"
@@ -1200,10 +1217,7 @@ export default function PaymentPage() {
                       <small>Order</small>
                       <strong>#{order?.id}</strong>
                     </div>
-                    <div className={styles.cardCheckoutTotal}>
-                      <small>Total payment</small>
-                      <strong>{formatBasePrice(total)}</strong>
-                    </div>
+                    <CardPaymentTotal amountIdr={total} className={styles.cardCheckoutTotal} />
                   </div>
 
                   <div className={styles.cardSecurityNotice}>
@@ -1401,7 +1415,7 @@ export default function PaymentPage() {
                 <FaShieldAlt />
                 <div>
                   <h2>Buyer protection included</h2>
-                  <p>Your payment and delivery stay inside ComePlayers.</p>
+                  <p>Your payment and delivery stay inside ComePlayers. Approved product refunds are credited to your CPWallet balance for future purchases.</p>
                 </div>
               </div>
               <div className={styles.protectionList}>
@@ -1415,7 +1429,7 @@ export default function PaymentPage() {
           <aside className={styles.summaryCard}>
             <div className={styles.summaryHeading}>
               <h2>Summary</h2>
-              <span>IDR</span>
+              <span>{currency}</span>
             </div>
 
             <dl className={styles.summaryRows}>
@@ -1430,7 +1444,7 @@ export default function PaymentPage() {
               <div>
                 <dt>Payment</dt>
                 <dd>
-                  {selectedPaymentMethod === "bank_transfer"
+                  {selectedPaymentMethod === "wallet" ? "CPWallet" : selectedPaymentMethod === "bank_transfer"
                     ? "Bank Transfer"
                     : selectedPaymentMethod === "card"
                       ? "Visa / Mastercard"
@@ -1443,18 +1457,29 @@ export default function PaymentPage() {
               </div>
             </dl>
 
+            <dl className={styles.summaryRows}>
+              {order?.subtotal_amount != null ? <div><dt>Subtotal</dt><dd>{formatPrice(order.subtotal_amount)}</dd></div> : null}
+              {Number(order?.discount_amount) > 0 ? <div><dt>Coupon discount</dt><dd>-{formatPrice(order?.discount_amount)}</dd></div> : null}
+              {order?.payment_fee_amount != null ? <div><dt>Payment fee</dt><dd>{formatPrice(order.payment_fee_amount)}</dd></div> : null}
+            </dl>
             <div className={styles.totalRow}>
               <span>Total</span>
-              <strong>{formatBasePrice(total)}</strong>
+              <strong>{formatPrice(total)}</strong>
             </div>
             {currency !== "IDR" ? (
               <p className={styles.convertedPrice}>
-                Approximately {formatPrice(total)} in your display currency
+                Prices are shown in {currency}.{" "}
+                {selectedPaymentMethod === "wallet" ? <>CPWallet deducts {formatBasePrice(total)} (IDR) from your balance.</> : selectedPaymentMethod === "paypal"
+                  ? "PayPal confirms its final USD amount before approval."
+                  : <>DOKU charges {formatBasePrice(total)} (IDR).</>}
               </p>
             ) : null}
 
             {notice && !virtualAccount && !qris ? (
               <div className={styles.notice}>{notice}</div>
+            ) : null}
+            {selectedPaymentMethod === "paypal" && activePayPalReview ? (
+              <PayPalPaymentReview amountUsd={activePayPalReview.amountUsd} className={styles.paypalReview} />
             ) : null}
             {error ? <div className={styles.error}>{error}</div> : null}
 
@@ -1503,19 +1528,19 @@ export default function PaymentPage() {
                       ? qrisExpired
                         ? "Generate new QRIS"
                         : "View QRIS code"
-                      : selectedPaymentMethod === "bank_transfer"
+                      : selectedPaymentMethod === "wallet" ? "Pay with CPWallet" : selectedPaymentMethod === "bank_transfer"
                         ? "Continue with bank transfer"
                         : selectedPaymentMethod === "card"
                           ? "Continue with Visa / Mastercard"
                           : selectedPaymentMethod === "paypal"
-                            ? "Continue to PayPal"
+                            ? activePayPalReview ? "Continue on PayPal" : "Review PayPal amount"
                             : selectedPaymentMethod === "qris"
                               ? "Continue with QRIS"
                               : "Continue to DOKU Wallet"}
             </button>
             <p className={styles.paymentNote}>
               <FaShieldAlt />
-              {selectedPaymentMethod === "bank_transfer"
+              {selectedPaymentMethod === "wallet" ? "Your CPWallet balance pays the full order total. Approved refunds return to CPWallet." : selectedPaymentMethod === "bank_transfer"
                 ? virtualAccount
                   ? "Use the exact VA number and transfer amount shown on this page."
                   : `A DOKU VA will be created for transfer from ${sourceBank}.`

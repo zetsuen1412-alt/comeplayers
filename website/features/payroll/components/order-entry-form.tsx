@@ -1,5 +1,6 @@
 "use client";
 
+import { flushPayroll, withPayrollBatch } from "@/features/payroll/lib/workspace-store";
 import { authenticatedFetch } from "@/lib/authenticatedFetch";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -11,7 +12,7 @@ import { getAvailableStock } from "@/features/payroll/lib/inventory";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
 import { formatMoney } from "@/features/payroll/lib/money";
-import { nextAutomaticOrderCode } from "@/features/payroll/lib/order-code";
+import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { checkAllocationQuantity } from "@/features/payroll/lib/order-allocation";
 import type { Order, OrderInventoryAllocation, OrderType, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 
@@ -44,13 +45,14 @@ async function getServerTime() {
 }
 
 export function OrderEntryForm() {
-  const { allOrders, userOrders, addOrder } = useDemoOrders();
+  const { allOrders, addOrder } = useDemoOrders();
   const { inventory, reserveAllocations } = useDemoInventory();
   const { employees } = useDemoEmployees();
   const { games } = useDemoProductGames();
   const [serverTime, setServerTime] = useState<string | null>(null);
   const [orderType, setOrderType] = useState<OrderType>("boosting");
   const [source, setSource] = useState("G2G");
+  const [manualCode, setManualCode] = useState("");
   const [buyer, setBuyer] = useState("");
   const [orderName, setOrderName] = useState("");
   const [gameQuery, setGameQuery] = useState("");
@@ -80,14 +82,10 @@ export function OrderEntryForm() {
     return () => { active = false; window.clearInterval(timer); };
   }, []);
 
-  const automaticCode = useMemo(() => {
-    try {
-      const autoHistory = userOrders.filter((order) => order.orderNumber.startsWith("CP-DEMO-AUTO-")).map((order) => order.externalReference);
-      return nextAutomaticOrderCode(autoHistory, allOrders.map((order) => order.externalReference));
-    } catch {
-      return "Kode habis";
-    }
-  }, [allOrders, userOrders]);
+  const orderCode = manualCode.trim();
+  let codeError = "";
+  try { manualOrderCode(orderCode,allOrders.map(row=>row.externalReference)); }
+  catch(e) { codeError=e instanceof Error?e.message:"Kode order tidak valid."; }
 
   const selectedGame = useMemo(() => games.find((row) => row.id === selectedGameId) ?? null, [games, selectedGameId]);
   const gameSuggestions = useMemo(() => searchGames(games, gameQuery), [games, gameQuery]);
@@ -146,7 +144,7 @@ export function OrderEntryForm() {
   const stockMatches = !needsStock || (stockAllocationCheck.matches && !hasBlankStock && !hasInvalidStockQuantity && !hasDuplicateStock && !hasWrongStockType && !hasInsufficientStock && !hasWrongGameStock && !hasWrongRegionStock && !hasWrongServerStock);
 
   const canSave = Boolean(serverTime)
-    && automaticCode !== "Kode habis"
+    && !codeError
     && Boolean(buyer.trim())
     && Boolean(selectedGame)
     && Boolean(region)
@@ -247,9 +245,7 @@ export function OrderEntryForm() {
       }
     }
 
-    if (allOrders.some((x) => x.externalReference.toLowerCase() === automaticCode.toLowerCase())) {
-      return setMessage({ type: "error", text: `Kode otomatis ${automaticCode} sudah digunakan. Muat ulang halaman untuk mendapatkan kode berikutnya.` });
-    }
+    if (codeError) return setMessage({ type: "error", text: codeError });
 
     setSaving(true);
     try {
@@ -288,19 +284,11 @@ export function OrderEntryForm() {
         };
       }) : [];
 
-      if (needsStock) {
-        const reservation = reserveAllocations(inventoryAllocations);
-        if (!reservation.ok) {
-          setMessage({ type: "error", text: reservation.message });
-          return;
-        }
-      }
-
       const first = assignments[0];
       const order: Order = {
-        id: `ord-user-${nowCode}`,
-        orderNumber: `CP-DEMO-AUTO-${automaticCode}`,
-        externalReference: automaticCode,
+        id: `ord-user-${crypto.randomUUID()}`,
+        orderNumber: orderCode,
+        externalReference: orderCode,
         source,
         buyerName: buyer.trim(),
         orderName: orderType === "gold" ? undefined : orderName.trim(),
@@ -329,14 +317,22 @@ export function OrderEntryForm() {
         dueAt: due,
       };
 
-      addOrder(order);
+      withPayrollBatch(()=>{
+        if (needsStock) {
+          const reservation=reserveAllocations(inventoryAllocations);
+          if(!reservation.ok)throw new Error(reservation.message);
+        }
+        addOrder(order);
+      });
+      await flushPayroll();
       setMessage({
         type: "ok",
         text: needsStock
-          ? `Pesanan ${automaticCode} berhasil disimpan. Stok ${orderTypeLabels[orderType]} sudah dicadangkan dari gudang dan data otomatis masuk Mutasi.`
-          : `Pesanan ${automaticCode} berhasil disimpan dengan ${assignments.length} karyawan dan otomatis masuk Mutasi.`,
-        code: automaticCode,
+          ? `Pesanan ${orderCode} berhasil disimpan. Stok ${orderTypeLabels[orderType]} sudah dicadangkan dari gudang dan data otomatis masuk Mutasi.`
+          : `Pesanan ${orderCode} berhasil disimpan dengan ${assignments.length} karyawan dan otomatis masuk Mutasi.`,
+        code: orderCode,
       });
+      setManualCode("");
       setBuyer("");
       setOrderName("");
       setGameQuery("");
@@ -347,8 +343,8 @@ export function OrderEntryForm() {
       setRate(0);
       setWorkerRows([newWorkerRow(1)]);
       setStockRows(orderType === "boosting" ? [] : [newStockRow(1)]);
-    } catch {
-      setMessage({ type: "error", text: "Pesanan belum tersimpan. Coba lagi." });
+    } catch (error) {
+      setMessage({ type: "error", text: error instanceof Error ? error.message : "Pesanan belum terkonfirmasi tersimpan. Muat ulang status sebelum mencoba lagi." });
     } finally {
       setSaving(false);
     }
@@ -360,7 +356,7 @@ export function OrderEntryForm() {
     <form onSubmit={submit} className="space-y-5">
       <section className="cp-card p-5 sm:p-6">
         <div className="mb-5 rounded-xl border border-yellow-500/25 bg-yellow-500/10 p-4 text-sm leading-6 text-yellow-100">
-          <strong>Tanggal dan kode order dibuat otomatis.</strong> Untuk jenis <strong>Gold</strong> atau <strong>Item</strong>, stok wajib dipilih dari Gudang.
+          <strong>Isi kode order secara manual. Tanggal diambil dari server.</strong> Untuk jenis <strong>Gold</strong> atau <strong>Item</strong>, stok wajib dipilih dari Gudang.
         </div>
 
         <h2 className="text-xl font-semibold">1. Data Pesanan</h2>
@@ -368,10 +364,10 @@ export function OrderEntryForm() {
           <div className="text-sm">Hari & tanggal order
             <div className="mt-2 min-h-[50px] rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 font-medium">{serverTime ? formatDateTimeID(serverTime) : "Mengambil waktu server..."}</div>
           </div>
-          <div className="text-sm">Kode order otomatis
-            <div className="mt-2 min-h-[50px] rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-3 py-3 text-lg font-bold text-yellow-300">{automaticCode}</div>
-            <div className="mt-1 text-xs text-zinc-500">EG1 → EG9999 → EGA0001 → ... → EGZ9999</div>
-          </div>
+          <label className="text-sm">Kode order manual
+            <input value={manualCode} onChange={e=>setManualCode(e.target.value)} maxLength={64} required autoComplete="off" placeholder="Contoh: G2G-20260917-001" aria-describedby="order-code-help" aria-invalid={!!manualCode && !!codeError} className={inputClass} />
+            <span id="order-code-help" className={`mt-1 block text-xs ${manualCode && codeError ? "text-red-300" : "text-zinc-400"}`}>{manualCode && codeError ? codeError : "1–64 karakter: huruf, angka, titik, tanda hubung atau garis bawah. Kode harus unik."}</span>
+          </label>
           <label className="text-sm">Sumber
             <select value={source} onChange={(e) => setSource(e.target.value)} className={inputClass}>{sources.map((x) => <option key={x}>{x}</option>)}</select>
           </label>

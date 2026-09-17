@@ -4,7 +4,7 @@ import { fromBase64, recoveryCreateOptions, recoveryGetOptions, validateRecovery
 
 function available() {
   if (!window.isSecureContext || !navigator.credentials || typeof PublicKeyCredential === "undefined") {
-    throw new Error("Open ComePlayers in a browser that supports synced passkeys, or use your recovery key.");
+    throw new Error("Open ComePlayers in an updated browser with synced passkey support. On desktop, use the same account and password manager in a supported browser if the embedded view cannot open your passkey.");
   }
 }
 

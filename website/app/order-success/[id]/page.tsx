@@ -12,6 +12,7 @@ import {
   FaShoppingBag,
   FaStore,
 } from "react-icons/fa";
+import { orderTotalIdr, storedMoney } from "@/lib/money";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { supabase } from "@/lib/supabase";
 
@@ -43,11 +44,7 @@ type Product = {
   category?: string | null;
 };
 
-function numberPrice(value: string | number | null | undefined) {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return value;
-  return Number(String(value).replace(/[^\d]/g, "") || 0);
-}
+const numberPrice = storedMoney;
 
 function prettyStatus(value?: string | null) {
   return String(value || "pending")
@@ -58,7 +55,7 @@ function prettyStatus(value?: string | null) {
 export default function OrderSuccessPage() {
   const params = useParams();
   const orderId = Number(params?.id || 0);
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [order, setOrder] = useState<Order | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,10 +100,7 @@ export default function OrderSuccessPage() {
 
   const total = useMemo(
     () =>
-      numberPrice(order?.total_amount) ||
-      numberPrice(order?.total_price) ||
-      numberPrice(order?.price) ||
-      numberPrice(product?.price),
+      orderTotalIdr(order),
     [order, product]
   );
 

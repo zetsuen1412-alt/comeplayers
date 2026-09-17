@@ -28,7 +28,7 @@ export default function ConditionalChrome({
     <>
       {!immersiveRoute && header}
       {children}
-      {!homeRoute && !pathname.startsWith("/admin/payroll") &&
+      {!homeRoute && !pathname.startsWith("/admin") &&
       !focusedPaymentRoute &&
       !focusedChatRoute &&
       !focusedMessagesRoute &&
@@ -39,3 +39,4 @@ export default function ConditionalChrome({
     </>
   );
 }
+

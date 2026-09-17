@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { buyerOrderFilter, ORDER_BUCKETS, parseOrderPage } from "@/lib/accountCommerce";
 import {
   authErrorStatus,
   createSupabaseAdmin,
@@ -102,22 +103,24 @@ export async function GET(request: Request) {
     const user = await requireAuthenticatedUser(request);
     const url = new URL(request.url);
     const scope = url.searchParams.get("scope") === "seller" ? "seller" : "buyer";
-    const limit = Math.min(200, Math.max(1, Number(url.searchParams.get("limit") || 100)));
+    let page;
+    try { page = parseOrderPage(url.searchParams); } catch { return NextResponse.json({ error: "Invalid order filter." }, { status: 400 }); }
+    const { limit, before, bucket } = page;
     const supabaseAdmin = createSupabaseAdmin();
 
     let query = supabaseAdmin
       .from("orders")
       .select(ORDER_LIST_FIELDS)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+      .order("id", { ascending: false })
+      .limit(limit + 1);
 
     if (scope === "seller") {
       query = query.eq("seller_id", user.id);
-    } else if (user.email) {
-      query = query.or(`buyer_id.eq.${user.id},buyer.eq.${user.email}`);
     } else {
-      query = query.eq("buyer_id", user.id);
+      query = query.or(buyerOrderFilter(user));
     }
+    if (before) query = query.lt("id", before);
+    if (bucket !== "all") query = query.in("status", [...ORDER_BUCKETS[bucket]]);
 
     const { data: orderRows, error: orderError } = await query;
 
@@ -125,7 +128,7 @@ export async function GET(request: Request) {
       throw new Error(orderError.message);
     }
 
-    const orders = ((orderRows || []) as unknown as OrderListRow[]).map(
+    const orders = ((orderRows || []).slice(0, limit) as unknown as OrderListRow[]).map(
       (order) => ({
         ...order,
         buyer: scope === "seller" ? maskEmail(order.buyer) : null,
@@ -170,11 +173,12 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
+      nextCursor: orderRows && orderRows.length > limit ? orders[orders.length - 1].id : null,
       scope,
       userId: user.id,
       orders,
       products,
-    });
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unexpected order list error.";

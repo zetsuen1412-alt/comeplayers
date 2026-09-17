@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useMemo, useState } from "react";
 import AccountShell from "@/components/account/AccountShell";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { supabase } from "@/lib/supabase";
-import PasskeyRecoverySettings from "@/components/account/PasskeyRecoverySettings";
+import AccountMessagesSettings from "@/components/account/AccountMessagesSettings";
 
 const DEVICE_KEY_STORAGE = "comeplayers_security_device_id";
 
@@ -350,7 +350,7 @@ export default function SecurityPageClient() {
         </div>
       </section>
 
-      <PasskeyRecoverySettings />
+      <AccountMessagesSettings />
       <SecuritySection
         eyebrow="Identity"
         title="Verified account details"

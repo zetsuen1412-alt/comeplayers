@@ -1,3 +1,4 @@
+import { manualOrderCode } from './manual-order-code';
 import { buildLivePayrollRows, isPayrollEligible } from './payroll-live';
 import { jakartaDateTimeInputToISO } from './date';
 import type { Order, Employee } from '../types/domain';
@@ -53,8 +54,8 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   }
   const references=new Set<string>();
   for(const row of list(workspaceKeys.orders)) {
-    if(typeof row.externalReference!=='string'||!row.externalReference||references.has(row.externalReference.toLowerCase())) payrollFailure('Kode order kosong atau duplikat.');
-    references.add(row.externalReference.toLowerCase());
+    if(typeof row.externalReference!=='string'||!row.externalReference.trim()||references.has(row.externalReference.trim().toLowerCase())) payrollFailure('Kode order kosong atau duplikat.');
+    references.add(row.externalReference.trim().toLowerCase());
     for(const key of ['grossMinor','quantity','expectedPaymentMinor','matchedPaymentMinor']) if(typeof row[key]!=='number'||Number(row[key])<0) payrollFailure('Angka order tidak valid.');
     if(!Number.isFinite(Date.parse(String(row.orderedAt)))) payrollFailure('Tanggal order tidak valid.');
     if(row.workerAssignments!==undefined&&!Array.isArray(row.workerAssignments)) payrollFailure('Penugasan order tidak valid.');
@@ -86,6 +87,13 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   if(canonical(previous[workspaceKeys.closings]??[])!==canonical(next[workspaceKeys.closings]??[])) payrollFailure('Closing hanya dapat dibuat melalui proses tutup buku.',409);
   const oldOrders=(previous[workspaceKeys.orders]??[]) as Order[], newOrders=(next[workspaceKeys.orders]??[]) as Order[];
   for(const old of oldOrders.filter(o=>o.payrollClosedAt)) if(canonical(old)!==canonical(newOrders.find(o=>o.id===old.id))) payrollFailure('Order yang sudah Closing tidak dapat diubah atau dihapus.',409);
+  for(const order of newOrders) {
+    const old=oldOrders.find(row=>row.id===order.id);
+    if(!old||old.externalReference!==order.externalReference) {
+      try { if(manualOrderCode(order.externalReference)!==order.externalReference) payrollFailure('Kode order tidak boleh diawali/diakhiri spasi.'); }
+      catch(e) { payrollFailure(e instanceof Error?e.message:'Kode order tidak valid.'); }
+    }
+  }
   for(const order of newOrders) if(order.payrollClosedAt&&!oldOrders.some(old=>old.id===order.id&&old.payrollClosedAt===order.payrollClosedAt)) payrollFailure('Status Closing harus diproses di server.',409);
 }
 export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOString()) {

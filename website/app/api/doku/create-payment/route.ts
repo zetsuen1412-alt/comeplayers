@@ -1,3 +1,4 @@
+import { orderTotalIdr } from "@/lib/money";
 import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import {
@@ -164,6 +165,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       orderId?: number | string;
       paymentMethod?: PaymentMethod;
+      returnTo?: "mobile";
     };
     const orderId = Number(body.orderId || 0);
     const paymentMethod = body.paymentMethod || "bank_transfer";
@@ -226,10 +228,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const amount =
-      numberPrice(order.total_amount) ||
-      numberPrice(order.total_price) ||
-      numberPrice(order.price);
+    const amount = orderTotalIdr(order);
 
     if (!Number.isSafeInteger(amount) || amount <= 0) {
       return NextResponse.json(
@@ -239,6 +238,8 @@ export async function POST(request: Request) {
     }
 
     const dueMinutes = getDokuPaymentDueMinutes();
+    const { error: claimError } = await supabaseAdmin.rpc("cp_claim_external_order_payment", { p_order_id: order.id, p_buyer_id: buyer.id });
+    if (claimError) return NextResponse.json({ error: "This order is no longer available for payment. Refresh its status." }, { status: 409 });
     const { error: reservationError } = await supabaseAdmin.rpc(
       "cp_prepare_order_payment",
       {
@@ -371,7 +372,7 @@ export async function POST(request: Request) {
         : paymentMethod === "card"
           ? "card"
           : "doku";
-    const callbackUrl = `${siteUrl}/payment/${order.id}?method=${callbackMethod}&dokuReturn=1`;
+    const callbackUrl = body.returnTo === "mobile" ? `${siteUrl}/app/payment-return?order=${order.id}` : `${siteUrl}/payment/${order.id}?method=${callbackMethod}&dokuReturn=1`;
     const notificationUrl = getNotificationUrl(siteUrl);
 
     if (paymentMethod === "bank_transfer") {

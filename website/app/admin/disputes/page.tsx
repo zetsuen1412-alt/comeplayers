@@ -24,6 +24,8 @@ type Order = {
   product: string | null;
   price: string | number | null;
   quantity: number | null;
+  total_amount: string | number | null;
+  payment_status: string | null;
   total_price: string | number | null;
   category_id: number | null;
   category_name: string | null;
@@ -130,7 +132,7 @@ function readableDisputeStatus(status: string) {
 }
 
 export default function AdminDisputesV2Page() {
-  const { formatPrice } = useCurrency();
+  const { formatIdrPrice: formatPrice } = useCurrency();
   const [user, setUser] = useState<User | null>(null);
   const [adminProfile, setAdminProfile] = useState<Profile | null>(null);
   const [disputes, setDisputes] = useState<Dispute[]>([]);
@@ -176,7 +178,7 @@ export default function AdminDisputesV2Page() {
 
   const disputedValue = disputes.reduce((sum, dispute) => {
     const order = dispute.orders;
-    return sum + Number(order?.total_price || order?.price || 0);
+    return sum + Number(order?.total_amount || order?.total_price || order?.price || 0);
   }, 0);
 
   async function loadDisputes() {
@@ -255,23 +257,13 @@ export default function AdminDisputesV2Page() {
         : `Dispute resolved as ${readableDisputeStatus(newStatus)}.`);
 
     if (newStatus === "buyer_win") {
-      if (!confirm("Resolve this dispute as BUYER WINS and refund the buyer?")) return;
+      if (!confirm("Resolve this dispute as BUYER WINS and credit the approved refund to CPWallet?")) return;
     } else if (newStatus === "seller_win") {
       if (!confirm("Resolve as SELLER WINS? Escrow is released only when delivery is complete.")) return;
     } else if (newStatus === "closed") {
       if (!confirm("Close this dispute without changing the financial result?")) return;
     } else if (!confirm("Mark this dispute as investigating?")) {
       return;
-    }
-
-    let manualReference: string | undefined;
-    if (newStatus === "buyer_win") {
-      const paymentMethod = String(dispute.orders?.payment_proof || "").toLowerCase();
-      if (!paymentMethod.includes("paypal") && !paymentMethod.includes("wallet")) {
-        manualReference =
-          prompt("Enter the bank/QRIS/manual refund reference if required:")?.trim() ||
-          undefined;
-      }
     }
 
     try {
@@ -282,7 +274,6 @@ export default function AdminDisputesV2Page() {
           disputeId: dispute.id,
           action: newStatus,
           note,
-          manualReference,
         }),
       });
 
@@ -432,7 +423,7 @@ export default function AdminDisputesV2Page() {
           <div className="grid gap-6">
             {filteredDisputes.map((dispute) => {
               const order = dispute.orders;
-              const totalPrice = Number(order?.total_price || order?.price || 0);
+              const totalPrice = Number(order?.total_amount || order?.total_price || order?.price || 0);
               const orderStatus = normalizeOrderStatus(order?.status || null);
               const currentNote = adminNotes[dispute.id] ?? dispute.admin_note ?? "";
               const isFinal = ["buyer_win", "seller_win", "closed"].includes(dispute.status);
@@ -663,3 +654,4 @@ export default function AdminDisputesV2Page() {
     </main>
   );
 }
+

@@ -35,8 +35,9 @@ test("wrong passkey, account, salt, credential or ciphertext cannot recover or s
   const root = createIdentity(newId()), prf = random(), passkey = sealPasskeyRecovery(root, prf, base64url(random()), hex(random()));
   assert.throws(() => openPasskeyRecovery(passkey, random(), root));
   assert.throws(() => openPasskeyRecovery(passkey, prf, createIdentity(newId())));
+  const changedCiphertext = (parseInt(passkey.backup.ciphertext.slice(0, 2), 16) ^ 1).toString(16).padStart(2, "0") + passkey.backup.ciphertext.slice(2);
   for (const changed of [{ ...passkey, salt: hex(random()) }, { ...passkey, credentialId: base64url(random()) }, { ...passkey, rpId: "attacker.example" },
-    { ...passkey, backup: { ...passkey.backup, ciphertext: "00" + passkey.backup.ciphertext.slice(2) } }]) {
+    { ...passkey, backup: { ...passkey.backup, ciphertext: changedCiphertext } }]) {
     assert.throws(() => openPasskeyRecovery(changed, prf, root));
     assert.throws(() => verifyRootBackup({ ...passkey.backup, passkey: changed }, root));
   }

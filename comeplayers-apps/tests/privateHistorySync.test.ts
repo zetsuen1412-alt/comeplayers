@@ -92,7 +92,15 @@ class MemoryHistoryServer {
       if (path.startsWith("/api/messages/secure/history?")) {
         const after = Number(new URL(request.url).searchParams.get("after") || 0);
         let events = this.events.filter(item => item.sequence > after && this.rooms.get(item.event.roomId)?.includes(userId)).slice(0, 50);
-        if (this.corruptNextPull && events.length) { events = structuredClone(events); events[0]!.event.ciphertext = "00" + events[0]!.event.ciphertext.slice(2); this.corruptNextPull = false; }
+        if (this.corruptNextPull && events.length) {
+          events = structuredClone(events);
+          const original = events[0]!.event.ciphertext;
+          // Always change the payload, including ciphertext that already starts
+          // with 00. Replacing it with a fixed byte made this rejection flaky.
+          events[0]!.event.ciphertext = (original[0] === "0" ? "1" : "0") + original.slice(1);
+          assert.notEqual(events[0]!.event.ciphertext, original);
+          this.corruptNextPull = false;
+        }
         return structuredClone({ events, next: events.at(-1)?.sequence || after, hasMore: events.length === 50 }) as T;
       }
       throw new Error(`Unhandled ${init.method || "GET"} ${path}`);

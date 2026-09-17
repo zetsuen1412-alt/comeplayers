@@ -2,6 +2,7 @@
 
 import { FormEvent, type ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AccountCommerce from "@/components/account/AccountCommerce";
 import AccountShell from "@/components/account/AccountShell";
 import { supabase } from "@/lib/supabase";
 import { accountRequest } from "@/lib/accountClient";
@@ -249,6 +250,7 @@ export default function AccountPageClient() {
   if (loading) {
     return (
       <AccountShell>
+
         <div className="flex min-h-[420px] items-center justify-center p-8 text-sm font-bold text-amber-200">
           Loading account settings...
         </div>
@@ -258,6 +260,7 @@ export default function AccountPageClient() {
 
   return (
     <AccountShell>
+      <AccountCommerce key={userId} />
       <form onSubmit={handleSave}>
         <section className="border-b border-amber-400/15 px-6 py-7 md:px-8 md:py-9">
           <p className="inline-flex rounded-full border border-amber-400/35 bg-amber-400/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-amber-300">

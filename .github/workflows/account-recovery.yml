@@ -1,0 +1,166 @@
+name: Account recovery checks
+on:
+  push:
+    branches: [chatgpt/account-integrated-e2ee-recovery]
+  pull_request:
+    paths:
+      - 'website/next.config.ts'
+      - 'website/tsconfig*.json'
+      - 'website/package*.json'
+      - 'website/lib/e2ee/**'
+      - 'website/components/messages/Secure*'
+      - 'website/app/api/messages/secure/**'
+      - 'website/supabase/migrations/*account_recovery*'
+      - 'website/tests/*recovery*'
+      - 'website/tests/*Recovery*'
+      - 'website/tests/sql/recoveryPolicy.sql'
+      - 'comeplayers-apps/apps/mobile/src/secure/**'
+      - 'comeplayers-apps/apps/mobile/src/screens/PrivateBackupSettings.tsx'
+      - 'comeplayers-apps/apps/mobile/plugins/**'
+      - 'comeplayers-apps/tests/androidReleaseSigning.test.cjs'
+      - 'comeplayers-apps/scripts/reconcile-android-version.mjs'
+      - 'comeplayers-apps/tests/reconcileAndroidVersion.test.mjs'
+      - 'comeplayers-apps/apps/mobile/.eas/workflows/**'
+      - 'comeplayers-apps/apps/mobile/eas.json'
+      - '.github/workflows/account-recovery.yml'
+permissions:
+  contents: read
+concurrency:
+  group: account-recovery-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website
+            comeplayers-apps
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install locked website dependencies
+        working-directory: website
+        run: npm ci --no-audit --no-fund
+      # Website protocol tests import the native crypto implementation too.
+      - name: Install locked application dependencies
+        working-directory: comeplayers-apps
+        run: npm ci --no-audit --no-fund
+      - name: Android remote version reconciliation guards
+        run: node --test comeplayers-apps/tests/reconcileAndroidVersion.test.mjs
+      - name: Website typecheck
+        working-directory: website
+        run: npm run typecheck
+      - name: Recovery policy, storage isolation and existing cryptographic tests
+        working-directory: website
+        run: npx --no-install tsx --test tests/recoveryPolicy.test.ts tests/recoveryStorage.test.mjs tests/recoveryBackup.test.mjs tests/passkeyRecovery.test.ts tests/secureAccountProtocol.test.ts tests/appDownloads.test.ts
+      - name: Account messaging access and incoming call checks
+        working-directory: website
+        run: npx --no-install tsx --test tests/accountMessaging.test.ts tests/chatSecureGate.test.ts tests/incomingCalls.test.ts tests/chatInteractions.test.ts
+      - name: Marketplace pricing, signed quotes and currency regression checks
+        working-directory: website
+        run: npx --no-install tsx --test tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/marketplaceGameFlow.test.ts tests/paymentCurrency.test.tsx
+      - name: CPWallet quote and payment validation
+        working-directory: website
+        run: npx --no-install tsx --test tests/cpWallet.test.ts tests/mobileCommerce.test.ts
+      - name: Payroll delegated access, audit and manual reference checks
+        working-directory: website
+        run: npx --no-install tsx --test tests/payroll-access.test.ts tests/payroll-final-workspace.test.ts
+      - name: Mobile typecheck
+        working-directory: comeplayers-apps
+        run: npm run typecheck --workspace @comeplayers/mobile
+      - name: Shared recovery policy parity
+        run: cmp website/lib/e2ee/recoveryPolicy.ts comeplayers-apps/apps/mobile/src/secure/recoveryPolicy.ts
+      - name: Original Android certificate guard in isolated Gradle fixtures
+        env:
+          COMEPLAYERS_TEST_GRADLE: ${{ github.workspace }}/comeplayers-apps/node_modules/@react-native/gradle-plugin/gradlew
+        run: node --test comeplayers-apps/tests/androidReleaseSigning.test.cjs
+      # Run from website so the server-side @/ aliases use website/tsconfig.json.
+      - name: Existing private-message protocol tests
+        working-directory: website
+        run: npx --no-install tsx --test ../comeplayers-apps/tests/privateAccountRecovery.test.ts ../comeplayers-apps/tests/privateMultiDevice.test.ts ../comeplayers-apps/tests/privateHistorySync.test.ts ../comeplayers-apps/tests/privateVerifiedBackup.test.ts
+  web-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website
+            comeplayers-apps
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      # Match Vercel: retain sibling source but install only website dependencies.
+      - name: Install locked website dependencies
+        working-directory: website
+        run: npm ci --no-audit --no-fund
+      - name: Build web application without production credentials
+        working-directory: website
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-production-key
+        run: npm run build
+  sql-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-local-fixture-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website/tests/sql
+            website/supabase/migrations
+      - name: Isolated PostgreSQL generation guard checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+        run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/recoveryPolicy.sql
+
+      - name: Isolated account messaging mode checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+        run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/accountMessaging.sql
+
+
+      - name: Isolated marketplace pricing and atomic checkout checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+        run: psql --host=127.0.0.1 --username=postgres --dbname=postgres --set=ON_ERROR_STOP=1 --file=website/tests/sql/marketplacePricing.sql
+      - name: CPWallet isolated ledger, refunds and concurrent spending
+        env:
+          PGPASSWORD: ci-local-fixture-only
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+        run: |
+          createdb cpwallet_test
+          psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/cpWallet.sql
+          pgbench --no-vacuum --client=10 --jobs=5 --transactions=5 --file=website/tests/sql/cpWalletCredit.pgbench cpwallet_test
+          pgbench --no-vacuum --client=10 --jobs=5 --transactions=10 --file=website/tests/sql/cpWalletSpend.pgbench cpwallet_test
+          psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/cpWalletVerify.sql
+          psql --dbname=cpwallet_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/adminWorkspace.sql
+      - name: Payroll scoped permissions and immutable audit checks
+        env:
+          PGPASSWORD: ci-local-fixture-only
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+        run: |
+          createdb payroll_test
+          psql --dbname=payroll_test --set=ON_ERROR_STOP=1 --file=website/tests/sql/payrollAccess.sql

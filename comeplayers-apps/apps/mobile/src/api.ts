@@ -92,13 +92,15 @@ export async function loadMarketplaceCategories(): Promise<MarketplaceCategory[]
 
 export async function createCheckoutOrder(
   productId: number,
-  quantity: number
+  quantity: number,
+  quoteToken: string,
+  couponCode = ""
 ): Promise<CheckoutOrder> {
   const result = await request<{ ok: boolean; order: CheckoutOrder }>(
     "/api/checkout/create-order",
     {
       method: "POST",
-      body: JSON.stringify({ productId, quantity, paymentMethod: "doku" }),
+      body: JSON.stringify({ productId, quantity, quoteToken, couponCode, paymentMethod: "doku" }),
     },
     true
   );
@@ -107,11 +109,11 @@ export async function createCheckoutOrder(
 
 export function createPayment(
   orderId: number,
-  paymentMethod: "qris" | "bank_transfer"
+  paymentMethod: "qris" | "bank_transfer" | "card" | "doku_wallet"
 ): Promise<PaymentResult> {
   return request<PaymentResult>(
     "/api/doku/create-payment",
-    { method: "POST", body: JSON.stringify({ orderId, paymentMethod }) },
+    { method: "POST", body: JSON.stringify({ orderId, paymentMethod, returnTo: "mobile" }) },
     true
   );
 }

@@ -15,17 +15,20 @@
       "channel": "preview",
       "environment": "preview",
       "android": {
+        "image": "ubuntu-26.04-jdk-17-ndk-r27b-sdk-57",
         "buildType": "apk"
       },
       "ios": {
         "simulator": false
-      }
+      },
+      "autoIncrement": true
     },
     "production": {
       "autoIncrement": true,
       "channel": "production",
       "environment": "production",
       "android": {
+        "image": "ubuntu-26.04-jdk-17-ndk-r27b-sdk-57",
         "buildType": "app-bundle"
       }
     }

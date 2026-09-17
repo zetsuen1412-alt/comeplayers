@@ -100,12 +100,9 @@ import {
 import { supabase } from "@/lib/supabase";
 import styles from "./messages.module.css";
 
-const SecureDirectConversation = dynamic(
-  () => import("@/components/messages/SecureDirectConversation"),
-  {
-    ssr: false,
-    loading: () => <div className="flex min-h-0 flex-1 items-center justify-center text-sm text-slate-400">Opening encrypted Messages…</div>,
-  },
+const AccountDirectCall = dynamic(
+  () => import("@/components/messages/AccountDirectCall"),
+  { ssr: false },
 );
 
 const MESSAGES_AUTH_BOOT_TIMEOUT_MS = 8_000;
@@ -2648,15 +2645,6 @@ export default function MessagesPage() {
     if (!roomId) return;
     if (!silent) setLoadingMessages(true);
     try {
-      const knownRoom = roomsRef.current.find((room) => room.id === roomId);
-      if (knownRoom && !isGroupRoom(knownRoom)) {
-        setConversation({
-          room: { ...knownRoom, me: profile },
-          messages: [],
-          members: [],
-        });
-        return;
-      }
       const channelQuery = channelId
         ? `&channel=${encodeURIComponent(channelId)}`
         : "";
@@ -6074,12 +6062,6 @@ export default function MessagesPage() {
                   </div>
                 </div>
               </div>
-            ) : !selectedIsGroup ? (
-              <SecureDirectConversation
-                key={selectedRoom.id}
-                userId={userId}
-                room={selectedRoom}
-              />
             ) : selectedIsGroup && serverViewMode === "home" ? (
               <div className={styles.commandCenter}>
                 <section className={styles.commandHero}>
@@ -6565,6 +6547,13 @@ export default function MessagesPage() {
                             {formatPrice(selectedRoom.product.price || 0)}
                           </p>
                         </div>
+                      </div>
+                    ) : null}
+
+                    {!selectedIsGroup ? (
+                      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+                        <p className="text-xs text-slate-400">Messages sync with your account. ComePlayers stores and processes messages.</p>
+                        <AccountDirectCall key={`${userId}:${selectedRoom.id}`} roomId={selectedRoom.id} userId={userId} peerName={roomTitle(selectedRoom)} onError={setError} />
                       </div>
                     ) : null}
 

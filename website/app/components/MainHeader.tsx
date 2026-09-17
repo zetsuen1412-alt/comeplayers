@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,13 +30,6 @@ import AuthModal, { type AuthMode } from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import ComePlayersLogo from "@/components/brand/ComePlayersLogo";
 import LocaleCurrencySwitcher from "@/components/layout/LocaleCurrencySwitcher";
-import {
-  NOTIFICATION_INBOX_CHANGED,
-  clearNotificationsThrough,
-  markAnnouncementsRead,
-  markNotificationRead,
-  notificationHref,
-} from "@/lib/notificationInbox";
 
 
 
@@ -129,7 +122,7 @@ function getInitial(name?: string | null) {
 }
 
 function MainHeaderContent() {
-  const { formatPrice, currency, locale, t } = useCurrency();
+  const { formatIdrPrice: formatPrice, currency, locale, t } = useCurrency();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -148,13 +141,6 @@ function MainHeaderContent() {
   const [latestAnnouncements, setLatestAnnouncements] = useState<
     Announcement[]
   >([]);
-  const [notificationBusy, setNotificationBusy] = useState(false);
-  const [notificationError, setNotificationError] = useState<string | null>(null);
-  const notificationBusyRef = useRef(false);
-  const notificationRequestRef = useRef(0);
-  const announcementRequestRef = useRef(0);
-  const activeUserIdRef = useRef<string | null>(null);
-  const isIndonesian = locale.startsWith("id");
 
   const [showNotificationDropdown, setShowNotificationDropdown] =
     useState(false);
@@ -167,21 +153,6 @@ function MainHeaderContent() {
   const [authMode, setAuthMode] = useState<Extract<AuthMode, "login" | "register">>("login");
 
   const totalHeaderUnread = unreadCount + announcementUnreadCount;
-
-  function setHeaderUser(currentUser: User | null) {
-    const userId = currentUser?.id || null;
-    if (activeUserIdRef.current !== userId) {
-      activeUserIdRef.current = userId;
-      notificationRequestRef.current += 1;
-      announcementRequestRef.current += 1;
-      setLatestNotifications([]);
-      setLatestAnnouncements([]);
-      setUnreadCount(0);
-      setAnnouncementUnreadCount(0);
-      setNotificationError(null);
-    }
-    setUser(currentUser);
-  }
 
   useEffect(() => {
     if (!showMobileMenu) return;
@@ -274,7 +245,6 @@ function MainHeaderContent() {
   }
 
   async function loadNotifications(userId: string) {
-    const request = ++notificationRequestRef.current;
     const [countResult, listResult] = await Promise.all([
       supabase
         .from("notifications")
@@ -285,24 +255,23 @@ function MainHeaderContent() {
         .from("notifications")
         .select("id,user_id,type,title,message,link_url,is_read,created_at")
         .eq("user_id", userId)
-        .eq("is_read", false)
         .order("id", { ascending: false })
         .limit(5),
     ]);
-
-    if (request !== notificationRequestRef.current || activeUserIdRef.current !== userId) return;
 
     if (countResult.error) {
       console.error(
         "Unread notification count error:",
         countResult.error.message
       );
+      setUnreadCount(0);
     } else {
       setUnreadCount(countResult.count || 0);
     }
 
     if (listResult.error) {
       console.error("Latest notifications error:", listResult.error.message);
+      setLatestNotifications([]);
     } else {
       setLatestNotifications(listResult.data || []);
     }
@@ -370,9 +339,6 @@ function MainHeaderContent() {
   }
 
   async function loadAnnouncements(currentUserId?: string) {
-    const request = ++announcementRequestRef.current;
-    const isCurrentRequest = () => request === announcementRequestRef.current &&
-      activeUserIdRef.current === (currentUserId || null);
     const { data: announcementData, error: announcementError } = await supabase
       .from("announcements")
       .select(
@@ -383,16 +349,17 @@ function MainHeaderContent() {
       .order("id", { ascending: false })
       .limit(12);
 
-    if (!isCurrentRequest()) return;
     if (announcementError) {
       console.error("Announcement load error:", announcementError.message);
+      setLatestAnnouncements([]);
+      setAnnouncementUnreadCount(0);
       return;
     }
 
     const visible = (announcementData || []).filter(isVisibleAnnouncement);
+    setLatestAnnouncements(visible);
 
     if (!currentUserId || visible.length === 0) {
-      setLatestAnnouncements([]);
       setAnnouncementUnreadCount(0);
       return;
     }
@@ -405,77 +372,18 @@ function MainHeaderContent() {
       .eq("user_id", currentUserId)
       .in("announcement_id", announcementIds);
 
-    if (!isCurrentRequest()) return;
     if (readError) {
       console.error("Announcement reads error:", readError.message);
+      setAnnouncementUnreadCount(0);
       return;
     }
 
     const readIds = new Set(
       (readData || []).map((item) => item.announcement_id)
     );
-    const unread = visible.filter((item) => !readIds.has(item.id));
-    setLatestAnnouncements(unread);
-    setAnnouncementUnreadCount(unread.length);
-  }
-
-  async function runInboxAction(action: (userId: string) => Promise<void>) {
-    const userId = activeUserIdRef.current;
-    if (!userId || notificationBusyRef.current) return false;
-    notificationBusyRef.current = true;
-    setNotificationBusy(true);
-    setNotificationError(null);
-    // Do not let a read started before the mutation restore a stale inbox.
-    notificationRequestRef.current += 1;
-    announcementRequestRef.current += 1;
-    try {
-      await action(userId);
-      return activeUserIdRef.current === userId;
-    } catch (error) {
-      console.error("Notification inbox update error:", error);
-      if (activeUserIdRef.current === userId) {
-        setNotificationError(isIndonesian
-          ? "Notifikasi belum berhasil dibersihkan. Silakan coba lagi."
-          : "Could not clear notifications. Please try again.");
-      }
-      return false;
-    } finally {
-      if (activeUserIdRef.current === userId) {
-        await Promise.all([loadNotifications(userId), loadAnnouncements(userId)])
-          .catch((error) => console.error("Notification inbox refresh error:", error));
-      }
-      notificationBusyRef.current = false;
-      setNotificationBusy(false);
-    }
-  }
-
-  async function openNotification(event: MouseEvent<HTMLAnchorElement>, notification: NotificationItem) {
-    const newTab = event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
-    if (!newTab) event.preventDefault();
-    const saved = await runInboxAction((userId) => markNotificationRead(supabase, userId, notification.id));
-    if (saved && !newTab) {
-      setShowNotificationDropdown(false);
-      router.push(notificationHref(notification.link_url));
-    }
-  }
-
-  async function openAnnouncement(event: MouseEvent<HTMLAnchorElement>, announcement: Announcement) {
-    const newTab = event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
-    if (!newTab) event.preventDefault();
-    const saved = await runInboxAction((userId) => markAnnouncementsRead(supabase, userId, [announcement.id]));
-    if (saved && !newTab) {
-      setShowNotificationDropdown(false);
-      router.push(`/announcements/${encodeURIComponent(announcement.slug)}`);
-    }
-  }
-
-  async function clearInbox() {
-    const latestId = latestNotifications[0]?.id;
-    const announcementIds = latestAnnouncements.map((item) => item.id);
-    await runInboxAction(async (userId) => {
-      if (latestId !== undefined) await clearNotificationsThrough(supabase, userId, latestId);
-      await markAnnouncementsRead(supabase, userId, announcementIds);
-    });
+    setAnnouncementUnreadCount(
+      announcementIds.filter((id) => !readIds.has(id)).length
+    );
   }
 
   async function loadUserHeaderData(currentUser: User) {
@@ -495,7 +403,7 @@ function MainHeaderContent() {
       const { data: userData } = await supabase.auth.getUser();
       const currentUser = userData.user || null;
 
-      setHeaderUser(currentUser);
+      setUser(currentUser);
 
       if (currentUser) {
         await loadUserHeaderData(currentUser);
@@ -525,7 +433,7 @@ function MainHeaderContent() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       const currentUser = session?.user || null;
 
-      setHeaderUser(currentUser);
+      setUser(currentUser);
 
       if (currentUser) {
         loadUserHeaderData(currentUser);
@@ -647,27 +555,6 @@ function MainHeaderContent() {
     };
   }, [user]);
 
-  useEffect(() => {
-    const userId = user?.id;
-    if (!userId) return;
-    const refresh = () => {
-      void Promise.all([loadNotifications(userId), loadAnnouncements(userId)])
-        .catch((error) => console.error("Notification inbox refresh error:", error));
-    };
-    const handleInboxChange = (event: Event) => {
-      if ((event as CustomEvent<{ userId: string }>).detail?.userId === userId) refresh();
-    };
-    refresh();
-    window.addEventListener("focus", refresh);
-    window.addEventListener(NOTIFICATION_INBOX_CHANGED, handleInboxChange);
-    return () => {
-      window.removeEventListener("focus", refresh);
-      window.removeEventListener(NOTIFICATION_INBOX_CHANGED, handleInboxChange);
-    };
-    // Refresh on navigation/open/focus even when Realtime is unavailable.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, pathname, showNotificationDropdown]);
-
   function openAuthModal(mode: Extract<AuthMode, "login" | "register">) {
     setAuthMode(mode);
     setShowAuthModal(true);
@@ -709,7 +596,7 @@ function MainHeaderContent() {
 
   async function handleLogout() {
     await supabase.auth.signOut();
-    setHeaderUser(null);
+    setUser(null);
     setProfile(null);
     setWalletBalance(0);
     setUnreadCount(0);
@@ -1105,15 +992,14 @@ function MainHeaderContent() {
 
       {showNotificationDropdown && user && (
         <div
-          className="fixed left-3 right-3 top-[128px] z-[99999] flex max-h-[calc(100dvh-148px)] flex-col overflow-hidden rounded-2xl border border-slate-700 shadow-[0_20px_60px_rgba(0,0,0,0.95)] sm:left-auto sm:right-6 sm:top-[120px] sm:w-[380px] sm:max-w-[calc(100vw-2rem)] lg:top-[92px] lg:max-h-[calc(100dvh-112px)]"
-          aria-busy={notificationBusy}
+          className="fixed left-3 right-3 top-[128px] z-[99999] overflow-hidden rounded-2xl border border-slate-700 shadow-[0_20px_60px_rgba(0,0,0,0.95)] sm:left-auto sm:right-6 sm:top-[120px] sm:w-[380px] sm:max-w-[calc(100vw-2rem)] lg:top-[92px]"
           style={{
             backgroundColor: "#111827",
             opacity: 1,
             backdropFilter: "none",
           }}
         >
-          <div className="flex shrink-0 items-center justify-between border-b border-slate-700 bg-[#1b2436] p-4">
+          <div className="flex items-center justify-between border-b border-slate-700 bg-[#1b2436] p-4">
             <div>
               <p className="font-black text-white">
                 {t("header.notifications")}
@@ -1132,26 +1018,7 @@ function MainHeaderContent() {
             </Link>
           </div>
 
-          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-700 bg-[#111827] px-4 py-3">
-            <p className="text-[11px] text-gray-400">
-              {isIndonesian ? "Riwayat tetap tersimpan." : "Your history is preserved."}
-            </p>
-            <button
-              type="button"
-              onClick={() => { void clearInbox(); }}
-              disabled={notificationBusy || (latestNotifications.length === 0 && latestAnnouncements.length === 0)}
-              className="shrink-0 rounded-lg border border-cyan-400/40 px-3 py-2 text-xs font-black text-cyan-300 transition hover:bg-cyan-400/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {notificationBusy ? (isIndonesian ? "Memproses..." : "Saving...") : (isIndonesian ? "Bersihkan semua" : "Clear all")}
-            </button>
-          </div>
-          {notificationError && (
-            <p role="alert" className="shrink-0 border-b border-red-400/20 bg-red-400/10 px-4 py-3 text-xs text-red-200">
-              {notificationError}
-            </p>
-          )}
-
-          <div className="min-h-0 max-h-[70vh] overflow-y-auto bg-[#111827]">
+          <div className="max-h-[70vh] overflow-y-auto bg-[#111827]">
             {latestNotifications.length === 0 &&
             visibleLatestAnnouncements.length === 0 ? (
               <div className="p-5 text-center text-sm text-gray-400">
@@ -1162,9 +1029,8 @@ function MainHeaderContent() {
                 {latestNotifications.map((notification) => (
                   <Link
                     key={`notification-${notification.id}`}
-                    href={notificationHref(notification.link_url)}
-                    onClick={(event) => { void openNotification(event, notification); }}
-                    aria-disabled={notificationBusy}
+                    href={notification.link_url || "/notifications"}
+                    onClick={() => setShowNotificationDropdown(false)}
                     className="flex gap-3 border-b border-slate-800 bg-[#111827] p-4 transition hover:bg-[#202b42]"
                   >
                     <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#123142] text-cyan-300">
@@ -1181,6 +1047,7 @@ function MainHeaderContent() {
                           <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
                         )}
                       </div>
+
                       <p className="mt-1 line-clamp-2 text-sm text-gray-400">
                         {notification.message || notification.type}
                       </p>
@@ -1195,9 +1062,8 @@ function MainHeaderContent() {
                 {visibleLatestAnnouncements.map((announcement) => (
                   <Link
                     key={`announcement-${announcement.id}`}
-                    href={`/announcements/${encodeURIComponent(announcement.slug)}`}
-                    onClick={(event) => { void openAnnouncement(event, announcement); }}
-                    aria-disabled={notificationBusy}
+                    href={`/announcements/${announcement.slug}`}
+                    onClick={() => setShowNotificationDropdown(false)}
                     className="flex gap-3 border-b border-slate-800 bg-[#111827] p-4 transition hover:bg-[#202b42]"
                   >
                     <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#332b12] text-yellow-300">
