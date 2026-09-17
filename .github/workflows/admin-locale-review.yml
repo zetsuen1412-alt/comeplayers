@@ -1,0 +1,34 @@
+name: Admin locale review
+on:
+  push:
+    branches: [chatgpt/admin-indonesian]
+    paths: ['.github/workflows/admin-locale-review.yml']
+permissions:
+  contents: read
+jobs:
+  source-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website/app
+            website/components
+            website/lib
+            website/tests
+            website/types
+            website/scripts
+            .github/workflows
+      - name: Package tracked source only (no credentials or user data)
+        shell: bash
+        run: |
+          mkdir -p admin-locale-review
+          git archive HEAD website/app website/components website/lib website/tests website/types website/scripts website/AGENTS.md website/package.json website/package-lock.json website/tsconfig.json website/next.config.ts .github/workflows > admin-locale-review/source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: admin-locale-source
+          path: admin-locale-review/source.tar
+          retention-days: 1
+          if-no-files-found: error
