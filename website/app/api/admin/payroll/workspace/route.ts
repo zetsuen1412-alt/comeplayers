@@ -1,3 +1,4 @@
+import { rejectUnauditedOrderRemoval } from '@/features/payroll/lib/mutation-reset';
 import { requirePayrollAccess } from '@/lib/payrollAccess';
 import { attributeWorkspaceEdit } from '@/features/payroll/lib/audit-model';
 import { adminErrorStatus } from '@/lib/adminSecurity';
@@ -30,7 +31,7 @@ export async function POST(request:Request) {
     if(current.revision!==body.expectedRevision)payrollFailure('Data diubah pengguna lain atau penyimpanan sebelumnya sudah berhasil. Muat ulang sebelum melanjutkan.',409);
     const closing=body.action==='close'?closeWorkspace(current.payload):null;
     const state=attributeWorkspaceEdit(current.payload,closing?.state??validateWorkspace(body.state),actor,new Date().toISOString());
-    if(!closing)validateWorkspaceEdit(current.payload,state);
+    if(!closing){rejectUnauditedOrderRemoval(current.payload,state);validateWorkspaceEdit(current.payload,state);}
     const {data,error}=await supabaseAdmin.rpc('cp_save_payroll_workspace',{p_revision:body.expectedRevision,p_payload:state,p_actor:user.id,p_action:body.action});
     if(error){if(error.code==='42501')payrollFailure('Akses payroll telah dicabut.',403);if(error.code==='40001')payrollFailure('Data diubah pengguna lain. Muat ulang sebelum melanjutkan.',409);throw error;}
     return response({...data,...(closing?{record:closing.record,payroll:closing.payroll,orders:closing.orders}:{})});

@@ -102,3 +102,23 @@ export function exportUnsavedPayroll() {
   const url=URL.createObjectURL(new Blob([JSON.stringify({revision,state},null,2)],{type:'application/json'}));
   const link=document.createElement('a');link.href=url;link.download='ComePlayers-payroll-belum-tersimpan.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+
+// Exclusive server reset: newer local edits and stale tabs cannot overwrite the result.
+export async function resetPayrollMutations(request: import('./mutation-reset').MutationResetRequest) {
+  if (exclusive) throw new Error('Payroll sedang diproses.');
+  exclusive = true; notify(); const generation = epoch;
+  try {
+    await flushPayroll();
+    if (!ready || error || !actor?.isAdmin) throw new Error(error || 'Akses admin diperlukan.');
+    if (revision !== request.expectedRevision) throw new Error('Data berubah. Periksa ulang ringkasan penghapusan.');
+    const result = await authenticatedFetchJson<Snapshot & { status: 'cleared' | 'already_cleared'; receiptId: string; removedCount: number }>(
+      '/api/admin/payroll/mutations/reset', { method: 'POST', body: JSON.stringify(request) },
+    );
+    if (generation !== epoch) throw new Error('Sesi berubah. Muat ulang untuk memeriksa hasil.');
+    state = result.state; revision = result.revision; error = ''; sync();
+    return result;
+  } catch (e) {
+    if (generation === epoch && [401, 403].includes((e as { status?: number })?.status ?? 0)) recordFailure(e, 'Akses admin diperlukan.');
+    throw e;
+  } finally { if (generation === epoch) { exclusive = false; notify(); } }
+}

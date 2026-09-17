@@ -1,0 +1,66 @@
+name: Payroll mutation reset checks
+on:
+  push:
+    branches: [main, release/payroll-mutation-reset-20260917]
+    paths:
+      - website/features/payroll/components/delete-all-mutations.tsx
+      - website/features/payroll/lib/mutation-reset.ts
+      - website/features/payroll/lib/workspace-store.ts
+      - website/app/api/admin/payroll/mutations/reset/**
+      - website/app/api/admin/payroll/workspace/route.ts
+      - website/supabase/migrations/20260917151000_payroll_mutation_reset.sql
+      - website/tests/payroll-mutation-reset*
+      - .github/workflows/payroll-mutation-reset-checks.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: payroll_reset_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci --ignore-scripts
+      - name: Resolve existing mobile interoperability dependencies
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),path=require('node:path');
+          const web=require('./package.json'),mobile=require('../comeplayers-apps/apps/mobile/package.json');
+          for(const name of ['hpke','@panva/hpke-noble','@noble/curves','@noble/ciphers','@noble/hashes']){
+            if(web.dependencies[name]!==mobile.dependencies[name])throw new Error('Dependency mismatch: '+name);
+            const target=path.resolve('node_modules',name),link=path.resolve('../comeplayers-apps/apps/mobile/node_modules',name);
+            if(!fs.existsSync(target))throw new Error('Missing locked dependency: '+name);
+            fs.mkdirSync(path.dirname(link),{recursive:true});fs.symlinkSync(target,link,'dir');
+          }
+          NODE
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Regression tests
+        run: npx --no-install tsx --test tests/payroll-mutation-reset.test.ts tests/payroll-manual-order-time.test.ts tests/payroll-mutasi-fh-import.test.ts
+      - name: Isolated PostgreSQL reset tests
+        env:
+          PGPASSWORD: fixture_only
+        run: psql -h 127.0.0.1 -U postgres -d payroll_reset_test -v ON_ERROR_STOP=1 -f tests/payroll-mutation-reset.database.sql
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Isolated confirmation UI tests
+        run: node tests/payroll-mutation-reset.browser.mjs
