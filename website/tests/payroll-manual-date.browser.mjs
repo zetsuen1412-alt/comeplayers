@@ -48,6 +48,7 @@ try {
   for (const [timezoneId, viewport] of [['Asia/Jakarta', { width: 1440, height: 1000 }], ['America/Los_Angeles', { width: 390, height: 844 }]]) {
     const context = await browser.newContext({ timezoneId, viewport });
     const page = await context.newPage();
+    page.setDefaultTimeout(10000);
     const errors = [], unexpected = [];
     page.on('pageerror', error => errors.push(error.message));
     await context.route('**/*', route => {
@@ -57,6 +58,8 @@ try {
     await page.clock.install({ time: new Date('2026-09-17T14:00:00.000Z') });
     await page.goto(url);
     const date = page.locator('#payroll-order-datetime');
+    const employeeSelect = page.locator('select').filter({ has: page.locator('option[value="emp-test"]') });
+    const typeSelect = page.locator('select').filter({ has: page.locator('option[value="boosting"]') });
     await expect(date).toHaveValue('2026-09-17T21:00');
     await expect(date).toBeEditable();
     await date.fill('2026-09-08T04:05');
@@ -65,13 +68,16 @@ try {
     await expect(date).toHaveValue('2026-09-08T04:05');
     await page.getByRole('button', { name: 'Gunakan waktu sekarang' }).click();
     await expect(date).toHaveValue('2026-09-17T21:02');
-    await page.getByLabel('Kode pesanan manual').fill('TEST-MANUAL-1');
-    await page.getByLabel('Nama pembeli', { exact: true }).fill('Pembeli Uji');
+    async function fillOrder(code) {
+      await page.getByLabel('Kode pesanan manual').fill(code);
+      await page.getByLabel('Nama pembeli', { exact: true }).fill('Pembeli Uji');
+      await page.getByPlaceholder('Ketik nama permainan, lalu pilih rekomendasi').fill('Permainan Uji');
+      await page.getByRole('button', { name: /Permainan Uji/ }).click();
+      await employeeSelect.selectOption('emp-test');
+      await page.getByLabel('Tarif / harga per unit').fill('10000');
+    }
+    await fillOrder('TEST-MANUAL-1');
     await page.getByLabel('Nama pesanan', { exact: true }).fill('Pesanan historis');
-    await page.getByPlaceholder('Ketik nama permainan, lalu pilih rekomendasi').fill('Permainan Uji');
-    await page.getByRole('button', { name: /Permainan Uji/ }).click();
-    await page.getByLabel('Karyawan', { exact: true }).selectOption('emp-test');
-    await page.getByLabel('Tarif / harga per unit').fill('10000');
     await date.fill('');
     await expect(page.locator('button[type="submit"]')).toBeDisabled();
     await page.locator('form').dispatchEvent('submit');
@@ -93,8 +99,14 @@ try {
     await expect(page.getByText(/berhasil disimpan dengan 1 karyawan/)).toBeVisible();
     assert.equal(await page.evaluate(() => window.__flushCount), 1);
     assert.equal(await page.evaluate(() => window.__reservations.length), 0);
-    await page.getByLabel('Jenis Pesanan', { exact: true }).selectOption('gold');
+    await typeSelect.selectOption('gold');
+    await fillOrder('TEST-GOLD-2');
     await expect(page.locator('button[type="submit"]')).toBeDisabled();
+    await expect(page.locator('button[type="submit"]')).toHaveText('Periksa Stok Sebelum Simpan');
+    await page.locator('form').dispatchEvent('submit');
+    await expect(page.getByText('Pilih stok gudang untuk pesanan Gold.')).toBeVisible();
+    assert.equal(await page.evaluate(() => window.__orders.length), 1);
+    assert.equal(await page.evaluate(() => window.__reservations.length), 0);
     assert.deepEqual(errors, []);
     assert.deepEqual(unexpected, []);
     console.log(`PASS ${timezoneId}: manual historical date, weekday, two-minute stability, explicit now, empty rejection, submitted UTC value, due date, preserved selection, stock gate, no server-clock request`);
