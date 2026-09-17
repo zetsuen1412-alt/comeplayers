@@ -55,16 +55,17 @@ for chunk in chunks:
 if len(changes) != 66:
     raise SystemExit('Unexpected changed file count.')
 messages = ''.join((prepare / f'admin-messages-{i:02d}.txt').read_text() for i in range(3))
-# Correct one transcription typo before checking the expected local source hash.
 messages = messages.replace('meresponspons', 'merespons')
-if sha(messages) != 'ae0687d319c219b8fb66a75f20ad9c5ad8c3e7c7e830f366db25307f4e63fafa':
-    raise SystemExit('Admin message source hash mismatch.')
+if sha(messages) != '2d20a97e5ac7bd68b7cd50cff866ae5be3ed2a99eb349a9a4ff3756487dfede1':
+    raise SystemExit(f'Admin message source hash mismatch: {sha(messages)}')
 for file, content in changes:
     file.write_text(content)
 (root / 'website/lib/adminLocaleMessages.ts').write_text(messages)
-# Final copy polish; these are display strings, not enums or persisted properties.
+# Final copy polish; submitted provider identifiers and all backend values remain unchanged.
 closing = root / 'website/app/admin/payroll/finance/closing/page.tsx'
 closing.write_text(closing.read_text().replace('Tutup Buku / Tutup Buku', 'Tutup Buku'))
+withdrawals = root / 'website/app/admin/withdrawals/page.tsx'
+withdrawals.write_text(withdrawals.read_text().replace('provider: "Transfer Manual"', 'provider: "Manual Transfer"'))
 export_file = root / 'website/features/payroll/lib/spreadsheet-export.ts'
 export_file.write_text(export_file.read_text().replace('EVO COMEPLAYERS Operational & Finance Ekspor', 'EVO COMEPLAYERS Ekspor Operasional & Keuangan'))
 message_file = root / 'website/lib/adminLocaleMessages.ts'
