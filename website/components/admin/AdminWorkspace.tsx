@@ -81,7 +81,7 @@ export default function AdminWorkspace({ children }: { children: ReactNode }) {
     <aside className="adm-sidebar">
       <Link href="/admin" className="adm-brand">
         <Image
-          src="/brand/comeplayers-cp-v6.png"
+          src="/brand/comeplayers-cp-v7-transparent.png"
           alt=""
           width={38}
           height={38}
