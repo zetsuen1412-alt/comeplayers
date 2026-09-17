@@ -20,7 +20,10 @@ export const resetPayrollMutations=async(request)=>{
 const bundle = await build({
   stdin:{contents:`import React from 'react';import{createRoot}from'react-dom/client';import{DeleteAllMutations}from'./features/payroll/components/delete-all-mutations';window.__requests=[];window.__loads=0;window.__preview={revision:5,count:2,totalMinor:14000,payrollReadyCount:0,closedCount:0,stockLinkedCount:0,paymentLinkedCount:0,locked:false,canReset:true,blockers:[],receipts:[]};createRoot(document.getElementById('root')).render(<DeleteAllMutations/>);`,resolveDir:process.cwd(),loader:'tsx'},
   bundle:true,write:false,format:'iife',platform:'browser',jsx:'automatic',define:{'process.env.NODE_ENV':'"production"'},
-  plugins:[{name:'isolated-storage',setup(b){b.onResolve({filter:/^@\/features\/payroll\/lib\/workspace-store$|^@\/lib\/authenticatedFetch$/},args=>({path:args.path,namespace:'fixture'}));b.onLoad({filter:/.*/,namespace:'fixture'},()=>({contents:stub,loader:'js'}));}],
+  plugins:[{name:'isolated-storage',setup(b){
+    b.onResolve({filter:/^@\/features\/payroll\/lib\/workspace-store$|^@\/lib\/authenticatedFetch$/},args=>({path:args.path,namespace:'fixture'}));
+    b.onLoad({filter:/.*/,namespace:'fixture'},()=>({contents:stub,loader:'js'}));
+  }}],
 });
 const server=createServer((request,response)=>{
   response.setHeader('Cache-Control','no-store');
