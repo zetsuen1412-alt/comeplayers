@@ -1,0 +1,3 @@
+# Indonesian administration UI review
+
+This isolated branch prepares the owner's requested Indonesian-only administration interface. Plain UTF-8 change files below contain codepoint-indexed source edits, original SHA-256 checksums and expected resulting SHA-256 checksums. They change admin UI copy and display labels only. No database migrations, account permissions, payment operations, secrets, or user records are included. The apply job must validate every source hash before writing and must run TypeScript, localization contract, and isolated browser tests. Only reviewed website source changes are eligible for the final commit to the existing work branch. This temporary preparation directory and workflow must not be copied to that final commit.
