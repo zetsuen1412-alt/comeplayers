@@ -1,0 +1,28 @@
+import { request } from "./api";
+import type { OrderStage } from "./commercePolicy";
+export type CommerceOrder = {
+  id: number; product_title?: string | null; product?: string | null; total_amount?: number | string | null; total_price?: number | string | null;
+  status: string; payment_status: string; payment_method?: string | null; created_at: string; quantity?: number;
+  delivered_at?: string | null; completed_at?: string | null; paid_at?: string | null; reservation_expires_at?: string | null;
+  paypal_order_id?: string | null; paypal_amount_usd?: number | string | null;
+  delivery_message?: string | null; delivery_credentials?: string | null;
+  delivery_attachments?: Array<{ fileName: string; url: string | null }>;
+};
+export type CommerceOverview = { userId: string; wallet: { balance: number | string; pending_balance: number | string; status: string }; counts: Record<OrderStage, number>; recentOrders: CommerceOrder[]; updatedAt: string };
+export type WalletIntent = { id: string; provider: "doku" | "paypal"; status: string; amount_idr: number; display_amount: number; display_currency: string; charge_amount: number; charge_currency: string; idr_per_unit: number; rate_date: string; quote_expires_at: string; payment_expires_at: string | null; checkout_url: string | null; created_at: string };
+export type WalletHistory = { methods: { doku: boolean; paypal: boolean }; intents: WalletIntent[] };
+export type WalletTransaction = { id: number; amount: number | string; type: string; description: string; status: string; balance_before: number | string; balance_after: number | string; created_at: string };
+export type WalletOverview = { wallet: CommerceOverview["wallet"]; transactions: WalletTransaction[]; nextCursor: number | null };
+export type CheckoutQuote = { product_id: number; variant_id: number | null; quantity: number; unit_price: number; subtotal: number; discount: number; payment_fee: number; total: number; currency: "IDR"; coupon_code: string | null };
+export type QuoteResult = { quote: CheckoutQuote; quoteToken: string };
+export const loadCommerce = () => request<CommerceOverview>("/api/account/commerce", {}, true);
+export const loadWallet = (before?: number) => request<WalletOverview>(`/api/wallet/overview${before ? "?before=" + before : ""}`, {}, true);
+export const loadTopups = () => request<WalletHistory>("/api/wallet/payments", {}, true);
+export const loadTopup = (id: string) => request<{ intent: WalletIntent }>(`/api/wallet/payments?id=${encodeURIComponent(id)}`, {}, true);
+export const walletAction = (body: Record<string, unknown>) => request<{ intent: WalletIntent }>("/api/wallet/payments", { method: "POST", body: JSON.stringify(body) }, true);
+export const loadOrders = (bucket = "all", before?: number) => request<{ orders: CommerceOrder[]; nextCursor: number | null }>(`/api/orders?limit=20&bucket=${encodeURIComponent(bucket)}${before ? "&before=" + before : ""}`, {}, true);
+export const loadOrder = (id: number) => request<{ order: CommerceOrder; role: string }>(`/api/orders/${id}`, {}, true);
+export const quoteCheckout = (productId: number, quantity: number, couponCode: string) => request<QuoteResult>("/api/marketplace/quote", { method: "POST", body: JSON.stringify({ productId, quantity, couponCode }) });
+export const confirmOrder = (id: number) => request("/api/orders/complete", { method: "POST", body: JSON.stringify({ orderId: id }) }, true);
+export const createPayPalPayment = (id: number) => request<{ paypalOrderId: string; approveUrl: string; amountUsd: number; amountIdr: number; currency: string }>("/api/paypal/create-checkout-order", { method: "POST", body: JSON.stringify({ orderId: id, returnTo: "mobile" }) }, true);
+export const capturePayPalPayment = (id: number, paypalOrderId: string) => request("/api/paypal/capture-checkout-order", { method: "POST", body: JSON.stringify({ marketplaceOrderId: id, paypalOrderId }) }, true);

@@ -12,6 +12,7 @@ import {
   FaShoppingBag,
   FaTrashAlt,
   FaUser,
+  FaWallet,
 } from "react-icons/fa";
 import type { ReactNode } from "react";
 
@@ -27,6 +28,8 @@ type MenuItem = {
 };
 
 const menuItems: MenuItem[] = [
+  { href: "/wallet", label: "CPWallet", description: "Balance, top-ups and refunds", icon: FaWallet },
+  { href: "/orders", label: "My orders", description: "Payments, delivery and completion", icon: FaShoppingBag },
   {
     href: "/account",
     label: "Account",

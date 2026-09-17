@@ -32,15 +32,22 @@ export async function POST(request: Request) {
     const user = await requireAuthenticatedUser(request);
     const body = await request.json().catch(() => { throw Object.assign(new Error("Invalid request."), { status: 400 }); });
     const db = createSupabaseAdmin();
-    if (body.action === "capture") {
+    if (body.action === "capture" || body.action === "reconcile") {
       const t = await getWalletIntent(db, String(body.id || ""), user.id);
-      return NextResponse.json({ intent: publicWalletIntent(await captureWalletPayPal(db, t, String(body.token || ""))) }, { headers: noStore });
+      if (body.action === "reconcile" && (t.provider !== "paypal" || t.status !== "pending")) return NextResponse.json({ intent: publicWalletIntent(t) }, { headers: noStore });
+      try {
+        const token = body.action === "reconcile" ? t.provider_order_id || "" : String(body.token || "");
+        return NextResponse.json({ intent: publicWalletIntent(await captureWalletPayPal(db, t, token)) }, { headers: noStore });
+      } catch (error) {
+        if (body.action === "reconcile" && (error as { code?: string }).code === "PAYPAL_APPROVAL_REQUIRED") return NextResponse.json({ intent: publicWalletIntent(t) }, { headers: noStore });
+        throw error;
+      }
     }
     await requireCheckoutAccess({ supabaseAdmin: db, userId: user.id });
     if (body.action === "start") {
       // Only the canonical configured site is used for provider callbacks.
       const origin = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.comeplayers.com").origin;
-      return NextResponse.json({ intent: publicWalletIntent(await startWalletPayment(db, String(body.id || ""), user.id, origin)) }, { headers: noStore });
+      return NextResponse.json({ intent: publicWalletIntent(await startWalletPayment(db, String(body.id || ""), user.id, origin, body.returnTo === "mobile")) }, { headers: noStore });
     }
     if (body.action !== "quote") throw Object.assign(new Error("Unsupported wallet action."), { status: 400 });
     try { walletInvoice(String(body.requestKey || "")); } catch { throw Object.assign(new Error("Invalid request reference."), { status: 400 }); }

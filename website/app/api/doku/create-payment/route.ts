@@ -165,6 +165,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       orderId?: number | string;
       paymentMethod?: PaymentMethod;
+      returnTo?: "mobile";
     };
     const orderId = Number(body.orderId || 0);
     const paymentMethod = body.paymentMethod || "bank_transfer";
@@ -371,7 +372,7 @@ export async function POST(request: Request) {
         : paymentMethod === "card"
           ? "card"
           : "doku";
-    const callbackUrl = `${siteUrl}/payment/${order.id}?method=${callbackMethod}&dokuReturn=1`;
+    const callbackUrl = body.returnTo === "mobile" ? `${siteUrl}/app/payment-return?order=${order.id}` : `${siteUrl}/payment/${order.id}?method=${callbackMethod}&dokuReturn=1`;
     const notificationUrl = getNotificationUrl(siteUrl);
 
     if (paymentMethod === "bank_transfer") {

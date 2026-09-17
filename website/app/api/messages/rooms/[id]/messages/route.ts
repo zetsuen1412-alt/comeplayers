@@ -1,5 +1,5 @@
 import { assertContactAllowed } from "@/lib/chatContacts";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { dispatchChatPushNotifications } from "@/lib/backgroundJobs";
 import { requireCommunityChannel } from "@/lib/communityServer";
@@ -290,78 +290,85 @@ export async function POST(request: Request, context: RouteContext) {
       if (error) console.error("Flagged chat event insert failed:", error.message);
     }
 
-    const { data: senderProfile } = await supabaseAdmin
-      .from("profiles")
-      .select("username,full_name,email")
-      .eq("id", user.id)
-      .maybeSingle();
+    // The message and room preview are committed before acknowledging delivery.
+    // Provider push latency must not make the sender retry an already saved message.
+    after(async () => {
+      try {
+        const { data: senderProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("username,full_name,email")
+          .eq("id", user.id)
+          .maybeSingle();
 
-    const senderName = safeProfileLabel(senderProfile);
-    let notificationReceiverIds: string[] = [];
-    let notificationPreview = preview;
+        const senderName = safeProfileLabel(senderProfile);
+        let notificationReceiverIds: string[] = [];
+        let notificationPreview = preview;
 
-    if (groupRoom) {
-      const members = await listChatRoomMembers({ roomId, supabaseAdmin });
-      notificationReceiverIds = Array.from(
-        new Set(
-          members
-            .filter((member) => String(member.status || "").toLowerCase() === "active")
-            .map((member) => member.user_id)
-            .filter((memberId) => memberId && memberId !== user.id)
-        )
-      ).slice(0, 100);
+        if (groupRoom) {
+          const members = await listChatRoomMembers({ roomId, supabaseAdmin });
+          notificationReceiverIds = Array.from(
+            new Set(
+              members
+                .filter((member) => String(member.status || "").toLowerCase() === "active")
+                .map((member) => member.user_id)
+                .filter((memberId) => memberId && memberId !== user.id)
+            )
+          ).slice(0, 100);
 
-      // Never reveal a private channel name or message preview to members who
-      // cannot view that channel. The database permission function is also
-      // used by RLS, keeping realtime and push-notification access aligned.
-      if (selectedChannel?.is_private && selectedChannel.id && notificationReceiverIds.length) {
-        const accessChecks = await Promise.all(
-          notificationReceiverIds.map(async (memberId) => {
-            const { data, error } = await supabaseAdmin.rpc("cp_can_view_chat_channel_v27", {
-              p_channel_id: selectedChannel.id,
-              p_user_id: memberId,
-            });
-            if (error) throw new Error(error.message);
-            return data === true ? memberId : null;
-          }),
-        );
-        notificationReceiverIds = accessChecks.filter((memberId): memberId is string => Boolean(memberId));
-      }
+          // Never reveal a private channel name or message preview to members who
+          // cannot view that channel. The database permission function is also
+          // used by RLS, keeping realtime and push-notification access aligned.
+          if (selectedChannel?.is_private && selectedChannel.id && notificationReceiverIds.length) {
+            const accessChecks = await Promise.all(
+              notificationReceiverIds.map(async (memberId) => {
+                const { data, error } = await supabaseAdmin.rpc("cp_can_view_chat_channel_v27", {
+                  p_channel_id: selectedChannel.id,
+                  p_user_id: memberId,
+                });
+                if (error) throw new Error(error.message);
+                return data === true ? memberId : null;
+              }),
+            );
+            notificationReceiverIds = accessChecks.filter((memberId): memberId is string => Boolean(memberId));
+          }
 
-      notificationPreview = `${String(room.title || "Group chat")} #${String(selectedChannel?.name || "general")}: ${preview}`;
+          notificationPreview = `${String(room.title || "Group chat")} #${String(selectedChannel?.name || "general")}: ${preview}`;
 
-      await Promise.all(
-        notificationReceiverIds.map((memberId) =>
-          createChatNotification({
+          await Promise.all(
+            notificationReceiverIds.map((memberId) =>
+              createChatNotification({
+                supabaseAdmin,
+                receiverId: memberId,
+                senderName,
+                roomId,
+                preview: notificationPreview,
+              })
+            )
+          );
+        } else {
+          notificationReceiverIds = receiverId ? [receiverId] : [];
+          await createChatNotification({
             supabaseAdmin,
-            receiverId: memberId,
+            receiverId,
             senderName,
             roomId,
             preview: notificationPreview,
-          })
-        )
-      );
-    } else {
-      notificationReceiverIds = receiverId ? [receiverId] : [];
-      await createChatNotification({
-        supabaseAdmin,
-        receiverId,
-        senderName,
-        roomId,
-        preview: notificationPreview,
-        linkUrl: `/chat?room=${encodeURIComponent(roomId)}`,
-      });
-    }
+            linkUrl: `/chat?room=${encodeURIComponent(roomId)}`,
+          });
+        }
 
-    await dispatchChatPushNotifications({
-      supabaseAdmin,
-      receiverIds: notificationReceiverIds,
-      senderName,
-      roomId,
-      preview: notificationPreview,
+        await dispatchChatPushNotifications({
+          supabaseAdmin,
+          receiverIds: notificationReceiverIds,
+          senderName,
+          roomId,
+          preview: notificationPreview,
+        });
+
+        await invalidateUnreadCache([user.id, ...notificationReceiverIds]);
+
+      } catch (error) { console.error("Chat notification delivery failed:", error instanceof Error ? error.message : "Notification error"); }
     });
-
-    await invalidateUnreadCache([user.id, ...notificationReceiverIds]);
 
     return NextResponse.json({
       ok: true,

@@ -98,7 +98,7 @@ export async function POST(request: Request) {
 
   try {
     const user = await requireAuthenticatedUser(request);
-    const body = (await request.json()) as { orderId?: string | number };
+    const body = (await request.json()) as { orderId?: string | number; returnTo?: "mobile" };
     const marketplaceOrderId = Number(body.orderId || 0);
 
     if (!Number.isSafeInteger(marketplaceOrderId) || marketplaceOrderId <= 0) {
@@ -205,7 +205,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "This order is below the PayPal minimum. Choose another payment method." }, { status: 400 });
     }
     const accessToken = await getPayPalAccessToken();
-    const origin = new URL(request.url).origin;
+    const origin = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.comeplayers.com").origin;
+    const returnPath = body.returnTo === "mobile" ? `/app/payment-return?order=${marketplaceOrderId}&` : `/payment/${marketplaceOrderId}?method=paypal&`;
 
     const response = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: "POST",
@@ -231,8 +232,8 @@ export async function POST(request: Request) {
           brand_name: "ComePlayers",
           shipping_preference: "NO_SHIPPING",
           user_action: "PAY_NOW",
-          return_url: `${origin}/payment/${marketplaceOrderId}?method=paypal&paypalReturn=1`,
-          cancel_url: `${origin}/payment/${marketplaceOrderId}?method=paypal&paypalCancel=1`,
+          return_url: `${origin}${returnPath}paypalReturn=1`,
+          cancel_url: `${origin}${returnPath}paypalCancel=1`,
         },
       }),
       cache: "no-store",

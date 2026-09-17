@@ -1,8 +1,8 @@
 import "react-native-url-polyfill/auto";
 
 import * as Updates from "expo-updates";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, AppState, BackHandler, Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, AppState, BackHandler, Linking, Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import type { Session } from "@supabase/supabase-js";
 import type { ChatRoom } from "@comeplayers/chat-core";
@@ -11,10 +11,10 @@ import { BottomTabs, BrandMark, ScreenHeader } from "./src/components";
 import { cachedDeviceSession, supabase } from "./src/runtime";
 import { colors } from "./src/theme";
 import type { AppTab } from "./src/types";
-import { CommunityScreen } from "./src/screens/CommunityScreen";
+const CommunityScreen = lazy(() => import("./src/screens/CommunityScreen").then(module => ({ default: module.CommunityScreen })));
 import { ConversationScreen } from "./src/screens/ConversationScreen";
-import { NewsScreen } from "./src/screens/NewsScreen";
-import { MarketplaceScreen } from "./src/screens/MarketplaceScreen";
+const NewsScreen = lazy(() => import("./src/screens/NewsScreen").then(module => ({ default: module.NewsScreen })));
+const MarketplaceScreen = lazy(() => import("./src/screens/MarketplaceScreen").then(module => ({ default: module.MarketplaceScreen })));
 import { MessagesScreen } from "./src/screens/MessagesScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
 import { CallProvider } from "./src/CallProvider";
@@ -22,6 +22,8 @@ import { loadPreferences, type AccountPreferences } from "./src/messagingApi";
 import { MfaChallenge } from "./src/screens/MfaChallenge";
 import { MessageAlerts } from "./src/MessageAlerts";
 import { InboxProvider } from "./src/InboxProvider";
+import { CommerceProvider } from "./src/CommerceProvider";
+import { parseCommerceLink, type CommerceLink } from "./src/commercePolicy";
 import { AccountSessionGuard } from "./src/AccountSessionGuard";
 
 type UpdateStage = "checking" | "downloading" | "applying" | "ready" | "warning";
@@ -72,6 +74,13 @@ async function checkAndApplyMobileUpdate(setUi: (next: UpdateUi) => void, blocki
 function NativeComePlayersApp() {
   const updateRunningRef = useRef(false);
   const lastUpdateCheckRef = useRef(0);
+  const [commerceLink, setCommerceLink] = useState<CommerceLink | null>(null);
+  useEffect(() => {
+    const open = (url: string) => { const link = parseCommerceLink(url); if (link) { setCommerceLink(link); setRoom(null); setTab("profile"); } };
+    void Linking.getInitialURL().then(url => { if (url) open(url); });
+    const subscription = Linking.addEventListener("url", event => open(event.url));
+    return () => subscription.remove();
+  }, []);
   const [tab, setTab] = useState<AppTab>("messages");
   const [room, setRoom] = useState<ChatRoom | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -82,13 +91,18 @@ function NativeComePlayersApp() {
   const refreshAccount = useCallback(() => { if (session) void loadPreferences().then(setAccount).catch(() => undefined); }, [session?.user.id]);
   useEffect(() => {
     let alive = true;
-    setAccount(null); setMfaRequired(false);
+    setMfaRequired(false);
     if (session) {
       void supabase.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data }) => { if (alive) setMfaRequired(data?.nextLevel === "aal2" && data.currentLevel !== "aal2"); });
-      void loadPreferences().then(data => { if (alive) setAccount(data); }).catch(() => undefined);
+
     }
     return () => { alive = false; };
   }, [session?.access_token]);
+  useEffect(() => {
+    let alive = true; setAccount(null);
+    if (session) void loadPreferences().then(data => { if (alive) setAccount(data); }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [session?.user.id]);
   const [bootReady, setBootReady] = useState(true);
   const [updateUi, setUpdateUi] = useState<UpdateUi>({ stage: "ready", message: "", visible: false });
 
@@ -163,18 +177,18 @@ function NativeComePlayersApp() {
   const title = tab === "home" ? "News" : tab === "community" ? "Community" : tab === "marketplace" ? "Marketplace" : tab === "messages" ? "Messages" : "Your profile";
   const subtitle = session ? `Connected as ${session.user.email || "player"}` : "ComePlayers mobile";
   const Conversation = ConversationScreen;
-  return <InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
+  return <CommerceProvider key={session.user.id} userId={session.user.id}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
     {tab !== "messages" ? <ScreenHeader title={title} subtitle={subtitle} /> : null}
-    <View style={styles.content}>
+    <View style={styles.content}><Suspense fallback={<ActivityIndicator style={{ padding: 30 }} color={colors.yellow} />}>
       {tab === "home" ? <NewsScreen /> : null}
       {tab === "community" ? <CommunityScreen session={session} onOpenRoom={setRoom} onNavigate={setTab} /> : null}
       {tab === "marketplace" ? <MarketplaceScreen session={session} onNavigate={setTab} /> : null}
       {tab === "messages" ? <MessagesScreen session={session} account={account} onOpenRoom={setRoom} onNavigate={setTab} onUnreadChange={setUnread} /> : null}
-      {tab === "profile" ? <ProfileScreen session={session} onAccountUpdated={refreshAccount} /> : null}
-    </View>
+      {tab === "profile" ? <ProfileScreen session={session} commerceLink={commerceLink} onCommerceLinkHandled={() => setCommerceLink(null)} onAccountUpdated={refreshAccount} /> : null}
+    </Suspense></View>
     <BottomTabs active={tab} onChange={(next) => { setRoom(null); setTab(next); }} unread={unread} />
     {updateUi.visible && updateUi.stage !== "ready" ? <View pointerEvents="none" style={styles.updateToast}><ActivityIndicator size="small" color={colors.yellow} /><Text style={styles.updateText}>{updateUi.message}</Text></View> : null}
-  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider>;
+  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider></CommerceProvider>;
 }
 
 export default function App() {

@@ -60,7 +60,7 @@ async function paypalRequest(path: string, method = "GET", body?: unknown, reque
   return data;
 }
 
-export async function startWalletPayment(db: SupabaseClient, id: string, userId: string, origin: string) {
+export async function startWalletPayment(db: SupabaseClient, id: string, userId: string, origin: string, mobile = false) {
   const current = await getWalletIntent(db, id, userId);
   if (!walletPaymentMethods()[current.provider]) throw Object.assign(new Error("This payment provider is unavailable."), { status: 503 });
   const { data, error } = await db.rpc("cp_start_wallet_topup", { p_id: id, p_user_id: userId });
@@ -68,7 +68,7 @@ export async function startWalletPayment(db: SupabaseClient, id: string, userId:
   const t = data as WalletIntent;
   if (!t.start_claimed) return t;
   const invoice = walletInvoice(id);
-  const returnUrl = `${origin}/wallet/topup?topup=${id}`;
+  const returnUrl = `${origin}${mobile ? "/app/payment-return" : "/wallet/topup"}?topup=${id}`;
   let paymentUrl: string;
   let providerId: string;
   if (t.provider === "doku") {
@@ -105,7 +105,7 @@ export async function captureWalletPayPal(db: SupabaseClient, t: WalletIntent, r
   const validOrder = (value: typeof result) => value.id === t.provider_order_id && value.purchase_units?.length === 1 && value.purchase_units[0].custom_id === walletInvoice(t.id) && matchesWalletCharge(value.purchase_units[0].amount?.value, value.purchase_units[0].amount?.currency_code, t);
   if (!validOrder(result)) throw new Error("PayPal order does not match the saved top-up.");
   if (result.status !== "COMPLETED") {
-    if (result.status !== "APPROVED") throw Object.assign(new Error("Approve the payment in PayPal before continuing."), { status: 409 });
+    if (result.status !== "APPROVED") throw Object.assign(new Error("Approve the payment in PayPal before continuing."), { status: 409, code: "PAYPAL_APPROVAL_REQUIRED" });
     result = await paypalRequest(`${path}/capture`, "POST", {}, `cpwx-${t.id.replaceAll("-", "")}`);
   }
   const captured = readWalletPayPalCapture(result, t);

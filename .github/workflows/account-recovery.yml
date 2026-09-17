@@ -66,7 +66,7 @@ jobs:
         run: npx --no-install tsx --test tests/marketplacePricing.test.ts tests/localizationCurrency.test.ts tests/paypalCheckout.test.ts tests/marketplaceGameFlow.test.ts tests/paymentCurrency.test.tsx
       - name: CPWallet quote and payment validation
         working-directory: website
-        run: npx --no-install tsx --test tests/cpWallet.test.ts
+        run: npx --no-install tsx --test tests/cpWallet.test.ts tests/mobileCommerce.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile

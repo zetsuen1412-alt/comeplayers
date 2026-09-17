@@ -11,9 +11,11 @@ import { colors, radius } from "../theme";
 import type { AccountProfile } from "../types";
 import { AccountSettings } from "./AccountSettings";
 import { loadPreferences, type AccountPreferences } from "../messagingApi";
+import { ProfileCommerce } from "./ProfileCommerce";
+import type { CommerceLink } from "../commercePolicy";
 import { authenticationMessage } from "../authTransport";
 
-export function ProfileScreen({ session, onAccountUpdated }: { session: Session | null; onAccountUpdated?: () => void }) {
+export function ProfileScreen({ session, onAccountUpdated, commerceLink, onCommerceLinkHandled }: { session: Session | null; onAccountUpdated?: () => void; commerceLink?: CommerceLink | null; onCommerceLinkHandled?: () => void }) {
   const [section, setSection] = useState<"account" | "settings" | "security" | null>(null);
   const [account, setAccount] = useState<AccountPreferences | null>(null);
   const refreshAccount = () => { void loadPreferences().then(setAccount).catch(() => undefined); void loadAccountProfile().then(setProfile).catch(() => undefined); onAccountUpdated?.(); };
@@ -29,12 +31,10 @@ export function ProfileScreen({ session, onAccountUpdated }: { session: Session 
   useEffect(() => {
     let active = true;
     if (!session) { setProfile(null); return; }
-    void loadPreferences().then(value => { if (active) setAccount(value); }).catch(() => undefined);
-    void loadAccountProfile()
-      .then((value) => active && setProfile(value))
+    void loadPreferences().then(value => { if (active) { setAccount(value); setProfile(value.profile); } })
       .catch((reason) => console.warn("[ComePlayers] Profile could not be loaded:", reason));
     return () => { active = false; };
-  }, [session]);
+  }, [session?.user.id]);
 
   const choosePhoto = async () => {
     setPhotoBusy(true);
@@ -120,7 +120,7 @@ export function ProfileScreen({ session, onAccountUpdated }: { session: Session 
   if (session) {
     const label = String(profile?.username || profile?.full_name || session.user.user_metadata?.username || session.user.user_metadata?.full_name || session.user.email || "ComePlayers User");
     const avatar = profile?.avatar_url || (typeof session.user.user_metadata?.avatar_url === "string" ? session.user.user_metadata.avatar_url : null);
-    return <ScrollView contentContainerStyle={styles.page}><View style={styles.profileHero}><Avatar uri={avatar} name={label} size={92} accent="yellow" /><Pressable disabled={photoBusy} onPress={() => void choosePhoto()} style={styles.photoButton}><Text style={styles.photoButtonText}>{photoBusy ? "Uploading..." : "Change profile photo"}</Text></Pressable><Text style={styles.profileName}>{label}</Text><Text style={styles.profileEmail}>{session.user.email}</Text><View style={styles.activeBadge}><View style={styles.activeDot} /><Text style={styles.activeText}>SYNCED WITH COMEPLAYERS</Text></View></View>{message ? <Text style={styles.profileMessage}>{message}</Text> : null}<Panel style={styles.panel}><Row label="Phone identity" value={account?.phoneVerified ? "Verified" : "Not verified"} />{([["account", "Account", "Profile, username and phone"], ["settings", "Settings", "Notifications and privacy"], ["security", "Security", "Password, verification and devices"]] as const).map(([id, title, detail]) => <Pressable key={id} accessibilityRole="button" style={styles.row} onPress={() => setSection(id)}><View><Text style={[styles.rowValue, {fontSize: 16}]}>{title}</Text><Text style={[styles.rowLabel, {marginTop: 5}]}>{detail}</Text></View><Text style={styles.rowValue}>›</Text></Pressable>)}</Panel><Text style={styles.note}>Messages sync with your ComePlayers account. Sign in on another device to continue. ComePlayers stores and processes messages; they are not end-to-end encrypted.</Text><View style={styles.gap} /><PrimaryButton label="Sign out" tone="neutral" onPress={() => void signOut()} loading={loading} /><Text style={styles.note}>Your profile photo is visible to other ComePlayers members. Signing out does not delete your data.</Text>{section ? <AccountSettings section={section} onClose={() => setSection(null)} onUpdated={refreshAccount} /> : null}</ScrollView>;
+    return <ScrollView contentContainerStyle={styles.page}><View style={styles.profileHero}><Avatar uri={avatar} name={label} size={64} accent="yellow" /><Pressable disabled={photoBusy} onPress={() => void choosePhoto()} style={styles.photoButton}><Text style={styles.photoButtonText}>{photoBusy ? "Uploading..." : "Change profile photo"}</Text></Pressable><Text style={styles.profileName}>{label}</Text><Text style={styles.profileEmail}>{session.user.email}</Text><View style={styles.activeBadge}><View style={styles.activeDot} /><Text style={styles.activeText}>SYNCED WITH COMEPLAYERS</Text></View></View>{message ? <Text style={styles.profileMessage}>{message}</Text> : null}<ProfileCommerce key={session.user.id} commerceLink={commerceLink} onLinkHandled={onCommerceLinkHandled} /><Panel style={styles.panel}><Row label="Phone identity" value={account?.phoneVerified ? "Verified" : "Not verified"} />{([["account", "Account", "Profile, username and phone"], ["settings", "Settings", "Notifications and privacy"], ["security", "Security", "Password, verification and devices"]] as const).map(([id, title, detail]) => <Pressable key={id} accessibilityRole="button" style={styles.row} onPress={() => setSection(id)}><View><Text style={[styles.rowValue, {fontSize: 16}]}>{title}</Text><Text style={[styles.rowLabel, {marginTop: 5}]}>{detail}</Text></View><Text style={styles.rowValue}>›</Text></Pressable>)}</Panel><Text style={styles.note}>Messages sync with your ComePlayers account. Sign in on another device to continue. ComePlayers stores and processes messages; they are not end-to-end encrypted.</Text><View style={styles.gap} /><PrimaryButton label="Sign out" tone="neutral" onPress={() => void signOut()} loading={loading} /><Text style={styles.note}>Your profile photo is visible to other ComePlayers members. Signing out does not delete your data.</Text>{section ? <AccountSettings section={section} onClose={() => setSection(null)} onUpdated={refreshAccount} /> : null}</ScrollView>;
   }
 
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());

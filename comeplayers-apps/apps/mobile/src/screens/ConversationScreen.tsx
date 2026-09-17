@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, AppState, FlatList, Image, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
@@ -8,7 +8,7 @@ import type { Session } from "@supabase/supabase-js";
 import { roomName, type ChatMessage, type ChatRoom } from "@comeplayers/chat-core";
 import { ContactsSheet } from "./ContactsSheet";
 import { Avatar } from "../components";
-import { chatClient } from "../runtime";
+import { chatClient, supabase } from "../runtime";
 import { colors, radius } from "../theme";
 import { AudioPlayback, ChatMedia, VoiceRecorder, type PendingAttachment } from "./ChatMedia";
 import { useCalls } from "../CallProvider";
@@ -36,7 +36,11 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
   const generation = useRef(0);
   const readRef = useRef(onRead);
   readRef.current = onRead;
-  const inFlight = useRef(false);
+  const inFlight = useRef<number | null>(null);
+  const readThrough = useRef("");
+  const mutations = useRef(0);
+  const refreshPending = useRef(false);
+  const reloadRef = useRef<(quiet?: boolean) => Promise<void>>(async () => undefined);
   const [details, setDetails] = useState(room);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [blockBusy, setBlockBusy] = useState(false);
@@ -49,41 +53,66 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
   const [error, setError] = useState("");
 
   const reload = useCallback(async (quiet = false) => {
-    if (inFlight.current || AppState.currentState !== "active") return;
-    const current = generation.current;
-    inFlight.current = true;
+    if (AppState.currentState !== "active") return;
+    if (inFlight.current === generation.current) { refreshPending.current = true; return; }
+    const current = generation.current, mutation = mutations.current;
+    inFlight.current = current;
     if (!quiet) setLoading(true);
     try {
-      const data = await chatClient.getConversation(room.id, 80, { search, media: view === "media", starred: view === "starred" });
+      const data = await chatClient.getConversation(room.id, 40, { search, media: view === "media", starred: view === "starred" });
       if (current !== generation.current) return;
-      setMessages(previous => quiet ? [...previous.filter(m => !data.messages.some(n => n.id === m.id) && m.created_at < (data.messages[0]?.created_at || "")), ...data.messages] : data.messages);
-      if (!quiet) setHasOlder(data.messages.length === 80);
+      if (mutation !== mutations.current) { refreshPending.current = true; return; }
+      setMessages(previous => {
+        const ids = new Set(data.messages.map(message => message.id));
+        const next = quiet ? [...previous.filter(message => !ids.has(message.id) && message.created_at < (data.messages[0]?.created_at || "")), ...data.messages] : data.messages;
+        return JSON.stringify(previous) === JSON.stringify(next) ? previous : next;
+      });
+      if (!quiet) setHasOlder(data.messages.length === 40);
       setDetails(data.room);
       setError("");
-      await chatClient.markRead(room.id).catch(() => undefined);
-      readRef.current();
+      // Render before receipt I/O. A quiet poll is not itself a new read.
+      setLoading(false);
+      const incoming = [...data.messages].reverse().find(message => message.sender_id !== session.user.id);
+      if (incoming && incoming.id !== readThrough.current) {
+        const lastRead = readThrough.current; readThrough.current = incoming.id;
+        void chatClient.markRead(room.id).then(() => { if (current === generation.current) readRef.current(); }).catch(() => { if (current === generation.current) readThrough.current = lastRead; });
+      }
     } catch (reason) {
       if (current === generation.current && !quiet) setError(reason instanceof Error ? reason.message : "Conversation unavailable.");
-    } finally { inFlight.current = false; if (!quiet) setLoading(false); }
-  }, [room.id, search, view]);
+    } finally { if (current === generation.current) { inFlight.current = null; if (!quiet) setLoading(false); if (refreshPending.current) { refreshPending.current = false; void reloadRef.current(true); } } }
+  }, [room.id, search, view, session.user.id]);
+  reloadRef.current = reload;
+  const displayMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   useEffect(() => {
-    generation.current++; inFlight.current = false;
+    generation.current++; inFlight.current = null; refreshPending.current = false;
     setMessages([]); setHasOlder(false);
+    let connected = false;
+    let changed: ReturnType<typeof setTimeout> | undefined;
+    const schedule = () => {
+      if (changed || AppState.currentState !== "active") return;
+      changed = setTimeout(() => { changed = undefined; void reload(true); }, 250);
+    };
+    // Events are only invalidations. The authenticated API remains the source of data.
+    const channel = supabase.channel(`conversation:${session.user.id}:${room.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages", filter: `room_id=eq.${room.id}` }, schedule)
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_message_reactions", filter: `room_id=eq.${room.id}` }, schedule)
+      .subscribe(status => { connected = status === "SUBSCRIBED"; if (connected) schedule(); });
     const debounce = setTimeout(() => void reload(), search ? 350 : 0);
-    const timer = setInterval(() => void reload(true), 6000);
+    let ticks = 0;
+    const timer = setInterval(() => { ticks++; if (!connected || ticks % 5 === 0) void reload(true); }, 6000);
     const subscription = AppState.addEventListener("change", state => { if (state === "active") void reload(true); });
-    return () => { generation.current++; clearTimeout(debounce); clearInterval(timer); subscription.remove(); };
+    return () => { generation.current++; refreshPending.current = false; clearTimeout(debounce); clearTimeout(changed); clearInterval(timer); subscription.remove(); void supabase.removeChannel(channel); };
   }, [reload]);
   useEffect(() => { let active = true; void loadChatPreferences().then(data => { if (active) { setPrefs(data.preferences.find(p => p.room_id === room.id) || null); setStars(data.starred); } }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, [room.id]);
-  const perform = async (action: () => Promise<unknown>) => { setError(""); try { await action(); await reload(true); } catch (e) { setError(e instanceof Error ? e.message : "Action failed."); } };
+  const perform = async (action: () => Promise<unknown>) => { setError(""); try { await action(); mutations.current++; await reload(true); } catch (e) { setError(e instanceof Error ? e.message : "Action failed."); } };
   const preference = async (values: Record<string, unknown>) => {
     await updateChatPreference(room.id, values);
     const data = await loadChatPreferences(); setPrefs(data.preferences.find(p => p.room_id === room.id) || null); setStars(data.starred);
   };
   const loadOlder = async () => {
     if (!hasOlder || olderBusy || !messages[0]) return; setOlderBusy(true); const current = generation.current;
-    try { const data = await chatClient.getConversation(room.id, 80, { before: messages[0].created_at, search, media: view === "media", starred: view === "starred" }); if (current === generation.current) { setMessages(rows => [...data.messages.filter(m => !rows.some(r => r.id === m.id)), ...rows]); setHasOlder(data.messages.length === 80); } }
+    try { const data = await chatClient.getConversation(room.id, 40, { before: messages[0].created_at, search, media: view === "media", starred: view === "starred" }); if (current === generation.current) { setMessages(rows => [...data.messages.filter(m => !rows.some(r => r.id === m.id)), ...rows]); setHasOlder(data.messages.length === 40); } }
     catch (e) { setError(e instanceof Error ? e.message : "Could not load older messages."); } finally { setOlderBusy(false); }
   };
   const chooseImage = async (camera = false) => {
@@ -110,9 +139,14 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
     setSending(true); setError("");
     try {
       if (editing) await chatClient.editMessage(room.id, editing.id, message);
-      else { const uploaded = attachment ? await chatClient.uploadAttachment(room.id, attachment) : null; await chatClient.sendMessage(room.id, message, uploaded?.id, reply?.id); }
+      else {
+        const uploaded = attachment ? await chatClient.uploadAttachment(room.id, attachment) : null;
+        const result = await chatClient.sendMessage(room.id, message, uploaded?.id, reply?.id);
+        if (!search && view === "chat") setMessages(previous => previous.some(row => row.id === result.message.id) ? previous : [...previous, { ...result.message, attachment: uploaded || null, reply_to: reply || null }]);
+      }
+      mutations.current++;
       setDraft(""); setAttachment(null); setReply(null); setEditing(null);
-      await reload(true);
+      void reload(true);
       setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 60);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Message could not be sent.");
@@ -137,7 +171,7 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
     {searchOpen ? <View style={styles.searchRow}><TextInput autoFocus accessibilityLabel="Search this conversation" value={search} onChangeText={setSearch} placeholder="Search this conversation" placeholderTextColor={colors.textDim} style={styles.searchInput} /><Pressable onPress={() => { setSearch(""); setSearchOpen(false); }}><Text style={styles.action}>Close</Text></Pressable></View> : null}
     {view !== "chat" ? <Pressable style={styles.searchRow} onPress={() => setView("chat")}><Text style={styles.action}>‹ Back to conversation</Text></Pressable> : null}
     {room.order_id ? <View style={styles.safety}><Text style={styles.safetyIcon}>◆</Text><Text style={styles.safetyText}>Protected transaction. Never share passwords, OTP codes, or card details.</Text></View> : null}
-    {loading ? <View style={styles.center}><ActivityIndicator color={colors.yellow} /><Text style={styles.loadingText}>Loading messages</Text></View> : <FlatList ref={listRef} inverted data={[...messages].reverse()} keyExtractor={(item) => item.id} contentContainerStyle={styles.messages} ListFooterComponent={hasOlder ? <Pressable style={styles.older} disabled={olderBusy} onPress={() => void loadOlder()}><Text style={styles.action}>{olderBusy ? "Loading…" : "Load earlier messages"}</Text></Pressable> : null} ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyIcon}>✦</Text><Text style={styles.emptyTitle}>{search || view !== "chat" ? "No matching messages" : "Start the conversation"}</Text><Text style={styles.emptyText}>{search || view !== "chat" ? "Try another search or return to the conversation." : "Say hello or ask about the order, product, or community."}</Text></View>} renderItem={({ item }) => {
+    {loading ? <View style={styles.center}><ActivityIndicator color={colors.yellow} /><Text style={styles.loadingText}>Loading messages</Text></View> : <FlatList ref={listRef} inverted initialNumToRender={12} maxToRenderPerBatch={8} windowSize={7} data={displayMessages} keyExtractor={(item) => item.id} contentContainerStyle={styles.messages} ListFooterComponent={hasOlder ? <Pressable style={styles.older} disabled={olderBusy} onPress={() => void loadOlder()}><Text style={styles.action}>{olderBusy ? "Loading…" : "Load earlier messages"}</Text></Pressable> : null} ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyIcon}>✦</Text><Text style={styles.emptyTitle}>{search || view !== "chat" ? "No matching messages" : "Start the conversation"}</Text><Text style={styles.emptyText}>{search || view !== "chat" ? "Try another search or return to the conversation." : "Say hello or ask about the order, product, or community."}</Text></View>} renderItem={({ item }) => {
       const own = item.sender_id === session.user.id;
       return <View style={[styles.messageRow, own && styles.messageRowOwn]}><Pressable accessibilityHint="Long press for message actions" onLongPress={() => setSelected(item)} style={[styles.bubble, own ? styles.bubbleOwn : styles.bubbleOther]}>{room.room_type === "group" && !own ? <Text style={styles.sender}>{item.sender?.username || item.sender?.full_name || roomName(room)}</Text> : null}{item.reply_to ? <View style={styles.quote}><Text style={styles.sender}>{item.reply_to.sender?.username || "Reply"}</Text><Text numberOfLines={2} style={styles.subtitle}>{item.reply_to.deleted_at ? "Message deleted" : item.reply_to.message || "Attachment"}</Text></View> : null}{item.attachment && !item.deleted_at ? <ChatMedia attachment={item.attachment} /> : null}{item.message || item.deleted_at ? <MessageText value={item.deleted_at ? "Message deleted" : item.message || ""} /> : null}<View style={styles.receipt}><Text style={styles.messageTime}>{stars.includes(item.id) ? "★ " : ""}{item.edited_at ? "Edited · " : ""}{new Date(item.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</Text>{own ? <Ionicons name={item.is_read ? "checkmark-done" : "checkmark"} size={16} color={item.is_read ? colors.blue : colors.textDim} /> : null}</View>{item.reactions?.length ? <View style={styles.reactions}>{item.reactions.map(r => <Pressable key={r.emoji} style={[styles.reaction, r.reacted_by_me && { borderColor: colors.yellow }]} onPress={() => void perform(() => chatClient.toggleReaction(room.id, item.id, r.emoji))}><Text style={styles.messageText}>{r.emoji} {r.count}</Text></Pressable>)}</View> : null}</Pressable></View>;
     }} />}

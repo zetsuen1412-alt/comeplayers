@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,11 +10,12 @@ import {
   View,
 } from "react-native";
 import type { Session } from "@supabase/supabase-js";
-import { formatCurrency, Panel, SectionTitle, StateBlock } from "../components";
+import { Panel, SectionTitle, StateBlock } from "../components";
 import { loadMarketplaceCategories, searchMarketplace } from "../api";
 import { colors, radius } from "../theme";
 import type { AppTab, MarketplaceCategory, MarketplaceProduct } from "../types";
 import { CheckoutSheet } from "./CheckoutSheet";
+import { useCommerceCurrency } from "../CommerceProvider";
 import { ProductImage } from "../ProductImage";
 
 export function MarketplaceScreen({ session, onNavigate }: {
@@ -21,6 +23,7 @@ export function MarketplaceScreen({ session, onNavigate }: {
   onNavigate: (tab: AppTab) => void;
 }) {
   const { width } = useWindowDimensions();
+  const { formatUsd } = useCommerceCurrency();
   const [query, setQuery] = useState("");
   const [imagesOnly, setImagesOnly] = useState(true);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
@@ -83,11 +86,18 @@ export function MarketplaceScreen({ session, onNavigate }: {
 
   return (
     <>
-      <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <FlatList
+        data={loading || error ? [] : products}
+        keyExtractor={product => String(product.id)}
+        numColumns={2} columnWrapperStyle={{ gap: 10, marginBottom: 10 }}
+        contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled"
+        initialNumToRender={6} maxToRenderPerBatch={6} windowSize={5}
+        ListHeaderComponent={<>
+
         <View style={styles.hero}>
           <Text style={styles.kicker}>COMEPLAYERS MARKETPLACE</Text>
           <Text style={styles.heroTitle}>Find your next gaming upgrade.</Text>
-          <Text style={styles.heroText}>Search by game, then narrow the results by product category. Checkout and supported payments stay inside the app.</Text>
+          <Text style={styles.heroText}>Search by game, then narrow the results by product category. Review your order here and pay securely with CPWallet or a supported provider.</Text>
         </View>
         <View style={styles.searchRow}>
           <TextInput value={query} onChangeText={setQuery} onSubmitEditing={() => void search()} placeholder="Search Dragon Nest, item, service..." placeholderTextColor={colors.textDim} style={styles.searchInput} returnKeyType="search" />
@@ -107,25 +117,22 @@ export function MarketplaceScreen({ session, onNavigate }: {
         </ScrollView>
 
         <SectionTitle eyebrow="LIVE CATALOG" title={`${products.length} offers found`} />
-        {loading ? <Panel><StateBlock loading title="Searching the marketplace" /></Panel> : error ? <Panel><StateBlock title="Unable to load offers" message={error} actionLabel="Try again" onAction={() => void search()} /></Panel> : products.length ? (
-          <View style={styles.grid}>
-            {products.map((product) => (
-              <View key={product.id} style={[styles.card, { width: cardWidth }]}>
+</>}
+        ListEmptyComponent={loading ? <Panel><StateBlock loading title="Searching the marketplace" /></Panel> : error ? <Panel><StateBlock title="Unable to load offers" message={error} actionLabel="Try again" onAction={() => void search()} /></Panel> : <Panel><StateBlock title="No matching offers" message="Try another game or category." /></Panel>}
+        renderItem={({ item: product }) => (              <View key={product.id} style={[styles.card, { width: cardWidth }]}>
                 <ProductImage uri={product.image_url} />
                 <View style={styles.copy}>
                   <View style={styles.tagRow}><Text style={styles.tag}>{product.game_name || product.category || "Gaming"}</Text>{typeof product.stock === "number" ? <Text style={styles.stock}>{product.stock} left</Text> : null}</View>
                   <Text style={styles.title} numberOfLines={2}>{product.title}</Text>
                   <Text style={styles.seller} numberOfLines={1}>{product.seller_name || "Verified ComePlayers seller"}</Text>
-                  <Text style={styles.price}>{formatCurrency(product.price, "USD")}</Text>
+                  <Text style={styles.price}>{formatUsd(Number(product.price))}</Text>
                   <Pressable style={styles.buyButton} onPress={() => startCheckout(product)}><Text style={styles.buyButtonText}>{session ? "Buy in app" : "Sign in to buy"}</Text></Pressable>
                 </View>
-              </View>
-            ))}
-          </View>
-        ) : <Panel><StateBlock title="No matching offers" message="Try another game or choose a different category." /></Panel>}
-        {nextCursor && !loading ? <Pressable disabled={loadingMore} style={[styles.buyButton, { marginTop: 16 }]} onPress={() => void search(category, imagesOnly, true)}><Text style={styles.buyButtonText}>{loadingMore ? "Loading..." : "Load more products"}</Text></Pressable> : null}
+              </View>)}
+        ListFooterComponent={<>        {nextCursor && !loading ? <Pressable disabled={loadingMore} style={[styles.buyButton, { marginTop: 16 }]} onPress={() => void search(category, imagesOnly, true)}><Text style={styles.buyButtonText}>{loadingMore ? "Loading..." : "Load more products"}</Text></Pressable> : null}
         <Text style={styles.securityNote}>Orders and payment status use the same protected ComePlayers account as the website.</Text>
-      </ScrollView>
+</>}
+      />
       <CheckoutSheet product={checkoutTarget} onClose={() => setCheckoutTarget(null)} />
     </>
   );

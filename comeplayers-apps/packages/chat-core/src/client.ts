@@ -1,5 +1,6 @@
 import type {
   ChatAttachment,
+  ChatMessage,
   ChatRoom,
   ChatStreamState,
   Conversation,
@@ -70,22 +71,23 @@ export function createChatClient(options: {
       return headers;
     };
 
-    const send = (accessToken: string) => deadline(
-      fetchImpl(`${baseUrl}${path}`, {
-        ...init,
-        headers: createHeaders(accessToken),
-      }));
+    const send = async (accessToken: string) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 20000);
+      try {
+        const response = await fetchImpl(`${baseUrl}${path}`, { ...init, headers: createHeaders(accessToken), signal: controller.signal });
+        const payload = await response.json() as { error?: string; code?: string } & T;
+        return { response, payload };
+      } finally { clearTimeout(timer); }
+    };
 
-    let response = await send(token);
-    if (response.status === 401) {
+    let result = await send(token);
+    if (result.response.status === 401) {
       token = await deadline(options.getAccessToken(true));
-      if (token) response = await send(token);
+      if (token) result = await send(token);
     }
 
-    const payload = (await deadline(response.json())) as {
-      error?: string;
-      code?: string;
-    } & T;
+    const { response, payload } = result;
 
     if (!response.ok) {
       throw new ComePlayersApiError(
@@ -146,7 +148,7 @@ export function createChatClient(options: {
       attachmentId?: number,
       replyToId?: string
     ) =>
-      request<{ ok: boolean }>(
+      request<{ ok: boolean; message: ChatMessage }>(
         `/api/messages/rooms/${encodeURIComponent(roomId)}/messages`,
         {
           method: "POST",
