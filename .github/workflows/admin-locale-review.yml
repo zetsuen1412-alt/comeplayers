@@ -25,7 +25,17 @@ jobs:
         shell: bash
         run: |
           mkdir -p admin-locale-review
-          git archive HEAD website/app website/components website/lib website/tests website/types website/scripts website/AGENTS.md website/package.json website/package-lock.json website/tsconfig.json website/next.config.ts .github/workflows > admin-locale-review/source.tar
+          python3 - <<'PY'
+          import pathlib, subprocess, tarfile
+          roots = ('website/app/', 'website/components/', 'website/lib/', 'website/tests/', 'website/types/', 'website/scripts/', '.github/workflows/')
+          files = {'website/AGENTS.md', 'website/package.json', 'website/package-lock.json', 'website/tsconfig.json', 'website/next.config.ts'}
+          paths = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
+          with tarfile.open('admin-locale-review/source.tar', 'w') as archive:
+              for name in paths:
+                  path = pathlib.Path(name)
+                  if (name in files or name.startswith(roots)) and path.is_file() and not path.is_symlink():
+                      archive.add(path, arcname=name, recursive=False)
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: admin-locale-source
