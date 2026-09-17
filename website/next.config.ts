@@ -61,6 +61,13 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  typescript: {
+    // Interoperability tests import the mobile workspace and require its own
+    // dependencies. Keep those checks in `npm run typecheck` and `npm test`,
+    // while website-only deployments still strictly check application code.
+    tsconfigPath: process.env.NODE_ENV === "production" ? "tsconfig.build.json" : "tsconfig.json",
+    ignoreBuildErrors: false,
+  },
   images: {
     remotePatterns: [
       {
