@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -110,7 +111,7 @@ function isCompletedOrder(status: string | null) {
 }
 
 function getWithdrawalMethod(row: WithdrawalRequest) {
-  return row.method || row.payment_method || row.bank_name || "Withdrawal";
+  return row.method || row.payment_method || row.bank_name || "Penarikan Dana";
 }
 
 function getDate(value: string | null | undefined) {
@@ -250,11 +251,11 @@ export default function AdminFinanceDashboardPage() {
         .order("id", { ascending: false }),
     ]);
 
-    if (walletsResult.error) alert(walletsResult.error.message);
-    if (transactionsResult.error) alert(transactionsResult.error.message);
-    if (withdrawalsResult.error) alert(withdrawalsResult.error.message);
-    if (ordersResult.error) alert(ordersResult.error.message);
-    if (disputesResult.error) alert(disputesResult.error.message);
+    if (walletsResult.error) alert(adminText(walletsResult.error.message));
+    if (transactionsResult.error) alert(adminText(transactionsResult.error.message));
+    if (withdrawalsResult.error) alert(adminText(withdrawalsResult.error.message));
+    if (ordersResult.error) alert(adminText(ordersResult.error.message));
+    if (disputesResult.error) alert(adminText(disputesResult.error.message));
 
     setWallets((walletsResult.data || []) as Wallet[]);
     setTransactions((transactionsResult.data || []) as WalletTransaction[]);
@@ -270,7 +271,7 @@ export default function AdminFinanceDashboardPage() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -290,7 +291,7 @@ export default function AdminFinanceDashboardPage() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -311,7 +312,7 @@ export default function AdminFinanceDashboardPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading finance dashboard...
+          Memuat dasbor keuangan...
         </p>
       </main>
     );
@@ -321,17 +322,17 @@ export default function AdminFinanceDashboardPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access finance dashboard.
+            Hanya akun admin yang dapat mengakses dasbor keuangan.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -346,20 +347,19 @@ export default function AdminFinanceDashboardPage() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-green-400/30 bg-green-400/10 px-4 py-2 text-sm font-black text-green-300">
-              Admin Finance
+              Keuangan Admin
             </p>
 
             <h1 className="text-5xl font-black md:text-7xl">
-              Finance Dashboard
+              Dasbor Keuangan
             </h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Monitor wallets, escrow releases, withdrawals, disputes, and recent
-              marketplace financial activity.
+              Pantau dompet, pelepasan dana yang ditahan, penarikan, sengketa, dan aktivitas keuangan marketplace terbaru.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -368,21 +368,21 @@ export default function AdminFinanceDashboardPage() {
               onClick={loadFinanceData}
               className="inline-flex h-12 items-center justify-center rounded-full bg-green-400 px-6 font-black text-black transition hover:bg-green-300"
             >
-              Refresh
+              Muat Ulang
             </button>
 
             <Link
               href="/admin"
               className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
             >
-              Admin Home
+              Beranda Admin
             </Link>
 
             <Link
               href="/admin/withdrawals"
               className="inline-flex h-12 items-center justify-center rounded-full border border-yellow-400 px-6 font-bold text-yellow-300 transition hover:bg-yellow-400 hover:text-black"
             >
-              Withdrawals
+              Penarikan Dana
             </Link>
           </div>
         </div>
@@ -391,77 +391,77 @@ export default function AdminFinanceDashboardPage() {
       <section className="mx-auto max-w-7xl px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6">
-            <p className="text-sm text-gray-300">Total Wallet Balance</p>
+            <p className="text-sm text-gray-300">Total Saldo Dompet</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {formatPrice(stats.totalWalletBalance)}
             </p>
             <p className="mt-2 text-xs text-gray-400">
-              {stats.walletCount} wallets
+              {stats.walletCount} dompet
             </p>
           </div>
 
           <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-6">
-            <p className="text-sm text-gray-300">Escrow Released</p>
+            <p className="text-sm text-gray-300">Dana Ditahan yang Dilepas</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {formatPrice(stats.totalEscrowReleased)}
             </p>
             <p className="mt-2 text-xs text-gray-400">
-              Released completed orders
+              Dana pesanan selesai yang telah dilepas
             </p>
           </div>
 
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-6">
-            <p className="text-sm text-gray-300">Pending Escrow</p>
+            <p className="text-sm text-gray-300">Dana Ditahan Menunggu</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {formatPrice(stats.pendingEscrow)}
             </p>
             <p className="mt-2 text-xs text-gray-400">
-              Completed but unreleased
+              Pesanan selesai, dana belum dilepas
             </p>
           </div>
 
           <div className="rounded-3xl border border-purple-400/20 bg-purple-400/10 p-6">
-            <p className="text-sm text-gray-300">Pending Withdrawals</p>
+            <p className="text-sm text-gray-300">Penarikan Menunggu</p>
             <p className="mt-2 text-3xl font-black text-purple-300">
               {formatPrice(stats.pendingWithdrawals)}
             </p>
             <p className="mt-2 text-xs text-gray-400">
-              Waiting admin approval
+              Menunggu persetujuan admin
             </p>
           </div>
         </div>
 
         <div className="mb-10 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Earned</p>
+            <p className="text-sm text-gray-400">Total Pendapatan</p>
             <p className="mt-2 text-2xl font-black text-green-300">
               {formatPrice(stats.totalEarned)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Spent</p>
+            <p className="text-sm text-gray-400">Total Pengeluaran</p>
             <p className="mt-2 text-2xl font-black text-red-300">
               {formatPrice(stats.totalSpent)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Withdrawn</p>
+            <p className="text-sm text-gray-400">Total Penarikan</p>
             <p className="mt-2 text-2xl font-black text-yellow-300">
               {formatPrice(stats.totalWithdrawn)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Pending Balance</p>
+            <p className="text-sm text-gray-400">Saldo Menunggu</p>
             <p className="mt-2 text-2xl font-black text-cyan-300">
               {formatPrice(stats.totalPendingBalance)}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Open Disputes</p>
+            <p className="text-sm text-gray-400">Sengketa Terbuka</p>
             <p className="mt-2 text-2xl font-black text-orange-300">
               {stats.openDisputes}
             </p>
@@ -472,23 +472,23 @@ export default function AdminFinanceDashboardPage() {
           <section className="rounded-3xl border border-white/10 bg-white/[0.035] p-7 shadow-2xl shadow-black/30">
             <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
               <div>
-                <h2 className="text-3xl font-black">Recent Wallet Transactions</h2>
+                <h2 className="text-3xl font-black">Transaksi Dompet Terbaru</h2>
                 <p className="mt-2 text-sm text-gray-400">
-                  Latest wallet ledger records.
+                  Catatan mutasi dompet terbaru.
                 </p>
               </div>
 
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search transaction, order, type, status..."
+                placeholder={"Cari transaksi, pesanan, jenis, status..."}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-3 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400 lg:w-[360px]"
               />
             </div>
 
             {filteredTransactions.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-black/30 p-8 text-center text-gray-400">
-                No wallet transactions found.
+                Tidak ada transaksi dompet ditemukan.
               </div>
             ) : (
               <div className="space-y-4">
@@ -500,15 +500,15 @@ export default function AdminFinanceDashboardPage() {
                     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
                       <div>
                         <p className="text-sm font-black text-cyan-300">
-                          #{transaction.id} · {transaction.type || "transaction"}
+                          #{transaction.id} · {adminLabel(transaction.type || "transaction")}
                         </p>
 
                         <p className="mt-2 text-sm leading-6 text-gray-300">
-                          {transaction.description || "No description"}
+                          {transaction.description || "Tidak ada deskripsi"}
                         </p>
 
                         <p className="mt-2 text-xs text-gray-500">
-                          User: {transaction.user_id || "-"}
+                          Pengguna: {transaction.user_id || "-"}
                         </p>
 
                         {transaction.order_id && (
@@ -516,7 +516,7 @@ export default function AdminFinanceDashboardPage() {
                             href={`/order/${transaction.order_id}`}
                             className="mt-2 inline-flex text-sm font-bold text-yellow-300 hover:text-yellow-200"
                           >
-                            Open Order #{transaction.order_id}
+                            Buka Pesanan #{transaction.order_id}
                           </Link>
                         )}
                       </div>
@@ -527,7 +527,7 @@ export default function AdminFinanceDashboardPage() {
                         </p>
 
                         <p className="mt-1 text-xs text-gray-500">
-                          {normalizeStatus(transaction.status)}
+                          {adminLabel(normalizeStatus(transaction.status))}
                         </p>
 
                         <p className="mt-1 text-xs text-gray-500">
@@ -546,11 +546,11 @@ export default function AdminFinanceDashboardPage() {
               <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-black text-yellow-300">
-                    Withdrawal Requests
+                    Permintaan Penarikan
                   </h2>
 
                   <p className="mt-2 text-sm text-gray-300">
-                    Latest payout requests.
+                    Permintaan pencairan terbaru.
                   </p>
                 </div>
 
@@ -558,13 +558,13 @@ export default function AdminFinanceDashboardPage() {
                   href="/admin/withdrawals"
                   className="rounded-full border border-yellow-400 px-4 py-2 text-sm font-black text-yellow-300 hover:bg-yellow-400 hover:text-black"
                 >
-                  Manage
+                  Kelola
                 </Link>
               </div>
 
               {withdrawals.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-black/30 p-6 text-center text-gray-400">
-                  No withdrawal requests yet.
+                  Belum ada permintaan penarikan.
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -592,7 +592,7 @@ export default function AdminFinanceDashboardPage() {
                         </div>
 
                         <span className="rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs font-black text-gray-300">
-                          {normalizeStatus(withdrawal.status)}
+                          {adminLabel(normalizeStatus(withdrawal.status))}
                         </span>
                       </div>
 
@@ -607,7 +607,7 @@ export default function AdminFinanceDashboardPage() {
 
             <section className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-7 shadow-2xl shadow-black/30">
               <h2 className="text-2xl font-black text-cyan-300">
-                Finance Quick Links
+                Pintasan Keuangan
               </h2>
 
               <div className="mt-5 grid gap-3">
@@ -615,35 +615,35 @@ export default function AdminFinanceDashboardPage() {
                   href="/admin/reconciliation"
                   className="rounded-2xl border border-violet-400 px-5 py-3 text-center font-black text-violet-300 transition hover:bg-violet-400 hover:text-black"
                 >
-                  Financial Reconciliation
+                  Rekonsiliasi Keuangan
                 </Link>
 
                 <Link
                   href="/admin/withdrawals"
                   className="rounded-2xl border border-yellow-400 px-5 py-3 text-center font-black text-yellow-300 transition hover:bg-yellow-400 hover:text-black"
                 >
-                  Withdrawal Approval
+                  Persetujuan Penarikan
                 </Link>
 
                 <Link
                   href="/admin/disputes"
                   className="rounded-2xl border border-orange-400 px-5 py-3 text-center font-black text-orange-300 transition hover:bg-orange-400 hover:text-black"
                 >
-                  Dispute Center
+                  Pusat Sengketa
                 </Link>
 
                 <Link
                   href="/admin/orders"
                   className="rounded-2xl border border-cyan-400 px-5 py-3 text-center font-black text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
                 >
-                  Order Management
+                  Pengelolaan Pesanan
                 </Link>
 
                 <Link
                   href="/wallet"
                   className="rounded-2xl border border-white/10 px-5 py-3 text-center font-black text-gray-300 transition hover:bg-white hover:text-black"
                 >
-                  My Wallet
+                  Dompet Saya
                 </Link>
               </div>
             </section>

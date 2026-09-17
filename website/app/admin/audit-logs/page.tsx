@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FaClipboardList, FaSearch, FaShieldAlt } from "react-icons/fa";
@@ -34,7 +35,7 @@ function adminName(log: AuditLog) {
 }
 
 function pretty(value: string) {
-  return value.replace(/[._]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return adminLabel(value);
 }
 
 function formatDate(value: string) {
@@ -59,7 +60,7 @@ export default function AdminAuditLogsPage() {
         );
         setLogs(response.logs || []);
       } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : "Failed to load audit logs.");
+        setError(loadError instanceof Error ? loadError.message : "Gagal memuat riwayat audit.");
       } finally {
         setLoading(false);
       }
@@ -86,7 +87,7 @@ export default function AdminAuditLogsPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#050816] px-4 py-24 text-center text-white">
-        Loading security audit logs...
+        Memuat riwayat audit keamanan...
       </main>
     );
   }
@@ -96,14 +97,14 @@ export default function AdminAuditLogsPage() {
       <section className="border-b border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_36%)]">
         <div className="mx-auto max-w-7xl px-4 py-14">
           <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-            <FaShieldAlt /> Security Boundary V4
+            <FaShieldAlt /> Perlindungan Keamanan V4
           </p>
-          <h1 className="mt-5 text-5xl font-black md:text-7xl">Admin Audit Logs</h1>
+          <h1 className="mt-5 text-5xl font-black md:text-7xl">Riwayat Audit Admin</h1>
           <p className="mt-4 max-w-3xl text-slate-300">
-            Review privileged changes to users, seller applications, products, wallet top-ups, and withdrawals.
+            Tinjau perubahan oleh admin pada pengguna, pendaftaran penjual, produk, isi saldo dompet, dan penarikan dana.
           </p>
           <Link href="/admin" className="mt-7 inline-flex rounded-xl border border-cyan-400 px-5 py-3 font-black text-cyan-300">
-            Back to Admin
+            Kembali ke Admin
           </Link>
         </div>
       </section>
@@ -111,7 +112,7 @@ export default function AdminAuditLogsPage() {
       <section className="mx-auto max-w-7xl px-4 py-10">
         {error ? (
           <div className="rounded-2xl border border-red-400/30 bg-red-400/10 p-5 text-red-200">
-            {error}
+            {adminText(error)}
           </div>
         ) : null}
 
@@ -120,7 +121,7 @@ export default function AdminAuditLogsPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search admin, action, entity, or ID..."
+            placeholder={"Cari admin, tindakan, entitas, atau ID..."}
             className="w-full bg-transparent outline-none placeholder:text-slate-500"
           />
         </div>
@@ -128,7 +129,7 @@ export default function AdminAuditLogsPage() {
         <div className="mt-6 space-y-3">
           {filteredLogs.length === 0 ? (
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center text-slate-400">
-              No audit logs found.
+              Tidak ada riwayat audit ditemukan.
             </div>
           ) : (
             filteredLogs.map((log) => {
@@ -158,8 +159,8 @@ export default function AdminAuditLogsPage() {
 
                   {expanded ? (
                     <div className="mt-5 grid gap-4 border-t border-white/10 pt-5 xl:grid-cols-3">
-                      <JsonPanel title="Before" value={log.before_data} />
-                      <JsonPanel title="After" value={log.after_data} />
+                      <JsonPanel title={"Sebelum"} value={log.before_data} />
+                      <JsonPanel title={"Sesudah"} value={log.after_data} />
                       <JsonPanel title="Metadata" value={log.metadata} />
                     </div>
                   ) : null}

@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { FormEvent, useMemo, useState } from "react";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoPayrollSettings } from "@/features/payroll/lib/demo-payroll-settings-store";
@@ -58,9 +59,9 @@ export function EmployeeManager() {
 
       <section className="cp-card mb-5 p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-          <label className="text-sm">Bagian / FH<select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value as "SEMUA" | Employee["team"])} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua</option><option>FH1</option><option>FH2</option><option>FH3</option><option>ADMIN</option><option>BANDAR</option></select></label>
-          <label className="text-sm">Status<select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as "SEMUA" | EmployeeWorkStatus)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua</option>{statuses.map((value) => <option key={value}>{value}</option>)}</select></label>
-          <div className="flex items-end"><button type="button" onClick={async () => { setExporting(true); try { await exportEmployeesSpreadsheet(rows, settings.defaultSharePercent, settings.employeeSharePercent, `${teamFilter}_${statusFilter}`); } finally { setExporting(false); } }} disabled={exporting} className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Export Karyawan (${rows.length})`}</button></div>
+          <label className="text-sm">Bagian / FH<select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value as "SEMUA" | Employee["team"])} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua</option><option value={"FH1"}>FH1</option><option value={"FH2"}>FH2</option><option value={"FH3"}>FH3</option><option value={"ADMIN"}>ADMIN</option><option value={"BANDAR"}>BANDAR</option></select></label>
+          <label className="text-sm">Status<select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as "SEMUA" | EmployeeWorkStatus)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua</option>{statuses.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+          <div className="flex items-end"><button type="button" onClick={async () => { setExporting(true); try { await exportEmployeesSpreadsheet(rows, settings.defaultSharePercent, settings.employeeSharePercent, `${teamFilter}_${statusFilter}`); } finally { setExporting(false); } }} disabled={exporting} className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor Karyawan (${rows.length})`}</button></div>
         </div>
         <div className="mt-2 text-xs text-zinc-500">Excel hanya berisi karyawan sesuai FH dan status yang sedang dipilih.</div>
       </section>
@@ -80,11 +81,11 @@ export function EmployeeManager() {
             </label>
             <label className="text-sm">Status awal
               <select value={status} onChange={(event) => setStatus(event.target.value as EmployeeWorkStatus)} className={inputClass}>
-                {statuses.map((value) => <option key={value} value={value}>{value}</option>)}
+                {statuses.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}
               </select>
             </label>
           </div>
-          {message ? <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-sm">{message}</div> : null}
+          {message ? <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-sm">{adminText(message)}</div> : null}
           <button type="submit" className="mt-4 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black">Simpan Karyawan</button>
         </form>
       ) : null}
@@ -103,18 +104,18 @@ export function EmployeeManager() {
                 <h2 className="text-xl font-semibold">{employee.name}</h2>
                 <div className="mt-1 text-sm text-zinc-500">{employee.team} · {employee.code}</div>
               </div>
-              <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(employee.workforceStatus)}`}>{employee.workforceStatus}</span>
+              <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(employee.workforceStatus)}`}>{adminLabel(employee.workforceStatus)}</span>
             </div>
 
             <label className="mt-5 block text-sm text-zinc-400">Ubah status kapan saja
               <select value={employee.workforceStatus} onChange={(event) => updateEmployeeStatus(employee.id, event.target.value as EmployeeWorkStatus)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 font-semibold text-white">
-                {statuses.map((value) => <option key={value} value={value}>{value}</option>)}
+                {statuses.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}
               </select>
             </label>
 
             <div className="mt-4 rounded-xl bg-zinc-950/60 p-4">
               <div className="text-sm text-zinc-500">Status saat ini</div>
-              <div className="mt-1 text-lg font-semibold">{employee.workforceStatus}</div>
+              <div className="mt-1 text-lg font-semibold">{adminLabel(employee.workforceStatus)}</div>
               <div className="mt-1 text-xs text-zinc-500">Status ini otomatis ikut tampil di menu Gaji.</div>
             </div>
             <div className="mt-4 text-sm text-zinc-400">Beban kerja saat ini: <strong className="text-white">{employee.utilization}%</strong></div>

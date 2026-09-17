@@ -654,7 +654,7 @@ function workbookWithMetadata(XLSX: any, title: string) {
   const wb = XLSX.utils.book_new();
   wb.Props = {
     Title: title,
-    Subject: "EVO COMEPLAYERS Operational & Finance Export",
+    Subject: "EVO COMEPLAYERS Ekspor Operasional & Keuangan",
     Author: "EVO COMEPLAYERS",
     Company: "EVO COMEPLAYERS",
     CreatedDate: new Date(),
@@ -1009,9 +1009,9 @@ export async function exportPayrollSpreadsheet(rows: LivePayrollRow[], label: st
   const normalized = label.trim().toUpperCase();
   const suffixMap: Record<string, string> = { FH1: "FH 1", FH2: "FH 2", FH3: "FH 3", ADMIN: "ADMIN", BANDAR: "BANDAR" };
   const suffix = normalized === "SEMUA" ? "" : (suffixMap[normalized] ?? label.trim());
-  const payrollTitle = `EVO COMEPLAYERS — PAYROLL GAJI${suffix ? ` ${suffix}` : ""}`;
-  const wb = workbookWithMetadata(XLSX, `EVO COMEPLAYERS - PAYROLL GAJI${suffix ? ` ${suffix}` : ""}`);
-  appendStyledSheet(XLSX, wb, "PAYROLL GAJI", styledJsonSheet(XLSX, exportedRows, PAYROLL_HEADERS, {
+  const payrollTitle = `EVO COMEPLAYERS — PENGGAJIAN${suffix ? ` ${suffix}` : ""}`;
+  const wb = workbookWithMetadata(XLSX, `EVO COMEPLAYERS - PENGGAJIAN${suffix ? ` ${suffix}` : ""}`);
+  appendStyledSheet(XLSX, wb, "PENGGAJIAN", styledJsonSheet(XLSX, exportedRows, PAYROLL_HEADERS, {
     title: payrollTitle,
     subtitle: exportSubtitle(label),
   }));
@@ -1054,11 +1054,11 @@ export async function exportClosingSpreadsheet(args: {
     `PERIODE: ${periodLabel}  •  DIEKSPOR: ${formatDateTimeID(new Date().toISOString())}`,
     [
       ["Periode", periodLabel],
-      ["Order selesai masuk gajian", args.orders.length],
-      ["Total nilai order selesai", totalOrder],
+      ["Pesanan selesai masuk gajian", args.orders.length],
+      ["Total nilai pesanan selesai", totalOrder],
       ["Gaji sebelum potongan", totalPayrollBeforeDeductions],
       ["Gaji bersih", totalPayrollNet],
-      ["Order bermasalah ditunda", args.deferredOrders?.length ?? 0],
+      ["Pesanan bermasalah ditunda", args.deferredOrders?.length ?? 0],
     ],
   ));
 
@@ -1092,7 +1092,7 @@ export async function exportClosingSpreadsheet(args: {
   }));
   appendStyledSheet(XLSX, wb, "DITUNDA", styledJsonSheet(XLSX, deferred, DEFERRED_HEADERS, {
     title: "EVO COMEPLAYERS — ORDER BERMASALAH / DITUNDA",
-    subtitle: `Tidak masuk payroll periode ${periodLabel}`,
+    subtitle: `Tidak masuk penggajian periode ${periodLabel}`,
   }));
 
   const inventoryRows: ExportRecord[] = (args.inventory ?? []).map((row) => ({
@@ -1159,11 +1159,11 @@ export async function exportAllDataSpreadsheet(args: {
     `WAKTU EXPORT: ${formatDateTimeID(exportedAt)}`,
     [
       ["Jumlah karyawan", args.employees.length],
-      ["Jumlah penjualan / order", args.orders.length],
+      ["Jumlah penjualan / pesanan", args.orders.length],
       ["Jumlah mutasi", args.orders.length],
       ["Jumlah baris stok", args.inventory.length],
-      ["Karyawan dalam payroll aktif", args.payroll.filter((row) => row.orderRefs.length > 0).length],
-      ["Jumlah closing", args.closings.length],
+      ["Karyawan dalam penggajian aktif", args.payroll.filter((row) => row.orderRefs.length > 0).length],
+      ["Jumlah tutup buku", args.closings.length],
     ],
   ));
   appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, args.orders.map(mutationRow), MUTATION_HEADERS, {
@@ -1178,8 +1178,8 @@ export async function exportAllDataSpreadsheet(args: {
     title: "EVO COMEPLAYERS — PENJUALAN",
     subtitle: exportSubtitle("SEMUA DATA"),
   }));
-  appendStyledSheet(XLSX, wb, "PAYROLL GAJI", styledJsonSheet(XLSX, payrollSheetRows(args.payroll), PAYROLL_HEADERS, {
-    title: "EVO COMEPLAYERS — PAYROLL GAJI",
+  appendStyledSheet(XLSX, wb, "PENGGAJIAN", styledJsonSheet(XLSX, payrollSheetRows(args.payroll), PAYROLL_HEADERS, {
+    title: "EVO COMEPLAYERS — PENGGAJIAN",
     subtitle: exportSubtitle("SEMUA DATA"),
   }));
   appendStyledSheet(XLSX, wb, "TUTUP BUKU", styledJsonSheet(XLSX, closingHistoryRows(args.closings), CLOSING_HISTORY_HEADERS, {

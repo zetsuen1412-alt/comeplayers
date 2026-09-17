@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -161,7 +162,7 @@ export default function AdminWalletTopUpManagementV1Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -175,7 +176,7 @@ export default function AdminWalletTopUpManagementV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -195,7 +196,7 @@ export default function AdminWalletTopUpManagementV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -214,11 +215,11 @@ export default function AdminWalletTopUpManagementV1Page() {
 
   async function approveTopup(item: WalletTopup) {
     if (item.status !== "pending") {
-      alert("Only pending top up can be approved.");
+      alert("Hanya isi saldo berstatus menunggu yang dapat disetujui.");
       return;
     }
 
-    if (!confirm(`Approve top up ${formatPrice(item.amount)}?`)) return;
+    if (!confirm(`Setujui isi saldo ${formatPrice(item.amount)}?`)) return;
 
     setUpdatingId(item.id);
 
@@ -228,13 +229,13 @@ export default function AdminWalletTopUpManagementV1Page() {
         body: JSON.stringify({
           topupId: item.id,
           action: "approve",
-          note: adminNotes[item.id]?.trim() || "Wallet top up approved by admin.",
+          note: adminNotes[item.id]?.trim() || "Isi saldo dompet disetujui oleh admin.",
         }),
       });
 
       await loadTopups();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to approve wallet top-up.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menyetujui isi saldo dompet."));
     } finally {
       setUpdatingId(null);
     }
@@ -242,18 +243,18 @@ export default function AdminWalletTopUpManagementV1Page() {
 
   async function rejectTopup(item: WalletTopup) {
     if (item.status !== "pending") {
-      alert("Only pending top up can be rejected.");
+      alert("Hanya isi saldo berstatus menunggu yang dapat ditolak.");
       return;
     }
 
     const note = adminNotes[item.id]?.trim();
 
     if (!note) {
-      alert("Admin note is required when rejecting top up.");
+      alert("Catatan admin wajib diisi saat menolak isi saldo.");
       return;
     }
 
-    if (!confirm(`Reject top up ${formatPrice(item.amount)}?`)) return;
+    if (!confirm(`Tolak isi saldo ${formatPrice(item.amount)}?`)) return;
 
     setUpdatingId(item.id);
 
@@ -265,7 +266,7 @@ export default function AdminWalletTopUpManagementV1Page() {
 
       await loadTopups();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to reject wallet top-up.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menolak isi saldo dompet."));
     } finally {
       setUpdatingId(null);
     }
@@ -275,7 +276,7 @@ export default function AdminWalletTopUpManagementV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading wallet top ups...
+          Memuat isi saldo dompet...
         </p>
       </main>
     );
@@ -285,17 +286,17 @@ export default function AdminWalletTopUpManagementV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can manage wallet top ups.
+            Hanya akun admin yang dapat mengelola isi saldo dompet.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -311,18 +312,17 @@ export default function AdminWalletTopUpManagementV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-green-400/30 bg-green-400/10 px-4 py-2 text-sm font-black text-green-300">
-              Admin Wallet Top Up
+              Isi Saldo Dompet Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Top Up Requests</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Permintaan Isi Saldo</h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Review wallet top up payment proofs, approve balance deposits, or
-              reject invalid requests.
+              Tinjau bukti pembayaran isi saldo dompet, setujui penambahan saldo, atau tolak permintaan tidak valid.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -331,14 +331,14 @@ export default function AdminWalletTopUpManagementV1Page() {
               href="/admin/wallet"
               className="inline-flex h-12 items-center justify-center rounded-full border border-green-400 px-6 font-bold text-green-300 transition hover:bg-green-400 hover:text-black"
             >
-              Wallet Dashboard
+              Dasbor Dompet
             </Link>
 
             <Link
               href="/admin"
               className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
             >
-              Admin Home
+              Beranda Admin
             </Link>
           </div>
         </div>
@@ -347,35 +347,35 @@ export default function AdminWalletTopUpManagementV1Page() {
       <section className="mx-auto max-w-7xl px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Requests</p>
+            <p className="text-sm text-gray-400">Total Permintaan</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {topups.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Pending</p>
+            <p className="text-sm text-gray-400">Menunggu</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {pendingTopups.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Approved</p>
+            <p className="text-sm text-gray-400">Disetujui</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {approvedTopups.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Rejected</p>
+            <p className="text-sm text-gray-400">Ditolak</p>
             <p className="mt-2 text-3xl font-black text-red-300">
               {rejectedTopups.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Pending Amount</p>
+            <p className="text-sm text-gray-400">Jumlah Menunggu</p>
             <p className="mt-2 text-2xl font-black text-green-300">
               {formatPrice(pendingAmount)}
             </p>
@@ -383,7 +383,7 @@ export default function AdminWalletTopUpManagementV1Page() {
         </div>
 
         <div className="mb-8 rounded-3xl border border-green-400/20 bg-green-400/10 p-6">
-          <p className="text-sm text-gray-300">Approved Top Up Amount</p>
+          <p className="text-sm text-gray-300">Jumlah Isi Saldo Disetujui</p>
           <p className="mt-2 text-3xl font-black text-green-300">
             {formatPrice(approvedAmount)}
           </p>
@@ -393,7 +393,7 @@ export default function AdminWalletTopUpManagementV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search top ups by user, email, sender name, account, payment method, note, or ID..."
+            placeholder={"Cari isi saldo berdasarkan pengguna, email, nama pengirim, rekening, metode pembayaran, catatan, atau ID..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -408,7 +408,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {item === "all" ? "All" : item}
+                {item === "all" ? "Semua" : item}
               </button>
             ))}
           </div>
@@ -416,11 +416,10 @@ export default function AdminWalletTopUpManagementV1Page() {
 
         {filteredTopups.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-12 text-center shadow-2xl shadow-black/30">
-            <h2 className="text-3xl font-black">No top up requests found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada permintaan isi saldo ditemukan.</h2>
 
             <p className="mt-3 text-gray-400">
-              Wallet top up requests will appear here after users submit payment
-              proof.
+              Permintaan isi saldo dompet muncul di sini setelah pengguna mengirim bukti pembayaran.
             </p>
           </div>
         ) : (
@@ -437,7 +436,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
                         <h2 className="text-2xl font-black">
-                          Top Up #{item.id}
+                          Isi Saldo #{item.id}
                         </h2>
 
                         <span
@@ -445,7 +444,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                             item.status
                           )}`}
                         >
-                          {item.status}
+                          {adminLabel(item.status)}
                         </span>
                       </div>
 
@@ -455,7 +454,7 @@ export default function AdminWalletTopUpManagementV1Page() {
 
                       <div className="mt-6 grid gap-4 md:grid-cols-2">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">User</p>
+                          <p className="text-xs text-gray-500">Pengguna</p>
                           <p className="mt-1 font-black">{displayName}</p>
                           <p className="mt-1 break-words text-sm text-gray-400">
                             {item.profiles?.email || item.user_id}
@@ -464,15 +463,15 @@ export default function AdminWalletTopUpManagementV1Page() {
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                           <p className="text-xs text-gray-500">
-                            Payment Method
+                            Metode Pembayaran
                           </p>
                           <p className="mt-1 font-black">
-                            {item.payment_method}
+                            {adminLabel(item.payment_method)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Sender Name</p>
+                          <p className="text-xs text-gray-500">Nama Pengirim</p>
                           <p className="mt-1 font-black">
                             {item.sender_name || "-"}
                           </p>
@@ -480,7 +479,7 @@ export default function AdminWalletTopUpManagementV1Page() {
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                           <p className="text-xs text-gray-500">
-                            Sender Account
+                            Rekening Pengirim
                           </p>
                           <p className="mt-1 break-words font-black">
                             {item.sender_account || "-"}
@@ -488,14 +487,14 @@ export default function AdminWalletTopUpManagementV1Page() {
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Created At</p>
+                          <p className="text-xs text-gray-500">Waktu Dibuat</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.created_at)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Processed At</p>
+                          <p className="text-xs text-gray-500">Waktu Diproses</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.processed_at)}
                           </p>
@@ -505,7 +504,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                       {item.payment_note && (
                         <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
                           <p className="text-sm font-black text-cyan-300">
-                            User Payment Note
+                            Catatan Pembayaran Pengguna
                           </p>
                           <p className="mt-2 text-sm leading-6 text-gray-300">
                             {item.payment_note}
@@ -516,7 +515,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                       {item.payment_image && (
                         <div className="mt-5">
                           <p className="mb-3 font-bold text-cyan-300">
-                            Payment Proof
+                            Bukti Pembayaran
                           </p>
 
                           <a
@@ -527,7 +526,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                           >
                             <img
                               src={item.payment_image}
-                              alt="Top up payment proof"
+                              alt={"Bukti pembayaran isi saldo"}
                               className="h-48 w-80 rounded-xl border border-white/10 object-cover transition hover:scale-105"
                             />
                           </a>
@@ -537,7 +536,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                       {item.admin_note && (
                         <div className="mt-5 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4">
                           <p className="text-sm font-black text-yellow-300">
-                            Admin Note
+                            Catatan Admin
                           </p>
                           <p className="mt-2 text-sm leading-6 text-gray-300">
                             {item.admin_note}
@@ -548,7 +547,7 @@ export default function AdminWalletTopUpManagementV1Page() {
 
                     <div className="flex flex-col gap-3">
                       <label className="text-sm font-bold text-gray-400">
-                        Admin Note
+                        Catatan Admin
                       </label>
 
                       <textarea
@@ -559,7 +558,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                             [item.id]: event.target.value,
                           }))
                         }
-                        placeholder="Write admin note..."
+                        placeholder={"Tulis catatan admin..."}
                         rows={5}
                         disabled={item.status !== "pending"}
                         className="w-full resize-none rounded-2xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400 disabled:opacity-60"
@@ -570,7 +569,7 @@ export default function AdminWalletTopUpManagementV1Page() {
                         disabled={updatingId === item.id || item.status !== "pending"}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                       >
-                        Approve Top Up
+                        Setujui Isi Saldo
                       </button>
 
                       <button
@@ -578,19 +577,19 @@ export default function AdminWalletTopUpManagementV1Page() {
                         disabled={updatingId === item.id || item.status !== "pending"}
                         className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white hover:bg-red-400 disabled:opacity-60"
                       >
-                        Reject Top Up
+                        Tolak Isi Saldo
                       </button>
 
                       <Link
                         href={`/seller-profile/${item.user_id}`}
                         className="rounded-2xl border border-cyan-400 px-5 py-3 text-center font-black text-cyan-300 hover:bg-cyan-400 hover:text-black"
                       >
-                        View User Profile
+                        Lihat Profil Pengguna
                       </Link>
 
                       {updatingId === item.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating top up...
+                          Memperbarui isi saldo...
                         </p>
                       )}
                     </div>

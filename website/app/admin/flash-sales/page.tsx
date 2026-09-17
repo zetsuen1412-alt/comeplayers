@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -185,12 +186,12 @@ export default function AdminFlashSaleManagerV1Page() {
     ]);
 
     if (productResult.error) {
-      alert(productResult.error.message);
+      alert(adminText(productResult.error.message));
       return;
     }
 
     if (flashSaleResult.error) {
-      alert(flashSaleResult.error.message);
+      alert(adminText(flashSaleResult.error.message));
       return;
     }
 
@@ -205,7 +206,7 @@ export default function AdminFlashSaleManagerV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -225,7 +226,7 @@ export default function AdminFlashSaleManagerV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -293,21 +294,21 @@ export default function AdminFlashSaleManagerV1Page() {
   async function saveFlashSale(event: React.FormEvent) {
     event.preventDefault();
 
-    if (!productId) return alert("Please choose a product.");
-    if (!title.trim()) return alert("Flash sale title is required.");
-    if (Number(originalPrice || 0) <= 0) return alert("Original price is invalid.");
-    if (Number(flashPrice || 0) <= 0) return alert("Flash price is invalid.");
+    if (!productId) return alert("Pilih produk terlebih dahulu.");
+    if (!title.trim()) return alert("Judul promo kilat wajib diisi.");
+    if (Number(originalPrice || 0) <= 0) return alert("Harga awal tidak valid.");
+    if (Number(flashPrice || 0) <= 0) return alert("Harga promo tidak valid.");
     if (Number(flashPrice) >= Number(originalPrice)) {
-      return alert("Flash price must be lower than original price.");
+      return alert("Harga promo harus lebih rendah dari harga awal.");
     }
-    if (!startAt || !endAt) return alert("Start date and end date are required.");
+    if (!startAt || !endAt) return alert("Tanggal mulai dan berakhir wajib diisi.");
     if (new Date(endAt).getTime() <= new Date(startAt).getTime()) {
-      return alert("End date must be after start date.");
+      return alert("Tanggal berakhir harus setelah tanggal mulai.");
     }
     if (stockLimit && Number(stockLimit) <= 0) {
-      return alert("Stock limit must be empty or greater than 0.");
+      return alert("Batas stok harus kosong atau lebih besar dari 0.");
     }
-    if (Number(soldCount || 0) < 0) return alert("Sold count cannot be negative.");
+    if (Number(soldCount || 0) < 0) return alert("Jumlah terjual tidak boleh negatif.");
 
     try {
       setSaving(true);
@@ -319,11 +320,11 @@ export default function AdminFlashSaleManagerV1Page() {
         ),
       });
 
-      alert(editingId ? "Flash sale updated." : "Flash sale created.");
+      alert(adminText(editingId ? "Promo kilat diperbarui." : "Promo kilat dibuat."));
       await loadData();
       resetForm();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to save flash sale.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menyimpan promo kilat."));
     } finally {
       setSaving(false);
     }
@@ -342,14 +343,14 @@ export default function AdminFlashSaleManagerV1Page() {
       });
       await loadData();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update flash sale.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui promo kilat."));
     } finally {
       setUpdatingId(null);
     }
   }
 
   async function deleteFlashSale(item: FlashSale) {
-    if (!confirm(`Delete flash sale "${item.title}"?`)) return;
+    if (!confirm(`Hapus promo kilat "${item.title}"?`)) return;
 
     try {
       setUpdatingId(item.id);
@@ -359,7 +360,7 @@ export default function AdminFlashSaleManagerV1Page() {
       });
       await loadData();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to delete flash sale.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal menghapus promo kilat."));
     } finally {
       setUpdatingId(null);
     }
@@ -369,7 +370,7 @@ export default function AdminFlashSaleManagerV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading flash sale manager...
+          Memuat pengelola promo kilat...
         </p>
       </main>
     );
@@ -379,15 +380,15 @@ export default function AdminFlashSaleManagerV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
           <p className="mt-4 text-gray-300">
-            Only admin accounts can manage flash sales.
+            Hanya akun admin yang dapat mengelola promo kilat.
           </p>
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -402,18 +403,17 @@ export default function AdminFlashSaleManagerV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
-              Admin Flash Sale Manager
+              Pengelola Promo Kilat Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Flash Sales</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Promo Kilat</h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Create limited-time product discounts, schedule campaigns, control
-              stock limit, and manage active flash sale promotions.
+              Buat diskon produk berbatas waktu, jadwalkan kampanye, atur batas stok, dan kelola promo kilat aktif.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -421,7 +421,7 @@ export default function AdminFlashSaleManagerV1Page() {
             href="/admin"
             className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
           >
-            Admin Home
+            Beranda Admin
           </Link>
         </div>
       </section>
@@ -429,28 +429,28 @@ export default function AdminFlashSaleManagerV1Page() {
       <section className="mx-auto max-w-7xl px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-4">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Flash Sales</p>
+            <p className="text-sm text-gray-400">Total Promo Kilat</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {flashSales.length}
             </p>
           </div>
 
           <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-5">
-            <p className="text-sm text-gray-300">Running</p>
+            <p className="text-sm text-gray-300">Berlangsung</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {runningCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-blue-400/20 bg-blue-400/10 p-5">
-            <p className="text-sm text-gray-300">Upcoming</p>
+            <p className="text-sm text-gray-300">Akan Datang</p>
             <p className="mt-2 text-3xl font-black text-blue-300">
               {upcomingCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-            <p className="text-sm text-gray-300">Active Records</p>
+            <p className="text-sm text-gray-300">Catatan Aktif</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {activeCount}
             </p>
@@ -464,11 +464,11 @@ export default function AdminFlashSaleManagerV1Page() {
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
               <h2 className="text-3xl font-black text-yellow-300">
-                {editingId ? "Edit Flash Sale" : "Create Flash Sale"}
+                {editingId ? "Ubah Promo Kilat" : "Buat Promo Kilat"}
               </h2>
 
               <p className="mt-2 text-sm text-gray-300">
-                Select a product and define discounted price with active period.
+                Pilih produk, lalu tentukan harga diskon dan masa berlakunya.
               </p>
             </div>
 
@@ -478,26 +478,26 @@ export default function AdminFlashSaleManagerV1Page() {
                 onClick={resetForm}
                 className="rounded-full border border-white/10 px-5 py-2 font-bold text-gray-300 hover:bg-white hover:text-black"
               >
-                Cancel Edit
+                Batalkan Perubahan
               </button>
             )}
           </div>
 
           <div className="mt-7">
             <label className="mb-2 block text-sm font-bold text-gray-300">
-              Search Product
+              Cari Produk
             </label>
 
             <input
               value={productSearch}
               onChange={(event) => setProductSearch(event.target.value)}
-              placeholder="Search product by title, game, category, seller, or ID..."
+              placeholder={"Cari produk berdasarkan judul, gim, kategori, penjual, atau ID..."}
               className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
             />
 
             <div className="mt-4 grid max-h-[360px] gap-3 overflow-y-auto rounded-2xl border border-white/10 bg-black/30 p-4 md:grid-cols-2">
               {filteredProducts.length === 0 ? (
-                <p className="text-gray-400">No products found.</p>
+                <p className="text-gray-400">Tidak ada produk ditemukan.</p>
               ) : (
                 filteredProducts.map((product) => (
                   <button
@@ -508,7 +508,7 @@ export default function AdminFlashSaleManagerV1Page() {
                       setProductSearch(product.title || "");
                       setOriginalPrice(String(product.price || ""));
                       if (!editingId) {
-                        setTitle(`${product.title || "Product"} Flash Sale`);
+                        setTitle(`${product.title || "Produk"} Promo Kilat`);
                       }
                     }}
                     className={`flex items-center gap-4 rounded-2xl border p-4 text-left transition ${
@@ -521,7 +521,7 @@ export default function AdminFlashSaleManagerV1Page() {
                       {product.image_url ? (
                         <img
                           src={product.image_url}
-                          alt={product.title || "Product"}
+                          alt={product.title || "Produk"}
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -530,7 +530,7 @@ export default function AdminFlashSaleManagerV1Page() {
                     </div>
 
                     <div>
-                      <p className="font-black">{product.title || "Untitled"}</p>
+                      <p className="font-black">{product.title || "Tanpa judul"}</p>
                       <p className="mt-1 text-sm text-gray-400">
                         #{product.id} · {product.category || "-"} ·{" "}
                         {product.game_name || "-"}
@@ -548,12 +548,12 @@ export default function AdminFlashSaleManagerV1Page() {
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Flash Sale Title
+                Judul Promo Kilat
               </label>
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Weekend Flash Sale"
+                placeholder={"Promo Kilat Akhir Pekan"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
@@ -569,8 +569,8 @@ export default function AdminFlashSaleManagerV1Page() {
                 }
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none focus:border-yellow-400"
               >
-                <option value="active">active</option>
-                <option value="inactive">inactive</option>
+                <option value="active">aktif</option>
+                <option value="inactive">nonaktif</option>
               </select>
             </div>
           </div>
@@ -578,7 +578,7 @@ export default function AdminFlashSaleManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Original Price
+                Harga Awal
               </label>
               <input
                 type="number"
@@ -591,7 +591,7 @@ export default function AdminFlashSaleManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Flash Price
+                Harga Promo
               </label>
               <input
                 type="number"
@@ -604,20 +604,20 @@ export default function AdminFlashSaleManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Stock Limit
+                Batas Stok
               </label>
               <input
                 type="number"
                 value={stockLimit}
                 onChange={(event) => setStockLimit(event.target.value)}
-                placeholder="Optional"
+                placeholder={"Opsional"}
                 className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Sold Count
+                Jumlah Terjual
               </label>
               <input
                 type="number"
@@ -632,7 +632,7 @@ export default function AdminFlashSaleManagerV1Page() {
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                Start At
+                Waktu Mulai
               </label>
               <input
                 type="datetime-local"
@@ -644,7 +644,7 @@ export default function AdminFlashSaleManagerV1Page() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
-                End At
+                Waktu Berakhir
               </label>
               <input
                 type="datetime-local"
@@ -657,13 +657,13 @@ export default function AdminFlashSaleManagerV1Page() {
 
           <div className="mt-5">
             <label className="mb-2 block text-sm font-bold text-gray-300">
-              Description
+              Deskripsi
             </label>
 
             <textarea
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Describe this flash sale campaign..."
+              placeholder={"Jelaskan kampanye promo kilat ini..."}
               rows={4}
               className="w-full resize-none rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-yellow-400"
             />
@@ -675,10 +675,10 @@ export default function AdminFlashSaleManagerV1Page() {
             className="mt-7 w-full rounded-2xl bg-yellow-400 py-4 text-lg font-black text-black transition hover:bg-yellow-300 disabled:opacity-60"
           >
             {saving
-              ? "Saving Flash Sale..."
+              ? "Menyimpan Promo Kilat..."
               : editingId
-              ? "Update Flash Sale"
-              : "Create Flash Sale"}
+              ? "Perbarui Promo Kilat"
+              : "Buat Promo Kilat"}
           </button>
         </form>
 
@@ -686,7 +686,7 @@ export default function AdminFlashSaleManagerV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search flash sales by title, product, category, game, or ID..."
+            placeholder={"Cari promo kilat berdasarkan judul, produk, kategori, gim, atau ID..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -701,7 +701,7 @@ export default function AdminFlashSaleManagerV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {item === "all" ? "All" : item}
+                {item === "all" ? "Semua" : item}
               </button>
             ))}
           </div>
@@ -710,16 +710,16 @@ export default function AdminFlashSaleManagerV1Page() {
         {endedCount > 0 && (
           <div className="mb-8 rounded-3xl border border-red-400/20 bg-red-400/10 p-5">
             <p className="font-black text-red-300">
-              {endedCount} flash sale campaign has ended.
+              {endedCount} kampanye promo kilat telah berakhir.
             </p>
           </div>
         )}
 
         {filteredFlashSales.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-12 text-center shadow-2xl shadow-black/30">
-            <h2 className="text-3xl font-black">No flash sales found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada promo kilat ditemukan.</h2>
             <p className="mt-3 text-gray-400">
-              Create your first flash sale campaign using the form above.
+              Buat kampanye promo kilat pertama melalui formulir di atas.
             </p>
           </div>
         ) : (
@@ -755,7 +755,7 @@ export default function AdminFlashSaleManagerV1Page() {
                             state
                           )}`}
                         >
-                          {state}
+                          {adminLabel(state)}
                         </span>
 
                         <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300">
@@ -791,11 +791,11 @@ export default function AdminFlashSaleManagerV1Page() {
                           </h2>
 
                           <p className="mt-2 text-sm text-gray-400">
-                            Product: {product?.title || `#${item.product_id}`}
+                            Produk: {product?.title || `#${item.product_id}`}
                           </p>
 
                           <p className="mt-4 text-sm leading-6 text-gray-300">
-                            {item.description || "No description."}
+                            {item.description || "Tidak ada deskripsi."}
                           </p>
                         </div>
                       </div>
@@ -803,7 +803,7 @@ export default function AdminFlashSaleManagerV1Page() {
                       <div className="mt-6 grid gap-4 md:grid-cols-4">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                           <p className="text-xs text-gray-500">
-                            Original Price
+                            Harga Awal
                           </p>
                           <p className="mt-1 font-black line-through text-gray-400">
                             {formatPrice(item.original_price)}
@@ -811,31 +811,31 @@ export default function AdminFlashSaleManagerV1Page() {
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Flash Price</p>
+                          <p className="text-xs text-gray-500">Harga Promo</p>
                           <p className="mt-1 text-xl font-black text-yellow-300">
                             {formatPrice(item.flash_price)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Stock</p>
+                          <p className="text-xs text-gray-500">Stok</p>
                           <p className="mt-1 font-black">{stockText}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                           <p className="text-xs text-gray-500">Status</p>
-                          <p className="mt-1 font-black">{item.status}</p>
+                          <p className="mt-1 font-black">{adminLabel(item.status)}</p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4 md:col-span-2">
-                          <p className="text-xs text-gray-500">Start</p>
+                          <p className="text-xs text-gray-500">Mulai</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.start_at)}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4 md:col-span-2">
-                          <p className="text-xs text-gray-500">End</p>
+                          <p className="text-xs text-gray-500">Berakhir</p>
                           <p className="mt-1 font-black">
                             {formatDate(item.end_at)}
                           </p>
@@ -849,7 +849,7 @@ export default function AdminFlashSaleManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-cyan-400 px-5 py-3 font-black text-black hover:bg-cyan-300 disabled:opacity-60"
                       >
-                        Edit Flash Sale
+                        Ubah Promo Kilat
                       </button>
 
                       <button
@@ -857,7 +857,7 @@ export default function AdminFlashSaleManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                       >
-                        Set Active
+                        Aktifkan
                       </button>
 
                       <button
@@ -865,7 +865,7 @@ export default function AdminFlashSaleManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl bg-yellow-500 px-5 py-3 font-black text-black hover:bg-yellow-400 disabled:opacity-60"
                       >
-                        Set Inactive
+                        Nonaktifkan
                       </button>
 
                       {product && (
@@ -873,7 +873,7 @@ export default function AdminFlashSaleManagerV1Page() {
                           href={`/product/${product.id}`}
                           className="rounded-2xl border border-cyan-400 px-5 py-3 text-center font-black text-cyan-300 hover:bg-cyan-400 hover:text-black"
                         >
-                          View Product
+                          Lihat Produk
                         </Link>
                       )}
 
@@ -882,12 +882,12 @@ export default function AdminFlashSaleManagerV1Page() {
                         disabled={updatingId === item.id}
                         className="rounded-2xl border border-red-400/40 px-5 py-3 font-black text-red-300 hover:bg-red-500 hover:text-white disabled:opacity-60"
                       >
-                        Delete Flash Sale
+                        Hapus Promo Kilat
                       </button>
 
                       {updatingId === item.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating flash sale...
+                          Memperbarui promo kilat...
                         </p>
                       )}
                     </div>

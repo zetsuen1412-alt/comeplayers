@@ -4,7 +4,7 @@ import { ProductCatalogManager } from "@/features/payroll/components/product-cat
 export default function ProductsPage() {
   return (
     <>
-      <PageHeader title="Produk / Game" description="Atur game, Region, dan Server yang boleh dipilih saat membuat Pesanan." />
+      <PageHeader title={"Produk / Permainan"} description={"Atur permainan, Wilayah, dan Server yang boleh dipilih saat membuat Pesanan."} />
       <ProductCatalogManager />
     </>
   );

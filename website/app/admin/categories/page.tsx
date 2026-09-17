@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
@@ -152,7 +153,7 @@ export default function AdminCategoriesPage() {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "Failed to load categories."
+            : "Gagal memuat kategori."
         );
       } finally {
         setLoading(false);
@@ -186,12 +187,12 @@ export default function AdminCategoriesPage() {
 
       resetCreateForm();
       await loadCategories();
-      setMessage("Category saved.");
+      setMessage("Kategori disimpan.");
     } catch (saveError) {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "Failed to save category."
+          : "Gagal menyimpan kategori."
       );
     } finally {
       setBusy(false);
@@ -225,12 +226,12 @@ export default function AdminCategoriesPage() {
 
       setEditingId(null);
       await loadCategories();
-      setMessage("Category updated.");
+      setMessage("Kategori diperbarui.");
     } catch (saveError) {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "Failed to update category."
+          : "Gagal memperbarui kategori."
       );
     } finally {
       setBusy(false);
@@ -238,7 +239,7 @@ export default function AdminCategoriesPage() {
   }
 
   async function deleteCategory(category: Category) {
-    if (!confirm(`Delete category "${category.name}"?`)) return;
+    if (!confirm(`Hapus kategori "${category.name}"?`)) return;
 
     setBusy(true);
     setError("");
@@ -251,12 +252,12 @@ export default function AdminCategoriesPage() {
       });
 
       await loadCategories();
-      setMessage("Category deleted.");
+      setMessage("Kategori dihapus.");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error
           ? deleteError.message
-          : "Failed to delete category."
+          : "Gagal menghapus kategori."
       );
     } finally {
       setBusy(false);
@@ -279,12 +280,12 @@ export default function AdminCategoriesPage() {
           ? "comeplayers-category-template.csv"
           : `comeplayers-categories-${new Date().toISOString().slice(0, 10)}.csv`
       );
-      setMessage(mode === "template" ? "Template downloaded." : "CSV exported.");
+      setMessage(mode === "template" ? "Templat diunduh." : "CSV diekspor.");
     } catch (downloadError) {
       setError(
         downloadError instanceof Error
           ? downloadError.message
-          : "Failed to download CSV."
+          : "Gagal mengunduh CSV."
       );
     } finally {
       setBusy(false);
@@ -300,7 +301,7 @@ export default function AdminCategoriesPage() {
 
     try {
       if (file.size > 2 * 1024 * 1024) {
-        throw new Error("CSV file must be 2 MB or smaller.");
+        throw new Error("Ukuran file CSV maksimal 2 MB.");
       }
 
       const text = await file.text();
@@ -311,7 +312,7 @@ export default function AdminCategoriesPage() {
       }));
 
       if (records.length === 0) {
-        throw new Error("CSV has no category rows.");
+        throw new Error("CSV tidak memiliki baris kategori.");
       }
 
       const payload = await authenticatedFetchJson<{
@@ -325,10 +326,10 @@ export default function AdminCategoriesPage() {
       setImportSummary(payload.summary);
       setImportResults(payload.results || []);
       await loadCategories();
-      setMessage("CSV import finished.");
+      setMessage("Impor CSV selesai.");
     } catch (importError) {
       setError(
-        importError instanceof Error ? importError.message : "CSV import failed."
+        importError instanceof Error ? importError.message : "Impor CSV gagal."
       );
     } finally {
       setBusy(false);
@@ -338,7 +339,7 @@ export default function AdminCategoriesPage() {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
-        <p className="text-xl font-black text-cyan-300">Loading categories...</p>
+        <p className="text-xl font-black text-cyan-300">Memuat kategori...</p>
       </main>
     );
   }
@@ -347,15 +348,15 @@ export default function AdminCategoriesPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access category management.
+            Hanya akun admin yang dapat mengakses pengelolaan kategori.
           </p>
           <Link
             href="/admin"
             className="mt-6 inline-flex h-12 items-center rounded-full bg-cyan-400 px-6 font-black text-black"
           >
-            Admin Home
+            Beranda Admin
           </Link>
         </div>
       </main>
@@ -368,14 +369,13 @@ export default function AdminCategoriesPage() {
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-              Admin Catalog
+              Katalog Admin
             </p>
             <h1 className="text-4xl font-black md:text-6xl">
-              Category Management
+              Pengelolaan Kategori
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-gray-300">
-              Manual category rows, CSV imports, and CSV exports all write to
-              the single public.categories table.
+              Penambahan kategori manual, impor CSV, dan ekspor CSV menggunakan satu tabel public.categories.
             </p>
           </div>
 
@@ -386,7 +386,7 @@ export default function AdminCategoriesPage() {
               onClick={() => void downloadCsv("template")}
               className="rounded-xl border border-white/10 px-5 py-3 font-black text-gray-200 transition hover:border-cyan-400 disabled:opacity-50"
             >
-              CSV Template
+              Templat CSV
             </button>
             <button
               type="button"
@@ -394,7 +394,7 @@ export default function AdminCategoriesPage() {
               onClick={() => void downloadCsv("export")}
               className="rounded-xl border border-cyan-400/50 px-5 py-3 font-black text-cyan-300 transition hover:bg-cyan-400 hover:text-black disabled:opacity-50"
             >
-              Export CSV
+              Ekspor CSV
             </button>
             <button
               type="button"
@@ -402,7 +402,7 @@ export default function AdminCategoriesPage() {
               onClick={() => fileRef.current?.click()}
               className="rounded-xl border border-violet-400/50 px-5 py-3 font-black text-violet-300 transition hover:bg-violet-400 hover:text-black disabled:opacity-50"
             >
-              Import CSV
+              Impor CSV
             </button>
             <input
               ref={fileRef}
@@ -419,7 +419,7 @@ export default function AdminCategoriesPage() {
               href="/admin"
               className="rounded-xl border border-white/10 px-5 py-3 font-black text-gray-200 transition hover:bg-white hover:text-black"
             >
-              Back to Admin
+              Kembali ke Admin
             </Link>
           </div>
         </div>
@@ -428,23 +428,23 @@ export default function AdminCategoriesPage() {
       <section className="px-8 py-8">
         {message ? (
           <div className="mb-5 rounded-2xl border border-green-400/20 bg-green-400/10 p-4 text-green-200">
-            {message}
+            {adminText(message)}
           </div>
         ) : null}
 
         {error ? (
           <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-red-200">
-            {error}
+            {adminText(error)}
           </div>
         ) : null}
 
         <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
           <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.035] p-6">
-            <h2 className="text-2xl font-black">Add Category</h2>
+            <h2 className="text-2xl font-black">Tambah Kategori</h2>
 
             <form onSubmit={createCategory} className="mt-6 grid gap-4">
               <label className="grid gap-2 text-sm font-bold text-gray-300">
-                Name
+                Nama
                 <input
                   value={newName}
                   onChange={(event) => {
@@ -453,12 +453,12 @@ export default function AdminCategoriesPage() {
                     setNewSlug((current) => current || createSlug(value));
                   }}
                   className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-cyan-400"
-                  placeholder="Game Coins"
+                  placeholder={"Koin Gim"}
                 />
               </label>
 
               <label className="grid gap-2 text-sm font-bold text-gray-300">
-                Slug
+                Alamat Singkat
                 <input
                   value={newSlug}
                   onChange={(event) => setNewSlug(createSlug(event.target.value))}
@@ -468,12 +468,12 @@ export default function AdminCategoriesPage() {
               </label>
 
               <label className="grid gap-2 text-sm font-bold text-gray-300">
-                Icon
+                Ikon
                 <input
                   value={newIcon}
                   onChange={(event) => setNewIcon(event.target.value)}
                   className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-cyan-400"
-                  placeholder="Optional"
+                  placeholder={"Opsional"}
                 />
               </label>
 
@@ -482,13 +482,12 @@ export default function AdminCategoriesPage() {
                 disabled={busy}
                 className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-black transition hover:bg-cyan-300 disabled:opacity-50"
               >
-                Save Category
+                Simpan Kategori
               </button>
             </form>
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-gray-300">
-              CSV columns: id, name, slug, icon, created_at. Leave id empty to
-              create; include id or existing slug to update.
+              Kolom CSV: id, name, slug, icon, created_at. Kosongkan id untuk membuat; isi id atau slug yang sudah ada untuk memperbarui.
             </div>
           </aside>
 
@@ -497,11 +496,11 @@ export default function AdminCategoriesPage() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <Metric label="Total" value={String(categories.length)} />
                 <Metric
-                  label="Visible"
+                  label={"Ditampilkan"}
                   value={String(categories.filter((item) => item.slug).length)}
                 />
                 <Metric
-                  label="Filtered"
+                  label={"Tersaring"}
                   value={String(filteredCategories.length)}
                 />
               </div>
@@ -510,23 +509,23 @@ export default function AdminCategoriesPage() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
-                placeholder="Search categories..."
+                placeholder={"Cari kategori..."}
               />
             </div>
 
             <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.035]">
               <div className="grid min-w-[1220px] grid-cols-[80px_1fr_1fr_120px_190px_220px] border-b border-white/10 bg-black/30 px-4 py-3 text-xs font-black uppercase tracking-[0.16em] text-gray-400">
                 <span>ID</span>
-                <span>Name</span>
-                <span>Slug</span>
-                <span>Icon</span>
-                <span>Created</span>
-                <span>Actions</span>
+                <span>Nama</span>
+                <span>Alamat Singkat</span>
+                <span>Ikon</span>
+                <span>Dibuat</span>
+                <span>Tindakan</span>
               </div>
 
               {filteredCategories.length === 0 ? (
                 <div className="p-8 text-center text-gray-400">
-                  No categories found.
+                  Tidak ada kategori ditemukan.
                 </div>
               ) : (
                 filteredCategories.map((category) => {
@@ -590,7 +589,7 @@ export default function AdminCategoriesPage() {
                               onClick={() => void saveEdit(category.id)}
                               className="rounded-lg bg-cyan-400 px-3 py-2 text-xs font-black text-black disabled:opacity-50"
                             >
-                              Save
+                              Simpan
                             </button>
                             <button
                               type="button"
@@ -598,7 +597,7 @@ export default function AdminCategoriesPage() {
                               onClick={() => setEditingId(null)}
                               className="rounded-lg border border-white/10 px-3 py-2 text-xs font-black text-gray-300 disabled:opacity-50"
                             >
-                              Cancel
+                              Batal
                             </button>
                           </>
                         ) : (
@@ -609,7 +608,7 @@ export default function AdminCategoriesPage() {
                               onClick={() => startEditing(category)}
                               className="rounded-lg border border-cyan-400/40 px-3 py-2 text-xs font-black text-cyan-300 disabled:opacity-50"
                             >
-                              Edit
+                              Ubah
                             </button>
                             <button
                               type="button"
@@ -617,13 +616,13 @@ export default function AdminCategoriesPage() {
                               onClick={() => void deleteCategory(category)}
                               className="rounded-lg border border-red-400/40 px-3 py-2 text-xs font-black text-red-300 disabled:opacity-50"
                             >
-                              Delete
+                              Hapus
                             </button>
                             <Link
                               href={`/games?category=${category.slug}`}
                               className="rounded-lg border border-white/10 px-3 py-2 text-xs font-black text-gray-300"
                             >
-                              Preview
+                              Pratinjau
                             </Link>
                           </>
                         )}
@@ -636,10 +635,9 @@ export default function AdminCategoriesPage() {
 
             {importSummary ? (
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.035] p-5">
-                <h2 className="text-xl font-black">Import Result</h2>
+                <h2 className="text-xl font-black">Hasil Impor</h2>
                 <p className="mt-2 text-sm text-gray-300">
-                  Total {importSummary.total}, created {importSummary.created},
-                  updated {importSummary.updated}, failed {importSummary.failed}.
+                  Total {importSummary.total}, dibuat {importSummary.created}, diperbarui {importSummary.updated}, gagal {importSummary.failed}.
                 </p>
 
                 {importResults.length > 0 ? (
@@ -650,18 +648,18 @@ export default function AdminCategoriesPage() {
                         className="grid grid-cols-[90px_1fr_120px] gap-3 border-b border-white/10 px-4 py-3 text-sm last:border-b-0"
                       >
                         <span className="font-mono text-gray-400">
-                          Row {result.rowNumber}
+                          Baris {result.rowNumber}
                         </span>
                         <span className={result.ok ? "text-gray-200" : "text-red-300"}>
                           {result.name || result.slug || "-"}
-                          {result.error ? ` - ${result.error}` : ""}
+                          {adminText(result.error ? ` - ${result.error}` : "")}
                         </span>
                         <span
                           className={
                             result.ok ? "text-cyan-300" : "text-red-300"
                           }
                         >
-                          {result.action}
+                          {adminLabel(result.action)}
                         </span>
                       </div>
                     ))}

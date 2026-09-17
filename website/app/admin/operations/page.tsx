@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -127,9 +128,7 @@ type Payload = {
 };
 
 function pretty(value: string) {
-  return String(value || "-")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return adminLabel(value);
 }
 
 function formatDate(value?: string | null) {
@@ -170,7 +169,7 @@ export default function AdminOperationsPage() {
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "Failed to load operations data."
+          : "Gagal memuat data operasional."
       );
     } finally {
       setLoading(false);
@@ -198,11 +197,11 @@ export default function AdminOperationsPage() {
         method: "POST",
         body: JSON.stringify({ id: event.id }),
       });
-      setMessage(`Webhook ${event.event_id} replayed successfully.`);
+      setMessage(`Webhook ${event.event_id} berhasil diproses ulang.`);
       await loadData();
     } catch (replayError) {
       setError(
-        replayError instanceof Error ? replayError.message : "Webhook replay failed."
+        replayError instanceof Error ? replayError.message : "Gagal memproses ulang webhook."
       );
     } finally {
       setBusy(null);
@@ -222,7 +221,7 @@ export default function AdminOperationsPage() {
       setError(
         actionError instanceof Error
           ? actionError.message
-          : "Failed to acknowledge alert."
+          : "Gagal menandai peringatan telah ditinjau."
       );
     } finally {
       setBusy(null);
@@ -238,8 +237,8 @@ export default function AdminOperationsPage() {
         ? ""
         : window.prompt(
             status === "passed"
-              ? "Record the evidence or approval reference:"
-              : "Describe the blocker:"
+              ? "Catat bukti atau referensi persetujuan:"
+              : "Jelaskan penghambat:"
           )?.trim() || "";
     if (status !== "pending" && !note) return;
 
@@ -260,7 +259,7 @@ export default function AdminOperationsPage() {
       setError(
         actionError instanceof Error
           ? actionError.message
-          : "Failed to update launch sign-off."
+          : "Gagal memperbarui persetujuan peluncuran."
       );
     } finally {
       setBusy(null);
@@ -275,11 +274,11 @@ export default function AdminOperationsPage() {
     const message =
       mode === "disabled"
         ? window.prompt(
-            "Customer-facing maintenance message:",
+            "Pesan pemeliharaan untuk pelanggan:",
             current?.message ||
-              "Checkout is temporarily unavailable while we perform maintenance."
+              "Pembayaran sementara tidak tersedia selama pemeliharaan."
           )?.trim() || ""
-        : current?.message || "Checkout is temporarily unavailable.";
+        : current?.message || "Pembayaran sementara tidak tersedia.";
     if (mode === "disabled" && !message) return;
 
     setBusy("checkout-control");
@@ -298,15 +297,15 @@ export default function AdminOperationsPage() {
       });
       setMessage(
         mode === "canary"
-          ? `Checkout canary updated to ${percentage}%.`
-          : `Checkout is now ${mode}.`
+          ? `Alokasi uji terbatas pembayaran diubah menjadi ${percentage}%.`
+          : `Pembayaran sekarang ${mode}.`
       );
       await loadData();
     } catch (actionError) {
       setError(
         actionError instanceof Error
           ? actionError.message
-          : "Failed to update checkout control."
+          : "Gagal memperbarui kendali pembayaran."
       );
     } finally {
       setBusy(null);
@@ -325,14 +324,14 @@ export default function AdminOperationsPage() {
         body: JSON.stringify({ action: "reconcile_paypal_provider" }),
       });
       setMessage(
-        `Provider reconciliation scanned ${data.result.scanned}: ${data.result.matched} matched, ${data.result.mismatches} mismatched, ${data.result.errors} errors.`
+        `Rekonsiliasi penyedia memeriksa ${data.result.scanned}: ${data.result.matched} cocok, ${data.result.mismatches} tidak cocok, ${data.result.errors} kesalahan.`
       );
       await loadData();
     } catch (actionError) {
       setError(
         actionError instanceof Error
           ? actionError.message
-          : "PayPal provider reconciliation failed."
+          : "Rekonsiliasi penyedia PayPal gagal."
       );
     } finally {
       setBusy(null);
@@ -342,7 +341,7 @@ export default function AdminOperationsPage() {
   if (loading && !payload) {
     return (
       <main className="min-h-screen bg-[#050816] px-4 py-24 text-center text-white">
-        Loading production operations...
+        Memuat operasional produksi...
       </main>
     );
   }
@@ -352,26 +351,26 @@ export default function AdminOperationsPage() {
       <section className="border-b border-emerald-400/20 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,.18),transparent_42%)]">
         <div className="mx-auto max-w-7xl px-4 py-14">
           <p className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-200">
-            <FaRocket /> V20 Controlled Launch
+            <FaRocket /> Peluncuran Terkendali V20
           </p>
           <h1 className="mt-5 text-5xl font-black md:text-7xl">
-            Production Operations
+            Operasional Produksi
           </h1>
           <p className="mt-4 max-w-3xl text-slate-300">
-            Control the checkout canary, verify PayPal against provider data, review SLO health, operational alerts, and final launch evidence.
+            Atur uji terbatas pembayaran, cocokkan PayPal dengan data penyedia, serta tinjau kesehatan layanan, peringatan operasional, dan bukti akhir peluncuran.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/admin"
               className="rounded-xl border border-white/15 px-5 py-3 font-black hover:border-white/40"
             >
-              Admin Dashboard
+              Dasbor Admin
             </Link>
             <Link
               href="/admin/reconciliation"
               className="rounded-xl border border-violet-400/40 px-5 py-3 font-black text-violet-200"
             >
-              Reconciliation
+              Rekonsiliasi
             </Link>
           </div>
         </div>
@@ -380,12 +379,12 @@ export default function AdminOperationsPage() {
       <section className="mx-auto max-w-7xl px-4 py-10">
         {error ? (
           <p className="mb-6 rounded-2xl border border-red-400/30 bg-red-400/10 p-5 font-bold text-red-200">
-            {error}
+            {adminText(error)}
           </p>
         ) : null}
         {message ? (
           <p className="mb-6 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-5 font-bold text-emerald-200">
-            {message}
+            {adminText(message)}
           </p>
         ) : null}
 
@@ -393,26 +392,26 @@ export default function AdminOperationsPage() {
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               <Metric
-                label="Launch status"
-                value={payload.ready ? "READY" : "BLOCKED"}
+                label={"Status peluncuran"}
+                value={payload.ready ? "SIAP" : "TERBLOKIR"}
                 tone={payload.ready ? "green" : "red"}
               />
               <Metric
-                label="Checks passing"
+                label={"Pemeriksaan lulus"}
                 value={`${passingChecks}/${payload.checks.length}`}
               />
               <Metric
-                label="Critical alerts"
+                label={"Peringatan kritis"}
                 value={payload.metrics.openCriticalAlerts}
                 tone={payload.metrics.openCriticalAlerts ? "red" : "green"}
               />
               <Metric
-                label="Failed webhooks 24h"
+                label={"Webhook gagal dalam 24 jam"}
                 value={payload.metrics.failedWebhooks24h}
                 tone={payload.metrics.failedWebhooks24h ? "red" : "green"}
               />
               <Metric
-                label="Pending sign-offs"
+                label={"Persetujuan menunggu"}
                 value={payload.metrics.pendingSignoffs}
                 tone={payload.metrics.pendingSignoffs ? "yellow" : "green"}
               />
@@ -422,11 +421,10 @@ export default function AdminOperationsPage() {
               <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
                 <div className="flex items-center gap-3">
                   <FaRocket className="text-emerald-300" />
-                  <h2 className="text-2xl font-black">Checkout kill switch & canary</h2>
+                  <h2 className="text-2xl font-black">Penghentian darurat &amp; uji terbatas pembayaran</h2>
                 </div>
                 <p className="mt-3 text-sm text-slate-400">
-                  New order creation and wallet/PayPal payment initiation are gated.
-                  Existing PayPal captures remain finishable to avoid stranded funds.
+                  Pembuatan pesanan baru dan awal pembayaran dompet/PayPal dibatasi. Penerimaan pembayaran PayPal yang sudah dimulai tetap dapat diselesaikan agar dana tidak tertahan.
                 </p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
                   <Metric
@@ -435,12 +433,12 @@ export default function AdminOperationsPage() {
                     tone={payload.runtimeControl?.mode === "disabled" ? "red" : "green"}
                   />
                   <Metric
-                    label="Canary allocation"
+                    label={"Alokasi uji terbatas"}
                     value={`${payload.runtimeControl?.percentage ?? 0}%`}
                     tone="yellow"
                   />
                   <Metric
-                    label="Allowlisted users"
+                    label={"Pengguna yang diizinkan"}
                     value={payload.runtimeControl?.allowlist?.length || 0}
                   />
                 </div>
@@ -451,7 +449,7 @@ export default function AdminOperationsPage() {
                     disabled={busy === "checkout-control"}
                     className="rounded-xl bg-red-400 px-4 py-2 font-black text-black disabled:opacity-50"
                   >
-                    Emergency disable
+                    Nonaktifkan darurat
                   </button>
                   {[10, 25, 50].map((percentage) => (
                     <button
@@ -461,7 +459,7 @@ export default function AdminOperationsPage() {
                       disabled={busy === "checkout-control"}
                       className="rounded-xl border border-yellow-400/40 px-4 py-2 font-black text-yellow-100 disabled:opacity-50"
                     >
-                      Canary {percentage}%
+                      Uji Terbatas {percentage}%
                     </button>
                   ))}
                   <button
@@ -470,34 +468,33 @@ export default function AdminOperationsPage() {
                     disabled={busy === "checkout-control"}
                     className="rounded-xl border border-emerald-400/40 px-4 py-2 font-black text-emerald-200 disabled:opacity-50"
                   >
-                    Enable 100%
+                    Aktifkan 100%
                   </button>
                 </div>
                 <p className="mt-4 text-xs text-slate-500">
-                  Updated {formatDate(payload.runtimeControl?.updated_at)}. Environment
-                  variable CHECKOUT_KILL_SWITCH always overrides this database control.
+                  Diperbarui {formatDate(payload.runtimeControl?.updated_at)}. Variabel lingkungan CHECKOUT_KILL_SWITCH selalu lebih diutamakan daripada kendali database ini.
                 </p>
               </section>
 
               <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
                 <div className="flex items-center gap-3">
                   <FaServer className="text-cyan-300" />
-                  <h2 className="text-2xl font-black">24-hour uptime SLO</h2>
+                  <h2 className="text-2xl font-black">Target ketersediaan layanan 24 jam</h2>
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <Metric
-                    label="Availability"
+                    label={"Ketersediaan"}
                     value={`${payload.slo.availabilityPercent.toFixed(3)}%`}
                     tone={payload.slo.availabilityPassing ? "green" : "red"}
                   />
                   <Metric
-                    label="p95 latency"
+                    label={"Waktu respons p95"}
                     value={`${payload.slo.p95LatencyMs} ms`}
                     tone={payload.slo.latencyPassing ? "green" : "red"}
                   />
-                  <Metric label="Regions observed" value={payload.slo.regionCount} />
+                  <Metric label={"Wilayah dipantau"} value={payload.slo.regionCount} />
                   <Metric
-                    label="Failed checks"
+                    label={"Pemeriksaan gagal"}
                     value={payload.slo.failedChecks}
                     tone={payload.slo.failedChecks ? "red" : "green"}
                   />
@@ -524,9 +521,9 @@ export default function AdminOperationsPage() {
             <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black">PayPal provider reconciliation</h2>
+                  <h2 className="text-2xl font-black">Rekonsiliasi penyedia PayPal</h2>
                   <p className="mt-2 text-sm text-slate-400">
-                    Compare local capture IDs, currency, amount, and state with PayPal Sandbox or Live.
+                    Bandingkan ID penerimaan, mata uang, jumlah, dan status lokal dengan PayPal Sandbox atau Live.
                   </p>
                 </div>
                 <button
@@ -535,18 +532,18 @@ export default function AdminOperationsPage() {
                   disabled={busy === "provider-reconciliation"}
                   className="inline-flex items-center gap-2 rounded-xl bg-violet-400 px-4 py-3 font-black text-black disabled:opacity-50"
                 >
-                  <FaRedo /> Run provider check
+                  <FaRedo /> Jalankan pemeriksaan penyedia
                 </button>
               </div>
               <div className="mt-5 overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="text-slate-400">
                     <tr>
-                      <th className="px-3 py-3">Capture</th>
-                      <th className="px-3 py-3">Order</th>
+                      <th className="px-3 py-3">Penerimaan Pembayaran</th>
+                      <th className="px-3 py-3">Pesanan</th>
                       <th className="px-3 py-3">Status</th>
-                      <th className="px-3 py-3">Checked</th>
-                      <th className="px-3 py-3">Details</th>
+                      <th className="px-3 py-3">Diperiksa</th>
+                      <th className="px-3 py-3">Rincian</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -565,7 +562,7 @@ export default function AdminOperationsPage() {
                         <td className="max-w-md px-3 py-3 text-red-200">
                           {check.error_message ||
                             check.mismatches?.map((item) => item.field).filter(Boolean).join(", ") ||
-                            "Matched"}
+                            "Cocok"}
                         </td>
                       </tr>
                     ))}
@@ -577,7 +574,7 @@ export default function AdminOperationsPage() {
             <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
               <div className="flex items-center gap-3">
                 <FaCheckCircle className="text-emerald-300" />
-                <h2 className="text-2xl font-black">Automated launch gates</h2>
+                <h2 className="text-2xl font-black">Syarat peluncuran otomatis</h2>
               </div>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {payload.checks.map((check) => (
@@ -589,13 +586,13 @@ export default function AdminOperationsPage() {
                         : "border-red-400/25 bg-red-400/10"
                     }`}
                   >
-                    <p className="font-black">{check.label}</p>
+                    <p className="font-black">{adminText(check.label)}</p>
                     <p
                       className={`mt-2 text-sm font-bold ${
                         check.passed ? "text-emerald-200" : "text-red-200"
                       }`}
                     >
-                      {check.passed ? "PASS" : "BLOCKING"}
+                      {check.passed ? "LULUS" : "MENGHAMBAT"}
                     </p>
                   </div>
                 ))}
@@ -605,7 +602,7 @@ export default function AdminOperationsPage() {
             <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
               <div className="flex items-center gap-3">
                 <FaRocket className="text-cyan-300" />
-                <h2 className="text-2xl font-black">Manual launch sign-offs</h2>
+                <h2 className="text-2xl font-black">Persetujuan peluncuran manual</h2>
               </div>
               <div className="mt-5 grid gap-4 lg:grid-cols-2">
                 {payload.signoffs.map((signoff) => (
@@ -617,7 +614,7 @@ export default function AdminOperationsPage() {
                       <div>
                         <h3 className="font-black">{pretty(signoff.area)}</h3>
                         <p className="mt-2 text-sm text-slate-400">
-                          {signoff.note || "No evidence recorded yet."}
+                          {signoff.note || "Belum ada bukti dicatat."}
                         </p>
                         <p className="mt-2 text-xs text-slate-500">
                           {formatDate(signoff.signed_at)}
@@ -638,7 +635,7 @@ export default function AdminOperationsPage() {
                         disabled={busy === `signoff:${signoff.area}`}
                         className="rounded-lg bg-emerald-400 px-3 py-2 text-sm font-black text-black disabled:opacity-50"
                       >
-                        Pass
+                        Luluskan
                       </button>
                       <button
                         type="button"
@@ -646,7 +643,7 @@ export default function AdminOperationsPage() {
                         disabled={busy === `signoff:${signoff.area}`}
                         className="rounded-lg border border-red-400/40 px-3 py-2 text-sm font-black text-red-200 disabled:opacity-50"
                       >
-                        Block
+                        Blokir
                       </button>
                       <button
                         type="button"
@@ -654,7 +651,7 @@ export default function AdminOperationsPage() {
                         disabled={busy === `signoff:${signoff.area}`}
                         className="rounded-lg border border-white/15 px-3 py-2 text-sm font-black disabled:opacity-50"
                       >
-                        Reset
+                        Atur Ulang
                       </button>
                     </div>
                   </article>
@@ -666,11 +663,11 @@ export default function AdminOperationsPage() {
               <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
                 <div className="flex items-center gap-3">
                   <FaBell className="text-yellow-300" />
-                  <h2 className="text-2xl font-black">Operational alerts</h2>
+                  <h2 className="text-2xl font-black">Peringatan operasional</h2>
                 </div>
                 <div className="mt-5 space-y-3">
                   {payload.alerts.length === 0 ? (
-                    <Empty text="No operational alerts recorded." />
+                    <Empty text={"Belum ada peringatan operasional dicatat."} />
                   ) : (
                     payload.alerts.slice(0, 30).map((alert) => (
                       <article
@@ -679,12 +676,12 @@ export default function AdminOperationsPage() {
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="font-black">{alert.title}</p>
+                            <p className="font-black">{adminText(alert.title)}</p>
                             <p className="mt-2 text-sm text-slate-400">
-                              {alert.message}
+                              {adminText(alert.message)}
                             </p>
                             <p className="mt-2 text-xs text-slate-500">
-                              {alert.source} · {formatDate(alert.last_detected_at)} · {alert.occurrence_count} occurrence(s)
+                              {alert.source} · {formatDate(alert.last_detected_at)} · {alert.occurrence_count} kejadian
                             </p>
                           </div>
                           <span
@@ -702,7 +699,7 @@ export default function AdminOperationsPage() {
                             disabled={busy === `alert:${alert.id}`}
                             className="mt-4 rounded-lg border border-emerald-400/40 px-3 py-2 text-sm font-black text-emerald-200 disabled:opacity-50"
                           >
-                            Acknowledge
+                            Tandai Ditinjau
                           </button>
                         ) : null}
                       </article>
@@ -714,11 +711,11 @@ export default function AdminOperationsPage() {
               <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
                 <div className="flex items-center gap-3">
                   <FaRedo className="text-violet-300" />
-                  <h2 className="text-2xl font-black">PayPal webhook inbox</h2>
+                  <h2 className="text-2xl font-black">Kotak masuk webhook PayPal</h2>
                 </div>
                 <div className="mt-5 space-y-3">
                   {payload.webhooks.length === 0 ? (
-                    <Empty text="No webhook events recorded." />
+                    <Empty text={"Belum ada kejadian webhook dicatat."} />
                   ) : (
                     payload.webhooks.slice(0, 30).map((event) => (
                       <article
@@ -732,11 +729,11 @@ export default function AdminOperationsPage() {
                               {event.event_id}
                             </p>
                             <p className="mt-2 text-sm text-slate-400">
-                              Order {event.marketplace_order_id || "-"} · Attempt {event.attempts} · {formatDate(event.received_at)}
+                              Pesanan {event.marketplace_order_id || "-"} · Percobaan {event.attempts} · {formatDate(event.received_at)}
                             </p>
                             {event.last_error ? (
                               <p className="mt-2 text-sm text-red-200">
-                                {event.last_error}
+                                {adminText(event.last_error)}
                               </p>
                             ) : null}
                           </div>
@@ -755,7 +752,7 @@ export default function AdminOperationsPage() {
                             disabled={busy === `webhook:${event.id}`}
                             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-violet-400 px-3 py-2 text-sm font-black text-black disabled:opacity-50"
                           >
-                            <FaRedo /> Replay verified event
+                            <FaRedo /> Proses ulang kejadian terverifikasi
                           </button>
                         ) : null}
                       </article>
@@ -768,17 +765,17 @@ export default function AdminOperationsPage() {
             <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
               <div className="flex items-center gap-3">
                 <FaServer className="text-cyan-300" />
-                <h2 className="text-2xl font-black">Tracked operational runs</h2>
+                <h2 className="text-2xl font-black">Riwayat proses operasional</h2>
               </div>
               <div className="mt-5 overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="text-slate-400">
                     <tr>
-                      <th className="px-3 py-3">Job</th>
+                      <th className="px-3 py-3">Tugas</th>
                       <th className="px-3 py-3">Status</th>
-                      <th className="px-3 py-3">Duration</th>
-                      <th className="px-3 py-3">Started</th>
-                      <th className="px-3 py-3">Error</th>
+                      <th className="px-3 py-3">Durasi</th>
+                      <th className="px-3 py-3">Dimulai</th>
+                      <th className="px-3 py-3">Kesalahan</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -803,7 +800,7 @@ export default function AdminOperationsPage() {
                           {formatDate(run.started_at)}
                         </td>
                         <td className="max-w-md px-3 py-3 text-red-200">
-                          {run.error_message || "-"}
+                          {adminText(run.error_message || "-")}
                         </td>
                       </tr>
                     ))}

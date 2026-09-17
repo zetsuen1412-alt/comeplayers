@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { FormEvent, useMemo, useState } from "react";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoAdvances } from "@/features/payroll/lib/demo-advance-store";
@@ -49,7 +50,7 @@ export function KasbonManager() {
           <label className="text-sm">Karyawan
             <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className={inputClass} required>
               <option value="">Pilih karyawan</option>
-              {employees.filter((row) => row.workforceStatus !== "RESIGN").map((row) => <option key={row.id} value={row.id}>{row.name} — {row.team} — {row.workforceStatus}</option>)}
+              {employees.filter((row) => row.workforceStatus !== "RESIGN").map((row) => <option key={row.id} value={row.id}>{row.name} — {row.team} — {adminLabel(row.workforceStatus)}</option>)}
             </select>
           </label>
           <label className="text-sm">Jumlah kasbon
@@ -60,7 +61,7 @@ export function KasbonManager() {
           </label>
         </div>
         {selected ? <div className="mt-4 rounded-xl bg-zinc-950/70 p-3 text-sm">Saldo kasbon {selected.name} saat ini: <strong className="text-amber-300">{formatMoney(outstandingByEmployee[selected.code] ?? 0)}</strong></div> : null}
-        {message ? <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-sm">{message}</div> : null}
+        {message ? <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-sm">{adminText(message)}</div> : null}
         <button type="submit" className="mt-4 rounded-xl bg-yellow-400 px-4 py-3 text-sm font-bold text-black">Simpan Kasbon</button>
       </form>
 
@@ -76,7 +77,7 @@ export function KasbonManager() {
                 <td>{formatMoney(row.amountMinor)}</td>
                 <td className={row.remainingMinor > 0 ? "font-semibold text-amber-300" : "text-emerald-300"}>{formatMoney(row.remainingMinor)}</td>
                 <td className="min-w-[220px]">{row.note || "—"}</td>
-                <td>{row.status === "active" ? "Belum lunas" : "Lunas"}</td>
+                <td>{adminLabel(row.status === "active" ? "Belum lunas" : "Lunas")}</td>
                 <td>{row.status === "active" ? <button onClick={() => confirm(`Tandai kasbon ${row.employeeName} ini lunas?`) && markPaid(row.id)} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black">Tandai Lunas</button> : "—"}</td>
               </tr>
             ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { FormEvent, useMemo, useState } from "react";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoProductGames } from "@/features/payroll/lib/demo-product-store";
@@ -138,7 +139,7 @@ export function InventoryManager() {
   function submit(event: FormEvent) {
     event.preventDefault();
     setMessage(null);
-    if (!game.trim() || !region || !server || !employee) return setMessage("Lengkapi game, Region, Server, dan karyawan.");
+    if (!game.trim() || !region || !server || !employee) return setMessage("Lengkapi permainan, Wilayah, Server, dan karyawan.");
     if (stockType === "item" && !itemName.trim()) return setMessage("Nama item wajib diisi untuk stok Item.");
     if (quantity <= 0) return setMessage("Jumlah stok harus lebih dari 0.");
 
@@ -192,7 +193,7 @@ export function InventoryManager() {
         <div className="cp-card p-5">
           <div className="text-sm text-zinc-500">Data stok aktif</div>
           <div className="mt-1 text-3xl font-semibold text-yellow-300">{inventory.length.toLocaleString("id-ID")}</div>
-          <div className="mt-2 text-sm text-zinc-500">Stok Gudang dicatat sebagai Stok Masuk. Saat order Gold/Item selesai, sistem membuat Stok Keluar otomatis.</div>
+          <div className="mt-2 text-sm text-zinc-500">Stok Gudang dicatat sebagai Stok Masuk. Saat pesanan Gold/Item selesai, sistem membuat Stok Keluar otomatis.</div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => { setShowForm((value) => !value); setView("in"); }} className="rounded-xl bg-yellow-400 px-4 py-3 text-sm font-bold text-black">{showForm ? "Tutup Form" : "+ Tambah Stok Masuk"}</button>
@@ -220,22 +221,22 @@ export function InventoryManager() {
                 <option value="item">Item</option>
               </select>
             </label>
-            <label className="text-sm">Game
+            <label className="text-sm">Gim
               <select value={game} onChange={(e) => changeGame(e.target.value)} className={inputClass}>
-                <option value="">Pilih game</option>
+                <option value="">Pilih permainan</option>
                 {games.map((row) => <option key={row.id} value={row.code}>{row.name} — {row.code}</option>)}
               </select>
             </label>
-            <label className="text-sm">Region
+            <label className="text-sm">Wilayah
               <select value={region} onChange={(e) => changeRegion(e.target.value)} className={inputClass} disabled={!selectedGame}>
-                <option value="">Pilih Region</option>
+                <option value="">Pilih Wilayah</option>
                 {availableRegions.map((row) => <option key={row.name} value={row.name}>{row.name}</option>)}
               </select>
             </label>
             <label className="text-sm">Server
               <select value={server} onChange={(e) => setServer(e.target.value)} className={inputClass} disabled={!region}>
                 <option value="">Pilih Server</option>
-                {availableServers.map((value) => <option key={value} value={value}>{value}</option>)}
+                {availableServers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}
               </select>
             </label>
             {stockType === "item" ? (
@@ -256,7 +257,7 @@ export function InventoryManager() {
               <input type="number" min="0" step="any" value={quantity} onChange={(e) => setQuantity(Math.max(0, Number(e.target.value)))} className={inputClass} />
             </label>
           </div>
-          {message ? <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-sm">{message}</div> : null}
+          {message ? <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-sm">{adminText(message)}</div> : null}
           <button type="submit" className="mt-4 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black">Simpan Stok Masuk</button>
         </form>
       ) : null}
@@ -271,7 +272,7 @@ export function InventoryManager() {
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button onClick={() => setGameFilter("SEMUA")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${gameFilter === "SEMUA" ? "bg-emerald-500 text-black" : "bg-zinc-800"}`}>Semua Game</button>
+          <button onClick={() => setGameFilter("SEMUA")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${gameFilter === "SEMUA" ? "bg-emerald-500 text-black" : "bg-zinc-800"}`}>Semua Permainan</button>
           {stockGames.map((gameCode) => <button key={gameCode} onClick={() => setGameFilter(gameCode)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${gameFilter === gameCode ? "bg-emerald-500 text-black" : "bg-zinc-800"}`}>{gameCode}</button>)}
         </div>
         <div className="mt-3 grid gap-2 sm:max-w-sm">
@@ -283,15 +284,15 @@ export function InventoryManager() {
           </label>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-zinc-800 pt-4">
-          <button onClick={exportCurrent} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Export ${view === "current" ? `Stok (${rows.length})` : view === "in" ? `Stok Masuk (${filteredMovements.length})` : `Stok Keluar (${filteredMovements.length})`}`}</button>
-          <span className="text-sm text-zinc-500">Export mengikuti Game, Jenis, Karyawan, dan menu Stok yang sedang dipilih.</span>
+          <button onClick={exportCurrent} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor ${view === "current" ? `Stok (${rows.length})` : view === "in" ? `Stok Masuk (${filteredMovements.length})` : `Stok Keluar (${filteredMovements.length})`}`}</button>
+          <span className="text-sm text-zinc-500">Ekspor mengikuti Permainan, Jenis, Karyawan, dan menu Stok yang sedang dipilih.</span>
         </div>
       </div>
 
       {view === "current" ? (
         <div className="cp-card overflow-x-auto">
           <table className="cp-table">
-            <thead><tr><th>Karyawan / Gudang</th><th>FH</th><th>Jenis</th><th>Game</th><th>Region</th><th>Server</th>{filter !== "gold" ? <th>Nama Item</th> : null}<th>Stok</th><th>Sudah dipesan</th><th>Stok terjual</th><th>Bisa dipakai</th></tr></thead>
+            <thead><tr><th>Karyawan / Gudang</th><th>FH</th><th>Jenis</th><th>Gim</th><th>Wilayah</th><th>Server</th>{filter !== "gold" ? <th>Nama Item</th> : null}<th>Stok</th><th>Sudah dipesan</th><th>Stok terjual</th><th>Bisa dipakai</th></tr></thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.id}>
@@ -326,7 +327,7 @@ export function InventoryManager() {
                 <tr>
                   {matrix.dates.flatMap((date) => view === "out" ? [
                     <th key={`${date}-qty`} className="min-w-[110px] border border-zinc-700 bg-emerald-400 px-3 py-2 text-center font-black text-black">{movementUnitLabel}</th>,
-                    <th key={`${date}-rate`} className="min-w-[110px] border border-zinc-700 bg-yellow-400 px-3 py-2 text-center font-black text-black">Rate</th>,
+                    <th key={`${date}-rate`} className="min-w-[110px] border border-zinc-700 bg-yellow-400 px-3 py-2 text-center font-black text-black">Tarif</th>,
                   ] : [
                     <th key={`${date}-qty`} className="min-w-[120px] border border-zinc-700 bg-emerald-400 px-3 py-2 text-center font-black text-black">{movementUnitLabel}</th>,
                   ])}
@@ -368,7 +369,7 @@ export function InventoryManager() {
       )}
 
       <div className="mt-4 rounded-2xl border border-sky-500/20 bg-sky-500/10 p-4 text-sm leading-6 text-sky-100">
-        <strong>Identitas gudang = nama karyawan.</strong> Tidak ada kolom Lokasi Gudang untuk Gold maupun Item. Gunakan filter karyawan untuk mengecek gudang masing-masing. <strong>Stok Masuk</strong> dicatat saat stok ditambahkan, sedangkan <strong>Stok Keluar</strong> dibuat otomatis ketika order Gold/Item ditandai selesai. Pada tabel Stok Keluar, jumlah Gold/Item dan <strong>Rate order</strong> tampil berdampingan per tanggal.
+        <strong>Identitas gudang = nama karyawan.</strong> Tidak ada kolom Lokasi Gudang untuk Gold maupun Item. Gunakan filter karyawan untuk mengecek gudang masing-masing. <strong>Stok Masuk</strong> dicatat saat stok ditambahkan, sedangkan <strong>Stok Keluar</strong> dibuat otomatis ketika pesanan Gold/Item ditandai selesai. Pada tabel Stok Keluar, jumlah Gold/Item dan <strong>Tarif pesanan</strong> tampil berdampingan per tanggal.
       </div>
     </>
   );

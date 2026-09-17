@@ -64,9 +64,9 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
         area: "mutasi",
         severity: "critical",
         entity: order.externalReference,
-        title: "Nilai order tidak valid",
-        explanation: `Nilai order terbaca ${formatMoney(order.grossMinor)}.`,
-        suggestion: "Periksa harga order sebelum pekerjaan dilanjutkan.",
+        title: "Nilai pesanan tidak valid",
+        explanation: `Nilai pesanan terbaca ${formatMoney(order.grossMinor)}.`,
+        suggestion: "Periksa harga pesanan sebelum pekerjaan dilanjutkan.",
         orderRef: order.externalReference,
       });
     }
@@ -95,7 +95,7 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
         severity: "warning",
         entity: order.externalReference,
         title: "Karyawan belum dipilih",
-        explanation: "Order sudah aktif tetapi belum mempunyai karyawan/booster.",
+        explanation: "Pesanan sudah aktif tetapi belum mempunyai karyawan/booster.",
         suggestion: "Pilih karyawan agar pekerjaan dan pembagian gaji dapat dilacak.",
         orderRef: order.externalReference,
       });
@@ -108,9 +108,9 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
         area: "mutasi",
         severity: "critical",
         entity: order.externalReference,
-        title: difference > 0 ? "Pembagian jumlah melebihi order" : "Pembagian jumlah belum lengkap",
-        explanation: `Jumlah order ${order.quantity.toLocaleString("id-ID")}, tetapi total pembagian karyawan ${assignedQuantity.toLocaleString("id-ID")}.`,
-        suggestion: "Atur jumlah setiap karyawan sampai totalnya sama persis dengan jumlah order.",
+        title: difference > 0 ? "Pembagian jumlah melebihi pesanan" : "Pembagian jumlah belum lengkap",
+        explanation: `Jumlah pesanan ${order.quantity.toLocaleString("id-ID")}, tetapi total pembagian karyawan ${assignedQuantity.toLocaleString("id-ID")}.`,
+        suggestion: "Atur jumlah setiap karyawan sampai totalnya sama persis dengan jumlah pesanan.",
         orderRef: order.externalReference,
       });
     }
@@ -124,9 +124,9 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
           area: "mutasi",
           severity: "critical",
           entity: order.externalReference,
-          title: "Order Gold/Item belum punya stok Gudang",
-          explanation: `Jenis order ${order.orderType === "gold" ? "Gold" : "Item"} membutuhkan sumber stok dari Gudang.`,
-          suggestion: "Pilih lokasi Gudang, karyawan pemegang stok, dan jumlah stok sebelum order diproses.",
+          title: "Pesanan Gold/Item belum punya stok Gudang",
+          explanation: `Jenis pesanan ${order.orderType === "gold" ? "Gold" : "Item"} membutuhkan sumber stok dari Gudang.`,
+          suggestion: "Pilih lokasi Gudang, karyawan pemegang stok, dan jumlah stok sebelum pesanan diproses.",
           orderRef: order.externalReference,
         });
       } else if (Math.abs(stockTotal - order.quantity) > 0.00000001) {
@@ -135,9 +135,9 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
           area: "mutasi",
           severity: "critical",
           entity: order.externalReference,
-          title: stockTotal > order.quantity ? "Stok Gudang melebihi jumlah order" : "Stok Gudang belum mencukupi jumlah order",
-          explanation: `Jumlah order ${order.quantity.toLocaleString("id-ID")}, tetapi stok yang dialokasikan ${stockTotal.toLocaleString("id-ID")}.`,
-          suggestion: "Atur pengambilan stok sampai totalnya sama persis dengan jumlah order.",
+          title: stockTotal > order.quantity ? "Stok Gudang melebihi jumlah pesanan" : "Stok Gudang belum mencukupi jumlah pesanan",
+          explanation: `Jumlah pesanan ${order.quantity.toLocaleString("id-ID")}, tetapi stok yang dialokasikan ${stockTotal.toLocaleString("id-ID")}.`,
+          suggestion: "Atur pengambilan stok sampai totalnya sama persis dengan jumlah pesanan.",
           orderRef: order.externalReference,
         });
       }
@@ -148,9 +148,9 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
           area: "mutasi",
           severity: "critical",
           entity: order.externalReference,
-          title: "Jenis atau game stok tidak cocok",
+          title: "Jenis atau permainan stok tidak cocok",
           explanation: "Ada stok Gudang yang jenis Gold/Item atau gamenya berbeda dengan pesanan.",
-          suggestion: "Gunakan stok dengan jenis dan game yang sama dengan pesanan.",
+          suggestion: "Gunakan stok dengan jenis dan permainan yang sama dengan pesanan.",
           orderRef: order.externalReference,
         });
       }
@@ -165,9 +165,9 @@ export function auditMutations(orders: Order[], financeIssues: FinanceIssue[]): 
         area: "mutasi",
         severity: "critical",
         entity: order?.externalReference ?? ref,
-        title: "Kode order terduplikasi",
+        title: "Kode pesanan terduplikasi",
         explanation: `Kode ini muncul ${count} kali di daftar pesanan.`,
-        suggestion: "Gabungkan atau perbaiki kode order agar tidak dihitung dua kali.",
+        suggestion: "Gabungkan atau perbaiki kode pesanan agar tidak dihitung dua kali.",
         orderRef: order?.externalReference,
       });
     }
@@ -200,8 +200,8 @@ export function auditPayroll(orders: Order[], payrollOptions: PayrollBuildOption
         area: "gaji",
         severity: "critical",
         entity: order.externalReference,
-        title: "Order masuk gaji tanpa karyawan",
-        explanation: "Order sudah terverifikasi tetapi identitas penerima gaji kosong.",
+        title: "Pesanan masuk gaji tanpa karyawan",
+        explanation: "Pesanan sudah terverifikasi tetapi identitas penerima gaji kosong.",
         suggestion: "Jangan proses gaji sampai karyawan resmi dipilih.",
         orderRef: order.externalReference,
       });
@@ -218,7 +218,7 @@ export function auditPayroll(orders: Order[], payrollOptions: PayrollBuildOption
         entity: row.employee,
         title: "Gaji bersih menjadi negatif",
         explanation: `Gaji bersih terbaca ${formatMoney(row.net)} setelah potongan.`,
-        suggestion: "Periksa kasbon, hutang, dan potongan sebelum payroll disetujui.",
+        suggestion: "Periksa kasbon, hutang, dan potongan sebelum penggajian disetujui.",
         exposureMinor: Math.abs(row.net),
       });
     }
@@ -239,9 +239,9 @@ export function auditClosing(orders: Order[], financeIssues: FinanceIssue[]): Ai
         area: "tutup_buku",
         severity: order.operationalStatus === "completed" ? "warning" : "high",
         entity: order.externalReference,
-        title: "Order belum siap ditutup",
+        title: "Pesanan belum siap ditutup",
         explanation: `Status pekerjaan masih ${order.operationalStatus.replaceAll("_", " ")}.`,
-        suggestion: "Selesaikan atau batalkan order dengan alasan yang jelas sebelum tutup buku.",
+        suggestion: "Selesaikan atau batalkan pesanan dengan alasan yang jelas sebelum tutup buku.",
         orderRef: order.externalReference,
       });
     }
@@ -252,8 +252,8 @@ export function auditClosing(orders: Order[], financeIssues: FinanceIssue[]): Ai
         area: "tutup_buku",
         severity: "critical",
         entity: order.externalReference,
-        title: "Order Gold/Item tidak punya jejak stok",
-        explanation: "Tutup buku tidak boleh mengabaikan sumber stok untuk order Gold atau Item.",
+        title: "Pesanan Gold/Item tidak punya jejak stok",
+        explanation: "Tutup buku tidak boleh mengabaikan sumber stok untuk pesanan Gold atau Item.",
         suggestion: "Lengkapi sumber Gudang atau buat penyesuaian resmi sebelum periode ditutup.",
         orderRef: order.externalReference,
       });
@@ -265,7 +265,7 @@ export function auditClosing(orders: Order[], financeIssues: FinanceIssue[]): Ai
         area: "tutup_buku",
         severity: "warning",
         entity: order.externalReference,
-        title: "Order selesai tetapi uang belum lengkap",
+        title: "Pesanan selesai tetapi uang belum lengkap",
         explanation: `Kurang ${formatMoney(order.expectedPaymentMinor - order.matchedPaymentMinor)} dari nilai yang diharapkan.`,
         suggestion: "Pastikan ini memang piutang yang sah atau pasangkan pembayaran yang belum tercatat.",
         exposureMinor: order.expectedPaymentMinor - order.matchedPaymentMinor,
@@ -305,30 +305,30 @@ export function answerLocalBusinessQuestion(query: string, orders: Order[], fina
     return `Ada ${openIssues.length} masalah yang perlu diperiksa. Yang utama: ${sample}. Buka Cek Mutasi untuk melihat penjelasan dan saran.`;
   }
   if (q.includes("omzet") || q.includes("penjualan") || q.includes("total order")) {
-    return `Total nilai order yang sedang terbaca adalah ${formatMoney(totalRevenue)} dari ${orders.length} order.`;
+    return `Total nilai pesanan yang sedang terbaca adalah ${formatMoney(totalRevenue)} dari ${orders.length} pesanan.`;
   }
   if (q.includes("uang masuk") || q.includes("cash") || q.includes("diterima")) {
-    return `Uang yang sudah dipasangkan ke order adalah ${formatMoney(received)}. Yang belum masuk atau belum dipasangkan adalah ${formatMoney(outstanding)}.`;
+    return `Uang yang sudah dipasangkan ke pesanan adalah ${formatMoney(received)}. Yang belum masuk atau belum dipasangkan adalah ${formatMoney(outstanding)}.`;
   }
   if (q.includes("belum selesai") || q.includes("masih dikerjakan")) {
-    if (!unfinished.length) return "Semua order sudah selesai atau dibatalkan.";
-    return `Ada ${unfinished.length} order yang belum siap ditutup: ${unfinished.slice(0, 6).map((x) => x.externalReference).join(", ")}.`;
+    if (!unfinished.length) return "Semua pesanan sudah selesai atau dibatalkan.";
+    return `Ada ${unfinished.length} pesanan yang belum siap ditutup: ${unfinished.slice(0, 6).map((x) => x.externalReference).join(", ")}.`;
   }
   if (q.includes("gaji") || q.includes("pendapatan karyawan") || q.includes("payroll")) {
     return `Total gaji sebelum potongan berdasarkan persentase Gaji saat ini adalah ${formatMoney(payrollTotal)} untuk ${payroll.length} karyawan.`;
   }
   if (q.includes("terbesar") || q.includes("tertinggi") || q.includes("top karyawan")) {
     return topWorker
-      ? `${topWorker.employee} (${topWorker.team}) mempunyai pendapatan order terverifikasi terbesar saat ini, yaitu ${formatMoney(topWorker.earning)}.`
+      ? `${topWorker.employee} (${topWorker.team}) mempunyai pendapatan pesanan terverifikasi terbesar saat ini, yaitu ${formatMoney(topWorker.earning)}.`
       : "Belum ada pendapatan karyawan yang siap dihitung.";
   }
   if (q.includes("tutup buku") || q.includes("siap ditutup")) {
     const closing = auditClosing(orders, financeIssues);
     const summary = auditSummary(closing);
     return summary.safe
-      ? "Pilih periode Closing manual. Order bermasalah tidak akan masuk; hanya order selesai yang akan diproses."
+      ? "Pilih periode Tutup Buku manual. Pesanan bermasalah tidak akan masuk; hanya pesanan selesai yang akan diproses."
       : `Belum disarankan tutup buku. Ada ${summary.critical} masalah kritis dan ${summary.high} masalah tinggi yang perlu diselesaikan.`;
   }
 
-  return "Saya belum memahami pertanyaan itu di mode demo. Coba tanyakan tentang omzet, uang masuk, masalah, order belum selesai, gaji, karyawan terbesar, atau kesiapan tutup buku.";
+  return "Saya belum memahami pertanyaan itu di mode demo. Coba tanyakan tentang omzet, uang masuk, masalah, pesanan belum selesai, gaji, karyawan terbesar, atau kesiapan tutup buku.";
 }

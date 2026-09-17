@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FaExclamationTriangle, FaShieldAlt, FaUserLock } from "react-icons/fa";
@@ -39,7 +40,7 @@ type RiskProfile = {
 };
 
 function pretty(value: string) {
-  return value.replace(/_/g, " ").replace(/\b\w/g, (item) => item.toUpperCase());
+  return adminLabel(value);
 }
 
 function formatDate(value?: string | null) {
@@ -65,7 +66,7 @@ export default function AdminRiskPage() {
       setProfiles(data.profiles);
       setError("");
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load risk queue.");
+      setError(loadError instanceof Error ? loadError.message : "Gagal memuat antrean risiko.");
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,7 @@ export default function AdminRiskPage() {
   const blockedProfiles = useMemo(() => profiles.filter((profile) => profile.status === "blocked"), [profiles]);
 
   async function resolveEvent(eventId: number) {
-    const note = prompt("Resolution note", "Reviewed by administrator") || "";
+    const note = prompt("Catatan penyelesaian", "Ditinjau oleh admin") || "";
     setBusy(true);
     try {
       await authenticatedFetchJson("/api/admin/risk", {
@@ -89,14 +90,14 @@ export default function AdminRiskPage() {
       });
       await load();
     } catch (actionError) {
-      alert(actionError instanceof Error ? actionError.message : "Failed to resolve event.");
+      alert(adminText(actionError instanceof Error ? actionError.message : "Gagal menyelesaikan kejadian."));
     } finally {
       setBusy(false);
     }
   }
 
   async function setRiskStatus(userId: string, status: "active" | "review" | "blocked") {
-    const note = prompt(`Reason for ${status} status`, "Security review") || "";
+    const note = prompt(`Alasan perubahan status menjadi ${adminLabel(status)}`, "Peninjauan keamanan") || "";
     setBusy(true);
     try {
       await authenticatedFetchJson("/api/admin/risk", {
@@ -105,54 +106,54 @@ export default function AdminRiskPage() {
       });
       await load();
     } catch (actionError) {
-      alert(actionError instanceof Error ? actionError.message : "Failed to update risk status.");
+      alert(adminText(actionError instanceof Error ? actionError.message : "Gagal memperbarui status risiko."));
     } finally {
       setBusy(false);
     }
   }
 
-  if (loading) return <main className="min-h-screen bg-[#050816] px-4 py-24 text-center text-white">Loading risk queue...</main>;
+  if (loading) return <main className="min-h-screen bg-[#050816] px-4 py-24 text-center text-white">Memuat antrean risiko...</main>;
 
   return (
     <main className="min-h-screen bg-[#050816] text-white">
       <section className="border-b border-red-400/20 bg-[radial-gradient(circle_at_top_left,rgba(248,113,113,.18),transparent_38%)]">
         <div className="mx-auto max-w-7xl px-4 py-14">
-          <p className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-400/10 px-4 py-2 text-sm font-black text-red-300"><FaShieldAlt /> Trust & Risk Operations</p>
-          <h1 className="mt-5 text-5xl font-black md:text-7xl">Risk Queue</h1>
-          <p className="mt-4 max-w-3xl text-slate-300">Review payout anomalies, PIN failures, device changes, and manually block suspicious withdrawals.</p>
-          <Link href="/admin" className="mt-6 inline-flex text-sm font-black text-cyan-300">← Admin Dashboard</Link>
+          <p className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-400/10 px-4 py-2 text-sm font-black text-red-300"><FaShieldAlt /> Operasional Kepercayaan &amp; Risiko</p>
+          <h1 className="mt-5 text-5xl font-black md:text-7xl">Antrean Risiko</h1>
+          <p className="mt-4 max-w-3xl text-slate-300">Tinjau anomali pencairan, kegagalan PIN, perubahan perangkat, dan blokir penarikan mencurigakan secara manual.</p>
+          <Link href="/admin" className="mt-6 inline-flex text-sm font-black text-cyan-300">← Dasbor Admin</Link>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10">
-        {error ? <p className="mb-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-red-200">{error}</p> : null}
+        {error ? <p className="mb-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-red-200">{adminText(error)}</p> : null}
         <div className="grid gap-4 md:grid-cols-3">
-          <Metric label="Open events" value={String(openEvents.length)} icon={<FaExclamationTriangle />} />
-          <Metric label="Risk profiles" value={String(profiles.length)} icon={<FaShieldAlt />} />
-          <Metric label="Blocked users" value={String(blockedProfiles.length)} icon={<FaUserLock />} />
+          <Metric label={"Kejadian terbuka"} value={String(openEvents.length)} icon={<FaExclamationTriangle />} />
+          <Metric label={"Profil risiko"} value={String(profiles.length)} icon={<FaShieldAlt />} />
+          <Metric label={"Pengguna diblokir"} value={String(blockedProfiles.length)} icon={<FaUserLock />} />
         </div>
 
         <div className="mt-10 grid gap-8 xl:grid-cols-2">
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-            <h2 className="text-2xl font-black">Security Events</h2>
+            <h2 className="text-2xl font-black">Kejadian Keamanan</h2>
             <div className="mt-5 space-y-4">
-              {events.length === 0 ? <p className="text-slate-400">No security events.</p> : events.map((event) => (
+              {events.length === 0 ? <p className="text-slate-400">Tidak ada kejadian keamanan.</p> : events.map((event) => (
                 <div key={event.id} className="rounded-2xl border border-white/10 bg-black/30 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div><p className="font-black">{pretty(event.event_type)}</p><p className="mt-1 text-sm text-cyan-300">{userLabel(event.profile, event.user_id)}</p></div>
                     <span className={`rounded-full px-3 py-1 text-xs font-black ${event.status === "resolved" ? "bg-emerald-400/10 text-emerald-300" : "bg-yellow-400/10 text-yellow-300"}`}>{pretty(event.status)}</span>
                   </div>
                   <p className="mt-3 text-xs text-slate-500">{formatDate(event.created_at)} · {pretty(event.severity)}</p>
-                  {event.status !== "resolved" ? <button disabled={busy} onClick={() => resolveEvent(event.id)} className="mt-4 rounded-lg border border-emerald-400/40 px-3 py-2 text-xs font-black text-emerald-300">Resolve Event</button> : null}
+                  {event.status !== "resolved" ? <button disabled={busy} onClick={() => resolveEvent(event.id)} className="mt-4 rounded-lg border border-emerald-400/40 px-3 py-2 text-xs font-black text-emerald-300">Selesaikan Kejadian</button> : null}
                 </div>
               ))}
             </div>
           </section>
 
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-            <h2 className="text-2xl font-black">User Risk Profiles</h2>
+            <h2 className="text-2xl font-black">Profil Risiko Pengguna</h2>
             <div className="mt-5 space-y-4">
-              {profiles.length === 0 ? <p className="text-slate-400">Risk profiles appear after payout evaluation.</p> : profiles.map((profile) => (
+              {profiles.length === 0 ? <p className="text-slate-400">Profil risiko muncul setelah evaluasi pencairan.</p> : profiles.map((profile) => (
                 <div key={profile.user_id} className="rounded-2xl border border-white/10 bg-black/30 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div><p className="font-black">{userLabel(profile.profile, profile.user_id)}</p><p className="mt-1 text-xs text-slate-500">KYC {profile.kyc_level} · {formatDate(profile.last_evaluated_at)}</p></div>
@@ -160,9 +161,9 @@ export default function AdminRiskPage() {
                   </div>
                   <p className="mt-3 text-sm text-slate-300">Status: <strong>{pretty(profile.status)}</strong></p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <button disabled={busy} onClick={() => setRiskStatus(profile.user_id, "active")} className="rounded-lg border border-emerald-400/40 px-3 py-2 text-xs font-black text-emerald-300">Activate</button>
-                    <button disabled={busy} onClick={() => setRiskStatus(profile.user_id, "review")} className="rounded-lg border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300">Review</button>
-                    <button disabled={busy} onClick={() => setRiskStatus(profile.user_id, "blocked")} className="rounded-lg border border-red-400/40 px-3 py-2 text-xs font-black text-red-300">Block Payouts</button>
+                    <button disabled={busy} onClick={() => setRiskStatus(profile.user_id, "active")} className="rounded-lg border border-emerald-400/40 px-3 py-2 text-xs font-black text-emerald-300">Aktifkan</button>
+                    <button disabled={busy} onClick={() => setRiskStatus(profile.user_id, "review")} className="rounded-lg border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300">Tinjau</button>
+                    <button disabled={busy} onClick={() => setRiskStatus(profile.user_id, "blocked")} className="rounded-lg border border-red-400/40 px-3 py-2 text-xs font-black text-red-300">Blokir Pencairan</button>
                   </div>
                 </div>
               ))}

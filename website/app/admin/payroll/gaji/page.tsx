@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel } from "@/lib/adminLocale";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
@@ -55,7 +56,7 @@ export default function PayrollPage() {
 
   return (
     <>
-      <PageHeader title="Gaji" description="Persentase gaji diatur per karyawan. Order yang sudah Closing tidak akan dihitung lagi pada gajian berikutnya." />
+      <PageHeader title="Gaji" description={"Persentase gaji diatur per karyawan. Pesanan yang sudah Tutup Buku tidak akan dihitung lagi pada gajian berikutnya."} />
 
       <section className="mb-5 rounded-2xl border border-yellow-500/25 bg-yellow-500/10 p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -63,7 +64,7 @@ export default function PayrollPage() {
             <div className="text-sm font-semibold text-yellow-200">Persentase per karyawan</div>
             <p className="mt-1 text-sm leading-6 text-zinc-400">Karyawan baru memakai bawaan {settings.defaultSharePercent}%. Persentase setiap karyawan bisa diubah sendiri, misalnya 40%, 50%, atau 60%.</p>
           </div>
-          <button onClick={() => confirm("Reset persentase dan potongan gaji?") && resetPayrollSettings()} className="rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Reset pengaturan</button>
+          <button onClick={() => confirm("Atur Ulang persentase dan potongan gaji?") && resetPayrollSettings()} className="rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang pengaturan</button>
         </div>
       </section>
 
@@ -80,18 +81,18 @@ export default function PayrollPage() {
             ))}
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={async () => { setExporting(true); try { await exportPayrollSpreadsheet(rows, team); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Export Gaji (${rows.length})`}</button>
+            <button onClick={async () => { setExporting(true); try { await exportPayrollSpreadsheet(rows, team); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor Gaji (${rows.length})`}</button>
             <Link href="/admin/payroll/advances" className="rounded-xl bg-violet-500 px-4 py-2 text-sm font-bold text-white">Kelola Kasbon →</Link>
           </div>
         </div>
-        <div className="mt-3 text-xs text-zinc-500">Export Gaji mengikuti filter Semua / FH1 / FH2 / FH3 / ADMIN / BANDAR yang sedang dipilih.</div>
+        <div className="mt-3 text-xs text-zinc-500">Ekspor Gaji mengikuti filter Semua / FH1 / FH2 / FH3 / ADMIN / BANDAR yang sedang dipilih.</div>
       </section>
 
-      {waitingCheck > 0 ? <div className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">Ada <strong>{waitingCheck} order</strong> selesai tetapi belum dimasukkan ke Gaji. Buka <Link href="/admin/payroll/mutations" className="font-semibold underline">Mutasi</Link>.</div> : null}
+      {waitingCheck > 0 ? <div className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">Ada <strong>{waitingCheck} pesanan</strong> selesai tetapi belum dimasukkan ke Gaji. Buka <Link href="/admin/payroll/mutations" className="font-semibold underline">Mutasi</Link>.</div> : null}
 
       <div className="cp-card overflow-x-auto">
         <table className="cp-table">
-          <thead><tr><th>Karyawan</th><th>Bagian / FH</th><th>Status</th><th>Order selesai</th><th>Nilai pekerjaan</th><th>Persentase</th><th>Gaji awal</th><th>Operasional</th><th>Kasbon</th><th>Denda</th><th>Bonus / Tips</th><th>Gaji bersih</th></tr></thead>
+          <thead><tr><th>Karyawan</th><th>Bagian / FH</th><th>Status</th><th>Pesanan selesai</th><th>Nilai pekerjaan</th><th>Persentase</th><th>Gaji awal</th><th>Operasional</th><th>Kasbon</th><th>Denda</th><th>Bonus / Uang Tip</th><th>Gaji bersih</th></tr></thead>
           <tbody>
             {rows.map((row) => {
               const adjustment = settings.adjustments[row.employeeCode] ?? { operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
@@ -99,7 +100,7 @@ export default function PayrollPage() {
                 <tr key={row.employeeCode}>
                   <td className="font-semibold">{row.employee}<div className="text-xs font-normal text-zinc-500">{row.employeeCode}</div></td>
                   <td>{row.team}</td>
-                  <td><span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass(row.employeeStatus)}`}>{row.employeeStatus}</span></td>
+                  <td><span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass(row.employeeStatus)}`}>{adminLabel(row.employeeStatus)}</span></td>
                   <td className="min-w-[140px]">{row.orderRefs.length ? <button onClick={() => setDetailEmployeeCode(row.employeeCode)} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold hover:bg-zinc-700">Perlihatkan ({row.orderRefs.length})</button> : <span className="text-zinc-600">Belum ada</span>}</td>
                   <td>{formatMoney(row.gross)}</td>
                   <td className="min-w-[190px]">
@@ -120,12 +121,12 @@ export default function PayrollPage() {
         {!rows.length ? <div className="p-8 text-center text-sm text-zinc-500">Belum ada data gaji.</div> : null}
       </div>
 
-      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">Nilai pekerjaan × persentase karyawan + Bonus/Tips − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
+      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">Nilai pekerjaan × persentase karyawan + Bonus/Uang Tip − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
 
       {detailEmployeeCode ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onMouseDown={() => setDetailEmployeeCode(null)}>
           <section className="max-h-[80vh] w-full max-w-2xl overflow-auto rounded-2xl border border-zinc-700 bg-zinc-950 p-5 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between gap-4"><div><div className="text-sm text-zinc-500">Order selesai</div><h2 className="mt-1 text-xl font-semibold">{detailRow?.employee ?? detailEmployeeCode}</h2></div><button onClick={() => setDetailEmployeeCode(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Tutup</button></div>
+            <div className="flex items-start justify-between gap-4"><div><div className="text-sm text-zinc-500">Pesanan selesai</div><h2 className="mt-1 text-xl font-semibold">{detailRow?.employee ?? detailEmployeeCode}</h2></div><button onClick={() => setDetailEmployeeCode(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Tutup</button></div>
             <div className="mt-4 space-y-2">{detailOrders.map((order) => { const a = getOrderAssignments(order).find((x) => x.employeeCode === detailEmployeeCode); return <Link key={order.id} href={`/admin/payroll/orders/${order.externalReference}`} className="block rounded-xl border border-zinc-800 bg-black/40 p-4 hover:border-yellow-500/40"><div className="flex flex-wrap justify-between gap-2"><strong>{order.externalReference}</strong><span className="text-yellow-300">{a ? formatMoney(getAssignmentGrossMinor(order, a)) : "—"}</span></div><div className="mt-1 text-xs text-zinc-500">{order.source} · {order.gameName ?? order.game} · selesai {formatDateTimeID(order.verifiedAt ?? order.completedAt ?? order.orderedAt)}</div></Link>; })}</div>
           </section>
         </div>

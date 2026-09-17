@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -100,7 +101,7 @@ export default function AdminNotificationCenterV1Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -114,7 +115,7 @@ export default function AdminNotificationCenterV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -134,7 +135,7 @@ export default function AdminNotificationCenterV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -160,7 +161,7 @@ export default function AdminNotificationCenterV1Page() {
       .eq("id", notificationId);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setUpdatingId(null);
       return;
     }
@@ -178,7 +179,7 @@ export default function AdminNotificationCenterV1Page() {
       .eq("id", notificationId);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setUpdatingId(null);
       return;
     }
@@ -194,7 +195,7 @@ export default function AdminNotificationCenterV1Page() {
       .eq("is_read", false);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -202,7 +203,7 @@ export default function AdminNotificationCenterV1Page() {
   }
 
   async function deleteNotification(notificationId: number) {
-    if (!confirm("Delete this notification?")) return;
+    if (!confirm("Hapus pemberitahuan ini?")) return;
 
     setUpdatingId(notificationId);
 
@@ -212,7 +213,7 @@ export default function AdminNotificationCenterV1Page() {
       .eq("id", notificationId);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       setUpdatingId(null);
       return;
     }
@@ -222,7 +223,7 @@ export default function AdminNotificationCenterV1Page() {
   }
 
   async function clearReadNotifications() {
-    if (!confirm("Delete all read notifications?")) return;
+    if (!confirm("Hapus semua pemberitahuan yang sudah dibaca?")) return;
 
     const { error } = await supabase
       .from("notifications")
@@ -230,7 +231,7 @@ export default function AdminNotificationCenterV1Page() {
       .eq("is_read", true);
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -241,7 +242,7 @@ export default function AdminNotificationCenterV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
         <p className="text-xl font-black text-cyan-300">
-          Loading admin notifications...
+          Memuat pemberitahuan admin...
         </p>
       </main>
     );
@@ -251,17 +252,17 @@ export default function AdminNotificationCenterV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access notification center.
+            Hanya akun admin yang dapat mengakses pusat pemberitahuan.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -276,20 +277,19 @@ export default function AdminNotificationCenterV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-purple-400/30 bg-purple-400/10 px-4 py-2 text-sm font-black text-purple-300">
-              Admin Notification Center
+              Pusat Pemberitahuan Admin
             </p>
 
             <h1 className="text-5xl font-black md:text-7xl">
-              Notifications
+              Pemberitahuan
             </h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Monitor marketplace notification activity across orders, payments,
-              reviews, followers, disputes, sellers, and system events.
+              Pantau pemberitahuan marketplace terkait pesanan, pembayaran, ulasan, pengikut, sengketa, penjual, dan kejadian sistem.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -299,14 +299,14 @@ export default function AdminNotificationCenterV1Page() {
               disabled={unreadCount === 0}
               className="inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black transition hover:bg-cyan-300 disabled:opacity-50"
             >
-              Mark All Read
+              Tandai Semua Dibaca
             </button>
 
             <Link
               href="/admin"
               className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
             >
-              Admin Home
+              Beranda Admin
             </Link>
           </div>
         </div>
@@ -322,35 +322,35 @@ export default function AdminNotificationCenterV1Page() {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Unread</p>
+            <p className="text-sm text-gray-400">Belum Dibaca</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {unreadCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Orders</p>
+            <p className="text-sm text-gray-400">Pesanan</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {orderCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Payments</p>
+            <p className="text-sm text-gray-400">Pembayaran</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {paymentCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Reviews</p>
+            <p className="text-sm text-gray-400">Ulasan</p>
             <p className="mt-2 text-3xl font-black text-purple-300">
               {reviewCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Followers</p>
+            <p className="text-sm text-gray-400">Pengikut</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {followerCount}
             </p>
@@ -361,7 +361,7 @@ export default function AdminNotificationCenterV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search notifications by title, message, user ID, type, or notification ID..."
+            placeholder={"Cari pemberitahuan berdasarkan judul, pesan, ID pengguna, jenis, atau ID pemberitahuan..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -376,7 +376,7 @@ export default function AdminNotificationCenterV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {type === "all" ? "All" : type}
+                {adminLabel(type === "all" ? "Semua" : type)}
               </button>
             ))}
           </div>
@@ -388,17 +388,17 @@ export default function AdminNotificationCenterV1Page() {
               onClick={clearReadNotifications}
               className="rounded-full border border-red-400/40 px-5 py-3 font-bold text-red-300 transition hover:bg-red-500 hover:text-white"
             >
-              Clear Read Notifications
+              Hapus Pemberitahuan yang Dibaca
             </button>
           </div>
         )}
 
         {filteredNotifications.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-12 text-center shadow-2xl shadow-black/30">
-            <h2 className="text-3xl font-black">No notifications found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada pemberitahuan ditemukan.</h2>
 
             <p className="mt-3 text-gray-400">
-              System notifications will appear here after marketplace activity.
+              Pemberitahuan sistem akan muncul di sini setelah ada aktivitas marketplace.
             </p>
           </div>
         ) : (
@@ -420,12 +420,12 @@ export default function AdminNotificationCenterV1Page() {
                           notification.type
                         )}`}
                       >
-                        {notification.type}
+                        {adminLabel(notification.type)}
                       </span>
 
                       {!notification.is_read && (
                         <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300">
-                          Unread
+                          Belum Dibaca
                         </span>
                       )}
 
@@ -443,11 +443,11 @@ export default function AdminNotificationCenterV1Page() {
                     </h2>
 
                     <p className="mt-3 leading-7 text-gray-300">
-                      {notification.message || "No message."}
+                      {notification.message || "Tidak ada pesan."}
                     </p>
 
                     <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
-                      <p className="text-xs text-gray-500">User ID</p>
+                      <p className="text-xs text-gray-500">ID Pengguna</p>
                       <p className="mt-1 break-words text-sm font-bold text-gray-300">
                         {notification.user_id}
                       </p>
@@ -460,7 +460,7 @@ export default function AdminNotificationCenterV1Page() {
                         href={notification.link_url}
                         className="rounded-2xl bg-cyan-400 px-5 py-3 text-center font-black text-black transition hover:bg-cyan-300"
                       >
-                        Open Link
+                        Buka Tautan
                       </Link>
                     )}
 
@@ -470,7 +470,7 @@ export default function AdminNotificationCenterV1Page() {
                         disabled={updatingId === notification.id}
                         className="rounded-2xl border border-yellow-400/40 px-5 py-3 font-black text-yellow-300 transition hover:bg-yellow-400 hover:text-black disabled:opacity-60"
                       >
-                        Mark Unread
+                        Tandai Belum Dibaca
                       </button>
                     ) : (
                       <button
@@ -478,7 +478,7 @@ export default function AdminNotificationCenterV1Page() {
                         disabled={updatingId === notification.id}
                         className="rounded-2xl border border-green-400/40 px-5 py-3 font-black text-green-300 transition hover:bg-green-400 hover:text-black disabled:opacity-60"
                       >
-                        Mark Read
+                        Tandai Dibaca
                       </button>
                     )}
 
@@ -487,12 +487,12 @@ export default function AdminNotificationCenterV1Page() {
                       disabled={updatingId === notification.id}
                       className="rounded-2xl border border-red-400/40 px-5 py-3 font-black text-red-300 transition hover:bg-red-500 hover:text-white disabled:opacity-60"
                     >
-                      Delete
+                      Hapus
                     </button>
 
                     {updatingId === notification.id && (
                       <p className="text-center text-sm text-gray-400">
-                        Updating...
+                        Memperbarui...
                       </p>
                     )}
                   </div>

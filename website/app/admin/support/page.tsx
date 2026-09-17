@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -116,7 +117,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
       .order("id", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -143,7 +144,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
         .maybeSingle();
 
       if (error) {
-        alert(error.message);
+        alert(adminText(error.message));
         setLoading(false);
         return;
       }
@@ -162,7 +163,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
 
   async function updateTicketStatus(ticket: SupportTicket, nextStatus: string) {
     if (!user) return;
-    if (!confirm(`Change ticket #${ticket.id} to ${nextStatus}?`)) return;
+    if (!confirm(`Ubah tiket #${ticket.id} menjadi ${adminLabel(nextStatus)}?`)) return;
 
     try {
       setUpdatingId(ticket.id);
@@ -172,7 +173,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
       });
       await loadTickets();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update support ticket.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui tiket bantuan."));
     } finally {
       setUpdatingId(null);
     }
@@ -181,7 +182,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
-        <p className="text-xl font-black text-cyan-300">Loading admin support...</p>
+        <p className="text-xl font-black text-cyan-300">Memuat bantuan admin...</p>
       </main>
     );
   }
@@ -190,10 +191,10 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
-          <p className="mt-4 text-gray-300">Only admin can access support management.</p>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
+          <p className="mt-4 text-gray-300">Hanya admin yang dapat mengakses pengelolaan bantuan.</p>
           <Link href="/" className="mt-6 inline-flex rounded-full bg-cyan-400 px-6 py-3 font-black text-black">
-            Back Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -213,13 +214,13 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-purple-400/30 bg-purple-400/10 px-4 py-2 text-sm font-black text-purple-300">
-              Admin Support Center
+              Pusat Bantuan Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">Support Tickets</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Tiket Bantuan</h1>
 
             <p className="mt-5 max-w-3xl text-gray-300">
-              Manage user support requests, update ticket status, and send notification events automatically.
+              Kelola permintaan bantuan pengguna, perbarui status tiket, dan kirim pemberitahuan otomatis.
             </p>
           </div>
 
@@ -227,7 +228,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
             href="/admin"
             className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 hover:bg-cyan-400 hover:text-black"
           >
-            Admin Home
+            Beranda Admin
           </Link>
         </div>
       </section>
@@ -240,22 +241,22 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-5">
-            <p className="text-sm text-gray-300">Open</p>
+            <p className="text-sm text-gray-300">Terbuka</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">{openCount}</p>
           </div>
 
           <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-            <p className="text-sm text-gray-300">Waiting Admin</p>
+            <p className="text-sm text-gray-300">Menunggu Admin</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">{waitingAdminCount}</p>
           </div>
 
           <div className="rounded-3xl border border-green-400/20 bg-green-400/10 p-5">
-            <p className="text-sm text-gray-300">Resolved</p>
+            <p className="text-sm text-gray-300">Diselesaikan</p>
             <p className="mt-2 text-3xl font-black text-green-300">{resolvedCount}</p>
           </div>
 
           <div className="rounded-3xl border border-red-400/20 bg-red-400/10 p-5">
-            <p className="text-sm text-gray-300">Urgent</p>
+            <p className="text-sm text-gray-300">Mendesak</p>
             <p className="mt-2 text-3xl font-black text-red-300">{urgentCount}</p>
           </div>
         </div>
@@ -264,7 +265,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search ticket, user, email, order ID, product ID..."
+            placeholder={"Cari tiket, pengguna, email, ID pesanan, ID produk..."}
             className="w-full rounded-2xl border border-white/10 bg-black px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -289,7 +290,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-black text-gray-400">Priority</p>
+              <p className="mb-3 text-sm font-black text-gray-400">Prioritas</p>
               <div className="flex flex-wrap gap-2">
                 {priorityFilters.map((item) => (
                   <button
@@ -308,7 +309,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-black text-gray-400">Category</p>
+              <p className="mb-3 text-sm font-black text-gray-400">Kategori</p>
               <div className="flex flex-wrap gap-2">
                 {categoryFilters.map((item) => (
                   <button
@@ -330,7 +331,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
 
         {filteredTickets.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-12 text-center">
-            <h2 className="text-3xl font-black">No tickets found.</h2>
+            <h2 className="text-3xl font-black">Tidak ada tiket ditemukan.</h2>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -346,7 +347,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
                         <span className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(ticket.status)}`}>
-                          {ticket.status}
+                          {adminLabel(ticket.status)}
                         </span>
 
                         <span className={`rounded-full border px-3 py-1 text-xs font-black ${getPriorityClass(ticket.priority)}`}>
@@ -365,12 +366,12 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                       <h2 className="mt-4 text-3xl font-black">{ticket.subject}</h2>
 
                       <p className="mt-3 line-clamp-2 leading-7 text-gray-300">
-                        {ticket.last_message || "No message."}
+                        {ticket.last_message || "Tidak ada pesan."}
                       </p>
 
                       <div className="mt-5 grid gap-4 md:grid-cols-2">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">User</p>
+                          <p className="text-xs text-gray-500">Pengguna</p>
                           <p className="mt-1 font-black">{ownerName}</p>
                           <p className="mt-1 break-words text-sm text-gray-400">
                             {ticket.profiles?.email || ticket.user_id}
@@ -378,7 +379,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Last Message</p>
+                          <p className="text-xs text-gray-500">Pesan Terakhir</p>
                           <p className="mt-1 font-black">
                             {formatDate(ticket.last_message_at || ticket.updated_at)}
                           </p>
@@ -391,7 +392,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                         href={`/support/${ticket.id}`}
                         className="rounded-2xl bg-cyan-400 px-5 py-3 text-center font-black text-black hover:bg-cyan-300"
                       >
-                        Open Ticket
+                        Buka Tiket
                       </Link>
 
                       <button
@@ -399,7 +400,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                         disabled={updatingId === ticket.id}
                         className="rounded-2xl bg-blue-500 px-5 py-3 font-black text-white hover:bg-blue-400 disabled:opacity-60"
                       >
-                        Waiting User
+                        Menunggu Pengguna
                       </button>
 
                       <button
@@ -407,7 +408,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                         disabled={updatingId === ticket.id}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white hover:bg-green-400 disabled:opacity-60"
                       >
-                        Mark Resolved
+                        Tandai Selesai
                       </button>
 
                       <button
@@ -415,12 +416,12 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
                         disabled={updatingId === ticket.id}
                         className="rounded-2xl border border-gray-400 px-5 py-3 font-black text-gray-300 hover:bg-gray-400 hover:text-black disabled:opacity-60"
                       >
-                        Close Ticket
+                        Tutup Tiket
                       </button>
 
                       {updatingId === ticket.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating...
+                          Memperbarui...
                         </p>
                       )}
                     </div>

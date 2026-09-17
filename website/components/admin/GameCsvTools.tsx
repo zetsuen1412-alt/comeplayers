@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
@@ -230,12 +231,12 @@ export default function GameCsvTools() {
         `comeplayers-game-catalog-${todayStamp()}.csv`,
         serializeCsv(CSV_HEADERS, exportRows)
       );
-      setMessage(`${payload.games.length} games exported successfully.`);
+      setMessage(`${payload.games.length} permainan berhasil diekspor.`);
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Failed to export the game catalog."
+          : "Gagal mengekspor katalog permainan."
       );
     } finally {
       setBusy(null);
@@ -248,7 +249,7 @@ export default function GameCsvTools() {
       "comeplayers-game-catalog-template.csv",
       serializeCsv(CSV_HEADERS, [])
     );
-    setMessage("The CSV template was downloaded successfully.");
+    setMessage("Templat CSV berhasil diunduh.");
   }
 
   async function selectFile(file: File | null) {
@@ -258,34 +259,34 @@ export default function GameCsvTools() {
 
     if (!file) return;
     if (!file.name.toLowerCase().endsWith(".csv")) {
-      setError("Select a file with the .csv extension.");
+      setError("Pilih berkas dengan ekstensi .csv.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError("The CSV size cannot exceed 5 MB.");
+      setError("Ukuran CSV tidak boleh melebihi 5 MB.");
       return;
     }
 
     try {
       const parsedRows = parseCsv(await file.text());
       if (parsedRows.length === 0) {
-        setError("The CSV does not contain any data rows.");
+        setError("CSV tidak berisi baris data.");
         return;
       }
       if (!("name" in parsedRows[0])) {
-        setError('The required "name" column was not found. Use the CSV template.');
+        setError("Kolom wajib \"name\" tidak ditemukan. Gunakan templat CSV.");
         return;
       }
       if (parsedRows.length > 1000) {
-        setError("A maximum of 1,000 games can be imported at once.");
+        setError("Maksimal 1.000 permainan dapat diimpor sekaligus.");
         return;
       }
 
       setRows(parsedRows);
       setFilename(file.name);
-      setMessage(`${parsedRows.length} rows are ready for review.`);
+      setMessage(`${parsedRows.length} baris siap ditinjau.`);
     } catch {
-      setError("The CSV could not be read. Make sure its format and encoding are correct.");
+      setError("CSV tidak dapat dibaca. Pastikan format dan pengodeannya benar.");
     }
   }
 
@@ -305,7 +306,7 @@ export default function GameCsvTools() {
       );
 
       setMessage(
-        `${result.total} games processed: ${result.inserted} new, ${result.updated} updated, ${result.mappedCategories} categories mapped.`
+        `${result.total} permainan diproses: ${result.inserted} baru, ${result.updated} diperbarui, ${result.mappedCategories} kategori dipetakan.`
       );
       setRows([]);
       setFilename("");
@@ -316,7 +317,7 @@ export default function GameCsvTools() {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "The game catalog import failed."
+          : "Impor katalog permainan gagal."
       );
     } finally {
       setBusy(null);
@@ -330,7 +331,7 @@ export default function GameCsvTools() {
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-[70] rounded-2xl border border-cyan-300/40 bg-cyan-400 px-5 py-3 font-black text-black shadow-2xl shadow-cyan-500/20 transition hover:bg-cyan-300"
       >
-        CSV Import / Export
+        Impor / Ekspor CSV
       </button>
 
       {open ? (
@@ -339,14 +340,11 @@ export default function GameCsvTools() {
             <div className="flex items-start justify-between gap-5">
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.2em] text-cyan-300">
-                  Game Catalog Spreadsheet
+                  Lembar Kerja Katalog Permainan
                 </p>
-                <h2 className="mt-2 text-3xl font-black">Import and Export CSV</h2>
+                <h2 className="mt-2 text-3xl font-black">Impor dan Ekspor CSV</h2>
                 <p className="mt-2 max-w-3xl text-sm text-slate-400">
-                  The slug is used as the update key. Rows with an existing slug are
-                  updated; a new slug creates a new game. Empty cells do not remove
-                  existing data. Use [CLEAR] to empty URL fields or the
-                  description.
+                  Slug digunakan sebagai kunci pembaruan. Baris dengan slug yang sudah ada akan diperbarui; slug baru akan membuat permainan baru. Sel kosong tidak menghapus data yang sudah ada. Gunakan [CLEAR] untuk mengosongkan kolom URL atau deskripsi.
                 </p>
               </div>
 
@@ -355,7 +353,7 @@ export default function GameCsvTools() {
                 onClick={() => setOpen(false)}
                 className="rounded-xl border border-white/10 px-4 py-2 font-bold text-slate-300 hover:bg-white hover:text-black"
               >
-                Close
+                Tutup
               </button>
             </div>
 
@@ -366,7 +364,7 @@ export default function GameCsvTools() {
                 disabled={busy !== null}
                 className="rounded-2xl bg-cyan-400 px-5 py-4 font-black text-black hover:bg-cyan-300 disabled:opacity-50"
               >
-                {busy === "export" ? "Exporting..." : "Export All Games"}
+                {busy === "export" ? "Mengekspor..." : "Ekspor Semua Permainan"}
               </button>
 
               <button
@@ -375,11 +373,11 @@ export default function GameCsvTools() {
                 disabled={busy !== null}
                 className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-5 py-4 font-black text-cyan-200 hover:bg-cyan-400 hover:text-black disabled:opacity-50"
               >
-                Download Template
+                Unduh Templat
               </button>
 
               <label className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-4 text-center font-black hover:border-cyan-400">
-                Select CSV
+                Pilih CSV
                 <input
                   ref={inputRef}
                   type="file"
@@ -394,13 +392,13 @@ export default function GameCsvTools() {
 
             {message ? (
               <div className="mt-5 rounded-2xl border border-green-400/25 bg-green-400/10 px-5 py-4 text-green-200">
-                {message}
+                {adminText(message)}
               </div>
             ) : null}
 
             {error ? (
               <div className="mt-5 rounded-2xl border border-red-400/25 bg-red-400/10 px-5 py-4 text-red-200">
-                {error}
+                {adminText(error)}
               </div>
             ) : null}
 
@@ -408,9 +406,9 @@ export default function GameCsvTools() {
               <div className="mt-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                   <div>
-                    <h3 className="text-xl font-black">Preview Import</h3>
+                    <h3 className="text-xl font-black">Pratinjau Impor</h3>
                     <p className="text-sm text-slate-400">
-                      {filename} · {rows.length} rows
+                      {filename} · {rows.length} baris
                     </p>
                   </div>
 
@@ -420,7 +418,7 @@ export default function GameCsvTools() {
                     disabled={busy !== null}
                     className="rounded-2xl bg-green-500 px-6 py-3 font-black text-white hover:bg-green-400 disabled:opacity-50"
                   >
-                    {busy === "import" ? "Importing..." : `Import ${rows.length} Games`}
+                    {busy === "import" ? "Mengimpor..." : `Impor ${rows.length} Gim`}
                   </button>
                 </div>
 
@@ -428,11 +426,11 @@ export default function GameCsvTools() {
                   <table className="min-w-full text-left text-sm">
                     <thead className="bg-white/[0.06] text-slate-300">
                       <tr>
-                        <th className="px-4 py-3">Name</th>
-                        <th className="px-4 py-3">Slug</th>
-                        <th className="px-4 py-3">Category</th>
+                        <th className="px-4 py-3">Nama</th>
+                        <th className="px-4 py-3">Alamat Singkat</th>
+                        <th className="px-4 py-3">Kategori</th>
                         <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Image URL</th>
+                        <th className="px-4 py-3">URL Gambar</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -441,7 +439,7 @@ export default function GameCsvTools() {
                           <td className="max-w-[260px] px-4 py-3 font-bold">{row.name || "-"}</td>
                           <td className="max-w-[220px] px-4 py-3 text-slate-300">{row.slug || "auto"}</td>
                           <td className="px-4 py-3 text-cyan-300">{row.category_slug || row.category || "-"}</td>
-                          <td className="px-4 py-3">{row.status || "active"}</td>
+                          <td className="px-4 py-3">{adminLabel(row.status || "active")}</td>
                           <td className="max-w-[280px] truncate px-4 py-3 text-slate-400">{row.image_url || "-"}</td>
                         </tr>
                       ))}
@@ -451,7 +449,7 @@ export default function GameCsvTools() {
 
                 {rows.length > previewRows.length ? (
                   <p className="mt-3 text-sm text-slate-500">
-                    Showing {previewRows.length} of {rows.length} rows.
+                    Menampilkan {previewRows.length} dari {rows.length} baris.
                   </p>
                 ) : null}
               </div>

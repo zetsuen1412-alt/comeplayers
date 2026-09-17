@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -113,7 +114,7 @@ function formatDate(value?: string | null) {
 }
 
 function pretty(value?: string | null) {
-  return String(value || "pending").replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
+  return adminLabel(value);
 }
 
 function statusClass(status: string) {
@@ -142,7 +143,7 @@ export default function AdminWithdrawalManagementPage() {
       setWithdrawals(payload.withdrawals || []);
       setError("");
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load withdrawals.");
+      setError(loadError instanceof Error ? loadError.message : "Gagal memuat penarikan.");
     } finally {
       setLoading(false);
     }
@@ -191,7 +192,7 @@ export default function AdminWithdrawalManagementPage() {
   }
 
   async function revealDetails(item: Withdrawal) {
-    const reason = prompt("Reason for revealing payout details:", "Manual payout processing") || "";
+    const reason = prompt("Alasan membuka rincian pencairan:", "Pemrosesan pencairan manual") || "";
     if (!reason.trim()) return;
 
     setUpdatingId(item.id);
@@ -202,15 +203,15 @@ export default function AdminWithdrawalManagementPage() {
       });
       setRevealed((current) => ({ ...current, [item.id]: payload.details }));
     } catch (actionError) {
-      alert(actionError instanceof Error ? actionError.message : "Failed to reveal payout details.");
+      alert(adminText(actionError instanceof Error ? actionError.message : "Gagal membuka rincian pencairan."));
     } finally {
       setUpdatingId(null);
     }
   }
 
   async function providerAction(item: Withdrawal, action: "execute_provider" | "sync_provider") {
-    const label = action === "execute_provider" ? "submit this payout to PayPal" : "synchronize this PayPal payout";
-    if (!confirm(`Confirm ${label} for withdrawal #${item.id}?`)) return;
+    const label = action === "execute_provider" ? "kirim pencairan ini ke PayPal" : "sinkronkan pencairan PayPal ini";
+    if (!confirm(`Konfirmasi ${label} untuk penarikan #${item.id}?`)) return;
     setUpdatingId(item.id);
     try {
       await authenticatedFetchJson("/api/admin/withdrawals", {
@@ -219,7 +220,7 @@ export default function AdminWithdrawalManagementPage() {
       });
       await loadWithdrawals();
     } catch (actionError) {
-      alert(actionError instanceof Error ? actionError.message : "Provider payout action failed.");
+      alert(adminText(actionError instanceof Error ? actionError.message : "Tindakan pencairan penyedia gagal."));
     } finally { setUpdatingId(null); }
   }
 
@@ -227,21 +228,21 @@ export default function AdminWithdrawalManagementPage() {
     const input = actionInput(item.id);
     const labels: Record<string, string> = {
       approve: "approve",
-      processing: "move to processing",
-      paid: "mark paid",
-      reject: "reject and refund",
-      fail: "mark failed and refund",
+      processing: "ubah menjadi diproses",
+      paid: "tandai dibayar",
+      reject: "tolak dan kembalikan dana",
+      fail: "tandai gagal dan kembalikan dana",
     };
 
     if ((action === "reject" || action === "fail") && !input.note.trim()) {
-      alert("Admin note is required for rejected or failed payouts.");
+      alert("Catatan admin wajib diisi untuk pencairan yang ditolak atau gagal.");
       return;
     }
     if (action === "paid" && !input.reference.trim()) {
-      alert("Payout reference is required before marking paid.");
+      alert("Referensi pencairan wajib diisi sebelum menandai dibayar.");
       return;
     }
-    if (!confirm(`Confirm ${labels[action] || action} for withdrawal #${item.id}?`)) return;
+    if (!confirm(`Konfirmasi ${labels[action] || action} untuk penarikan #${item.id}?`)) return;
 
     setUpdatingId(item.id);
     try {
@@ -259,22 +260,22 @@ export default function AdminWithdrawalManagementPage() {
       });
       await loadWithdrawals();
     } catch (actionError) {
-      alert(actionError instanceof Error ? actionError.message : "Failed to process withdrawal.");
+      alert(adminText(actionError instanceof Error ? actionError.message : "Gagal memproses penarikan."));
     } finally {
       setUpdatingId(null);
     }
   }
 
   if (loading) {
-    return <main className="min-h-screen bg-[#020617] px-6 py-24 text-center text-white">Loading payout queue...</main>;
+    return <main className="min-h-screen bg-[#020617] px-6 py-24 text-center text-white">Memuat antrean pencairan...</main>;
   }
 
   if (error) {
     return (
       <main className="min-h-screen bg-[#020617] px-6 py-24 text-center text-white">
-        <h1 className="text-4xl font-black text-red-300">Withdrawal Management Unavailable</h1>
-        <p className="mx-auto mt-4 max-w-xl text-slate-300">{error}</p>
-        <Link href="/admin" className="mt-8 inline-flex rounded-xl bg-cyan-400 px-6 py-4 font-black text-black">Admin Home</Link>
+        <h1 className="text-4xl font-black text-red-300">Pengelolaan Penarikan Tidak Tersedia</h1>
+        <p className="mx-auto mt-4 max-w-xl text-slate-300">{adminText(error)}</p>
+        <Link href="/admin" className="mt-8 inline-flex rounded-xl bg-cyan-400 px-6 py-4 font-black text-black">Beranda Admin</Link>
       </main>
     );
   }
@@ -284,24 +285,24 @@ export default function AdminWithdrawalManagementPage() {
       <section className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.20),transparent_36%)] px-6 py-14">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300"><FaMoneyBillWave /> Admin Payout Operations</p>
-            <h1 className="mt-5 text-5xl font-black md:text-7xl">Withdrawal Queue</h1>
-            <p className="mt-4 max-w-3xl text-slate-300">Review, reveal encrypted account details, approve, reconcile, settle, or refund seller payouts.</p>
+            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300"><FaMoneyBillWave /> Operasional Pencairan Admin</p>
+            <h1 className="mt-5 text-5xl font-black md:text-7xl">Antrean Penarikan</h1>
+            <p className="mt-4 max-w-3xl text-slate-300">Tinjau, buka rincian rekening terenkripsi, setujui, cocokkan, selesaikan, atau kembalikan dana pencairan penjual.</p>
           </div>
-          <Link href="/admin/audit-logs" className="rounded-xl border border-cyan-400 px-5 py-3 font-black text-cyan-300">Open Audit Logs</Link>
+          <Link href="/admin/audit-logs" className="rounded-xl border border-cyan-400 px-5 py-3 font-black text-cyan-300">Buka Riwayat Audit</Link>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-10">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Metric label="Pending Review" value={String(metrics.pending)} />
-          <Metric label="In Processing" value={String(metrics.processing)} />
-          <Metric label="Queued Amount" value={formatPrice(metrics.queued)} />
-          <Metric label="Paid Amount" value={formatPrice(metrics.paid)} />
+          <Metric label={"Menunggu Peninjauan"} value={String(metrics.pending)} />
+          <Metric label={"Sedang Diproses"} value={String(metrics.processing)} />
+          <Metric label={"Jumlah dalam Antrean"} value={formatPrice(metrics.queued)} />
+          <Metric label={"Jumlah Dibayar"} value={formatPrice(metrics.paid)} />
         </div>
 
         <div className="mt-8 grid gap-4 xl:grid-cols-[1fr_auto]">
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search request, seller, email, method, or payout reference..." className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none focus:border-cyan-400" />
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={"Cari permintaan, penjual, email, metode, atau referensi pencairan..."} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none focus:border-cyan-400" />
           <div className="flex flex-wrap gap-2">
             {statuses.map((status) => (
               <button key={status} onClick={() => setActiveStatus(status)} className={`rounded-full px-4 py-3 text-sm font-black ${activeStatus === status ? "bg-cyan-400 text-black" : "border border-white/10 bg-white/[0.04] text-slate-300"}`}>{pretty(status)}</button>
@@ -311,7 +312,7 @@ export default function AdminWithdrawalManagementPage() {
 
         <div className="mt-8 grid gap-6">
           {filtered.length === 0 ? (
-            <p className="rounded-3xl border border-white/10 bg-white/[0.04] p-12 text-center text-slate-400">No withdrawal requests match this filter.</p>
+            <p className="rounded-3xl border border-white/10 bg-white/[0.04] p-12 text-center text-slate-400">Tidak ada permintaan penarikan yang sesuai filter ini.</p>
           ) : filtered.map((item) => {
             const input = actionInput(item.id);
             const details = revealed[item.id];
@@ -323,80 +324,80 @@ export default function AdminWithdrawalManagementPage() {
                 <div className="grid gap-7 xl:grid-cols-[1fr_360px]">
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <h2 className="text-2xl font-black">Withdrawal #{item.id}</h2>
+                      <h2 className="text-2xl font-black">Penarikan #{item.id}</h2>
                       <span className={`rounded-full border px-3 py-1 text-xs font-black ${statusClass(item.status)}`}>{pretty(item.status)}</span>
                       {!eligible && ["pending", "approved", "processing"].includes(item.status) ? (
-                        <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300"><FaClock className="mr-1 inline" /> Hold until {formatDate(item.eligible_at)}</span>
+                        <span className="rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-xs font-black text-yellow-300"><FaClock className="mr-1 inline" /> Tahan hingga {formatDate(item.eligible_at)}</span>
                       ) : null}
                     </div>
 
                     <p className="mt-4 text-4xl font-black text-emerald-300">{formatPrice(item.amount)}</p>
-                    <p className="mt-2 text-sm text-slate-400">Wallet debit {currencyMoney(item.source_amount || item.amount, item.source_currency || "IDR")} · payout gross {currencyMoney(item.payout_gross_amount || item.amount, item.payout_currency || item.currency)} · withdrawal tax {currencyMoney(item.payout_tax_amount || item.tax_amount, item.payout_currency || item.currency)} ({numberValue(item.tax_rate_percent).toFixed(2)}%) · seller receives {currencyMoney(item.payout_net_amount || item.net_amount, item.payout_currency || item.currency)}</p>
+                    <p className="mt-2 text-sm text-slate-400">Pengurangan dompet {currencyMoney(item.source_amount || item.amount, item.source_currency || "IDR")} · pencairan bruto {currencyMoney(item.payout_gross_amount || item.amount, item.payout_currency || item.currency)} · pajak penarikan {currencyMoney(item.payout_tax_amount || item.tax_amount, item.payout_currency || item.currency)} ({numberValue(item.tax_rate_percent).toFixed(2)}%) · penjual menerima {currencyMoney(item.payout_net_amount || item.net_amount, item.payout_currency || item.currency)}</p>
 
                     <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                      <Info label="Seller" value={displayName} subvalue={item.profiles?.email || item.user_id} />
-                      <Info label="Method" value={pretty(item.payout_method)} subvalue={item.payout_accounts?.bank_name || item.payout_accounts?.label || ""} />
-                      <Info label="Masked Account" value={item.payout_account_number || `****${item.payout_accounts?.account_last4 || ""}`} subvalue={item.payout_account_name} />
-                      <Info label="Requested" value={formatDate(item.created_at)} />
-                      <Info label="Provider" value={item.payout_provider || "Not assigned"} subvalue={`${item.provider_status || "queued"} · fee ${currencyMoney(item.payout_provider_fee || 0, item.payout_currency || item.currency)}`} />
-                      <Info label="FX snapshot" value={`${item.source_currency || "IDR"} → ${item.payout_currency || item.currency} @ ${numberValue(item.fx_rate || 1)}`} />
-                      <Info label="Provider batch" value={item.provider_batch_id || "Not submitted"} subvalue={item.provider_item_id || ""} />
-                      <Info label="Reference" value={item.payout_reference || "Not settled"} />
-                      <Info label="Tax jurisdiction" value={`${item.tax_country_code || "-"} · ${pretty(item.tax_payout_method)}`} subvalue={item.tax_source_reference || "No source reference"} />
+                      <Info label={"Penjual"} value={displayName} subvalue={item.profiles?.email || item.user_id} />
+                      <Info label={"Metode"} value={pretty(item.payout_method)} subvalue={item.payout_accounts?.bank_name || item.payout_accounts?.label || ""} />
+                      <Info label={"Rekening Disamarkan"} value={item.payout_account_number || `****${item.payout_accounts?.account_last4 || ""}`} subvalue={item.payout_account_name} />
+                      <Info label={"Diajukan"} value={formatDate(item.created_at)} />
+                      <Info label={"Penyedia"} value={item.payout_provider || "Belum ditetapkan"} subvalue={`${item.provider_status || "queued"} · fee ${currencyMoney(item.payout_provider_fee || 0, item.payout_currency || item.currency)}`} />
+                      <Info label={"Rekaman kurs"} value={`${item.source_currency || "IDR"} → ${item.payout_currency || item.currency} @ ${numberValue(item.fx_rate || 1)}`} />
+                      <Info label={"Kelompok pencairan penyedia"} value={item.provider_batch_id || "Belum diajukan"} subvalue={item.provider_item_id || ""} />
+                      <Info label={"Referensi"} value={item.payout_reference || "Belum diselesaikan"} />
+                      <Info label={"Yurisdiksi pajak"} value={`${item.tax_country_code || "-"} · ${pretty(item.tax_payout_method)}`} subvalue={item.tax_source_reference || "No source reference"} />
                     </div>
 
                     {details ? (
                       <div className="mt-5 rounded-2xl border border-red-400/30 bg-red-400/10 p-5">
-                        <p className="font-black text-red-200">Sensitive payout details — audited access</p>
+                        <p className="font-black text-red-200">Rincian pencairan sensitif — akses dicatat dalam audit</p>
                         <div className="mt-4 grid gap-3 md:grid-cols-2">
-                          <Info label="Account Name" value={details.accountName} />
-                          <Info label="Account / Email" value={details.accountIdentifier} />
+                          <Info label={"Nama Pemilik Rekening"} value={details.accountName} />
+                          <Info label={"Rekening / Email"} value={details.accountIdentifier} />
                           <Info label="Bank" value={details.bankName || "-"} />
-                          <Info label="Country / Currency" value={`${details.countryCode} / ${details.currency}`} />
+                          <Info label={"Negara / Mata Uang"} value={`${details.countryCode} / ${details.currency}`} />
                         </div>
                       </div>
                     ) : null}
 
-                    {item.payout_note ? <p className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-100">Seller note: {item.payout_note}</p> : null}
-                    {item.admin_note ? <p className="mt-4 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4 text-sm text-yellow-100">Admin note: {item.admin_note}</p> : null}
+                    {item.payout_note ? <p className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-100">Catatan penjual: {item.payout_note}</p> : null}
+                    {item.admin_note ? <p className="mt-4 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4 text-sm text-yellow-100">Catatan admin: {item.admin_note}</p> : null}
                   </div>
 
                   <aside className="rounded-2xl border border-white/10 bg-black/30 p-5">
-                    <h3 className="text-lg font-black">Payout Actions</h3>
+                    <h3 className="text-lg font-black">Tindakan Pencairan</h3>
                     <div className="mt-4 grid gap-3">
-                      <input value={input.provider} onChange={(event) => updateInput(item.id, { provider: event.target.value })} placeholder="Provider" className="rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
-                      <input value={input.reference} onChange={(event) => updateInput(item.id, { reference: event.target.value })} placeholder="Payout reference" className="rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
-                      <input type="number" min="0" value={input.feeAmount} onChange={(event) => updateInput(item.id, { feeAmount: event.target.value })} placeholder="Provider fee amount" className="rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
-                      <textarea rows={4} value={input.note} onChange={(event) => updateInput(item.id, { note: event.target.value })} placeholder="Admin note" className="resize-none rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
-                      <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" checked={input.overrideHold} onChange={(event) => updateInput(item.id, { overrideHold: event.target.checked })} /> Override payout hold</label>
+                      <input value={input.provider} onChange={(event) => updateInput(item.id, { provider: event.target.value })} placeholder={"Penyedia"} className="rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
+                      <input value={input.reference} onChange={(event) => updateInput(item.id, { reference: event.target.value })} placeholder={"Referensi pencairan"} className="rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
+                      <input type="number" min="0" value={input.feeAmount} onChange={(event) => updateInput(item.id, { feeAmount: event.target.value })} placeholder={"Jumlah biaya penyedia"} className="rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
+                      <textarea rows={4} value={input.note} onChange={(event) => updateInput(item.id, { note: event.target.value })} placeholder={"Catatan admin"} className="resize-none rounded-xl border border-white/10 bg-[#090d1d] px-4 py-3 text-white" />
+                      <label className="flex items-center gap-3 text-sm text-slate-300"><input type="checkbox" checked={input.overrideHold} onChange={(event) => updateInput(item.id, { overrideHold: event.target.checked })} /> Lewati penahanan pencairan</label>
 
-                      <button disabled={updatingId === item.id} onClick={() => revealDetails(item)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-400/40 px-4 py-3 font-black text-red-300"><FaEye /> Reveal Payout Details</button>
+                      <button disabled={updatingId === item.id} onClick={() => revealDetails(item)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-400/40 px-4 py-3 font-black text-red-300"><FaEye /> Buka Rincian Pencairan</button>
 
                       {item.status === "pending" ? (
                         <>
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "approve")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 font-black text-black"><FaCheck /> Approve</button>
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "reject")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-500 px-4 py-3 font-black"><FaTimes /> Reject & Refund</button>
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "approve")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-3 font-black text-black"><FaCheck /> Setujui</button>
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "reject")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-500 px-4 py-3 font-black"><FaTimes /> Tolak &amp; Kembalikan Dana</button>
                         </>
                       ) : null}
 
                       {item.status === "approved" ? (
                         <>
-                          {String(item.tax_payout_method || item.payout_method).toLowerCase() === "paypal" ? <button disabled={updatingId === item.id} onClick={() => providerAction(item, "execute_provider")} className="rounded-xl bg-indigo-400 px-4 py-3 font-black text-black">Execute PayPal Payout</button> : null}
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "processing")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-4 py-3 font-black"><FaSpinner /> Start Processing</button>
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "paid")} className="rounded-xl bg-emerald-500 px-4 py-3 font-black">Mark Paid</button>
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "reject")} className="rounded-xl bg-red-500 px-4 py-3 font-black">Reject & Refund</button>
+                          {String(item.tax_payout_method || item.payout_method).toLowerCase() === "paypal" ? <button disabled={updatingId === item.id} onClick={() => providerAction(item, "execute_provider")} className="rounded-xl bg-indigo-400 px-4 py-3 font-black text-black">Jalankan Pencairan PayPal</button> : null}
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "processing")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-4 py-3 font-black"><FaSpinner /> Mulai Pemrosesan</button>
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "paid")} className="rounded-xl bg-emerald-500 px-4 py-3 font-black">Tandai Dibayar</button>
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "reject")} className="rounded-xl bg-red-500 px-4 py-3 font-black">Tolak &amp; Kembalikan Dana</button>
                         </>
                       ) : null}
 
                       {item.status === "processing" ? (
                         <>
-                          {item.provider_batch_id ? <button disabled={updatingId === item.id} onClick={() => providerAction(item, "sync_provider")} className="rounded-xl bg-indigo-400 px-4 py-3 font-black text-black">Sync PayPal Status</button> : null}
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "paid")} className="rounded-xl bg-emerald-500 px-4 py-3 font-black">Mark Paid</button>
-                          <button disabled={updatingId === item.id} onClick={() => process(item, "fail")} className="rounded-xl bg-red-500 px-4 py-3 font-black">Mark Failed & Refund</button>
+                          {item.provider_batch_id ? <button disabled={updatingId === item.id} onClick={() => providerAction(item, "sync_provider")} className="rounded-xl bg-indigo-400 px-4 py-3 font-black text-black">Sinkronkan Status PayPal</button> : null}
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "paid")} className="rounded-xl bg-emerald-500 px-4 py-3 font-black">Tandai Dibayar</button>
+                          <button disabled={updatingId === item.id} onClick={() => process(item, "fail")} className="rounded-xl bg-red-500 px-4 py-3 font-black">Tandai Gagal &amp; Kembalikan Dana</button>
                         </>
                       ) : null}
 
-                      {updatingId === item.id ? <p className="text-center text-sm text-slate-400">Processing action...</p> : null}
+                      {updatingId === item.id ? <p className="text-center text-sm text-slate-400">Memproses tindakan...</p> : null}
                     </div>
                   </aside>
                 </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -101,7 +102,7 @@ export default function AdminUserManagementV1Page() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      alert(error.message);
+      alert(adminText(error.message));
       return;
     }
 
@@ -115,7 +116,7 @@ export default function AdminUserManagementV1Page() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
-        alert(userError.message);
+        alert(adminText(userError.message));
         setLoading(false);
         return;
       }
@@ -135,7 +136,7 @@ export default function AdminUserManagementV1Page() {
         .maybeSingle();
 
       if (profileError) {
-        alert(profileError.message);
+        alert(adminText(profileError.message));
         setLoading(false);
         return;
       }
@@ -165,7 +166,7 @@ export default function AdminUserManagementV1Page() {
 
       await loadProfiles();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update user role.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui peran pengguna."));
     } finally {
       setUpdatingUserId(null);
     }
@@ -184,14 +185,14 @@ export default function AdminUserManagementV1Page() {
 
       await loadProfiles();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Failed to update seller status.");
+      alert(adminText(error instanceof Error ? error.message : "Gagal memperbarui status penjual."));
     } finally {
       setUpdatingUserId(null);
     }
   }
 
   async function quickApproveSeller(profile: Profile) {
-    if (!confirm(`Approve ${profile.email || profile.username} as seller?`)) {
+    if (!confirm(`Setujui ${profile.email || profile.username} sebagai penjual?`)) {
       return;
     }
 
@@ -199,7 +200,7 @@ export default function AdminUserManagementV1Page() {
   }
 
   async function quickRejectSeller(profile: Profile) {
-    if (!confirm(`Reject seller access for ${profile.email || profile.username}?`)) {
+    if (!confirm(`Tolak akses penjual untuk ${profile.email || profile.username}?`)) {
       return;
     }
 
@@ -207,7 +208,7 @@ export default function AdminUserManagementV1Page() {
   }
 
   async function resetSeller(profile: Profile) {
-    if (!confirm(`Reset seller status for ${profile.email || profile.username}?`)) {
+    if (!confirm(`Atur ulang status penjual untuk ${profile.email || profile.username}?`)) {
       return;
     }
 
@@ -217,7 +218,7 @@ export default function AdminUserManagementV1Page() {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
-        <p className="text-xl font-black text-cyan-300">Loading admin users...</p>
+        <p className="text-xl font-black text-cyan-300">Memuat pengguna admin...</p>
       </main>
     );
   }
@@ -226,17 +227,17 @@ export default function AdminUserManagementV1Page() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-white">
         <div className="max-w-md rounded-3xl border border-red-400/20 bg-red-400/10 p-8 text-center">
-          <h1 className="text-3xl font-black text-red-300">Access Denied</h1>
+          <h1 className="text-3xl font-black text-red-300">Akses Ditolak</h1>
 
           <p className="mt-4 text-gray-300">
-            Only admin accounts can access user management.
+            Hanya akun admin yang dapat mengakses pengelolaan pengguna.
           </p>
 
           <Link
             href="/"
             className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-cyan-400 px-6 font-black text-black hover:bg-cyan-300"
           >
-            Back to Home
+            Kembali ke Beranda
           </Link>
         </div>
       </main>
@@ -251,17 +252,17 @@ export default function AdminUserManagementV1Page() {
         <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-black text-cyan-300">
-              Admin Dashboard
+              Dasbor Admin
             </p>
 
-            <h1 className="text-5xl font-black md:text-7xl">User Management</h1>
+            <h1 className="text-5xl font-black md:text-7xl">Pengelolaan Pengguna</h1>
 
             <p className="mt-5 max-w-2xl text-gray-300">
-              Manage user roles, seller permissions, and marketplace access.
+              Kelola peran pengguna, izin penjual, dan akses marketplace.
             </p>
 
             <p className="mt-3 text-sm text-gray-500">
-              Logged in as {user.email}
+              Masuk sebagai {user.email}
             </p>
           </div>
 
@@ -269,7 +270,7 @@ export default function AdminUserManagementV1Page() {
             href="/admin"
             className="inline-flex h-12 items-center justify-center rounded-full border border-cyan-400 px-6 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
           >
-            Back to Admin
+            Kembali ke Admin
           </Link>
         </div>
       </section>
@@ -277,28 +278,28 @@ export default function AdminUserManagementV1Page() {
       <section className="px-8 py-10">
         <div className="mb-8 grid gap-5 md:grid-cols-4">
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Total Users</p>
+            <p className="text-sm text-gray-400">Total Pengguna</p>
             <p className="mt-2 text-3xl font-black text-cyan-300">
               {totalUsers}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Admins</p>
+            <p className="text-sm text-gray-400">Admin</p>
             <p className="mt-2 text-3xl font-black text-red-300">
               {adminCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Sellers</p>
+            <p className="text-sm text-gray-400">Penjual</p>
             <p className="mt-2 text-3xl font-black text-green-300">
               {sellerCount}
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-5">
-            <p className="text-sm text-gray-400">Pending Sellers</p>
+            <p className="text-sm text-gray-400">Penjual Menunggu</p>
             <p className="mt-2 text-3xl font-black text-yellow-300">
               {pendingSellerCount}
             </p>
@@ -309,7 +310,7 @@ export default function AdminUserManagementV1Page() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by email, username, seller name, discord, or user ID..."
+            placeholder={"Cari berdasarkan email, nama pengguna, nama penjual, Discord, atau ID pengguna..."}
             className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-white outline-none placeholder:text-gray-500 focus:border-cyan-400"
           />
 
@@ -324,7 +325,7 @@ export default function AdminUserManagementV1Page() {
                     : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
                 }`}
               >
-                {role === "all" ? "All Roles" : role}
+                {adminLabel(role === "all" ? "Semua Peran" : role)}
               </button>
             ))}
           </div>
@@ -341,15 +342,15 @@ export default function AdminUserManagementV1Page() {
                   : "border border-white/10 bg-white/[0.04] text-gray-300 hover:border-cyan-400 hover:text-white"
               }`}
             >
-              {status === "all" ? "All Seller Status" : status}
+              {adminLabel(status === "all" ? "Semua Status Penjual" : status)}
             </button>
           ))}
         </div>
 
         {filteredProfiles.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.035] p-10 text-center">
-            <h2 className="text-3xl font-black">No users found.</h2>
-            <p className="mt-3 text-gray-400">Try another filter or keyword.</p>
+            <h2 className="text-3xl font-black">Tidak ada pengguna ditemukan.</h2>
+            <p className="mt-3 text-gray-400">Coba filter atau kata kunci lain.</p>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -369,7 +370,7 @@ export default function AdminUserManagementV1Page() {
                           {profile.avatar_url ? (
                             <img
                               src={profile.avatar_url}
-                              alt={profile.username || profile.email || "User"}
+                              alt={profile.username || profile.email || "Pengguna"}
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -389,7 +390,7 @@ export default function AdminUserManagementV1Page() {
                             {profile.seller_name ||
                               profile.username ||
                               profile.email ||
-                              "Unknown User"}
+                              "Pengguna Tidak Dikenal"}
                           </h2>
 
                           <p className="text-sm text-gray-400">
@@ -402,7 +403,7 @@ export default function AdminUserManagementV1Page() {
                             role
                           )}`}
                         >
-                          {role}
+                          {adminLabel(role)}
                         </span>
 
                         <span
@@ -410,27 +411,27 @@ export default function AdminUserManagementV1Page() {
                             sellerStatus
                           )}`}
                         >
-                          {sellerStatus}
+                          {adminLabel(sellerStatus)}
                         </span>
                       </div>
 
                       <div className="mt-5 grid gap-4 md:grid-cols-2">
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">User ID</p>
+                          <p className="text-xs text-gray-500">ID Pengguna</p>
                           <p className="mt-1 break-words text-sm font-bold">
                             {profile.id}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Username</p>
+                          <p className="text-xs text-gray-500">Nama Pengguna</p>
                           <p className="mt-1 font-bold">
                             {profile.username || "-"}
                           </p>
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Seller Name</p>
+                          <p className="text-xs text-gray-500">Nama Penjual</p>
                           <p className="mt-1 font-bold">
                             {profile.seller_name || "-"}
                           </p>
@@ -444,7 +445,7 @@ export default function AdminUserManagementV1Page() {
                         </div>
 
                         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                          <p className="text-xs text-gray-500">Created</p>
+                          <p className="text-xs text-gray-500">Dibuat</p>
                           <p className="mt-1 font-bold">
                             {profile.created_at
                               ? new Date(profile.created_at).toLocaleString()
@@ -463,7 +464,7 @@ export default function AdminUserManagementV1Page() {
 
                     <div className="flex flex-col gap-3">
                       <label className="text-sm font-bold text-gray-400">
-                        Role
+                        Peran
                       </label>
 
                       <select
@@ -482,7 +483,7 @@ export default function AdminUserManagementV1Page() {
                       </select>
 
                       <label className="mt-2 text-sm font-bold text-gray-400">
-                        Seller Status
+                        Status Penjual
                       </label>
 
                       <select
@@ -505,7 +506,7 @@ export default function AdminUserManagementV1Page() {
                         disabled={updatingUserId === profile.id}
                         className="rounded-2xl bg-green-500 px-5 py-3 font-black text-white transition hover:bg-green-400 disabled:opacity-60"
                       >
-                        Approve Seller
+                        Setujui Penjual
                       </button>
 
                       <button
@@ -513,7 +514,7 @@ export default function AdminUserManagementV1Page() {
                         disabled={updatingUserId === profile.id}
                         className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white transition hover:bg-red-400 disabled:opacity-60"
                       >
-                        Reject Seller
+                        Tolak Penjual
                       </button>
 
                       <button
@@ -521,19 +522,19 @@ export default function AdminUserManagementV1Page() {
                         disabled={updatingUserId === profile.id}
                         className="rounded-2xl bg-yellow-400 px-5 py-3 font-black text-black transition hover:bg-yellow-300 disabled:opacity-60"
                       >
-                        Reset Seller
+                        Atur Ulang Penjual
                       </button>
 
                       <Link
                         href={`/seller-profile/${profile.id}`}
                         className="rounded-2xl border border-cyan-400/40 px-5 py-3 text-center font-black text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
                       >
-                        View Profile
+                        Lihat Profil
                       </Link>
 
                       {updatingUserId === profile.id && (
                         <p className="text-center text-sm text-gray-400">
-                          Updating user...
+                          Memperbarui pengguna...
                         </p>
                       )}
                     </div>
