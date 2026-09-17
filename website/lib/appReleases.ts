@@ -30,12 +30,12 @@ const DEFAULT_RELEASES: Record<
   android: {
     platform: "android",
     label: "Android 8.0 or newer",
-    version: "0.13.0 (19)",
-    fileName: "ComePlayers_0.13.0_19_android.apk",
-    objectKey: "app-releases/android/0.13.0-19/ComePlayers_0.13.0_19_android.apk",
+    version: "0.14.0 (20)",
+    fileName: "ComePlayers_0.14.0_20_android.apk",
+    objectKey: "app-releases/android/0.14.0-20/ComePlayers_0.14.0_20_android.apk",
     contentType: "application/vnd.android.package-archive",
-    sha256: "B9F1A31F63A51D0D95512C5668FD7A2492A9C85DD94FF5AF30208B3FA066FB9D",
-    sizeBytes: 138_750_410,
+    sha256: "E40AB1DA352F8A25D8BE74A2BAC05B7B5FA77C2E5CFFB610C71C4B1E21E4C396",
+    sizeBytes: 138_803_610,
   },
 };
 

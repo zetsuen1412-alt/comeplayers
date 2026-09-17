@@ -29,5 +29,6 @@
       "path": "/api/cron/commerce-compliance",
       "schedule": "30 4 * * *"
     }
-  ]
+  ],
+  "buildCommand": "node scripts/stage-android-20.mjs --publish && npm run build"
 }
