@@ -1,0 +1,56 @@
+name: Game catalog checks
+on:
+  push:
+    branches: [feat/game-catalog-bulk-ready-20260917, main]
+    paths:
+      - website/app/admin/games/page.tsx
+      - website/app/api/games/route.ts
+      - website/components/admin/GameBulkAddForm.tsx
+      - website/components/admin/GameCategoryCheckboxes.tsx
+      - website/lib/bulkGameInput.ts
+      - website/tests/bulkGameInput.test.ts
+      - .github/workflows/game-catalog-checks.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: game-catalog-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Resolve matching dependencies for existing mobile interop tests
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const web = require('./package.json');
+          const mobile = require('../comeplayers-apps/apps/mobile/package.json');
+          for (const name of ['hpke', '@panva/hpke-noble', '@noble/curves', '@noble/ciphers', '@noble/hashes']) {
+            if (web.dependencies[name] !== mobile.dependencies[name]) throw new Error(`Dependency version mismatch: ${name}`);
+            const target = path.resolve('node_modules', name);
+            const link = path.resolve('../comeplayers-apps/apps/mobile/node_modules', name);
+            if (!fs.existsSync(target)) throw new Error(`Locked dependency missing: ${name}`);
+            fs.mkdirSync(path.dirname(link), { recursive: true });
+            if (!fs.existsSync(link)) fs.symlinkSync(target, link, 'dir');
+          }
+          NODE
+      - name: Typecheck the entire website
+        run: npm run typecheck
+      - name: Test batch parsing and category compatibility
+        run: npx --no-install tsx --test tests/bulkGameInput.test.ts
