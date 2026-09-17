@@ -5,6 +5,9 @@ DO $$ BEGIN
   IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF;
   IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='service_role') THEN CREATE ROLE service_role BYPASSRLS; END IF;
 END $$;
+-- Roles are cluster-wide: earlier isolated suites may already have created this
+-- role without Supabase's BYPASSRLS attribute. Match the real service role here.
+ALTER ROLE service_role BYPASSRLS;
 CREATE TABLE public.profiles(id uuid primary key,role text,username text,full_name text,email text);
 GRANT USAGE ON SCHEMA public TO service_role;
 GRANT SELECT,UPDATE ON public.profiles TO service_role;

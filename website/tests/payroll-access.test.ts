@@ -82,3 +82,23 @@ test('revocation clears browser workspace and pending export data',async()=>{
   assert.equal(store.payrollStatus().ready,false);assert.equal(store.payrollStatus().actor,null);assert.equal(store.payrollStorage.getItem(K.orders),null);
   assert.throws(()=>store.payrollStorage.setItem(K.orders,'[]'));
 });
+test('failed local order batch restores stock and queued state',async()=>{
+  const store=load('features/payroll/lib/workspace-store.ts',{'react':{},'./workspace-model':model,'@/lib/authenticatedFetch':{authenticatedFetchJson:async()=>({state:{[K.inventory]:[{id:'stock',reserved:0}]},revision:0,actor})}});
+  await store.loadPayroll();
+  assert.throws(()=>store.withPayrollBatch(()=>{store.payrollStorage.setItem(K.inventory,JSON.stringify([{id:'stock',reserved:5}]));throw Error('Duplicate code');}));
+  assert.equal(JSON.parse(store.payrollStorage.getItem(K.inventory))[0].reserved,0);
+  assert.equal(store.payrollStatus().pending,false);store.clearPayroll();
+});
+test('edits made during a save retain server attribution for acknowledged history',async()=>{
+  let finish:(result:any)=>void=()=>{};let calls=0;
+  const store=load('features/payroll/lib/workspace-store.ts',{'react':{},'./workspace-model':model,'@/lib/authenticatedFetch':{authenticatedFetchJson:async(_url:string,init:any)=>{
+    if(!init)return {state:{},revision:0,actor};calls++;
+    if(calls===1)return new Promise(resolve=>{finish=resolve;});
+    const body=JSON.parse(init.body);assert.equal(body.state[K.history][0].editedBy,'Operator');assert.equal(body.state[K.history][0].actorId,actor.id);
+    return {state:body.state,revision:2};
+  }}});
+  await store.loadPayroll();store.payrollStorage.setItem(K.history,JSON.stringify([{id:'h1',editedBy:'client'}]));const saving=store.flushPayroll();
+  store.payrollStorage.setItem(K.products,JSON.stringify([{id:'p1',name:'New product'}]));
+  finish({state:{[K.history]:[{id:'h1',editedBy:'Operator',actorId:actor.id}]},revision:1});await saving;
+  assert.equal(calls,2);assert.equal(store.payrollStatus().pending,false);store.clearPayroll();
+});
