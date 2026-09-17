@@ -1,0 +1,58 @@
+name: Prepare and verify resizable mutation table
+on:
+  push:
+    branches: [prepare/mutation-spreadsheet-20260918]
+permissions:
+  contents: write
+concurrency:
+  group: prepare-mutation-spreadsheet
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Apply hash-checked presentation patch
+        run: node scripts/prepare-mutation-spreadsheet.mjs
+      - name: Install locked dependencies without lifecycle scripts
+        working-directory: website
+        run: npm ci --ignore-scripts
+      - name: Resolve existing mobile interop dependencies
+        working-directory: website
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),path=require('node:path');
+          const web=require('./package.json'),mobile=require('../comeplayers-apps/apps/mobile/package.json');
+          for(const name of ['hpke','@panva/hpke-noble','@noble/curves','@noble/ciphers','@noble/hashes']){
+            if(web.dependencies[name]!==mobile.dependencies[name])throw new Error('Version mismatch: '+name);
+            const target=path.resolve('node_modules',name),link=path.resolve('../comeplayers-apps/apps/mobile/node_modules',name);
+            if(!fs.existsSync(target))throw new Error('Dependency missing: '+name);
+            fs.mkdirSync(path.dirname(link),{recursive:true});fs.symlinkSync(target,link,'dir');
+          }
+          NODE
+      - name: Typecheck complete website
+        working-directory: website
+        run: npm run typecheck
+      - name: Layout and payroll regressions
+        working-directory: website
+        run: npx --no-install tsx --test tests/mutation-table-layout.test.ts tests/payroll-mutasi-fh-import.test.ts tests/payroll-manual-order-time.test.ts tests/payroll-mutation-reset.test.ts
+      - name: Install isolated browser
+        working-directory: website
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Test actual Mutasi page without production access
+        working-directory: website
+        run: node tests/mutation-spreadsheet.browser.mjs
+      - name: Commit only verified presentation change to preparation branch
+        run: |
+          git config user.name 'ComePlayers CI'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add website/app/admin/payroll/mutations/page.tsx
+          git diff --cached --check
+          git commit -m 'feat(payroll): connect resizable mutation table [skip ci]'
+          git push origin HEAD:prepare/mutation-spreadsheet-20260918

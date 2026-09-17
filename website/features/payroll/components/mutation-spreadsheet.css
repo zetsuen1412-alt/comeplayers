@@ -1,0 +1,50 @@
+/* Scoped presentation only: never change payroll values or other tables. */
+.evocp-payroll .mutation-sheet { min-width: 0; max-width: 100%; margin-top: 20px; }
+.evocp-payroll .mutation-sheet-content { display: flex; flex-direction: column; min-width: 0; min-height: 0; color: #f4f4f5; background: #111318; border: 1px solid #292d35; border-radius: 14px; overflow: hidden; }
+.evocp-payroll .mutation-sheet-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px; border-bottom: 1px solid #292d35; }
+.evocp-payroll .mutation-sheet-heading { flex: 1 1 220px; min-width: 0; }
+.evocp-payroll .mutation-sheet-heading h2 { margin: 0; font-size: 16px; font-weight: 700; }
+.evocp-payroll .mutation-sheet-heading p { margin: 5px 0 0; color: #a1a1aa; font-size: 12px; line-height: 1.6; }
+.evocp-payroll .mutation-sheet-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; padding: 10px 16px; }
+.evocp-payroll .mutation-sheet-controls label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #c7c7cf; }
+.evocp-payroll .mutation-sheet-control, .evocp-payroll .mutation-sheet-action { min-height: 36px; border: 1px solid #45464f; border-radius: 7px; background: #1c1e24; color: #f4f4f5; padding: 7px 11px; font-size: 12px; }
+.evocp-payroll .mutation-sheet-controls input { width: 94px; }
+.evocp-payroll .mutation-sheet-action { cursor: pointer; white-space: nowrap; }
+.evocp-payroll .mutation-sheet-action:hover { border-color: #f5c542; }
+.evocp-payroll .mutation-sheet-action:disabled { opacity: .5; cursor: not-allowed; }
+.evocp-payroll .mutation-sheet-primary { color: #171717; background: #f5c542; border-color: #f5c542; font-weight: 700; }
+.evocp-payroll .mutation-sheet-top-scroll { height: 17px; overflow-x: auto; overflow-y: hidden; flex-shrink: 0; }
+.evocp-payroll .mutation-sheet-scroll { overflow: auto; max-height: 70vh; min-height: 160px; scrollbar-gutter: stable; overscroll-behavior: contain; border-top: 1px solid #292d35; }
+.evocp-payroll .mutation-sheet-scroll:focus-visible { outline: 2px solid #f5c542; outline-offset: -2px; }
+.evocp-payroll .mutation-sheet-top-scroll, .evocp-payroll .mutation-sheet-scroll { scrollbar-color: #73737f #181a20; scrollbar-width: auto; }
+.evocp-payroll .cp-table.mutation-sheet-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; max-width: none; }
+.evocp-payroll .cp-table.mutation-sheet-table th, .evocp-payroll .cp-table.mutation-sheet-table td { min-width: 0; padding: 12px 14px; border-right: 1px solid #292d35; border-bottom: 1px solid #292d35; text-align: left; vertical-align: top; word-break: normal; overflow-wrap: normal; white-space: normal; }
+.evocp-payroll .cp-table.mutation-sheet-table th { position: sticky; top: 0; z-index: 2; padding: 0; height: 48px; background: #1a1d24; color: #d1d5df; font-size: 13px; }
+.evocp-payroll .cp-table.mutation-sheet-table td { font-size: 14px; line-height: 1.6; overflow: hidden; text-overflow: ellipsis; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(2), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(3), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(4), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(11), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(12), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(13) { white-space: nowrap; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(5), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(6), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(7), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(8), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(9), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(10) { overflow-wrap: break-word; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(11), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(12) { text-align: right; font-variant-numeric: tabular-nums; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(7) span, .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14) :is(button,a,span) { white-space: nowrap; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14)>div { display: flex; flex-wrap: wrap; gap: 8px; }
+.evocp-payroll .mutation-sheet-header { display: block; width: calc(100% - 14px); min-height: 48px; margin: 0; padding: 10px 14px; border: 0; border-radius: 0; background: transparent; color: inherit; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
+.evocp-payroll .cp-table.mutation-sheet-table th[data-selected=true] { background: #323020; box-shadow: inset 0 -2px #f5c542; }
+.evocp-payroll .mutation-sheet-resizer { position: absolute; right: 0; top: 0; bottom: 0; width: 14px; height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: col-resize; touch-action: none; user-select: none; }
+.evocp-payroll .mutation-sheet-resizer::after { content: ''; position: absolute; top: 9px; bottom: 9px; left: 6px; width: 2px; background: #666877; }
+.evocp-payroll .mutation-sheet-resizer:hover::after, .evocp-payroll .mutation-sheet-resizer:focus-visible::after { background: #f5c542; width: 3px; }
+.evocp-payroll .mutation-sheet-content[data-resizing=true] { user-select: none; cursor: col-resize; }
+.evocp-payroll .mutation-sheet-footer { padding: 9px 16px; font-size: 12px; color: #a1a1aa; border-top: 1px solid #292d35; }
+.evocp-payroll .mutation-sheet-dialog { margin: auto; padding: 0; border: 0; border-radius: 14px; width: calc(100vw - 24px); height: calc(100dvh - 24px); max-width: none; max-height: none; background: #111318; color: #f4f4f5; }
+.evocp-payroll .mutation-sheet-dialog::backdrop { background: #000b; }
+.evocp-payroll .mutation-sheet-dialog>.mutation-sheet-content { height: 100%; }
+.evocp-payroll .mutation-sheet-dialog .mutation-sheet-scroll { flex: 1; max-height: none; min-height: 0; }
+.evocp-payroll .mutation-sheet-measure { position: fixed; top: 0; left: 0; visibility: hidden; pointer-events: none; z-index: -1; width: max-content; }
+.evocp-payroll .mutation-sheet-measure .mutation-sheet-table { table-layout: auto; width: max-content !important; min-width: 0 !important; }
+.evocp-payroll .mutation-sheet-measure :is(th,td) { position: static; width: auto !important; min-width: 0 !important; max-width: none !important; white-space: pre !important; overflow-wrap: normal !important; }
+.evocp-payroll .mutation-sheet-measure .mutation-sheet-header { width: auto; padding-right: 28px; }
+.evocp-payroll .mutation-sheet-measure td:nth-child(14)>div { flex-wrap: nowrap; }
+@media(max-width:640px) {
+  .evocp-payroll .mutation-sheet-toolbar { padding: 12px; }
+  .evocp-payroll .mutation-sheet-controls { padding: 10px 12px; }
+  .evocp-payroll .mutation-sheet-dialog { width: calc(100vw - 8px); height: calc(100dvh - 8px); }
+  .evocp-payroll .mutation-sheet-resizer { width: 22px; }
+}
