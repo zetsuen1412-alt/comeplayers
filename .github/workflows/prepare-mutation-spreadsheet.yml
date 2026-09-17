@@ -48,11 +48,11 @@ jobs:
       - name: Test actual Mutasi page without production access
         working-directory: website
         run: node tests/mutation-spreadsheet.browser.mjs
-      - name: Commit only verified presentation change to preparation branch
+      - name: Commit only verified presentation changes to preparation branch
         run: |
           git config user.name 'ComePlayers CI'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add website/app/admin/payroll/mutations/page.tsx
+          git add website/app/admin/payroll/mutations/page.tsx website/features/payroll/components/mutation-spreadsheet.tsx website/features/payroll/components/mutation-spreadsheet.css
           git diff --cached --check
-          git commit -m 'feat(payroll): connect resizable mutation table [skip ci]'
+          git commit -m 'feat(payroll): connect accessible resizable mutation table [skip ci]'
           git push origin HEAD:prepare/mutation-spreadsheet-20260918

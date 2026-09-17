@@ -18,7 +18,17 @@ replaceOnce(`        </table>\n        {!rows.length ? <div className="p-6 text-
 replaceOnce('className="min-w-[210px] text-sm"', 'className="text-sm"');
 replaceOnce('<td className="min-w-[230px]">', '<td>');
 replaceOnce('<td className="min-w-[360px]">', '<td>');
-// Tooltip retains a readable full reference when an exceptionally long code is narrowed.
 replaceOnce('<td><Link href={`/admin/payroll/orders/${order.externalReference}`}', '<td title={order.externalReference}><Link href={`/admin/payroll/orders/${order.externalReference}`}');
 writeFileSync(path, source);
-console.log('Changed only presentation on the Mutasi page; callbacks, filters, totals and export are retained.');
+const componentPath='website/features/payroll/components/mutation-spreadsheet.tsx';
+let component=readFileSync(componentPath,'utf8');
+const labelBefore='<label>Pilih kolom<select className="mutation-sheet-control"';
+const labelAfter='<label htmlFor={`${uid}-column`}>Pilih kolom<select id={`${uid}-column`} aria-label="Pilih kolom" className="mutation-sheet-control"';
+if(component.split(labelBefore).length!==2)throw new Error('Column selection label changed unexpectedly.');
+component=component.replace(labelBefore,labelAfter);
+component=component.replace('<label>Lebar (px)<input className="mutation-sheet-control"','<label htmlFor={`${uid}-width`}>Lebar (px)<input id={`${uid}-width`} aria-label="Lebar (px)" className="mutation-sheet-control"');
+writeFileSync(componentPath,component);
+const cssPath='website/features/payroll/components/mutation-spreadsheet.css';
+const css=readFileSync(cssPath,'utf8').replace('.mutation-sheet-measure td:nth-child(14)>div { flex-wrap: nowrap; }','.mutation-sheet-measure td:nth-child(14)>div { flex-wrap: nowrap !important; }');
+writeFileSync(cssPath,css);
+console.log('Changed only presentation and accessible layout controls; callbacks, filters, totals and export are retained.');
