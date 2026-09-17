@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
@@ -77,7 +78,21 @@ export default function AdminWorkspace({ children }: { children: ReactNode }) {
 
   return <div className="admin-workspace">
     <a className="adm-skip" href="#admin-content">Skip to content</a>
-    <aside className="adm-sidebar"><Link href="/admin" className="adm-brand"><span>CP</span><div>ComePlayers<small>ADMINISTRATION</small></div></Link>{navigation}<Link className="adm-store-link" href="/marketplace"><FaArrowLeft /> Back to marketplace</Link></aside>
+    <aside className="adm-sidebar">
+      <Link href="/admin" className="adm-brand">
+        <Image
+          src="/brand/comeplayers-cp-v6.png"
+          alt=""
+          width={38}
+          height={38}
+          loading="eager"
+          className="h-[38px] w-[38px] shrink-0 object-contain"
+        />
+        <div>ComePlayers<small>ADMINISTRATION</small></div>
+      </Link>
+      {navigation}
+      <Link className="adm-store-link" href="/marketplace"><FaArrowLeft /> Back to marketplace</Link>
+    </aside>
     <div className="adm-workarea">
       <header className="adm-topbar"><div className="adm-breadcrumb"><button className="adm-icon-button adm-mobile-toggle" onClick={() => menu.current?.showModal()} aria-label="Open navigation"><FaBars /></button><span>Workspace</span><span aria-hidden="true">/</span><strong>{currentPage}</strong></div><div className="adm-topbar-actions"><button className="adm-search-trigger" aria-label="Find an admin page" onClick={() => finder.current?.showModal()}><FaSearch /><span>Find a page</span><kbd>Ctrl K</kbd></button><label className="adm-currency"><span className="adm-sr">Display currency</span><select aria-label="Display currency" value={currency} onChange={event => setPreferences({ currency: event.target.value })}>{CURRENCY_OPTIONS.map(item => <option key={item.currency}>{item.currency}</option>)}</select></label><Link className="adm-profile" href="/account" title="Account settings"><span>{String(overview?.profile.username || "A").slice(0,1).toUpperCase()}</span><div>{overview?.profile.username || "Administrator"}<small>Admin workspace</small></div></Link></div></header>
       <div id="admin-content" tabIndex={-1} className="adm-content">
