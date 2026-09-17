@@ -1,0 +1,44 @@
+name: Payroll import V2 checks
+on:
+  push:
+    branches: [release/payroll-mutasi-fh-v2, main]
+    paths:
+      - website/app/admin/payroll/imports/**
+      - website/app/api/admin/payroll/imports/**
+      - website/features/payroll/lib/mutasi-fh-import.ts
+      - website/tests/payroll-mutasi-fh-import.test.ts
+      - .github/workflows/payroll-import-v2-checks.yml
+  pull_request:
+    paths:
+      - website/app/admin/payroll/imports/**
+      - website/app/api/admin/payroll/imports/**
+      - website/features/payroll/lib/mutasi-fh-import.ts
+      - website/tests/payroll-mutasi-fh-import.test.ts
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: payroll-import-v2-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Typecheck the entire website
+        run: npm run typecheck
+      - name: Verify payroll import title mapping
+        run: npx --no-install tsx --test tests/payroll-mutasi-fh-import.test.ts
