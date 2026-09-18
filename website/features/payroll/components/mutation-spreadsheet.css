@@ -41,7 +41,7 @@
 .evocp-payroll .mutation-sheet-measure .mutation-sheet-table { table-layout: auto; width: max-content !important; min-width: 0 !important; }
 .evocp-payroll .mutation-sheet-measure :is(th,td) { position: static; width: auto !important; min-width: 0 !important; max-width: none !important; white-space: pre !important; overflow-wrap: normal !important; }
 .evocp-payroll .mutation-sheet-measure .mutation-sheet-header { width: auto; padding-right: 28px; }
-.evocp-payroll .mutation-sheet-measure td:nth-child(14)>div { flex-wrap: nowrap; }
+.evocp-payroll .mutation-sheet-measure td:nth-child(14)>div { flex-wrap: nowrap !important; }
 @media(max-width:640px) {
   .evocp-payroll .mutation-sheet-toolbar { padding: 12px; }
   .evocp-payroll .mutation-sheet-controls { padding: 10px 12px; }

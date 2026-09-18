@@ -7,6 +7,15 @@ import './mutation-spreadsheet.css';
 type Props = { children: ReactNode; rowCount: number; filterLabel: string; readOnly?: boolean; overlay?: ReactNode; onOverlayClose?: () => void };
 type Drag = { id: MutationColumnId; pointer: number; startX: number; width: number; target: HTMLButtonElement };
 
+function syncHorizontal(source: HTMLDivElement, target: HTMLDivElement | null) {
+  if (!target) return;
+  const sourceMax = Math.max(0, source.scrollWidth - source.clientWidth);
+  const targetMax = Math.max(0, target.scrollWidth - target.clientWidth);
+  const ratio = sourceMax > 0 ? source.scrollLeft / sourceMax : 0;
+  const next = ratio * targetMax;
+  if (Math.abs(target.scrollLeft - next) > 0.5) target.scrollLeft = next;
+}
+
 /** Layout preferences are local-only. This component never writes payroll data. */
 export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly = false, overlay, onOverlayClose }: Props) {
   const [widths, setWidths] = useState(defaultMutationWidths);
@@ -148,15 +157,15 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         <button type="button" ref={expanded ? undefined : expandButton} className="mutation-sheet-action mutation-sheet-primary" onClick={() => expanded ? closeExpanded() : setExpanded(true)} disabled={readOnly}>{expanded ? 'Kecilkan tabel' : 'Perbesar tabel'}</button>
       </div>
       <div className="mutation-sheet-controls">
-        <label>Pilih kolom<select className="mutation-sheet-control" value={selected} disabled={readOnly} onChange={event => setSelected(event.target.value as MutationColumnId)}>{mutationColumns.map(column => <option key={column.id} value={column.id}>{column.label}</option>)}</select></label>
-        <label>Lebar (px)<input className="mutation-sheet-control" type="number" min={selectedColumn.min} max={selectedColumn.max} step={1} value={draftWidth} disabled={readOnly} onChange={event => setDraftWidth(event.target.value)} onBlur={commitWidth} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); commitWidth(); } }} /></label>
+        <label htmlFor={`${uid}-column`}>Pilih kolom<select id={`${uid}-column`} aria-label="Pilih kolom" className="mutation-sheet-control" value={selected} disabled={readOnly} onChange={event => setSelected(event.target.value as MutationColumnId)}>{mutationColumns.map(column => <option key={column.id} value={column.id}>{column.label}</option>)}</select></label>
+        <label htmlFor={`${uid}-width`}>Lebar (px)<input id={`${uid}-width`} aria-label="Lebar (px)" className="mutation-sheet-control" type="number" min={selectedColumn.min} max={selectedColumn.max} step={1} value={draftWidth} disabled={readOnly} onChange={event => setDraftWidth(event.target.value)} onBlur={commitWidth} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); commitWidth(); } }} /></label>
         <button type="button" className="mutation-sheet-action" onClick={commitWidth} disabled={readOnly}>Terapkan lebar</button>
         <button type="button" className="mutation-sheet-action" onClick={() => fitColumns(selected)} disabled={readOnly}>Sesuaikan isi kolom</button>
       </div>
-      <div ref={topScroll} className="mutation-sheet-top-scroll" aria-hidden="true" onScroll={event => { if (scroll.current && Math.abs(scroll.current.scrollLeft - event.currentTarget.scrollLeft) > 1) scroll.current.scrollLeft = event.currentTarget.scrollLeft; }}><div style={{ width: totalWidth + gutter, height: 1 }} /></div>
+      <div ref={topScroll} className="mutation-sheet-top-scroll" aria-hidden="true" onScroll={event => syncHorizontal(event.currentTarget, scroll.current)}><div style={{ width: totalWidth + gutter, height: 1 }} /></div>
       <div ref={scroll} className="mutation-sheet-scroll" role="region" aria-label="Gulir tabel Mutasi" aria-describedby={helpId} tabIndex={0} onScroll={event => {
         position.current = { left: event.currentTarget.scrollLeft, top: event.currentTarget.scrollTop };
-        if (topScroll.current && Math.abs(topScroll.current.scrollLeft - position.current.left) > 1) topScroll.current.scrollLeft = position.current.left;
+        syncHorizontal(event.currentTarget, topScroll.current);
       }}>
         <table id={tableId} ref={table} className="cp-table mutation-sheet-table" aria-label="Daftar Mutasi" style={{ width: totalWidth, minWidth: totalWidth, tableLayout: 'fixed' }}>
           <colgroup>{mutationColumns.map(column => <col key={column.id} style={{ width: widths[column.id] }} />)}</colgroup>
