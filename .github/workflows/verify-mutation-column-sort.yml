@@ -1,0 +1,44 @@
+name: Verify Mutasi column sorting
+on:
+  push:
+    branches: [prepare/mutation-column-sort-20260918]
+permissions:
+  contents: read
+concurrency:
+  group: mutation-column-sort
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Resolve existing mobile interop dependencies
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),path=require('node:path');
+          const web=require('./package.json'),mobile=require('../comeplayers-apps/apps/mobile/package.json');
+          for(const name of ['hpke','@panva/hpke-noble','@noble/curves','@noble/ciphers','@noble/hashes']){
+            if(web.dependencies[name]!==mobile.dependencies[name])throw new Error('Version mismatch: '+name);
+            const target=path.resolve('node_modules',name),link=path.resolve('../comeplayers-apps/apps/mobile/node_modules',name);
+            if(!fs.existsSync(target))throw new Error('Dependency missing: '+name);
+            fs.mkdirSync(path.dirname(link),{recursive:true});
+            fs.symlinkSync(target,link,'dir');
+          }
+          NODE
+      - name: Typecheck website
+        run: npm run typecheck
+      - name: Test Mutasi sorting and payroll regressions
+        run: npx --no-install tsx --test tests/mutation-column-sort.test.ts tests/mutation-table-layout.test.ts tests/payroll-manual-order-time.test.ts tests/payroll-mutation-reset.test.ts
