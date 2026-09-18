@@ -29,7 +29,7 @@ function stringValue(order: Order, column: MutationSortColumn) {
     case 'source': return order.source;
     case 'type': return order.orderType;
     case 'buyer': return order.buyerName ?? '';
-    case 'order': return order.orderName ?? (order.orderType === 'gold' ? 'Gold' : order.service);
+    case 'order': return order.orderName ?? (order.orderType === 'gold' ? 'Gold' : (order.service ?? ''));
     case 'workers': return getOrderAssignments(order).map((assignment) => `${assignment.employeeName} ${assignment.team}`).join(' ');
     case 'game': return order.gameName ?? order.game;
     case 'region': return order.region ?? '';
