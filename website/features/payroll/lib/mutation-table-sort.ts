@@ -52,7 +52,7 @@ export function compareMutationOrders(a: Order, b: Order, sort: MutationSortStat
   else if (sort.column === 'total') result = a.grossMinor - b.grossMinor;
   else result = collator.compare(stringValue(a, sort.column), stringValue(b, sort.column));
 
-  if (!result) result = collator.compare(a.externalReference, b.externalReference);
+  if (!result) result = collator.compare(a.externalReference ?? '', b.externalReference ?? '');
   return sort.direction === 'asc' ? result : -result;
 }
 
