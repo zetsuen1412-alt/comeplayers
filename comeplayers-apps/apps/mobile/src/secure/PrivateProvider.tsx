@@ -13,6 +13,7 @@ import { fingerprint } from "./crypto";
 import { verifyRoster, rosterHash } from "./multiDevice";
 import { supabase } from "../runtime";
 import type { SecureSetup } from "./secureSetup";
+import { maybeRunAutomaticDriveBackup } from "./driveBackupPreference";
 
 const Context = createContext<{ messenger: SecureMessengerV2 | null; error: string; reopen: () => void }>({ messenger: null, error: "", reopen: () => undefined });
 export const usePrivateMessenger = () => useContext(Context);
@@ -50,7 +51,7 @@ export function PrivateProvider({ userId, enabled, children }: { userId: string;
         assertLocalAccountMatch(fingerprint(local.identity), snapshot ? fingerprint(snapshot.roster.identity) : null, vault.descriptor.deviceId, snapshot?.roster.devices.map(device => device.id) ?? []);
         client = new SecureMessengerV2(vault, new SecureHistorySync(vault, mobileSecureTransport, mobileSecureBinaryTransport));
         runtime.current = client;
-        if (alive) { setMessenger(client); void client.sync().catch(reason => { if (alive) setError(reason instanceof Error ? reason.message : "Encrypted synchronization failed."); }); }
+        if (alive) { setMessenger(client); void client.sync().catch(reason => { if (alive) setError(reason instanceof Error ? reason.message : "Encrypted synchronization failed."); }); void maybeRunAutomaticDriveBackup(userId); }
       } else if (snapshot) setSetup({ kind: "recover", snapshot, policy });
       else { const prepared = prepareFirstDevice(userId); setSetup({ kind: "new", ...prepared, policy }); }
     };
@@ -70,8 +71,9 @@ export function PrivateProvider({ userId, enabled, children }: { userId: string;
       finally { checking = false; }
     };
     const timer = setInterval(() => { void refresh(); }, 10000);
-    const listener = AppState.addEventListener("change", next => { if (next === "active") void refresh(); });
-    return () => { alive = false; clearInterval(timer); listener.remove(); void client?.pause(); };
+    const backupTimer = setInterval(() => { if (AppState.currentState === "active") void maybeRunAutomaticDriveBackup(userId); }, 15 * 60 * 1000);
+    const listener = AppState.addEventListener("change", next => { if (next === "active") { void refresh(); void maybeRunAutomaticDriveBackup(userId); } });
+    return () => { alive = false; clearInterval(timer); clearInterval(backupTimer); listener.remove(); void client?.pause(); };
   }, [userId, enabled, generation, reopen]);
   const value = useMemo(() => ({ messenger, error: error || (dismissed && !messenger ? "Encrypted Messages are locked. Reopen account verification to continue." : ""), reopen }), [messenger, error, reopen, dismissed]);
   const setupKey = setup?.kind === "new" ? setup.plan.session.device.id : setup?.kind === "recover" ? setup.snapshot.roster_hash : `loading-${generation}`;
