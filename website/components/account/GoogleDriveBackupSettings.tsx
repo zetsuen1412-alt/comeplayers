@@ -134,12 +134,7 @@ export default function GoogleDriveBackupSettings({ userId, email }: { userId: s
   }
 
   const configured = driveOAuthConfigured();
-  const enabled = Boolean(
-    preference?.enabled &&
-    preference.rootFingerprint &&
-    preference.email &&
-    preference.rootFingerprint === preference.rootFingerprint,
-  );
+  const enabled = Boolean(preference?.enabled);
 
   return <section className="border-b border-cyan-400/15 px-6 py-7 md:px-8 md:py-9">
     <p className="inline-flex rounded-full border border-cyan-400/35 bg-cyan-400/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-cyan-200">
