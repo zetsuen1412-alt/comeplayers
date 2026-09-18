@@ -2,6 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "../runtime";
 import { openVerifiedVault } from "./verifiedVault";
 import { backUpToGoogleDrive } from "./googleDriveBackup";
+import { fingerprint } from "./crypto";
+import type { AccountRoster } from "./multiDevice";
 
 const KEY_KIND = "drive-backup-key-v1";
 const AUTO_INTERVAL_MS = 6 * 60 * 60 * 1000;
@@ -96,8 +98,8 @@ export function maybeRunAutomaticDriveBackup(userId: string): Promise<void> {
     if (!vault) return;
     const key = await vault.get<string>(KEY_KIND, userId);
     if (!key || !/^[0-9a-f]{64}$/i.test(key)) return;
-    const root = await vault.get<{ identity?: { encryptionKey?: string; signingKey?: string } }>("account-roster", userId);
-    if (!root) return;
+    const roster = await vault.get<AccountRoster>("account-roster", userId);
+    if (!roster || fingerprint(roster.identity) !== preference.rootFingerprint) return;
     try {
       const controller = new AbortController();
       const { backup, email } = await backUpToGoogleDrive(userId, key, () => undefined, controller.signal, session.user.email);
@@ -112,6 +114,7 @@ export function maybeRunAutomaticDriveBackup(userId: string): Promise<void> {
       if (latest?.enabled) await savePreference(userId, { ...latest, needsReconnect: true });
     }
   })();
-  running = operation.finally(() => { if (running === operation) running = null; });
-  return running;
+  const tracked = operation.finally(() => { if (running === tracked) running = null; });
+  running = tracked;
+  return tracked;
 }
