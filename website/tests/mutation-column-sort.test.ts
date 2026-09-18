@@ -79,3 +79,17 @@ test('codes use natural numeric ordering', () => {
     row({ externalReference: 'X1' }),
   ], state), ['X1','X2','X10']);
 });
+
+test('Mutasi page wires every sortable header to the active sort state', async () => {
+  const { readFileSync } = await import('node:fs');
+  const page = readFileSync('app/admin/payroll/mutations/page.tsx', 'utf8');
+  const component = readFileSync('features/payroll/components/mutation-spreadsheet.tsx', 'utf8');
+  assert.match(page, /sortColumn=\{sortState\.column\}/);
+  assert.match(page, /sortDirection=\{sortState\.direction\}/);
+  assert.match(page, /onSort=\{\(column\) => setSortState/);
+  assert.match(page, /compareMutationOrders\(a, b, sortState\)/);
+  assert.match(component, /column\.id !== 'actions'/);
+  assert.match(component, /aria-sort=\{activeSort/);
+  assert.match(component, /Klik judul kolom untuk mengurutkan/);
+  assert.match(component, /'↑' : '↓'/);
+});
