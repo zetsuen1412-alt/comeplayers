@@ -50,7 +50,7 @@ export function toggleMutationSort(current: MutationSortState, column: MutationS
 export function compareMutationOrders(a: Order, b: Order, sort: MutationSortState) {
   let result = 0;
   if (sort.column === 'quantity') result = a.quantity - b.quantity;
-  else if (sort.column === 'total') result = a.grossMinor - b.grossMinor;
+  else if (sort.column === 'total') result = (a.grossMinor ?? 0) - (b.grossMinor ?? 0);
   else result = collator.compare(stringValue(a, sort.column), stringValue(b, sort.column));
 
   if (!result) result = collator.compare(a.externalReference ?? '', b.externalReference ?? '');
