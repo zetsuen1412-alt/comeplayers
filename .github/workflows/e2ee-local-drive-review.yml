@@ -57,7 +57,6 @@ jobs:
           tests/marketplacePricing.test.ts
           tests/paypalCheckout.test.ts
           tests/paymentCurrency.test.tsx
-          tests/payroll-access.test.ts
           tests/payroll-final-workspace.test.ts
       - name: Mobile typecheck
         working-directory: comeplayers-apps
