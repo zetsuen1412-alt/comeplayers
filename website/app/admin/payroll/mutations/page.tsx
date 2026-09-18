@@ -6,6 +6,8 @@ import { getPayrollActor } from "@/features/payroll/lib/workspace-store";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
+import { MutationSpreadsheet } from "@/features/payroll/components/mutation-spreadsheet";
+import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { MutationEditModal } from "@/features/payroll/components/mutation-edit-modal";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
 import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
@@ -54,6 +56,7 @@ const sortLabels: Record<SortMode, string> = {
 
 export default function MutationsPage() {
   const { allOrders, updateOrder } = useDemoOrders();
+  const { isLocked } = useDemoPeriodLock();
   const { consumeAllocations } = useDemoInventory();
   const { addHistory, countsByOrder } = useDemoMutationHistory();
   const today = todayJakartaDateInput();
@@ -259,9 +262,8 @@ export default function MutationsPage() {
         <strong>Status:</strong> Proses → Dikerjakan → Pesanan ini selesai. <strong className="text-yellow-300">Mutasi tetap bisa diedit walaupun sudah selesai</strong>; setiap edit dicatat di menu Riwayat Perubahan. <span className="text-red-300">Bermasalah</span> tidak masuk Gaji. <span className="text-emerald-300">Selesai</span> masuk Gaji berikutnya, dan setelah Tutup Buku akan ditandai sudah digaji.
       </section>
 
-      <div className="cp-card mt-5 overflow-x-auto">
-        <table className="cp-table">
-          <thead><tr><th>Hari & tanggal</th><th>Kode</th><th>Sumber</th><th>Jenis</th><th>Pembeli</th><th>Nama pesanan</th><th>Karyawan</th><th>Gim</th><th>Wilayah</th><th>Server</th><th>Jumlah</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+      <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
+        overlay={editingOrder ? <MutationEditModal order={editingOrder} onClose={() => setEditingOrder(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingOrder, patch, changes, reason)} /> : null} onOverlayClose={() => setEditingOrder(null)}>
           <tbody>
             {rows.map((order) => {
               const status = workStatus(order);
@@ -269,17 +271,17 @@ export default function MutationsPage() {
               const rowClass = order.payrollClosedAt ? "bg-emerald-500/10" : order.operationalStatus === "on_hold" ? "bg-red-500/10" : "";
               return (
                 <tr key={order.id} className={rowClass}>
-                  <td className="min-w-[210px] text-sm">{formatDateTimeID(order.orderedAt)}</td>
-                  <td><Link href={`/admin/payroll/orders/${order.externalReference}`} className="font-semibold hover:text-yellow-300">{order.externalReference}</Link></td>
+                  <td className="text-sm">{formatDateTimeID(order.orderedAt)}</td>
+                  <td title={order.externalReference}><Link href={`/admin/payroll/orders/${order.externalReference}`} className="font-semibold hover:text-yellow-300">{order.externalReference}</Link></td>
                   <td>{order.source}</td>
                   <td>{order.orderType === "gold" ? "Gold" : order.orderType === "item" ? "Item" : "Boosting"}</td>
                   <td>{order.buyerName ?? "—"}</td>
                   <td>{order.orderName ?? (order.orderType === "gold" ? "Gold" : order.service)}</td>
-                  <td className="min-w-[230px]">{assignments.length ? assignments.map((a) => <div key={a.id}><strong>{a.employeeName}</strong> · {a.team} · <span className="text-yellow-300">{formatMoney(getAssignmentGrossMinor(order, a))}</span></div>) : "Belum ada"}</td>
+                  <td>{assignments.length ? assignments.map((a) => <div key={a.id}><strong>{a.employeeName}</strong> · {a.team} · <span className="text-yellow-300">{formatMoney(getAssignmentGrossMinor(order, a))}</span></div>) : "Belum ada"}</td>
                   <td>{order.gameName ?? order.game}</td><td>{order.region ?? "—"}</td><td>{order.server ?? "—"}</td>
                   <td>{order.quantity.toLocaleString("id-ID")}</td><td>{formatMoney(order.grossMinor)}</td>
                   <td><span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span></td>
-                  <td className="min-w-[360px]">
+                  <td>
                     <div className="flex flex-wrap gap-2">
                       <button onClick={() => setEditingOrder(order)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
                       {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}
@@ -295,11 +297,7 @@ export default function MutationsPage() {
               );
             })}
           </tbody>
-        </table>
-        {!rows.length ? <div className="p-6 text-sm text-zinc-500">Tidak ada Mutasi sesuai filter.</div> : null}
-      </div>
-
-      {editingOrder ? <MutationEditModal order={editingOrder} onClose={() => setEditingOrder(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingOrder, patch, changes, reason)} /> : null}
+      </MutationSpreadsheet>
     </>
   );
 }
