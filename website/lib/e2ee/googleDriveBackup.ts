@@ -1,4 +1,4 @@
-import { MAX_BROWSER_BACKUP_BYTES } from "./browserBackup";
+import { BROWSER_BACKUP_VERSION, MAX_BROWSER_BACKUP_BYTES } from "./browserBackup";
 
 const DRIVE_FILES = "https://www.googleapis.com/drive/v3/files";
 const DRIVE_UPLOAD = "https://www.googleapis.com/upload/drive/v3/files";
