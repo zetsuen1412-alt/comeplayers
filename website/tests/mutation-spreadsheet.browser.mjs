@@ -74,8 +74,16 @@ try {
     assert.ok(await width('source')>=130);
     await page.getByRole('button',{name:'Atur ulang lebar',exact:true}).click(); assert.equal(await width('order'),320);
 
-    await page.locator('.mutation-sheet-top-scroll').evaluate(el=>{el.scrollLeft=el.scrollWidth;});
-    await expect.poll(()=>page.locator('.mutation-sheet-scroll').evaluate(el=>Math.abs(el.scrollWidth-el.clientWidth-el.scrollLeft))).toBeLessThan(2);
+    const mainEnd=await page.locator('.mutation-sheet-scroll').evaluate(el=>{el.scrollLeft=1e9;const end=el.scrollLeft;el.scrollLeft=0;return end;});
+    const topEnd=await page.locator('.mutation-sheet-top-scroll').evaluate(el=>{el.scrollLeft=1e9;const end=el.scrollLeft;el.scrollLeft=0;return end;});
+    assert.ok(mainEnd>0 && topEnd>0);
+    await page.locator('.mutation-sheet-top-scroll').evaluate(el=>{el.scrollLeft=1e9;});
+    await expect.poll(()=>page.locator('.mutation-sheet-scroll').evaluate(el=>el.scrollLeft)).toBeCloseTo(mainEnd,0);
+    await page.locator('.mutation-sheet-scroll').evaluate(el=>{el.scrollLeft=el.scrollWidth/2;});
+    await expect.poll(async()=>{
+      const values=await page.evaluate(()=>{const main=document.querySelector('.mutation-sheet-scroll'),top=document.querySelector('.mutation-sheet-top-scroll');return [main.scrollLeft/(main.scrollWidth-main.clientWidth),top.scrollLeft/(top.scrollWidth-top.clientWidth)];});
+      return Math.abs(values[0]-values[1]);
+    }).toBeLessThan(0.01);
     await page.locator('.mutation-sheet-scroll').evaluate(el=>{el.scrollLeft=0;el.scrollTop=500;});
     await expect.poll(()=>page.locator('.mutation-sheet-top-scroll').evaluate(el=>el.scrollLeft)).toBe(0);
     assert.ok(await page.locator('.mutation-sheet-scroll').evaluate(el=>Math.abs(el.querySelector('th').getBoundingClientRect().top-el.getBoundingClientRect().top)<3));
