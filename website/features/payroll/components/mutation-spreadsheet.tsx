@@ -2,9 +2,10 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { clampMutationWidth, defaultMutationWidths, mutationColumns, mutationWidthsStorageKey, readMutationWidths, type MutationColumnId, type MutationColumnWidths } from '../lib/mutation-table-layout';
+import type { MutationSortColumn, MutationSortDirection } from '../lib/mutation-table-sort';
 import './mutation-spreadsheet.css';
 
-type Props = { children: ReactNode; rowCount: number; filterLabel: string; readOnly?: boolean; overlay?: ReactNode; onOverlayClose?: () => void };
+type Props = { children: ReactNode; rowCount: number; filterLabel: string; readOnly?: boolean; overlay?: ReactNode; onOverlayClose?: () => void; sortColumn?: MutationSortColumn; sortDirection?: MutationSortDirection; onSort?: (column: MutationSortColumn) => void };
 type Drag = { id: MutationColumnId; pointer: number; startX: number; width: number; target: HTMLButtonElement };
 
 function syncHorizontal(source: HTMLDivElement, target: HTMLDivElement | null) {
@@ -17,7 +18,7 @@ function syncHorizontal(source: HTMLDivElement, target: HTMLDivElement | null) {
 }
 
 /** Layout preferences are local-only. This component never writes payroll data. */
-export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly = false, overlay, onOverlayClose }: Props) {
+export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly = false, overlay, onOverlayClose, sortColumn, sortDirection, onSort }: Props) {
   const [widths, setWidths] = useState(defaultMutationWidths);
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState<MutationColumnId>('order');
@@ -151,7 +152,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
   function renderContent() {
     return <div className="mutation-sheet-content" data-resizing={resizing}>
       <div className="mutation-sheet-toolbar">
-        <div className="mutation-sheet-heading"><h2 id={headingId}>Tabel Mutasi</h2><p id={helpId}>Tarik batas kanan judul kolom untuk melebarkan. Klik dua kali batas untuk menyesuaikan isi. Geser tabel ke kanan untuk kolom lainnya.</p></div>
+        <div className="mutation-sheet-heading"><h2 id={headingId}>Tabel Mutasi</h2><p id={helpId}>Klik judul kolom untuk mengurutkan. Klik lagi untuk membalik urutan. Tarik batas kanan judul untuk mengubah lebar, atau klik dua kali batas untuk menyesuaikan isi.</p></div>
         <button type="button" className="mutation-sheet-action" onClick={() => fitColumns()} disabled={readOnly}>Rapikan semua kolom</button>
         <button type="button" className="mutation-sheet-action" onClick={() => { setWidths(defaultMutationWidths()); setMessage('Lebar kolom kembali ke ukuran awal.'); }} disabled={readOnly}>Atur ulang lebar</button>
         <button type="button" ref={expanded ? undefined : expandButton} className="mutation-sheet-action mutation-sheet-primary" onClick={() => expanded ? closeExpanded() : setExpanded(true)} disabled={readOnly}>{expanded ? 'Kecilkan tabel' : 'Perbesar tabel'}</button>
@@ -169,14 +170,25 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
       }}>
         <table id={tableId} ref={table} className="cp-table mutation-sheet-table" aria-label="Daftar Mutasi" style={{ width: totalWidth, minWidth: totalWidth, tableLayout: 'fixed' }}>
           <colgroup>{mutationColumns.map(column => <col key={column.id} style={{ width: widths[column.id] }} />)}</colgroup>
-          <thead><tr>{mutationColumns.map(column => <th scope="col" key={column.id} data-column={column.id} data-selected={selected === column.id}>
-            <button type="button" className="mutation-sheet-header" onClick={() => setSelected(column.id)} disabled={readOnly} title={`Pilih kolom ${column.label} untuk mengatur lebarnya`}>{column.label}</button>
-            <button type="button" className="mutation-sheet-resizer" role="separator" aria-orientation="vertical" aria-label={`Lebar kolom ${column.label}`} aria-valuemin={column.min} aria-valuemax={column.max} aria-valuenow={widths[column.id]} aria-valuetext={`${widths[column.id]} piksel`} aria-controls={tableId} disabled={readOnly}
-              title="Tarik untuk mengubah lebar; klik dua kali / Enter untuk sesuaikan isi. Panah kiri/kanan juga dapat digunakan."
-              onPointerDown={event => startDrag(event, column.id)} onPointerMove={moveDrag}
-              onPointerUp={event => { moveDrag(event); endDrag(); }} onPointerCancel={() => endDrag(true)} onLostPointerCapture={() => endDrag()}
-              onDoubleClick={() => fitColumns(column.id)} onKeyDown={event => keyboardResize(event, column.id)} />
-          </th>)}</tr></thead>
+          <thead><tr>{mutationColumns.map(column => {
+            const sortable = column.id !== 'actions' && Boolean(onSort);
+            const activeSort = sortable && sortColumn === column.id;
+            return <th scope="col" key={column.id} data-column={column.id} data-selected={selected === column.id}
+              aria-sort={activeSort ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}>
+              <button type="button" className="mutation-sheet-header" onClick={() => {
+                setSelected(column.id);
+                if (sortable) onSort?.(column.id as MutationSortColumn);
+              }} title={sortable ? `Urutkan ${column.label}; klik lagi untuk membalik urutan` : `Pilih kolom ${column.label} untuk mengatur lebarnya`}>
+                <span>{column.label}</span>
+                {sortable ? <span className="mutation-sheet-sort-indicator" data-active={activeSort} aria-hidden="true">{activeSort ? (sortDirection === 'asc' ? '↑' : '↓') : '↕'}</span> : null}
+              </button>
+              <button type="button" className="mutation-sheet-resizer" role="separator" aria-orientation="vertical" aria-label={`Lebar kolom ${column.label}`} aria-valuemin={column.min} aria-valuemax={column.max} aria-valuenow={widths[column.id]} aria-valuetext={`${widths[column.id]} piksel`} aria-controls={tableId} disabled={readOnly}
+                title="Tarik untuk mengubah lebar; klik dua kali / Enter untuk sesuaikan isi. Panah kiri/kanan juga dapat digunakan."
+                onPointerDown={event => startDrag(event, column.id)} onPointerMove={moveDrag}
+                onPointerUp={event => { moveDrag(event); endDrag(); }} onPointerCancel={() => endDrag(true)} onLostPointerCapture={() => endDrag()}
+                onDoubleClick={() => fitColumns(column.id)} onKeyDown={event => keyboardResize(event, column.id)} />
+            </th>;
+          })}</tr></thead>
           {children}
         </table>
         {!rowCount && <p style={{ padding: 20 }}>Tidak ada Mutasi sesuai filter.</p>}
