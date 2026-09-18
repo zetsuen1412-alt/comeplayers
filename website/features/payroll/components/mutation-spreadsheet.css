@@ -26,7 +26,9 @@
 .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(11), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(12) { text-align: right; font-variant-numeric: tabular-nums; }
 .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(7) span, .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14) :is(button,a,span) { white-space: nowrap; }
 .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14)>div { display: flex; flex-wrap: wrap; gap: 8px; }
-.evocp-payroll .mutation-sheet-header { display: block; width: calc(100% - 14px); min-height: 48px; margin: 0; padding: 10px 14px; border: 0; border-radius: 0; background: transparent; color: inherit; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
+.evocp-payroll .mutation-sheet-header { display: flex; align-items: center; gap: 8px; width: calc(100% - 14px); min-height: 48px; margin: 0; padding: 10px 14px; border: 0; border-radius: 0; background: transparent; color: inherit; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
+.evocp-payroll .mutation-sheet-sort-indicator { margin-left: auto; color: #71717a; font-size: 14px; font-weight: 800; line-height: 1; }
+.evocp-payroll .mutation-sheet-sort-indicator[data-active=true] { color: #f5c542; }
 .evocp-payroll .cp-table.mutation-sheet-table th[data-selected=true] { background: #323020; box-shadow: inset 0 -2px #f5c542; }
 .evocp-payroll .mutation-sheet-resizer { position: absolute; right: 0; top: 0; bottom: 0; width: 14px; height: 100%; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: col-resize; touch-action: none; user-select: none; }
 .evocp-payroll .mutation-sheet-resizer::after { content: ''; position: absolute; top: 9px; bottom: 9px; left: 6px; width: 2px; background: #666877; }
