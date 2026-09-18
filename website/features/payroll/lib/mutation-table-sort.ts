@@ -24,14 +24,14 @@ function statusText(order: Order) {
 
 function stringValue(order: Order, column: MutationSortColumn): string {
   switch (column) {
-    case 'date': return order.orderedAt;
-    case 'code': return order.externalReference;
-    case 'source': return order.source;
-    case 'type': return order.orderType;
+    case 'date': return order.orderedAt ?? '';
+    case 'code': return order.externalReference ?? '';
+    case 'source': return order.source ?? '';
+    case 'type': return order.orderType ?? '';
     case 'buyer': return order.buyerName ?? '';
     case 'order': return order.orderName ?? (order.orderType === 'gold' ? 'Gold' : (order.service ?? ''));
     case 'workers': return getOrderAssignments(order).map((assignment) => `${assignment.employeeName} ${assignment.team}`).join(' ');
-    case 'game': return order.gameName ?? order.game;
+    case 'game': return order.gameName ?? order.game ?? '';
     case 'region': return order.region ?? '';
     case 'server': return order.server ?? '';
     case 'status': return statusText(order);
