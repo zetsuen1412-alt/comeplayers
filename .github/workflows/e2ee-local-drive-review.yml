@@ -1,0 +1,74 @@
+name: E2EE local and Drive review
+on:
+  push:
+    branches: [feature/e2ee-local-google-drive-20260919]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: e2ee-local-drive-review
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website
+            comeplayers-apps
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install website dependencies
+        working-directory: website
+        run: npm ci --no-audit --no-fund
+      - name: Install application dependencies
+        working-directory: comeplayers-apps
+        run: npm ci --no-audit --no-fund
+      - name: Website typecheck
+        working-directory: website
+        run: npm run typecheck
+      - name: E2EE account, backup and messaging tests
+        working-directory: website
+        run: >
+          npx --no-install tsx --test
+          tests/browserDriveBackup.test.ts
+          tests/recoveryPolicy.test.ts
+          tests/recoveryStorage.test.mjs
+          tests/passkeyRecovery.test.ts
+          tests/secureAccountProtocol.test.ts
+          tests/accountMessaging.test.ts
+          tests/chatSecureGate.test.ts
+          ../comeplayers-apps/tests/privateAccountRecovery.test.ts
+          ../comeplayers-apps/tests/privateMultiDevice.test.ts
+          ../comeplayers-apps/tests/privateHistorySync.test.ts
+          ../comeplayers-apps/tests/privateVerifiedBackup.test.ts
+          ../comeplayers-apps/tests/privateDriveBackup.test.ts
+      - name: Payment and payroll regression checks
+        working-directory: website
+        run: >
+          npx --no-install tsx --test
+          tests/cpWallet.test.ts
+          tests/marketplacePricing.test.ts
+          tests/paypalCheckout.test.ts
+          tests/paymentCurrency.test.tsx
+          tests/payroll-access.test.ts
+          tests/payroll-final-workspace.test.ts
+      - name: Mobile typecheck
+        working-directory: comeplayers-apps
+        run: npm run typecheck --workspace @comeplayers/mobile
+      - name: Recovery policy parity
+        run: cmp website/lib/e2ee/recoveryPolicy.ts comeplayers-apps/apps/mobile/src/secure/recoveryPolicy.ts
+      - name: Web build without production credentials
+        working-directory: website
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-production-key
+          NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: 1234567890-example.apps.googleusercontent.com
+        run: npm run build
