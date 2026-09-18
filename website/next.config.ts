@@ -24,7 +24,7 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self' https://*.paypal.com",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.paypal.com https://*.paypalobjects.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.paypal.com https://*.paypalobjects.com https://accounts.google.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https:",
