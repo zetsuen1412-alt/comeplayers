@@ -22,7 +22,7 @@ function statusText(order: Order) {
   return 'Baru';
 }
 
-function stringValue(order: Order, column: MutationSortColumn) {
+function stringValue(order: Order, column: MutationSortColumn): string {
   switch (column) {
     case 'date': return order.orderedAt;
     case 'code': return order.externalReference;
@@ -39,6 +39,7 @@ function stringValue(order: Order, column: MutationSortColumn) {
     case 'total':
       return '';
   }
+  return '';
 }
 
 export function toggleMutationSort(current: MutationSortState, column: MutationSortColumn): MutationSortState {
