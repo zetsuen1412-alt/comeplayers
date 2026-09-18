@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { MutationSpreadsheet } from "@/features/payroll/components/mutation-spreadsheet";
+import { compareMutationOrders, defaultMutationSort, mutationSortLabel, toggleMutationSort, type MutationSortState } from "@/features/payroll/lib/mutation-table-sort";
 import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { MutationEditModal } from "@/features/payroll/components/mutation-edit-modal";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
@@ -44,15 +45,22 @@ function workStatus(order: Order) {
   return { label: "Baru", cls: "bg-zinc-800 text-zinc-300" };
 }
 
-const sortLabels: Record<SortMode, string> = {
-  newest: "Terbaru",
-  oldest: "Terlama",
-  highest: "Nilai terbesar",
-  lowest: "Nilai terkecil",
-  source_az: "Sumber A-Z",
-  buyer_az: "Pembeli A-Z",
-  game_az: "Permainan A-Z",
+const sortPresets: Record<SortMode, MutationSortState> = {
+  newest: { column: "date", direction: "desc" },
+  oldest: { column: "date", direction: "asc" },
+  highest: { column: "total", direction: "desc" },
+  lowest: { column: "total", direction: "asc" },
+  source_az: { column: "source", direction: "asc" },
+  buyer_az: { column: "buyer", direction: "asc" },
+  game_az: { column: "game", direction: "asc" },
 };
+
+function sortModeFromState(state: MutationSortState): SortMode | "custom" {
+  for (const [mode, preset] of Object.entries(sortPresets) as [SortMode, MutationSortState][]) {
+    if (preset.column === state.column && preset.direction === state.direction) return mode;
+  }
+  return "custom";
+}
 
 export default function MutationsPage() {
   const { allOrders, updateOrder } = useDemoOrders();
@@ -67,7 +75,7 @@ export default function MutationsPage() {
   const [type, setType] = useState<TypeFilter>("SEMUA");
   const [buyer, setBuyer] = useState("SEMUA");
   const [game, setGame] = useState("SEMUA");
-  const [sort, setSort] = useState<SortMode>("newest");
+  const [sortState, setSortState] = useState<MutationSortState>(defaultMutationSort);
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -92,16 +100,8 @@ export default function MutationsPage() {
 
   const rows = useMemo(() => {
     const filtered = source === "SEMUA" ? baseRows : baseRows.filter((order) => order.source === source);
-    return [...filtered].sort((a, b) => {
-      if (sort === "oldest") return a.orderedAt.localeCompare(b.orderedAt);
-      if (sort === "highest") return b.grossMinor - a.grossMinor || b.orderedAt.localeCompare(a.orderedAt);
-      if (sort === "lowest") return a.grossMinor - b.grossMinor || b.orderedAt.localeCompare(a.orderedAt);
-      if (sort === "source_az") return a.source.localeCompare(b.source, "id") || b.orderedAt.localeCompare(a.orderedAt);
-      if (sort === "buyer_az") return (a.buyerName ?? "").localeCompare(b.buyerName ?? "", "id") || b.orderedAt.localeCompare(a.orderedAt);
-      if (sort === "game_az") return (a.gameName ?? a.game).localeCompare(b.gameName ?? b.game, "id") || b.orderedAt.localeCompare(a.orderedAt);
-      return b.orderedAt.localeCompare(a.orderedAt);
-    });
-  }, [baseRows, sort, source]);
+    return [...filtered].sort((a, b) => compareMutationOrders(a, b, sortState));
+  }, [baseRows, sortState, source]);
 
   const total = rows.reduce((sum, row) => sum + row.grossMinor, 0);
   const payrollReady = rows
@@ -122,6 +122,7 @@ export default function MutationsPage() {
   }, [baseRows]);
 
   const periodLabel = mode === "all" ? "Semua periode" : mode === "today" ? "Hari ini" : mode === "week" ? "7 hari" : mode === "month" ? "Bulan ini" : `${from} s.d. ${to}`;
+  const selectedSortMode = sortModeFromState(sortState);
   const exportLabel = [
     periodLabel,
     `Sumber: ${source === "SEMUA" ? "Semua" : source}`,
@@ -129,7 +130,7 @@ export default function MutationsPage() {
     `Buyer: ${buyer === "SEMUA" ? "Semua" : buyer}`,
     `Permainan: ${game === "SEMUA" ? "Semua" : game}`,
     search.trim() ? `Kode: ${search.trim()}` : "Kode: Semua",
-    `Urutan: ${sortLabels[sort]}`,
+    `Urutan: ${mutationSortLabel(sortState)}`,
   ].join(" • ");
 
   function resetFilters() {
@@ -138,7 +139,7 @@ export default function MutationsPage() {
     setType("SEMUA");
     setBuyer("SEMUA");
     setGame("SEMUA");
-    setSort("newest");
+    setSortState(defaultMutationSort);
     setSearch("");
   }
 
@@ -228,7 +229,7 @@ export default function MutationsPage() {
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
             <label className="text-sm">Cari kode pesanan<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: EG25" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={sort} onChange={(e) => setSort(e.target.value as SortMode)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
+            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as SortMode; if (sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
             <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
           </div>
         </div>
@@ -263,6 +264,7 @@ export default function MutationsPage() {
       </section>
 
       <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
+        sortColumn={sortState.column} sortDirection={sortState.direction} onSort={(column) => setSortState((current) => toggleMutationSort(current, column))}
         overlay={editingOrder ? <MutationEditModal order={editingOrder} onClose={() => setEditingOrder(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingOrder, patch, changes, reason)} /> : null} onOverlayClose={() => setEditingOrder(null)}>
           <tbody>
             {rows.map((order) => {
