@@ -13,6 +13,7 @@ import { colors } from "./src/theme";
 import type { AppTab } from "./src/types";
 const CommunityScreen = lazy(() => import("./src/screens/CommunityScreen").then(module => ({ default: module.CommunityScreen })));
 import { ConversationScreen } from "./src/screens/ConversationScreen";
+import { PrivateConversationScreen } from "./src/screens/PrivateConversationScreen";
 const NewsScreen = lazy(() => import("./src/screens/NewsScreen").then(module => ({ default: module.NewsScreen })));
 const MarketplaceScreen = lazy(() => import("./src/screens/MarketplaceScreen").then(module => ({ default: module.MarketplaceScreen })));
 import { MessagesScreen } from "./src/screens/MessagesScreen";
@@ -22,6 +23,7 @@ import { loadPreferences, type AccountPreferences } from "./src/messagingApi";
 import { MfaChallenge } from "./src/screens/MfaChallenge";
 import { MessageAlerts } from "./src/MessageAlerts";
 import { InboxProvider } from "./src/InboxProvider";
+import { PrivateProvider } from "./src/secure/PrivateProvider";
 import { CommerceProvider } from "./src/CommerceProvider";
 import { parseCommerceLink, type CommerceLink } from "./src/commercePolicy";
 import { AccountSessionGuard } from "./src/AccountSessionGuard";
@@ -176,8 +178,8 @@ function NativeComePlayersApp() {
 
   const title = tab === "home" ? "News" : tab === "community" ? "Community" : tab === "marketplace" ? "Marketplace" : tab === "messages" ? "Messages" : "Your profile";
   const subtitle = session ? `Connected as ${session.user.email || "player"}` : "ComePlayers mobile";
-  const Conversation = ConversationScreen;
-  return <CommerceProvider key={session.user.id} userId={session.user.id}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
+  const Conversation = room?.room_type === "group" ? ConversationScreen : PrivateConversationScreen;
+  return <PrivateProvider key={`private:${session.user.id}`} userId={session.user.id} enabled={!(account?.phoneRequired && !account.phoneVerified)}><CommerceProvider key={session.user.id} userId={session.user.id}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
     {tab !== "messages" ? <ScreenHeader title={title} subtitle={subtitle} /> : null}
     <View style={styles.content}><Suspense fallback={<ActivityIndicator style={{ padding: 30 }} color={colors.yellow} />}>
       {tab === "home" ? <NewsScreen /> : null}
@@ -188,7 +190,7 @@ function NativeComePlayersApp() {
     </Suspense></View>
     <BottomTabs active={tab} onChange={(next) => { setRoom(null); setTab(next); }} unread={unread} />
     {updateUi.visible && updateUi.stage !== "ready" ? <View pointerEvents="none" style={styles.updateToast}><ActivityIndicator size="small" color={colors.yellow} /><Text style={styles.updateText}>{updateUi.message}</Text></View> : null}
-  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider></CommerceProvider>;
+  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider></CommerceProvider></PrivateProvider>;
 }
 
 export default function App() {
