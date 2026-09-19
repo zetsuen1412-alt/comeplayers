@@ -41,6 +41,6 @@ export default function PasskeyRecoverySettings() {
     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">Simpan passkey di pengelola sandi tersinkron. Setelah login di perangkat baru, gunakan sidik jari atau PIN perangkat untuk membuka kunci dan memulihkan chat terenkripsi.</p>
     <button type="button" disabled={busy} onClick={() => void enable()} className="mt-4 rounded-xl bg-amber-300 px-5 py-3 font-bold text-black disabled:opacity-40">{busy ? "Menyiapkan passkey…" : "Aktifkan pemulihan passkey"}</button>
     {message ? <p role="status" className="mt-4 text-sm text-amber-200">{message}</p> : null}
-    <p className="mt-3 text-xs leading-5 text-slate-400">ComePlayers hanya menyimpan cadangan terenkripsi. Recovery key lama tetap berlaku untuk cadangan file yang telah diekspor.</p>
+    <p className="mt-3 text-xs leading-5 text-slate-400">ComePlayers hanya menyimpan cadangan terenkripsi. Tidak ada recovery code yang perlu disimpan atau diketik; perangkat baru memakai passkey akun dan, bila diaktifkan, backup terenkripsi Google Drive.</p>
   </section>;
 }
