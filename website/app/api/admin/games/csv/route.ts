@@ -237,24 +237,40 @@ export async function POST(request: Request) {
 
       const categoryValue = text(
         rawRow.category_slug || rawRow.category || rawRow.category_name
-      ).toLowerCase();
-      let importedCategoryId: number | null | undefined;
+      );
+      let importedCategoryIds: number[] | null | undefined;
       if (categoryValue) {
         if (categoryValue.toUpperCase() === CLEAR_TOKEN) {
-          importedCategoryId = null;
+          importedCategoryIds = null;
         } else {
-          importedCategoryId =
-            categoryBySlug.get(slugify(categoryValue)) ||
-            categoryByName.get(categoryValue);
-          if (!importedCategoryId) {
-            throw validationError(
-              `Row ${index + 2}: category "${categoryValue}" was not found.`
-            );
+          const categoryValues = Array.from(
+            new Set(
+              categoryValue
+                .split(/[|;,]+/)
+                .map((value) => value.trim().toLowerCase())
+                .filter(Boolean)
+            )
+          );
+
+          importedCategoryIds = categoryValues.map((value) => {
+            const categoryId =
+              categoryBySlug.get(slugify(value)) ||
+              categoryByName.get(value);
+            if (!categoryId) {
+              throw validationError(
+                `Row ${index + 2}: category "${value}" was not found.`
+              );
+            }
+            return categoryId;
+          });
+
+          if (importedCategoryIds.length === 0) {
+            importedCategoryIds = undefined;
           }
         }
       }
 
-      return { rawRow, name, slug, importedCategoryId, rowNumber: index + 2 };
+      return { rawRow, name, slug, importedCategoryIds, rowNumber: index + 2 };
     });
 
     const duplicateSlugs = normalizedRows
@@ -285,13 +301,15 @@ export async function POST(request: Request) {
     }
 
     const now = new Date().toISOString();
-    const upsertRows = normalizedRows.map(({ rawRow, name, slug, importedCategoryId, rowNumber }) => {
+    const upsertRows = normalizedRows.map(({ rawRow, name, slug, importedCategoryIds, rowNumber }) => {
       const previous = existingGames.get(slug);
       const status = normalizeStatus(rawRow.status, previous?.status || "active");
       const categoryId =
-        importedCategoryId === undefined
+        importedCategoryIds === undefined
           ? previous?.category_id ?? null
-          : importedCategoryId;
+          : importedCategoryIds === null
+            ? null
+            : importedCategoryIds[0] ?? previous?.category_id ?? null;
 
       let steamAppId: number | null;
       let isFeatured: boolean;
@@ -313,7 +331,7 @@ export async function POST(request: Request) {
           overrideFields.add(field);
         }
       }
-      if (importedCategoryId !== undefined) overrideFields.add("category_id");
+      if (importedCategoryIds !== undefined) overrideFields.add("category_id");
 
       return {
         name,
@@ -355,14 +373,29 @@ export async function POST(request: Request) {
     if (importError) throw new Error(importError.message);
 
     const importedGameRows = (importedGames || []) as ImportedGameRow[];
-    const categoryMappings = importedGameRows
-      .filter((game) => game.category_id)
-      .map((game) => ({
-        category_id: Number(game.category_id),
+    const importedGameBySlug = new Map(
+      importedGameRows.map((game) => [game.slug, game])
+    );
+    const categoryMappings = normalizedRows.flatMap((row) => {
+      const game = importedGameBySlug.get(row.slug);
+      if (!game) return [];
+
+      const categoryIds =
+        row.importedCategoryIds === undefined
+          ? game.category_id
+            ? [Number(game.category_id)]
+            : []
+          : row.importedCategoryIds === null
+            ? []
+            : row.importedCategoryIds;
+
+      return categoryIds.map((categoryId) => ({
+        category_id: Number(categoryId),
         game_master_id: Number(game.id),
         status: "active",
         sort_order: 0,
       }));
+    });
 
     if (categoryMappings.length > 0) {
       const { error: mappingError } = await supabaseAdmin
