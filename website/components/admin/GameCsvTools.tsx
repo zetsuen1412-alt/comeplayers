@@ -344,7 +344,7 @@ export default function GameCsvTools() {
                 </p>
                 <h2 className="mt-2 text-3xl font-black">Impor dan Ekspor CSV</h2>
                 <p className="mt-2 max-w-3xl text-sm text-slate-400">
-                  Slug digunakan sebagai kunci pembaruan. Baris dengan slug yang sudah ada akan diperbarui; slug baru akan membuat permainan baru. Sel kosong tidak menghapus data yang sudah ada. Gunakan [CLEAR] untuk mengosongkan kolom URL atau deskripsi.
+                  Slug digunakan sebagai kunci pembaruan. Baris dengan slug yang sudah ada akan diperbarui; slug baru akan membuat permainan baru. Kolom category_slug dapat memuat beberapa kategori sekaligus dengan pemisah |, misalnya game-accounts|game-coins|game-items|boosting. Sel kosong tidak menghapus data yang sudah ada. Gunakan [CLEAR] untuk mengosongkan kolom URL atau deskripsi.
                 </p>
               </div>
 
