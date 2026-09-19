@@ -100,8 +100,8 @@ import {
 import { supabase } from "@/lib/supabase";
 import styles from "./messages.module.css";
 
-const AccountDirectCall = dynamic(
-  () => import("@/components/messages/AccountDirectCall"),
+const SecureDirectConversation = dynamic(
+  () => import("@/components/messages/SecureDirectConversation"),
   { ssr: false },
 );
 
@@ -2643,6 +2643,12 @@ export default function MessagesPage() {
       : "",
   ) {
     if (!roomId) return;
+    const knownRoom = roomsRef.current.find((room) => room.id === roomId) || null;
+    if (knownRoom && !isGroupRoom(knownRoom)) {
+      setConversation({ room: knownRoom, messages: [] });
+      setLoadingMessages(false);
+      return;
+    }
     if (!silent) setLoadingMessages(true);
     try {
       const channelQuery = channelId
@@ -3418,6 +3424,11 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!selectedRoomId || !userId) return;
+    const selected = roomsRef.current.find((room) => room.id === selectedRoomId) || null;
+    if (selected && !isGroupRoom(selected)) {
+      setTypingUsers({});
+      return;
+    }
     const resetTypingTimer = window.setTimeout(() => setTypingUsers({}), 0);
     const activeChannelId =
       communityChannelSelection?.roomId === selectedRoomId
@@ -6551,9 +6562,11 @@ export default function MessagesPage() {
                     ) : null}
 
                     {!selectedIsGroup ? (
-                      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
-                        <p className="text-xs text-slate-400">Messages sync with your account. ComePlayers stores and processes messages.</p>
-                        <AccountDirectCall key={`${userId}:${selectedRoom.id}`} roomId={selectedRoom.id} userId={userId} peerName={roomTitle(selectedRoom)} onError={setError} />
+                      <div className="border-b border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-3">
+                        <p className="flex items-center gap-2 text-xs font-bold text-emerald-200">
+                          <FaLock />
+                          Direct message, lampiran, dan panggilan baru dienkripsi end-to-end. Riwayat disimpan terenkripsi di perangkat ini.
+                        </p>
                       </div>
                     ) : null}
 
@@ -6564,6 +6577,14 @@ export default function MessagesPage() {
                         through the encrypted delivery form on the order page,
                         not chat.
                       </div>
+                    ) : null}
+
+                    {!selectedIsGroup ? (
+                      <SecureDirectConversation
+                        key={`secure-direct:${userId}:${selectedRoom.id}`}
+                        userId={userId}
+                        room={selectedRoom}
+                      />
                     ) : null}
 
                     {selectedIsGroup && selectedCommunityChannel ? (
@@ -6629,7 +6650,7 @@ export default function MessagesPage() {
                     ) : null}
 
                     <div
-                      className={`${styles.messageViewport} relative flex-1 overflow-hidden bg-[url('/hero-bg.webp')] bg-cover bg-center`}
+                      className={`${styles.messageViewport} ${!selectedIsGroup ? "hidden" : ""} relative flex-1 overflow-hidden bg-[url('/hero-bg.webp')] bg-cover bg-center`}
                     >
                       <div className="pointer-events-none absolute inset-0 bg-[#02101c]/78" />
                       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(6,182,212,0.22),transparent_30%),linear-gradient(90deg,rgba(2,8,18,0.86),rgba(4,18,33,0.62)_50%,rgba(2,8,18,0.8))]" />
@@ -6877,7 +6898,8 @@ export default function MessagesPage() {
                       </div>
                     </div>
 
-                    {!selectedChannelIsVoice &&
+                    {selectedIsGroup &&
+                    !selectedChannelIsVoice &&
                     Object.values(visibleTypingUsers).length ? (
                       <div className="px-5 pb-2 text-xs font-bold text-cyan-300">
                         {Object.values(visibleTypingUsers)
@@ -6889,7 +6911,7 @@ export default function MessagesPage() {
                     ) : null}
 
                     <div
-                      className={`${styles.composerDock} border-t border-cyan-400/15 bg-[#061421]/86 p-4 backdrop-blur-xl`}
+                      className={`${styles.composerDock} ${!selectedIsGroup ? "hidden" : ""} border-t border-cyan-400/15 bg-[#061421]/86 p-4 backdrop-blur-xl`}
                     >
                       {notice ? (
                         <div className="mb-3 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-200">
