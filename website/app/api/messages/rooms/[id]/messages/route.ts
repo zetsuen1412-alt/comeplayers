@@ -68,7 +68,15 @@ export async function POST(request: Request, context: RouteContext) {
     });
     const groupRoom = isGroupRoom(room);
     await assertLegacyDirectMessagingAllowed(supabaseAdmin, room);
-    if (!groupRoom) await assertContactAllowed(supabaseAdmin, user.id, room.buyer_id === user.id ? room.seller_id : room.buyer_id);
+    if (!groupRoom) {
+      return NextResponse.json(
+        {
+          error: "Direct messages now require end-to-end encryption. Update or reload ComePlayers and send from the secure conversation.",
+          code: "E2EE_REQUIRED",
+        },
+        { status: 426, headers: { "Cache-Control": "no-store" } },
+      );
+    }
     const selectedChannel = groupRoom
       ? (
           await requireCommunityChannel({
