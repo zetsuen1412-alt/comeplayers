@@ -6,6 +6,8 @@ import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { supabase } from "@/lib/supabase";
 import { activateVerifiedDevice, prepareFirstDevice, prepareRecoveredDevice, type AccountSnapshot, type EnrollmentPlan } from "@/lib/e2ee/account";
 import { openBrowserVault, closeBrowserVault, persistVerifiedBrowserSession } from "@/lib/e2ee/browserVault";
+import { DRIVE_BACKUP_KEY_KIND, exportBrowserBackup, restoreBrowserBackup } from "@/lib/e2ee/browserBackup";
+import { connectGoogleDrive, downloadLatestBrowserDriveBackup, driveOAuthConfigured, uploadBrowserDriveBackup, writeDriveBackupPreference } from "@/lib/e2ee/googleDriveBackup";
 import { createBrowserPasskeyRecovery, unlockBrowserPasskeyRecovery } from "@/lib/e2ee/browserPasskey";
 import { applyBrowserRecoveryPolicy } from "@/lib/e2ee/browserRecoveryPolicy";
 import { assertLocalAccountMatch, parseRecoveryPolicy, recoveryHeaders, validateDeviceReplacement, type RecoveryPolicy } from "@/lib/e2ee/recoveryPolicy";
@@ -14,6 +16,7 @@ import { verifyRoster, rosterHash } from "@/lib/e2ee/protocol";
 import { SecureHistorySync, type SecureTransport } from "@/lib/e2ee/historySync";
 import { WebMessenger, type SecureRoom } from "@/lib/e2ee/webMessenger";
 import SecureConversationView from "./SecureConversationView";
+import GoogleDriveAutoBackupAgent from "./GoogleDriveAutoBackupAgent";
 
 type Setup = ({ kind: "new"; plan: EnrollmentPlan } | { kind: "recover"; snapshot: AccountSnapshot }) & { policy: RecoveryPolicy };
 const transport: SecureTransport = (path, init = {}) => authenticatedFetchJson(path, init);
@@ -24,6 +27,7 @@ async function binaryTransport(url: string, init?: { method?: string; headers?: 
 async function assertUser(userId: string) {
   const { data } = await supabase.auth.getSession();
   if (data.session?.user.id !== userId) throw new Error("The signed-in account changed. Reopen Messages.");
+  return data.session;
 }
 async function readAccount(userId: string) {
   await assertUser(userId);
@@ -81,11 +85,18 @@ export default function SecureDirectConversation({ userId, room }: { userId: str
     });
     return () => { active = false; clearInterval(timer); document.removeEventListener("visibilitychange", visible); data.subscription.unsubscribe(); };
   }, [userId, refresh]);
-  async function activate() {
+  async function activate(useDrive = false) {
     if (!setup || submitting.current || busy) return;
     submitting.current = true; setBusy(true); setError("");
+    let recoveryKey = "";
+    let drive: Awaited<ReturnType<typeof connectGoogleDrive>> | null = null;
     try {
-      await assertUser(userId);
+      const signedIn = await assertUser(userId);
+      const accountEmail = signedIn.user.email || "";
+      if (useDrive) {
+        if (!driveOAuthConfigured()) throw new Error("Google Drive web belum dikonfigurasi.");
+        drive = await connectGoogleDrive(accountEmail, true);
+      }
       const selection = [...removeDeviceIds].sort().join(",");
       let plan = cached.current?.setup === setup && cached.current.selection === selection ? cached.current.plan : null;
       if (!plan) {
@@ -93,14 +104,23 @@ export default function SecureDirectConversation({ userId, room }: { userId: str
           if (!setup.plan.backup) throw new Error("The client-encrypted backup is missing.");
           const passkey = await createBrowserPasskeyRecovery(setup.plan.recoveryIdentity);
           plan = { ...setup.plan, backup: { ...setup.plan.backup, passkey } };
+          if (useDrive) {
+            recoveryKey = await unlockBrowserPasskeyRecovery(passkey, setup.plan.session.root);
+          }
         } else {
           const passkey = setup.snapshot.encrypted_backup.passkey;
-          if (!passkey) throw new Error("The approved account reset has not been applied yet. Refresh after the new release is active.");
+          if (!passkey) throw new Error("Akun ini belum memiliki passkey E2EE yang dapat dipulihkan.");
           validateDeviceReplacement(setup.snapshot.roster.devices.map(device => device.id), removeDeviceIds);
-          const key = await unlockBrowserPasskeyRecovery(passkey, setup.snapshot.roster.identity);
-          plan = prepareRecoveredDevice(userId, { ...setup.snapshot, encrypted_backup: passkey.backup }, key, { pinnedRoot: setup.snapshot.roster.identity, removeDeviceIds });
+          recoveryKey = await unlockBrowserPasskeyRecovery(passkey, setup.snapshot.roster.identity);
+          plan = prepareRecoveredDevice(userId, { ...setup.snapshot, encrypted_backup: passkey.backup }, recoveryKey, { pinnedRoot: setup.snapshot.roster.identity, removeDeviceIds });
         }
         cached.current = { setup, selection, plan };
+      } else if (useDrive && setup.kind === "recover") {
+        const passkey = setup.snapshot.encrypted_backup.passkey;
+        if (!passkey) throw new Error("Passkey E2EE tidak tersedia.");
+        recoveryKey = await unlockBrowserPasskeyRecovery(passkey, setup.snapshot.roster.identity);
+      } else if (useDrive && setup.kind === "new" && plan.backup?.passkey) {
+        recoveryKey = await unlockBrowserPasskeyRecovery(plan.backup.passkey, plan.session.root);
       }
       const latest = await readAccount(userId);
       if (latest.policy.generation !== setup.policy.generation) throw new Error("The recovery policy changed. Refresh before continuing.");
@@ -112,19 +132,57 @@ export default function SecureDirectConversation({ userId, room }: { userId: str
         const checked: SecureTransport = async (path, init = {}) => { await assertUser(userId); return transport(path, { ...init, headers: { ...init.headers, ...recoveryHeaders(setup.policy) } }); };
         await activateVerifiedDevice(plan, checked, persist);
       }
+
+      if (useDrive && drive && recoveryKey) {
+        const verifiedVault = await openBrowserVault(userId);
+        if (!verifiedVault) throw new Error("E2EE aktif, tetapi penyimpanan lokal belum dapat dibuka.");
+        await verifiedVault.put(DRIVE_BACKUP_KEY_KIND, userId, recoveryKey);
+        if (setup.kind === "new") {
+          const blob = await exportBrowserBackup(verifiedVault, recoveryKey);
+          const saved = await uploadBrowserDriveBackup(blob, userId, verifiedVault.checkpoint.rootFingerprint, drive);
+          writeDriveBackupPreference(userId, {
+            version: 1,
+            enabled: true,
+            email: drive.email,
+            rootFingerprint: verifiedVault.checkpoint.rootFingerprint,
+            lastBackupAt: saved.modifiedTime,
+            needsReconnect: false,
+          });
+        } else {
+          const latestBackup = await downloadLatestBrowserDriveBackup(userId, verifiedVault.checkpoint.rootFingerprint, drive);
+          await restoreBrowserBackup(verifiedVault, latestBackup.blob, recoveryKey);
+          writeDriveBackupPreference(userId, {
+            version: 1,
+            enabled: true,
+            email: drive.email,
+            rootFingerprint: verifiedVault.checkpoint.rootFingerprint,
+            lastBackupAt: latestBackup.file.modifiedTime,
+            needsReconnect: false,
+          });
+        }
+      }
+
       cached.current = null;
       if (alive.current) setRefresh(value => value + 1);
     } catch (reason) { if (alive.current) setError(reason instanceof Error ? reason.message : "The account passkey could not be opened."); }
     finally { submitting.current = false; if (alive.current) setBusy(false); }
   }
-  if (client) return <SecureConversationView key={`${userId}:${room.id}:${currentPolicy.current?.generation}`} userId={userId} room={room} messenger={client} />;
+  if (client) return <div className="flex min-h-0 flex-1 flex-col"><GoogleDriveAutoBackupAgent userId={userId} vault={client.vault} /><SecureConversationView key={`${userId}:${room.id}:${currentPolicy.current?.generation}`} userId={userId} room={room} messenger={client} /></div>;
   const recoverable = setup?.kind === "new" || (setup?.kind === "recover" && Boolean(setup.snapshot.encrypted_backup.passkey));
   const devices = setup?.kind === "recover" ? setup.snapshot.roster.devices : [];
   return <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-5"><section className="w-full max-w-xl rounded-3xl border border-cyan-400/30 bg-[#071722] p-6 shadow-2xl">
     <FaLock className="text-4xl text-cyan-300" /><h2 className="mt-4 text-2xl font-black">Messages terlindungi akun</h2>
     <p className="mt-3 text-sm leading-6 text-slate-300">{!setup ? "Memeriksa akun terenkripsi…" : setup.kind === "new" ? "Simpan passkey di pengelola sandi tersinkron. Saat pindah perangkat, login akun ComePlayers lalu konfirmasi sidik jari atau PIN perangkat. Tidak perlu kode recovery." : recoverable ? "Anda sudah login. Buka passkey akun yang sama untuk memulihkan riwayat terenkripsi di perangkat ini." : "Akun ini masih menggunakan metode lama. Reset yang disetujui belum diterapkan. Segarkan setelah rilis baru aktif; akun login dan data bisnis tetap dipertahankan."}</p>
     {devices.length >= 8 ? <div className="mt-4 space-y-3 rounded-xl border border-amber-400/25 p-3 text-sm"><p>Pilih perangkat lama yang akan diganti. Batas akun adalah delapan perangkat.</p>{devices.map((device, index) => <label key={device.id} className="flex items-center gap-2"><input type="checkbox" disabled={busy} checked={removeDeviceIds.includes(device.id)} onChange={event => setRemoveDeviceIds(current => event.target.checked ? [...current, device.id] : current.filter(id => id !== device.id))} />Perangkat {index + 1} · {new Date(device.createdAt).toLocaleDateString()}</label>)}</div> : null}
-    {recoverable ? <button type="button" disabled={busy || (devices.length >= 8 && !removeDeviceIds.length)} onClick={() => void activate()} className="mt-5 w-full rounded-xl bg-cyan-300 px-4 py-3 font-black text-black disabled:opacity-40">{busy ? "Memproses…" : setup?.kind === "new" ? "Lindungi dengan passkey akun" : "Lanjutkan dengan passkey akun"}</button> : null}
+    {recoverable ? setup?.kind === "recover" ? <div className="mt-5 grid gap-3">
+      <button type="button" disabled={busy || !driveOAuthConfigured() || (devices.length >= 8 && !removeDeviceIds.length)} onClick={() => void activate(true)} className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-black text-black disabled:opacity-40">{busy ? "Memproses…" : "Pulihkan perangkat + Google Drive"}</button>
+      <button type="button" disabled={busy || (devices.length >= 8 && !removeDeviceIds.length)} onClick={() => void activate(false)} className="w-full rounded-xl border border-cyan-400/35 px-4 py-3 font-black text-cyan-100 disabled:opacity-40">Pulihkan dengan passkey saja</button>
+      {!driveOAuthConfigured() ? <p className="text-xs leading-5 text-amber-200">Google Drive web belum dikonfigurasi. Passkey tetap dapat memulihkan E2EE.</p> : null}
+    </div> : <div className="mt-5 grid gap-3">
+      <button type="button" disabled={busy || !driveOAuthConfigured()} onClick={() => void activate(true)} className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-black text-black disabled:opacity-40">{busy ? "Memproses…" : "Aktifkan E2EE + backup Google Drive otomatis"}</button>
+      <button type="button" disabled={busy} onClick={() => void activate(false)} className="w-full rounded-xl border border-cyan-400/35 px-4 py-3 font-black text-cyan-100 disabled:opacity-40">Aktifkan E2EE dengan passkey saja</button>
+      {!driveOAuthConfigured() ? <p className="text-xs leading-5 text-amber-200">Google Drive web belum dikonfigurasi. E2EE tetap dapat diaktifkan; Drive dapat disambungkan kemudian dari Pengaturan Akun.</p> : <p className="text-xs leading-5 text-slate-400">Drive menggunakan email akun ComePlayers yang sedang login. Setelah izin Google diberikan satu kali, backup berikutnya berjalan otomatis saat aplikasi aktif.</p>}
+    </div> : null}
     {error ? <p role="alert" className="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-200">{error}</p> : null}
     <button type="button" disabled={busy} onClick={() => setRefresh(value => value + 1)} className="mt-4 text-sm text-cyan-200 disabled:opacity-40">Segarkan status akun</button>
     <p className="mt-4 text-xs leading-5 text-slate-400">ComePlayers hanya menyimpan data terenkripsi, bukan kunci pembukanya. Gunakan pengelola sandi tersinkron yang sama. Dukungan passkey diperlukan; login Google/email saja tidak menggantikan kunci enkripsi.</p>
