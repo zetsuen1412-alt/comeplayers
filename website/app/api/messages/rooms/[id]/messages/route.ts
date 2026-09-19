@@ -1,4 +1,3 @@
-import { assertContactAllowed } from "@/lib/chatContacts";
 import { after, NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { dispatchChatPushNotifications } from "@/lib/backgroundJobs";
