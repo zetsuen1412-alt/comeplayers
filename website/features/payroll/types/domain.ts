@@ -21,6 +21,20 @@ export type FinanceStatus =
   | "closed";
 
 export type OrderType = "gold" | "item" | "boosting";
+export type OrderScheduleMode = "single" | "daily";
+export type OrderDailyStatus = "pending" | "in_progress" | "verified" | "on_hold";
+
+export interface OrderDailyWork {
+  id: string;
+  sequence: number;
+  workDate: string;
+  grossMinor: number;
+  status: OrderDailyStatus;
+  completedAt?: string;
+  verifiedAt?: string;
+  payrollClosedAt?: string;
+  payrollPeriodId?: string;
+}
 export type StockType = "gold" | "item";
 export type EmployeeWorkStatus = "NEW" | "SHIFT" | "FULL" | "SAKIT" | "IJIN" | "RESIGN";
 
@@ -119,6 +133,9 @@ export interface Order {
   buyerName?: string;
   orderName?: string;
   orderType?: OrderType;
+  scheduleMode?: OrderScheduleMode;
+  scheduleStartDate?: string;
+  dailyWork?: OrderDailyWork[];
   game: string;
   gameId?: string;
   gameName?: string;
