@@ -12,6 +12,7 @@ import { buildLivePayrollRows, isPayrollEligible } from "@/features/payroll/lib/
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
 import { exportPayrollSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 
 type TeamFilter = "SEMUA" | "FH1" | "FH2" | "FH3" | "ADMIN" | "BANDAR";
@@ -127,7 +128,19 @@ export default function PayrollPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onMouseDown={() => setDetailEmployeeCode(null)}>
           <section className="max-h-[80vh] w-full max-w-2xl overflow-auto rounded-2xl border border-zinc-700 bg-zinc-950 p-5 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between gap-4"><div><div className="text-sm text-zinc-500">Pesanan selesai</div><h2 className="mt-1 text-xl font-semibold">{detailRow?.employee ?? detailEmployeeCode}</h2></div><button onClick={() => setDetailEmployeeCode(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Tutup</button></div>
-            <div className="mt-4 space-y-2">{detailOrders.map((order) => { const a = getOrderAssignments(order).find((x) => x.employeeCode === detailEmployeeCode); return <Link key={order.id} href={`/admin/payroll/orders/${order.externalReference}`} className="block rounded-xl border border-zinc-800 bg-black/40 p-4 hover:border-yellow-500/40"><div className="flex flex-wrap justify-between gap-2"><strong>{order.externalReference}</strong><span className="text-yellow-300">{a ? formatMoney(getAssignmentGrossMinor(order, a)) : "—"}</span></div><div className="mt-1 text-xs text-zinc-500">{order.source} · {order.gameName ?? order.game} · selesai {formatDateTimeID(order.verifiedAt ?? order.completedAt ?? order.orderedAt)}</div></Link>; })}</div>
+            <div className="mt-4 space-y-2">{detailOrders.map((order) => {
+              const assignments = getOrderAssignments(order);
+              const a = assignments.find((x) => x.employeeCode === detailEmployeeCode);
+              let workValue = a ? getAssignmentGrossMinor(order, a) : 0;
+              if (a && isDailySettlementOrder(order)) {
+                const gross = getPayrollEligibleGrossMinor(order);
+                const index = assignments.findIndex((item) => item.id === a.id);
+                const base = Math.floor(gross / assignments.length);
+                const remainder = gross - base * assignments.length;
+                workValue = base + (index >= 0 && index < remainder ? 1 : 0);
+              }
+              return <Link key={order.id} href={`/admin/payroll/orders/${order.externalReference}`} className="block rounded-xl border border-zinc-800 bg-black/40 p-4 hover:border-yellow-500/40"><div className="flex flex-wrap justify-between gap-2"><strong>{order.externalReference}</strong><span className="text-yellow-300">{a ? formatMoney(workValue) : "—"}</span></div><div className="mt-1 text-xs text-zinc-500">{order.source} · {order.gameName ?? order.game} · {isDailySettlementOrder(order) ? "nilai hari selesai" : `selesai ${formatDateTimeID(order.verifiedAt ?? order.completedAt ?? order.orderedAt)}`}</div></Link>;
+            })}</div>
           </section>
         </div>
       ) : null}

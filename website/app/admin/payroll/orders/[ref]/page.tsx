@@ -8,15 +8,31 @@ import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { dailyProgress, getPayrollEligibleGrossMinor, isDailySettlementOrder, replaceDailyWorkStatus } from "@/features/payroll/lib/daily-orders";
+import { formatMoney as formatDailyMoney } from "@/features/payroll/lib/money";
 
 export default function OrderDetailPage() {
   const params = useParams<{ ref: string }>();
-  const { allOrders } = useDemoOrders();
+  const { allOrders, updateOrder } = useDemoOrders();
   const ref = decodeURIComponent(params.ref ?? "");
   const order = allOrders.find((x) => x.externalReference.toLowerCase() === ref.toLowerCase());
 
   if (!order) {
     return <><div className="mb-4"><Link href="/admin/payroll/orders" className="text-sm text-yellow-300">← Kembali ke Pesanan</Link></div><PageHeader title="Pesanan tidak ditemukan" description="Data mungkin belum tersimpan atau sudah dihapus dari DEMO." /></>;
+  }
+
+  const currentOrder = order;
+  const isDaily = isDailySettlementOrder(currentOrder);
+  const progress = dailyProgress(currentOrder);
+  const dailyPayrollReady = getPayrollEligibleGrossMinor(currentOrder);
+
+  function setDailyStatus(dailyId: string, status: "pending" | "in_progress" | "verified" | "on_hold") {
+    try {
+      const patch = replaceDailyWorkStatus(currentOrder, dailyId, status);
+      updateOrder(currentOrder.id, patch);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
+    }
   }
 
   const issues = financeIssues.filter((x) => x.entity === order.externalReference);
@@ -44,6 +60,8 @@ export default function OrderDetailPage() {
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Jumlah pesanan</span><strong>{order.quantity.toLocaleString("id-ID")}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Tarif</span><strong>{order.rateMinor !== undefined ? formatMoney(order.rateMinor) : "—"}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Harga pesanan</span><strong>{formatMoney(order.grossMinor)}</strong></div>
+            {isDaily ? <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Pengerjaan</span><strong className="text-sky-300">Harian · {progress.verified}/{progress.total} selesai</strong></div> : null}
+            {isDaily ? <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Siap masuk gaji</span><strong className="text-emerald-300">{formatMoney(dailyPayrollReady)}</strong></div> : null}
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Perhitungan gaji</span><strong className="text-yellow-300">Diatur di menu Gaji</strong></div>
             <div className="flex justify-between gap-4"><span className="text-zinc-500">Status gaji</span><strong className={inPayroll ? "text-emerald-300" : "text-amber-300"}>{alreadyPaid ? "SUDAH DIGAJI" : inPayroll ? "MENUNGGU CLOSING" : "BELUM"}</strong></div>
           </div>
@@ -85,6 +103,47 @@ export default function OrderDetailPage() {
           </div>
         </section>
       </div>
+
+
+      {isDaily ? (
+        <section className="cp-card mt-5 p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Penyelesaian Harian</h2>
+              <p className="mt-1 text-sm text-zinc-400">Hanya hari berstatus <strong className="text-emerald-300">Selesai</strong> yang masuk Gaji. Hari yang sudah masuk Tutup Buku terkunci dan tidak dapat diubah.</p>
+            </div>
+            <div className="rounded-xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+              {progress.verified}/{progress.total} hari selesai · {formatDailyMoney(dailyPayrollReady)} menunggu gaji
+            </div>
+          </div>
+          <div className="mt-5 overflow-x-auto">
+            <table className="cp-table">
+              <thead><tr><th>Hari</th><th>Tanggal</th><th>Nilai hari</th><th>Status</th><th>Gaji</th><th>Tindakan</th></tr></thead>
+              <tbody>
+                {(order.dailyWork ?? []).map((day) => {
+                  const closed = Boolean(day.payrollClosedAt);
+                  const statusLabel = closed ? "Sudah digaji" : day.status === "verified" ? "Selesai" : day.status === "in_progress" ? "Dikerjakan" : day.status === "on_hold" ? "Bermasalah" : "Belum mulai";
+                  return <tr key={day.id} className={closed ? "bg-emerald-500/10" : day.status === "on_hold" ? "bg-red-500/10" : ""}>
+                    <td className="font-semibold">D{String(day.sequence).padStart(2, "0")}</td>
+                    <td>{new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" }).format(new Date(`${day.workDate}T12:00:00+07:00`))}</td>
+                    <td className="font-semibold text-yellow-300">{formatMoney(day.grossMinor)}</td>
+                    <td><span className={closed ? "text-emerald-300" : day.status === "verified" ? "text-emerald-300" : day.status === "on_hold" ? "text-red-300" : day.status === "in_progress" ? "text-sky-300" : "text-zinc-400"}>{statusLabel}</span></td>
+                    <td>{closed ? <span className="font-semibold text-emerald-300">✓ Sudah masuk closing</span> : day.status === "verified" ? <span className="font-semibold text-emerald-300">Siap dicairkan</span> : <span className="text-zinc-500">Belum bisa dicairkan</span>}</td>
+                    <td>
+                      {closed ? <span className="text-xs text-zinc-500">Dikunci</span> : <div className="flex flex-wrap gap-2">
+                        <button onClick={() => setDailyStatus(day.id, "pending")} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold">Belum</button>
+                        <button onClick={() => setDailyStatus(day.id, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-100">Dikerjakan</button>
+                        <button onClick={() => setDailyStatus(day.id, "on_hold")} className="rounded-lg bg-red-500/20 px-3 py-2 text-xs font-semibold text-red-100">Bermasalah</button>
+                        <button onClick={() => confirm(`Tandai hari ke-${day.sequence} selesai? Nilai ${formatMoney(day.grossMinor)} akan masuk Gaji berikutnya.`) && setDailyStatus(day.id, "verified")} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Selesai</button>
+                      </div>}
+                    </td>
+                  </tr>;
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
 
       <section className="cp-card mt-5 p-5 sm:p-6">
         <h2 className="text-xl font-semibold">Alur pesanan</h2>

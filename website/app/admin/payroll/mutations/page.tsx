@@ -15,6 +15,7 @@ import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID, toJakartaDateInput, todayJakartaDateInput } from "@/features/payroll/lib/date";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { dailyProgress, getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import type { Order } from "@/features/payroll/types/domain";
@@ -34,6 +35,14 @@ function monthStart(dateInput: string) {
 }
 
 function workStatus(order: Order) {
+  if (isDailySettlementOrder(order)) {
+    const progress = dailyProgress(order);
+    if (progress.verified === progress.total) return { label: `Harian selesai ${progress.verified}/${progress.total}`, cls: "bg-emerald-500/20 text-emerald-200" };
+    if (progress.verified > 0) return { label: `Harian ${progress.verified}/${progress.total} selesai`, cls: "bg-sky-500/15 text-sky-200" };
+    if (progress.onHold > 0) return { label: "Harian · ada masalah", cls: "bg-red-500/15 text-red-200" };
+    if (progress.inProgress > 0) return { label: "Harian · dikerjakan", cls: "bg-sky-500/15 text-sky-200" };
+    return { label: `Harian 0/${progress.total} selesai`, cls: "bg-violet-500/15 text-violet-200" };
+  }
   if (order.payrollClosedAt) return { label: "Selesai · sudah digaji", cls: "bg-emerald-500 text-black" };
   if (order.operationalStatus === "verified") return { label: "Selesai · masuk gaji", cls: "bg-emerald-500/20 text-emerald-200" };
   if (order.operationalStatus === "on_hold") return { label: "Bermasalah", cls: "bg-red-500 text-white" };
@@ -104,9 +113,7 @@ export default function MutationsPage() {
   }, [baseRows, sortState, source]);
 
   const total = rows.reduce((sum, row) => sum + row.grossMinor, 0);
-  const payrollReady = rows
-    .filter((row) => row.operationalStatus === "verified" && !row.payrollClosedAt)
-    .reduce((sum, order) => sum + getOrderAssignments(order).reduce((part, assignment) => part + getAssignmentGrossMinor(order, assignment), 0), 0);
+  const payrollReady = rows.reduce((sum, order) => sum + getPayrollEligibleGrossMinor(order), 0);
 
   const sourceSummary = useMemo(() => {
     const map = new Map<string, { source: string; orders: number; total: number; done: number; problem: number }>();
@@ -114,7 +121,7 @@ export default function MutationsPage() {
       const current = map.get(order.source) ?? { source: order.source, orders: 0, total: 0, done: 0, problem: 0 };
       current.orders += 1;
       current.total += order.grossMinor;
-      if (order.operationalStatus === "verified" || order.payrollClosedAt) current.done += 1;
+      if (isDailySettlementOrder(order) ? dailyProgress(order).verified > 0 : (order.operationalStatus === "verified" || order.payrollClosedAt)) current.done += 1;
       if (order.operationalStatus === "on_hold") current.problem += 1;
       map.set(order.source, current);
     }
@@ -287,7 +294,12 @@ export default function MutationsPage() {
                     <div className="flex flex-wrap gap-2">
                       <button onClick={() => setEditingOrder(order)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
                       {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}
-                      {order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link> : <>
+                      {isDailySettlementOrder(order) ? (
+                        <>
+                          <Link href={`/admin/payroll/orders/${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-sky-500 px-3 py-2 text-xs font-bold text-black">📅 Kelola Harian</Link>
+                          {getPayrollEligibleGrossMinor(order) > 0 ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari selesai masuk Gaji</Link> : null}
+                        </>
+                      ) : order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link> : <>
                         <button onClick={() => setMutationStatus(order, "assigned")} className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-bold text-violet-100">Proses</button>
                         <button onClick={() => setMutationStatus(order, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-bold text-sky-100">Dikerjakan</button>
                         <button onClick={() => setMutationStatus(order, "on_hold")} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">Bermasalah</button>
