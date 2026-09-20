@@ -1,0 +1,96 @@
+name: Verify ComePlayers Android E2EE APK
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - comeplayers-apps/apps/mobile/.eas/workflows/android-e2ee-drive-verify.yml
+
+jobs:
+  find_android_build:
+    name: Find Android APK 21
+    type: get-build
+    params:
+      platform: android
+      profile: preview
+      distribution: internal
+      app_identifier: com.comeplayers.app
+      app_version: 0.14.0
+      app_build_version: '21'
+      git_commit_hash: d8ef5e480cd598860b0f120dd9787c028457537c
+      wait_for_in_progress: true
+
+  verify_apk:
+    name: Verify APK identity and signing
+    needs: [find_android_build]
+    image: sdk-57
+    outputs:
+      package_name: ${{ steps.verify.outputs.package_name }}
+      version_name: ${{ steps.verify.outputs.version_name }}
+      version_code: ${{ steps.verify.outputs.version_code }}
+      size_bytes: ${{ steps.verify.outputs.size_bytes }}
+      sha256: ${{ steps.verify.outputs.sha256 }}
+      certificate_sha256: ${{ steps.verify.outputs.certificate_sha256 }}
+    steps:
+      - uses: eas/download_build
+        id: download
+        with:
+          build_id: ${{ needs.find_android_build.outputs.build_id }}
+          extensions: [apk]
+
+      - id: verify
+        name: Verify package, version and signing certificate
+        run: |
+          set -euo pipefail
+          APK="${{ steps.download.outputs.artifact_path }}"
+          test -f "$APK"
+
+          APKSIGNER="$(command -v apksigner || true)"
+          AAPT="$(command -v aapt || true)"
+          if [ -z "$APKSIGNER" ] || [ -z "$AAPT" ]; then
+            BUILD_TOOLS="$(find "${ANDROID_HOME:-/opt/android-sdk-linux}/build-tools" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -V | tail -1)"
+            APKSIGNER="${APKSIGNER:-$BUILD_TOOLS/apksigner}"
+            AAPT="${AAPT:-$BUILD_TOOLS/aapt}"
+          fi
+          test -x "$APKSIGNER"
+          test -x "$AAPT"
+
+          BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
+          PACKAGE="$(printf '%s\n' "$BADGING" | sed -n "s/.*name='\([^']*\)'.*/\1/p")"
+          VERSION_CODE="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")"
+          VERSION_NAME="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")"
+
+          CERT="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+          SHA="$(sha256sum "$APK" | awk '{print $1}')"
+          SIZE="$(stat -c %s "$APK")"
+
+          [ "$PACKAGE" = "com.comeplayers.app" ]
+          [ "$VERSION_NAME" = "0.14.0" ]
+          [ "$VERSION_CODE" = "21" ]
+          [ "$CERT" = "0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2" ]
+          [ "$SIZE" -gt 100000000 ]
+
+          set-output package_name "$PACKAGE"
+          set-output version_name "$VERSION_NAME"
+          set-output version_code "$VERSION_CODE"
+          set-output size_bytes "$SIZE"
+          set-output sha256 "$SHA"
+          set-output certificate_sha256 "$CERT"
+
+  report_verification:
+    name: Post APK verification
+    needs: [find_android_build, verify_apk]
+    type: github-comment
+    params:
+      payload: |
+        ## Android APK verification passed
+        - Build ID: `${{ needs.find_android_build.outputs.build_id }}`
+        - Package: `${{ needs.verify_apk.outputs.package_name }}`
+        - Version: `${{ needs.verify_apk.outputs.version_name }}`
+        - versionCode: `${{ needs.verify_apk.outputs.version_code }}`
+        - Size: `${{ needs.verify_apk.outputs.size_bytes }}` bytes
+        - SHA-256: `${{ needs.verify_apk.outputs.sha256 }}`
+        - Signing certificate SHA-256: `${{ needs.verify_apk.outputs.certificate_sha256 }}`
+
+        The certificate matches the existing ComePlayers Android release identity.
