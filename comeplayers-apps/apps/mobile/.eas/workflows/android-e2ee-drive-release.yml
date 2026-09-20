@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - release/android-e2ee-drive-20260920
+    paths:
+      - comeplayers-apps/apps/mobile/.eas/workflows/android-e2ee-drive-release.yml
 
 jobs:
   build_android:
