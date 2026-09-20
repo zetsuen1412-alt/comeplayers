@@ -1,0 +1,256 @@
+name: Android E2EE Drive release candidate
+
+on:
+  push:
+    branches: [release/android-e2ee-drive-20260920]
+    paths:
+      - '.github/workflows/android-e2ee-drive-release.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-e2ee-drive-release
+  cancel-in-progress: false
+
+jobs:
+  build-verify-stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            comeplayers-apps
+            website/public/.well-known
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Require secure Expo authentication
+        run: |
+          if [ -z "${EXPO_TOKEN:-}" ]; then
+            echo "::error::EXPO_TOKEN is not configured for this repository. No Android build was requested."
+            exit 2
+          fi
+          echo "Expo release authentication is configured."
+
+      - name: Install locked application dependencies
+        working-directory: comeplayers-apps
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify Android project, runtime and original signing association
+        run: node comeplayers-apps/scripts/recovery-release-preflight.mjs static
+
+      - name: Mobile typecheck
+        working-directory: comeplayers-apps
+        run: npm run typecheck --workspace @comeplayers/mobile
+
+      - name: Recovery and signing guards
+        run: |
+          node --test comeplayers-apps/tests/recoveryReleasePreflight.test.mjs
+          node --test comeplayers-apps/tests/androidReleaseSigning.test.cjs
+
+      - name: Install pinned EAS CLI without release authentication
+        run: npm install --prefix "$RUNNER_TEMP/cp-eas" --ignore-scripts --no-audit --no-fund --no-package-lock eas-cli@24.5.0
+
+      - name: Verify EAS project access
+        env:
+          COMEPLAYERS_EAS_CLI_PATH: ${{ runner.temp }}/cp-eas/node_modules/eas-cli/bin/run
+          EXPO_NO_TELEMETRY: '1'
+        run: node comeplayers-apps/scripts/recovery-release-preflight.mjs access
+
+      - name: Read current remote Android versionCode
+        id: version_before
+        working-directory: comeplayers-apps/apps/mobile
+        env:
+          EXPO_NO_TELEMETRY: '1'
+        run: |
+          node "$RUNNER_TEMP/cp-eas/node_modules/eas-cli/bin/run" build:version:get --platform android --profile preview --json --non-interactive > "$RUNNER_TEMP/version-before.json"
+          node <<'NODE'
+          const fs = require('fs');
+          const cp = require('child_process');
+          const data = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/version-before.json','utf8'));
+          const value = Number(data.versionCode);
+          if (!Number.isSafeInteger(value) || value < 20) throw new Error('Remote Android versionCode is older than the published build 20.');
+          cp.execFileSync('bash',['-lc',`echo "before=${value}" >> "$GITHUB_OUTPUT"`]);
+          console.log(JSON.stringify({ remoteVersionCodeBefore: value, publishedVersionCode: 20 }));
+          NODE
+
+      - name: Build signed preview APK with remote auto-increment
+        working-directory: comeplayers-apps/apps/mobile
+        env:
+          EXPO_NO_TELEMETRY: '1'
+        run: |
+          node "$RUNNER_TEMP/cp-eas/node_modules/eas-cli/bin/run" build --platform android --profile preview --non-interactive --wait --json > "$RUNNER_TEMP/eas-build.json"
+
+      - name: Extract finished EAS build
+        id: eas
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const cp = require('child_process');
+          const raw = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/eas-build.json','utf8'));
+          const item = Array.isArray(raw) ? raw[0] : raw;
+          const id = String(item?.id || '');
+          const status = String(item?.status || '');
+          const buildUrl = String(item?.artifacts?.buildUrl || item?.artifactUrl || '');
+          const appVersion = String(item?.appVersion || '0.14.0');
+          const appBuildVersion = Number(item?.appBuildVersion || item?.appBuildNumber || 0);
+          if (!id || !/^[0-9a-f-]{20,}$/i.test(id)) throw new Error('EAS did not return a valid build id.');
+          if (status && status !== 'FINISHED') throw new Error('EAS build did not finish successfully.');
+          if (!/^https:\/\//.test(buildUrl)) throw new Error('EAS did not return an APK artifact URL.');
+          const out = [
+            ['build_id', id],
+            ['build_url', buildUrl],
+            ['app_version', appVersion],
+            ['app_build_version', String(appBuildVersion)],
+          ];
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, out.map(([k,v]) => k+'='+v).join('\n')+'\n');
+          fs.writeFileSync(process.env.RUNNER_TEMP + '/eas-public.json', JSON.stringify({ id, status: status || 'FINISHED', appVersion, appBuildVersion, buildUrl }, null, 2));
+          console.log(JSON.stringify({ id, status: status || 'FINISHED', appVersion, appBuildVersion }));
+          NODE
+
+      - name: Download EAS APK
+        run: |
+          curl --fail --location --retry 3 --retry-delay 3 --output "$RUNNER_TEMP/ComePlayers_candidate.apk" "${{ steps.eas.outputs.build_url }}"
+          test -s "$RUNNER_TEMP/ComePlayers_candidate.apk"
+
+      - name: Verify package, versionCode, SHA-256 and original certificate
+        id: verify
+        env:
+          PUBLISHED_VERSION_CODE: '20'
+          EXPECTED_CERT_SHA256: '0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2'
+        run: |
+          set -euo pipefail
+          APK="$RUNNER_TEMP/ComePlayers_candidate.apk"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          AAPT="$BUILD_TOOLS/aapt"
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          test -x "$AAPT"
+          test -x "$APKSIGNER"
+
+          BADGING="$($AAPT dump badging "$APK" | head -n 1)"
+          PACKAGE="$(printf '%s\n' "$BADGING" | sed -n "s/.*name='\([^']*\)'.*/\1/p")"
+          VERSION_CODE="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")"
+          VERSION_NAME="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")"
+          [ "$PACKAGE" = "com.comeplayers.app" ]
+          [ "$VERSION_NAME" = "0.14.0" ]
+          [ "$VERSION_CODE" -gt "$PUBLISHED_VERSION_CODE" ]
+          [ "$VERSION_CODE" -gt "${{ steps.version_before.outputs.before }}" ]
+
+          CERT="$($APKSIGNER verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+          [ "$CERT" = "$EXPECTED_CERT_SHA256" ]
+
+          SIZE="$(stat -c %s "$APK")"
+          SHA="$(sha256sum "$APK" | awk '{print $1}')"
+          FILE="ComePlayers_${VERSION_NAME}_${VERSION_CODE}_android.apk"
+          mv "$APK" "$RUNNER_TEMP/$FILE"
+
+          {
+            echo "version_code=$VERSION_CODE"
+            echo "version_name=$VERSION_NAME"
+            echo "file_name=$FILE"
+            echo "size=$SIZE"
+            echo "sha256=$SHA"
+            echo "certificate=$CERT"
+          } >> "$GITHUB_OUTPUT"
+
+          node -e 'const fs=require("fs"); const x={package:"com.comeplayers.app",versionName:process.argv[1],versionCode:Number(process.argv[2]),fileName:process.argv[3],sizeBytes:Number(process.argv[4]),sha256:process.argv[5],certificateSha256:process.argv[6],easBuildId:process.argv[7]}; fs.writeFileSync(process.env.RUNNER_TEMP+"/android-release.json",JSON.stringify(x,null,2)); console.log(JSON.stringify(x));' "$VERSION_NAME" "$VERSION_CODE" "$FILE" "$SIZE" "$SHA" "$CERT" "${{ steps.eas.outputs.build_id }}"
+
+      - name: Stage verified APK to R2 when release credentials are available
+        id: r2
+        env:
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          VERSION_NAME: ${{ steps.verify.outputs.version_name }}
+          VERSION_CODE: ${{ steps.verify.outputs.version_code }}
+          FILE_NAME: ${{ steps.verify.outputs.file_name }}
+          APK_SHA256: ${{ steps.verify.outputs.sha256 }}
+          APK_SIZE: ${{ steps.verify.outputs.size }}
+        run: |
+          if [ -z "${R2_ENDPOINT:-}" ] || [ -z "${R2_ACCESS_KEY_ID:-}" ] || [ -z "${R2_SECRET_ACCESS_KEY:-}" ] || [ -z "${R2_BUCKET_NAME:-}" ]; then
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "R2 release credentials are not available to this workflow; the verified APK remains a workflow artifact."
+            exit 0
+          fi
+
+          npm install --prefix "$RUNNER_TEMP/cp-r2" --ignore-scripts --no-audit --no-fund --no-package-lock @aws-sdk/client-s3@3
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const cp = require('child_process');
+          const path = require('path');
+          const { S3Client, HeadObjectCommand, GetObjectCommand, PutObjectCommand } = require(process.env.RUNNER_TEMP + '/cp-r2/node_modules/@aws-sdk/client-s3');
+          const endpoint = process.env.R2_ENDPOINT;
+          const u = new URL(endpoint);
+          if (u.protocol !== 'https:' || !u.hostname.endsWith('.r2.cloudflarestorage.com')) throw new Error('Unexpected R2 endpoint.');
+          const version = process.env.VERSION_NAME;
+          const code = process.env.VERSION_CODE;
+          const fileName = process.env.FILE_NAME;
+          const expectedSize = Number(process.env.APK_SIZE);
+          const expectedSha = process.env.APK_SHA256.toLowerCase();
+          const local = path.join(process.env.RUNNER_TEMP, fileName);
+          const key = `app-releases/android/${version}-${code}/${fileName}`;
+          const client = new S3Client({ region:'auto', endpoint, credentials:{ accessKeyId:process.env.R2_ACCESS_KEY_ID, secretAccessKey:process.env.R2_SECRET_ACCESS_KEY }, requestChecksumCalculation:'WHEN_REQUIRED' });
+          const base = { Bucket: process.env.R2_BUCKET_NAME, Key: key };
+          async function hashBody(body) {
+            const h=crypto.createHash('sha256'); let size=0;
+            for await (const chunk of body) { const b=Buffer.from(chunk); size+=b.length; h.update(b); }
+            return {size,sha:h.digest('hex')};
+          }
+          let exists=false;
+          try {
+            const head=await client.send(new HeadObjectCommand(base));
+            if (Number(head.ContentLength)!==expectedSize) throw new Error('Existing release object has an unexpected size.');
+            exists=true;
+          } catch (e) {
+            if (e?.$metadata?.httpStatusCode!==404) throw e;
+          }
+          if (!exists) {
+            const body=fs.readFileSync(local);
+            const md5=crypto.createHash('md5').update(body).digest('base64');
+            await client.send(new PutObjectCommand({...base,Body:body,ContentLength:expectedSize,ContentType:'application/vnd.android.package-archive',ContentDisposition:`attachment; filename="${fileName}"`,ContentMD5:md5,CacheControl:'private, no-store, max-age=0',IfNoneMatch:'*',Metadata:{platform:'android',version,'version-code':code,sha256:expectedSha}}));
+          }
+          const stored=await client.send(new GetObjectCommand(base));
+          const checked=await hashBody(stored.Body);
+          if (checked.size!==expectedSize || checked.sha!==expectedSha) throw new Error('Stored release bytes do not match the verified APK.');
+          fs.writeFileSync(process.env.RUNNER_TEMP+'/r2-release.json',JSON.stringify({published:true,key,fileName,version,versionCode:Number(code),sizeBytes:expectedSize,sha256:expectedSha},null,2));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`published=true\nobject_key=${key}\n`);
+          console.log(JSON.stringify({published:true,key,version,versionCode:Number(code),sizeBytes:expectedSize,sha256:expectedSha}));
+          client.destroy();
+          NODE
+
+      - name: Save verified APK and release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: comeplayers-android-e2ee-drive-${{ steps.verify.outputs.version_code }}
+          retention-days: 7
+          compression-level: 0
+          path: |
+            ${{ runner.temp }}/${{ steps.verify.outputs.file_name }}
+            ${{ runner.temp }}/android-release.json
+            ${{ runner.temp }}/eas-public.json
+            ${{ runner.temp }}/r2-release.json
+          if-no-files-found: error
+
+      - name: Release summary
+        run: |
+          {
+            echo "## ComePlayers Android E2EE candidate"
+            echo ""
+            echo "- Package: com.comeplayers.app"
+            echo "- Version: ${{ steps.verify.outputs.version_name }}"
+            echo "- versionCode: ${{ steps.verify.outputs.version_code }}"
+            echo "- SHA-256: ${{ steps.verify.outputs.sha256 }}"
+            echo "- Certificate SHA-256: ${{ steps.verify.outputs.certificate }}"
+            echo "- EAS build ID: ${{ steps.eas.outputs.build_id }}"
+            echo "- R2 staged: ${{ steps.r2.outputs.published }}"
+          } >> "$GITHUB_STEP_SUMMARY"
