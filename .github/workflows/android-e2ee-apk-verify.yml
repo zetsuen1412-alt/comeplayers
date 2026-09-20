@@ -50,7 +50,7 @@ jobs:
           if [ -n "$APKSIGNER" ] && [ -x "$APKSIGNER" ]; then
             SIGNING="$("$APKSIGNER" verify --print-certs "$APK" 2>&1)"
             printf '%s\n' "$SIGNING" | sed -n '1,12p'
-            CERT="$(printf '%s\n' "$SIGNING" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+            CERT="$(printf '%s\n' "$SIGNING" | sed -n 's/^.*certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
           fi
 
           SIZE="$(stat -c %s "$APK")"
