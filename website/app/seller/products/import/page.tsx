@@ -8,6 +8,7 @@ import {
   authenticatedFetchJson,
 } from "@/lib/authenticatedFetch";
 import {
+  BULK_LISTING_API_BATCH_ROWS,
   readBulkListingFile,
   type BulkListingRecord,
 } from "@/lib/bulkListingSpreadsheet";
@@ -107,7 +108,7 @@ const EN_COPY = {
   badge: "Seller Spreadsheet Center",
   title: "Manage Products with a Spreadsheet",
   intro:
-    "Create up to 200 products at once, validate every row before publishing, export your current catalog, and keep a complete import history.",
+    "Create up to 5,000 products from one spreadsheet, validate every row before publishing, export your current catalog, and keep a complete import history.",
   products: "Products",
   inventory: "Inventory Center",
   orders: "Seller Orders",
@@ -138,7 +139,7 @@ const EN_COPY = {
   yes: "Yes",
   optional: "Optional",
   uploadTitle: "Step 2 · Upload and validate",
-  uploadEmpty: "Choose an Excel .xlsx or UTF-8 CSV file, maximum 8 MB and 200 rows.",
+  uploadEmpty: "Choose an Excel .xlsx or UTF-8 CSV file, maximum 8 MB and 5,000 rows. Large files are processed safely in automatic batches.",
   reset: "Reset",
   reading: "Reading...",
   chooseFile: "Choose CSV / Excel",
@@ -203,7 +204,7 @@ const ID_COPY: Record<keyof typeof EN_COPY, string> = {
   badge: "Pusat Spreadsheet Penjual",
   title: "Kelola Produk dengan Spreadsheet",
   intro:
-    "Buat hingga 200 produk sekaligus, periksa setiap baris sebelum diterbitkan, ekspor katalog, dan lihat riwayat impor secara lengkap.",
+    "Buat hingga 5.000 produk dari satu spreadsheet, periksa setiap baris sebelum diterbitkan, ekspor katalog, dan lihat riwayat impor secara lengkap.",
   products: "Produk",
   inventory: "Pusat Inventaris",
   orders: "Pesanan Penjual",
@@ -234,7 +235,7 @@ const ID_COPY: Record<keyof typeof EN_COPY, string> = {
   yes: "Ya",
   optional: "Opsional",
   uploadTitle: "Langkah 2 · Unggah dan validasi",
-  uploadEmpty: "Pilih file Excel .xlsx atau CSV UTF-8, maksimal 8 MB dan 200 baris.",
+  uploadEmpty: "Pilih file Excel .xlsx atau CSV UTF-8, maksimal 8 MB dan 5.000 baris. File besar diproses otomatis dalam beberapa batch aman.",
   reset: "Atur Ulang",
   reading: "Membaca...",
   chooseFile: "Pilih CSV / Excel",
@@ -367,6 +368,14 @@ function createRequestToken() {
   });
 }
 
+function chunkRows(rows: BulkListingRecord[]) {
+  const batches: BulkListingRecord[][] = [];
+  for (let start = 0; start < rows.length; start += BULK_LISTING_API_BATCH_ROWS) {
+    batches.push(rows.slice(start, start + BULK_LISTING_API_BATCH_ROWS));
+  }
+  return batches;
+}
+
 export default function BulkListingImportPage() {
   const { locale, formatPrice } =
     useCurrency();
@@ -376,6 +385,7 @@ export default function BulkListingImportPage() {
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
   const [requestToken, setRequestToken] = useState(createRequestToken);
+  const [batchRequestTokens, setBatchRequestTokens] = useState<string[]>([]);
   const [rows, setRows] = useState<BulkListingRecord[]>([]);
   const [fileFormat, setFileFormat] = useState<"csv" | "xlsx" | null>(null);
   const [sheetName, setSheetName] = useState<string | null>(null);
@@ -501,7 +511,14 @@ export default function BulkListingImportPage() {
       setRows(parsed.records);
       setFileName(file.name);
       setFileSize(file.size);
-      setRequestToken(createRequestToken());
+      const nextRequestToken = createRequestToken();
+      setRequestToken(nextRequestToken);
+      setBatchRequestTokens(
+        Array.from(
+          { length: Math.ceil(parsed.records.length / BULK_LISTING_API_BATCH_ROWS) },
+          () => createRequestToken()
+        )
+      );
       setFileFormat(parsed.format);
       setSheetName(parsed.sheetName);
     } catch (fileError) {
@@ -509,6 +526,7 @@ export default function BulkListingImportPage() {
       setFileName("");
       setFileSize(0);
       setRequestToken(createRequestToken());
+      setBatchRequestTokens([]);
       setFileFormat(null);
       setSheetName(null);
       setError(
@@ -528,14 +546,37 @@ export default function BulkListingImportPage() {
     setResult(null);
 
     try {
-      const data = await authenticatedFetchJson<PreviewResponse>(
-        "/api/seller/catalog/bulk",
-        {
-          method: "POST",
-          body: JSON.stringify({ mode: "preview", rows }),
-        }
-      );
-      setPreview(data);
+      const batches = chunkRows(rows);
+      const combined: PreviewResponse = {
+        rows: [],
+        summary: {
+          total: 0,
+          valid: 0,
+          invalid: 0,
+          creates: 0,
+          updates: 0,
+          warnings: 0,
+        },
+      };
+
+      for (const batch of batches) {
+        const data = await authenticatedFetchJson<PreviewResponse>(
+          "/api/seller/catalog/bulk",
+          {
+            method: "POST",
+            body: JSON.stringify({ mode: "preview", rows: batch }),
+          }
+        );
+        combined.rows.push(...data.rows);
+        combined.summary.total += data.summary.total;
+        combined.summary.valid += data.summary.valid;
+        combined.summary.invalid += data.summary.invalid;
+        combined.summary.creates += data.summary.creates;
+        combined.summary.updates += data.summary.updates;
+        combined.summary.warnings += data.summary.warnings;
+      }
+
+      setPreview(combined);
     } catch (previewError) {
       setPreview(null);
       setError(
@@ -559,22 +600,78 @@ export default function BulkListingImportPage() {
     setCommitting(true);
     setError("");
     try {
-      const data = await authenticatedFetchJson<CommitResponse>(
-        "/api/seller/catalog/bulk",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            mode: "commit",
-            rows,
-            requestToken,
-            fileName,
-            fileSize,
-            fileFormat,
-            sheetName,
-          }),
+      const batches = chunkRows(rows);
+      const tokens =
+        batchRequestTokens.length === batches.length
+          ? batchRequestTokens
+          : batches.map(() => createRequestToken());
+
+      if (batchRequestTokens.length !== batches.length) {
+        setBatchRequestTokens(tokens);
+      }
+
+      const combined: CommitResponse = {
+        ok: true,
+        idempotent: true,
+        summary: {
+          total: 0,
+          created: 0,
+          updated: 0,
+          pendingReview: 0,
+          failed: 0,
+        },
+        results: [],
+        history: {
+          id: null,
+          recorded: true,
+          warning: null,
+        },
+      };
+      const historyWarnings: string[] = [];
+
+      for (let index = 0; index < batches.length; index += 1) {
+        const data = await authenticatedFetchJson<CommitResponse>(
+          "/api/seller/catalog/bulk",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              mode: "commit",
+              rows: batches[index],
+              requestToken: tokens[index],
+              fileName:
+                batches.length > 1
+                  ? `${fileName} · batch ${index + 1}/${batches.length}`
+                  : fileName,
+              fileSize,
+              fileFormat,
+              sheetName,
+            }),
+          }
+        );
+
+        combined.ok = combined.ok && data.ok;
+        combined.idempotent = Boolean(combined.idempotent && data.idempotent);
+        combined.summary.total += data.summary.total;
+        combined.summary.created += data.summary.created;
+        combined.summary.updated += data.summary.updated;
+        combined.summary.pendingReview += data.summary.pendingReview;
+        combined.summary.failed += data.summary.failed;
+        combined.results.push(...data.results);
+
+        if (data.history?.warning) historyWarnings.push(data.history.warning);
+        if (data.history?.recorded === false && combined.history) {
+          combined.history.recorded = false;
         }
-      );
-      setResult(data);
+      }
+
+      if (combined.history) {
+        combined.history.warning =
+          historyWarnings.length > 0
+            ? Array.from(new Set(historyWarnings)).join(" ")
+            : null;
+      }
+
+      setResult(combined);
       await loadHistory();
     } catch (commitError) {
       setError(
@@ -592,6 +689,7 @@ export default function BulkListingImportPage() {
     setFileName("");
     setFileSize(0);
     setRequestToken(createRequestToken());
+    setBatchRequestTokens([]);
     setFileFormat(null);
     setSheetName(null);
     setPreview(null);
