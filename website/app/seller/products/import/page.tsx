@@ -384,7 +384,6 @@ export default function BulkListingImportPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
-  const [requestToken, setRequestToken] = useState(createRequestToken);
   const [batchRequestTokens, setBatchRequestTokens] = useState<string[]>([]);
   const [rows, setRows] = useState<BulkListingRecord[]>([]);
   const [fileFormat, setFileFormat] = useState<"csv" | "xlsx" | null>(null);
@@ -511,8 +510,6 @@ export default function BulkListingImportPage() {
       setRows(parsed.records);
       setFileName(file.name);
       setFileSize(file.size);
-      const nextRequestToken = createRequestToken();
-      setRequestToken(nextRequestToken);
       setBatchRequestTokens(
         Array.from(
           { length: Math.ceil(parsed.records.length / BULK_LISTING_API_BATCH_ROWS) },
@@ -525,7 +522,6 @@ export default function BulkListingImportPage() {
       setRows([]);
       setFileName("");
       setFileSize(0);
-      setRequestToken(createRequestToken());
       setBatchRequestTokens([]);
       setFileFormat(null);
       setSheetName(null);
@@ -688,7 +684,6 @@ export default function BulkListingImportPage() {
     setRows([]);
     setFileName("");
     setFileSize(0);
-    setRequestToken(createRequestToken());
     setBatchRequestTokens([]);
     setFileFormat(null);
     setSheetName(null);
