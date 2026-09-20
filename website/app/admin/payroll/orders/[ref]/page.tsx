@@ -21,10 +21,6 @@ export default function OrderDetailPage() {
     return <><div className="mb-4"><Link href="/admin/payroll/orders" className="text-sm text-yellow-300">← Kembali ke Pesanan</Link></div><PageHeader title="Pesanan tidak ditemukan" description="Data mungkin belum tersimpan atau sudah dihapus dari DEMO." /></>;
   }
 
-  const issues = financeIssues.filter((x) => x.entity === order.externalReference);
-  const assignments = getOrderAssignments(order);
-  const inPayroll = order.operationalStatus === "verified";
-  const alreadyPaid = Boolean(order.payrollClosedAt);
   const isDaily = isDailySettlementOrder(order);
   const progress = dailyProgress(order);
   const dailyPayrollReady = getPayrollEligibleGrossMinor(order);
@@ -37,6 +33,11 @@ export default function OrderDetailPage() {
       alert(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
     }
   }
+
+  const issues = financeIssues.filter((x) => x.entity === order.externalReference);
+  const assignments = getOrderAssignments(order);
+  const inPayroll = order.operationalStatus === "verified";
+  const alreadyPaid = Boolean(order.payrollClosedAt);
 
   return (
     <>
