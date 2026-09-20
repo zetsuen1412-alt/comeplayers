@@ -88,6 +88,14 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   if(canonical(previous[workspaceKeys.closings]??[])!==canonical(next[workspaceKeys.closings]??[])) payrollFailure('Closing hanya dapat dibuat melalui proses tutup buku.',409);
   const oldOrders=(previous[workspaceKeys.orders]??[]) as Order[], newOrders=(next[workspaceKeys.orders]??[]) as Order[];
   for(const old of oldOrders.filter(o=>o.payrollClosedAt)) if(canonical(old)!==canonical(newOrders.find(o=>o.id===old.id))) payrollFailure('Order yang sudah Closing tidak dapat diubah atau dihapus.',409);
+  for(const old of oldOrders) {
+    const current=newOrders.find(o=>o.id===old.id);
+    if(!current) continue;
+    for(const closedDay of (old.dailyWork??[]).filter(day=>day.payrollClosedAt)) {
+      const nextDay=(current.dailyWork??[]).find(day=>day.id===closedDay.id);
+      if(canonical(closedDay)!==canonical(nextDay)) payrollFailure('Hari pekerjaan yang sudah masuk Closing tidak dapat diubah atau dihapus.',409);
+    }
+  }
   for(const order of newOrders) {
     const old=oldOrders.find(row=>row.id===order.id);
     if(!old||old.externalReference!==order.externalReference) {
@@ -96,6 +104,10 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
     }
   }
   for(const order of newOrders) if(order.payrollClosedAt&&!oldOrders.some(old=>old.id===order.id&&old.payrollClosedAt===order.payrollClosedAt)) payrollFailure('Status Closing harus diproses di server.',409);
+  for(const order of newOrders) {
+    const old=oldOrders.find(row=>row.id===order.id);
+    for(const day of order.dailyWork??[]) if(day.payrollClosedAt&&!old?.dailyWork?.some(oldDay=>oldDay.id===day.id&&oldDay.payrollClosedAt===day.payrollClosedAt)) payrollFailure('Status Closing harian harus diproses di server.',409);
+  }
 }
 export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOString()) {
   const next=structuredClone(validateWorkspace(previous)), lock=next[workspaceKeys.lock] as DemoPeriodLock|undefined;
