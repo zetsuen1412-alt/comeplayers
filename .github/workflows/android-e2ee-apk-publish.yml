@@ -1,0 +1,145 @@
+name: Publish Android E2EE APK 21
+
+on:
+  push:
+    branches:
+      - release/android-e2ee-drive-20260920
+    paths:
+      - '.github/workflows/android-e2ee-apk-publish.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  publish-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+    steps:
+      - name: Require existing release storage credentials
+        run: |
+          if [ -z "${R2_ENDPOINT:-}" ] || [ -z "${R2_ACCESS_KEY_ID:-}" ] || [ -z "${R2_SECRET_ACCESS_KEY:-}" ] || [ -z "${R2_BUCKET_NAME:-}" ]; then
+            echo "::error::Android release storage credentials are not configured for GitHub Actions."
+            exit 2
+          fi
+          echo "Release storage credentials are configured."
+
+      - name: Download verified EAS APK
+        env:
+          APK_URL: https://expo.dev/artifacts/eas/StRy0kYnmjs-XkNZKW48--6RpBvbtStMGlbUoWy_MQ4.apk
+        run: |
+          curl --fail --location --retry 3 --retry-delay 3 --output "$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk" "$APK_URL"
+          echo "dd038b571a44e2945bbc7b5509d4734c47396f5b1ff52006bc15c1503b5f5ad1  $RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk" | sha256sum --check
+          test "$(stat -c %s "$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk")" = "139199850"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Install isolated R2 client
+        run: npm install --prefix "$RUNNER_TEMP/cp-r2" --ignore-scripts --no-audit --no-fund --no-package-lock @aws-sdk/client-s3@3
+
+      - name: Upload and verify exact release bytes
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const path = require('path');
+          const {
+            S3Client,
+            HeadObjectCommand,
+            GetObjectCommand,
+            PutObjectCommand,
+          } = require(process.env.RUNNER_TEMP + '/cp-r2/node_modules/@aws-sdk/client-s3');
+
+          const expected = {
+            size: 139199850,
+            sha256: 'dd038b571a44e2945bbc7b5509d4734c47396f5b1ff52006bc15c1503b5f5ad1',
+            fileName: 'ComePlayers_0.14.0_21_android.apk',
+            key: 'app-releases/android/0.14.0-21/ComePlayers_0.14.0_21_android.apk',
+          };
+          const endpoint = new URL(process.env.R2_ENDPOINT);
+          if (endpoint.protocol !== 'https:' || !endpoint.hostname.endsWith('.r2.cloudflarestorage.com')) {
+            throw new Error('Unexpected release storage endpoint.');
+          }
+          const localPath = path.join(process.env.RUNNER_TEMP, expected.fileName);
+          const bytes = fs.readFileSync(localPath);
+          if (bytes.length !== expected.size || crypto.createHash('sha256').update(bytes).digest('hex') !== expected.sha256) {
+            throw new Error('Local APK does not match verified release evidence.');
+          }
+
+          const client = new S3Client({
+            region: 'auto',
+            endpoint: endpoint.href,
+            maxAttempts: 2,
+            requestChecksumCalculation: 'WHEN_REQUIRED',
+            credentials: {
+              accessKeyId: process.env.R2_ACCESS_KEY_ID,
+              secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+            },
+          });
+          const base = { Bucket: process.env.R2_BUCKET_NAME, Key: expected.key };
+          let exists = false;
+          try {
+            const head = await client.send(new HeadObjectCommand(base));
+            if (Number(head.ContentLength) !== expected.size) {
+              throw new Error('An incompatible Android 21 object already exists.');
+            }
+            exists = true;
+          } catch (error) {
+            if (error?.$metadata?.httpStatusCode !== 404) throw error;
+          }
+
+          if (!exists) {
+            try {
+              await client.send(new PutObjectCommand({
+                ...base,
+                Body: bytes,
+                ContentLength: expected.size,
+                ContentType: 'application/vnd.android.package-archive',
+                ContentDisposition: 'attachment; filename="' + expected.fileName + '"',
+                ContentMD5: crypto.createHash('md5').update(bytes).digest('base64'),
+                CacheControl: 'private, no-store, max-age=0',
+                IfNoneMatch: '*',
+                Metadata: {
+                  platform: 'android',
+                  version: '0.14.0',
+                  'version-code': '21',
+                  sha256: expected.sha256,
+                  'eas-build-id': '1591d5d5-9f27-4579-9f36-5d36ed951ba7',
+                },
+              }));
+            } catch (error) {
+              if (error?.$metadata?.httpStatusCode !== 412) throw error;
+            }
+          }
+
+          const stored = await client.send(new GetObjectCommand(base));
+          const hash = crypto.createHash('sha256');
+          let size = 0;
+          for await (const chunk of stored.Body) {
+            const part = Buffer.from(chunk);
+            size += part.length;
+            hash.update(part);
+          }
+          const sha256 = hash.digest('hex');
+          if (size !== expected.size || sha256 !== expected.sha256) {
+            throw new Error('Stored Android release verification failed.');
+          }
+
+          console.log(JSON.stringify({
+            status: 'published-and-verified',
+            key: expected.key,
+            fileName: expected.fileName,
+            version: '0.14.0',
+            versionCode: 21,
+            sizeBytes: size,
+            sha256,
+          }, null, 2));
+          client.destroy();
+          NODE
