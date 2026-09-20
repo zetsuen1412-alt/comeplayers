@@ -1,6 +1,7 @@
 import type { Employee, Order } from "@/features/payroll/types/domain";
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
-import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
 
 export type PayrollAdjustmentInput = {
   operationalMinor?: number;
@@ -42,7 +43,7 @@ export type PayrollBuildOptions = {
 };
 
 export function isPayrollEligible(order: Order, includeClosed = false) {
-  return order.operationalStatus === "verified" && getOrderAssignments(order).length > 0 && (includeClosed || !order.payrollClosedAt);
+  return getOrderAssignments(order).length > 0 && getPayrollEligibleGrossMinor(order, includeClosed) > 0;
 }
 
 export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptions = {}): LivePayrollRow[] {
@@ -61,7 +62,9 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
 
   for (const order of orders) {
     if (!isPayrollEligible(order, options.includeClosed)) continue;
-    for (const assignment of getOrderAssignments(order)) {
+    const assignments = getOrderAssignments(order);
+    const eligibleGross = getPayrollEligibleGrossMinor(order, options.includeClosed);
+    for (const [index, assignment] of assignments.entries()) {
       const key = assignment.employeeCode;
       const current = groups.get(key) ?? {
         employeeCode: assignment.employeeCode,
@@ -73,8 +76,12 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
         orderRefs: new Set<string>(),
       };
       current.games.add(order.game);
-      current.units += assignment.quantity;
-      current.gross += getAssignmentGrossMinor(order, assignment);
+      current.units += isDailySettlementOrder(order)
+        ? (order.dailyWork ?? []).filter((row) => row.status === "verified" && (options.includeClosed || !row.payrollClosedAt)).length
+        : assignment.quantity;
+      const base = Math.floor(eligibleGross / assignments.length);
+      const remainder = eligibleGross - base * assignments.length;
+      current.gross += base + (index < remainder ? 1 : 0);
       current.orderRefs.add(order.externalReference);
       groups.set(key, current);
     }
