@@ -1,0 +1,94 @@
+name: Verify Android E2EE APK artifact
+
+on:
+  push:
+    branches:
+      - release/android-e2ee-drive-20260920
+    paths:
+      - '.github/workflows/android-e2ee-apk-verify.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download the exact EAS APK 21
+        env:
+          APK_URL: https://expo.dev/artifacts/eas/StRy0kYnmjs-XkNZKW48--6RpBvbtStMGlbUoWy_MQ4.apk
+        run: |
+          curl --fail --location --retry 3 --retry-delay 3 --output "$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk" "$APK_URL"
+          test -s "$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk"
+
+      - name: Verify package, version and original signing certificate
+        id: verify
+        run: |
+          set -euo pipefail
+          APK="$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk"
+          ANDROID_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          APKSIGNER="$(find "$ANDROID_ROOT/build-tools" -mindepth 2 -maxdepth 2 -type f -name apksigner 2>/dev/null | sort -V | tail -1)"
+          AAPT="$(find "$ANDROID_ROOT/build-tools" -mindepth 2 -maxdepth 2 -type f -name aapt 2>/dev/null | sort -V | tail -1)"
+          if [ -z "$APKSIGNER" ] || [ -z "$AAPT" ]; then
+            echo "::error::Android build-tools are unavailable on the verification runner."
+            exit 1
+          fi
+
+          BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
+          PACKAGE="$(printf '%s\n' "$BADGING" | sed -n "s/.*name='\([^']*\)'.*/\1/p")"
+          VERSION_CODE="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")"
+          VERSION_NAME="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")"
+          CERT="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+          SIZE="$(stat -c %s "$APK")"
+          SHA="$(sha256sum "$APK" | awk '{print $1}')"
+
+          test "$PACKAGE" = "com.comeplayers.app"
+          test "$VERSION_NAME" = "0.14.0"
+          test "$VERSION_CODE" = "21"
+          test "$CERT" = "0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2"
+          test "$SIZE" -gt 100000000
+
+          {
+            echo "package=$PACKAGE"
+            echo "version_name=$VERSION_NAME"
+            echo "version_code=$VERSION_CODE"
+            echo "certificate=$CERT"
+            echo "size=$SIZE"
+            echo "sha256=$SHA"
+          } >> "$GITHUB_OUTPUT"
+
+          cat > "$RUNNER_TEMP/android-release.json" <<JSON
+          {
+            "buildId": "1591d5d5-9f27-4579-9f36-5d36ed951ba7",
+            "package": "$PACKAGE",
+            "versionName": "$VERSION_NAME",
+            "versionCode": $VERSION_CODE,
+            "sizeBytes": $SIZE,
+            "sha256": "$SHA",
+            "certificateSha256": "$CERT"
+          }
+          JSON
+
+      - name: Upload verified APK and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ComePlayers-0.14.0-21-verified
+          retention-days: 7
+          compression-level: 0
+          path: |
+            ${{ runner.temp }}/ComePlayers_0.14.0_21_android.apk
+            ${{ runner.temp }}/android-release.json
+
+      - name: Summary
+        run: |
+          {
+            echo "## ComePlayers Android APK verified"
+            echo "- Build ID: 1591d5d5-9f27-4579-9f36-5d36ed951ba7"
+            echo "- Package: ${{ steps.verify.outputs.package }}"
+            echo "- Version: ${{ steps.verify.outputs.version_name }}"
+            echo "- versionCode: ${{ steps.verify.outputs.version_code }}"
+            echo "- Size: ${{ steps.verify.outputs.size }} bytes"
+            echo "- SHA-256: ${{ steps.verify.outputs.sha256 }}"
+            echo "- Signing certificate SHA-256: ${{ steps.verify.outputs.certificate }}"
+          } >> "$GITHUB_STEP_SUMMARY"
