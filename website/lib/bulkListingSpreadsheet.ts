@@ -44,7 +44,8 @@ const COLUMN_LABELS: Record<string, string> = {
   description: "Description",
 };
 
-export const BULK_LISTING_MAX_ROWS = 200;
+export const BULK_LISTING_MAX_ROWS = 5000;
+export const BULK_LISTING_API_BATCH_ROWS = 200;
 export const BULK_LISTING_MAX_FILE_BYTES = 8 * 1024 * 1024;
 
 export function normalizeBulkListingHeader(value: unknown) {
@@ -134,7 +135,7 @@ export function tableRowsToBulkListingRecords(
   }
   if (records.length > BULK_LISTING_MAX_ROWS) {
     throw new Error(
-      `A bulk import can contain at most ${BULK_LISTING_MAX_ROWS} listing rows.`
+      `A bulk import file can contain at most ${BULK_LISTING_MAX_ROWS} listing rows.`
     );
   }
 
