@@ -22,55 +22,80 @@ jobs:
           curl --fail --location --retry 3 --retry-delay 3 --output "$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk" "$APK_URL"
           test -s "$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk"
 
-      - name: Verify package, version and original signing certificate
+      - name: Inspect APK identity and signing before assertions
         id: verify
         run: |
-          set -euo pipefail
+          set -uo pipefail
           APK="$RUNNER_TEMP/ComePlayers_0.14.0_21_android.apk"
           ANDROID_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           APKSIGNER="$(find "$ANDROID_ROOT/build-tools" -mindepth 2 -maxdepth 2 -type f -name apksigner 2>/dev/null | sort -V | tail -1)"
           AAPT="$(find "$ANDROID_ROOT/build-tools" -mindepth 2 -maxdepth 2 -type f -name aapt 2>/dev/null | sort -V | tail -1)"
-          if [ -z "$APKSIGNER" ] || [ -z "$AAPT" ]; then
-            echo "::error::Android build-tools are unavailable on the verification runner."
-            exit 1
+
+          echo "android_root=$ANDROID_ROOT"
+          echo "aapt_path=${AAPT:-missing}"
+          echo "apksigner_path=${APKSIGNER:-missing}"
+
+          PACKAGE=""
+          VERSION_CODE=""
+          VERSION_NAME=""
+          CERT=""
+          if [ -n "$AAPT" ] && [ -x "$AAPT" ]; then
+            BADGING="$("$AAPT" dump badging "$APK" 2>&1 | head -n 1)"
+            echo "badging=$BADGING"
+            PACKAGE="$(printf '%s\n' "$BADGING" | sed -n "s/.*package: name='\([^']*\)'.*/\1/p")"
+            VERSION_CODE="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")"
+            VERSION_NAME="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")"
           fi
 
-          BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
-          PACKAGE="$(printf '%s\n' "$BADGING" | sed -n "s/.*name='\([^']*\)'.*/\1/p")"
-          VERSION_CODE="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")"
-          VERSION_NAME="$(printf '%s\n' "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")"
-          CERT="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+          if [ -n "$APKSIGNER" ] && [ -x "$APKSIGNER" ]; then
+            SIGNING="$("$APKSIGNER" verify --print-certs "$APK" 2>&1)"
+            printf '%s\n' "$SIGNING" | sed -n '1,12p'
+            CERT="$(printf '%s\n' "$SIGNING" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+          fi
+
           SIZE="$(stat -c %s "$APK")"
           SHA="$(sha256sum "$APK" | awk '{print $1}')"
 
-          test "$PACKAGE" = "com.comeplayers.app"
-          test "$VERSION_NAME" = "0.14.0"
-          test "$VERSION_CODE" = "21"
-          test "$CERT" = "0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2"
-          test "$SIZE" -gt 100000000
+          echo "package=${PACKAGE:-unreadable}"
+          echo "version_name=${VERSION_NAME:-unreadable}"
+          echo "version_code=${VERSION_CODE:-unreadable}"
+          echo "certificate_sha256=${CERT:-unreadable}"
+          echo "size_bytes=$SIZE"
+          echo "sha256=$SHA"
 
           {
-            echo "package=$PACKAGE"
-            echo "version_name=$VERSION_NAME"
-            echo "version_code=$VERSION_CODE"
-            echo "certificate=$CERT"
+            echo "package=${PACKAGE:-unreadable}"
+            echo "version_name=${VERSION_NAME:-unreadable}"
+            echo "version_code=${VERSION_CODE:-unreadable}"
+            echo "certificate=${CERT:-unreadable}"
             echo "size=$SIZE"
             echo "sha256=$SHA"
           } >> "$GITHUB_OUTPUT"
 
+          FAIL=0
+          [ "$PACKAGE" = "com.comeplayers.app" ] || { echo "::error::Package mismatch"; FAIL=1; }
+          [ "$VERSION_NAME" = "0.14.0" ] || { echo "::error::Version name mismatch"; FAIL=1; }
+          [ "$VERSION_CODE" = "21" ] || { echo "::error::versionCode mismatch"; FAIL=1; }
+          [ "$CERT" = "0a75bc67bf7e34ba4e80a1dbb40cd9b8a3e91c6cb2204a742b5493512bd48cf2" ] || { echo "::error::Signing certificate mismatch"; FAIL=1; }
+          [ "$SIZE" -gt 100000000 ] || { echo "::error::APK size is unexpectedly small"; FAIL=1; }
+
           cat > "$RUNNER_TEMP/android-release.json" <<JSON
           {
             "buildId": "1591d5d5-9f27-4579-9f36-5d36ed951ba7",
-            "package": "$PACKAGE",
-            "versionName": "$VERSION_NAME",
-            "versionCode": $VERSION_CODE,
+            "package": "${PACKAGE:-unreadable}",
+            "versionName": "${VERSION_NAME:-unreadable}",
+            "versionCode": "${VERSION_CODE:-unreadable}",
             "sizeBytes": $SIZE,
             "sha256": "$SHA",
-            "certificateSha256": "$CERT"
+            "certificateSha256": "${CERT:-unreadable}",
+            "verified": $([ "$FAIL" -eq 0 ] && echo true || echo false)
           }
           JSON
 
+          exit "$FAIL"
+
       - name: Upload verified APK and evidence
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ComePlayers-0.14.0-21-verified
@@ -81,9 +106,10 @@ jobs:
             ${{ runner.temp }}/android-release.json
 
       - name: Summary
+        if: always()
         run: |
           {
-            echo "## ComePlayers Android APK verified"
+            echo "## ComePlayers Android APK inspection"
             echo "- Build ID: 1591d5d5-9f27-4579-9f36-5d36ed951ba7"
             echo "- Package: ${{ steps.verify.outputs.package }}"
             echo "- Version: ${{ steps.verify.outputs.version_name }}"
