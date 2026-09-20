@@ -21,14 +21,15 @@ export default function OrderDetailPage() {
     return <><div className="mb-4"><Link href="/admin/payroll/orders" className="text-sm text-yellow-300">← Kembali ke Pesanan</Link></div><PageHeader title="Pesanan tidak ditemukan" description="Data mungkin belum tersimpan atau sudah dihapus dari DEMO." /></>;
   }
 
-  const isDaily = isDailySettlementOrder(order);
-  const progress = dailyProgress(order);
-  const dailyPayrollReady = getPayrollEligibleGrossMinor(order);
+  const currentOrder = order;
+  const isDaily = isDailySettlementOrder(currentOrder);
+  const progress = dailyProgress(currentOrder);
+  const dailyPayrollReady = getPayrollEligibleGrossMinor(currentOrder);
 
   function setDailyStatus(dailyId: string, status: "pending" | "in_progress" | "verified" | "on_hold") {
     try {
-      const patch = replaceDailyWorkStatus(order, dailyId, status);
-      updateOrder(order.id, patch);
+      const patch = replaceDailyWorkStatus(currentOrder, dailyId, status);
+      updateOrder(currentOrder.id, patch);
     } catch (error) {
       alert(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
     }
