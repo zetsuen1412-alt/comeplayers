@@ -115,15 +115,37 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
   const orders=(next[workspaceKeys.orders]??[]) as Order[], employees=(next[workspaceKeys.employees]??[]) as Employee[], advances=(next[workspaceKeys.advances]??[]) as KasbonRecord[];
   const settings=(next[workspaceKeys.settings]??{defaultSharePercent:50,employeeSharePercent:{},adjustments:{}}) as PayrollSettings;
   const from=Date.parse(jakartaDateTimeInputToISO(lock.from)), to=Date.parse(jakartaDateTimeInputToISO(lock.to));
-  const eligible=orders.filter(o=>{const t=Date.parse(o.verifiedAt??o.completedAt??o.orderedAt); return isPayrollEligible(o)&&t>=from&&t<=to;});
-  if(!eligible.length) payrollFailure('Tidak ada order yang dapat di-Closing pada periode ini.',409);
+  const eligible:Order[]=[];
+  const dailyByOrder=new Map<string,ReturnType<typeof dailySegmentsForPeriod>>();
+  for(const order of orders) {
+    if(isDailySettlementOrder(order)) {
+      const segments=dailySegmentsForPeriod(order,from,to);
+      if(segments.length) {
+        eligible.push(createDailyPayrollSlice(order,segments));
+        dailyByOrder.set(order.id,segments);
+      }
+      continue;
+    }
+    const t=Date.parse(order.verifiedAt??order.completedAt??order.orderedAt);
+    if(isPayrollEligible(order)&&t>=from&&t<=to) eligible.push(order);
+  }
+  if(!eligible.length) payrollFailure('Tidak ada order atau pekerjaan harian selesai yang dapat di-Closing pada periode ini.',409);
   const kasbonByEmployee:Record<string,number>={};
   for(const a of advances) if(a.status==='active') kasbonByEmployee[a.employeeCode]=(kasbonByEmployee[a.employeeCode]??0)+a.remainingMinor;
   const payroll=buildLivePayrollRows(eligible,{...settings,employees,kasbonByEmployee}).filter(r=>r.orderRefs.length);
   const record={id:crypto.randomUUID(),from:lock.from,to:lock.to,closedAt:now,orderRefs:eligible.map(o=>o.externalReference),totalOrderMinor:eligible.reduce((s,o)=>s+o.grossMinor,0),totalPayrollMinor:payroll.reduce((s,r)=>s+r.net,0),payrollSnapshot:payroll,ordersSnapshot:eligible};
   next[workspaceKeys.closings]=[record,...(next[workspaceKeys.closings]??[]) as unknown[]];
-  const ids=new Set(eligible.map(o=>o.id));
-  next[workspaceKeys.orders]=orders.map(o=>ids.has(o.id)?{...o,payrollClosedAt:now,payrollPeriodId:record.id,financeStatus:'closed'}:o);
+  const ids=new Set(eligible.filter(o=>!isDailySettlementOrder(o)).map(o=>o.id));
+  next[workspaceKeys.orders]=orders.map(order=>{
+    const daily=dailyByOrder.get(order.id);
+    if(daily) {
+      const closingIds=new Set(daily.map(day=>day.id));
+      const dailyWork=(order.dailyWork??[]).map(day=>closingIds.has(day.id)?{...day,payrollClosedAt:now,payrollPeriodId:record.id}:day);
+      const fullyClosed=dailyWork.length>0&&dailyWork.every(day=>Boolean(day.payrollClosedAt));
+      return {...order,dailyWork,payrollClosedAt:fullyClosed?now:undefined,payrollPeriodId:fullyClosed?record.id:undefined,financeStatus:fullyClosed?'closed':order.financeStatus};
+    }
+    return ids.has(order.id)?{...order,payrollClosedAt:now,payrollPeriodId:record.id,financeStatus:'closed'}:order;
+  });
   for(const row of payroll) {
     let payment=row.kasbon;
     for(const advance of advances) if(advance.employeeCode===row.employeeCode&&advance.status==='active'&&payment>0) {
