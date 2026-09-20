@@ -16,7 +16,8 @@ import { ManualOrderDateField } from "@/features/payroll/components/manual-order
 import { formatMoney } from "@/features/payroll/lib/money";
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { checkAllocationQuantity } from "@/features/payroll/lib/order-allocation";
-import type { Order, OrderInventoryAllocation, OrderType, OrderWorkerAssignment } from "@/features/payroll/types/domain";
+import { buildDailyWorkSchedule } from "@/features/payroll/lib/daily-orders";
+import type { Order, OrderInventoryAllocation, OrderScheduleMode, OrderType, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 
 const sources = ["G2G", "ComePlayers", "Direct", "Telegram", "OverGear", "FunPay", "PlayerAuction", "Lainnya"];
 const processes = ["JOKI", "FARM", "MAIL", "AH", "F2F", "LAINNYA"];
@@ -45,6 +46,9 @@ export function OrderEntryForm() {
   const { games } = useDemoProductGames();
   const [orderDateTime, setOrderDateTime] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("boosting");
+  const [scheduleMode, setScheduleMode] = useState<OrderScheduleMode>("single");
+  const [scheduleStartDate, setScheduleStartDate] = useState("");
+  const [scheduleDays, setScheduleDays] = useState(7);
   const [source, setSource] = useState("G2G");
   const [manualCode, setManualCode] = useState("");
   const [buyer, setBuyer] = useState("");
@@ -64,6 +68,12 @@ export function OrderEntryForm() {
   useEffect(() => {
     // Initialize once after hydration. Manual edits are never refreshed by a timer.
     setOrderDateTime(current => current || jakartaDateTimeLocalNow());
+    setScheduleStartDate(current => current || new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Jakarta",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date()));
   }, []);
 
   const orderTimeResult = useMemo(() => parseManualOrderTime(orderDateTime), [orderDateTime]);
@@ -141,6 +151,7 @@ export function OrderEntryForm() {
     && !hasDuplicateWorker
     && (!workerQuantityMustMatch || workerAllocationMatches)
     && stockMatches
+    && (scheduleMode !== "daily" || (orderType === "boosting" && Boolean(scheduleStartDate) && scheduleDays >= 2 && scheduleDays <= 366))
     && !saving;
 
   function updateWorker(rowId: string, patch: Partial<DraftWorker>) {
@@ -162,7 +173,10 @@ export function OrderEntryForm() {
     setOrderType(value);
     if (value === "gold") setOrderName("");
     if (value === "boosting") setStockRows([]);
-    else setStockRows([newStockRow(quantity)]);
+    else {
+      setScheduleMode("single");
+      setStockRows([newStockRow(quantity)]);
+    }
   }
 
   function chooseGame(gameId: string) {
@@ -234,6 +248,11 @@ export function OrderEntryForm() {
       }
     }
 
+    if (scheduleMode === "daily") {
+      if (orderType !== "boosting") return setMessage({ type: "error", text: "Pesanan Harian Berjangka saat ini hanya tersedia untuk Boosting." });
+      if (!scheduleStartDate) return setMessage({ type: "error", text: "Tanggal mulai pekerjaan harian wajib diisi." });
+      if (!Number.isInteger(scheduleDays) || scheduleDays < 2 || scheduleDays > 366) return setMessage({ type: "error", text: "Jumlah hari pekerjaan harus 2 sampai 366 hari." });
+    }
     if (codeError) return setMessage({ type: "error", text: codeError });
 
     setSaving(true);
@@ -280,6 +299,9 @@ export function OrderEntryForm() {
         buyerName: buyer.trim(),
         orderName: orderType === "gold" ? undefined : orderName.trim(),
         orderType,
+        scheduleMode,
+        scheduleStartDate: scheduleMode === "daily" ? scheduleStartDate : undefined,
+        dailyWork: scheduleMode === "daily" ? buildDailyWorkSchedule(scheduleStartDate, scheduleDays, total) : undefined,
         game: selectedGame.code,
         gameId: selectedGame.id,
         gameName: selectedGame.name,
@@ -322,6 +344,8 @@ export function OrderEntryForm() {
       setManualCode("");
       setBuyer("");
       setOrderName("");
+      setScheduleMode("single");
+      setScheduleDays(7);
       setGameQuery("");
       setSelectedGameId("");
       setRegion("");
@@ -363,6 +387,26 @@ export function OrderEntryForm() {
               <option value="boosting">Boosting</option>
             </select>
           </label>
+          {orderType === "boosting" ? (
+            <label className="text-sm">Metode pengerjaan
+              <select value={scheduleMode} onChange={(e) => setScheduleMode(e.target.value as OrderScheduleMode)} className={inputClass}>
+                <option value="single">Sekali Selesai</option>
+                <option value="daily">Harian Berjangka</option>
+              </select>
+              <span className="mt-1 block text-xs text-zinc-500">Harian Berjangka membayar hanya hari yang sudah ditandai Selesai.</span>
+            </label>
+          ) : null}
+          {orderType === "boosting" && scheduleMode === "daily" ? (
+            <>
+              <label className="text-sm">Tanggal mulai pekerjaan
+                <input type="date" value={scheduleStartDate} onChange={(e) => setScheduleStartDate(e.target.value)} className={inputClass} required />
+              </label>
+              <label className="text-sm">Jumlah hari pekerjaan
+                <input type="number" min="2" max="366" step="1" value={scheduleDays} onChange={(e) => setScheduleDays(Math.max(2, Math.min(366, Math.floor(Number(e.target.value) || 2))))} className={inputClass} required />
+                <span className="mt-1 block text-xs text-zinc-500">Contoh: 7 hari atau 30 hari. Nilai pesanan dibagi rata per hari.</span>
+              </label>
+            </>
+          ) : null}
           <label className="text-sm">Nama pembeli
             <input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder={"Nama pembeli"} className={inputClass} required />
           </label>
@@ -531,6 +575,11 @@ export function OrderEntryForm() {
           <div className="text-sm text-zinc-500">Total harga pesanan</div>
           <div className="mt-1 text-3xl font-semibold">{formatMoney(total)}</div>
           <div className="mt-1 text-xs text-zinc-600">Jumlah × Tarif · Persentase gaji diatur per karyawan melalui menu Gaji.</div>
+          {orderType === "boosting" && scheduleMode === "daily" ? (
+            <div className="mt-3 rounded-xl border border-sky-500/25 bg-sky-500/10 p-3 text-sm text-sky-100">
+              Harian Berjangka: {scheduleDays} hari · sekitar {formatMoney(scheduleDays > 0 ? Math.floor(total / scheduleDays) : 0)} per hari. Hari berikutnya tidak masuk Gaji sebelum ditandai Selesai.
+            </div>
+          ) : null}
         </div>
 
         <div className={`mt-5 rounded-2xl border p-4 ${workerSplitOk ? "border-emerald-500/30 bg-emerald-500/10" : workerDifference > 0 || hasDuplicateWorker ? "border-red-500/30 bg-red-500/10" : "border-amber-500/30 bg-amber-500/10"}`}>
