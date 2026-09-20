@@ -1,0 +1,32 @@
+name: Report ComePlayers Android E2EE APK
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  find_android_build:
+    name: Find signed Android APK
+    type: get-build
+    params:
+      platform: android
+      profile: preview
+      distribution: internal
+      git_commit_hash: d8ef5e480cd598860b0f120dd9787c028457537c
+      wait_for_in_progress: true
+
+  report_android_build:
+    name: Post verified build metadata
+    needs: [find_android_build]
+    type: github-comment
+    params:
+      message: |
+        ComePlayers Android E2EE + Google Drive candidate is ready.
+        Build ID: ${{ needs.find_android_build.outputs.build_id }}
+        App version: ${{ needs.find_android_build.outputs.app_version }}
+        versionCode: ${{ needs.find_android_build.outputs.app_build_version }}
+        Package: ${{ needs.find_android_build.outputs.app_identifier }}
+        Runtime: ${{ needs.find_android_build.outputs.runtime_version }}
+      build_ids:
+        - ${{ needs.find_android_build.outputs.build_id }}
