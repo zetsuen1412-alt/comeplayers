@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  BULK_LISTING_MAX_ROWS,
   normalizeBulkListingHeader,
   parseDeliveryEtaMinutes,
   tableRowsToBulkListingRecords,
@@ -114,5 +115,37 @@ test("spreadsheet rows reject missing required columns", () => {
   assert.throws(
     () => tableRowsToBulkListingRecords([["title"], ["Example"]]),
     /missing columns/i
+  );
+});
+
+
+test("spreadsheet import accepts thousands of rows and enforces the 5000 row cap", () => {
+  const row = [
+    "Boosting",
+    "Example Game",
+    "Leveling Service",
+    "USD",
+    10,
+    1,
+    60,
+    "Global",
+    "Any",
+    "",
+    "A sufficiently detailed listing description.",
+  ];
+
+  const accepted = tableRowsToBulkListingRecords([
+    headers,
+    ...Array.from({ length: BULK_LISTING_MAX_ROWS }, () => [...row]),
+  ]);
+  assert.equal(accepted.length, BULK_LISTING_MAX_ROWS);
+
+  assert.throws(
+    () =>
+      tableRowsToBulkListingRecords([
+        headers,
+        ...Array.from({ length: BULK_LISTING_MAX_ROWS + 1 }, () => [...row]),
+      ]),
+    /at most 5000 listing rows/i
   );
 });
