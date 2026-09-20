@@ -44,7 +44,8 @@ const COLUMN_LABELS: Record<string, string> = {
   description: "Description",
 };
 
-export const BULK_LISTING_MAX_ROWS = 5000;\nexport const BULK_LISTING_API_BATCH_ROWS = 200;
+export const BULK_LISTING_MAX_ROWS = 5000;
+export const BULK_LISTING_API_BATCH_ROWS = 200;
 export const BULK_LISTING_MAX_FILE_BYTES = 8 * 1024 * 1024;
 
 export function normalizeBulkListingHeader(value: unknown) {
