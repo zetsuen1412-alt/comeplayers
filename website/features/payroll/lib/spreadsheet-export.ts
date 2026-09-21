@@ -48,7 +48,7 @@ const NUMBER_FORMAT = '#,##0.########';
 const PERCENT_WHOLE_FORMAT = '0.##"%"';
 
 const MUTATION_HEADERS = [
-  "HARI & TANGGAL", "KODE", "SUMBER", "JENIS ORDER", "NAMA BUYER", "NAMA ORDER", "HARI PAKET", "PEMBAGIAN JUMLAH",
+  "HARI & TANGGAL", "KODE", "SUMBER", "JENIS ORDER", "NAMA BUYER", "NAMA ORDER", "TASK", "HARI PAKET", "PEMBAGIAN JUMLAH",
   "GAME", "REGION", "SERVER", "JUMLAH ORDER", "RATE", "TOTAL ORDER", "KARYAWAN", "NILAI PER KARYAWAN",
   "STOK GUDANG", "STATUS", "PERIODE GAJI", "STATUS TRANSFER",
 ];
@@ -70,7 +70,7 @@ const INVENTORY_MOVEMENT_HEADERS = [
   "KODE KARYAWAN", "KARYAWAN / GUDANG", "FH", "JUMLAH", "RATE", "KODE ORDER", "CATATAN",
 ];
 const SALES_HEADERS = [
-  "WAKTU ORDER", "KODE ORDER", "SUMBER", "JENIS ORDER", "BUYER", "GAME", "REGION", "SERVER", "NAMA ORDER", "JUMLAH",
+  "WAKTU ORDER", "KODE ORDER", "SUMBER", "JENIS ORDER", "BUYER", "GAME", "REGION", "SERVER", "NAMA ORDER", "TASK", "JUMLAH",
   "HARGA TOTAL", "KARYAWAN", "STATUS", "WAKTU SELESAI", "CLOSING ID", "SUDAH DIGAJI",
 ];
 const EMPLOYEE_HEADERS = ["ID KARYAWAN", "KODE KARYAWAN", "NAMA KARYAWAN", "FH", "STATUS", "PERSENTASE GAJI (%)"];
@@ -130,6 +130,7 @@ function mutationRow(row: MutationViewRow): ExportRecord {
     "JENIS ORDER": order.orderType === "gold" ? "GOLD" : order.orderType === "item" ? "ITEM" : "BOOSTING",
     "NAMA BUYER": order.buyerName ?? "",
     "NAMA ORDER": order.orderName ?? order.service,
+    TASK: order.task ?? "",
     "HARI PAKET": mutationDayLabel(row),
     "PEMBAGIAN JUMLAH": formatMutationDistribution(row),
     GAME: order.gameName ?? order.game,
@@ -259,6 +260,7 @@ function salesRow(order: Order): ExportRecord {
     REGION: order.region ?? "",
     SERVER: order.server ?? "",
     "NAMA ORDER": order.orderType === "gold" ? "" : (order.orderName ?? order.service),
+    TASK: order.task ?? "",
     JUMLAH: order.quantity,
     "HARGA TOTAL": order.grossMinor,
     KARYAWAN: assignments.map((a) => `${a.employeeName} (${a.team})`).join(" | "),
