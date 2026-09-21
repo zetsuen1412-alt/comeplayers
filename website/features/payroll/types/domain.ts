@@ -151,6 +151,8 @@ export interface Order {
   source: string;
   buyerName?: string;
   orderName?: string;
+  /** Optional task/instruction note shown in Pesanan and Mutasi. */
+  task?: string;
   orderType?: OrderType;
   scheduleMode?: OrderScheduleMode;
   scheduleStartDate?: string;
