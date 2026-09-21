@@ -64,6 +64,22 @@ jobs:
           cache-dependency-path: website/package-lock.json
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
+      - name: Resolve matching mobile crypto dependencies for existing interop tests
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const web = require('./package.json');
+          const mobile = require('../comeplayers-apps/apps/mobile/package.json');
+          for (const name of ['hpke', '@panva/hpke-noble', '@noble/curves', '@noble/ciphers', '@noble/hashes']) {
+            if (web.dependencies[name] !== mobile.dependencies[name]) throw new Error(`Dependency version mismatch: ${name}`);
+            const target = path.resolve('node_modules', name);
+            const link = path.resolve('../comeplayers-apps/apps/mobile/node_modules', name);
+            if (!fs.existsSync(target)) throw new Error(`Locked dependency missing: ${name}`);
+            fs.mkdirSync(path.dirname(link), { recursive: true });
+            if (!fs.existsSync(link)) fs.symlinkSync(target, link, 'dir');
+          }
+          NODE
       - name: Typecheck website
         run: npm run typecheck
       - name: Verify daily packages, gold distributions and issue explanations
