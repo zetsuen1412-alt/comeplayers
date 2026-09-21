@@ -59,9 +59,23 @@ export function validateWorkspace(value: unknown): WorkspaceState {
     references.add(row.externalReference.trim().toLowerCase());
     for(const key of ['grossMinor','quantity','expectedPaymentMinor','matchedPaymentMinor']) if(typeof row[key]!=='number'||Number(row[key])<0) payrollFailure('Angka order tidak valid.');
     if(!Number.isFinite(Date.parse(String(row.orderedAt)))) payrollFailure('Tanggal order tidak valid.');
-    if(row.workerAssignments!==undefined&&!Array.isArray(row.workerAssignments)) payrollFailure('Penugasan order tidak valid.');
-    for(const assignment of (row.workerAssignments??[]) as Array<Record<string,unknown>>) {
-      if(!assignment||typeof assignment.employeeCode!=='string'||typeof assignment.employeeName!=='string'||typeof assignment.quantity!=='number'||assignment.quantity<0||!teams.includes(String(assignment.team))) payrollFailure('Penugasan order tidak valid.');
+    const validateAssignments=(assignments: unknown)=>{
+      if(assignments!==undefined&&!Array.isArray(assignments)) payrollFailure('Penugasan order tidak valid.');
+      for(const assignment of (assignments??[]) as Array<Record<string,unknown>>) {
+        if(!assignment||typeof assignment.employeeCode!=='string'||typeof assignment.employeeName!=='string'||typeof assignment.quantity!=='number'||assignment.quantity<0||!teams.includes(String(assignment.team))) payrollFailure('Penugasan order tidak valid.');
+      }
+    };
+    validateAssignments(row.workerAssignments);
+    if(row.scheduleTotalDays!==undefined&&(!Number.isInteger(row.scheduleTotalDays)||Number(row.scheduleTotalDays)<2||Number(row.scheduleTotalDays)>366)) payrollFailure('Jumlah hari paket tidak valid.');
+    if(row.dailyHours!==undefined&&(typeof row.dailyHours!=='number'||row.dailyHours<=0||row.dailyHours>24)) payrollFailure('Jam kerja harian tidak valid.');
+    if(row.dailyWork!==undefined&&!Array.isArray(row.dailyWork)) payrollFailure('Daftar pekerjaan harian tidak valid.');
+    for(const day of (row.dailyWork??[]) as Array<Record<string,unknown>>) {
+      if(!day||typeof day.id!=='string'||!day.id||!Number.isInteger(day.sequence)||Number(day.sequence)<1||Number(day.sequence)>366) payrollFailure('Identitas hari pekerjaan tidak valid.');
+      if(typeof day.workDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(day.workDate)||!Number.isFinite(Date.parse(day.workDate+'T12:00:00+07:00'))) payrollFailure('Tanggal pekerjaan harian tidak valid.');
+      if(typeof day.grossMinor!=='number'||day.grossMinor<0||!['pending','in_progress','verified','on_hold'].includes(String(day.status))) payrollFailure('Nilai atau status pekerjaan harian tidak valid.');
+      if(day.quantity!==undefined&&(typeof day.quantity!=='number'||day.quantity<=0)) payrollFailure('Jumlah pekerjaan harian tidak valid.');
+      if(day.hours!==undefined&&(typeof day.hours!=='number'||day.hours<=0||day.hours>24)) payrollFailure('Jam kerja harian tidak valid.');
+      validateAssignments(day.workerAssignments);
     }
   }
   for(const row of list(workspaceKeys.advances)) if(typeof row.amountMinor!=='number'||typeof row.remainingMinor!=='number'||row.amountMinor<0||row.remainingMinor<0||row.remainingMinor>row.amountMinor) payrollFailure('Saldo kasbon tidak valid.');
