@@ -1117,7 +1117,7 @@ export async function exportClosingSpreadsheet(args: {
     subtitle: `PERIODE: ${periodLabel}`,
     totalRow: true,
   }));
-  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, args.orders.map(mutationRow), MUTATION_HEADERS, {
+  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, expandMutationRows(args.orders).map(mutationRow), MUTATION_HEADERS, {
     title: "EVO COMEPLAYERS — MUTASI CLOSING",
     subtitle: `PERIODE: ${periodLabel}`,
   }));
@@ -1216,7 +1216,7 @@ export async function exportAllDataSpreadsheet(args: {
       ["Jumlah tutup buku", args.closings.length],
     ],
   ));
-  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, args.orders.map(mutationRow), MUTATION_HEADERS, {
+  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, expandMutationRows(args.orders).map(mutationRow), MUTATION_HEADERS, {
     title: "EVO COMEPLAYERS — MUTASI",
     subtitle: exportSubtitle("SEMUA DATA"),
   }));
