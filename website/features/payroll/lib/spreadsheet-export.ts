@@ -3,6 +3,7 @@ import type { LivePayrollRow } from "@/features/payroll/lib/payroll-live";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
 import { formatDateTimeID, formatJakartaDateTimeInput, toJakartaDateInput } from "@/features/payroll/lib/date";
+import { expandMutationRows, formatMutationDistribution, mutationDayLabel, mutationRowStatusText, type MutationViewRow } from "@/features/payroll/lib/mutation-rows";
 
 // Export Excel v0.15.5 mengambil gaya visual dari spreadsheet operasional EVO GAMING lama:
 // bar judul hitam, header berwarna, border rapih, format Rupiah, filter, status berwarna,
@@ -47,8 +48,9 @@ const NUMBER_FORMAT = '#,##0.########';
 const PERCENT_WHOLE_FORMAT = '0.##"%"';
 
 const MUTATION_HEADERS = [
-  "HARI & TANGGAL", "KODE", "SUMBER", "JENIS ORDER", "NAMA BUYER", "NAMA ORDER", "GAME", "REGION", "SERVER",
-  "JUMLAH ORDER", "RATE", "TOTAL ORDER", "KARYAWAN", "NILAI PER KARYAWAN", "STOK GUDANG", "STATUS", "PERIODE GAJI", "STATUS TRANSFER",
+  "HARI & TANGGAL", "KODE", "SUMBER", "JENIS ORDER", "NAMA BUYER", "NAMA ORDER", "HARI PAKET", "PEMBAGIAN JUMLAH",
+  "GAME", "REGION", "SERVER", "JUMLAH ORDER", "RATE", "TOTAL ORDER", "KARYAWAN", "NILAI PER KARYAWAN",
+  "STOK GUDANG", "STATUS", "PERIODE GAJI", "STATUS TRANSFER",
 ];
 const SOURCE_SUMMARY_HEADERS = ["SUMBER", "JUMLAH ORDER", "TOTAL NILAI", "SELESAI", "BERMASALAH"];
 const PAYROLL_HEADERS = [
@@ -101,29 +103,76 @@ function simpleOrderStatus(order: Order) {
   return "BARU";
 }
 
-function mutationRow(order: Order): ExportRecord {
-  const assignments = getOrderAssignments(order);
-  const rate = order.rateMinor ?? (order.quantity ? Math.round(order.grossMinor / order.quantity) : order.grossMinor);
+function mutationAssignmentGross(row: MutationViewRow, assignmentIndex: number) {
+  const assignment = row.assignments[assignmentIndex];
+  if (!assignment) return 0;
+  if (row.order.orderType === "boosting") {
+    const count = Math.max(1, row.assignments.length);
+    const base = Math.floor(row.grossMinor / count);
+    const remainder = row.grossMinor - base * count;
+    return base + (assignmentIndex < remainder ? 1 : 0);
+  }
+  return getAssignmentGrossMinor({
+    ...row.order,
+    grossMinor: row.grossMinor,
+    quantity: row.quantity,
+    workerAssignments: row.assignments,
+  }, assignment);
+}
+
+function mutationRow(row: MutationViewRow): ExportRecord {
+  const order = row.order;
+  const rate = order.rateMinor ?? (row.quantity ? Math.round(row.grossMinor / row.quantity) : row.grossMinor);
   return {
-    "HARI & TANGGAL": formatDateTimeID(order.orderedAt),
+    "HARI & TANGGAL": formatDateTimeID(row.orderedAt),
     KODE: order.externalReference,
     SUMBER: order.source,
     "JENIS ORDER": order.orderType === "gold" ? "GOLD" : order.orderType === "item" ? "ITEM" : "BOOSTING",
     "NAMA BUYER": order.buyerName ?? "",
-    "NAMA ORDER": order.orderType === "gold" ? "" : (order.orderName ?? order.service),
+    "NAMA ORDER": order.orderName ?? order.service,
+    "HARI PAKET": mutationDayLabel(row),
+    "PEMBAGIAN JUMLAH": formatMutationDistribution(row),
     GAME: order.gameName ?? order.game,
     REGION: order.region ?? "",
     SERVER: order.server ?? "",
-    "JUMLAH ORDER": order.quantity,
+    "JUMLAH ORDER": row.quantity,
     RATE: rate,
-    "TOTAL ORDER": order.grossMinor,
-    KARYAWAN: assignments.map((a) => `${a.employeeName} (${a.team})`).join(" | "),
-    "NILAI PER KARYAWAN": assignments.map((a) => `${a.employeeName}: ${getAssignmentGrossMinor(order, a)}`).join(" | "),
+    "TOTAL ORDER": row.grossMinor,
+    KARYAWAN: row.assignments.map((a) => `${a.employeeName} (${a.team})`).join(" | "),
+    "NILAI PER KARYAWAN": row.assignments.map((a, index) => `${a.employeeName}: ${mutationAssignmentGross(row, index)}`).join(" | "),
     "STOK GUDANG": order.inventoryAllocations?.map((x) => `${x.stockType === "gold" ? "Gold" : x.itemName} ${x.quantity} - ${x.employeeName} (${x.team})`).join(" | ") ?? "",
-    STATUS: simpleOrderStatus(order),
-    "PERIODE GAJI": order.payrollPeriodId ?? "",
+    STATUS: mutationRowStatusText(row).toUpperCase(),
+    "PERIODE GAJI": row.day?.payrollPeriodId ?? order.payrollPeriodId ?? "",
     "STATUS TRANSFER": order.transferStatus ?? "PENDING",
   };
+}
+
+function mutationSourceSummaryRows(rows: MutationViewRow[]): ExportRecord[] {
+  const map = new Map<string, { source: string; rows: number; total: number; selesai: number; bermasalah: number }>();
+  for (const row of rows) {
+    const source = row.order.source;
+    const current = map.get(source) ?? { source, rows: 0, total: 0, selesai: 0, bermasalah: 0 };
+    current.rows += 1;
+    current.total += row.grossMinor;
+    if (row.day ? Boolean(row.day.payrollClosedAt || row.day.status === "verified") : Boolean(row.order.payrollClosedAt || row.order.operationalStatus === "verified")) current.selesai += 1;
+    if (row.day ? row.day.status === "on_hold" : row.order.operationalStatus === "on_hold") current.bermasalah += 1;
+    map.set(source, current);
+  }
+  const result = [...map.values()].map((x) => ({
+    SUMBER: x.source,
+    "JUMLAH ORDER": x.rows,
+    "TOTAL NILAI": x.total,
+    SELESAI: x.selesai,
+    BERMASALAH: x.bermasalah,
+  }));
+  if (result.length) result.push({
+    SUMBER: "TOTAL",
+    "JUMLAH ORDER": rows.length,
+    "TOTAL NILAI": rows.reduce((sum, row) => sum + row.grossMinor, 0),
+    SELESAI: rows.filter((row) => row.day ? Boolean(row.day.payrollClosedAt || row.day.status === "verified") : Boolean(row.order.payrollClosedAt || row.order.operationalStatus === "verified")).length,
+    BERMASALAH: rows.filter((row) => row.day ? row.day.status === "on_hold" : row.order.operationalStatus === "on_hold").length,
+  });
+  return result;
 }
 
 function sourceSummaryRows(orders: Order[]): ExportRecord[] {
@@ -674,17 +723,18 @@ function exportSubtitle(label: string) {
   return `FILTER / PERIODE: ${label || "SEMUA DATA"}  •  DIEKSPOR: ${formatDateTimeID(new Date().toISOString())}`;
 }
 
-export async function exportMutationsSpreadsheet(rows: Order[], label: string) {
+export async function exportMutationsSpreadsheet(rows: MutationViewRow[] | Order[], label: string) {
+  const viewRows: MutationViewRow[] = rows.length && "order" in rows[0] ? rows as MutationViewRow[] : expandMutationRows(rows as Order[]);
   const XLSX = await loadXlsx();
   const wb = workbookWithMetadata(XLSX, "EVO COMEPLAYERS - MUTASI");
   appendStyledSheet(XLSX, wb, "MUTASI", styledSummaryDetailSheet(XLSX, {
     title: "EVO COMEPLAYERS — MUTASI",
     subtitle: exportSubtitle(label),
     summaryTitle: "RINGKASAN MUTASI PER SUMBER",
-    summaryRows: sourceSummaryRows(rows),
+    summaryRows: mutationSourceSummaryRows(viewRows),
     summaryHeaders: SOURCE_SUMMARY_HEADERS,
     detailTitle: "DATA MUTASI SESUAI FILTER",
-    detailRows: rows.map(mutationRow),
+    detailRows: viewRows.map(mutationRow),
     detailHeaders: MUTATION_HEADERS,
   }));
   writeStyledFile(XLSX, wb, `EVO_COMEPLAYERS_MUTASI_${safeFilePart(label)}.xlsx`);
@@ -1067,7 +1117,7 @@ export async function exportClosingSpreadsheet(args: {
     subtitle: `PERIODE: ${periodLabel}`,
     totalRow: true,
   }));
-  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, args.orders.map(mutationRow), MUTATION_HEADERS, {
+  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, expandMutationRows(args.orders).map(mutationRow), MUTATION_HEADERS, {
     title: "EVO COMEPLAYERS — MUTASI CLOSING",
     subtitle: `PERIODE: ${periodLabel}`,
   }));
@@ -1166,7 +1216,7 @@ export async function exportAllDataSpreadsheet(args: {
       ["Jumlah tutup buku", args.closings.length],
     ],
   ));
-  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, args.orders.map(mutationRow), MUTATION_HEADERS, {
+  appendStyledSheet(XLSX, wb, "MUTASI", styledJsonSheet(XLSX, expandMutationRows(args.orders).map(mutationRow), MUTATION_HEADERS, {
     title: "EVO COMEPLAYERS — MUTASI",
     subtitle: exportSubtitle("SEMUA DATA"),
   }));

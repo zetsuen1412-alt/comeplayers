@@ -24,12 +24,31 @@ export type OrderType = "gold" | "item" | "boosting";
 export type OrderScheduleMode = "single" | "daily";
 export type OrderDailyStatus = "pending" | "in_progress" | "verified" | "on_hold";
 
+export interface OrderIssue {
+  code: string;
+  title: string;
+  description: string;
+  severity: Severity;
+  source?: "import" | "validation" | "manual";
+}
+
 export interface OrderDailyWork {
   id: string;
   sequence: number;
   workDate: string;
   grossMinor: number;
   status: OrderDailyStatus;
+  /** Jumlah unit pada baris harian. Untuk boosting biasanya 1 hari. */
+  quantity?: number;
+  /** Jam kerja per hari yang terbaca dari nama paket, mis. 5 atau 12 jam/hari. */
+  hours?: number;
+  /** Karyawan khusus hari ini. Jika kosong, gunakan workerAssignments pada parent order. */
+  workerAssignments?: OrderWorkerAssignment[];
+  /** Jejak sumber spreadsheet untuk impor historis. */
+  sourceRow?: number;
+  sourceOrderedAt?: string;
+  sourceStatus?: string;
+  issues?: OrderIssue[];
   completedAt?: string;
   verifiedAt?: string;
   payrollClosedAt?: string;
@@ -135,6 +154,10 @@ export interface Order {
   orderType?: OrderType;
   scheduleMode?: OrderScheduleMode;
   scheduleStartDate?: string;
+  /** Total hari paket asli, termasuk bila impor hanya memuat sebagian hari. */
+  scheduleTotalDays?: number;
+  /** Jam pengerjaan per hari yang terbaca dari nama paket. */
+  dailyHours?: number;
   dailyWork?: OrderDailyWork[];
   game: string;
   gameId?: string;
@@ -165,6 +188,11 @@ export interface Order {
   verifiedAt?: string;
   payrollClosedAt?: string;
   payrollPeriodId?: string;
+  /** Detail masalah yang ditemukan saat impor/validasi agar baris Bermasalah dapat dijelaskan. */
+  importIssues?: OrderIssue[];
+  importNeedsReview?: boolean;
+  importSourceRow?: number;
+  importSourceRows?: number[];
 }
 
 export interface VendorMutation {

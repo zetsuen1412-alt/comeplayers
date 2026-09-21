@@ -171,7 +171,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         <table id={tableId} ref={table} className="cp-table mutation-sheet-table" aria-label="Daftar Mutasi" style={{ width: totalWidth, minWidth: totalWidth, tableLayout: 'fixed' }}>
           <colgroup>{mutationColumns.map(column => <col key={column.id} style={{ width: widths[column.id] }} />)}</colgroup>
           <thead><tr>{mutationColumns.map(column => {
-            const sortable = column.id !== 'actions' && Boolean(onSort);
+            const sortable = column.id !== 'actions' && column.id !== 'day' && column.id !== 'distribution' && Boolean(onSort);
             const activeSort = sortable && sortColumn === column.id;
             return <th scope="col" key={column.id} data-column={column.id} data-selected={selected === column.id}
               aria-sort={activeSort ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}>
@@ -193,7 +193,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         </table>
         {!rowCount && <p style={{ padding: 20 }}>Tidak ada Mutasi sesuai filter.</p>}
       </div>
-      <div className="mutation-sheet-footer"><span>{rowCount.toLocaleString('id-ID')} pesanan · 14 kolom · {filterLabel}</span><div role="status" aria-live="polite">{message || 'Pengaturan lebar disimpan di browser ini. Data pesanan dan hasil ekspor tidak berubah.'}</div></div>
+      <div className="mutation-sheet-footer"><span>{rowCount.toLocaleString('id-ID')} baris mutasi · {mutationColumns.length} kolom · {filterLabel}</span><div role="status" aria-live="polite">{message || 'Pengaturan lebar disimpan di browser ini. Data pesanan dan hasil ekspor tidak berubah.'}</div></div>
       {overlay}
     </div>;
   }
