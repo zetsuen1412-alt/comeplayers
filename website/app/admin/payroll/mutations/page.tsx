@@ -17,7 +17,7 @@ import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID, toJakartaDateInput, todayJakartaDateInput } from "@/features/payroll/lib/date";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
-import { getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
+import { getPayrollEligibleGrossMinor } from "@/features/payroll/lib/daily-orders";
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
@@ -87,6 +87,13 @@ function compareViewRows(a: MutationViewRow, b: MutationViewRow, sort: MutationS
 function assignmentGross(row: MutationViewRow, assignmentId: string) {
   const assignment = row.assignments.find((item) => item.id === assignmentId);
   if (!assignment) return 0;
+  if (row.order.orderType === "boosting") {
+    const index = Math.max(0, row.assignments.findIndex((item) => item.id === assignmentId));
+    const count = Math.max(1, row.assignments.length);
+    const base = Math.floor(row.grossMinor / count);
+    const remainder = row.grossMinor - base * count;
+    return base + (index < remainder ? 1 : 0);
+  }
   return getAssignmentGrossMinor({
     ...row.order,
     grossMinor: row.grossMinor,
