@@ -1,4 +1,4 @@
-/** Pinned, reviewed one-time workbook import. No employee identity is inferred here. */
+/** Pinned, reviewed legacy workbook packet plus current archive-display mapping. */
 export const mutasiFhManifest = {
   batchId: 'mutasi-fh-c1b7e68321ee1040',
   fileName: 'ComePlayers-MUTASI-FH-2026-V2.cpimport',
@@ -26,8 +26,32 @@ export function sourceText(value: unknown): string {
   return value == null ? '' : String(value).trim();
 }
 
-/** The workbook's STATUS is not the application's operationalStatus. */
+/**
+ * Current MUTASI FH display rule:
+ * - NAMA ORDER (E) is the order name.
+ * - BOOSTER (F) identifies the employee.
+ * - STATUS (H) is worker/quantity information only when BOOSTER is black/HITAM.
+ *
+ * The workbook STATUS is never the application's operationalStatus.
+ */
 export function getMutasiFhTitles(row: MutasiFhSourceRow, fallback = '') {
+  const originalName = sourceText(row.values.E);
+  const booster = sourceText(row.values.F);
+  const black = row.boosterBlack === true || booster.toUpperCase() === 'HITAM';
+  return {
+    orderName: originalName || fallback,
+    originalName,
+    usesStatus: false,
+    usesWorkerList: black,
+  };
+}
+
+/**
+ * The old reviewed V2 .cpimport packet predates the current owner mapping.
+ * Keep its validator isolated so the pinned packet remains internally verifiable
+ * without changing how the current production archive is displayed.
+ */
+function getLegacyV2Titles(row: MutasiFhSourceRow, fallback = '') {
   const originalName = sourceText(row.values.E);
   const booster = sourceText(row.values.F);
   const status = sourceText(row.values.H);
@@ -53,9 +77,9 @@ export function validateMutasiFhTitles(
   for (const order of orders) {
     const row = rows.get(order.sourceRow ?? -1);
     if (!row) throw new Error('Asal baris pesanan tidak ditemukan.');
-    const titles = getMutasiFhTitles(row, order.orderName);
+    const titles = getLegacyV2Titles(row, order.orderName);
     if (titles.usesStatus && (order.orderName !== titles.orderName || (titles.originalName && order.service !== titles.originalName))) {
-      throw new Error(`Pemetaan STATUS / Nama order baris ${row.row} belum sesuai versi 2.`);
+      throw new Error(`Pemetaan STATUS / Nama order baris ${row.row} belum sesuai paket V2.`);
     }
     if (titles.usesWorkerList && titles.originalName && order.orderName !== titles.originalName) {
       throw new Error(`Daftar karyawan baris ${row.row} tidak boleh dijadikan Nama order.`);
