@@ -19,18 +19,19 @@ test("Windows release manifest points at the signed 0.5.3 installer", () => {
   assert.match(release.downloadPath, /^\/api\/downloads\/windows\//);
 });
 
-test("Android release manifest points at the signed 0.14.0 build 20 APK", () => {
+test("Android release manifest points at the signed 0.14.0 build 21 APK", () => {
   const release = getAppRelease("android");
   assert.equal(release.available, true);
-  assert.equal(release.version, "0.14.0 (20)");
-  assert.equal(release.sizeBytes, 138_803_610);
-  assert.equal(release.sha256, "E40AB1DA352F8A25D8BE74A2BAC05B7B5FA77C2E5CFFB610C71C4B1E21E4C396");
-  assert.match(release.fileName, /ComePlayers_0\.14\.0_20_android\.apk/);
+  assert.equal(release.version, "0.14.0 (21)");
+  assert.equal(release.sizeBytes, 139_199_850);
+  assert.equal(release.sha256, "DD038B571A44E2945BBC7B5509D4734C47396F5B1FF52006BC15C1503B5F5AD1");
+  assert.match(release.fileName, /ComePlayers_0\.14\.0_21_android\.apk/);
   assert.match(release.downloadPath, /^\/api\/downloads\/android\//);
 });
 
-test("download route validates object size and returns a short signed redirect", () => {
+test("download route validates object size, supports latest alias, and returns a short signed redirect", () => {
   const source = read("app/api/downloads/[platform]/[fileName]/route.ts");
+  assert.match(source, /requestedFile === "latest"/);
   assert.match(source, /inspectR2Object\(release\.objectKey\)/);
   assert.match(source, /object\.contentLength !== release\.sizeBytes/);
   assert.match(source, /disposition: "attachment"/);
@@ -46,7 +47,7 @@ test("home download buttons start the official installers directly", () => {
   );
   assert.match(
     source,
-    /\/api\/downloads\/android\/ComePlayers_0\.14\.0_20_android\.apk/
+    /\/api\/downloads\/android\/latest/
   );
   assert.match(source, /href=\{WINDOWS_URL\}[\s\S]*?download/);
   assert.match(source, /href=\{ANDROID_URL\}[\s\S]*?download/);

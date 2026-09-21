@@ -29,7 +29,9 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const release = getAppRelease(platform);
-  if (!release.available || decodeURIComponent(fileName) !== release.fileName) {
+  const requestedFile = decodeURIComponent(fileName);
+  const isLatestAlias = requestedFile === "latest";
+  if (!release.available || (!isLatestAlias && requestedFile !== release.fileName)) {
     return NextResponse.json(
       { error: "This ComePlayers release is not available yet." },
       { status: 404, headers: NO_STORE },
