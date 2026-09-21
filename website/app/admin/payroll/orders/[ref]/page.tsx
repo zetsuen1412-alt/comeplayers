@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/features/payroll/components/page-header";
-import { financeIssues } from "@/features/payroll/lib/demo-data";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
+import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { dailyProgress, getPayrollEligibleGrossMinor, isDailySettlementOrder, replaceDailyWorkStatus } from "@/features/payroll/lib/daily-orders";
 import { formatMoney as formatDailyMoney } from "@/features/payroll/lib/money";
+import { analyzeOrderIssues } from "@/features/payroll/lib/order-issues";
+import { formatMutationDistribution, type MutationViewRow } from "@/features/payroll/lib/mutation-rows";
 
 export default function OrderDetailPage() {
   const params = useParams<{ ref: string }>();
   const { allOrders, updateOrder } = useDemoOrders();
+  const { employees } = useDemoEmployees();
   const ref = decodeURIComponent(params.ref ?? "");
   const order = allOrders.find((x) => x.externalReference.toLowerCase() === ref.toLowerCase());
 
@@ -35,7 +38,7 @@ export default function OrderDetailPage() {
     }
   }
 
-  const issues = financeIssues.filter((x) => x.entity === order.externalReference);
+  const issues = analyzeOrderIssues(order, employees);
   const assignments = getOrderAssignments(order);
   const inPayroll = order.operationalStatus === "verified";
   const alreadyPaid = Boolean(order.payrollClosedAt);
@@ -118,16 +121,22 @@ export default function OrderDetailPage() {
           </div>
           <div className="mt-5 overflow-x-auto">
             <table className="cp-table">
-              <thead><tr><th>Hari</th><th>Tanggal</th><th>Nilai hari</th><th>Status</th><th>Gaji</th><th>Tindakan</th></tr></thead>
+              <thead><tr><th>Hari</th><th>Tanggal</th><th>Jam/hari</th><th>Karyawan</th><th>Pembagian</th><th>Nilai hari</th><th>Status</th><th>Gaji</th><th>Tindakan</th></tr></thead>
               <tbody>
                 {(order.dailyWork ?? []).map((day) => {
                   const closed = Boolean(day.payrollClosedAt);
+                  const dayAssignments = day.workerAssignments?.length ? day.workerAssignments : assignments;
+                  const dayIssues = analyzeOrderIssues(order, employees, day);
+                  const dayRow: MutationViewRow = { id: `${order.id}::${day.id}`, order, day, orderedAt: day.sourceOrderedAt ?? `${day.workDate}T12:00:00+07:00`, quantity: day.quantity ?? 1, grossMinor: day.grossMinor, assignments: dayAssignments };
                   const statusLabel = closed ? "Sudah digaji" : day.status === "verified" ? "Selesai" : day.status === "in_progress" ? "Dikerjakan" : day.status === "on_hold" ? "Bermasalah" : "Belum mulai";
-                  return <tr key={day.id} className={closed ? "bg-emerald-500/10" : day.status === "on_hold" ? "bg-red-500/10" : ""}>
-                    <td className="font-semibold">D{String(day.sequence).padStart(2, "0")}</td>
+                  return <tr key={day.id} className={closed ? "bg-emerald-500/10" : day.status === "on_hold" || dayIssues.some((item) => item.severity === "high" || item.severity === "critical") ? "bg-red-500/10" : ""}>
+                    <td className="font-semibold">Hari {day.sequence}/{order.scheduleTotalDays ?? order.dailyWork?.length ?? day.sequence}</td>
                     <td>{new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" }).format(new Date(`${day.workDate}T12:00:00+07:00`))}</td>
+                    <td>{day.hours ?? order.dailyHours ? <strong className="text-sky-300">{day.hours ?? order.dailyHours} jam</strong> : "—"}</td>
+                    <td>{dayAssignments.length ? dayAssignments.map((worker) => <div key={worker.id}><strong>{worker.employeeName}</strong> · {worker.team}</div>) : <span className="text-red-300">Belum ada</span>}</td>
+                    <td className="text-sm">{formatMutationDistribution(dayRow)}</td>
                     <td className="font-semibold text-yellow-300">{formatMoney(day.grossMinor)}</td>
-                    <td><span className={closed ? "text-emerald-300" : day.status === "verified" ? "text-emerald-300" : day.status === "on_hold" ? "text-red-300" : day.status === "in_progress" ? "text-sky-300" : "text-zinc-400"}>{statusLabel}</span></td>
+                    <td><span className={closed ? "text-emerald-300" : day.status === "verified" ? "text-emerald-300" : day.status === "on_hold" || dayIssues.length ? "text-red-300" : day.status === "in_progress" ? "text-sky-300" : "text-zinc-400"}>{dayIssues.length ? `Bermasalah (${dayIssues.length})` : statusLabel}</span>{dayIssues.length ? <div className="mt-2 space-y-1 text-xs text-red-200">{dayIssues.slice(0, 2).map((item, index) => <div key={`${item.code}-${index}`}>• {item.title}</div>)}</div> : null}</td>
                     <td>{closed ? <span className="font-semibold text-emerald-300">✓ Sudah masuk closing</span> : day.status === "verified" ? <span className="font-semibold text-emerald-300">Siap dicairkan</span> : <span className="text-zinc-500">Belum bisa dicairkan</span>}</td>
                     <td>
                       {closed ? <span className="text-xs text-zinc-500">Dikunci</span> : <div className="flex flex-wrap gap-2">
@@ -158,7 +167,7 @@ export default function OrderDetailPage() {
       {issues.length ? (
         <section className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 sm:p-6">
           <h2 className="text-xl font-semibold text-amber-100">⚠️ Pesanan ini perlu dicek</h2>
-          <div className="mt-3 space-y-3">{issues.map((issue) => <div key={issue.id} className="rounded-xl bg-black/20 p-4"><div className="font-semibold">{issue.title}</div><p className="mt-1 text-sm leading-6 text-zinc-300">{issue.description}</p><div className="mt-2 text-sm">Nilai yang perlu diperiksa: <strong>{formatMoney(issue.exposureMinor)}</strong></div></div>)}</div>
+          <div className="mt-3 space-y-3">{issues.map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-xl bg-black/20 p-4"><div className="font-semibold">{issue.title}</div><p className="mt-1 text-sm leading-6 text-zinc-300">{issue.description}</p><div className="mt-2 text-xs text-zinc-500">Kode pemeriksaan: {issue.code}</div></div>)}</div>
         </section>
       ) : <div className="mt-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-emerald-100">✓ Tidak ada masalah pada pesanan ini.</div>}
     </>
