@@ -56,10 +56,11 @@ export default function OrderDetailPage() {
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Sumber</span><strong>{order.source}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Jenis Pesanan</span><strong>{order.orderType === "gold" ? "Gold" : order.orderType === "item" ? "Item" : "Boosting"}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Pembeli</span><strong>{order.buyerName ?? "—"}</strong></div>
-            <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Gim</span><strong>{order.gameName ?? order.game} <span className="text-zinc-500">({order.game})</span></strong></div>
+            <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">GAME</span><strong>{order.gameName ?? order.game} <span className="text-zinc-500">({order.game})</span></strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Wilayah</span><strong>{order.region ?? "—"}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Server</span><strong>{order.server ?? "—"}</strong></div>
             {order.orderType !== "gold" ? <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Nama pesanan</span><strong>{order.orderName ?? order.service}</strong></div> : null}
+            <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">TASK</span><strong className="max-w-[65%] whitespace-pre-wrap text-right">{order.task?.trim() || "—"}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Jumlah pesanan</span><strong>{order.quantity.toLocaleString("id-ID")}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Tarif</span><strong>{order.rateMinor !== undefined ? formatMoney(order.rateMinor) : "—"}</strong></div>
             <div className="flex justify-between gap-4 border-b border-zinc-800 pb-3"><span className="text-zinc-500">Harga pesanan</span><strong>{formatMoney(order.grossMinor)}</strong></div>
