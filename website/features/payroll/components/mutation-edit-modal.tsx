@@ -25,6 +25,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
   const [source, setSource] = useState(order.source);
   const [buyerName, setBuyerName] = useState(order.buyerName ?? "");
   const [orderName, setOrderName] = useState(order.orderName ?? "");
+  const [task, setTask] = useState(order.task ?? "");
   const [quantity, setQuantity] = useState(String(order.quantity));
   const [rateMinor, setRateMinor] = useState(String(order.rateMinor ?? (order.quantity > 0 ? Math.round(order.grossMinor / order.quantity) : 0)));
   const [assignments, setAssignments] = useState<OrderWorkerAssignment[]>(originalAssignments.map((row) => ({ ...row })));
@@ -62,6 +63,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
     push("source", "Sumber", order.source, source);
     push("buyerName", "Pembeli", order.buyerName ?? "", buyerName.trim());
     if (order.orderType !== "gold") push("orderName", "Nama pesanan", order.orderName ?? "", orderName.trim());
+    push("task", "TASK", order.task ?? "", task.trim());
     if (!stockLocksQuantity) push("quantity", "Jumlah pesanan", order.quantity, parsedQuantity);
     push("rateMinor", "Tarif / harga per unit", formatMoney(order.rateMinor ?? 0), formatMoney(parsedRate));
     push("grossMinor", "Total harga pesanan", formatMoney(order.grossMinor), formatMoney(nextGross));
@@ -86,6 +88,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
       source,
       buyerName: buyerName.trim() || undefined,
       orderName: order.orderType === "gold" ? order.orderName : (orderName.trim() || undefined),
+      task: task.trim() || undefined,
       quantity: stockLocksQuantity ? order.quantity : parsedQuantity,
       rateMinor: parsedRate,
       grossMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
@@ -116,6 +119,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
           <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3">{[...new Set([...sourceOptions, order.source])].map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           <label className="text-sm">Pembeli<input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
           {order.orderType !== "gold" ? <label className="text-sm sm:col-span-2">Nama pesanan<input value={orderName} onChange={(e) => setOrderName(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label> : null}
+          <label className="text-sm sm:col-span-2">TASK<textarea value={task} onChange={(e) => setTask(e.target.value)} rows={3} maxLength={2000} placeholder="Keterangan TASK / pekerjaan" className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
           <label className="text-sm">Jumlah pesanan<input type="number" step="any" value={quantity} disabled={stockLocksQuantity} onChange={(e) => setQuantity(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3 disabled:opacity-50" />{stockLocksQuantity ? <span className="mt-1 block text-xs text-zinc-500">Dikunci karena jumlah terkait stok Gudang.</span> : null}</label>
           <label className="text-sm">Tarif / harga per unit<input type="number" min="0" value={rateMinor} onChange={(e) => setRateMinor(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
         </div>

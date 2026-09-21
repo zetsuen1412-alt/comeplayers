@@ -195,7 +195,7 @@ export default function MutationsPage() {
     `Sumber: ${source === "SEMUA" ? "Semua" : source}`,
     `Jenis: ${type === "SEMUA" ? "Semua" : type === "gold" ? "Gold" : type === "item" ? "Item" : "Boosting"}`,
     `Buyer: ${buyer === "SEMUA" ? "Semua" : buyer}`,
-    `Permainan: ${game === "SEMUA" ? "Semua" : game}`,
+    `GAME: ${game === "SEMUA" ? "Semua" : game}`,
     search.trim() ? `Kode: ${search.trim()}` : "Kode: Semua",
     `Urutan: ${mutationSortLabel(sortState)}`,
   ].join(" • ");
@@ -292,7 +292,7 @@ export default function MutationsPage() {
             <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
             <label className="text-sm">Jenis<select value={type} onChange={(e) => setType(e.target.value as TypeFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua jenis</option><option value="gold">Gold</option><option value="item">Item</option><option value="boosting">Boosting</option></select></label>
             <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
-            <label className="text-sm">Gim<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+            <label className="text-sm">GAME<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
             <label className="text-sm">Cari kode pesanan<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
@@ -322,7 +322,7 @@ export default function MutationsPage() {
         <p className="mt-1 text-sm text-zinc-500">Rekap dari Mutasi sesuai filter. Pembagian per order juga tampil pada kolom <strong>Pembagian jumlah</strong>.</p>
         <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-800">
           <table className="cp-table min-w-[760px]">
-            <thead><tr><th>Gim</th><th>Karyawan</th><th>FH</th><th>Total Gold</th><th>Baris Mutasi</th></tr></thead>
+            <thead><tr><th>GAME</th><th>Karyawan</th><th>FH</th><th>Total Gold</th><th>Baris Mutasi</th></tr></thead>
             <tbody>{goldSummary.map((item) => <tr key={item.key}><td>{item.game}</td><td className="font-semibold">{item.employeeName}</td><td>{item.team}</td><td className="font-semibold text-yellow-300">{formatSummaryQuantity(item)}</td><td>{item.orderCount}</td></tr>)}</tbody>
           </table>
         </div>
@@ -360,6 +360,7 @@ export default function MutationsPage() {
                   <td>{order.orderType === "gold" ? "Gold" : order.orderType === "item" ? "Item" : "Boosting"}</td>
                   <td>{order.buyerName ?? "—"}</td>
                   <td>{order.orderName ?? (order.orderType === "gold" ? order.service : order.service)}</td>
+                  <td className="whitespace-pre-wrap text-sm">{order.task?.trim() || "—"}</td>
                   <td><strong className={row.day ? "text-sky-300" : "text-zinc-500"}>{mutationDayLabel(row)}</strong></td>
                   <td className="text-sm">{formatMutationDistribution(row)}</td>
                   <td>{row.assignments.length ? row.assignments.map((assignment) => <div key={assignment.id}><strong>{assignment.employeeName}</strong> · {assignment.team} · <span className="text-yellow-300">{formatMoney(assignmentGross(row, assignment.id))}</span></div>) : "Belum ada"}</td>

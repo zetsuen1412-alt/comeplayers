@@ -54,6 +54,7 @@ export function OrderEntryForm() {
   const [manualCode, setManualCode] = useState("");
   const [buyer, setBuyer] = useState("");
   const [orderName, setOrderName] = useState("");
+  const [task, setTask] = useState("");
   const [gameQuery, setGameQuery] = useState("");
   const [selectedGameId, setSelectedGameId] = useState("");
   const [region, setRegion] = useState("");
@@ -306,6 +307,7 @@ export function OrderEntryForm() {
         source,
         buyerName: buyer.trim(),
         orderName: orderType === "gold" ? undefined : orderName.trim(),
+        task: task.trim() || undefined,
         orderType,
         scheduleMode,
         scheduleStartDate: scheduleMode === "daily" ? scheduleStartDate : undefined,
@@ -354,6 +356,7 @@ export function OrderEntryForm() {
       setManualCode("");
       setBuyer("");
       setOrderName("");
+      setTask("");
       setScheduleMode("single");
       setScheduleDays(7);
       setGameQuery("");
@@ -426,7 +429,11 @@ export function OrderEntryForm() {
               {orderType === "boosting" && packagePlan.isDaily ? <span className="mt-1 block text-xs text-sky-300">Terdeteksi otomatis: {boostingPlanLabel(packagePlan)}. Sistem membuat Hari 1 sampai Hari {packagePlan.totalDays}.</span> : null}
             </label>
           ) : null}
-          <div className="relative text-sm">Gim
+          <label className="text-sm xl:col-span-2">TASK
+            <textarea value={task} onChange={(e) => setTask(e.target.value)} rows={2} maxLength={2000} placeholder="Keterangan TASK / pekerjaan yang harus dilakukan" className={inputClass} />
+            <span className="mt-1 block text-xs text-zinc-500">Opsional. Keterangan ini otomatis ikut tampil di Mutasi.</span>
+          </label>
+          <div className="relative text-sm">GAME
             <input
               value={gameQuery}
               onChange={(e) => changeGameQuery(e.target.value)}
@@ -445,7 +452,7 @@ export function OrderEntryForm() {
                 )) : <div className="px-3 py-3 text-xs text-zinc-500">Tidak ada permainan. Tambahkan dulu di menu Produk / Permainan.</div>}
               </div>
             ) : null}
-            <div className="mt-1 text-xs text-zinc-500">Permainan tidak bisa diketik bebas; harus dipilih dari daftar Produk / Permainan.</div>
+            <div className="mt-1 text-xs text-zinc-500">GAME tidak bisa diketik bebas; harus dipilih dari daftar Produk / Permainan.</div>
           </div>
           <label className="text-sm">Wilayah
             <select value={region} onChange={(e) => changeRegion(e.target.value)} className={inputClass} disabled={!selectedGame}>
@@ -552,7 +559,7 @@ export function OrderEntryForm() {
                     </label>
                   </div>
                   {stock ? <div className={`mt-3 rounded-xl p-3 text-sm ${over || wrongGame || wrongRegion || wrongServer ? "bg-red-500/10 text-red-200" : "bg-emerald-500/10 text-emerald-100"}`}>
-                    {stock.stockType === "item" ? <><strong>{stock.itemName}</strong> · </> : null}Gim {stock.game} · Wilayah {stock.region ?? "—"} · Server {stock.server ?? "—"} · Stok {stock.onHand.toLocaleString("id-ID")} · Sudah dipesan {stock.reserved.toLocaleString("id-ID")} · <strong>Bisa dipakai {available.toLocaleString("id-ID")}</strong>
+                    {stock.stockType === "item" ? <><strong>{stock.itemName}</strong> · </> : null}GAME {stock.game} · Wilayah {stock.region ?? "—"} · Server {stock.server ?? "—"} · Stok {stock.onHand.toLocaleString("id-ID")} · Sudah dipesan {stock.reserved.toLocaleString("id-ID")} · <strong>Bisa dipakai {available.toLocaleString("id-ID")}</strong>
                     {wrongGame ? <div className="mt-1 font-semibold">⚠ Permainan stok berbeda dengan permainan pesanan.</div> : null}
                     {wrongRegion ? <div className="mt-1 font-semibold">⚠ Wilayah stok berbeda dengan Wilayah pesanan.</div> : null}
                     {wrongServer ? <div className="mt-1 font-semibold">⚠ Server stok berbeda dengan Server pesanan.</div> : null}
