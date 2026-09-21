@@ -559,7 +559,7 @@ export function OrderEntryForm() {
                     </label>
                   </div>
                   {stock ? <div className={`mt-3 rounded-xl p-3 text-sm ${over || wrongGame || wrongRegion || wrongServer ? "bg-red-500/10 text-red-200" : "bg-emerald-500/10 text-emerald-100"}`}>
-                    {stock.stockType === "item" ? <><strong>{stock.itemName}</strong> · </> : null}Gim {stock.game} · Wilayah {stock.region ?? "—"} · Server {stock.server ?? "—"} · Stok {stock.onHand.toLocaleString("id-ID")} · Sudah dipesan {stock.reserved.toLocaleString("id-ID")} · <strong>Bisa dipakai {available.toLocaleString("id-ID")}</strong>
+                    {stock.stockType === "item" ? <><strong>{stock.itemName}</strong> · </> : null}GAME {stock.game} · Wilayah {stock.region ?? "—"} · Server {stock.server ?? "—"} · Stok {stock.onHand.toLocaleString("id-ID")} · Sudah dipesan {stock.reserved.toLocaleString("id-ID")} · <strong>Bisa dipakai {available.toLocaleString("id-ID")}</strong>
                     {wrongGame ? <div className="mt-1 font-semibold">⚠ Permainan stok berbeda dengan permainan pesanan.</div> : null}
                     {wrongRegion ? <div className="mt-1 font-semibold">⚠ Wilayah stok berbeda dengan Wilayah pesanan.</div> : null}
                     {wrongServer ? <div className="mt-1 font-semibold">⚠ Server stok berbeda dengan Server pesanan.</div> : null}
