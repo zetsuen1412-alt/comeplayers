@@ -2,7 +2,7 @@ import type { Order } from '../types/domain';
 import { getOrderAssignments } from './order-workers';
 import type { MutationColumnId } from './mutation-table-layout';
 
-export type MutationSortColumn = Exclude<MutationColumnId, 'actions'>;
+export type MutationSortColumn = Exclude<MutationColumnId, 'actions' | 'day' | 'distribution'>;
 export type MutationSortDirection = 'asc' | 'desc';
 export type MutationSortState = { column: MutationSortColumn; direction: MutationSortDirection };
 
