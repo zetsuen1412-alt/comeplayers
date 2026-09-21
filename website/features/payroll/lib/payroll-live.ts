@@ -1,4 +1,4 @@
-import type { Employee, Order } from "@/features/payroll/types/domain";
+import type { Employee, Order, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
@@ -42,8 +42,22 @@ export type PayrollBuildOptions = {
   includeClosed?: boolean;
 };
 
+function eligibleDailyRows(order: Order, includeClosed = false) {
+  return (order.dailyWork ?? []).filter((row) =>
+    row.status === "verified" && (includeClosed || !row.payrollClosedAt),
+  );
+}
+
+function dailyAssignments(order: Order, day: NonNullable<Order["dailyWork"]>[number]) {
+  return day.workerAssignments?.length ? day.workerAssignments : getOrderAssignments(order);
+}
+
 export function isPayrollEligible(order: Order, includeClosed = false) {
-  return getOrderAssignments(order).length > 0 && getPayrollEligibleGrossMinor(order, includeClosed) > 0;
+  if (getPayrollEligibleGrossMinor(order, includeClosed) <= 0) return false;
+  if (isDailySettlementOrder(order)) {
+    return eligibleDailyRows(order, includeClosed).some((day) => dailyAssignments(order, day).length > 0);
+  }
+  return getOrderAssignments(order).length > 0;
 }
 
 export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptions = {}): LivePayrollRow[] {
@@ -60,30 +74,47 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
     orderRefs: Set<string>;
   }>();
 
+  function addWork(order: Order, assignment: OrderWorkerAssignment, gross: number, units: number, reference: string) {
+    const key = assignment.employeeCode;
+    const current = groups.get(key) ?? {
+      employeeCode: assignment.employeeCode,
+      employee: assignment.employeeName,
+      team: assignment.team,
+      games: new Set<string>(),
+      units: 0,
+      gross: 0,
+      orderRefs: new Set<string>(),
+    };
+    current.games.add(order.game);
+    current.units += units;
+    current.gross += gross;
+    current.orderRefs.add(reference);
+    groups.set(key, current);
+  }
+
   for (const order of orders) {
     if (!isPayrollEligible(order, options.includeClosed)) continue;
+
+    if (isDailySettlementOrder(order)) {
+      for (const day of eligibleDailyRows(order, options.includeClosed)) {
+        const assignments = dailyAssignments(order, day);
+        if (!assignments.length) continue;
+        const base = Math.floor(day.grossMinor / assignments.length);
+        const remainder = day.grossMinor - base * assignments.length;
+        for (const [index, assignment] of assignments.entries()) {
+          const gross = base + (index < remainder ? 1 : 0);
+          addWork(order, assignment, gross, day.quantity ?? 1, `${order.externalReference} D${day.sequence}`);
+        }
+      }
+      continue;
+    }
+
     const assignments = getOrderAssignments(order);
     const eligibleGross = getPayrollEligibleGrossMinor(order, options.includeClosed);
     for (const [index, assignment] of assignments.entries()) {
-      const key = assignment.employeeCode;
-      const current = groups.get(key) ?? {
-        employeeCode: assignment.employeeCode,
-        employee: assignment.employeeName,
-        team: assignment.team,
-        games: new Set<string>(),
-        units: 0,
-        gross: 0,
-        orderRefs: new Set<string>(),
-      };
-      current.games.add(order.game);
-      current.units += isDailySettlementOrder(order)
-        ? (order.dailyWork ?? []).filter((row) => row.status === "verified" && (options.includeClosed || !row.payrollClosedAt)).length
-        : assignment.quantity;
       const base = Math.floor(eligibleGross / assignments.length);
       const remainder = eligibleGross - base * assignments.length;
-      current.gross += base + (index < remainder ? 1 : 0);
-      current.orderRefs.add(order.externalReference);
-      groups.set(key, current);
+      addWork(order, assignment, base + (index < remainder ? 1 : 0), assignment.quantity, order.externalReference);
     }
   }
 
@@ -112,8 +143,6 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
     const shareBps = Math.round(sharePercent * 100);
     const earning = calculateWorkerEarning(group.gross, shareBps);
 
-    // Kasbon only uses salary that is still available. Other deductions may still make salary negative,
-    // and negative net is intentionally shown in red in the UI.
     const beforeKasbon = earning + bonusTips - operational - penalty;
     const kasbon = Math.min(kasbonOutstanding, Math.max(0, beforeKasbon));
     const kasbonRemaining = Math.max(0, kasbonOutstanding - kasbon);
