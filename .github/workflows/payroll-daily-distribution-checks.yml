@@ -1,0 +1,70 @@
+name: Payroll daily distribution checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - website/app/admin/payroll/mutations/**
+      - website/app/admin/payroll/orders/**
+      - website/features/payroll/components/mutation-issue-modal.tsx
+      - website/features/payroll/components/mutation-spreadsheet.*
+      - website/features/payroll/components/order-entry-form.tsx
+      - website/features/payroll/lib/boosting-package.ts
+      - website/features/payroll/lib/daily-orders.ts
+      - website/features/payroll/lib/mutation-rows.ts
+      - website/features/payroll/lib/mutation-table-layout.ts
+      - website/features/payroll/lib/mutation-table-sort.ts
+      - website/features/payroll/lib/order-issues.ts
+      - website/features/payroll/lib/payroll-live.ts
+      - website/features/payroll/lib/spreadsheet-export.ts
+      - website/features/payroll/types/domain.ts
+      - website/tests/payroll-daily-distribution.test.ts
+      - .github/workflows/payroll-daily-distribution-checks.yml
+  pull_request:
+    paths:
+      - website/app/admin/payroll/mutations/**
+      - website/app/admin/payroll/orders/**
+      - website/features/payroll/components/mutation-issue-modal.tsx
+      - website/features/payroll/components/mutation-spreadsheet.*
+      - website/features/payroll/components/order-entry-form.tsx
+      - website/features/payroll/lib/boosting-package.ts
+      - website/features/payroll/lib/daily-orders.ts
+      - website/features/payroll/lib/mutation-rows.ts
+      - website/features/payroll/lib/mutation-table-layout.ts
+      - website/features/payroll/lib/mutation-table-sort.ts
+      - website/features/payroll/lib/order-issues.ts
+      - website/features/payroll/lib/payroll-live.ts
+      - website/features/payroll/lib/spreadsheet-export.ts
+      - website/features/payroll/types/domain.ts
+      - website/tests/payroll-daily-distribution.test.ts
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: payroll-daily-distribution-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Typecheck website
+        run: npm run typecheck
+      - name: Verify daily packages, gold distributions and issue explanations
+        run: npx --no-install tsx --test tests/payroll-daily-distribution.test.ts
