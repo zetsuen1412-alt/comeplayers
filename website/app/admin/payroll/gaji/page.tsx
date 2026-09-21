@@ -91,36 +91,83 @@ export default function PayrollPage() {
 
       {waitingCheck > 0 ? <div className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">Ada <strong>{waitingCheck} pesanan</strong> selesai tetapi belum dimasukkan ke Gaji. Buka <Link href="/admin/payroll/mutations" className="font-semibold underline">Mutasi</Link>.</div> : null}
 
-      <div className="cp-card overflow-x-auto">
-        <table className="cp-table">
-          <thead><tr><th>Karyawan</th><th>Bagian / FH</th><th>Status</th><th>Pesanan selesai</th><th>Nilai pekerjaan</th><th>Persentase</th><th>Gaji awal</th><th>Operasional</th><th>Kasbon</th><th>Denda</th><th>Bonus / Uang Tip</th><th>Gaji bersih</th></tr></thead>
-          <tbody>
-            {rows.map((row) => {
-              const adjustment = settings.adjustments[row.employeeCode] ?? { operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
-              return (
-                <tr key={row.employeeCode}>
-                  <td className="font-semibold">{row.employee}<div className="text-xs font-normal text-zinc-500">{row.employeeCode}</div></td>
-                  <td>{row.team}</td>
-                  <td><span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass(row.employeeStatus)}`}>{adminLabel(row.employeeStatus)}</span></td>
-                  <td className="min-w-[140px]">{row.orderRefs.length ? <button onClick={() => setDetailEmployeeCode(row.employeeCode)} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold hover:bg-zinc-700">Perlihatkan ({row.orderRefs.length})</button> : <span className="text-zinc-600">Belum ada</span>}</td>
-                  <td>{formatMoney(row.gross)}</td>
-                  <td className="min-w-[190px]">
-                    <div className="flex items-center gap-2"><input type="number" min="0" max="100" step="0.01" value={row.sharePercent} onChange={(e) => setEmployeeSharePercent(row.employeeCode, Number(e.target.value) || 0)} className="w-20 rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm font-bold text-yellow-300" /><span>%</span></div>
-                    <div className="mt-2 flex gap-1">{[40, 50, 60].map((v) => <button key={v} onClick={() => setEmployeeSharePercent(row.employeeCode, v)} className="rounded bg-zinc-800 px-2 py-1 text-[11px]">{v}%</button>)}</div>
-                  </td>
-                  <td className="font-semibold text-yellow-300">{formatMoney(row.earning)}</td>
-                  <td className="min-w-[150px]"><select value={adjustment.operationalMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { operationalMinor: Number(e.target.value) as 0 | 25000 | 50000 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm"><option value={0}>Rp 0</option><option value={25000}>Rp 25.000</option><option value={50000}>Rp 50.000</option></select></td>
-                  <td className="min-w-[145px]"><div className="font-semibold text-amber-200">- {formatMoney(row.kasbon)}</div>{row.kasbonRemaining > 0 ? <div className="mt-1 text-xs text-zinc-500">Sisa {formatMoney(row.kasbonRemaining)}</div> : row.kasbonOutstanding > 0 ? <div className="mt-1 text-xs text-emerald-400">Terpotong penuh</div> : <div className="mt-1 text-xs text-zinc-600">Tidak ada</div>}</td>
-                  <td className="min-w-[145px]"><input type="number" min="0" step="1000" value={adjustment.penaltyMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { penaltyMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm" /></td>
-                  <td className="min-w-[145px]"><input type="number" min="0" step="1000" value={adjustment.bonusTipsMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { bonusTipsMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm" /></td>
-                  <td className={`font-bold ${row.net < 0 ? "text-red-300" : "text-emerald-300"}`}>{formatMoney(row.net)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {!rows.length ? <div className="p-8 text-center text-sm text-zinc-500">Belum ada data gaji.</div> : null}
-      </div>
+      <section className="cp-card overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 px-4 py-3 sm:px-5">
+          <div>
+            <h2 className="font-semibold">Tabel Gaji Karyawan</h2>
+            <p className="mt-1 text-xs text-zinc-500">Kolom dibuat lebar dan tetap terbaca. Geser ke kanan untuk Operasional, Kasbon, Denda, Bonus, dan Gaji Bersih.</p>
+          </div>
+          <div className="rounded-lg bg-zinc-900 px-3 py-2 text-xs text-zinc-400">{rows.length} karyawan · {team === "SEMUA" ? "Semua bagian" : team}</div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="cp-table min-w-[1840px] table-fixed">
+            <colgroup>
+              <col className="w-[190px]" />
+              <col className="w-[105px]" />
+              <col className="w-[120px]" />
+              <col className="w-[150px]" />
+              <col className="w-[160px]" />
+              <col className="w-[205px]" />
+              <col className="w-[150px]" />
+              <col className="w-[155px]" />
+              <col className="w-[155px]" />
+              <col className="w-[145px]" />
+              <col className="w-[165px]" />
+              <col className="w-[155px]" />
+            </colgroup>
+            <thead className="bg-zinc-950">
+              <tr>
+                <th className="whitespace-nowrap">Karyawan</th>
+                <th className="whitespace-nowrap text-center">Bagian / FH</th>
+                <th className="whitespace-nowrap text-center">Status</th>
+                <th className="whitespace-nowrap text-center">Pesanan selesai</th>
+                <th className="whitespace-nowrap text-right">Nilai pekerjaan</th>
+                <th className="whitespace-nowrap">Persentase</th>
+                <th className="whitespace-nowrap text-right">Gaji awal</th>
+                <th className="whitespace-nowrap">Operasional</th>
+                <th className="whitespace-nowrap">Kasbon</th>
+                <th className="whitespace-nowrap">Denda</th>
+                <th className="whitespace-nowrap">Bonus / Uang Tip</th>
+                <th className="whitespace-nowrap text-right">Gaji bersih</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const adjustment = settings.adjustments[row.employeeCode] ?? { operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
+                return (
+                  <tr key={row.employeeCode} className="align-top">
+                    <td className="font-semibold">
+                      <div className="leading-5">{row.employee}</div>
+                      <div className="mt-1 text-xs font-normal text-zinc-500">{row.employeeCode}</div>
+                    </td>
+                    <td className="text-center font-semibold">{row.team}</td>
+                    <td className="text-center"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${statusClass(row.employeeStatus)}`}>{adminLabel(row.employeeStatus)}</span></td>
+                    <td className="text-center">{row.orderRefs.length ? <button onClick={() => setDetailEmployeeCode(row.employeeCode)} className="whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold hover:bg-zinc-700">Perlihatkan ({row.orderRefs.length})</button> : <span className="text-zinc-600">Belum ada</span>}</td>
+                    <td className="whitespace-nowrap text-right font-semibold tabular-nums">{formatMoney(row.gross)}</td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <input type="number" min="0" max="100" step="0.01" value={row.sharePercent} onChange={(e) => setEmployeeSharePercent(row.employeeCode, Number(e.target.value) || 0)} className="w-20 rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-center text-sm font-bold text-yellow-300" />
+                        <span className="font-semibold">%</span>
+                      </div>
+                      <div className="mt-2 flex gap-1">{[40, 50, 60].map((v) => <button key={v} onClick={() => setEmployeeSharePercent(row.employeeCode, v)} className="rounded-md bg-zinc-800 px-2.5 py-1 text-[11px] font-semibold hover:bg-zinc-700">{v}%</button>)}</div>
+                    </td>
+                    <td className="whitespace-nowrap text-right font-semibold text-yellow-300 tabular-nums">{formatMoney(row.earning)}</td>
+                    <td><select value={adjustment.operationalMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { operationalMinor: Number(e.target.value) as 0 | 25000 | 50000 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"><option value={0}>Rp 0</option><option value={25000}>Rp 25.000</option><option value={50000}>Rp 50.000</option></select></td>
+                    <td>
+                      <div className="whitespace-nowrap font-semibold text-amber-200">- {formatMoney(row.kasbon)}</div>
+                      {row.kasbonRemaining > 0 ? <div className="mt-1 text-xs text-zinc-500">Sisa {formatMoney(row.kasbonRemaining)}</div> : row.kasbonOutstanding > 0 ? <div className="mt-1 text-xs text-emerald-400">Terpotong penuh</div> : <div className="mt-1 text-xs text-zinc-600">Tidak ada</div>}
+                    </td>
+                    <td><input type="number" min="0" step="1000" value={adjustment.penaltyMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { penaltyMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-right text-sm tabular-nums" /></td>
+                    <td><input type="number" min="0" step="1000" value={adjustment.bonusTipsMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { bonusTipsMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-right text-sm tabular-nums" /></td>
+                    <td className={`whitespace-nowrap text-right font-bold tabular-nums ${row.net < 0 ? "text-red-300" : "text-emerald-300"}`}>{formatMoney(row.net)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {!rows.length ? <div className="p-8 text-center text-sm text-zinc-500">Belum ada data gaji.</div> : null}
+        </div>
+      </section>
 
       <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">Nilai pekerjaan × persentase karyawan + Bonus/Uang Tip − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
 
