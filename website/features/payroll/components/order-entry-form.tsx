@@ -17,6 +17,7 @@ import { formatMoney } from "@/features/payroll/lib/money";
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { checkAllocationQuantity } from "@/features/payroll/lib/order-allocation";
 import { buildDailyWorkSchedule } from "@/features/payroll/lib/daily-orders";
+import { boostingPlanLabel, parseBoostingPackagePlan } from "@/features/payroll/lib/boosting-package";
 import type { Order, OrderInventoryAllocation, OrderScheduleMode, OrderType, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 
 const sources = ["G2G", "ComePlayers", "Direct", "Telegram", "OverGear", "FunPay", "PlayerAuction", "Lainnya"];
@@ -77,6 +78,13 @@ export function OrderEntryForm() {
   }, []);
 
   const orderTimeResult = useMemo(() => parseManualOrderTime(orderDateTime), [orderDateTime]);
+  const packagePlan = useMemo(() => parseBoostingPackagePlan(orderName), [orderName]);
+
+  useEffect(() => {
+    if (orderType !== "boosting" || !packagePlan.isDaily) return;
+    setScheduleMode("daily");
+    setScheduleDays(packagePlan.totalDays);
+  }, [orderType, packagePlan.isDaily, packagePlan.totalDays]);
 
   const orderCode = manualCode.trim();
   let codeError = "";
@@ -301,7 +309,9 @@ export function OrderEntryForm() {
         orderType,
         scheduleMode,
         scheduleStartDate: scheduleMode === "daily" ? scheduleStartDate : undefined,
-        dailyWork: scheduleMode === "daily" ? buildDailyWorkSchedule(scheduleStartDate, scheduleDays, total) : undefined,
+        scheduleTotalDays: scheduleMode === "daily" ? scheduleDays : undefined,
+        dailyHours: scheduleMode === "daily" ? packagePlan.dailyHours : undefined,
+        dailyWork: scheduleMode === "daily" ? buildDailyWorkSchedule(scheduleStartDate, scheduleDays, total, { dailyHours: packagePlan.dailyHours, workerAssignments: assignments }) : undefined,
         game: selectedGame.code,
         gameId: selectedGame.id,
         gameName: selectedGame.name,
@@ -413,6 +423,7 @@ export function OrderEntryForm() {
           {orderType !== "gold" ? (
             <label className="text-sm">Nama pesanan
               <input value={orderName} onChange={(e) => setOrderName(e.target.value)} placeholder={orderType === "item" ? "Contoh: Ancient Core x10" : "Contoh: Level 1-60"} className={inputClass} required />
+              {orderType === "boosting" && packagePlan.isDaily ? <span className="mt-1 block text-xs text-sky-300">Terdeteksi otomatis: {boostingPlanLabel(packagePlan)}. Sistem membuat Hari 1 sampai Hari {packagePlan.totalDays}.</span> : null}
             </label>
           ) : null}
           <div className="relative text-sm">Gim
