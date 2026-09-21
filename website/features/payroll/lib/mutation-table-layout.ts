@@ -5,6 +5,8 @@ export const mutationColumns = [
   { id: 'type', label: 'Jenis', width: 120, min: 110, max: 400 },
   { id: 'buyer', label: 'Pembeli', width: 210, min: 150, max: 900 },
   { id: 'order', label: 'Nama pesanan', width: 320, min: 190, max: 1200 },
+  { id: 'day', label: 'Hari', width: 125, min: 105, max: 320 },
+  { id: 'distribution', label: 'Pembagian jumlah', width: 380, min: 240, max: 1200 },
   { id: 'workers', label: 'Karyawan', width: 330, min: 230, max: 1000 },
   { id: 'game', label: 'Gim', width: 180, min: 110, max: 900 },
   { id: 'region', label: 'Wilayah', width: 160, min: 120, max: 640 },
