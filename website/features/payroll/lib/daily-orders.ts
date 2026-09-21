@@ -3,6 +3,7 @@ import type {
   Order,
   OrderDailyStatus,
   OrderDailyWork,
+  OrderWorkerAssignment,
 } from "@/features/payroll/types/domain";
 
 const DAILY_STATUSES = new Set<OrderDailyStatus>([
@@ -20,10 +21,17 @@ export function isDailySettlementOrder(order: Pick<Order, "scheduleMode" | "dail
   return order.scheduleMode === "daily" && Array.isArray(order.dailyWork) && order.dailyWork.length > 0;
 }
 
+type DailyScheduleOptions = {
+  dailyHours?: number;
+  startSequence?: number;
+  workerAssignments?: OrderWorkerAssignment[];
+};
+
 export function buildDailyWorkSchedule(
   startDate: string,
   days: number,
   grossMinor: number,
+  options: DailyScheduleOptions = {},
 ): OrderDailyWork[] {
   if (!validDateInput(startDate)) throw new Error("Tanggal mulai pekerjaan harian tidak valid.");
   const count = Math.floor(Number(days));
@@ -33,6 +41,7 @@ export function buildDailyWorkSchedule(
   const gross = Math.max(0, Math.round(Number(grossMinor)));
   if (!Number.isSafeInteger(gross)) throw new Error("Nilai pesanan harian tidak valid.");
 
+  const startSequence = Math.max(1, Math.floor(options.startSequence ?? 1));
   const base = Math.floor(gross / count);
   const remainder = gross - base * count;
   const start = new Date(`${startDate}T12:00:00+07:00`);
@@ -46,21 +55,26 @@ export function buildDailyWorkSchedule(
       month: "2-digit",
       day: "2-digit",
     }).format(date);
+    const sequence = startSequence + index;
 
     return {
-      id: `day-${index + 1}-${workDate}`,
-      sequence: index + 1,
+      id: `day-${sequence}-${workDate}`,
+      sequence,
       workDate,
       grossMinor: base + (index < remainder ? 1 : 0),
       status: "pending",
+      quantity: 1,
+      hours: options.dailyHours,
+      workerAssignments: options.workerAssignments?.map((assignment) => ({ ...assignment })),
     } satisfies OrderDailyWork;
   });
 }
 
-export function dailyProgress(order: Pick<Order, "dailyWork">) {
+export function dailyProgress(order: Pick<Order, "dailyWork" | "scheduleTotalDays">) {
   const rows = order.dailyWork ?? [];
   return {
-    total: rows.length,
+    total: order.scheduleTotalDays ?? rows.length,
+    recorded: rows.length,
     verified: rows.filter((row) => row.status === "verified").length,
     closed: rows.filter((row) => Boolean(row.payrollClosedAt)).length,
     inProgress: rows.filter((row) => row.status === "in_progress").length,
