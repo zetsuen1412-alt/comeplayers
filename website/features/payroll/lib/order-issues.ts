@@ -42,7 +42,8 @@ export function analyzeOrderIssues(order: Order, employees: Employee[], day?: Or
   if (!Number.isFinite(order.grossMinor) || order.grossMinor < 0) issues.push(issue("TOTAL_INVALID", "Total pesanan tidak valid", "Nilai total pesanan kosong, minus, atau bukan angka."));
 
   const assignments = assignmentsFor(order, day);
-  if (!assignments.length) {
+  const hasDailyAssignments = !day && order.scheduleMode === "daily" && (order.dailyWork ?? []).some((row) => (row.workerAssignments?.length ?? 0) > 0);
+  if (!assignments.length && !hasDailyAssignments) {
     issues.push(issue(
       "EMPLOYEE_MISSING",
       "Nama karyawan tidak ada",
