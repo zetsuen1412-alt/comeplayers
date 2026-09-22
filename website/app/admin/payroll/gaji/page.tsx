@@ -1,7 +1,7 @@
 "use client";
 
 import { adminLabel } from "@/lib/adminLocale";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
@@ -33,6 +33,8 @@ export default function PayrollPage() {
   const [team, setTeam] = useState<TeamFilter>("SEMUA");
   const [detailEmployeeCode, setDetailEmployeeCode] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const topScrollRef = useRef<HTMLDivElement | null>(null);
+  const tableScrollRef = useRef<HTMLDivElement | null>(null);
 
   const payrollOptions = useMemo(() => ({
     defaultSharePercent: settings.defaultSharePercent,
@@ -99,7 +101,27 @@ export default function PayrollPage() {
           </div>
           <div className="rounded-lg bg-zinc-900 px-3 py-2 text-xs text-zinc-400">{rows.length} karyawan · {team === "SEMUA" ? "Semua bagian" : team}</div>
         </div>
-        <div className="overflow-x-auto">
+        <div
+          ref={topScrollRef}
+          onScroll={(event) => {
+            if (tableScrollRef.current && tableScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
+              tableScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+            }
+          }}
+          className="h-5 overflow-x-auto overflow-y-hidden border-b border-zinc-800 bg-zinc-950/70"
+          aria-label="Scroll tabel gaji ke samping"
+        >
+          <div className="h-px min-w-[2000px]" />
+        </div>
+        <div
+          ref={tableScrollRef}
+          onScroll={(event) => {
+            if (topScrollRef.current && topScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
+              topScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+            }
+          }}
+          className="overflow-x-auto"
+        >
           <table className="cp-table min-w-[2000px] table-fixed">
             <colgroup>
               <col className="w-[190px]" />
