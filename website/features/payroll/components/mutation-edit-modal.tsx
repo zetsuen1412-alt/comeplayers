@@ -167,7 +167,72 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
           <label className="text-sm">Tarif / harga per unit<input type="number" min="0" value={rateMinor} onChange={(e) => setRateMinor(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
         </div>
 
-        {assignments.length ? <div className="border-t border-zinc-800 p-5 sm:p-6"><h3 className="font-semibold">Karyawan & proses</h3><div className="mt-3 space-y-3">{assignments.map((row, index) => <div key={row.id} className="grid gap-3 rounded-xl bg-zinc-900/70 p-4 sm:grid-cols-[1fr_1fr_180px]"><div><div className="text-xs text-zinc-500">Karyawan</div><div className="mt-1 font-semibold">{row.employeeName} · {row.team}</div></div><label className="text-sm">Proses<input value={row.process} onChange={(e) => updateAssignment(index, { process: e.target.value })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" /></label>{order.orderType !== "boosting" ? <label className="text-sm">Jumlah<input type="number" step="any" disabled={stockLocksQuantity} value={row.quantity} onChange={(e) => updateAssignment(index, { quantity: Number(e.target.value) })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" /></label> : <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold">Dibagi rata</div></div>}</div>)}</div></div> : null}
+        <div className="border-t border-zinc-800 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-semibold">Karyawan & proses</h3>
+            <span className="text-xs text-zinc-500">{assignments.length} karyawan pada pesanan</span>
+          </div>
+
+          {assignments.length ? (
+            <div className="mt-3 space-y-3">
+              {assignments.map((row, index) => (
+                <div key={row.id} className="grid gap-3 rounded-xl bg-zinc-900/70 p-4 sm:grid-cols-[1fr_1fr_180px]">
+                  <div>
+                    <div className="text-xs text-zinc-500">Karyawan</div>
+                    <div className="mt-1 font-semibold">{row.employeeName} · {row.team}</div>
+                  </div>
+                  <label className="text-sm">Proses
+                    <input value={row.process} onChange={(e) => updateAssignment(index, { process: e.target.value })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
+                  </label>
+                  {order.orderType !== "boosting" ? (
+                    <label className="text-sm">Jumlah
+                      <input type="number" step="any" disabled={stockLocksQuantity} value={row.quantity} onChange={(e) => updateAssignment(index, { quantity: Number(e.target.value) })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
+                    </label>
+                  ) : (
+                    <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold">Dibagi rata</div></div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : <div className="mt-3 rounded-xl border border-dashed border-zinc-700 p-4 text-sm text-zinc-500">Belum ada karyawan pada pesanan ini.</div>}
+
+          <div className="mt-5 rounded-xl border border-zinc-700 bg-black/40 p-4">
+            <div className="font-semibold">+ Tambah karyawan</div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <label className="text-sm">Divisi
+                <select value={employeeTeam} onChange={(e) => { setEmployeeTeam(e.target.value as typeof employeeTeam); setEmployeeCodeToAdd(""); }} disabled={stockLocksQuantity} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50">
+                  <option value="SEMUA">Semua divisi</option>
+                  <option value="FH1">FH1</option>
+                  <option value="FH2">FH2</option>
+                  <option value="FH3">FH3</option>
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="BANDAR">BANDAR</option>
+                </select>
+              </label>
+              <label className="text-sm">Karyawan
+                <select value={employeeCodeToAdd} onChange={(e) => setEmployeeCodeToAdd(e.target.value)} disabled={stockLocksQuantity} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50">
+                  <option value="">Pilih karyawan</option>
+                  {availableEmployees.map((employee) => <option key={employee.code} value={employee.code}>{employee.name} — {employee.team}</option>)}
+                </select>
+              </label>
+              <label className="text-sm">Proses
+                <input value={newEmployeeProcess} onChange={(e) => setNewEmployeeProcess(e.target.value)} disabled={stockLocksQuantity} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
+              </label>
+              {order.orderType !== "boosting" ? (
+                <label className="text-sm">Jumlah
+                  <input type="number" step="any" min="0" value={newEmployeeQuantity} onChange={(e) => setNewEmployeeQuantity(e.target.value)} disabled={stockLocksQuantity} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
+                </label>
+              ) : (
+                <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 rounded-xl bg-zinc-900 px-3 py-2 font-semibold">Dibagi rata otomatis</div></div>
+              )}
+            </div>
+            {stockLocksQuantity ? (
+              <div className="mt-3 text-xs text-amber-300">Penambahan karyawan dikunci karena pesanan ini terkait Stok/Gudang. Ubah alokasi stok terlebih dahulu.</div>
+            ) : (
+              <button type="button" onClick={addAssignment} className="mt-4 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-black">+ Tambahkan ke pesanan</button>
+            )}
+          </div>
+        </div>
 
         <div className="border-t border-zinc-800 p-5 sm:p-6">
           <label className="text-sm">Alasan / catatan perubahan {isFinished ? <strong className="text-amber-300">(wajib karena pesanan sudah selesai)</strong> : <span className="text-zinc-500">(opsional)</span>}<textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={"Contoh: Salah input tarif saat pesanan dibuat"} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
