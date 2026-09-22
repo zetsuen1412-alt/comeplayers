@@ -5,6 +5,7 @@ import { payrollStorage } from "@/features/payroll/lib/workspace-store";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type EmployeePayrollAdjustment = {
+  workValueCorrectionMinor: number;
   operationalMinor: 0 | 25_000 | 50_000;
   penaltyMinor: number;
   bonusTipsMinor: number;
@@ -89,8 +90,9 @@ export function useDemoPayrollSettings() {
 
   const updateEmployeeAdjustment = useCallback((employeeCode: string, patch: Partial<EmployeePayrollAdjustment>) => {
     const current = readSettings();
-    const previous = current.adjustments[employeeCode] ?? { operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
+    const previous = current.adjustments[employeeCode] ?? { workValueCorrectionMinor: 0, operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
     const nextRow: EmployeePayrollAdjustment = {
+      workValueCorrectionMinor: Math.round(Number(patch.workValueCorrectionMinor ?? previous.workValueCorrectionMinor)),
       operationalMinor: ([0, 25_000, 50_000].includes(Number(patch.operationalMinor ?? previous.operationalMinor)) ? Number(patch.operationalMinor ?? previous.operationalMinor) : previous.operationalMinor) as EmployeePayrollAdjustment["operationalMinor"],
       penaltyMinor: Math.max(0, Math.round(Number(patch.penaltyMinor ?? previous.penaltyMinor))),
       bonusTipsMinor: Math.max(0, Math.round(Number(patch.bonusTipsMinor ?? previous.bonusTipsMinor))),
