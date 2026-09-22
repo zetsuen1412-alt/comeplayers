@@ -31,7 +31,8 @@ function stringValue(order: Order, column: MutationSortColumn): string {
     case 'buyer': return order.buyerName ?? '';
     case 'order': return order.orderName ?? (order.orderType === 'gold' ? 'Gold' : (order.service ?? ''));
     case 'task': return order.task ?? '';
-    case 'workers': return getOrderAssignments(order).map((assignment) => `${assignment.employeeName} ${assignment.team}`).join(' ');
+    case 'workers': return getOrderAssignments(order).map((assignment) => assignment.employeeName).join(' ');
+    case 'division': return [...new Set(getOrderAssignments(order).map((assignment) => assignment.team))].join(' ');
     case 'game': return order.gameName ?? order.game ?? '';
     case 'region': return order.region ?? '';
     case 'server': return order.server ?? '';
@@ -65,7 +66,7 @@ export function mutationSortLabel(sort: MutationSortState) {
   }
   const labels: Record<MutationSortColumn, string> = {
     date: 'Hari & tanggal', code: 'Kode', source: 'Sumber', type: 'Jenis', buyer: 'Pembeli',
-    order: 'Nama pesanan', task: 'TASK', workers: 'Karyawan', game: 'GAME', region: 'Wilayah', server: 'Server',
+    order: 'Nama pesanan', task: 'TASK', workers: 'Karyawan', division: 'Divisi', game: 'GAME', region: 'Wilayah', server: 'Server',
     quantity: 'Jumlah', total: 'Total', status: 'Status',
   };
   return `${labels[sort.column]}: ${sort.direction === 'asc' ? 'A → Z' : 'Z → A'}`;
