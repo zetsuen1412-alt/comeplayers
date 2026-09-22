@@ -3,7 +3,7 @@ import type { LivePayrollRow } from "@/features/payroll/lib/payroll-live";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
 import { formatDateTimeID, formatJakartaDateTimeInput, toJakartaDateInput } from "@/features/payroll/lib/date";
-import { expandMutationRows, formatMutationDistribution, mutationDayLabel, mutationRowStatusText, type MutationViewRow } from "@/features/payroll/lib/mutation-rows";
+import { expandMutationRows, formatMutationDistribution, mutationDayLabel, mutationRowStatusText, normalizeDivisionLabel, type MutationViewRow } from "@/features/payroll/lib/mutation-rows";
 
 // Export Excel v0.15.5 mengambil gaya visual dari spreadsheet operasional EVO GAMING lama:
 // bar judul hitam, header berwarna, border rapih, format Rupiah, filter, status berwarna,
@@ -140,7 +140,7 @@ function mutationRow(row: MutationViewRow): ExportRecord {
     RATE: rate,
     "TOTAL ORDER": row.grossMinor,
     KARYAWAN: row.assignments.map((a) => a.employeeName).join(" | "),
-    DIVISI: [...new Set(row.assignments.map((a) => a.team))].join(" | "),
+    DIVISI: [...new Set(row.assignments.map((a) => normalizeDivisionLabel(a.team)))].join(" | "),
     "NILAI PER KARYAWAN": row.assignments.map((a, index) => `${a.employeeName}: ${mutationAssignmentGross(row, index)}`).join(" | "),
     "STOK GUDANG": order.inventoryAllocations?.map((x) => `${x.stockType === "gold" ? "Gold" : x.itemName} ${x.quantity} - ${x.employeeName} (${x.team})`).join(" | ") ?? "",
     STATUS: mutationRowStatusText(row).toUpperCase(),
