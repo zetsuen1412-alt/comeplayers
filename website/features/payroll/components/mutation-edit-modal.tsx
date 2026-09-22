@@ -6,12 +6,13 @@ import { formatMoney } from "@/features/payroll/lib/money";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import type { MutationChange } from "@/features/payroll/lib/demo-mutation-history-store";
-import type { Order, OrderWorkerAssignment } from "@/features/payroll/types/domain";
+import type { Order, OrderDailyWork, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 
 const sourceOptions = ["G2G", "ComePlayers", "Direct", "Telegram", "OverGear", "FunPay", "PlayerAuction", "Lainnya"];
 
 type Props = {
   order: Order;
+  day?: OrderDailyWork;
   onClose: () => void;
   onSave: (patch: Partial<Order>, changes: MutationChange[], reason?: string) => void;
 };
@@ -21,9 +22,12 @@ function text(value: unknown) {
   return String(value);
 }
 
-export function MutationEditModal({ order, onClose, onSave }: Props) {
+export function MutationEditModal({ order, day, onClose, onSave }: Props) {
   const { employees } = useDemoEmployees();
-  const originalAssignments = useMemo(() => getOrderAssignments(order), [order]);
+  const originalAssignments = useMemo(() => day
+    ? (day.workerAssignments?.length ? day.workerAssignments : getOrderAssignments(order))
+    : getOrderAssignments(order),
+  [day, order]);
   const [source, setSource] = useState(order.source);
   const [buyerName, setBuyerName] = useState(order.buyerName ?? "");
   const [orderName, setOrderName] = useState(order.orderName ?? "");
@@ -38,8 +42,13 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const isFinished = order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
+  const isFinished = day
+    ? day.status === "verified" || Boolean(day.payrollClosedAt)
+    : order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
+  const isPayrollClosed = day ? Boolean(day.payrollClosedAt) : Boolean(order.payrollClosedAt);
   const stockLocksQuantity = Boolean(order.inventoryAllocations?.length);
+  const dayTotal = order.scheduleTotalDays ?? order.dailyWork?.length ?? day?.sequence ?? 1;
+  const dayLabel = day ? `Hari ${day.sequence}/${dayTotal}` : null;
   const availableEmployees = useMemo(() => employees
     .filter((employee) => employee.workforceStatus !== "RESIGN")
     .filter((employee) => !assignments.some((assignment) => assignment.employeeCode === employee.code))
@@ -145,26 +154,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
       };
     });
 
-    const nextDailyWork = order.scheduleMode === "daily"
-      ? (order.dailyWork ?? []).map((day) => {
-          if (day.payrollClosedAt) return day;
-          return {
-            ...day,
-            workerAssignments: nextAssignments.map((assignment) => ({
-              ...assignment,
-              id: `${day.id}-${assignment.employeeCode}`,
-            })),
-          };
-        })
-      : order.dailyWork;
-
-    if (order.scheduleMode === "daily" && (order.dailyWork ?? []).some((day) => !day.payrollClosedAt)) {
-      const beforeDaily = [...new Set((order.dailyWork ?? []).flatMap((day) => (day.workerAssignments ?? []).map((assignment) => assignment.employeeName)))].join(", ");
-      const afterDaily = nextAssignments.map((assignment) => assignment.employeeName).join(", ");
-      push("dailyWork.workerAssignments", "Karyawan semua hari aktif", beforeDaily || "—", afterDaily || "—");
-    }
-
-    onSave({
+    const patch: Partial<Order> = {
       source,
       buyerName: buyerName.trim() || undefined,
       orderName: order.orderType === "gold" ? order.orderName : (orderName.trim() || undefined),
@@ -173,9 +163,22 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
       rateMinor: parsedRate,
       grossMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
       expectedPaymentMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
-      workerAssignments: nextAssignments,
-      dailyWork: nextDailyWork,
-    }, changes, reason.trim() || undefined);
+    };
+
+    if (day) {
+      patch.dailyWork = (order.dailyWork ?? []).map((currentDay) => currentDay.id === day.id ? {
+        ...currentDay,
+        workerAssignments: nextAssignments.map((assignment) => ({
+          ...assignment,
+          id: `${currentDay.id}-${assignment.employeeCode}`,
+        })),
+      } : currentDay);
+      push("dailyWork." + day.id + ".workerAssignments", "Karyawan " + dayLabel, originalAssignments.map((row) => row.employeeName).join(", ") || "—", nextAssignments.map((row) => row.employeeName).join(", ") || "—");
+    } else {
+      patch.workerAssignments = nextAssignments;
+    }
+
+    onSave(patch, changes, reason.trim() || undefined);
   }
 
   return (
@@ -184,15 +187,15 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-800 p-5 sm:p-6">
           <div>
             <div className="text-sm font-semibold text-yellow-300">Edit Mutasi</div>
-            <h2 className="mt-1 text-2xl font-semibold">{order.externalReference}</h2>
-            <p className="mt-1 text-sm text-zinc-500">Bisa diedit walaupun pesanan sudah selesai. Semua perubahan disimpan di Riwayat Perubahan.</p>
+            <h2 className="mt-1 text-2xl font-semibold">{order.externalReference}{dayLabel ? ` · ${dayLabel}` : ""}</h2>
+            <p className="mt-1 text-sm text-zinc-500">{dayLabel ? `Perubahan karyawan hanya berlaku untuk ${dayLabel}. Hari lain tidak berubah.` : "Bisa diedit walaupun pesanan sudah selesai. Semua perubahan disimpan di Riwayat Perubahan."}</p>
           </div>
           <button onClick={onClose} className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold">Tutup</button>
         </div>
 
         {isFinished ? (
-          <div className={`m-5 rounded-xl border p-4 text-sm leading-6 sm:m-6 ${order.payrollClosedAt ? "border-red-500/30 bg-red-500/10 text-red-100" : "border-amber-500/30 bg-amber-500/10 text-amber-100"}`}>
-            <strong>{order.payrollClosedAt ? "Pesanan ini sudah Tutup Buku/Gajian." : "Pesanan ini sudah selesai."}</strong> Edit tetap diizinkan dan akan ditandai khusus di Riwayat Perubahan.{order.payrollClosedAt ? " Data gaji Tutup Buku lama tidak dihitung ulang otomatis; perubahan setelah Tutup Buku menjadi catatan koreksi." : ""}
+          <div className={`m-5 rounded-xl border p-4 text-sm leading-6 sm:m-6 ${isPayrollClosed ? "border-red-500/30 bg-red-500/10 text-red-100" : "border-amber-500/30 bg-amber-500/10 text-amber-100"}`}>
+            <strong>{isPayrollClosed ? `${dayLabel ?? "Pesanan ini"} sudah Tutup Buku/Gajian.` : `${dayLabel ?? "Pesanan ini"} sudah selesai.`}</strong> Edit tetap diizinkan dan akan ditandai khusus di Riwayat Perubahan.{isPayrollClosed ? " Data gaji Tutup Buku lama tidak dihitung ulang otomatis; perubahan setelah Tutup Buku menjadi catatan koreksi." : ""}
           </div>
         ) : null}
 
@@ -209,7 +212,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className="font-semibold">Karyawan & proses</h3>
-              {order.scheduleMode === "daily" ? <div className="mt-1 text-xs text-sky-300">Perubahan karyawan di sini diterapkan ke semua Hari yang belum Tutup Buku.</div> : null}
+              {dayLabel ? <div className="mt-1 text-xs text-sky-300">Karyawan di bawah ini khusus untuk {dayLabel}. Hari lain tidak ikut berubah.</div> : null}
             </div>
             <span className="text-xs text-zinc-500">{assignments.length} karyawan pada pesanan</span>
           </div>
