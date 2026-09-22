@@ -1,7 +1,7 @@
 "use client";
 
 import { adminLabel } from "@/lib/adminLocale";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
@@ -119,7 +119,7 @@ export default function PayrollPage() {
     return target instanceof Element && Boolean(target.closest("button, input, select, textarea, a, label"));
   }
 
-  function startTableDrag(event: React.PointerEvent<HTMLDivElement>) {
+  function startTableDrag(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.pointerType !== "mouse" || event.button !== 0 || isInteractiveDragTarget(event.target)) return;
     tableDragRef.current = {
       pointerId: event.pointerId,
@@ -131,7 +131,7 @@ export default function PayrollPage() {
     event.preventDefault();
   }
 
-  function moveTableDrag(event: React.PointerEvent<HTMLDivElement>) {
+  function moveTableDrag(event: ReactPointerEvent<HTMLDivElement>) {
     const drag = tableDragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     const next = drag.startScrollLeft - (event.clientX - drag.startX);
@@ -140,7 +140,7 @@ export default function PayrollPage() {
     event.preventDefault();
   }
 
-  function endTableDrag(event: React.PointerEvent<HTMLDivElement>) {
+  function endTableDrag(event: ReactPointerEvent<HTMLDivElement>) {
     const drag = tableDragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
