@@ -33,8 +33,10 @@ export default function PayrollPage() {
   const [team, setTeam] = useState<TeamFilter>("SEMUA");
   const [detailEmployeeCode, setDetailEmployeeCode] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [draggingTable, setDraggingTable] = useState(false);
   const topScrollRef = useRef<HTMLDivElement | null>(null);
   const tableScrollRef = useRef<HTMLDivElement | null>(null);
+  const tableDragRef = useRef<{ pointerId: number; startX: number; startScrollLeft: number } | null>(null);
 
   const payrollOptions = useMemo(() => ({
     defaultSharePercent: settings.defaultSharePercent,
@@ -113,6 +115,39 @@ export default function PayrollPage() {
     return items.sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt) || a.orderReference.localeCompare(b.orderReference, "id", { numeric: true }));
   }, [allOrders, detailEmployeeCode]);
 
+  function isInteractiveDragTarget(target: EventTarget | null) {
+    return target instanceof Element && Boolean(target.closest("button, input, select, textarea, a, label"));
+  }
+
+  function startTableDrag(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "mouse" || event.button !== 0 || isInteractiveDragTarget(event.target)) return;
+    tableDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScrollLeft: event.currentTarget.scrollLeft,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingTable(true);
+    event.preventDefault();
+  }
+
+  function moveTableDrag(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = tableDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const next = drag.startScrollLeft - (event.clientX - drag.startX);
+    event.currentTarget.scrollLeft = next;
+    if (topScrollRef.current) topScrollRef.current.scrollLeft = next;
+    event.preventDefault();
+  }
+
+  function endTableDrag(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = tableDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    tableDragRef.current = null;
+    setDraggingTable(false);
+  }
+
   return (
     <>
       <PageHeader title="Gaji" description={"Persentase gaji diatur per karyawan. Pesanan yang sudah Tutup Buku tidak akan dihitung lagi pada gajian berikutnya."} />
@@ -178,7 +213,12 @@ export default function PayrollPage() {
               topScrollRef.current.scrollLeft = next;
             }
           }}
-          className="overflow-x-auto"
+          onPointerDown={startTableDrag}
+          onPointerMove={moveTableDrag}
+          onPointerUp={endTableDrag}
+          onPointerCancel={endTableDrag}
+          className={`overflow-x-auto ${draggingTable ? "cursor-grabbing select-none" : "cursor-grab"}`}
+          title="Tahan klik kiri pada area tabel lalu tarik ke kiri/kanan untuk menggeser"
         >
           <table className="cp-table min-w-[1840px] table-fixed">
             <colgroup>
