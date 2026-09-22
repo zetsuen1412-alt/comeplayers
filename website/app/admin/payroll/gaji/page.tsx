@@ -63,7 +63,7 @@ export default function PayrollPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="text-sm font-semibold text-yellow-200">Persentase per karyawan</div>
-            <p className="mt-1 text-sm leading-6 text-zinc-400">Karyawan baru memakai bawaan {settings.defaultSharePercent}%. Persentase setiap karyawan bisa diubah sendiri, misalnya 40%, 50%, atau 60%.</p>
+            <p className="mt-1 text-sm leading-6 text-zinc-400">Karyawan baru memakai bawaan {settings.defaultSharePercent}%. Persentase setiap karyawan bisa diubah sendiri. Koreksi Nilai dipakai untuk penyesuaian payroll yang tercatat tanpa membuat pesanan fiktif.</p>
           </div>
           <button onClick={() => confirm("Atur Ulang persentase dan potongan gaji?") && resetPayrollSettings()} className="rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang pengaturan</button>
         </div>
@@ -95,18 +95,19 @@ export default function PayrollPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 px-4 py-3 sm:px-5">
           <div>
             <h2 className="font-semibold">Tabel Gaji Karyawan</h2>
-            <p className="mt-1 text-xs text-zinc-500">Kolom dibuat lebar dan tetap terbaca. Geser ke kanan untuk Operasional, Kasbon, Denda, Bonus, dan Gaji Bersih.</p>
+            <p className="mt-1 text-xs text-zinc-500">Kolom dibuat lebar dan tetap terbaca. Geser ke kanan untuk Koreksi Nilai, Operasional, Kasbon, Denda, Bonus, dan Gaji Bersih.</p>
           </div>
           <div className="rounded-lg bg-zinc-900 px-3 py-2 text-xs text-zinc-400">{rows.length} karyawan · {team === "SEMUA" ? "Semua bagian" : team}</div>
         </div>
         <div className="overflow-x-auto">
-          <table className="cp-table min-w-[1840px] table-fixed">
+          <table className="cp-table min-w-[2000px] table-fixed">
             <colgroup>
               <col className="w-[190px]" />
               <col className="w-[105px]" />
               <col className="w-[120px]" />
               <col className="w-[150px]" />
               <col className="w-[160px]" />
+              <col className="w-[155px]" />
               <col className="w-[205px]" />
               <col className="w-[150px]" />
               <col className="w-[155px]" />
@@ -122,6 +123,7 @@ export default function PayrollPage() {
                 <th className="whitespace-nowrap text-center">Status</th>
                 <th className="whitespace-nowrap text-center">Pesanan selesai</th>
                 <th className="whitespace-nowrap text-right">Nilai pekerjaan</th>
+                <th className="whitespace-nowrap">Koreksi Nilai</th>
                 <th className="whitespace-nowrap">Persentase</th>
                 <th className="whitespace-nowrap text-right">Gaji awal</th>
                 <th className="whitespace-nowrap">Operasional</th>
@@ -133,7 +135,7 @@ export default function PayrollPage() {
             </thead>
             <tbody>
               {rows.map((row) => {
-                const adjustment = settings.adjustments[row.employeeCode] ?? { operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
+                const adjustment = settings.adjustments[row.employeeCode] ?? { workValueCorrectionMinor: 0, operationalMinor: 0, penaltyMinor: 0, bonusTipsMinor: 0 };
                 return (
                   <tr key={row.employeeCode} className="align-top">
                     <td className="font-semibold">
@@ -144,6 +146,9 @@ export default function PayrollPage() {
                     <td className="text-center"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${statusClass(row.employeeStatus)}`}>{adminLabel(row.employeeStatus)}</span></td>
                     <td className="text-center">{row.orderRefs.length ? <button onClick={() => setDetailEmployeeCode(row.employeeCode)} className="whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold hover:bg-zinc-700">Perlihatkan ({row.orderRefs.length})</button> : <span className="text-zinc-600">Belum ada</span>}</td>
                     <td className="whitespace-nowrap text-right font-semibold tabular-nums">{formatMoney(row.gross)}</td>
+                    <td>
+                      <input type="number" step="1" value={adjustment.workValueCorrectionMinor ?? 0} onChange={(e) => updateEmployeeAdjustment(row.employeeCode, { workValueCorrectionMinor: Number(e.target.value) || 0 })} className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-right text-sm tabular-nums" />
+                    </td>
                     <td>
                       <div className="flex items-center gap-2">
                         <input type="number" min="0" max="100" step="0.01" value={row.sharePercent} onChange={(e) => setEmployeeSharePercent(row.employeeCode, Number(e.target.value) || 0)} className="w-20 rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-center text-sm font-bold text-yellow-300" />
@@ -169,7 +174,7 @@ export default function PayrollPage() {
         </div>
       </section>
 
-      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">Nilai pekerjaan × persentase karyawan + Bonus/Uang Tip − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
+      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">(Nilai pekerjaan asli + Koreksi Nilai) × persentase karyawan + Bonus/Uang Tip − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
 
       {detailEmployeeCode ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onMouseDown={() => setDetailEmployeeCode(null)}>
