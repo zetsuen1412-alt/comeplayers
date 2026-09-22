@@ -10,11 +10,14 @@ import { formatMoney } from "@/features/payroll/lib/money";
 export function KasbonManager() {
   const { employees } = useDemoEmployees();
   const { records, outstandingByEmployee, addKasbon, markPaid, resetKasbon } = useDemoAdvances();
+  const [teamFilter, setTeamFilter] = useState<"SEMUA" | "FH1" | "FH2" | "FH3" | "ADMIN" | "BANDAR">("SEMUA");
   const [employeeId, setEmployeeId] = useState("");
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
+  const activeEmployees = useMemo(() => employees.filter((row) => row.workforceStatus !== "RESIGN"), [employees]);
+  const visibleEmployees = useMemo(() => activeEmployees.filter((row) => teamFilter === "SEMUA" || row.team === teamFilter), [activeEmployees, teamFilter]);
   const selected = employees.find((row) => row.id === employeeId) ?? null;
   const totalOutstanding = useMemo(() => Object.values(outstandingByEmployee).reduce<number>((sum, value) => sum + Number(value), 0), [outstandingByEmployee]);
 
@@ -46,15 +49,26 @@ export function KasbonManager() {
       <form onSubmit={submit} className="cp-card p-5 sm:p-6">
         <h2 className="text-xl font-semibold">Tambah Kasbon</h2>
         <p className="mt-1 text-sm text-zinc-500">Kasbon aktif otomatis muncul sebagai potongan di menu Gaji.</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label className="text-sm">Divisi / FH
+            <select value={teamFilter} onChange={(e) => { setTeamFilter(e.target.value as typeof teamFilter); setEmployeeId(""); }} className={inputClass}>
+              <option value="SEMUA">Semua divisi</option>
+              <option value="FH1">FH1</option>
+              <option value="FH2">FH2</option>
+              <option value="FH3">FH3</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="BANDAR">BANDAR</option>
+            </select>
+          </label>
           <label className="text-sm">Karyawan
             <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className={inputClass} required>
               <option value="">Pilih karyawan</option>
-              {employees.filter((row) => row.workforceStatus !== "RESIGN").map((row) => <option key={row.id} value={row.id}>{row.name} — {row.team} — {adminLabel(row.workforceStatus)}</option>)}
+              {visibleEmployees.map((row) => <option key={row.id} value={row.id}>{row.name} — {adminLabel(row.workforceStatus)}</option>)}
             </select>
           </label>
           <label className="text-sm">Jumlah kasbon
-            <input type="number" min="0" step="1000" value={amount} onChange={(e) => setAmount(Math.max(0, Number(e.target.value) || 0))} className={inputClass} required />
+            <input type="number" min="0" step="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(Math.max(0, Number(e.target.value) || 0))} className={inputClass} required />
+            <span className="mt-1 block text-xs text-zinc-500">Bebas nominal rupiah, termasuk angka ganjil seperti Rp75.500 atau Rp75.501.</span>
           </label>
           <label className="text-sm">Catatan
             <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Contoh: Kasbon 10 September" className={inputClass} />
