@@ -25,6 +25,7 @@ import {
   expandMutationRows,
   formatMutationDistribution,
   mutationDayLabel,
+  normalizeDivisionLabel,
   type MutationViewRow,
 } from "@/features/payroll/lib/mutation-rows";
 import type { Order, OrderIssue } from "@/features/payroll/types/domain";
@@ -96,8 +97,15 @@ function compareViewRows(a: MutationViewRow, b: MutationViewRow, sort: MutationS
 const divisionOrder = ["FH1", "FH2", "FH3", "ADMIN", "BANDAR"] as const;
 
 function mutationDivisions(row: MutationViewRow) {
-  return [...new Set(row.assignments.map((assignment) => assignment.team))]
-    .sort((a, b) => divisionOrder.indexOf(a) - divisionOrder.indexOf(b));
+  return [...new Set(row.assignments.map((assignment) => normalizeDivisionLabel(assignment.team)))]
+    .sort((a, b) => {
+      const ai = divisionOrder.indexOf(a as (typeof divisionOrder)[number]);
+      const bi = divisionOrder.indexOf(b as (typeof divisionOrder)[number]);
+      if (ai === -1 && bi === -1) return a.localeCompare(b, "id");
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
 }
 
 const sortPresets: Record<SortMode, MutationSortState> = {
@@ -173,7 +181,14 @@ export default function MutationsPage() {
   const games = useMemo(() => [...new Set(allOrders.map((order) => (order.gameName ?? order.game).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
   const assignmentOptions = useMemo(() => expandMutationRows(allOrders).flatMap((row) => row.assignments), [allOrders]);
   const employeeNames = useMemo(() => [...new Set(assignmentOptions.map((assignment) => assignment.employeeName).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [assignmentOptions]);
-  const divisions = useMemo(() => [...new Set(assignmentOptions.map((assignment) => assignment.team).filter(Boolean))].sort((a, b) => divisionOrder.indexOf(a) - divisionOrder.indexOf(b)), [assignmentOptions]);
+  const divisions = useMemo(() => [...new Set(assignmentOptions.map((assignment) => normalizeDivisionLabel(assignment.team)).filter(Boolean))].sort((a, b) => {
+    const ai = divisionOrder.indexOf(a as (typeof divisionOrder)[number]);
+    const bi = divisionOrder.indexOf(b as (typeof divisionOrder)[number]);
+    if (ai === -1 && bi === -1) return a.localeCompare(b, "id");
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  }), [assignmentOptions]);
 
   const filteredOrders = useMemo(() => allOrders.filter((order) => {
     if (type !== "SEMUA" && order.orderType !== type) return false;
@@ -196,7 +211,7 @@ export default function MutationsPage() {
     const filtered = periodRows.filter((row) => {
       if (source !== "SEMUA" && row.order.source !== source) return false;
       if (employee !== "SEMUA" && !row.assignments.some((assignment) => assignment.employeeName === employee)) return false;
-      if (division !== "SEMUA" && !row.assignments.some((assignment) => assignment.team === division)) return false;
+      if (division !== "SEMUA" && !row.assignments.some((assignment) => normalizeDivisionLabel(assignment.team) === division)) return false;
 
       const issues = analyzeOrderIssues(row.order, employees, row.day);
       const problematic = hasBlockingOrderIssues(issues) || (row.day ? row.day.status === "on_hold" : row.order.operationalStatus === "on_hold");
@@ -268,6 +283,42 @@ export default function MutationsPage() {
     setProblem("SEMUA");
     setSortState(defaultMutationSort);
     setSearch("");
+  }
+
+  function pullOrderFromPayroll(order: Order) {
+    if (order.payrollClosedAt) {
+      setNotice(`Pesanan ${order.externalReference} sudah Tutup Buku/Gajian dan tidak dapat ditarik kembali.`);
+      return;
+    }
+    if (order.operationalStatus !== "verified") return;
+
+    updateOrder(order.id, {
+      operationalStatus: "completed",
+      verifiedAt: undefined,
+    });
+    addHistory({
+      orderId: order.id,
+      orderReference: order.externalReference,
+      editedBy: getPayrollActor()?.name ?? "Pengguna penggajian",
+      reason: "Ditarik dari Gaji untuk koreksi sebelum diverifikasi ulang.",
+      wasCompleted: true,
+      wasPayrollClosed: false,
+      changes: [
+        { field: "operationalStatus", label: "Status", before: "Selesai · masuk gaji", after: "Selesai · belum masuk gaji" },
+      ],
+    });
+    setNotice(`↩ ${order.externalReference} ditarik dari Gaji. Silakan Edit Mutasi bila perlu, lalu klik Pesanan ini selesai untuk memasukkannya kembali.`);
+  }
+
+  function pullDailyFromPayroll(row: MutationViewRow) {
+    if (!row.day) return;
+    if (row.day.payrollClosedAt) {
+      setNotice(`${row.order.externalReference} · Hari ${row.day.sequence} sudah Tutup Buku/Gajian dan tidak dapat ditarik kembali.`);
+      return;
+    }
+    if (row.day.status !== "verified") return;
+    setDailyMutationStatus(row, "in_progress");
+    setNotice(`↩ ${row.order.externalReference} · Hari ${row.day.sequence} ditarik dari Gaji. Setelah koreksi, klik Pesanan ini selesai untuk memasukkannya kembali.`);
   }
 
   function setDailyMutationStatus(row: MutationViewRow, nextStatus: "pending" | "in_progress" | "on_hold" | "verified") {
@@ -451,7 +502,10 @@ export default function MutationsPage() {
                           {row.day.payrollClosedAt ? (
                             <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span>
                           ) : row.day.status === "verified" ? (
-                            <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link>
+                            <>
+                              <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link>
+                              <button onClick={() => confirm(`Tarik ${order.externalReference} · Hari ${row.day?.sequence} dari Gaji untuk dikoreksi?`) && pullDailyFromPayroll(row)} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-200">↩ Tarik dari Gaji</button>
+                            </>
                           ) : (
                             <button
                               onClick={() => confirm(`Tandai ${order.externalReference} · Hari ${row.day?.sequence} selesai? Nilai ${formatMoney(row.day?.grossMinor ?? 0)} akan masuk Gaji berikutnya.`) && setDailyMutationStatus(row, "verified")}
@@ -461,7 +515,10 @@ export default function MutationsPage() {
                             </button>
                           )}
                         </>
-                      ) : order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link> : <>
+                      ) : order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <>
+                        <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link>
+                        <button onClick={() => confirm(`Tarik ${order.externalReference} dari Gaji untuk dikoreksi?`) && pullOrderFromPayroll(order)} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-200">↩ Tarik dari Gaji</button>
+                      </> : <>
                         <button onClick={() => setMutationStatus(order, "assigned")} className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-bold text-violet-100">Proses</button>
                         <button onClick={() => setMutationStatus(order, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-bold text-sky-100">Dikerjakan</button>
                         <button onClick={() => setMutationStatus(order, "on_hold")} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">Bermasalah</button>
