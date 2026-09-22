@@ -21,11 +21,11 @@
 .evocp-payroll .cp-table.mutation-sheet-table th, .evocp-payroll .cp-table.mutation-sheet-table td { min-width: 0; padding: 12px 14px; border-right: 1px solid #292d35; border-bottom: 1px solid #292d35; text-align: left; vertical-align: top; word-break: normal; overflow-wrap: normal; white-space: normal; }
 .evocp-payroll .cp-table.mutation-sheet-table th { position: sticky; top: 0; z-index: 2; padding: 0; height: 48px; background: #1a1d24; color: #d1d5df; font-size: 13px; }
 .evocp-payroll .cp-table.mutation-sheet-table td { font-size: 14px; line-height: 1.6; overflow: hidden; text-overflow: ellipsis; }
-.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(2), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(3), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(4), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(8), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(15), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(16) { white-space: nowrap; }
-.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(5), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(6), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(7), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(9), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(10), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(11), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(12), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(13) { overflow-wrap: break-word; }
-.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(15) { text-align: right; font-variant-numeric: tabular-nums; }
-.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(10) span, .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(17) :is(button,a,span) { white-space: nowrap; }
-.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(17)>div { display: flex; flex-wrap: wrap; gap: 8px; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(2), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(3), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(4), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(8), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(11), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(15), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(16), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(17) { white-space: nowrap; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(5), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(6), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(7), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(9), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(10), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(12), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(13), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(14) { overflow-wrap: break-word; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(15), .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(16) { text-align: right; font-variant-numeric: tabular-nums; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(10) span, .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(11) span, .evocp-payroll .cp-table.mutation-sheet-table td:nth-child(18) :is(button,a,span) { white-space: nowrap; }
+.evocp-payroll .cp-table.mutation-sheet-table td:nth-child(18)>div { display: flex; flex-wrap: wrap; gap: 8px; }
 .evocp-payroll .mutation-sheet-header { display: flex; align-items: center; gap: 8px; width: calc(100% - 14px); min-height: 48px; margin: 0; padding: 10px 14px; border: 0; border-radius: 0; background: transparent; color: inherit; font-weight: 600; text-align: left; white-space: nowrap; cursor: pointer; }
 .evocp-payroll .mutation-sheet-sort-indicator { margin-left: auto; color: #71717a; font-size: 14px; font-weight: 800; line-height: 1; }
 .evocp-payroll .mutation-sheet-sort-indicator[data-active=true] { color: #f5c542; }
@@ -43,7 +43,7 @@
 .evocp-payroll .mutation-sheet-measure .mutation-sheet-table { table-layout: auto; width: max-content !important; min-width: 0 !important; }
 .evocp-payroll .mutation-sheet-measure :is(th,td) { position: static; width: auto !important; min-width: 0 !important; max-width: none !important; white-space: pre !important; overflow-wrap: normal !important; }
 .evocp-payroll .mutation-sheet-measure .mutation-sheet-header { width: auto; padding-right: 28px; }
-.evocp-payroll .mutation-sheet-measure td:nth-child(17)>div { flex-wrap: nowrap !important; }
+.evocp-payroll .mutation-sheet-measure td:nth-child(18)>div { flex-wrap: nowrap !important; }
 @media(max-width:640px) {
   .evocp-payroll .mutation-sheet-toolbar { padding: 12px; }
   .evocp-payroll .mutation-sheet-controls { padding: 10px 12px; }
