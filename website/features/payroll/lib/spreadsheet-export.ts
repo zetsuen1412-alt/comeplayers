@@ -49,7 +49,7 @@ const PERCENT_WHOLE_FORMAT = '0.##"%"';
 
 const MUTATION_HEADERS = [
   "HARI & TANGGAL", "KODE", "SUMBER", "JENIS ORDER", "NAMA BUYER", "NAMA ORDER", "TASK", "HARI PAKET", "PEMBAGIAN JUMLAH",
-  "GAME", "REGION", "SERVER", "JUMLAH ORDER", "RATE", "TOTAL ORDER", "KARYAWAN", "NILAI PER KARYAWAN",
+  "GAME", "REGION", "SERVER", "JUMLAH ORDER", "RATE", "TOTAL ORDER", "KARYAWAN", "DIVISI", "NILAI PER KARYAWAN",
   "STOK GUDANG", "STATUS", "PERIODE GAJI", "STATUS TRANSFER",
 ];
 const SOURCE_SUMMARY_HEADERS = ["SUMBER", "JUMLAH ORDER", "TOTAL NILAI", "SELESAI", "BERMASALAH"];
@@ -139,7 +139,8 @@ function mutationRow(row: MutationViewRow): ExportRecord {
     "JUMLAH ORDER": row.quantity,
     RATE: rate,
     "TOTAL ORDER": row.grossMinor,
-    KARYAWAN: row.assignments.map((a) => `${a.employeeName} (${a.team})`).join(" | "),
+    KARYAWAN: row.assignments.map((a) => a.employeeName).join(" | "),
+    DIVISI: [...new Set(row.assignments.map((a) => a.team))].join(" | "),
     "NILAI PER KARYAWAN": row.assignments.map((a, index) => `${a.employeeName}: ${mutationAssignmentGross(row, index)}`).join(" | "),
     "STOK GUDANG": order.inventoryAllocations?.map((x) => `${x.stockType === "gold" ? "Gold" : x.itemName} ${x.quantity} - ${x.employeeName} (${x.team})`).join(" | ") ?? "",
     STATUS: mutationRowStatusText(row).toUpperCase(),
