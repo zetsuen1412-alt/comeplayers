@@ -24,8 +24,6 @@ import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/l
 import {
   expandMutationRows,
   formatMutationDistribution,
-  formatSummaryQuantity,
-  goldDistributionSummary,
   mutationDayLabel,
   type MutationViewRow,
 } from "@/features/payroll/lib/mutation-rows";
@@ -167,7 +165,6 @@ export default function MutationsPage() {
   }, [periodRows, sortState, source]);
 
   const issuesByRow = useMemo(() => new Map(rows.map((row) => [row.id, analyzeOrderIssues(row.order, employees, row.day)])), [employees, rows]);
-  const goldSummary = useMemo(() => goldDistributionSummary(rows), [rows]);
   const total = rows.reduce((sum, row) => sum + row.grossMinor, 0);
   const payrollReady = rows.reduce((sum, row) => {
     if (row.day) return sum + (row.day.status === "verified" && !row.day.payrollClosedAt ? row.grossMinor : 0);
@@ -316,17 +313,6 @@ export default function MutationsPage() {
         <div className="cp-card p-4"><div className="text-sm text-zinc-500">Total nilai pada filter</div><div className="mt-1 text-2xl font-semibold">{formatMoney(total)}</div></div>
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4"><div className="text-sm text-zinc-500">Menunggu Tutup Buku/Gaji</div><div className="mt-1 text-2xl font-semibold text-emerald-300">{formatMoney(payrollReady)}</div></div>
       </div>
-
-      {goldSummary.length ? <section className="cp-card mt-5 p-5">
-        <h2 className="text-lg font-semibold">Pembagian Gold Terjual / Dikerjakan</h2>
-        <p className="mt-1 text-sm text-zinc-500">Rekap dari Mutasi sesuai filter. Pembagian per order juga tampil pada kolom <strong>Pembagian jumlah</strong>.</p>
-        <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-800">
-          <table className="cp-table min-w-[760px]">
-            <thead><tr><th>GAME</th><th>Karyawan</th><th>FH</th><th>Total Gold</th><th>Baris Mutasi</th></tr></thead>
-            <tbody>{goldSummary.map((item) => <tr key={item.key}><td>{item.game}</td><td className="font-semibold">{item.employeeName}</td><td>{item.team}</td><td className="font-semibold text-yellow-300">{formatSummaryQuantity(item)}</td><td>{item.orderCount}</td></tr>)}</tbody>
-          </table>
-        </div>
-      </section> : null}
 
       <section className="cp-card mt-5 p-5">
         <h2 className="text-lg font-semibold">Ringkasan berdasarkan sumber</h2>
