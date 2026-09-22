@@ -4,6 +4,7 @@ import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
 
 export type PayrollAdjustmentInput = {
+  workValueCorrectionMinor?: number;
   operationalMinor?: number;
   penaltyMinor?: number;
   bonusTipsMinor?: number;
@@ -17,6 +18,7 @@ export type LivePayrollRow = {
   game: string;
   units: number;
   gross: number;
+  workValueCorrection: number;
   sharePercent: number;
   shareBps: number;
   earning: number;
@@ -135,13 +137,15 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
   return [...groups.values()].map((group) => {
     const employee = employeeMap.get(group.employeeCode);
     const adjustment = options.adjustments?.[group.employeeCode] ?? {};
+    const workValueCorrection = Math.round(Number(adjustment.workValueCorrectionMinor ?? 0));
+    const adjustedGross = Math.max(0, group.gross + workValueCorrection);
     const operational = Math.max(0, Math.round(Number(adjustment.operationalMinor ?? 0)));
     const penalty = Math.max(0, Math.round(Number(adjustment.penaltyMinor ?? 0)));
     const bonusTips = Math.max(0, Math.round(Number(adjustment.bonusTipsMinor ?? 0)));
     const kasbonOutstanding = Math.max(0, Math.round(Number(options.kasbonByEmployee?.[group.employeeCode] ?? 0)));
     const sharePercent = Math.max(0, Math.min(100, Number(options.employeeSharePercent?.[group.employeeCode] ?? defaultSharePercent)));
     const shareBps = Math.round(sharePercent * 100);
-    const earning = calculateWorkerEarning(group.gross, shareBps);
+    const earning = calculateWorkerEarning(adjustedGross, shareBps);
 
     const beforeKasbon = earning + bonusTips - operational - penalty;
     const kasbon = Math.min(kasbonOutstanding, Math.max(0, beforeKasbon));
@@ -155,7 +159,8 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
       employeeStatus: employee?.workforceStatus ?? "SHIFT",
       game: [...group.games].sort().join(", ") || "—",
       units: group.units,
-      gross: group.gross,
+      gross: adjustedGross,
+      workValueCorrection,
       sharePercent,
       shareBps,
       earning,
