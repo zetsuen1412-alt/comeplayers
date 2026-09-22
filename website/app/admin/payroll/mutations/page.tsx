@@ -117,6 +117,28 @@ function sortModeFromState(state: MutationSortState): SortMode | "custom" {
   return "custom";
 }
 
+function TaskDetailModal({ order, onClose }: { order: Order; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label={`TASK ${order.externalReference}`} onMouseDown={onClose}>
+      <section className="max-h-[82vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-950 shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="flex items-start justify-between gap-4 border-b border-zinc-800 p-5">
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-yellow-300">TASK</div>
+            <h2 className="mt-1 truncate text-xl font-semibold">{order.externalReference}</h2>
+            <p className="mt-1 truncate text-sm text-zinc-500">{order.orderName ?? order.service}</p>
+          </div>
+          <button type="button" onClick={onClose} className="shrink-0 rounded-lg bg-zinc-800 px-3 py-2 text-sm font-semibold hover:bg-zinc-700">Tutup</button>
+        </div>
+        <div className="max-h-[62vh] overflow-auto p-5">
+          <div className="whitespace-pre-wrap break-words rounded-xl border border-zinc-800 bg-black/40 p-4 text-sm leading-7 text-zinc-200">
+            {order.task?.trim() || "TASK belum diisi."}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function MutationsPage() {
   const { allOrders, updateOrder } = useDemoOrders();
   const { employees } = useDemoEmployees();
@@ -136,6 +158,7 @@ export default function MutationsPage() {
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [taskOrder, setTaskOrder] = useState<Order | null>(null);
   const [issueRow, setIssueRow] = useState<{ row: MutationViewRow; issues: OrderIssue[] } | null>(null);
 
   const sources = useMemo(() => [...new Set(allOrders.map((order) => order.source).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
@@ -329,8 +352,8 @@ export default function MutationsPage() {
 
       <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
         sortColumn={sortState.column} sortDirection={sortState.direction} onSort={(column) => setSortState((current) => toggleMutationSort(current, column))}
-        overlay={editingOrder ? <MutationEditModal order={editingOrder} onClose={() => setEditingOrder(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingOrder, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
-        onOverlayClose={() => { setEditingOrder(null); setIssueRow(null); }}>
+        overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : editingOrder ? <MutationEditModal order={editingOrder} onClose={() => setEditingOrder(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingOrder, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
+        onOverlayClose={() => { setTaskOrder(null); setEditingOrder(null); setIssueRow(null); }}>
           <tbody>
             {rows.map((row) => {
               const order = row.order;
@@ -346,7 +369,7 @@ export default function MutationsPage() {
                   <td>{order.orderType === "gold" ? "Gold" : order.orderType === "item" ? "Item" : "Boosting"}</td>
                   <td>{order.buyerName ?? "—"}</td>
                   <td>{order.orderName ?? (order.orderType === "gold" ? order.service : order.service)}</td>
-                  <td className="whitespace-pre-wrap text-sm">{order.task?.trim() || "—"}</td>
+                  <td className="text-center">{order.task?.trim() ? <button type="button" onClick={() => setTaskOrder(order)} className="whitespace-nowrap rounded-lg bg-zinc-800 px-2.5 py-2 text-xs font-semibold hover:bg-zinc-700" aria-label={`Lihat TASK ${order.externalReference}`}>Lihat</button> : <span className="text-zinc-600">—</span>}</td>
                   <td><strong className={row.day ? "text-sky-300" : "text-zinc-500"}>{mutationDayLabel(row)}</strong></td>
                   <td className="text-sm">{formatMutationDistribution(row)}</td>
                   <td>{row.assignments.length ? row.assignments.map((assignment) => <div key={assignment.id}><strong>{assignment.employeeName}</strong> · {assignment.team} · <span className="text-yellow-300">{formatMoney(assignmentGross(row, assignment.id))}</span></div>) : "Belum ada"}</td>
