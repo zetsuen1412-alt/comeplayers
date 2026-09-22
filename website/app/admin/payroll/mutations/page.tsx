@@ -31,6 +31,7 @@ import type { Order, OrderIssue } from "@/features/payroll/types/domain";
 
 type DateMode = "all" | "today" | "week" | "month" | "range";
 type TypeFilter = "SEMUA" | "gold" | "item" | "boosting";
+type ProblemFilter = "SEMUA" | "BERMASALAH" | "NORMAL";
 type SortMode = "newest" | "oldest" | "highest" | "lowest" | "source_az" | "buyer_az" | "game_az" | "employee_az" | "employee_za" | "division_az" | "division_za";
 
 function dateDaysAgo(dateInput: string, days: number) {
@@ -158,6 +159,7 @@ export default function MutationsPage() {
   const [game, setGame] = useState("SEMUA");
   const [employee, setEmployee] = useState("SEMUA");
   const [division, setDivision] = useState("SEMUA");
+  const [problem, setProblem] = useState<ProblemFilter>("SEMUA");
   const [sortState, setSortState] = useState<MutationSortState>(defaultMutationSort);
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -195,6 +197,12 @@ export default function MutationsPage() {
       if (source !== "SEMUA" && row.order.source !== source) return false;
       if (employee !== "SEMUA" && !row.assignments.some((assignment) => assignment.employeeName === employee)) return false;
       if (division !== "SEMUA" && !row.assignments.some((assignment) => assignment.team === division)) return false;
+
+      const issues = analyzeOrderIssues(row.order, employees, row.day);
+      const problematic = hasBlockingOrderIssues(issues) || (row.day ? row.day.status === "on_hold" : row.order.operationalStatus === "on_hold");
+      if (problem === "BERMASALAH" && !problematic) return false;
+      if (problem === "NORMAL" && problematic) return false;
+
       if (term) {
         const searchable = [
           row.order.externalReference,
@@ -202,14 +210,16 @@ export default function MutationsPage() {
           row.order.orderName ?? row.order.service ?? "",
           row.order.task ?? "",
           row.order.gameName ?? row.order.game ?? "",
+          problematic ? "bermasalah masalah perlu diperbaiki" : "normal tidak bermasalah",
           ...row.assignments.flatMap((assignment) => [assignment.employeeName, assignment.team]),
+          ...issues.flatMap((issue) => [issue.code, issue.title, issue.description]),
         ].join(" ").toLowerCase();
         if (!searchable.includes(term)) return false;
       }
       return true;
     });
     return [...filtered].sort((a, b) => compareViewRows(a, b, sortState));
-  }, [division, employee, periodRows, search, sortState, source]);
+  }, [division, employee, employees, periodRows, problem, search, sortState, source]);
 
   const issuesByRow = useMemo(() => new Map(rows.map((row) => [row.id, analyzeOrderIssues(row.order, employees, row.day)])), [employees, rows]);
   const total = rows.reduce((sum, row) => sum + row.grossMinor, 0);
@@ -242,6 +252,7 @@ export default function MutationsPage() {
     `GAME: ${game === "SEMUA" ? "Semua" : game}`,
     `Karyawan: ${employee === "SEMUA" ? "Semua" : employee}`,
     `Divisi: ${division === "SEMUA" ? "Semua" : division}`,
+    `Masalah: ${problem === "SEMUA" ? "Semua" : problem === "BERMASALAH" ? "Bermasalah" : "Tidak bermasalah"}`,
     search.trim() ? `Pencarian: ${search.trim()}` : "Pencarian: Semua",
     `Urutan: ${mutationSortLabel(sortState)}`,
   ].join(" • ");
@@ -254,6 +265,7 @@ export default function MutationsPage() {
     setGame("SEMUA");
     setEmployee("SEMUA");
     setDivision("SEMUA");
+    setProblem("SEMUA");
     setSortState(defaultMutationSort);
     setSearch("");
   }
@@ -362,10 +374,11 @@ export default function MutationsPage() {
             <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
             <label className="text-sm">GAME<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.35fr_1.15fr_auto]">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1.35fr_1.15fr_auto]">
             <label className="text-sm">Karyawan<select value={employee} onChange={(e) => setEmployee(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua karyawan</option>{employeeNames.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <label className="text-sm">Divisi<select value={division} onChange={(e) => setDivision(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua divisi</option>{divisions.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-            <label className="text-sm">Cari kode / nama / divisi<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151, ANGGA, FH2" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
+            <label className="text-sm">Masalah<select value={problem} onChange={(e) => setProblem(e.target.value as ProblemFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua status</option><option value="BERMASALAH">Hanya Bermasalah</option><option value="NORMAL">Tidak bermasalah</option></select></label>
+            <label className="text-sm">Cari kode / nama / divisi / masalah<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151, ANGGA, FH2, bermasalah" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
             <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as SortMode; if (sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
             <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
           </div>
