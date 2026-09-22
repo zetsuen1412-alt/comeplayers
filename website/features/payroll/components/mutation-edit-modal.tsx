@@ -4,6 +4,7 @@ import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useMemo, useState } from "react";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import type { MutationChange } from "@/features/payroll/lib/demo-mutation-history-store";
 import type { Order, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 
@@ -21,6 +22,7 @@ function text(value: unknown) {
 }
 
 export function MutationEditModal({ order, onClose, onSave }: Props) {
+  const { employees } = useDemoEmployees();
   const originalAssignments = useMemo(() => getOrderAssignments(order), [order]);
   const [source, setSource] = useState(order.source);
   const [buyerName, setBuyerName] = useState(order.buyerName ?? "");
@@ -29,14 +31,48 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
   const [quantity, setQuantity] = useState(String(order.quantity));
   const [rateMinor, setRateMinor] = useState(String(order.rateMinor ?? (order.quantity > 0 ? Math.round(order.grossMinor / order.quantity) : 0)));
   const [assignments, setAssignments] = useState<OrderWorkerAssignment[]>(originalAssignments.map((row) => ({ ...row })));
+  const [employeeTeam, setEmployeeTeam] = useState<"SEMUA" | OrderWorkerAssignment["team"]>("SEMUA");
+  const [employeeCodeToAdd, setEmployeeCodeToAdd] = useState("");
+  const [newEmployeeProcess, setNewEmployeeProcess] = useState(order.process ?? "JOKI");
+  const [newEmployeeQuantity, setNewEmployeeQuantity] = useState("1");
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const isFinished = order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
   const stockLocksQuantity = Boolean(order.inventoryAllocations?.length);
+  const availableEmployees = useMemo(() => employees
+    .filter((employee) => employee.workforceStatus !== "RESIGN")
+    .filter((employee) => !assignments.some((assignment) => assignment.employeeCode === employee.code))
+    .filter((employee) => employeeTeam === "SEMUA" || employee.team === employeeTeam)
+    .sort((a, b) => a.team.localeCompare(b.team, "id") || a.name.localeCompare(b.name, "id")),
+  [assignments, employeeTeam, employees]);
 
   function updateAssignment(index: number, patch: Partial<OrderWorkerAssignment>) {
     setAssignments((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, ...patch } : row));
+  }
+
+  function addAssignment() {
+    setError(null);
+    if (stockLocksQuantity) return setError("Karyawan tidak dapat ditambah pada pesanan yang jumlahnya terkunci oleh Stok/Gudang.");
+    const employee = employees.find((row) => row.code === employeeCodeToAdd);
+    if (!employee) return setError("Pilih karyawan yang ingin ditambahkan.");
+    if (assignments.some((row) => row.employeeCode === employee.code)) return setError(employee.name + " sudah ada pada pesanan ini.");
+
+    const quantityValue = order.orderType === "boosting" ? 1 : Number(newEmployeeQuantity);
+    if (!Number.isFinite(quantityValue) || quantityValue <= 0) return setError("Jumlah pembagian karyawan baru harus lebih dari 0.");
+
+    const assignment: OrderWorkerAssignment = {
+      id: "edit-" + order.id + "-" + employee.code + "-" + Date.now(),
+      employeeCode: employee.code,
+      employeeName: employee.name,
+      team: employee.team,
+      process: newEmployeeProcess.trim() || order.process || "JOKI",
+      quantity: quantityValue,
+    };
+
+    setAssignments((current) => [...current, assignment]);
+    setEmployeeCodeToAdd("");
+    setNewEmployeeQuantity("1");
   }
 
   function save() {
@@ -69,20 +105,27 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
     push("grossMinor", "Total harga pesanan", formatMoney(order.grossMinor), formatMoney(nextGross));
 
     assignments.forEach((row, index) => {
-      const before = originalAssignments[index];
-      if (!before) return;
-      push(`workerAssignments.${index}.process`, `Proses ${row.employeeName}`, before.process, row.process);
+      const before = originalAssignments.find((item) => item.employeeCode === row.employeeCode);
+      if (!before) {
+        const after = row.employeeName + " · " + row.team + " · " + row.process + (order.orderType === "boosting" ? "" : " · jumlah " + row.quantity);
+        push("workerAssignments." + index, "Tambah karyawan " + row.employeeName, "", after);
+        return;
+      }
+      push("workerAssignments." + index + ".process", "Proses " + row.employeeName, before.process, row.process);
       if (order.orderType !== "boosting" && !stockLocksQuantity) {
-        push(`workerAssignments.${index}.quantity`, `Jumlah ${row.employeeName}`, before.quantity, row.quantity);
+        push("workerAssignments." + index + ".quantity", "Jumlah " + row.employeeName, before.quantity, row.quantity);
       }
     });
 
     if (!changes.length) return setError("Tidak ada perubahan untuk disimpan.");
 
-    const nextAssignments = assignments.map((row, index) => ({
-      ...row,
-      quantity: order.orderType === "boosting" || stockLocksQuantity ? originalAssignments[index]?.quantity ?? row.quantity : Number(row.quantity),
-    }));
+    const nextAssignments = assignments.map((row) => {
+      const original = originalAssignments.find((item) => item.employeeCode === row.employeeCode);
+      return {
+        ...row,
+        quantity: order.orderType === "boosting" || stockLocksQuantity ? original?.quantity ?? row.quantity : Number(row.quantity),
+      };
+    });
 
     onSave({
       source,
