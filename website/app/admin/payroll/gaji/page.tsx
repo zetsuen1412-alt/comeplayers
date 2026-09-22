@@ -157,17 +157,21 @@ export default function PayrollPage() {
           </div>
           <div className="rounded-lg bg-zinc-900 px-3 py-2 text-xs text-zinc-400">{rows.length} karyawan · {team === "SEMUA" ? "Semua bagian" : team}</div>
         </div>
-        <div
-          ref={topScrollRef}
-          onScroll={(event) => {
-            if (tableScrollRef.current && tableScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
-              tableScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
-            }
-          }}
-          className="h-5 overflow-x-auto overflow-y-hidden border-b border-zinc-800 bg-zinc-950/70"
-          aria-label="Scroll tabel gaji ke samping"
-        >
-          <div className="h-px min-w-[1840px]" />
+        <div className="border-b border-zinc-800 bg-zinc-950/80 px-3 py-2">
+          <div className="mb-1 text-[11px] font-semibold text-zinc-500">← Geser tabel ke kiri / kanan →</div>
+          <div
+            ref={topScrollRef}
+            onScroll={(event) => {
+              if (tableScrollRef.current && tableScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
+                tableScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+              }
+            }}
+            className="h-6 overflow-x-scroll overflow-y-hidden rounded-md bg-zinc-900"
+            style={{ scrollbarGutter: "stable", scrollbarColor: "#71717a #18181b" }}
+            aria-label="Scroll tabel gaji ke samping"
+          >
+            <div className="h-px min-w-[1840px]" />
+          </div>
         </div>
         <div
           ref={tableScrollRef}
