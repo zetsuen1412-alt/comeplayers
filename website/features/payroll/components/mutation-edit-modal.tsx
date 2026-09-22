@@ -72,6 +72,16 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
     setAssignments((current) => current.filter((_, rowIndex) => rowIndex !== index));
   }
 
+  function assignmentWorkValue(index: number) {
+    const count = Math.max(1, assignments.length);
+    const total = day
+      ? day.grossMinor
+      : Math.max(0, Math.round((Number(quantity) || 0) * (Number(rateMinor) || 0)));
+    const base = Math.floor(total / count);
+    const remainder = total - (base * count);
+    return base + (index < remainder ? 1 : 0);
+  }
+
   function addAssignment() {
     setError(null);
     if (stockLocksQuantity) return setError("Karyawan tidak dapat ditambah pada pesanan yang jumlahnya terkunci oleh Stok/Gudang.");
@@ -212,7 +222,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className="font-semibold">Karyawan & proses</h3>
-              {dayLabel ? <div className="mt-1 text-xs text-sky-300">Karyawan di bawah ini khusus untuk {dayLabel}. Hari lain tidak ikut berubah.</div> : null}
+              {dayLabel ? <div className="mt-1 text-xs text-sky-300">Karyawan di bawah ini khusus untuk {dayLabel}. Hari lain tidak ikut berubah. Nilai hari: <strong>{formatMoney(day?.grossMinor ?? 0)}</strong>.</div> : null}
             </div>
             <span className="text-xs text-zinc-500">{assignments.length} karyawan pada pesanan</span>
           </div>
@@ -234,7 +244,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
                         <input type="number" step="any" disabled={stockLocksQuantity} value={row.quantity} onChange={(e) => updateAssignment(index, { quantity: Number(e.target.value) })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
                       </label>
                     ) : (
-                      <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold">Dibagi rata</div></div>
+                      <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold text-yellow-300">{formatMoney(assignmentWorkValue(index))}</div><div className="mt-1 text-xs text-zinc-500">Dibagi rata dari {formatMoney(day?.grossMinor ?? Math.max(0, Math.round((Number(quantity) || 0) * (Number(rateMinor) || 0))))}</div></div>
                     )}
                   </div>
                   <div className="mt-3 flex justify-end">
