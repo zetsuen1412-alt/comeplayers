@@ -110,6 +110,17 @@ export function useDemoPayrollSettings() {
     setSettings(next);
   }, []);
 
+  const clearEmployeePayrollSettings = useCallback((employeeCode: string) => {
+    const current = readSettings();
+    const adjustments = { ...current.adjustments };
+    const employeeSharePercent = { ...current.employeeSharePercent };
+    delete adjustments[employeeCode];
+    delete employeeSharePercent[employeeCode];
+    const next = { ...current, adjustments, employeeSharePercent };
+    writeSettings(next);
+    setSettings(next);
+  }, []);
+
   const resetPayrollSettings = useCallback(() => {
     writeSettings(seed);
     setSettings(seed);
@@ -121,6 +132,7 @@ export function useDemoPayrollSettings() {
     setEmployeeSharePercent,
     updateEmployeeAdjustment,
     clearAdjustmentsForEmployees,
+    clearEmployeePayrollSettings,
     resetPayrollSettings,
-  }), [settings, setDefaultSharePercent, setEmployeeSharePercent, updateEmployeeAdjustment, clearAdjustmentsForEmployees, resetPayrollSettings]);
+  }), [settings, setDefaultSharePercent, setEmployeeSharePercent, updateEmployeeAdjustment, clearAdjustmentsForEmployees, clearEmployeePayrollSettings, resetPayrollSettings]);
 }
