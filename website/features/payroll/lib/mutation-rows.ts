@@ -47,6 +47,15 @@ export function mutationDayLabel(row: MutationViewRow) {
   return `Hari ${row.day.sequence}/${total}`;
 }
 
+export function normalizeDivisionLabel(value: string) {
+  const original = value.trim();
+  const compact = original.toUpperCase().replace(/[\s_-]+/g, "");
+  if (compact === "FH1" || compact === "FH2" || compact === "FH3") return compact;
+  if (compact === "ADMIN") return "ADMIN";
+  if (compact === "BANDAR") return "BANDAR";
+  return original.toUpperCase();
+}
+
 function quantityFormat(value: number) {
   return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 4 }).format(value);
 }
