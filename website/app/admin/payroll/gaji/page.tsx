@@ -1,7 +1,7 @@
 "use client";
 
 import { adminLabel } from "@/lib/adminLocale";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
@@ -33,6 +33,8 @@ export default function PayrollPage() {
   const [team, setTeam] = useState<TeamFilter>("SEMUA");
   const [detailEmployeeCode, setDetailEmployeeCode] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [horizontalScroll, setHorizontalScroll] = useState(0);
+  const [horizontalMax, setHorizontalMax] = useState(0);
   const topScrollRef = useRef<HTMLDivElement | null>(null);
   const tableScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -50,6 +52,33 @@ export default function PayrollPage() {
   const totalIncome = rows.reduce((sum, row) => sum + row.earning, 0);
   const totalNet = rows.reduce((sum, row) => sum + row.net, 0);
   const waitingCheck = allOrders.filter((x) => x.operationalStatus === "completed" && getOrderAssignments(x).length > 0).length;
+
+  useEffect(() => {
+    const table = tableScrollRef.current;
+    if (!table) return;
+
+    const measure = () => {
+      const max = Math.max(0, table.scrollWidth - table.clientWidth);
+      setHorizontalMax(max);
+      setHorizontalScroll((current) => Math.min(current, max));
+    };
+
+    measure();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    observer?.observe(table);
+    const innerTable = table.querySelector("table");
+    if (innerTable) observer?.observe(innerTable);
+
+    return () => observer?.disconnect();
+  }, [rows.length, team]);
+
+  function setTableHorizontalScroll(value: number) {
+    const max = Math.max(0, horizontalMax);
+    const next = Math.max(0, Math.min(max, value));
+    setHorizontalScroll(next);
+    if (tableScrollRef.current) tableScrollRef.current.scrollLeft = next;
+    if (topScrollRef.current) topScrollRef.current.scrollLeft = next;
+  }
 
   const detailRow = detailEmployeeCode ? liveRows.find((row) => row.employeeCode === detailEmployeeCode) : undefined;
   const detailItems = useMemo(() => {
@@ -157,18 +186,38 @@ export default function PayrollPage() {
           </div>
           <div className="rounded-lg bg-zinc-900 px-3 py-2 text-xs text-zinc-400">{rows.length} karyawan · {team === "SEMUA" ? "Semua bagian" : team}</div>
         </div>
-        <div className="border-b border-zinc-800 bg-zinc-950/80 px-3 py-2">
-          <div className="mb-1 text-[11px] font-semibold text-zinc-500">← Geser tabel ke kiri / kanan →</div>
+        <div className="border-b border-zinc-800 bg-zinc-950/80 px-3 py-3">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <div className="text-[11px] font-semibold text-zinc-400">← Geser tabel ke kiri / kanan →</div>
+            <div className="text-[11px] text-zinc-600">{horizontalMax > 0 ? `${Math.round((horizontalScroll / horizontalMax) * 100)}%` : "Tabel sudah muat"}</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setTableHorizontalScroll(horizontalScroll - 360)} disabled={horizontalScroll <= 0} className="h-10 min-w-10 rounded-lg bg-zinc-800 px-3 text-lg font-bold disabled:cursor-not-allowed disabled:opacity-30" aria-label="Geser tabel ke kiri">←</button>
+            <input
+              type="range"
+              min={0}
+              max={Math.max(1, horizontalMax)}
+              step={1}
+              value={Math.min(horizontalScroll, Math.max(1, horizontalMax))}
+              disabled={horizontalMax <= 0}
+              onChange={(event) => setTableHorizontalScroll(Number(event.target.value))}
+              className="h-10 min-w-0 flex-1 cursor-ew-resize accent-yellow-400 disabled:cursor-not-allowed"
+              aria-label="Posisi horizontal tabel gaji"
+            />
+            <button type="button" onClick={() => setTableHorizontalScroll(horizontalScroll + 360)} disabled={horizontalScroll >= horizontalMax} className="h-10 min-w-10 rounded-lg bg-zinc-800 px-3 text-lg font-bold disabled:cursor-not-allowed disabled:opacity-30" aria-label="Geser tabel ke kanan">→</button>
+          </div>
           <div
             ref={topScrollRef}
             onScroll={(event) => {
-              if (tableScrollRef.current && tableScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
-                tableScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+              const next = event.currentTarget.scrollLeft;
+              setHorizontalScroll(next);
+              if (tableScrollRef.current && tableScrollRef.current.scrollLeft !== next) {
+                tableScrollRef.current.scrollLeft = next;
               }
             }}
-            className="h-6 overflow-x-scroll overflow-y-hidden rounded-md bg-zinc-900"
+            className="mt-1 h-5 overflow-x-scroll overflow-y-hidden rounded-md bg-zinc-900"
             style={{ scrollbarGutter: "stable", scrollbarColor: "#71717a #18181b" }}
-            aria-label="Scroll tabel gaji ke samping"
+            aria-label="Scrollbar tabel gaji"
           >
             <div className="h-px min-w-[1840px]" />
           </div>
@@ -176,8 +225,10 @@ export default function PayrollPage() {
         <div
           ref={tableScrollRef}
           onScroll={(event) => {
-            if (topScrollRef.current && topScrollRef.current.scrollLeft !== event.currentTarget.scrollLeft) {
-              topScrollRef.current.scrollLeft = event.currentTarget.scrollLeft;
+            const next = event.currentTarget.scrollLeft;
+            setHorizontalScroll(next);
+            if (topScrollRef.current && topScrollRef.current.scrollLeft !== next) {
+              topScrollRef.current.scrollLeft = next;
             }
           }}
           className="overflow-x-auto"
