@@ -94,6 +94,16 @@ export function useDemoEmployees() {
     setRows(next);
   }, []);
 
+  const removeEmployee = useCallback((employeeId: string) => {
+    const current = readRows() ?? seedEmployees;
+    const row = current.find((item) => item.id === employeeId);
+    if (!row) return { ok: false as const, message: "Karyawan tidak ditemukan." };
+    const next = current.filter((item) => item.id !== employeeId);
+    writeRows(next);
+    setRows(next);
+    return { ok: true as const, row };
+  }, []);
+
   const resetEmployees = useCallback(() => {
     payrollStorage.setItem(STORAGE_KEY, JSON.stringify([]));
     for (const key of OLD_STORAGE_KEYS) payrollStorage.removeItem(key);
@@ -101,5 +111,5 @@ export function useDemoEmployees() {
     setRows([]);
   }, []);
 
-  return { employees, addEmployee, updateEmployeeStatus, resetEmployees };
+  return { employees, addEmployee, updateEmployeeStatus, removeEmployee, resetEmployees };
 }
