@@ -28,7 +28,7 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   function visit(v: unknown, depth=0) {
     if(++count>250000 || depth>16) payrollFailure('Data payroll terlalu besar.',413);
     if(typeof v==='number' && (!Number.isFinite(v)||Math.abs(v)>1e13)) payrollFailure('Nilai angka payroll tidak valid.');
-    if(typeof v==='string' && v.length>20000) payrollFailure('Teks payroll terlalu panjang.');
+
     if(Array.isArray(v)) { if(v.length>20000) payrollFailure('Batas jumlah data tercapai.',413); for(const item of v) visit(item,depth+1); }
     else if(v && typeof v==='object') for(const [k,item] of Object.entries(v)) {
       if(['__proto__','constructor','prototype'].includes(k)) payrollFailure('Nama field tidak valid.'); visit(item,depth+1);
