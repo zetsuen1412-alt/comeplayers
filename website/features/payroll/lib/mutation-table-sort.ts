@@ -1,6 +1,7 @@
 import type { Order } from '../types/domain';
 import { getOrderAssignments } from './order-workers';
 import type { MutationColumnId } from './mutation-table-layout';
+import { normalizeDivisionLabel } from './mutation-rows';
 
 export type MutationSortColumn = Exclude<MutationColumnId, 'actions' | 'day' | 'distribution'>;
 export type MutationSortDirection = 'asc' | 'desc';
@@ -32,7 +33,7 @@ function stringValue(order: Order, column: MutationSortColumn): string {
     case 'order': return order.orderName ?? (order.orderType === 'gold' ? 'Gold' : (order.service ?? ''));
     case 'task': return order.task ?? '';
     case 'workers': return getOrderAssignments(order).map((assignment) => assignment.employeeName).join(' ');
-    case 'division': return [...new Set(getOrderAssignments(order).map((assignment) => assignment.team))].join(' ');
+    case 'division': return [...new Set(getOrderAssignments(order).map((assignment) => normalizeDivisionLabel(assignment.team)))].join(' ');
     case 'game': return order.gameName ?? order.game ?? '';
     case 'region': return order.region ?? '';
     case 'server': return order.server ?? '';
