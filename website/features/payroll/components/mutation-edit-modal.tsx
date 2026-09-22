@@ -51,6 +51,18 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
     setAssignments((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, ...patch } : row));
   }
 
+  function removeAssignment(index: number) {
+    setError(null);
+    if (stockLocksQuantity) {
+      setError("Karyawan tidak dapat dihapus dari pesanan yang jumlahnya terkunci oleh Stok/Gudang.");
+      return;
+    }
+    const target = assignments[index];
+    if (!target) return;
+    if (!confirm(`Hapus ${target.employeeName} (${target.team}) dari pesanan ${order.externalReference}?`)) return;
+    setAssignments((current) => current.filter((_, rowIndex) => rowIndex !== index));
+  }
+
   function addAssignment() {
     setError(null);
     if (stockLocksQuantity) return setError("Karyawan tidak dapat ditambah pada pesanan yang jumlahnya terkunci oleh Stok/Gudang.");
@@ -117,6 +129,12 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
       }
     });
 
+    originalAssignments.forEach((before, index) => {
+      if (assignments.some((row) => row.employeeCode === before.employeeCode)) return;
+      const previous = before.employeeName + " · " + before.team + " · " + before.process + (order.orderType === "boosting" ? "" : " · jumlah " + before.quantity);
+      push("workerAssignments.removed." + index, "Hapus karyawan " + before.employeeName, previous, "");
+    });
+
     if (!changes.length) return setError("Tidak ada perubahan untuk disimpan.");
 
     const nextAssignments = assignments.map((row) => {
@@ -176,21 +194,26 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
           {assignments.length ? (
             <div className="mt-3 space-y-3">
               {assignments.map((row, index) => (
-                <div key={row.id} className="grid gap-3 rounded-xl bg-zinc-900/70 p-4 sm:grid-cols-[1fr_1fr_180px]">
-                  <div>
-                    <div className="text-xs text-zinc-500">Karyawan</div>
-                    <div className="mt-1 font-semibold">{row.employeeName} · {row.team}</div>
-                  </div>
-                  <label className="text-sm">Proses
-                    <input value={row.process} onChange={(e) => updateAssignment(index, { process: e.target.value })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
-                  </label>
-                  {order.orderType !== "boosting" ? (
-                    <label className="text-sm">Jumlah
-                      <input type="number" step="any" disabled={stockLocksQuantity} value={row.quantity} onChange={(e) => updateAssignment(index, { quantity: Number(e.target.value) })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
+                <div key={row.id} className="rounded-xl bg-zinc-900/70 p-4">
+                  <div className="grid gap-3 sm:grid-cols-[1fr_1fr_180px]">
+                    <div>
+                      <div className="text-xs text-zinc-500">Karyawan</div>
+                      <div className="mt-1 font-semibold">{row.employeeName} · {row.team}</div>
+                    </div>
+                    <label className="text-sm">Proses
+                      <input value={row.process} onChange={(e) => updateAssignment(index, { process: e.target.value })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
                     </label>
-                  ) : (
-                    <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold">Dibagi rata</div></div>
-                  )}
+                    {order.orderType !== "boosting" ? (
+                      <label className="text-sm">Jumlah
+                        <input type="number" step="any" disabled={stockLocksQuantity} value={row.quantity} onChange={(e) => updateAssignment(index, { quantity: Number(e.target.value) })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
+                      </label>
+                    ) : (
+                      <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold">Dibagi rata</div></div>
+                    )}
+                  </div>
+                  <div className="mt-3 flex justify-end">
+                    <button type="button" onClick={() => removeAssignment(index)} disabled={stockLocksQuantity} className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-200 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40">Hapus dari pesanan</button>
+                  </div>
                 </div>
               ))}
             </div>
