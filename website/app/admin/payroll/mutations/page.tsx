@@ -17,7 +17,7 @@ import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID, toJakartaDateInput, todayJakartaDateInput } from "@/features/payroll/lib/date";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
-import { getPayrollEligibleGrossMinor } from "@/features/payroll/lib/daily-orders";
+import { getPayrollEligibleGrossMinor, replaceDailyWorkStatus } from "@/features/payroll/lib/daily-orders";
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
@@ -258,6 +258,26 @@ export default function MutationsPage() {
     setSearch("");
   }
 
+  function setDailyMutationStatus(row: MutationViewRow, nextStatus: "pending" | "in_progress" | "on_hold" | "verified") {
+    if (!row.day) return;
+    if (row.day.payrollClosedAt) {
+      setNotice(`${row.order.externalReference} · Hari ${row.day.sequence} sudah masuk Tutup Buku/Gaji dan dikunci.`);
+      return;
+    }
+    try {
+      const patch = replaceDailyWorkStatus(row.order, row.day.id, nextStatus);
+      updateOrder(row.order.id, patch);
+      if (nextStatus === "verified") {
+        setNotice(`✓ ${row.order.externalReference} · Hari ${row.day.sequence} selesai. Nilai ${formatMoney(row.day.grossMinor)} sekarang masuk daftar Gaji berikutnya.`);
+      } else {
+        const label = nextStatus === "in_progress" ? "Dikerjakan" : nextStatus === "on_hold" ? "Bermasalah" : "Proses";
+        setNotice(`Status ${row.order.externalReference} · Hari ${row.day.sequence} menjadi ${label}.`);
+      }
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
+    }
+  }
+
   function setMutationStatus(order: Order, nextStatus: "assigned" | "in_progress" | "on_hold" | "verified") {
     if (order.payrollClosedAt) {
       setNotice(`Pesanan ${order.externalReference} sudah masuk Tutup Buku/Gaji dan dikunci.`);
@@ -415,7 +435,18 @@ export default function MutationsPage() {
                       {row.day ? (
                         <>
                           <Link href={`/admin/payroll/orders/${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-sky-500 px-3 py-2 text-xs font-bold text-black">📅 Kelola Hari {row.day.sequence}</Link>
-                          {row.day.status === "verified" && !row.day.payrollClosedAt ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link> : null}
+                          {row.day.payrollClosedAt ? (
+                            <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span>
+                          ) : row.day.status === "verified" ? (
+                            <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link>
+                          ) : (
+                            <button
+                              onClick={() => confirm(`Tandai ${order.externalReference} · Hari ${row.day?.sequence} selesai? Nilai ${formatMoney(row.day?.grossMinor ?? 0)} akan masuk Gaji berikutnya.`) && setDailyMutationStatus(row, "verified")}
+                              className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black"
+                            >
+                              Pesanan ini selesai
+                            </button>
+                          )}
                         </>
                       ) : order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link> : <>
                         <button onClick={() => setMutationStatus(order, "assigned")} className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-bold text-violet-100">Proses</button>
