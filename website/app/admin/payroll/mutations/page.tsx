@@ -16,7 +16,7 @@ import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID, toJakartaDateInput, todayJakartaDateInput } from "@/features/payroll/lib/date";
-import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { getPayrollEligibleGrossMinor } from "@/features/payroll/lib/daily-orders";
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
@@ -82,22 +82,11 @@ function compareViewRows(a: MutationViewRow, b: MutationViewRow, sort: MutationS
   return (a.day?.sequence ?? 0) - (b.day?.sequence ?? 0);
 }
 
-function assignmentGross(row: MutationViewRow, assignmentId: string) {
-  const assignment = row.assignments.find((item) => item.id === assignmentId);
-  if (!assignment) return 0;
-  if (row.order.orderType === "boosting") {
-    const index = Math.max(0, row.assignments.findIndex((item) => item.id === assignmentId));
-    const count = Math.max(1, row.assignments.length);
-    const base = Math.floor(row.grossMinor / count);
-    const remainder = row.grossMinor - base * count;
-    return base + (index < remainder ? 1 : 0);
-  }
-  return getAssignmentGrossMinor({
-    ...row.order,
-    grossMinor: row.grossMinor,
-    quantity: row.quantity,
-    workerAssignments: row.assignments,
-  }, assignment);
+const divisionOrder = ["FH1", "FH2", "FH3", "ADMIN", "BANDAR"] as const;
+
+function mutationDivisions(row: MutationViewRow) {
+  return [...new Set(row.assignments.map((assignment) => assignment.team))]
+    .sort((a, b) => divisionOrder.indexOf(a) - divisionOrder.indexOf(b));
 }
 
 const sortPresets: Record<SortMode, MutationSortState> = {
@@ -372,7 +361,8 @@ export default function MutationsPage() {
                   <td className="text-center">{order.task?.trim() ? <button type="button" onClick={() => setTaskOrder(order)} className="whitespace-nowrap rounded-lg bg-zinc-800 px-2.5 py-2 text-xs font-semibold hover:bg-zinc-700" aria-label={`Lihat TASK ${order.externalReference}`}>Lihat</button> : <span className="text-zinc-600">—</span>}</td>
                   <td><strong className={row.day ? "text-sky-300" : "text-zinc-500"}>{mutationDayLabel(row)}</strong></td>
                   <td className="text-sm">{formatMutationDistribution(row)}</td>
-                  <td>{row.assignments.length ? row.assignments.map((assignment) => <div key={assignment.id}><strong>{assignment.employeeName}</strong> · {assignment.team} · <span className="text-yellow-300">{formatMoney(assignmentGross(row, assignment.id))}</span></div>) : "Belum ada"}</td>
+                  <td>{row.assignments.length ? row.assignments.map((assignment) => <div key={assignment.id} className="font-semibold">{assignment.employeeName}</div>) : "Belum ada"}</td>
+                  <td>{mutationDivisions(row).length ? <div className="flex flex-wrap gap-1.5">{mutationDivisions(row).map((division) => <span key={division} className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-xs font-bold text-violet-200">{division}</span>)}</div> : <span className="text-zinc-600">—</span>}</td>
                   <td>{order.gameName ?? order.game}</td><td>{order.region ?? "—"}</td><td>{order.server ?? "—"}</td>
                   <td>{row.quantity.toLocaleString("id-ID")}</td><td>{formatMoney(row.grossMinor)}</td>
                   <td>{issues.length ? <button type="button" onClick={() => setIssueRow({ row, issues })} className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</button> : <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span>}</td>
