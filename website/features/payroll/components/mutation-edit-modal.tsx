@@ -145,6 +145,25 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
       };
     });
 
+    const nextDailyWork = order.scheduleMode === "daily"
+      ? (order.dailyWork ?? []).map((day) => {
+          if (day.payrollClosedAt) return day;
+          return {
+            ...day,
+            workerAssignments: nextAssignments.map((assignment) => ({
+              ...assignment,
+              id: `${day.id}-${assignment.employeeCode}`,
+            })),
+          };
+        })
+      : order.dailyWork;
+
+    if (order.scheduleMode === "daily" && (order.dailyWork ?? []).some((day) => !day.payrollClosedAt)) {
+      const beforeDaily = [...new Set((order.dailyWork ?? []).flatMap((day) => (day.workerAssignments ?? []).map((assignment) => assignment.employeeName)))].join(", ");
+      const afterDaily = nextAssignments.map((assignment) => assignment.employeeName).join(", ");
+      push("dailyWork.workerAssignments", "Karyawan semua hari aktif", beforeDaily || "—", afterDaily || "—");
+    }
+
     onSave({
       source,
       buyerName: buyerName.trim() || undefined,
@@ -155,6 +174,7 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
       grossMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
       expectedPaymentMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
       workerAssignments: nextAssignments,
+      dailyWork: nextDailyWork,
     }, changes, reason.trim() || undefined);
   }
 
@@ -187,7 +207,10 @@ export function MutationEditModal({ order, onClose, onSave }: Props) {
 
         <div className="border-t border-zinc-800 p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold">Karyawan & proses</h3>
+            <div>
+              <h3 className="font-semibold">Karyawan & proses</h3>
+              {order.scheduleMode === "daily" ? <div className="mt-1 text-xs text-sky-300">Perubahan karyawan di sini diterapkan ke semua Hari yang belum Tutup Buku.</div> : null}
+            </div>
             <span className="text-xs text-zinc-500">{assignments.length} karyawan pada pesanan</span>
           </div>
 
