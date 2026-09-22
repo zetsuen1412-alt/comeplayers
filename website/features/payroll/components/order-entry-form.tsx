@@ -430,8 +430,8 @@ export function OrderEntryForm() {
             </label>
           ) : null}
           <label className="text-sm xl:col-span-2">TASK
-            <textarea value={task} onChange={(e) => setTask(e.target.value)} rows={2} maxLength={2000} placeholder="Keterangan TASK / pekerjaan yang harus dilakukan" className={inputClass} />
-            <span className="mt-1 block text-xs text-zinc-500">Opsional. Keterangan ini otomatis ikut tampil di Mutasi.</span>
+            <textarea value={task} onChange={(e) => setTask(e.target.value)} rows={4} placeholder="Keterangan TASK / pekerjaan yang harus dilakukan" className={inputClass} />
+            <span className="mt-1 block text-xs text-zinc-500">Opsional. Tidak ada batas karakter khusus untuk TASK dan keterangan otomatis ikut tampil di Mutasi.</span>
           </label>
           <div className="relative text-sm">GAME
             <input
