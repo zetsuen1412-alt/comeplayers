@@ -172,7 +172,7 @@ export default function MutationsPage() {
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [editingRow, setEditingRow] = useState<MutationViewRow | null>(null);
   const [taskOrder, setTaskOrder] = useState<Order | null>(null);
   const [issueRow, setIssueRow] = useState<{ row: MutationViewRow; issues: OrderIssue[] } | null>(null);
 
@@ -387,7 +387,7 @@ export default function MutationsPage() {
       wasPayrollClosed,
       changes,
     });
-    setEditingOrder(null);
+    setEditingRow(null);
     setNotice(wasPayrollClosed
       ? `✓ ${order.externalReference} berhasil diedit. Riwayat tersimpan sebagai perubahan setelah Tutup Buku.`
       : wasCompleted
@@ -466,8 +466,8 @@ export default function MutationsPage() {
 
       <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
         sortColumn={sortState.column} sortDirection={sortState.direction} onSort={(column) => setSortState((current) => toggleMutationSort(current, column))}
-        overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : editingOrder ? <MutationEditModal order={editingOrder} onClose={() => setEditingOrder(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingOrder, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
-        onOverlayClose={() => { setTaskOrder(null); setEditingOrder(null); setIssueRow(null); }}>
+        overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
+        onOverlayClose={() => { setTaskOrder(null); setEditingRow(null); setIssueRow(null); }}>
           <tbody>
             {rows.map((row) => {
               const order = row.order;
@@ -493,7 +493,7 @@ export default function MutationsPage() {
                   <td>{issues.length ? <button type="button" onClick={() => setIssueRow({ row, issues })} className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</button> : <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span>}</td>
                   <td>
                     <div className="flex flex-wrap gap-2">
-                      <button onClick={() => setEditingOrder(order)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
+                      <button onClick={() => setEditingRow(row)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
                       {issues.length ? <button onClick={() => setIssueRow({ row, issues })} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">⚠ Masalah ({issues.length})</button> : null}
                       {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}
                       {row.day ? (
