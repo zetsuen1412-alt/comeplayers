@@ -31,7 +31,7 @@ import type { Order, OrderIssue } from "@/features/payroll/types/domain";
 
 type DateMode = "all" | "today" | "week" | "month" | "range";
 type TypeFilter = "SEMUA" | "gold" | "item" | "boosting";
-type SortMode = "newest" | "oldest" | "highest" | "lowest" | "source_az" | "buyer_az" | "game_az";
+type SortMode = "newest" | "oldest" | "highest" | "lowest" | "source_az" | "buyer_az" | "game_az" | "employee_az" | "employee_za" | "division_az" | "division_za";
 
 function dateDaysAgo(dateInput: string, days: number) {
   const date = new Date(`${dateInput}T12:00:00+07:00`);
@@ -77,6 +77,16 @@ function compareViewRows(a: MutationViewRow, b: MutationViewRow, sort: MutationS
     return sort.direction === "asc" ? result : -result;
   }
 
+  if (sort.column === "workers" || sort.column === "division") {
+    const value = (row: MutationViewRow) => sort.column === "workers"
+      ? row.assignments.map((assignment) => assignment.employeeName).join(" ")
+      : mutationDivisions(row).join(" ");
+    let result = value(a).localeCompare(value(b), "id", { numeric: true, sensitivity: "base" });
+    if (!result) result = a.order.externalReference.localeCompare(b.order.externalReference, "id", { numeric: true });
+    if (!result) result = (a.day?.sequence ?? 0) - (b.day?.sequence ?? 0);
+    return sort.direction === "asc" ? result : -result;
+  }
+
   const result = compareMutationOrders(a.order, b.order, sort);
   if (result) return result;
   return (a.day?.sequence ?? 0) - (b.day?.sequence ?? 0);
@@ -97,6 +107,10 @@ const sortPresets: Record<SortMode, MutationSortState> = {
   source_az: { column: "source", direction: "asc" },
   buyer_az: { column: "buyer", direction: "asc" },
   game_az: { column: "game", direction: "asc" },
+  employee_az: { column: "workers", direction: "asc" },
+  employee_za: { column: "workers", direction: "desc" },
+  division_az: { column: "division", direction: "asc" },
+  division_za: { column: "division", direction: "desc" },
 };
 
 function sortModeFromState(state: MutationSortState): SortMode | "custom" {
@@ -142,6 +156,8 @@ export default function MutationsPage() {
   const [type, setType] = useState<TypeFilter>("SEMUA");
   const [buyer, setBuyer] = useState("SEMUA");
   const [game, setGame] = useState("SEMUA");
+  const [employee, setEmployee] = useState("SEMUA");
+  const [division, setDivision] = useState("SEMUA");
   const [sortState, setSortState] = useState<MutationSortState>(defaultMutationSort);
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -153,14 +169,16 @@ export default function MutationsPage() {
   const sources = useMemo(() => [...new Set(allOrders.map((order) => order.source).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
   const buyers = useMemo(() => [...new Set(allOrders.map((order) => order.buyerName?.trim()).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
   const games = useMemo(() => [...new Set(allOrders.map((order) => (order.gameName ?? order.game).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
+  const assignmentOptions = useMemo(() => expandMutationRows(allOrders).flatMap((row) => row.assignments), [allOrders]);
+  const employeeNames = useMemo(() => [...new Set(assignmentOptions.map((assignment) => assignment.employeeName).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [assignmentOptions]);
+  const divisions = useMemo(() => [...new Set(assignmentOptions.map((assignment) => assignment.team).filter(Boolean))].sort((a, b) => divisionOrder.indexOf(a) - divisionOrder.indexOf(b)), [assignmentOptions]);
 
   const filteredOrders = useMemo(() => allOrders.filter((order) => {
     if (type !== "SEMUA" && order.orderType !== type) return false;
     if (buyer !== "SEMUA" && (order.buyerName ?? "") !== buyer) return false;
     if (game !== "SEMUA" && (order.gameName ?? order.game) !== game) return false;
-    if (search.trim() && !order.externalReference.toLowerCase().includes(search.trim().toLowerCase())) return false;
     return true;
-  }), [allOrders, buyer, game, search, type]);
+  }), [allOrders, buyer, game, type]);
 
   const periodRows = useMemo(() => expandMutationRows(filteredOrders).filter((row) => {
     const day = toJakartaDateInput(row.orderedAt);
@@ -172,9 +190,26 @@ export default function MutationsPage() {
   }), [filteredOrders, from, mode, to, today]);
 
   const rows = useMemo(() => {
-    const filtered = source === "SEMUA" ? periodRows : periodRows.filter((row) => row.order.source === source);
+    const term = search.trim().toLowerCase();
+    const filtered = periodRows.filter((row) => {
+      if (source !== "SEMUA" && row.order.source !== source) return false;
+      if (employee !== "SEMUA" && !row.assignments.some((assignment) => assignment.employeeName === employee)) return false;
+      if (division !== "SEMUA" && !row.assignments.some((assignment) => assignment.team === division)) return false;
+      if (term) {
+        const searchable = [
+          row.order.externalReference,
+          row.order.buyerName ?? "",
+          row.order.orderName ?? row.order.service ?? "",
+          row.order.task ?? "",
+          row.order.gameName ?? row.order.game ?? "",
+          ...row.assignments.flatMap((assignment) => [assignment.employeeName, assignment.team]),
+        ].join(" ").toLowerCase();
+        if (!searchable.includes(term)) return false;
+      }
+      return true;
+    });
     return [...filtered].sort((a, b) => compareViewRows(a, b, sortState));
-  }, [periodRows, sortState, source]);
+  }, [division, employee, periodRows, search, sortState, source]);
 
   const issuesByRow = useMemo(() => new Map(rows.map((row) => [row.id, analyzeOrderIssues(row.order, employees, row.day)])), [employees, rows]);
   const total = rows.reduce((sum, row) => sum + row.grossMinor, 0);
@@ -205,7 +240,9 @@ export default function MutationsPage() {
     `Jenis: ${type === "SEMUA" ? "Semua" : type === "gold" ? "Gold" : type === "item" ? "Item" : "Boosting"}`,
     `Buyer: ${buyer === "SEMUA" ? "Semua" : buyer}`,
     `GAME: ${game === "SEMUA" ? "Semua" : game}`,
-    search.trim() ? `Kode: ${search.trim()}` : "Kode: Semua",
+    `Karyawan: ${employee === "SEMUA" ? "Semua" : employee}`,
+    `Divisi: ${division === "SEMUA" ? "Semua" : division}`,
+    search.trim() ? `Pencarian: ${search.trim()}` : "Pencarian: Semua",
     `Urutan: ${mutationSortLabel(sortState)}`,
   ].join(" • ");
 
@@ -215,6 +252,8 @@ export default function MutationsPage() {
     setType("SEMUA");
     setBuyer("SEMUA");
     setGame("SEMUA");
+    setEmployee("SEMUA");
+    setDivision("SEMUA");
     setSortState(defaultMutationSort);
     setSearch("");
   }
@@ -303,9 +342,11 @@ export default function MutationsPage() {
             <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
             <label className="text-sm">GAME<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
-            <label className="text-sm">Cari kode pesanan<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as SortMode; if (sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.35fr_1.15fr_auto]">
+            <label className="text-sm">Karyawan<select value={employee} onChange={(e) => setEmployee(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua karyawan</option>{employeeNames.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Divisi<select value={division} onChange={(e) => setDivision(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua divisi</option>{divisions.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Cari kode / nama / divisi<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151, ANGGA, FH2" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
+            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as SortMode; if (sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
             <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
           </div>
         </div>
