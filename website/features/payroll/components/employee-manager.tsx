@@ -3,6 +3,10 @@
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { FormEvent, useMemo, useState } from "react";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
+import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
+import { useDemoAdvances } from "@/features/payroll/lib/demo-advance-store";
+import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
+import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { useDemoPayrollSettings } from "@/features/payroll/lib/demo-payroll-settings-store";
 import { exportEmployeesSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import type { Employee, EmployeeWorkStatus } from "@/features/payroll/types/domain";
@@ -18,13 +22,17 @@ function statusClass(status: EmployeeWorkStatus) {
 }
 
 export function EmployeeManager() {
-  const { employees, addEmployee, updateEmployeeStatus, resetEmployees } = useDemoEmployees();
-  const { settings } = useDemoPayrollSettings();
+  const { employees, addEmployee, updateEmployeeStatus, removeEmployee, resetEmployees } = useDemoEmployees();
+  const { allOrders } = useDemoOrders();
+  const { records: kasbonRecords } = useDemoAdvances();
+  const { inventory, movements } = useDemoInventory();
+  const { settings, clearEmployeePayrollSettings } = useDemoPayrollSettings();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [team, setTeam] = useState<Employee["team"]>("FH1");
   const [status, setStatus] = useState<EmployeeWorkStatus>("NEW");
   const [message, setMessage] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [teamFilter, setTeamFilter] = useState<"SEMUA" | Employee["team"]>("SEMUA");
   const [statusFilter, setStatusFilter] = useState<"SEMUA" | EmployeeWorkStatus>("SEMUA");
   const [exporting, setExporting] = useState(false);
@@ -43,6 +51,44 @@ export function EmployeeManager() {
     setMessage(`✓ ${result.row.name} berhasil ditambahkan sebagai ${result.row.code} di ${result.row.team}.`);
     setName("");
     setStatus("NEW");
+  }
+
+  function employeeUsage(employeeCode: string) {
+    const orderCount = allOrders.filter((order) => {
+      if (getOrderAssignments(order).some((assignment) => assignment.employeeCode === employeeCode)) return true;
+      return (order.dailyWork ?? []).some((day) =>
+        (day.workerAssignments ?? []).some((assignment) => assignment.employeeCode === employeeCode),
+      );
+    }).length;
+    const kasbonCount = kasbonRecords.filter((row) => row.employeeCode === employeeCode).length;
+    const stockCount = inventory.filter((row) => row.employeeCode === employeeCode).length;
+    const movementCount = movements.filter((row) => row.employeeCode === employeeCode).length;
+    return { orderCount, kasbonCount, stockCount, movementCount };
+  }
+
+  function deleteEmployee(employee: Employee) {
+    setActionMessage(null);
+    const usage = employeeUsage(employee.code);
+    const parts = [
+      usage.orderCount ? `${usage.orderCount} pesanan/mutasi` : "",
+      usage.kasbonCount ? `${usage.kasbonCount} data kasbon` : "",
+      usage.stockCount ? `${usage.stockCount} stok gudang` : "",
+      usage.movementCount ? `${usage.movementCount} riwayat stok` : "",
+    ].filter(Boolean);
+
+    if (parts.length) {
+      setActionMessage(`⚠ ${employee.name} belum dapat dihapus karena masih dipakai pada ${parts.join(", ")}. Pindahkan/hapus referensinya terlebih dahulu, atau gunakan status RESIGN untuk mempertahankan riwayat.`);
+      return;
+    }
+
+    if (!confirm(`Hapus karyawan ${employee.name} (${employee.code}) secara permanen? Pengaturan persentase/potongan miliknya juga akan dibersihkan.`)) return;
+    const result = removeEmployee(employee.id);
+    if (!result.ok) {
+      setActionMessage(`⚠ ${result.message}`);
+      return;
+    }
+    clearEmployeePayrollSettings(employee.code);
+    setActionMessage(`✓ ${employee.name} (${employee.code}) berhasil dihapus dari daftar Karyawan.`);
   }
 
   const inputClass = "mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400";
@@ -65,6 +111,8 @@ export function EmployeeManager() {
         </div>
         <div className="mt-2 text-xs text-zinc-500">Excel hanya berisi karyawan sesuai FH dan status yang sedang dipilih.</div>
       </section>
+
+      {actionMessage ? <div className="mb-5 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm">{adminText(actionMessage)}</div> : null}
 
       {showForm ? (
         <form onSubmit={submit} className="cp-card mb-5 p-5 sm:p-6">
@@ -119,6 +167,7 @@ export function EmployeeManager() {
               <div className="mt-1 text-xs text-zinc-500">Status ini otomatis ikut tampil di menu Gaji.</div>
             </div>
             <div className="mt-4 text-sm text-zinc-400">Beban kerja saat ini: <strong className="text-white">{employee.utilization}%</strong></div>
+            <button type="button" onClick={() => deleteEmployee(employee)} className="mt-4 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 hover:bg-red-500/20">Hapus Karyawan</button>
           </section>
         ))}
       </div>
