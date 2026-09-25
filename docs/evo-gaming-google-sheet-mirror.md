@@ -100,4 +100,12 @@ node node_modules/tsx/dist/cli.mjs --test tests/evo-gaming-sheet-mirror.test.ts 
 
 Tes emulator tidak menggantikan otorisasi dan pengujian trigger nyata di akun Google. Merge GitHub juga tidak otomatis memasang Apps Script ke spreadsheet.
 
+### Hasil aktivasi 25 September 2026
+
+- Terpasang di project target milik akun pemasang, dengan Sheets API v4 aktif. Dua trigger mirror menunjuk sumber yang benar; kedua trigger Payroll tetap ada.
+- Pemeriksaan langsung pada 5.328 baris menemukan 5.305 baris aktif dan **0 perbedaan nilai** terhadap target. `X2834` berada di baris 5069 pada kedua spreadsheet.
+- Sampel baris 5060–5079 memiliki **0 perbedaan nilai/format/validasi**, termasuk sembilan BOOSTER hitam. Nilai tanggal A5070 cocok dan target tidak lagi menjalankan formula tanggal tersebut.
+- Data yang tidak berubah tidak ditulis ulang. Rekonsiliasi berjalan bertahap dengan cursor; jadwal satu menit tidak berarti seluruh 5.000+ baris selesai dipindai dalam satu menit.
+- Uji lokal: 56 tes mirror/Payroll lulus, TypeScript, ESLint pada tes mirror, dan build produksi lulus. Pembacaan langsung 105 baris melalui HTTP JSON terukur sekitar 1,1 detik pada pengujian ini; ini bukan jaminan waktu setiap permintaan.
+
 Referensi: [installable triggers](https://developers.google.com/apps-script/guides/triggers/installable), [nilai dan format efektif Sheets](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/cells), [Advanced Sheets service](https://developers.google.com/apps-script/advanced/sheets), [kuota Apps Script](https://developers.google.com/apps-script/guides/services/quotas).

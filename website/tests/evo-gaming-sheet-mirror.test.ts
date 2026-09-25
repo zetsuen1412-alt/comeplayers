@@ -25,7 +25,7 @@ function harness() {
   const cache: Record<string, string> = {};
   const triggers: Json[] = [{ handler: 'syncComePlayersPayroll', getHandlerFunction() { return this.handler; } }, { handler: 'onComePlayersPayrollEdit', getHandlerFunction() { return this.handler; } }];
   const writes: Json[] = [], reads: Json[] = [], lists = new Map<string, string[][]>();
-  let locked = false, failWrite = false, uuid = 0, elapsed = 0, delayRead = 0, httpError = 0;
+  let locked = false, failWrite = false, uuid = 0, elapsed = 0, delayRead = 0, httpError = 0, digests = 0;
   let duringWrite: (() => void) | undefined;
   class FakeDate extends Date { static now() { return Date.now() + elapsed; } }
   const propertyStore = {
@@ -53,7 +53,7 @@ function harness() {
     PropertiesService: { getScriptProperties: () => propertyStore },
     CacheService: { getScriptCache: () => ({ get: (name: string) => cache[name] ?? null, put: (name: string, value: string) => { cache[name] = value; } }) },
     Utilities: { getUuid: () => String(++uuid), DigestAlgorithm: { SHA_256: 'sha256' }, Charset: { UTF_8: 'utf8' },
-      computeDigest: (_algorithm: string, text: string) => createHash('sha256').update(text).digest(), base64EncodeWebSafe: (buffer: Buffer) => buffer.toString('base64url') },
+      computeDigest: (_algorithm: string, text: string) => { digests++; return createHash('sha256').update(text).digest(); }, base64EncodeWebSafe: (buffer: Buffer) => buffer.toString('base64url') },
     LockService: { getScriptLock: () => ({ tryLock: () => { if (locked) return false; locked = true; return true; }, releaseLock: () => { locked = false; } }) },
     ScriptApp: {
       getOAuthToken: () => 'test-oauth-token',
@@ -149,7 +149,7 @@ function harness() {
     httpError: (status: number) => { httpError = status; },
     duringWrite: (callback: () => void) => { duringWrite = callback; }, delay: (ms: number) => { delayRead = ms; },
     value: (row: number, column: number, sheet = target) => sheet.cells.get(key(row, column))?.effectiveValue,
-    get locked() { return locked; }, get pending() { return Object.keys(properties).filter(k => k.startsWith('EGM_PENDING_')); },
+    get locked() { return locked; }, get digests() { return digests; }, get pending() { return Object.keys(properties).filter(k => k.startsWith('EGM_PENDING_')); },
   };
 }
 
@@ -263,6 +263,7 @@ test('5000+ rows use bounded rectangular batches; same KODE values do not append
   const h = harness(); for (let row = 1; row <= 5100; row++) h.put(h.source, row, 2, row === 5100 ? 'X2832' : 'DUPLICATE');
   assert.equal(h.setup().complete, true); assert.deepEqual(h.value(5100, 2), { stringValue: 'X2832' }); assert.deepEqual(h.value(5099, 2), { stringValue: 'DUPLICATE' });
   assert.ok(h.writes.length < 30, `batch writes: ${h.writes.length}`);
+  assert.ok(h.digests < 30, `native hash calls must be batched: ${h.digests}`);
   const before = h.writes.length; h.reconcile(); assert.equal(h.writes.length, before);
 });
 
