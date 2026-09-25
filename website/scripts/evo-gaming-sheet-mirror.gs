@@ -278,7 +278,11 @@ function egmCanonical_(value) {
 }
 
 function egmHash_(value) {
-  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, egmCanonical_(value), Utilities.Charset.UTF_8));
+  return egmHashText_(egmCanonical_(value));
+}
+
+function egmHashText_(text) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8));
 }
 
 function egmUtf8Bytes_(text) {
@@ -366,9 +370,11 @@ function egmSyncRange_(context, range, explicitEdit, result) {
     var prepared = source[r].map(function (cell) { return egmCell_(cell, context, true); });
     var current = target[r].map(function (cell) { return egmCell_(cell, context, false); });
     source[r] = null; target[r] = null;
-    rowSignatures.push(egmHash_(prepared));
+    var canonical = egmCanonical_(prepared);
+    // One native digest per bounded batch, not thousands of service calls per sweep.
+    rowSignatures.push(canonical);
     // Compare target too: cached signatures must never hide manual target drift.
-    if (egmCanonical_(prepared) === egmCanonical_(current)) { result.rowsUnchanged++; continue; }
+    if (canonical === egmCanonical_(current)) { result.rowsUnchanged++; continue; }
     if (!explicitEdit && !prepared.some(function (cell) { return cell.userEnteredValue !== undefined; })) { result.blankRowsPreserved++; continue; }
     var rowData = { values: prepared }, rowSize = egmUtf8Bytes_(JSON.stringify(rowData));
     if (bytes + rowSize > 1500000 && requests.length) flush();
@@ -379,5 +385,5 @@ function egmSyncRange_(context, range, explicitEdit, result) {
   }
   flush();
   // Store only successful non-sensitive signatures. A timeout/failure leaves edits queued.
-  cache.put(key, egmHash_(rowSignatures), 21600);
+  cache.put(key, egmHashText_(rowSignatures.join('\n')), 21600);
 }
