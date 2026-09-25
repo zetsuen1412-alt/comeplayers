@@ -3,6 +3,8 @@ import { test } from "node:test";
 import {
   mergeGoogleSheetPayroll,
   parseSheetOrderedAt,
+  sheetOrderId,
+  validateGoogleSheetSyncPayload,
   type GoogleSheetSyncPayload,
 } from "../features/payroll/lib/google-sheet-sync";
 import { workspaceKeys, type WorkspaceState } from "../features/payroll/lib/workspace-model";
@@ -76,7 +78,7 @@ test("black BOOSTER reads STATUS as workers while keeping NAMA ORDER", () => {
   assert.equal(order.gameId, "g1");
 });
 
-test("the same hourly payload is idempotent after JSON database persistence", () => {
+test("the same reconciliation payload is idempotent after JSON database persistence", () => {
   const first = mergeGoogleSheetPayroll(base(), payload());
   const persisted = JSON.parse(JSON.stringify(first.state)) as WorkspaceState;
   const second = mergeGoogleSheetPayroll(persisted, payload());
@@ -118,8 +120,131 @@ test("FH team label in BOOSTER does not invent an employee", () => {
   const result = mergeGoogleSheetPayroll(base(), current);
   const order = (result.state[workspaceKeys.orders] as Order[])[0];
   assert.equal(order.workerAssignments?.length, 0);
-  assert.equal(order.team, "FH1");
+  assert.equal(order.team, "FH2"); // Explicit FH column takes precedence over a BOOSTER team label.
   assert.equal(order.operationalStatus, "draft");
+});
+
+test("incremental single cell edit leaves all other orders and payroll data unchanged", () => {
+  const source = payload();
+  const second = structuredClone(source.rows[0]);
+  second.rowNumber++;
+  second.values[1] = second.display![1] = "OTHER";
+  source.rows.push(second);
+  const first = mergeGoogleSheetPayroll(base(), source);
+  first.state[workspaceKeys.advances] = [{ id: "untouched", amountMinor: 10 }];
+  first.state[workspaceKeys.closings] = [];
+  const edit = payload();
+  edit.syncMode = "incremental";
+  edit.rows[0].values[3] = edit.rows[0].display![3] = "New buyer";
+  const result = mergeGoogleSheetPayroll(first.state, edit);
+  assert.equal(result.updated, 1);
+  assert.deepEqual(result.rowResults, [{ rowNumber: 5057, status: "updated" }]);
+  assert.deepEqual((result.state[workspaceKeys.orders] as Order[])[1], (first.state[workspaceKeys.orders] as Order[])[1]);
+  for (const key of [workspaceKeys.closings, workspaceKeys.advances]) assert.deepEqual(result.state[key], first.state[key]);
+});
+
+test("duplicate KODE skips every ambiguous row, even before an order exists", () => {
+  const source = payload();
+  const duplicate = structuredClone(source.rows[0]);
+  duplicate.rowNumber++;
+  duplicate.values[1] = duplicate.display![1] = "x2821";
+  source.rows.push(duplicate);
+  const result = mergeGoogleSheetPayroll(base(), source);
+  assert.equal(result.added, 0);
+  assert.equal(result.skippedConflicts, 2);
+  assert.equal((result.state[workspaceKeys.orders] as Order[]).length, 0);
+});
+
+test("incremental duplicate outside edit range is a conflict", () => {
+  const source = payload();
+  source.syncMode = "incremental";
+  source.rows[0].duplicateCode = true;
+  assert.equal(mergeGoogleSheetPayroll(base(), source).skippedConflicts, 1);
+});
+
+test("deletion, row movement and row reuse never remove or rename an existing KODE", () => {
+  const original = payload();
+  const first = mergeGoogleSheetPayroll(base(), original);
+  // Simulate an order imported by the previous row-ID implementation.
+  const old = (first.state[workspaceKeys.orders] as Order[])[0];
+  old.id = sheetOrderId(original, old.importSourceRow!);
+  const empty = payload(); empty.rows = []; empty.syncMode = "reconcile";
+  assert.deepEqual(mergeGoogleSheetPayroll(first.state, empty).state, first.state);
+  const moved = payload(); moved.rows[0].rowNumber = 4;
+  const movedResult = mergeGoogleSheetPayroll(first.state, moved);
+  assert.equal(movedResult.added, 0);
+  assert.equal((movedResult.state[workspaceKeys.orders] as Order[])[0].id, old.id);
+  const reused = payload();
+  reused.rows[0].values[1] = reused.rows[0].display![1] = "NEW-KODE";
+  const result = mergeGoogleSheetPayroll(movedResult.state, reused);
+  assert.equal(result.added, 1);
+  const orders = result.state[workspaceKeys.orders] as Order[];
+  assert.equal(orders.length, 2);
+  assert.equal(orders[0].externalReference, "X2821");
+  assert.equal(orders[1].financeStatus, "pending");
+  assert.notEqual(orders[0].id, orders[1].id);
+});
+
+test("orders from another spreadsheet cannot be taken over", () => {
+  const first = mergeGoogleSheetPayroll(base(), payload());
+  const edit = payload(); edit.spreadsheetId = "another-sheet";
+  const result = mergeGoogleSheetPayroll(first.state, edit);
+  assert.equal(result.skippedConflicts, 1);
+  assert.deepEqual(result.state, first.state);
+});
+
+test("Closing, payroll period and closed daily work each protect the entire order", () => {
+  const protections: Partial<Order>[] = [
+    { payrollClosedAt: "2026-09-25T01:00:00Z" },
+    { payrollPeriodId: "closing-1" },
+    { financeStatus: "closed" },
+    { dailyWork: [{ id: "d1", sequence: 1, workDate: "2026-09-25", grossMinor: 100, status: "pending", payrollClosedAt: "2026-09-25T01:00:00Z" }] },
+  ];
+  for (const protection of protections) {
+    const first = mergeGoogleSheetPayroll(base(), payload());
+    Object.assign((first.state[workspaceKeys.orders] as Order[])[0], protection);
+    const edit = payload(); edit.rows[0].values[4] = edit.rows[0].display![4] = "CHANGED";
+    const result = mergeGoogleSheetPayroll(first.state, edit);
+    assert.equal(result.skippedProtected, 1);
+    assert.deepEqual(result.state, first.state);
+  }
+  const first = mergeGoogleSheetPayroll(base(), payload());
+  first.state[workspaceKeys.closings] = [{ id: "legacy-closing", orderRefs: ["X2821"] }];
+  assert.equal(mergeGoogleSheetPayroll(first.state, payload()).skippedProtected, 1);
+});
+
+test("STATUS never allocates workers for a nonblack BOOSTER, including text HITAM", () => {
+  const source = payload();
+  source.rows[0].boosterBlack = false;
+  source.rows[0].values[5] = source.rows[0].display![5] = "HITAM";
+  const order = (mergeGoogleSheetPayroll(base(), source).state[workspaceKeys.orders] as Order[])[0];
+  assert.deepEqual(order.workerAssignments, []);
+  assert.equal(order.orderName, "40M SKADI");
+});
+
+test("incremental and reconcile retain the mapping and default draft/pending states", () => {
+  for (const syncMode of ["incremental", "reconcile"] as const) {
+    const source = payload(); source.syncMode = syncMode;
+    source.headers = source.headers.map(header => header === "GAME" ? "GIM" : header);
+    const order = (mergeGoogleSheetPayroll(base(), source).state[workspaceKeys.orders] as Order[])[0];
+    assert.deepEqual([order.externalReference, order.source, order.buyerName, order.orderName,
+      order.team, order.game, order.process, order.quantity, order.rateMinor, order.grossMinor, order.task],
+    ["X2821", "G2G", "Vernansyah", "40M SKADI", "FH2", "RO", "F2F", 20, 1000, 20000, "Catatan"]);
+    assert.equal(order.operationalStatus, "draft");
+    assert.equal(order.financeStatus, "pending");
+    assert.equal(order.payrollClosedAt, undefined);
+    assert.equal(order.verifiedAt, undefined);
+  }
+});
+
+test("invalid mode and repeated row numbers are rejected, invalid date is skipped", () => {
+  assert.throws(() => validateGoogleSheetSyncPayload({ ...payload(), syncMode: "delete" }), /Mode/);
+  const repeated = payload(); repeated.rows.push(structuredClone(repeated.rows[0]));
+  assert.throws(() => validateGoogleSheetSyncPayload(repeated), /duplikat/);
+  const invalid = payload(); invalid.rows[0].values[0] = invalid.rows[0].display![0] = "not a date";
+  const result = mergeGoogleSheetPayroll(base(), invalid);
+  assert.equal(result.skippedInvalid, 1);
+  assert.equal(result.rowResults[0].status, "skippedInvalid");
 });
 
 test("a spreadsheet edit updates only an unverified sheet-owned order", () => {
