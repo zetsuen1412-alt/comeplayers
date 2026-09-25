@@ -76,9 +76,10 @@ test("black BOOSTER reads STATUS as workers while keeping NAMA ORDER", () => {
   assert.equal(order.gameId, "g1");
 });
 
-test("the same hourly payload is idempotent", () => {
+test("the same hourly payload is idempotent after JSON database persistence", () => {
   const first = mergeGoogleSheetPayroll(base(), payload());
-  const second = mergeGoogleSheetPayroll(first.state, payload());
+  const persisted = JSON.parse(JSON.stringify(first.state)) as WorkspaceState;
+  const second = mergeGoogleSheetPayroll(persisted, payload());
   assert.equal(second.added, 0);
   assert.equal(second.updated, 0);
   assert.equal(second.unchanged, 1);
