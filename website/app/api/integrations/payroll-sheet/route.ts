@@ -110,7 +110,10 @@ export async function POST(request: Request) {
   try {
     authorized(request);
     const body = await readJson(request);
-    const payload = validateGoogleSheetSyncPayload(body);
+    let payload: GoogleSheetSyncPayload;
+    try { payload = validateGoogleSheetSyncPayload(body); }
+    catch (error) { throw Object.assign(error as Error, { status: 400 }); }
+    const syncMode = payload.syncMode ?? "reconcile";
     const supabaseAdmin = createSupabaseAdmin();
     const actor = await resolveActor(supabaseAdmin, payload);
 
@@ -132,6 +135,7 @@ export async function POST(request: Request) {
         return response({
           ok: true,
           saved: false,
+          syncMode,
           revision: current.revision,
           ...merged,
           state: undefined,
@@ -158,6 +162,7 @@ export async function POST(request: Request) {
           spreadsheetName: payload.spreadsheetName || null,
           sheetName: payload.sheetName,
           headerRow: payload.headerRow || null,
+          syncMode,
           rowsReceived: payload.rows.length,
           added: merged.added,
           updated: merged.updated,
@@ -171,6 +176,7 @@ export async function POST(request: Request) {
       return response({
         ok: true,
         saved: true,
+        syncMode,
         revision: saved?.revision,
         added: merged.added,
         updated: merged.updated,
@@ -179,6 +185,7 @@ export async function POST(request: Request) {
         skippedConflicts: merged.skippedConflicts,
         skippedInvalid: merged.skippedInvalid,
         issues: merged.issues,
+        rowResults: merged.rowResults,
       });
     }
 

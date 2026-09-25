@@ -7,10 +7,13 @@ export type GoogleSheetSyncRow = {
   values: unknown[];
   display?: string[];
   boosterBlack?: boolean;
+  /** Duplicate KODE elsewhere in the sheet, including rows outside an edit range. */
+  duplicateCode?: boolean;
 };
 
 export type GoogleSheetSyncPayload = {
   version: 1;
+  syncMode?: "incremental" | "reconcile";
   spreadsheetId: string;
   spreadsheetName?: string;
   sheetName: string;
@@ -36,6 +39,7 @@ export type GoogleSheetSyncMergeResult = {
   skippedConflicts: number;
   skippedInvalid: number;
   issues: GoogleSheetSyncIssue[];
+  rowResults: { rowNumber: number; status: "added" | "updated" | "unchanged" | "skippedProtected" | "skippedConflicts" | "skippedInvalid" }[];
 };
 
 const MAX_ROWS = 10_000;
@@ -56,6 +60,10 @@ export function sheetOrderId(payload: Pick<GoogleSheetSyncPayload, "spreadsheetI
 
 export function isGoogleSheetOrder(order: Pick<Order, "id">) {
   return order.id.startsWith(SHEET_ORDER_PREFIX);
+}
+
+function sheetSourcePrefix(payload: GoogleSheetSyncPayload) {
+  return sheetOrderId(payload, 0).slice(0, -1);
 }
 
 function headerIndex(headers: string[], names: string[], fallback: number) {
@@ -257,7 +265,7 @@ function parseIncomingOrder(input: {
 
   const employeesByName = employeeLookup(employees);
   let assignments: OrderWorkerAssignment[] = [];
-  if (row.boosterBlack === true || folded(booster) === "HITAM") {
+  if (row.boosterBlack === true) {
     const parsed = parseWorkerList(status, process, employees, row.rowNumber);
     assignments = parsed.assignments;
     if (parsed.missing.length) issues.push(importIssue("sheet_workers_review", "Daftar karyawan perlu diperiksa", `Belum cocok: ${parsed.missing.join(", ")}`));
@@ -271,7 +279,9 @@ function parseIncomingOrder(input: {
   const sheetTeam = mapTeam(displayAt(row, columns.team)) ?? mapTeam(booster);
   const firstWorker = assignments[0];
   const finalIssues = uniqueIssues(issues);
-  const id = sheetOrderId(payload, row.rowNumber);
+  // KODE is the identity; physical row numbers can move after sorts/deletions.
+  // Legacy row-based IDs are preserved when an existing KODE is matched.
+  const id = `${sheetSourcePrefix(payload)}ref:${encodeURIComponent(reference.toLowerCase())}`;
   const gameName = game?.name || gameText || "—";
 
   return {
@@ -290,7 +300,7 @@ function parseIncomingOrder(input: {
       process,
       employeeCode: firstWorker?.employeeCode,
       employeeName: firstWorker?.employeeName,
-      team: firstWorker?.team ?? sheetTeam,
+      team: sheetTeam ?? firstWorker?.team,
       quantity,
       rateMinor: rateMinor ?? undefined,
       grossMinor,
@@ -308,8 +318,11 @@ function parseIncomingOrder(input: {
   };
 }
 
-function protectedFromSheet(order: Order) {
-  return Boolean(order.payrollClosedAt || order.verifiedAt || order.operationalStatus === "verified" || order.financeStatus === "closed");
+function protectedFromSheet(order: Order, closingReferences: Set<string>) {
+  return Boolean(order.payrollClosedAt || order.payrollPeriodId || order.verifiedAt
+    || order.operationalStatus === "verified" || order.financeStatus === "closed"
+    || order.dailyWork?.some(day => day.payrollClosedAt || day.payrollPeriodId || day.verifiedAt || day.status === "verified")
+    || closingReferences.has(order.externalReference.trim().toLowerCase()));
 }
 
 function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
@@ -345,14 +358,20 @@ export function validateGoogleSheetSyncPayload(value: unknown): GoogleSheetSyncP
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Payload Google Sheets tidak valid.");
   const payload = value as Partial<GoogleSheetSyncPayload>;
   if (payload.version !== 1) throw new Error("Versi sinkronisasi Google Sheets tidak didukung.");
+  if (payload.syncMode !== undefined && payload.syncMode !== "incremental" && payload.syncMode !== "reconcile") throw new Error("Mode sinkronisasi tidak valid.");
   if (!normalize(payload.spreadsheetId) || normalize(payload.spreadsheetId).length > 200) throw new Error("Spreadsheet ID tidak valid.");
   if (!normalize(payload.sheetName) || normalize(payload.sheetName).length > 120) throw new Error("Nama sheet tidak valid.");
   if (!Array.isArray(payload.headers) || payload.headers.length < 2 || payload.headers.length > 64) throw new Error("Header spreadsheet tidak valid.");
   if (!Array.isArray(payload.rows) || payload.rows.length > MAX_ROWS) throw new Error("Jumlah baris sinkronisasi terlalu besar.");
   if (!Number.isFinite(Date.parse(normalize(payload.sentAt)))) throw new Error("Waktu sinkronisasi tidak valid.");
+  const rowNumbers = new Set<number>();
   for (const row of payload.rows) {
     if (!row || !Number.isSafeInteger(row.rowNumber) || row.rowNumber < 1 || !Array.isArray(row.values) || row.values.length > 64) throw new Error("Baris sinkronisasi tidak valid.");
     if (row.display !== undefined && (!Array.isArray(row.display) || row.display.length > 64)) throw new Error("Tampilan baris sinkronisasi tidak valid.");
+    if (rowNumbers.has(row.rowNumber)) throw new Error("Nomor baris sinkronisasi duplikat.");
+    rowNumbers.add(row.rowNumber);
+    if (row.boosterBlack !== undefined && typeof row.boosterBlack !== "boolean") throw new Error("Warna BOOSTER tidak valid.");
+    if (row.duplicateCode !== undefined && typeof row.duplicateCode !== "boolean") throw new Error("Penanda KODE duplikat tidak valid.");
   }
   return payload as GoogleSheetSyncPayload;
 }
@@ -365,59 +384,74 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const games = (state[workspaceKeys.products] ?? []) as ProductGame[];
   const columns = columnsFor(payload.headers);
   const issues: GoogleSheetSyncIssue[] = [];
-  const seenReferences = new Set<string>();
+  const rowResults: GoogleSheetSyncMergeResult["rowResults"] = [];
+  const referenceCounts = new Map<string, number>();
+  for (const row of payload.rows) {
+    const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).toLowerCase();
+    referenceCounts.set(key, (referenceCounts.get(key) ?? 0) + 1);
+  }
+  const closingReferences = new Set(
+    ((state[workspaceKeys.closings] ?? []) as { orderRefs?: string[] }[])
+      .flatMap(closing => closing.orderRefs ?? []).map(ref => ref.trim().toLowerCase()),
+  );
   let added = 0, updated = 0, unchanged = 0, skippedProtected = 0, skippedConflicts = 0, skippedInvalid = 0;
 
   for (const row of payload.rows) {
     const parsed = parseIncomingOrder({ payload, row, columns, employees, games });
     if (!parsed.order) {
       skippedInvalid++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedInvalid" });
       if (parsed.issue) issues.push(parsed.issue);
       continue;
     }
     const incoming = parsed.order;
     const refKey = incoming.externalReference.trim().toLowerCase();
-    if (seenReferences.has(refKey)) {
+    if (row.duplicateCode || (referenceCounts.get(refKey) ?? 0) > 1) {
       skippedConflicts++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE duplikat di payload sinkronisasi." });
       continue;
     }
-    seenReferences.add(refKey);
-
-    const expectedId = sheetOrderId(payload, row.rowNumber);
-    const byRow = orders.findIndex(order => order.id === expectedId);
-    const byReference = orders.findIndex(order => order.externalReference.trim().toLowerCase() === refKey);
-    const index = byRow >= 0 ? byRow : byReference;
+    const index = orders.findIndex(order => order.externalReference.trim().toLowerCase() === refKey);
 
     if (index < 0) {
       orders.push(incoming);
       added++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "added" });
       continue;
     }
 
     const existing = orders[index];
-    if (!isGoogleSheetOrder(existing)) {
+    if (!isGoogleSheetOrder(existing) || !existing.id.startsWith(sheetSourcePrefix(payload))) {
       skippedConflicts++;
-      issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE sudah ada sebagai pesanan manual; data manual tidak ditimpa." });
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
+      issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE sudah ada sebagai pesanan manual/sumber lain; data tidak ditimpa." });
       continue;
     }
     const otherReference = orders.findIndex((order, orderIndex) => orderIndex !== index && order.externalReference.trim().toLowerCase() === refKey);
     if (otherReference >= 0) {
       skippedConflicts++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Perubahan KODE bertabrakan dengan pesanan lain." });
       continue;
     }
-    if (protectedFromSheet(existing)) {
+    if (protectedFromSheet(existing, closingReferences)) {
       skippedProtected++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedProtected" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Pesanan sudah terverifikasi/Closing sehingga tidak diubah oleh spreadsheet." });
       continue;
     }
 
     const next = mergeSheetOwnedFields(existing, incoming);
-    if (canonical(existing) === canonical(next)) unchanged++;
-    else { orders[index] = next; updated++; }
+    if (canonical(existing) === canonical(next)) {
+      unchanged++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "unchanged" });
+    } else {
+      orders[index] = next; updated++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "updated" });
+    }
   }
 
   state[workspaceKeys.orders] = orders;
-  return { state, added, updated, unchanged, skippedProtected, skippedConflicts, skippedInvalid, issues: issues.slice(0, 100) };
+  return { state, added, updated, unchanged, skippedProtected, skippedConflicts, skippedInvalid, issues: issues.slice(0, 100), rowResults };
 }
