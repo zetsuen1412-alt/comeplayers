@@ -1,5 +1,6 @@
 import type { Order, OrderDailyWork, OrderWorkerAssignment } from "../types/domain";
 import { getOrderAssignments } from "./order-workers";
+import { hasQuantityDistribution, statedOrderQuantity } from "./order-quantity";
 
 export type MutationViewRow = {
   id: string;
@@ -62,7 +63,9 @@ function quantityFormat(value: number) {
 
 export function orderQuantityUnit(order: Order) {
   if (order.orderType === "item") return "item";
-  if (order.orderType !== "gold") return "";
+  if (!hasQuantityDistribution(order)) return "";
+  const stated = statedOrderQuantity(order);
+  if (stated) return stated.unit;
   const title = order.orderName ?? order.service ?? "";
   const match = title.match(/(?:^|\s)\d+(?:[.,]\d+)?\s*([KMBG])(?:\s|\b)/i);
   return match?.[1]?.toUpperCase() ?? "unit";
@@ -70,7 +73,7 @@ export function orderQuantityUnit(order: Order) {
 
 export function formatMutationDistribution(row: MutationViewRow) {
   const { order, day, assignments } = row;
-  if (order.orderType === "gold" || order.orderType === "item") {
+  if (!day && hasQuantityDistribution(order)) {
     const unit = orderQuantityUnit(order);
     if (!assignments.length) return `Belum ada · total ${quantityFormat(row.quantity)} ${unit}`;
     const parts = assignments.map((assignment) => `${assignment.employeeName} ${quantityFormat(assignment.quantity)}${unit === "unit" ? "" : unit}`);

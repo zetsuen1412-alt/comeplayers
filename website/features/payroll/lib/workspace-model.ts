@@ -1,4 +1,5 @@
 import { manualOrderCode } from './manual-order-code';
+import { analyzeOrderQuantityIssues } from './order-quantity';
 import { buildLivePayrollRows, isPayrollEligible } from './payroll-live';
 import { createDailyPayrollSlice, dailySegmentsForPeriod, isDailySettlementOrder } from './daily-orders';
 import { jakartaDateTimeInputToISO } from './date';
@@ -120,6 +121,7 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   for(const order of newOrders) if(order.payrollClosedAt&&!oldOrders.some(old=>old.id===order.id&&old.payrollClosedAt===order.payrollClosedAt)) payrollFailure('Status Closing harus diproses di server.',409);
   for(const order of newOrders) {
     const old=oldOrders.find(row=>row.id===order.id);
+    if(order.operationalStatus==='verified' && canonical(old)!==canonical(order)) assertOrderQuantityReady(order);
     for(const day of order.dailyWork??[]) if(day.payrollClosedAt&&!old?.dailyWork?.some(oldDay=>oldDay.id===day.id&&oldDay.payrollClosedAt===day.payrollClosedAt)) payrollFailure('Status Closing harian harus diproses di server.',409);
   }
 }
@@ -144,6 +146,7 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
     if(isPayrollEligible(order)&&t>=from&&t<=to) eligible.push(order);
   }
   if(!eligible.length) payrollFailure('Tidak ada order atau pekerjaan harian selesai yang dapat di-Closing pada periode ini.',409);
+  for(const order of eligible) assertOrderQuantityReady(order);
   const kasbonByEmployee:Record<string,number>={};
   for(const a of advances) if(a.status==='active') kasbonByEmployee[a.employeeCode]=(kasbonByEmployee[a.employeeCode]??0)+a.remainingMinor;
   const payroll=buildLivePayrollRows(eligible,{...settings,employees,kasbonByEmployee}).filter(r=>r.orderRefs.length);
@@ -170,4 +173,9 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
   next[workspaceKeys.advances]=advances; next[workspaceKeys.settings]=settings;
   validateWorkspace(next);
   return {state:next,record,payroll,orders:eligible};
+}
+
+function assertOrderQuantityReady(order: Order) {
+  const issues=analyzeOrderQuantityIssues(order);
+  if(issues.length) payrollFailure(`Pesanan ${order.externalReference} bermasalah. ${issues.map(issue=>issue.description).join(' ')} Koreksi jumlah sebelum menyelesaikan pesanan atau Closing.`,409);
 }

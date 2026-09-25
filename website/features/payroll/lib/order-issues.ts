@@ -1,8 +1,7 @@
 import type { Employee, Order, OrderDailyWork, OrderIssue, OrderWorkerAssignment } from "../types/domain";
 import { parseBoostingPackagePlan } from "./boosting-package";
 import { getOrderAssignments } from "./order-workers";
-
-const EPSILON = 0.000001;
+import { analyzeOrderQuantityIssues } from "./order-quantity";
 
 function issue(code: string, title: string, description: string, severity: OrderIssue["severity"] = "high", source: OrderIssue["source"] = "validation"): OrderIssue {
   return { code, title, description, severity, source };
@@ -74,16 +73,7 @@ export function analyzeOrderIssues(order: Order, employees: Employee[], day?: Or
     }
   }
 
-  if ((order.orderType === "gold" || order.orderType === "item") && assignments.length) {
-    const assigned = assignments.reduce((sum, assignment) => sum + Number(assignment.quantity || 0), 0);
-    if (Math.abs(assigned - order.quantity) > EPSILON) {
-      issues.push(issue(
-        "WORKER_QUANTITY_MISMATCH",
-        "Total pembagian jumlah tidak sama",
-        `Jumlah pesanan ${order.quantity.toLocaleString("id-ID")}, tetapi total pembagian karyawan ${assigned.toLocaleString("id-ID")}. Selisih ${Math.abs(order.quantity - assigned).toLocaleString("id-ID")}.`,
-      ));
-    }
-  }
+  if (!day) issues.push(...analyzeOrderQuantityIssues(order).filter((row) => !issues.some((existing) => existing.code === row.code)));
 
   const title = order.orderName ?? order.service;
   const plan = order.orderType === "boosting" ? parseBoostingPackagePlan(title) : null;

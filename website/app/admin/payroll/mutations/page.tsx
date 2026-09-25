@@ -22,6 +22,7 @@ import { getPayrollEligibleGrossMinor, replaceDailyWorkStatus } from "@/features
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
+import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
 import {
   expandMutationRows,
   formatMutationDistribution,
@@ -358,6 +359,11 @@ export default function MutationsPage() {
     }
 
     if (nextStatus === "verified") {
+      const quantityIssues = analyzeOrderQuantityIssues(order);
+      if (quantityIssues.length) {
+        setNotice(`Pesanan ${order.externalReference} belum dapat diselesaikan. ${quantityIssues.map((issue) => issue.description).join(" ")}`);
+        return;
+      }
       const now = new Date().toISOString();
       if (order.inventoryAllocations?.length && !order.inventoryConsumedAt) consumeAllocations(order.inventoryAllocations, { orderReference: order.externalReference, rateMinor: order.rateMinor ?? (order.quantity ? Math.round(order.grossMinor / order.quantity) : order.grossMinor), occurredAt: now });
       updateOrder(order.id, {
@@ -478,6 +484,7 @@ export default function MutationsPage() {
               const issues = issuesByRow.get(row.id) ?? [];
               const status = workStatus(row, issues);
               const blocking = hasBlockingOrderIssues(issues);
+              const quantityBlocked = !row.day && analyzeOrderQuantityIssues(order).length > 0;
               const rowClass = row.day?.payrollClosedAt || (!row.day && order.payrollClosedAt) ? "bg-emerald-500/10" : blocking || row.day?.status === "on_hold" || order.operationalStatus === "on_hold" ? "bg-red-500/10" : "";
               return (
                 <tr key={row.id} className={rowClass}>
@@ -526,7 +533,7 @@ export default function MutationsPage() {
                         <button onClick={() => setMutationStatus(order, "assigned")} className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-bold text-violet-100">Proses</button>
                         <button onClick={() => setMutationStatus(order, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-bold text-sky-100">Dikerjakan</button>
                         <button onClick={() => setMutationStatus(order, "on_hold")} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">Bermasalah</button>
-                        <button onClick={() => confirm(`Tandai ${order.externalReference} selesai dan masukkan ke Gaji berikutnya?`) && setMutationStatus(order, "verified")} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black">Pesanan ini selesai</button>
+                        <button disabled={quantityBlocked} title={quantityBlocked ? "Koreksi masalah jumlah sebelum menyelesaikan pesanan." : undefined} onClick={() => confirm(`Tandai ${order.externalReference} selesai dan masukkan ke Gaji berikutnya?`) && setMutationStatus(order, "verified")} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">Pesanan ini selesai</button>
                       </>}
                     </div>
                   </td>
