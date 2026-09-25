@@ -1,4 +1,5 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
@@ -91,7 +92,7 @@ export default function SellerDashboardPage() {
   const [error, setError] = useState("");
   const [sellerStatus, setSellerStatus] = useState("");
 
-  useEffect(() => {
+  useLiveQuery(() => {
     async function loadOverview() {
       try {
         const { data, error: sessionError } = await supabase.auth.getSession();
@@ -124,8 +125,8 @@ export default function SellerDashboardPage() {
       }
     }
 
-    loadOverview();
-  }, []);
+    return loadOverview();
+  }, [], { topics: 'account' });
 
   useEffect(() => {
     if (!overview) return;

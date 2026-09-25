@@ -1,4 +1,5 @@
 'use client';
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { authenticatedFetchJson } from '@/lib/authenticatedFetch';
@@ -35,6 +36,7 @@ export default function PayrollImportsPage() {
     void refresh().catch(e => { if (active) setError(e instanceof Error ? e.message : 'Gagal memuat arsip.'); });
     return () => { active = false; requestVersion.current++; };
   }, [refresh]);
+  useLiveRefresh(async () => { await refresh(); }, { topics: 'payroll', enabled: !busy });
 
   const applied = result?.status === 'applied' || result?.status === 'already_applied';
   const shown = applied ? result : preview;

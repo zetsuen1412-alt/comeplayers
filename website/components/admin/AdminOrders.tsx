@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -31,8 +32,8 @@ export default function AdminOrders() {
   const [notice, setNotice] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
   const sequence = useRef(0);
-  const load = useCallback(async () => {
-    const current = ++sequence.current; setLoading(true); setError("");
+  const load = useCallback(async (background: boolean = false) => {
+    const current = ++sequence.current; if (!background) setLoading(true); setError("");
     try {
       const params = new URLSearchParams({ page: String(page), status, q: query });
       const data = await authenticatedFetchJson<Result>(`/api/admin/orders?${params}`);
@@ -41,6 +42,7 @@ export default function AdminOrders() {
     finally { if (current === sequence.current) setLoading(false); }
   }, [page, query, status]);
   useEffect(() => { void load(); return () => { ++sequence.current; }; }, [load]);
+  useLiveRefresh(async () => { await load(true); }, { topics: 'admin' });
   useEffect(() => { if (selected) dialog.current?.showModal(); else dialog.current?.close(); }, [selected]);
   const amount = (order: Order) => Number(order.total_amount) || Number(order.total_price) || 0;
   const date = (value: string) => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—";

@@ -1,8 +1,9 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import { adminText } from "@/lib/adminLocale";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   FaArrowLeft,
   FaCalculator,
@@ -142,12 +143,13 @@ export default function AdminPayrollPage() {
   const [periodEnd, setPeriodEnd] = useState(today());
   const [currencyCode, setCurrencyCode] = useState("IDR");
 
-  async function loadPayroll(periodId?: number | null) {
-    setLoading(true);
+  async function loadPayroll(periodId?: number | null, background = false, canApply: () => boolean = () => true) {
+    if (!background) setLoading(true);
     setError("");
     try {
       const query = periodId ? `?periodId=${periodId}` : "";
       const next = await authenticatedFetchJson<PayrollResponse>(`/api/admin/payroll${query}`);
+      if (!canApply()) return;
       setData(next);
       setSelectedPeriodId(next.selectedPeriodId);
       const entryMap = new Map(next.entries.map((entry) => [Number(entry.employee_id), entry]));
@@ -174,10 +176,9 @@ export default function AdminPayrollPage() {
     }
   }
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => void loadPayroll(), 0);
-    return () => window.clearTimeout(timer);
-  }, []);
+  useLiveQuery((background, canApply) => {
+    return loadPayroll(background ? selectedPeriodId : undefined, background, canApply);
+  }, [], { topics: 'payroll', protectDrafts: true });
 
   const selectedPeriod = useMemo(
     () => data?.periods.find((period) => Number(period.id) === selectedPeriodId) || null,

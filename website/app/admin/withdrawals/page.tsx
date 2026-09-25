@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -153,6 +154,7 @@ export default function AdminWithdrawalManagementPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadWithdrawals();
   }, []);
+  useLiveRefresh(async () => { await loadWithdrawals(); }, { topics: 'admin' });
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();

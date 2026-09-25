@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight, FaBolt, FaGamepad, FaTags } from "react-icons/fa";
@@ -83,11 +84,11 @@ export default function RecommendedGames() {
   const [recentGames, setRecentGames] = useState<RecentlyViewedGame[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let cancelled = false;
 
     async function loadRecommendedGames() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
@@ -180,7 +181,7 @@ export default function RecommendedGames() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   const recommendations = useMemo(() => {
     const activeOfferCountByGameId = new Map<number, number>();

@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { FormEvent, type ReactNode, useEffect, useState } from "react";
+import { FormEvent, type ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import AccountCommerce from "@/components/account/AccountCommerce";
 import GoogleDriveBackupSettings from "@/components/account/GoogleDriveBackupSettings";
@@ -88,7 +89,7 @@ export default function AccountPageClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  useLiveQuery((_background, canApply) => {
     const loadAccount = async () => {
       const { data: authData } = await supabase.auth.getUser();
 
@@ -125,6 +126,7 @@ export default function AccountPageClient() {
           .maybeSingle(),
       ]);
 
+      if (!canApply()) return;
       setUsername(profileData?.username || getUsernameFromEmail(currentEmail));
       setOriginalUsername(profileData?.username || "");
       setUsernameChanges(Number(profileData?.username_changes || 0));
@@ -160,8 +162,8 @@ export default function AccountPageClient() {
       setLoading(false);
     };
 
-    void loadAccount();
-  }, [router]);
+    return loadAccount();
+  }, [router], { topics: 'account', protectDrafts: true });
 
   const updateAccount = (field: keyof AccountSettings, value: string) => {
     setAccount((current) => ({ ...current, [field]: value }));

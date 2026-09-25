@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -151,6 +152,7 @@ export default function AdminNotificationCenterV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadNotifications(); }, { topics: 'admin' });
 
   async function markAsRead(notificationId: number) {
     setUpdatingId(notificationId);

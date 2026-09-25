@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
@@ -230,6 +231,7 @@ export default function SupportTicketDetailPageV1NotificationEvent() {
 
     if (ticketId) initializePage();
   }, [ticketId]);
+  useLiveRefresh(async () => { if (user) await loadTicketAndMessages(user, currentProfile); }, { topics: 'account,admin' });
 
   async function sendReply(event: React.FormEvent) {
     event.preventDefault();

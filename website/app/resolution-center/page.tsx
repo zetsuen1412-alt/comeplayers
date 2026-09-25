@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -169,6 +170,7 @@ export default function ResolutionCenterPage() {
 
     initialize();
   }, []);
+  useLiveRefresh(async () => { await loadDisputes(); }, { topics: 'account,admin' });
 
   async function openDispute() {
     if (!orderId) return;

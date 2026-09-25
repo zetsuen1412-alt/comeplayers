@@ -1,11 +1,11 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import {
   createContext,
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -86,7 +86,7 @@ export function CurrencyProvider({
   const [rateUpdatedAt, setRateUpdatedAt] = useState<string | null>(null);
   const [ratesLoading, setRatesLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     const controller = new AbortController();
 
     async function loadRates() {
@@ -112,7 +112,7 @@ export function CurrencyProvider({
 
     void loadRates();
     return () => controller.abort();
-  }, []);
+  }, [], { topics: 'catalog' });
 
   const setPreferences = useCallback(
     (next: { country?: string; locale?: string; currency?: string }) => {

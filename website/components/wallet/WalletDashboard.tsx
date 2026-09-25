@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp, FaPlus, FaSyncAlt, FaWallet } from "react-icons/fa";
@@ -25,6 +26,7 @@ export default function WalletDashboard() {
     finally { setBusy(false); }
   }, []);
   useEffect(() => { void load(); }, [load]);
+  useLiveRefresh(async () => { await load(); }, { topics: 'account' });
   const transactions = (data?.transactions || []).filter(tx => filter === "all" || (filter === "refunds" ? ["order_refund", "refund"].includes(tx.type) : filter === "topups" ? ["deposit", "topup"].includes(tx.type) : ["purchase", "buyer_order_payment"].includes(tx.type)));
   const date = (value: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
   return <main className="cpw">

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -176,6 +177,7 @@ export default function FlashSalePageV1() {
   useEffect(() => {
     loadFlashSales();
   }, []);
+  useLiveRefresh(async () => { await loadFlashSales(); }, { topics: 'catalog' });
 
   useEffect(() => {
     const interval = window.setInterval(() => {

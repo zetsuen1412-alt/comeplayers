@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -96,9 +97,9 @@ export default function SellerVerificationPage() {
   const [application, setApplication] = useState<SellerApplication | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    initializePage();
-  }, []);
+  useLiveQuery(() => {
+    return initializePage();
+  }, [], { topics: 'account' });
 
   async function initializePage() {
     try {

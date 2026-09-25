@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GameCard from "./GameCard";
 
 type Game = {
@@ -21,7 +22,7 @@ export default function TrendingGames() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  useLiveQuery(() => {
     const controller = new AbortController();
 
     const loadTrending = async () => {
@@ -54,7 +55,7 @@ export default function TrendingGames() {
     void loadTrending();
 
     return () => controller.abort();
-  }, []);
+  }, [], { topics: 'catalog' });
 
   if (loading) return <p className="text-slate-400">Loading trending games...</p>;
   if (error) return <p className="text-slate-400">{error}</p>;

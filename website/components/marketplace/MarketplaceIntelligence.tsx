@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { FaBolt, FaChartLine, FaFire, FaShoppingCart, FaTags, FaTrophy } from "react-icons/fa";
 
@@ -83,7 +84,7 @@ export default function MarketplaceIntelligence() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  useLiveQuery(() => {
     const controller = new AbortController();
 
     async function loadIntelligence() {
@@ -112,7 +113,7 @@ export default function MarketplaceIntelligence() {
     void loadIntelligence();
 
     return () => controller.abort();
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   if (loading) {
     return (

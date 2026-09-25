@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -73,14 +74,14 @@ export default function ReviewPageV1NotificationSeller() {
 
   const canReview = normalizedStatus === "Completed";
 
-  useEffect(() => {
+  useLiveQuery((background, canApply) => {
     if (orderId) {
-      initializePage();
+      return initializePage(background, canApply);
     }
-  }, [orderId]);
+  }, [orderId], { topics: 'account', protectDrafts: true });
 
-  async function initializePage() {
-    setLoading(true);
+  async function initializePage(background = false, canApply: () => boolean = () => true) {
+    if (!background) setLoading(true);
 
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -153,6 +154,7 @@ export default function ReviewPageV1NotificationSeller() {
 
     if (reviewData) {
       setExistingReview(reviewData);
+      if (!canApply()) return;
       setRating(reviewData.rating);
       setReviewText(reviewData.review_text || "");
     }

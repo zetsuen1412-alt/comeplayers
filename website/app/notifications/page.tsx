@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
@@ -37,9 +38,9 @@ export default function NotificationsPage() {
   const requestRef = useRef(0);
   const userIdRef = useRef<string | null>(null);
 
-  async function loadNotifications() {
+  async function loadNotifications(background: boolean = false) {
     const request = ++requestRef.current;
-    setLoading(true);
+    if (!background) setLoading(true);
     try {
       const { data: userData, error: authError } = await supabase.auth.getUser();
       if (request !== requestRef.current) return;
@@ -127,6 +128,7 @@ export default function NotificationsPage() {
     // The auth subscription owns account refreshes for this mounted page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useLiveRefresh(async () => { await loadNotifications(true); }, { topics: 'account' });
 
   const unreadCount = notifications.filter((item) => !item.is_read).length;
   const visibleNotifications = showHistory ? notifications : notifications.filter((item) => !item.is_read);

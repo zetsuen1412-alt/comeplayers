@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -129,6 +130,7 @@ export default function PaymentUploadV3NotificationPage() {
   useEffect(() => {
     initializePage();
   }, [orderId]);
+  useLiveRefresh(async () => { await initializePage(true); }, {topics:'account'});
 
   useEffect(() => {
     return () => {
@@ -138,8 +140,8 @@ export default function PaymentUploadV3NotificationPage() {
     };
   }, [proofPreviewUrl]);
 
-  async function initializePage() {
-    setLoading(true);
+  async function initializePage(background = false) {
+    if (!background) setLoading(true);
 
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -192,9 +194,9 @@ export default function PaymentUploadV3NotificationPage() {
     }
 
     setOrder(orderData);
-    setPaymentAmount(String(orderData.total_price || orderData.price || ""));
+    if (!background) setPaymentAmount(String(orderData.total_price || orderData.price || ""));
 
-    if (orderData.payment_image) {
+    if (orderData.payment_image && !background) {
       setUploadedProofUrl(orderData.payment_image);
     }
 

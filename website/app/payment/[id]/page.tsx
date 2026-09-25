@@ -1,4 +1,5 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Image from "next/image";
 import Link from "next/link";
@@ -363,11 +364,11 @@ export default function PaymentPage() {
     return nextOrder;
   }, [orderId]);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let active = true;
 
     async function loadPayment() {
-      setLoading(true);
+      if (!background) setLoading(true);
       setError("");
 
       try {
@@ -407,7 +408,7 @@ export default function PaymentPage() {
     return () => {
       active = false;
     };
-  }, [loadOrder, router]);
+  }, [loadOrder, router], { topics: 'account' });
 
   useEffect(() => {
     if (!returningFromDoku || !loadedOrderId || currentOrderPaid) return;

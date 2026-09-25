@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
@@ -196,8 +197,8 @@ export default function TournamentDetail({ tournamentId }: { tournamentId: strin
   const [withdrawing, setWithdrawing] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
+  const refresh = useCallback(async (background: boolean = false) => {
+    if (!background) setLoading(true);
     setError("");
     try {
       const response = await loadTournament(tournamentId);
@@ -219,6 +220,7 @@ export default function TournamentDetail({ tournamentId }: { tournamentId: strin
       listener.subscription.unsubscribe();
     };
   }, [refresh]);
+  useLiveRefresh(async () => { await refresh(true); }, { topics: 'catalog,account' });
 
   useEffect(() => {
     const openFromQuery = window.setTimeout(() => {

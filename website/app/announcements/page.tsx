@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -124,9 +125,9 @@ export default function AnnouncementPageV1() {
     setLoading(false);
   }
 
-  useEffect(() => {
-    loadAnnouncements();
-  }, []);
+  useLiveQuery(() => {
+    return loadAnnouncements();
+  }, [], { topics: 'catalog,account' });
 
   if (loading) {
     return (

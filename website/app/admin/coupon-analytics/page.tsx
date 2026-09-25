@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -220,6 +221,7 @@ export default function AdminCouponAnalyticsV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadData(); }, { topics: 'admin' });
 
   if (loading) {
     return (

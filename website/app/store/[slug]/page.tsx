@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element, react-hooks/set-state-in-effect */
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useCurrency } from "@/components/CurrencyProvider";
 import {
   effectivePresence,
@@ -143,10 +144,10 @@ export default function PublicSellerStorefrontPage() {
     }
   }, [slug]);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     if (!slug) return;
-    void loadStorefront();
-  }, [slug, loadStorefront]);
+    return loadStorefront();
+  }, [slug, loadStorefront], { topics: 'catalog' });
 
   const categories = useMemo(() => {
     const values = new Set<string>();

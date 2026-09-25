@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -159,8 +160,8 @@ export default function AdminOperationsPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async (background: boolean = false) => {
+    if (!background) setLoading(true);
     setError("");
     try {
       const data = await authenticatedFetchJson<Payload>("/api/admin/operations");
@@ -182,6 +183,7 @@ export default function AdminOperationsPage() {
     }, 0);
     return () => window.clearTimeout(timeoutId);
   }, [loadData]);
+  useLiveRefresh(async () => { await loadData(true); }, { topics: 'admin' });
 
   const passingChecks = useMemo(
     () => payload?.checks.filter((check) => check.passed).length || 0,

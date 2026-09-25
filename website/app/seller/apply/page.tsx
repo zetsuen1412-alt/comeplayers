@@ -1,8 +1,9 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import "react-phone-number-input/style.css";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import PhoneInput from "react-phone-number-input";
 import type { E164Number } from "libphonenumber-js/core";
@@ -53,11 +54,11 @@ export default function SellerApplicationPage() {
   const [identityNumber, setIdentityNumber] = useState("");
   const [identityImage, setIdentityImage] = useState("");
 
-  useEffect(() => {
-    initializePage();
-  }, []);
+  useLiveQuery((background, canApply) => {
+    return initializePage(background, canApply);
+  }, [], { topics: 'account', protectDrafts: true });
 
-  async function getOrCreateProfile(currentUser: User) {
+  async function getOrCreateProfile(currentUser: User, allowCreate = true) {
     const { data: profileById, error: profileByIdError } = await supabase
       .from("profiles")
       .select("*")
@@ -71,6 +72,7 @@ export default function SellerApplicationPage() {
     if (profileById) {
       return profileById as Profile;
     }
+    if (!allowCreate) throw new Error('Your profile is no longer available. Please sign in again.');
 
     const fallbackUsername =
       currentUser.user_metadata?.username ||
@@ -106,9 +108,9 @@ export default function SellerApplicationPage() {
     return upsertedProfile as Profile;
   }
 
-  async function initializePage() {
+  async function initializePage(background = false, canApply: () => boolean = () => true) {
     try {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -126,8 +128,9 @@ export default function SellerApplicationPage() {
 
       setUser(userData.user);
 
-      const profileData = await getOrCreateProfile(userData.user);
+      const profileData = await getOrCreateProfile(userData.user, !background);
       setProfile(profileData);
+      if (!canApply()) return;
 
       setSellerName(
         profileData.seller_name || profileData.username || "ComePlayers Seller"

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -193,7 +194,7 @@ export default function ResolutionCasePage() {
         `/api/disputes/${disputeId}`
       );
       setData(response);
-      setAdminNote(response.dispute.admin_note || "");
+      if (showLoader) setAdminNote(response.dispute.admin_note || "");
       setError("");
     } catch (loadError) {
       setError(
@@ -213,6 +214,8 @@ export default function ResolutionCasePage() {
     return () => window.clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disputeId]);
+
+  useLiveRefresh(async () => { await loadCase(false); }, {topics:'account,admin'});
 
   async function postMessage() {
     if (!message.trim()) return;

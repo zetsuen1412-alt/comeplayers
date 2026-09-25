@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -122,6 +123,7 @@ export default function AdminChatModerationPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, []);
+  useLiveRefresh(async () => { await load(); }, { topics: 'admin' });
 
   const visibleEvents = useMemo(
     () => (filter === "open" ? events.filter((event) => event.status === "open") : events),

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -152,6 +153,7 @@ export default function AdminUserManagementV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadProfiles(); }, { topics: 'admin' });
 
   async function updateRole(profileId: string, role: string) {
     if (!isAdmin) return;

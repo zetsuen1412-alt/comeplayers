@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import AccountShell from "@/components/account/AccountShell";
 import { supabase } from "@/lib/supabase";
 
@@ -47,10 +48,10 @@ export default function PrivacyPage() {
     }
   }, [token]);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    return load();
+  }, [load], { topics: 'account' });
 
   async function downloadExport() {
     setBusy("export");

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
@@ -76,7 +77,7 @@ export default function AnnouncementDetailPageV1() {
       .filter(Boolean);
   }, [announcement]);
 
-  async function loadAnnouncement() {
+  async function loadAnnouncement(background = false) {
     const { data: userData } = await supabase.auth.getUser();
     const currentUser = userData.user || null;
     setUser(currentUser);
@@ -102,7 +103,7 @@ export default function AnnouncementDetailPageV1() {
     setAnnouncement(data as Announcement);
     setLoading(false);
 
-    if (currentUser) {
+    if (currentUser && !background) {
       await markAsRead((data as Announcement).id, currentUser.id);
     }
   }
@@ -129,6 +130,8 @@ export default function AnnouncementDetailPageV1() {
       loadAnnouncement();
     }
   }, [slug]);
+
+  useLiveRefresh(async () => { if (slug) await loadAnnouncement(true); }, {topics:'catalog'});
 
   if (loading) {
     return (

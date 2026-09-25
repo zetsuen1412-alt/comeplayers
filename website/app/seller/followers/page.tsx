@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -149,6 +150,7 @@ export default function SellerFollowersPageV1() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { if (user) await loadFollowers(user); }, { topics: 'account' });
 
   if (loading) {
     return (

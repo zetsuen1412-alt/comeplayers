@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -96,14 +97,14 @@ export default function IgdbCatalogAdminPage() {
   const [stageLimit, setStageLimit] = useState(50);
   const [stageOffset, setStageOffset] = useState(0);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (background = false) => {
     setError("");
     try {
       const data = await authenticatedFetchJson<Payload>(
         `/api/admin/catalog/igdb?status=${encodeURIComponent(status)}&page=${page}&limit=30`
       );
       setPayload(data);
-      setSelected([]);
+      if (!background) setSelected([]);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Gagal memuat antrean IGDB.");
     }
@@ -113,6 +114,8 @@ export default function IgdbCatalogAdminPage() {
     const timeoutId = window.setTimeout(() => void loadData(), 0);
     return () => window.clearTimeout(timeoutId);
   }, [loadData]);
+
+  useLiveRefresh(async () => { await loadData(true); }, {topics:'admin'});
 
   const allVisibleSelected = useMemo(
     () => Boolean(

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import { adminText } from "@/lib/adminLocale";
 import { useEffect,useState } from "react";
@@ -18,12 +19,12 @@ export default function PayrollAccessPage() {
   const [data,setData]=useState<AccessData|null>(null),[query,setQuery]=useState(""),[results,setResults]=useState<Account[]>([]),[searched,setSearched]=useState(false),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[version,setVersion]=useState(0);
   const [directLink,setDirectLink]=useState("https://www.comeplayers.com/admin/payroll");
   useEffect(()=>{setDirectLink(window.location.origin+"/admin/payroll");},[]);
-  useEffect(()=>{
+  useLiveQuery(()=>{
     if(!actor?.isAdmin)return;
     const controller=new AbortController();setError("");
     authenticatedFetchJson<AccessData>(endpoint,{signal:controller.signal}).then(result=>{if(!controller.signal.aborted)setData(result);}).catch(e=>{if(!controller.signal.aborted)setError(e.message);});
     return ()=>controller.abort();
-  },[actor?.isAdmin,version]);
+  },[actor?.isAdmin,version],{topics:'payroll,admin'});
   useEffect(()=>{
     setResults([]);setSearched(false);setLoading(false);
     if(!actor?.isAdmin||query.trim().length<3)return;

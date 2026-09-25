@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -100,7 +101,7 @@ export default function MarketplaceClient() {
 
   const search = searchParams.get("q") || "";
 
-  useEffect(() => {
+  useLiveQuery(() => {
     let cancelled = false;
 
     async function initializePage() {
@@ -128,7 +129,7 @@ export default function MarketplaceClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog' });
 
   const filteredCategories = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();

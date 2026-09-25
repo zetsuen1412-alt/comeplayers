@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
 type Product = {
@@ -75,7 +76,7 @@ export default function SellerInventoryPage() {
   const [search, setSearch] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (canApply: () => boolean = () => true) => {
     try {
       setLoading(true);
       const data = await authenticatedFetchJson<{ products: Product[]; variants: Variant[] }>("/api/seller/inventory");
@@ -117,6 +118,7 @@ export default function SellerInventoryPage() {
           });
         }
       }
+      if (!canApply()) return;
       setRows(next);
       setOriginal(next.map((row) => ({ ...row })));
       setError("");
@@ -127,10 +129,10 @@ export default function SellerInventoryPage() {
     }
   }, []);
 
-  useEffect(() => {
+  useLiveQuery((_background, canApply) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    return load(canApply);
+  }, [load], { topics: 'account,catalog', protectDrafts: true });
 
   const changedRows = useMemo(() => {
     const originalMap = new Map(original.map((row) => [row.key, row]));

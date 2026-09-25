@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -212,6 +213,7 @@ export default function AdminWalletTopUpManagementV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadTopups(); }, { topics: 'admin' });
 
   async function approveTopup(item: WalletTopup) {
     if (item.status !== "pending") {

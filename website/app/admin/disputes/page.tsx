@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -244,6 +245,7 @@ export default function AdminDisputesV2Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadDisputes(); }, { topics: 'admin' });
 
   async function updateDisputeStatus(
     dispute: Dispute,

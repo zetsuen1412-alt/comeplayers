@@ -1,4 +1,5 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
@@ -94,11 +95,11 @@ export default function AdminGameMasterManagementPage() {
     return () => window.clearTimeout(timer);
   }, [searchInput]);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     if (!isAdmin) return;
     const controller = new AbortController();
     async function load() {
-      setLoading(true);
+      if (!background) setLoading(true);
       setError("");
       try {
         let query = supabase.from("game_master").select(GAME_COLUMNS, { count: "exact" });
@@ -137,7 +138,7 @@ export default function AdminGameMasterManagementPage() {
     }
     void load();
     return () => controller.abort();
-  }, [isAdmin, search, letter, imageFilter, page, refresh]);
+  }, [isAdmin, search, letter, imageFilter, page, refresh], { topics: 'admin,catalog' });
 
   function startEditing(game: Game) {
     if (working) return;

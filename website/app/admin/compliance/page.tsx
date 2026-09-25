@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -54,6 +55,7 @@ export default function AdminCompliancePage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+  useLiveRefresh(async () => { await load(); }, { topics: 'admin' });
 
   async function review(reviewId: number, decision: "approved" | "rejected") {
     const note = window.prompt(decision === "approved" ? "Bukti / catatan persetujuan:" : "Alasan penolakan:")?.trim();

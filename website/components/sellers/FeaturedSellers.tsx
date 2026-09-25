@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FaBoxOpen,
   FaChartLine,
@@ -59,11 +60,11 @@ export default function FeaturedSellers({
   const [sellers, setSellers] = useState<FeaturedSeller[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     const controller = new AbortController();
 
     async function loadFeaturedSellers() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       try {
         const params = new URLSearchParams({ limit: String(limit) });
@@ -102,7 +103,7 @@ export default function FeaturedSellers({
     loadFeaturedSellers();
 
     return () => controller.abort();
-  }, [gameSlug, limit]);
+  }, [gameSlug, limit], { topics: 'catalog' });
 
   if (loading) {
     return (

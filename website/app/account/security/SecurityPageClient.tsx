@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import AccountShell from "@/components/account/AccountShell";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { supabase } from "@/lib/supabase";
@@ -137,8 +138,9 @@ export default function SecurityPageClient() {
     setMfaFactors(factors);
   }
 
-  async function load() {
+  async function load(background = false) {
     try {
+      if (!background) {
       const key = deviceKey();
       const registered = await authenticatedFetchJson<{ device: SecurityDevice }>(
         "/api/security/devices",
@@ -148,6 +150,7 @@ export default function SecurityPageClient() {
         }
       );
       setCurrentDeviceId(registered.device.id);
+      }
 
       const [security, deviceList] = await Promise.all([
         authenticatedFetchJson<SecurityOverview>("/api/account/security"),
@@ -164,11 +167,11 @@ export default function SecurityPageClient() {
     }
   }
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
+    return load(background);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [], { topics: 'account' });
 
   async function updatePrivacy(field: "showFollowers" | "acceptProfileChat") {
     if (!overview) return;

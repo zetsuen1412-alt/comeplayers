@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -307,6 +308,7 @@ export default function AdminAnnouncementManagerV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadAnnouncements(); }, { topics: 'admin' });
 
   function resetForm() {
     setEditingId(null);

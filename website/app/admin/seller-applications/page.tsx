@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useState } from "react";
@@ -148,6 +149,7 @@ export default function SellerApplicationsAdminPage() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadApplications(); }, { topics: 'admin' });
 
   async function approveApplication(application: SellerApplication) {
     if (!confirm(`Setujui ${application.seller_name} sebagai penjual?`)) return;

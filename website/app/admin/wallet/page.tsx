@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -275,6 +276,7 @@ export default function AdminWalletDashboardV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadWalletDashboard(); }, { topics: 'admin' });
 
   if (loading) {
     return (

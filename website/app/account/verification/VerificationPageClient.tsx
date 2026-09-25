@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AccountShell from "@/components/account/AccountShell";
 import { supabase } from "@/lib/supabase";
@@ -28,7 +29,7 @@ export default function VerificationPageClient() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     const loadVerification = async () => {
       const { data: authData } = await supabase.auth.getUser();
 
@@ -62,8 +63,8 @@ export default function VerificationPageClient() {
       setLoading(false);
     };
 
-    void loadVerification();
-  }, [router]);
+    return loadVerification();
+  }, [router], { topics: 'account' });
 
   const completed = [
     verification.email_verified,

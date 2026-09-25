@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -285,8 +286,8 @@ export default function OrderDetailPage() {
     return data.session.access_token;
   }
 
-  async function loadOrder() {
-    setLoading(true);
+  async function loadOrder(background = false) {
+    if (!background) setLoading(true);
     setError("");
 
     try {
@@ -310,6 +311,7 @@ export default function OrderDetailPage() {
       setProduct((json.product || null) as Product | null);
       setDispute((json.dispute || null) as DisputeSummary | null);
       setRole((json.role || null) as UserRole);
+      if (!background) {
       setDeliveryMessage(nextOrder.delivery_message || "");
       setDeliveryCredentials(nextOrder.delivery_credentials || "");
       setDeliveryAttachments(
@@ -318,12 +320,15 @@ export default function OrderDetailPage() {
           draft: false,
         }))
       );
+      }
     } catch (loadError) {
+      if (!background) {
       setOrder(null);
       setProduct(null);
       setDispute(null);
       setRole(null);
       setDeliveryAttachments([]);
+      }
       setError(
         loadError instanceof Error ? loadError.message : "Failed to load order."
       );
@@ -331,6 +336,8 @@ export default function OrderDetailPage() {
       setLoading(false);
     }
   }
+
+  useLiveRefresh(async () => { await loadOrder(true); }, {topics:'account,admin'});
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

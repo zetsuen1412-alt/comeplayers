@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import {
   FaCheckCircle,
@@ -61,9 +62,9 @@ export default function OrderSuccessPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     async function loadOrder() {
-      setLoading(true);
+      if (!background) setLoading(true);
       setError("");
 
       try {
@@ -96,7 +97,7 @@ export default function OrderSuccessPage() {
     }
 
     if (orderId > 0) loadOrder();
-  }, [orderId]);
+  }, [orderId], { topics: 'account' });
 
   const total = useMemo(
     () =>

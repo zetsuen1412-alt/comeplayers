@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type Category = {
   id: number;
@@ -14,14 +15,14 @@ type Category = {
 export default function GameCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     const loadCategories = async () => {
       const response = await fetch("/api/game-categories");
       const payload = await response.json();
       setCategories(payload.categories || []);
     };
-    void loadCategories();
-  }, []);
+    return loadCategories();
+  }, [], { topics: 'catalog' });
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

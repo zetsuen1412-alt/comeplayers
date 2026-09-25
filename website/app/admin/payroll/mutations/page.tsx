@@ -2,6 +2,7 @@
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { getPayrollActor } from "@/features/payroll/lib/workspace-store";
+import { canonical } from "@/features/payroll/lib/workspace-model";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -375,6 +376,9 @@ export default function MutationsPage() {
   }
 
   function saveMutationEdit(order: Order, patch: Partial<Order>, changes: import("@/features/payroll/lib/demo-mutation-history-store").MutationChange[], reason?: string) {
+    if (canonical(allOrders.find(current => current.id === order.id)) !== canonical(order)) {
+      throw new Error('Pesanan ini telah diubah pengguna lain. Isian Anda tetap tersedia; salin perubahan yang diperlukan, lalu buka kembali Edit Mutasi untuk memakai data terbaru.');
+    }
     const wasCompleted = order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
     const wasPayrollClosed = Boolean(order.payrollClosedAt);
     updateOrder(order.id, patch);

@@ -6,9 +6,10 @@ import { authenticatedFetchJson } from '@/lib/authenticatedFetch';
 import { canonical, workspaceKeys, type WorkspaceState, type closeWorkspace } from './workspace-model';
 
 type Snapshot = { actor?: PayrollActor; state: WorkspaceState; revision: number; updatedAt: string };
-export type PersistenceStatus = { ready: boolean; pending: boolean; busy: boolean; error: string; revision: number; actor: PayrollActor | null };
+export type PersistenceStatus = { ready: boolean; pending: boolean; busy: boolean; error: string; revision: number; actor: PayrollActor | null; checkedAt: number };
 const endpoint = '/api/admin/payroll/workspace';
 let state: WorkspaceState = {}, revision = 0, epoch = 0;
+let checkedAt = 0;
 let exclusive = false;
 let actor: PayrollActor | null = null;
 export const getPayrollActor = () => actor;
@@ -23,27 +24,41 @@ function recordFailure(e: unknown, fallback: string) {
   error=e instanceof Error?e.message:fallback;notify();
 }
 let dirty = false, ready = false, error = '', saving: Promise<void> | null = null;
+let loading: Promise<boolean> | null = null;
 let timer: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach(fn => fn());
 const sync = () => window.dispatchEvent(new Event('storage'));
 export function subscribePayroll(fn: () => void) { listeners.add(fn); return () => { listeners.delete(fn); }; }
-export function payrollStatus(): PersistenceStatus { return {ready,pending:dirty||!!saving||exclusive,busy:exclusive,error,revision,actor}; }
-export function clearPayroll() { epoch++; clearTimeout(timer); actor=null;state={};revision=0;ready=false;exclusive=false;dirty=false;error='';saving=null;notify(); }
+export function payrollStatus(): PersistenceStatus { return {ready,pending:dirty||!!saving||exclusive,busy:exclusive,error,revision,actor,checkedAt}; }
+export function clearPayroll() { epoch++; clearTimeout(timer); actor=null;state={};revision=0;checkedAt=0;ready=false;exclusive=false;dirty=false;error='';saving=null;loading=null;notify(); }
 // Group related synchronous edits so a rejected order cannot leave reserved stock behind.
 export function withPayrollBatch<T>(update: () => T): T {
   const previous=structuredClone(state), wasDirty=dirty;
   try { return update(); }
   catch(e) { state=previous;dirty=wasDirty;clearTimeout(timer);if(dirty)timer=setTimeout(()=>{void flushPayroll().catch(()=>{});},200);sync();notify();throw e; }
 }
-export async function loadPayroll() {
-  if(dirty || saving || exclusive) return;
+export function loadPayroll(): Promise<boolean> {
+  // Retain realtime invalidations until the local write/Closing finishes.
+  if(dirty || saving || exclusive) return Promise.resolve(false);
+  if(loading) return loading;
   const generation=epoch, startedRevision=revision;
+  const request=(async()=>{
   try {
     const result=await authenticatedFetchJson<Snapshot>(endpoint);
-    if(generation!==epoch || dirty || saving || exclusive || startedRevision!==revision) return;
+    if(generation!==epoch || dirty || saving || exclusive || startedRevision!==revision) return false;
+    checkedAt=Date.now();
+    if(ready && result.revision===revision && canonical(actor)===canonical(result.actor??null)) {
+      error='';notify();
+      return true;
+    }
     state=result.state;revision=result.revision;actor=result.actor??null;ready=true;error='';sync();notify();
+    return true;
   } catch(e) { if(generation===epoch) {recordFailure(e,'Gagal memuat payroll');} throw e; }
+  })();
+  loading=request;
+  void request.finally(()=>{if(loading===request)loading=null;}).catch(()=>{});
+  return request;
 }
 export const payrollStorage = {
   getItem(key:string) { return key in state ? JSON.stringify(state[key]) : null; },

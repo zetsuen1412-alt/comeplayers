@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaGamepad, FaHistory, FaShoppingBag } from "react-icons/fa";
@@ -25,11 +26,11 @@ export default function RecentlyViewedGames() {
   const [rows, setRows] = useState<RecentlyViewedGameRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let cancelled = false;
 
     async function loadRecentlyViewedGames() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
@@ -67,7 +68,7 @@ export default function RecentlyViewedGames() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   const visibleRows = useMemo(() => rows.slice(0, 4), [rows]);
 
