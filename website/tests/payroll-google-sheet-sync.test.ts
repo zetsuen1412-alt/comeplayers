@@ -135,3 +135,19 @@ test("a spreadsheet edit updates only an unverified sheet-owned order", () => {
   assert.equal(order.buyerName, "Buyer Baru");
   assert.equal(order.grossMinor, 25000);
 });
+
+
+test("black BOOSTER worker list also parses when Google Sheets only visually wraps the text", () => {
+  const current = payload();
+  current.rows[0].values[7] = "Irwan 4M Fardan 4M Ferdi 5M Indra 6M Sem 1M";
+  current.rows[0].display![7] = "Irwan 4M Fardan 4M Ferdi 5M Indra 6M Sem 1M";
+  const result = mergeGoogleSheetPayroll(base(), current);
+  const order = (result.state[workspaceKeys.orders] as Order[])[0];
+  assert.deepEqual(order.workerAssignments?.map(row => [row.employeeName, row.quantity]), [
+    ["Irwan", 4],
+    ["Fardan", 4],
+    ["Ferdi", 5],
+    ["Indra", 6],
+    ["Sem", 1],
+  ]);
+});
