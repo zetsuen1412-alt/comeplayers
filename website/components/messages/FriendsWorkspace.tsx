@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import {
   type CSSProperties,
@@ -317,6 +318,7 @@ export default function FriendsWorkspace({
       window.clearInterval(heartbeatTimer);
     };
   }, [active, heartbeat, loadData, userId]);
+  useLiveRefresh(async () => { await loadData(true); }, {topics:'account',enabled:active && !!userId});
 
   const loadConversation = useCallback(
     async (roomId: string) => {

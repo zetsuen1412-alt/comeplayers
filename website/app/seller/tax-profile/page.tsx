@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
 type Residency = {
@@ -27,11 +28,12 @@ export default function SellerTaxProfilePage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (canApply: () => boolean = () => true) => {
     try {
       const payload = await authenticatedFetchJson<{ taxResidency: Residency | null }>("/api/seller/tax-profile", { cache: "no-store" });
       const row = payload.taxResidency;
       setResidency(row);
+      if (!canApply()) return;
       if (row) {
         setCountryCode(String(row.country_code || "ID"));
         setLegalName(String(row.legal_name || ""));
@@ -43,10 +45,10 @@ export default function SellerTaxProfilePage() {
     }
   }, []);
 
-  useEffect(() => {
+  useLiveQuery((_background, canApply) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    return load(canApply);
+  }, [load], { topics: 'account', protectDrafts: true });
 
   async function submit(event: FormEvent) {
     event.preventDefault();

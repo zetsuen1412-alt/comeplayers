@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -341,13 +342,13 @@ export default function SellerProfileV3NotificationFollowerPage() {
     setLoading(false);
   }, [sellerId]);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     if (sellerId) {
       // Loading is intentionally tied to the dynamic seller route.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       void loadSellerProfile();
     }
-  }, [loadSellerProfile, sellerId]);
+  }, [loadSellerProfile, sellerId], { topics: 'catalog,account' });
 
   async function toggleHelpful(reviewId: number) {
     if (!currentUser) {

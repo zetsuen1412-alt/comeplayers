@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaClock, FaShoppingCart, FaStar } from "react-icons/fa";
@@ -40,11 +41,11 @@ export default function RecentlyViewed() {
   const [rows, setRows] = useState<RecentlyViewedRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let cancelled = false;
 
     async function loadRecentlyViewed() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
@@ -101,7 +102,7 @@ export default function RecentlyViewed() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   const activeRows = useMemo(() => {
     return rows.filter((row) => row.products?.status === "active").slice(0, 4);

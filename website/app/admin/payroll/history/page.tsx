@@ -1,4 +1,5 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import { adminFieldLabel, adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useState } from "react";
@@ -34,11 +35,11 @@ function RevisionDetails({revision}:{revision:number}) {
 export default function HistoryPage() {
   const [cursors,setCursors]=useState<(number|null)[]>([null]),[refresh,setRefresh]=useState(0),[data,setData]=useState<Page|null>(null),[expanded,setExpanded]=useState<number|null>(null),[error,setError]=useState("");
   const before=cursors.at(-1);
-  useEffect(()=>{
-    const controller=new AbortController();setData(null);setExpanded(null);setError("");
+  useLiveQuery((background)=>{
+    const controller=new AbortController();if(!background){setData(null);setExpanded(null);}setError("");
     authenticatedFetchJson<Page>(endpoint+(before?"?before="+before:""),{signal:controller.signal}).then(result=>{if(!controller.signal.aborted)setData(result);}).catch(e=>{if(!controller.signal.aborted)setError(e.message);});
     return ()=>controller.abort();
-  },[before,refresh]);
+  },[before,refresh],{topics:'payroll'});
   return <>
     <PageHeader title={"Riwayat Perubahan"} description="Setiap penyimpanan berhasil mencatat akun pengubah, waktu server, serta data sebelum dan sesudah perubahan."/>
     <section className="cp-card p-5 sm:p-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold">Audit aktivitas penggajian</h2><p className="mt-1 text-sm text-zinc-400">Pesanan, karyawan, stok, kasbon, gaji, dan tutup buku. Riwayat ini tidak dapat diedit.</p></div><button className={buttonClass} onClick={()=>{setCursors([null]);setRefresh(x=>x+1);}}>Muat ulang</button></div></section>

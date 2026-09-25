@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   FaBoxOpen,
   FaCheckCircle,
@@ -127,9 +128,9 @@ export default function MyOrdersPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     async function loadOrders() {
-      setLoading(true);
+      if (!background) setLoading(true);
       setError("");
 
       try {
@@ -159,8 +160,8 @@ export default function MyOrdersPage() {
       }
     }
 
-    loadOrders();
-  }, []);
+    return loadOrders();
+  }, [], { topics: 'account' });
 
   const stats = useMemo(() => {
     const pending = orders.filter((order) =>

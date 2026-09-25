@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -255,6 +256,7 @@ export default function SellerPayoutCenterPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
   }, []);
+  useLiveRefresh(async () => { await loadData(); }, { topics: 'account', enabled: !busy });
 
   const pendingAmount = useMemo(
     () =>

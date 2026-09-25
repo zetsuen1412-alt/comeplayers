@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FaWallet, FaBox, FaTruck, FaCheckCircle, FaClock } from "react-icons/fa";
@@ -11,6 +12,7 @@ export default function AccountCommerce() {
   const [data, setData] = useState<Overview | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false);
   const load = useCallback(async () => { setBusy(true); try { setData(await authenticatedFetchJson<Overview>("/api/account/commerce")); setError(""); } catch (e) { setError(e instanceof Error ? e.message : "Unable to load your balance and orders."); } finally { setBusy(false); } }, []);
   useEffect(() => { void load(); }, [load]);
+  useLiveRefresh(async () => { await load(); }, { topics: 'account' });
   return <section aria-label="Wallet and order overview" className="mb-8 space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-emerald-400/25 bg-emerald-950/40 p-6">
       <div><span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-300"><FaWallet /> CPWallet</span><p className="mt-3 text-3xl font-bold text-white">{data ? formatIdrPrice(Number(data.wallet.balance)) : "—"}</p><p className="mt-2 text-xs text-slate-400">{data ? formatIdrAmount(Number(data.wallet.balance)) + " recorded balance. " : ""}Approved refunds return to CPWallet.</p></div>

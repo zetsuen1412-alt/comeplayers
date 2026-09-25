@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -137,6 +138,7 @@ export default function AdminProductManagementV1Page() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadProducts(); }, { topics: 'admin' });
 
   async function updateProductStatus(productId: number, status: string) {
     setUpdatingProductId(productId);

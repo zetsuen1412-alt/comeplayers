@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -76,6 +77,7 @@ export default function AdminRiskPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, []);
+  useLiveRefresh(async () => { await load(); }, { topics: 'admin' });
 
   const openEvents = useMemo(() => events.filter((event) => event.status !== "resolved"), [events]);
   const blockedProfiles = useMemo(() => profiles.filter((profile) => profile.status === "blocked"), [profiles]);

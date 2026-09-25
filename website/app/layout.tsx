@@ -14,6 +14,7 @@ import DeploymentAutoRefresh from "./components/DeploymentAutoRefresh";
 import "./globals.css";
 import MfaSessionGate from "@/components/account/MfaSessionGate";
 import AccountSessionGuard from "@/components/account/AccountSessionGuard";
+import LiveUpdates from "@/components/LiveUpdates";
 
 
 
@@ -170,6 +171,7 @@ export default async function RootLayout({
         <DeploymentAutoRefresh />
         <MfaSessionGate />
         <AccountSessionGuard />
+        <LiveUpdates />
         <CurrencyProvider
           key={`${country}:${locale}:${currency}`}
           country={country}

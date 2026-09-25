@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -339,8 +340,8 @@ export default function TournamentHub() {
   const [showCreate, setShowCreate] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
+  const refresh = useCallback(async (background: boolean = false) => {
+    if (!background) setLoading(true);
     setError("");
     try {
       setFeed(await loadTournamentFeed());
@@ -359,6 +360,7 @@ export default function TournamentHub() {
       data.subscription.unsubscribe();
     };
   }, [refresh]);
+  useLiveRefresh(async () => { await refresh(true); }, { topics: 'catalog,account' });
 
   const activeRegistrationIds = useMemo(
     () => new Set(feed.registrations.filter((item) => item.status !== "withdrawn").map((item) => item.tournament_id)),

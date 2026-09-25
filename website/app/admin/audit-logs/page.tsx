@@ -1,8 +1,9 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FaClipboardList, FaSearch, FaShieldAlt } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
@@ -52,7 +53,7 @@ export default function AdminAuditLogsPage() {
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     async function loadLogs() {
       try {
         const response = await authenticatedFetchJson<{ logs: AuditLog[] }>(
@@ -66,8 +67,8 @@ export default function AdminAuditLogsPage() {
       }
     }
 
-    loadLogs();
-  }, []);
+    return loadLogs();
+  }, [], { topics: 'admin' });
 
   const filteredLogs = useMemo(() => {
     const query = search.trim().toLowerCase();

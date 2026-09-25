@@ -1284,7 +1284,9 @@
     "call:addEventListener:beforeunload",
     "call:removeEventListener:beforeunload",
     "compare:SIGNED_OUT",
-    "compare:visible"
+    "compare:live",
+    "compare:live",
+    "compare:offline"
   ],
   "features/payroll/lib/ai-auditor.ts": [
     "compare:completed",

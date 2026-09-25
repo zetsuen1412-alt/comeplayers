@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import Link from "next/link";
@@ -162,6 +163,7 @@ export default function AdminCategoriesPage() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { await loadCategories(); }, { topics: 'admin' });
 
   function resetCreateForm() {
     setNewName("");

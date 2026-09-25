@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -149,8 +150,8 @@ export default function SellerOrdersPage() {
   const [error, setError] = useState("");
   const [now, setNow] = useState(() => Date.now());
 
-  async function loadSellerOrders() {
-    setLoading(true);
+  async function loadSellerOrders(background: boolean = false) {
+    if (!background) setLoading(true);
     setError("");
 
     try {
@@ -186,6 +187,7 @@ export default function SellerOrdersPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSellerOrders();
   }, []);
+  useLiveRefresh(async () => { await loadSellerOrders(true); }, { topics: 'account' });
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);

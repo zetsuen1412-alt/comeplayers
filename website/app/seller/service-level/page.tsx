@@ -1,4 +1,5 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -62,8 +63,8 @@ export default function SellerServiceLevelPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  async function loadProfile() {
-    setLoading(true);
+  async function loadProfile(background = false, canApply: () => boolean = () => true) {
+    if (!background) setLoading(true);
     setError("");
 
     try {
@@ -71,6 +72,7 @@ export default function SellerServiceLevelPage() {
         "/api/seller/service-level"
       );
       setProfile(result.profile);
+      if (!canApply()) return;
       setPresenceMode(result.profile.seller_presence_mode || "offline");
       setSlaMinutes(Number(result.profile.seller_delivery_sla_minutes || 60));
     } catch (loadError) {
@@ -84,10 +86,10 @@ export default function SellerServiceLevelPage() {
     }
   }
 
-  useEffect(() => {
+  useLiveQuery((background, canApply) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadProfile();
-  }, []);
+    return loadProfile(background, canApply);
+  }, [], { topics: 'account', protectDrafts: true });
 
   useEffect(() => {
     if (!profile || presenceMode === "offline") return;

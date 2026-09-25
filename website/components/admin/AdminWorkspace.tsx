@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminText } from "@/lib/adminLocale";
 import Image from "next/image";
@@ -63,6 +64,7 @@ export default function AdminWorkspace({ children }: { children: ReactNode }) {
     });
     return () => { ++request.current; window.removeEventListener("focus", focus); data.subscription.unsubscribe(); };
   }, [payroll, refresh]);
+  useLiveRefresh(async () => { await refresh(); }, { topics: 'admin', enabled: !payroll });
 
   useEffect(() => { menu.current?.close(); finder.current?.close(); setQuery(""); }, [pathname]);
   useEffect(() => {

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
@@ -489,6 +490,11 @@ function MainHeaderContent() {
       loadAnnouncements(currentUser.id),
     ]);
   }
+
+  useLiveRefresh(async () => {
+    if (user) await Promise.all([loadUserProfile(user.id), loadWallet(user.id), loadNotifications(user.id), loadUnreadMessages(), loadAnnouncements(user.id)]);
+    else await loadAnnouncements();
+  }, {topics:'account,catalog'});
 
   useEffect(() => {
     async function initializeHeader() {

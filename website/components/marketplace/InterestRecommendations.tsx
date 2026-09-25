@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaBolt, FaChartLine, FaGamepad, FaShoppingCart, FaStar } from "react-icons/fa";
@@ -92,11 +93,11 @@ export default function InterestRecommendations({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let cancelled = false;
 
     async function loadInterestRecommendations() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
@@ -223,7 +224,7 @@ export default function InterestRecommendations({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   const recommendations = useMemo(() => {
     const viewedIds = new Set<number>();

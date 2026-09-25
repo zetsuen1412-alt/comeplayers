@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaBell, FaShoppingCart, FaStar, FaStore } from "react-icons/fa";
@@ -66,11 +67,11 @@ export default function FollowedSellerFeed() {
   const [hasFollowedSellers, setHasFollowedSellers] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let cancelled = false;
 
     async function loadFeed() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
@@ -196,7 +197,7 @@ export default function FollowedSellerFeed() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   const activeProducts = useMemo(() => {
     return products.filter((product) => product.status === "active").slice(0, 8);

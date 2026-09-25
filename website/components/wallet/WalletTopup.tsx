@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaArrowLeft, FaCreditCard, FaPaypal, FaShieldAlt, FaWallet } from "react-icons/fa";
@@ -59,6 +60,7 @@ export default function WalletTopup() {
     }).catch(cause => { if (active) setError(cause instanceof Error ? cause.message : "Unable to load top-ups."); }).finally(() => { if (active) { setLoading(false); setBusy(false); } });
     return () => { active = false; };
   }, [load]);
+  useLiveRefresh(async () => { await load(); if (intent) { const result = await authenticatedFetchJson<{ intent: Intent }>(`${api}?id=${intent.id}`); setIntent(result.intent); } }, { topics: 'account', enabled: !busy });
   useEffect(() => {
     if (!intent || !["starting", "pending"].includes(intent.status)) return;
     let active = true;

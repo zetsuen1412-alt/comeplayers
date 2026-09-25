@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element, react-hooks/set-state-in-effect */
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
 type StorePolicies = {
@@ -115,13 +116,14 @@ export default function SellerStorefrontSettingsPage() {
 
   const publicPath = form.storeSlug ? `/store/${form.storeSlug}` : "";
 
-  const loadStorefront = useCallback(async () => {
-    setLoading(true);
+  const loadStorefront = useCallback(async (background = false, canApply: () => boolean = () => true) => {
+    if (!background) setLoading(true);
     setError("");
     try {
       const data = await authenticatedFetchJson<StorefrontResponse>("/api/seller/storefront");
       const profile = data.profile;
       setProducts(data.products || []);
+      if (!canApply()) return;
       setForm({
         storeSlug: profile.store_slug || "",
         storeName: profile.store_name || profile.seller_name || profile.username || "ComePlayers Store",
@@ -149,9 +151,9 @@ export default function SellerStorefrontSettingsPage() {
     }
   }, []);
 
-  useEffect(() => {
-    void loadStorefront();
-  }, [loadStorefront]);
+  useLiveQuery((background, canApply) => {
+    return loadStorefront(background, canApply);
+  }, [loadStorefront], { topics: 'account', protectDrafts: true });
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));

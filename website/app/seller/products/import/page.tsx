@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -404,6 +405,7 @@ export default function BulkListingImportPage() {
   useEffect(() => {
     void loadHistory();
   }, []);
+  useLiveRefresh(async () => { await loadHistory(); }, { topics: 'account' });
 
   async function loadHistory() {
     setLoadingHistory(true);

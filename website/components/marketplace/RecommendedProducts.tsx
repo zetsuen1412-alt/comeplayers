@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaMagic, FaShoppingCart, FaStar } from "react-icons/fa";
@@ -82,11 +83,11 @@ export default function RecommendedProducts({
   const [sellerProfiles, setSellerProfiles] = useState<Record<string, SellerProfile>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     let cancelled = false;
 
     async function loadRecommendations() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
@@ -228,7 +229,7 @@ export default function RecommendedProducts({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [], { topics: 'catalog,account' });
 
   const recommendations = useMemo(() => {
     const viewedIds = new Set<number>();

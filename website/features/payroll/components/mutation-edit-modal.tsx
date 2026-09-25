@@ -188,7 +188,8 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
       patch.workerAssignments = nextAssignments;
     }
 
-    onSave(patch, changes, reason.trim() || undefined);
+    try { onSave(patch, changes, reason.trim() || undefined); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Perubahan belum dapat disimpan.'); }
   }
 
   return (

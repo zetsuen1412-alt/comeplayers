@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { calculateSellerReputation } from "@/lib/sellerReputation";
@@ -180,9 +181,9 @@ export default function SellerLeaderboardPage() {
     return sellers.reduce((sum, seller) => sum + seller.totalRevenue, 0);
   }, [sellers]);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     async function loadLeaderboard() {
-      setLoading(true);
+      if (!background) setLoading(true);
 
       const [profilesResult, reviewsResult, ordersResult] = await Promise.all([
         supabase
@@ -280,8 +281,8 @@ export default function SellerLeaderboardPage() {
       setLoading(false);
     }
 
-    loadLeaderboard();
-  }, []);
+    return loadLeaderboard();
+  }, [], { topics: 'catalog' });
 
   if (loading) {
     return (

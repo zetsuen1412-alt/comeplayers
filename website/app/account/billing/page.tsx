@@ -1,6 +1,7 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import AccountShell from "@/components/account/AccountShell";
 import { supabase } from "@/lib/supabase";
 
@@ -41,7 +42,7 @@ export default function BillingProfilePage() {
     return data.session.access_token;
   }, []);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (canApply: () => boolean = () => true) => {
     try {
       const token = await accessToken();
       const response = await fetch("/api/account/billing", {
@@ -51,6 +52,7 @@ export default function BillingProfilePage() {
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Failed to load billing profile.");
       const row = json.billing || {};
+      if (!canApply()) return;
       setForm({
         legalName: row.legal_name || "",
         addressLine1: row.address_line_1 || "",
@@ -69,10 +71,10 @@ export default function BillingProfilePage() {
     }
   }, [accessToken]);
 
-  useEffect(() => {
+  useLiveQuery((_background, canApply) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    return load(canApply);
+  }, [load], { topics: 'account', protectDrafts: true });
 
   function update(field: keyof BillingForm, value: string) {
     setForm((current) => ({ ...current, [field]: value }));

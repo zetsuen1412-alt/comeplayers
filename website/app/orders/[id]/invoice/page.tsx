@@ -1,8 +1,9 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaArrowLeft, FaPrint } from "react-icons/fa";
 import { supabase } from "@/lib/supabase";
 
@@ -56,7 +57,7 @@ export default function OrderInvoicePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useLiveQuery(() => {
     async function loadInvoice() {
       try {
         const { data } = await supabase.auth.getSession();
@@ -75,8 +76,8 @@ export default function OrderInvoicePage() {
         setLoading(false);
       }
     }
-    void loadInvoice();
-  }, [orderId]);
+    return loadInvoice();
+  }, [orderId], { topics: 'account' });
 
   if (loading) {
     return <main className="min-h-screen bg-slate-950 p-10 text-center text-white">Loading invoice...</main>;

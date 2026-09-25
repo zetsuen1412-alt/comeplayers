@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -203,6 +204,7 @@ export default function SupportTicketPageV1NotificationEvent() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { if (user) await loadTickets(user); }, { topics: 'account' });
 
   function resetForm() {
     setSubject("");

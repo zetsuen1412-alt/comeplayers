@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useEffect, useMemo, useState } from "react";
@@ -160,6 +161,7 @@ export default function AdminSupportTicketManagementNotificationV1Page() {
 
     init();
   }, []);
+  useLiveRefresh(async () => { await loadTickets(); }, { topics: 'admin' });
 
   async function updateTicketStatus(ticket: SupportTicket, nextStatus: string) {
     if (!user) return;

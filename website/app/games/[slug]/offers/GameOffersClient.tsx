@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   FaCheckCircle,
@@ -362,10 +363,10 @@ export default function GameOffersClient({ game, activeCategory, categoryCounts 
     return params;
   }, [filters, game.slug, isCoinSellerList]);
 
-  useEffect(() => {
+  useLiveQuery((background) => {
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
-      setLoading(true);
+      if (!background) setLoading(true);
       setError("");
       try {
         const result = await fetch(`/api/products/by-game?${requestParams.toString()}`, {
@@ -386,7 +387,7 @@ export default function GameOffersClient({ game, activeCategory, categoryCounts 
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [requestParams, t]);
+  }, [requestParams, t], { topics: 'catalog' });
 
   const updateUrl = useCallback(
     (next: Filters) => {

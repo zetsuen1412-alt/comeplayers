@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -189,6 +190,7 @@ export default function BrowseGamesClient() {
     loadGames(1, initialQuery, initialLetter, initialCategory);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useLiveRefresh(async () => { await loadCategories(); await loadGames(page, query, letter, category); }, { topics: 'catalog' });
 
   useEffect(() => {
     if (!category || categories.length === 0) return;

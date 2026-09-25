@@ -1,7 +1,8 @@
 "use client";
+import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
 type Statement = Record<string, unknown>;
@@ -28,10 +29,10 @@ export default function SellerTaxStatementsPage() {
       setStatements(payload.statements || []);
     } catch (loadError) { setError(loadError instanceof Error ? loadError.message : "Failed to load statements."); }
   }, []);
-  useEffect(() => {
+  useLiveQuery(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    return load();
+  }, [load], { topics: 'account' });
 
   async function generate() {
     setBusy(true); setError("");

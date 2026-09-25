@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
@@ -128,10 +129,11 @@ export default function SellerProductsPage() {
   useEffect(() => {
     loadProducts();
   }, []);
+  useLiveRefresh(async () => { await loadProducts(true); }, { topics: 'account,catalog' });
 
-  async function loadProducts() {
+  async function loadProducts(background: boolean = false) {
     try {
-      setLoading(true);
+      if (!background) setLoading(true);
       const data = await authenticatedFetchJson<{
         profile: SellerProfile;
         products: Product[];

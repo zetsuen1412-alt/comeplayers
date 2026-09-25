@@ -1,4 +1,5 @@
 "use client";
+import { useLiveRefresh } from '@/lib/live/use-live-refresh';
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -129,6 +130,7 @@ export default function WishlistPageV1() {
 
     initializePage();
   }, []);
+  useLiveRefresh(async () => { if (user) await loadWishlist(user); }, { topics: 'account,catalog' });
 
   async function removeWishlist(wishlistId: number) {
     if (!user) return;
