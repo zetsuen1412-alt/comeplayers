@@ -9,10 +9,10 @@ import type { Order } from "../features/payroll/types/domain";
 
 const script = readFileSync(new URL("../scripts/comeplayers-payroll-google-sheets.gs", import.meta.url), "utf8");
 const headers = ["TANGGAL", "KODE", "GATE", "NAMA BUYER", "NAMA ORDER", "BOOSTER", "FH", "STATUS", "GAME", "PROSES", "JUMLAH", "RATE", "TOTAL", "TASK"];
-type Summary = { sent: number; unchanged: number; skipped?: string; skippedConflicts: number };
+type Summary = { sent: number; unchanged: number; deferred: number; skipped?: string; skippedConflicts: number };
 type Trigger = { handler: string; kind?: string; minutes?: number; getHandlerFunction(): string };
 
-function harness(count = 3) {
+function harness(count = 3, digestDelayMs = 0) {
   const cells: unknown[][] = [[], headers, ...Array.from({ length: count }, (_, i) =>
     ["25/09/2026 00:24", `CODE-${i}`, "G2G", "Buyer", "40M SKADI", "", "2", "START", "RO", "F2F", 20, 1000, 20000, "Task"])];
   const colors = new Map<number, string>();
@@ -27,6 +27,10 @@ function harness(count = 3) {
   const reads: { row: number; column: number; rows: number; columns: number }[] = [];
   let state: WorkspaceState = { [workspaceKeys.orders]: [] };
   const triggers: Trigger[] = [];
+  let elapsedMs = 0;
+  class ScriptDate extends Date {
+    static now() { return Date.now() + elapsedMs; }
+  }
   const propertyStore = {
     getProperty: (key: string) => properties[key] ?? null,
     getProperties: () => ({ ...properties }),
@@ -47,6 +51,7 @@ function harness(count = 3) {
     getLastColumn: () => headers.length, getRange: range };
   const spreadsheet = { getId: () => "test-book", getName: () => "Workbook", getSheetByName: (name: string) => name === "MUTASI FH" ? sheet : null };
   const context = createContext({
+    Date: ScriptDate,
     PropertiesService: { getScriptProperties: () => propertyStore },
     SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet, openById: () => spreadsheet },
     LockService: { getScriptLock: () => ({
@@ -55,7 +60,10 @@ function harness(count = 3) {
       releaseLock: () => { locked = false; },
     }) },
     Utilities: { DigestAlgorithm: { SHA_256: "sha256" }, Charset: { UTF_8: "utf8" },
-      computeDigest: (_algorithm: string, text: string) => createHash("sha256").update(text).digest(),
+      computeDigest: (_algorithm: string, text: string) => {
+        elapsedMs += digestDelayMs;
+        return createHash("sha256").update(text).digest();
+      },
       base64EncodeWebSafe: (bytes: Buffer) => bytes.toString("base64url"),
     },
     ScriptApp: {
@@ -210,4 +218,52 @@ test("large pastes are batched, unchanged data is suppressed and deleted rows ne
   for (const [key, value] of Object.entries(h.properties)) {
     if (key.startsWith("CP_ROW_HASH_")) assert.ok(Buffer.byteLength(value) < 9000);
   }
+});
+
+test("post-closing start row excludes historical data from reads and both sync modes", () => {
+  const h = harness(5000);
+  h.properties.CP_START_ROW = "4908";
+  // A code in a closed period does not conflict with the active period.
+  h.cells[2][1] = h.cells[4907][1];
+  h.edit(4907);
+  assert.equal(h.requests, 0);
+  h.edit(4907, 3);
+  assert.deepEqual(h.posts[0].rows.map(r => r.rowNumber), [4908, 4909]);
+  assert.equal(h.posts[0].rows[0].duplicateCode, false);
+  h.reconcile();
+  assert.equal(h.posts.flatMap(p => p.rows).every(r => r.rowNumber >= 4908), true);
+  assert.equal(h.reads.filter(r => r.rows > 1).every(r => r.row >= 4907), true);
+  assert.equal(h.reconcile().unchanged, 95);
+});
+
+test("start row validation fails closed and a future period sends nothing", () => {
+  for (const value of ["0", "2", "2.5", "bad", "9007199254740992"]) {
+    const h = harness(); h.properties.CP_START_ROW = value;
+    assert.throws(() => h.reconcile(), /CP_START_ROW/);
+    assert.equal(h.requests, 0);
+    assert.equal(h.locked, false);
+  }
+  const h = harness(); h.properties.CP_START_ROW = "4908";
+  assert.equal(h.reconcile().sent, 0);
+  assert.equal(h.requests, 0);
+});
+
+test("moving the start row prunes historical signatures without deleting orders", () => {
+  const h = harness(); h.reconcile();
+  h.properties.CP_START_ROW = "4";
+  h.reconcile();
+  const cachedRows = Object.entries(h.properties).filter(([key]) => key.startsWith("CP_ROW_HASH_"))
+    .flatMap(([, value]) => Object.keys(JSON.parse(value)));
+  assert.deepEqual(cachedRows.sort(), ["4", "5"]);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).length, 3);
+});
+
+test("slow preparation still sends a batch and subsequent runs finish instead of deferring forever", () => {
+  const h = harness(205, 300);
+  assert.equal(h.reconcile().sent, 100);
+  assert.equal(h.reconcile().sent, 100);
+  assert.equal(h.reconcile().sent, 5);
+  assert.equal(h.reconcile().sent, 0);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).length, 205);
+  assert.deepEqual(h.posts.map(p => p.rows.length), [100, 100, 5]);
 });
