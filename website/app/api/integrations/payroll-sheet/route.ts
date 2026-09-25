@@ -130,7 +130,7 @@ export async function POST(request: Request) {
       validateWorkspace(merged.state);
       validateWorkspaceEdit(currentState, merged.state);
 
-      const changed = merged.added + merged.updated;
+      const changed = merged.added + merged.updated + merged.archived;
       if (!changed) {
         return response({
           ok: true,
@@ -166,6 +166,8 @@ export async function POST(request: Request) {
           rowsReceived: payload.rows.length,
           added: merged.added,
           updated: merged.updated,
+          archived: merged.archived,
+          restored: merged.restored,
           unchanged: merged.unchanged,
           skippedProtected: merged.skippedProtected,
           skippedConflicts: merged.skippedConflicts,
@@ -180,6 +182,9 @@ export async function POST(request: Request) {
         revision: saved?.revision,
         added: merged.added,
         updated: merged.updated,
+        archived: merged.archived,
+        restored: merged.restored,
+        refreshReferences: merged.refreshReferences,
         unchanged: merged.unchanged,
         skippedProtected: merged.skippedProtected,
         skippedConflicts: merged.skippedConflicts,

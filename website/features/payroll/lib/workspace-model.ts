@@ -56,6 +56,8 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   }
   const references=new Set<string>();
   for(const row of list(workspaceKeys.orders)) {
+    if(row.sheetSyncLocked!==undefined&&typeof row.sheetSyncLocked!=='boolean') payrollFailure('Kunci sinkronisasi tidak valid.');
+    if(row.sheetDeletedAt!==undefined&&(typeof row.sheetDeletedAt!=='string'||!Number.isFinite(Date.parse(row.sheetDeletedAt)))) payrollFailure('Arsip spreadsheet tidak valid.');
     if(typeof row.externalReference!=='string'||!row.externalReference.trim()||references.has(row.externalReference.trim().toLowerCase())) payrollFailure('Kode order kosong atau duplikat.');
     references.add(row.externalReference.trim().toLowerCase());
     for(const key of ['grossMinor','quantity','expectedPaymentMinor','matchedPaymentMinor']) if(typeof row[key]!=='number'||Number(row[key])<0) payrollFailure('Angka order tidak valid.');
@@ -134,6 +136,7 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
   const eligible:Order[]=[];
   const dailyByOrder=new Map<string,ReturnType<typeof dailySegmentsForPeriod>>();
   for(const order of orders) {
+    if(order.sheetDeletedAt) continue;
     if(isDailySettlementOrder(order)) {
       const segments=dailySegmentsForPeriod(order,from,to);
       if(segments.length) {

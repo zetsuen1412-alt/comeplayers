@@ -9,6 +9,7 @@
 var COMEPLAYERS_PAYROLL_SYNC_URL = "https://www.comeplayers.com/api/integrations/payroll-sheet";
 var COMEPLAYERS_PAYROLL_SYNC_HANDLER = "syncComePlayersPayroll";
 var COMEPLAYERS_PAYROLL_EDIT_HANDLER = "onComePlayersPayrollEdit";
+var COMEPLAYERS_PAYROLL_CHANGE_HANDLER = "onComePlayersPayrollChange";
 var COMEPLAYERS_PAYROLL_BATCH_SIZE = 100;
 
 function normalizeComePlayersHeader_(value) {
@@ -75,7 +76,8 @@ function setupComePlayersPayrollSync() {
     CP_ACTOR_EMAIL: actorEmail,
     CP_SPREADSHEET_ID: spreadsheet.getId(),
     CP_SHEET_NAME: sheet.getName(),
-    CP_HEADER_ROW: "2"
+    CP_HEADER_ROW: "2",
+    CP_SYNC_DELETIONS: "true"
   }, false);
 
   reinstallComePlayersPayrollRealtimeSync();
@@ -90,7 +92,7 @@ function setupComePlayersPayrollSync() {
 function removeComePlayersPayrollSyncTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (trigger) {
     var handler = trigger.getHandlerFunction();
-    if (handler === COMEPLAYERS_PAYROLL_SYNC_HANDLER || handler === COMEPLAYERS_PAYROLL_EDIT_HANDLER) {
+    if ([COMEPLAYERS_PAYROLL_SYNC_HANDLER, COMEPLAYERS_PAYROLL_EDIT_HANDLER, COMEPLAYERS_PAYROLL_CHANGE_HANDLER].indexOf(handler) >= 0) {
       ScriptApp.deleteTrigger(trigger);
     }
   });
@@ -107,6 +109,7 @@ function reinstallComePlayersPayrollRealtimeSync() {
     props.setProperties({ CP_SPREADSHEET_ID: spreadsheet.getId(), CP_SHEET_NAME: "MUTASI FH" }, false);
     removeComePlayersPayrollSyncTriggers();
     ScriptApp.newTrigger(COMEPLAYERS_PAYROLL_EDIT_HANDLER).forSpreadsheet(spreadsheet).onEdit().create();
+    ScriptApp.newTrigger(COMEPLAYERS_PAYROLL_CHANGE_HANDLER).forSpreadsheet(spreadsheet).onChange().create();
     ScriptApp.newTrigger(COMEPLAYERS_PAYROLL_SYNC_HANDLER)
       .timeBased()
       .everyMinutes(1)
@@ -128,6 +131,37 @@ function syncComePlayersPayroll() { return runComePlayersPayrollSync_("reconcile
 function onComePlayersPayrollEdit(event) {
   if (!event || !event.range || !event.source) return { ok: true, skipped: "no_edit_event" };
   return runComePlayersPayrollSync_("incremental", event);
+}
+
+// Deleting/inserting physical rows does not reliably emit onEdit.
+function onComePlayersPayrollChange(event) {
+  if (!event || !event.source || event.changeType === 'EDIT') return { ok: true, skipped: 'no_structural_change' };
+  if (event.source.getId() !== PropertiesService.getScriptProperties().getProperty('CP_SPREADSHEET_ID')) return { ok: true, skipped: 'other_sheet' };
+  return syncComePlayersPayroll();
+}
+
+/** Upgrade the existing mirror installation without changing identities or secrets. */
+function activateComePlayersSourceSync() {
+  var props = PropertiesService.getScriptProperties();
+  var mirror = JSON.parse(props.getProperty('EGM_CONFIG') || '{}');
+  if (!mirror.sourceId || !mirror.targetId) throw new Error('Konfigurasi mirror sumber belum tersedia.');
+  var current = props.getProperty('CP_SPREADSHEET_ID');
+  if (current !== mirror.targetId && current !== mirror.sourceId) throw new Error('Sumber payroll berbeda dari konfigurasi mirror.');
+  var source = SpreadsheetApp.openById(mirror.sourceId).getSheetByName('MUTASI FH');
+  if (!source) throw new Error('MUTASI FH sumber tidak ditemukan.');
+  comePlayersClosingStart_(source); // Verify the boundary before enabling deletions.
+  props.setProperties({ CP_SYNC_NAMESPACE_ID: props.getProperty('CP_SYNC_NAMESPACE_ID') || mirror.targetId,
+    CP_SPREADSHEET_ID: mirror.sourceId, CP_SYNC_DELETIONS: 'true', CP_START_AFTER_CLOSING: 'true' }, false);
+  reinstallComePlayersPayrollRealtimeSync();
+  return syncComePlayersPayroll();
+}
+
+function comePlayersClosingStart_(sheet) {
+  var dates = sheet.getRange(1, 1, Math.max(1, sheet.getLastRow()), 1).getDisplayValues();
+  for (var i = dates.length - 1; i >= 0; i--) {
+    if (String(dates[i][0] || '').trim().toUpperCase() === 'CLOSING') return i + 2;
+  }
+  throw new Error('Penanda CLOSING tidak ditemukan; sinkronisasi ditunda agar periode lama tetap aman.');
 }
 
 function comePlayersSignature_(value) {
@@ -167,6 +201,7 @@ function syncComePlayersPayrollRows_(mode, event) {
   if (!Number.isInteger(headerRow) || headerRow < 1) throw new Error("CP_HEADER_ROW tidak valid.");
   // Keep header mapping independent from the first open-period data row.
   var dataStartRow = Number(config.CP_START_ROW || (headerRow + 1));
+  if (config.CP_START_AFTER_CLOSING === 'true') dataStartRow = comePlayersClosingStart_(sheet);
   if (!Number.isSafeInteger(dataStartRow) || dataStartRow <= headerRow) {
     throw new Error("CP_START_ROW harus berupa nomor baris setelah header.");
   }
@@ -175,26 +210,32 @@ function syncComePlayersPayrollRows_(mode, event) {
   var lastColumn = Math.min(Math.max(sheet.getLastColumn(), 13), 32);
   var firstRow = event ? Math.max(dataStartRow, event.range.getRow()) : dataStartRow;
   var endRow = event ? Math.min(lastRow, event.range.getLastRow()) : lastRow;
-  var summary = { ok: true, saved: false, syncMode: mode, added: 0, updated: 0, unchanged: 0,
+  var syncDeletions = config.CP_SYNC_DELETIONS === 'true';
+  var namespaceId = config.CP_SYNC_NAMESPACE_ID || spreadsheet.getId();
+  var summary = { ok: true, saved: false, syncMode: mode, added: 0, updated: 0, archived: 0, restored: 0, unchanged: 0,
     skippedProtected: 0, skippedConflicts: 0, skippedInvalid: 0, sent: 0, deferred: 0 };
-  if (endRow < firstRow) return summary;
+  if (event && event.range.getLastRow() < dataStartRow) return summary;
+  if (endRow < firstRow && !syncDeletions) return summary;
   if (lastRow - dataStartRow + 1 > 10000) throw new Error("Batas sinkronisasi 10000 baris aktif terlampaui.");
 
   var headers = sheet.getRange(headerRow, 1, 1, lastColumn).getDisplayValues()[0];
   var codeColumn = findComePlayersHeader_(headers, ["KODE", "CODE", "ORDER CODE"], 1);
   var boosterColumn = findComePlayersHeader_(headers, ["BOOSTER", "KARYAWAN", "PEKERJA"], 5);
+  if (syncDeletions && ['KODE', 'CODE', 'ORDERCODE'].indexOf(normalizeComePlayersHeader_(headers[codeColumn])) < 0) throw new Error('Header KODE tidak valid; tidak ada penghapusan yang diproses.');
+  if (lastRow > 50000) throw new Error('Batas pemeriksaan KODE lengkap terlampaui.');
+  var allCodeValues = syncDeletions && lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
   // Scan KODE only in the configured period; earlier closed periods are excluded.
-  var codeValues = sheet.getRange(dataStartRow, codeColumn + 1, lastRow - dataStartRow + 1, 1).getDisplayValues();
+  var codeValues = lastRow >= dataStartRow ? sheet.getRange(dataStartRow, codeColumn + 1, lastRow - dataStartRow + 1, 1).getDisplayValues() : [];
   var codeCounts = Object.create(null);
   codeValues.forEach(function (row) {
     var key = String(row[0] || "").trim().toLowerCase();
     if (key) codeCounts[key] = (codeCounts[key] || 0) + 1;
   });
-  var rowCount = endRow - firstRow + 1;
-  var range = sheet.getRange(firstRow, 1, rowCount, lastColumn);
-  var values = range.getValues();
-  var display = range.getDisplayValues();
-  var backgrounds = range.getBackgrounds();
+  var rowCount = Math.max(0, endRow - firstRow + 1);
+  var range = rowCount ? sheet.getRange(firstRow, 1, rowCount, lastColumn) : null;
+  var values = range ? range.getValues() : [];
+  var display = range ? range.getDisplayValues() : [];
+  var backgrounds = range ? range.getBackgrounds() : [];
   var rows = [];
   var signatures = {};
   // Shards stay below 9 KB/property; 10,000 signatures (including retries) fit 500 KB.
@@ -253,7 +294,7 @@ function syncComePlayersPayrollRows_(mode, event) {
     // Always make progress even when reading/signing a large sheet took 45s.
     if (offset > 0 && Date.now() - startedAt > 45000) { summary.deferred = rows.length - offset; break; }
     var batch = rows.slice(offset, offset + COMEPLAYERS_PAYROLL_BATCH_SIZE);
-    var payload = { version: 1, syncMode: mode, spreadsheetId: spreadsheet.getId(),
+    var payload = { version: 1, syncMode: mode, spreadsheetId: namespaceId,
       spreadsheetName: spreadsheet.getName(), sheetName: sheet.getName(), headerRow: headerRow,
       headers: headers, sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: batch };
     var response = UrlFetchApp.fetch(url, {
@@ -268,7 +309,7 @@ function syncComePlayersPayrollRows_(mode, event) {
     if (result.ok !== true || !Array.isArray(result.rowResults)) throw new Error("Respons sync tidak valid; signature tidak disimpan.");
     summary.sent += batch.length;
     summary.saved = summary.saved || result.saved === true;
-    ["added", "updated", "unchanged", "skippedProtected", "skippedConflicts", "skippedInvalid"].forEach(function (key) {
+    ["added", "updated", "archived", "restored", "unchanged", "skippedProtected", "skippedConflicts", "skippedInvalid"].forEach(function (key) {
       summary[key] += Number(result[key] || 0);
     });
     result.rowResults.forEach(function (ack) {
@@ -284,6 +325,37 @@ function syncComePlayersPayrollRows_(mode, event) {
     });
     // Cache each acknowledged batch. HTTP failures never advance signatures.
     saveSignatures();
+  }
+  // Presence is never inferred from a partial row batch. Recheck the complete KODE
+  // inventory after all writes; a concurrent row move/clear defers deletion.
+  if (syncDeletions && !summary.deferred) {
+    var currentCodes = lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
+    if (sheet.getLastRow() !== lastRow || JSON.stringify(currentCodes) !== JSON.stringify(allCodeValues)) {
+      summary.deletionsDeferred = true;
+    } else {
+      var presencePayload = { version: 1, syncMode: 'reconcile', spreadsheetId: namespaceId,
+        spreadsheetName: spreadsheet.getName(), sheetName: sheetName, headers: headers,
+        sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: [],
+        presence: { complete: true, startRow: dataStartRow, references: allCodeValues.map(function (r) { return String(r[0] || '').trim(); }).filter(Boolean) } };
+      var presenceResponse = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json',
+        headers: { Authorization: 'Bearer ' + secret }, payload: JSON.stringify(presencePayload), muteHttpExceptions: true });
+      var presenceStatus = presenceResponse.getResponseCode();
+      if (presenceStatus < 200 || presenceStatus >= 300) throw new Error('Pemeriksaan penghapusan gagal (HTTP ' + presenceStatus + '); dicoba lagi menit berikutnya.');
+      var presenceResult = JSON.parse(presenceResponse.getContentText());
+      if (presenceResult.ok !== true || !Array.isArray(presenceResult.refreshReferences)) throw new Error('Respons pemeriksaan KODE tidak valid.');
+      summary.archived += Number(presenceResult.archived || 0);
+      summary.skippedProtected += Number(presenceResult.skippedProtected || 0);
+      summary.saved = summary.saved || presenceResult.saved === true;
+      // Unlocking/restoring must work even when the spreadsheet value did not change.
+      var refresh = Object.create(null);
+      presenceResult.refreshReferences.forEach(function (ref) { refresh[String(ref).trim().toLowerCase()] = true; });
+      codeValues.forEach(function (r, index) {
+        if (!refresh[String(r[0] || '').trim().toLowerCase()]) return;
+        var number = dataStartRow + index, key = cacheKey(number);
+        if (buckets[key]) { delete buckets[key][number]; dirtyBuckets[key] = true; }
+      });
+      saveSignatures();
+    }
   }
   props.setProperties({ CP_LAST_SYNC_AT: new Date().toISOString(), CP_LAST_SYNC_RESULT: JSON.stringify(summary) }, false);
   console.log(JSON.stringify(summary));

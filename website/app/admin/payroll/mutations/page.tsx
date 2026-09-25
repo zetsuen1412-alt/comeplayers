@@ -1,7 +1,8 @@
 "use client";
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
-import { getPayrollActor } from "@/features/payroll/lib/workspace-store";
+import { getPayrollActor, withPayrollBatch, flushPayroll } from "@/features/payroll/lib/workspace-store";
+import { hasAutomaticSheetProtection, isSheetOrder } from "@/features/payroll/lib/sheet-sync-policy";
 import { canonical } from "@/features/payroll/lib/workspace-model";
 
 import { useMemo, useState } from "react";
@@ -154,7 +155,7 @@ function TaskDetailModal({ order, onClose }: { order: Order; onClose: () => void
 }
 
 export default function MutationsPage() {
-  const { allOrders, updateOrder } = useDemoOrders();
+  const { allOrders, archivedOrders, updateOrder } = useDemoOrders();
   const { employees } = useDemoEmployees();
   const { isLocked } = useDemoPeriodLock();
   const { consumeAllocations } = useDemoInventory();
@@ -174,6 +175,24 @@ export default function MutationsPage() {
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [selectedSyncIds, setSelectedSyncIds] = useState<string[]>([]);
+  const [savingSyncLocks, setSavingSyncLocks] = useState(false);
+  const canManageSync = getPayrollActor()?.isAdmin === true;
+
+  async function setSheetLocks(ids: string[], locked: boolean, restore = false) {
+    if (!canManageSync || isLocked || savingSyncLocks) return;
+    setSavingSyncLocks(true);
+    try {
+      const eligible = [...allOrders, ...archivedOrders].filter(order => ids.includes(order.id) && isSheetOrder(order) && !hasAutomaticSheetProtection(order));
+      withPayrollBatch(() => {
+        for (const order of eligible) updateOrder(order.id, { sheetSyncLocked: locked, ...(restore ? { sheetDeletedAt: undefined } : {}) });
+      });
+      await flushPayroll();
+      setSelectedSyncIds([]);
+      setNotice(restore ? "Pesanan dipulihkan dan dikunci dari spreadsheet." : `${eligible.length} pesanan ${locked ? "dikunci dari perubahan dan penghapusan spreadsheet" : "dibuka; perubahan terbaru akan diambil pada sinkronisasi berikutnya"}.`);
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Kunci sinkronisasi belum tersimpan."); }
+    finally { setSavingSyncLocks(false); }
+  }
   const [editingRow, setEditingRow] = useState<MutationViewRow | null>(null);
   const [taskOrder, setTaskOrder] = useState<Order | null>(null);
   const [issueRow, setIssueRow] = useState<{ row: MutationViewRow; issues: OrderIssue[] } | null>(null);
@@ -455,6 +474,25 @@ export default function MutationsPage() {
 
       {notice ? <div className="mt-4 rounded-xl border border-yellow-500/25 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">{adminText(notice)}</div> : null}
 
+      {canManageSync ? <section className="mt-4 rounded-xl border border-zinc-700 p-4" aria-label="Kunci sinkronisasi spreadsheet">
+        <p className="text-sm text-zinc-300">Pesanan terbuka mengikuti perubahan dan penghapusan di Sheet. Kunci pesanan untuk mempertahankan data website. Gaji/Closing, stok, dan pembayaran tetap dilindungi otomatis.</p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button disabled={isLocked || savingSyncLocks} onClick={() => setSelectedSyncIds([...new Set(rows.filter(row => isSheetOrder(row.order) && !hasAutomaticSheetProtection(row.order)).map(row => row.order.id))])} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Pilih order pada filter</button>
+          <button disabled={!selectedSyncIds.length || isLocked || savingSyncLocks} onClick={() => void setSheetLocks(selectedSyncIds, true)} className="rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Kunci pilihan ({selectedSyncIds.length})</button>
+          <button disabled={!selectedSyncIds.length || isLocked || savingSyncLocks} onClick={() => void setSheetLocks(selectedSyncIds, false)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Buka kunci pilihan</button>
+          {selectedSyncIds.length ? <button onClick={() => setSelectedSyncIds([])} className="text-sm underline">Batal pilih</button> : null}
+        </div>
+      </section> : null}
+
+      {archivedOrders.length ? <details className="mt-4 rounded-xl border border-zinc-700 p-4">
+        <summary className="cursor-pointer font-semibold">Dihapus dari Sheet ({archivedOrders.length})</summary>
+        <p className="mt-2 text-sm text-zinc-400">Arsip ini tidak masuk daftar aktif atau Gaji. KODE yang muncul kembali di Sheet dipulihkan otomatis bila tidak dikunci.</p>
+        {archivedOrders.map(order => <div key={order.id} className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 pt-3">
+          <span>{order.externalReference} · {order.orderName ?? order.service}</span>
+          {canManageSync ? <button disabled={isLocked || savingSyncLocks} onClick={() => void setSheetLocks([order.id], true, true)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Pulihkan & kunci {order.externalReference}</button> : null}
+        </div>)}
+      </details> : null}
+
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <div className="cp-card p-4"><div className="text-sm text-zinc-500">Baris Mutasi</div><div className="mt-1 text-2xl font-semibold">{rows.length}</div></div>
         <div className="cp-card p-4"><div className="text-sm text-zinc-500">Total nilai pada filter</div><div className="mt-1 text-2xl font-semibold">{formatMoney(total)}</div></div>
@@ -493,7 +531,7 @@ export default function MutationsPage() {
                   <td>{order.source}</td>
                   <td>{order.orderType === "gold" ? "Gold" : order.orderType === "item" ? "Item" : "Boosting"}</td>
                   <td>{order.buyerName ?? "—"}</td>
-                  <td>{order.orderName ?? (order.orderType === "gold" ? order.service : order.service)}</td>
+                  <td>{order.orderName ?? order.service}{isSheetOrder(order) ? <div className="mt-1 text-xs text-amber-300">{hasAutomaticSheetProtection(order) ? "Dilindungi otomatis" : order.sheetSyncLocked ? "🔒 Dikunci dari Sheet" : "↻ Mengikuti Sheet"}</div> : null}</td>
                   <td className="text-center">{order.task?.trim() ? <button type="button" onClick={() => setTaskOrder(order)} className="whitespace-nowrap rounded-lg bg-zinc-800 px-2.5 py-2 text-xs font-semibold hover:bg-zinc-700" aria-label={`Lihat TASK ${order.externalReference}`}>Lihat</button> : <span className="text-zinc-600">—</span>}</td>
                   <td><strong className={row.day ? "text-sky-300" : "text-zinc-500"}>{mutationDayLabel(row)}</strong></td>
                   <td className="text-sm">{formatMutationDistribution(row)}</td>
@@ -504,6 +542,10 @@ export default function MutationsPage() {
                   <td>{issues.length ? <button type="button" onClick={() => setIssueRow({ row, issues })} className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</button> : <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span>}</td>
                   <td>
                     <div className="flex flex-wrap gap-2">
+                      {canManageSync && isSheetOrder(order) && !hasAutomaticSheetProtection(order) ? <>
+                        <label className="flex items-center gap-2 text-xs"><input type="checkbox" aria-label={`Pilih kunci ${order.externalReference}`} checked={selectedSyncIds.includes(order.id)} disabled={isLocked || savingSyncLocks} onChange={event => setSelectedSyncIds(ids => event.target.checked ? [...new Set([...ids, order.id])] : ids.filter(id => id !== order.id))} />Pilih</label>
+                        <button disabled={isLocked || savingSyncLocks} onClick={() => void setSheetLocks([order.id], !order.sheetSyncLocked)} className="rounded-lg border border-amber-400/40 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{order.sheetSyncLocked ? "Buka kunci Sheet" : "Kunci dari Sheet"}</button>
+                      </> : null}
                       <button onClick={() => setEditingRow(row)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
                       {issues.length ? <button onClick={() => setIssueRow({ row, issues })} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">⚠ Masalah ({issues.length})</button> : null}
                       {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}

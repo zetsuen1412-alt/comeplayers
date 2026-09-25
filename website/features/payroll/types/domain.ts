@@ -145,6 +145,13 @@ export interface OrderInventoryAllocation {
 }
 
 export interface Order {
+  /** Website-admin controls. Spreadsheet payloads never supply these fields. */
+  sheetSyncLocked?: boolean;
+  sheetSyncLockedAt?: string;
+  sheetSyncLockedBy?: string;
+  sheetSyncRefreshRequested?: boolean;
+  /** Recoverable archive marker: KODE absent from a complete source snapshot. */
+  sheetDeletedAt?: string;
   id: string;
   orderNumber: string;
   externalReference: string;

@@ -74,6 +74,7 @@ function harness(count = 3, digestDelayMs = 0) {
         const builder = {
           forSpreadsheet: () => builder,
           onEdit: () => { trigger.kind = "edit"; return builder; },
+          onChange: () => { trigger.kind = "change"; return builder; },
           timeBased: () => { trigger.kind = "clock"; return builder; },
           everyMinutes: (minutes: number) => { trigger.minutes = minutes; return builder; },
           create: () => triggers.push(trigger),
@@ -102,6 +103,7 @@ function harness(count = 3, digestDelayMs = 0) {
     edit: (row: number, rows = 1, column = 4) => api.onComePlayersPayrollEdit({ source: spreadsheet, range: range(row, column, rows) }),
     otherSheet: () => api.onComePlayersPayrollEdit({ source: spreadsheet, range: { ...range(3, 1), getSheet: () => ({ getSheetId: () => 456 }) } }),
     reconcile: () => api.syncComePlayersPayroll(), reinstall: () => api.reinstallComePlayersPayrollRealtimeSync(),
+    change: () => api.onComePlayersPayrollChange({ source: spreadsheet, changeType: "REMOVE_ROW" }),
     fail: (code: number) => { status = code; }, setLocked: (value: boolean) => { locked = value; },
     duringFetch: (callback: () => void) => { duringFetch = callback; },
     afterFetch: (callback: () => void) => { afterFetch = callback; },
@@ -114,6 +116,53 @@ test("installable single cell edit sends only its row, never the full sheet", ()
   assert.deepEqual(h.posts[0].rows.map(r => r.rowNumber), [4]);
   assert.equal(h.posts[0].syncMode, "incremental");
   assert.equal(h.reads.filter(r => r.row > 2 && r.columns > 1).every(r => r.row === 4 && r.rows === 1), true);
+});
+
+test("deletion-enabled sync sends a complete manifest, archives clears and handles physical row deletion", () => {
+  const h = harness(); h.properties.CP_SYNC_DELETIONS = "true"; h.reconcile();
+  assert.ok(h.posts.at(-1)?.presence?.complete);
+  h.cells[3] = []; h.edit(4);
+  assert.ok((h.state[workspaceKeys.orders] as Order[]).find(o => o.externalReference === "CODE-1")?.sheetDeletedAt);
+  h.cells.splice(2, 1); h.change();
+  assert.ok((h.state[workspaceKeys.orders] as Order[]).find(o => o.externalReference === "CODE-0")?.sheetDeletedAt);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).find(o => o.externalReference === "CODE-2")?.sheetDeletedAt, undefined);
+});
+
+test("empty active sheet archives all unprotected orders but bad headers and failed reads fail closed", () => {
+  const h = harness(); h.properties.CP_SYNC_DELETIONS = "true"; h.reconcile();
+  h.cells.splice(2); h.reconcile();
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).filter(o => o.sheetDeletedAt).length, 3);
+  const bad = harness(); bad.properties.CP_SYNC_DELETIONS = "true"; bad.reconcile();
+  bad.cells[1] = []; bad.cells.splice(2);
+  assert.throws(() => bad.reconcile(), /Header KODE/);
+  assert.equal((bad.state[workspaceKeys.orders] as Order[]).some(o => o.sheetDeletedAt), false);
+});
+
+test("unlocking invalidates a successful signature even when the sheet has not changed", () => {
+  const h = harness(); h.properties.CP_SYNC_DELETIONS = "true"; h.reconcile();
+  const order = (h.state[workspaceKeys.orders] as Order[])[0]; order.sheetSyncRefreshRequested = true; order.orderName = "Manual title";
+  h.reconcile(); h.reconcile();
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].orderName, "40M SKADI");
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].sheetSyncRefreshRequested, undefined);
+});
+
+test("moving KODE while uploading defers presence and never archives from a partial snapshot", () => {
+  const h = harness(); h.properties.CP_SYNC_DELETIONS = "true";
+  let changed = false;
+  h.duringFetch(() => { if (!changed) { changed = true; h.cells[2][1] = "MOVED"; } });
+  h.reconcile();
+  assert.equal(h.posts.some(post => post.presence), false);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).some(o => o.sheetDeletedAt), false);
+});
+
+test("direct source uses the existing namespace and the Closing boundary follows row shifts", () => {
+  const h = harness(); h.properties.CP_SYNC_NAMESPACE_ID = "existing-target"; h.properties.CP_START_AFTER_CLOSING = "true"; h.properties.CP_SYNC_DELETIONS = "true";
+  h.cells[2] = ["CLOSING"]; h.reconcile();
+  assert.equal(h.posts[0].spreadsheetId, "existing-target");
+  assert.equal(h.posts.at(-1)?.presence?.startRow, 4);
+  h.cells.splice(2, 0, []); h.change();
+  assert.equal(h.posts.at(-1)?.presence?.startRow, 5);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).some(o => o.sheetDeletedAt), false);
 });
 
 test("multi-row paste sends every affected row and deduplicates the next edit", () => {
@@ -131,13 +180,14 @@ test("header edits and edits to other sheets do not upload the workbook", () => 
   assert.equal(h.requests, 0);
 });
 
-test("reinstall removes old sync triggers and installs exactly edit + everyMinutes(1)", () => {
+test("reinstall replaces sync triggers with edit, structural change and everyMinutes(1)", () => {
   const h = harness();
   for (const handler of ["syncComePlayersPayroll", "onComePlayersPayrollEdit", "unrelatedHandler"]) {
     h.triggers.push({ handler, getHandlerFunction: () => handler });
   }
   h.reinstall(); h.reinstall();
-  assert.equal(h.triggers.length, 3);
+  assert.equal(h.triggers.length, 4);
+  assert.equal(h.triggers.filter(t => t.kind === "change").length, 1);
   assert.equal(h.triggers.filter(t => t.kind === "edit").length, 1);
   assert.equal(h.triggers.find(t => t.kind === "clock")?.minutes, 1);
   assert.equal(h.triggers.some(t => t.handler === "unrelatedHandler"), true);
