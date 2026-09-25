@@ -202,11 +202,19 @@ async function handleCommand(
   const from = message.from;
   if (!from) return;
 
+  if (command.command === "/myid") {
+    await telegramSendMessage({ chatId: message.chat.id, text: `Telegram User ID Anda: ${from.id}` });
+    return;
+  }
+
   if (command.command === "/help" || command.command === "/start") {
     await telegramSendMessage({
       chatId: message.chat.id,
       text: [
         "🤖 COMEPLAYERS PAYROLL BOT",
+        "",
+        "Identitas:",
+        "/myid — lihat Telegram User ID untuk konfigurasi admin",
         "",
         "Admin:",
         "/bind FH1 — hubungkan grup ini ke divisi",
@@ -571,7 +579,49 @@ async function handleCallback(supabase: ReturnType<typeof createSupabaseAdmin>, 
       return;
     }
 
-    if (!employee || !assignment) {
+    if (action === "finishgold") {
+      const session = await getSession(supabase, from.id, message.chat.id);
+      if (!session || session.order_ref !== orderRef || session.kind !== "gold" || session.stage !== "evidence"
+        || Number(session.evidence_count) < 1 || Number(session.requested_quantity) <= 0) {
+        await telegramAnswerCallback(callback.id, "Masukkan jumlah dan kirim minimal 1 bukti terlebih dahulu.", true);
+        return;
+      }
+      if (!employee) {
+        await telegramAnswerCallback(callback.id, "Akun karyawan belum terhubung.", true);
+        return;
+      }
+      const { data: accepted, error } = await supabase.rpc("cp_payroll_telegram_accept_gold", {
+        p_order_ref: orderRef,
+        p_employee_code: employee.employee_code,
+        p_division: employee.division,
+        p_telegram_user_id: from.id,
+        p_requested_quantity: Number(session.requested_quantity),
+      });
+      if (error) throw new Error(error.message);
+      if (accepted?.contributionId) {
+        await supabase.from("cp_payroll_telegram_evidence").update({ contribution_id: accepted.contributionId }).eq("session_id", session.id);
+      }
+      await clearSession(supabase, session.id);
+      await telegramAnswerCallback(callback.id, accepted?.full ? "Kuota Gold terpenuhi." : "Gold diterima.");
+      const rejected = Math.max(0, Number(accepted?.requested || 0) - Number(accepted?.accepted || 0));
+      const text = [
+        accepted?.full ? "🟡 GOLD ORDER TERPENUHI" : "🟢 GOLD MASUK",
+        "",
+        `Order     : ${orderRef}`,
+        `Karyawan  : ${employee.telegram_name || employee.employee_code}`,
+        `Divisi    : ${employee.division}`,
+        `Diajukan  : ${Number(accepted?.requested || 0)}`,
+        `Diterima  : ${Number(accepted?.accepted || 0)}`,
+        ...(rejected > 0 ? [`Ditolak    : ${rejected} (melewati sisa kuota)`] : []),
+        `Progress  : ${Number(accepted?.delivered || 0)} / ${Number(accepted?.target || 0)}`,
+        `Sisa      : ${Number(accepted?.remaining || 0)}`,
+        `Bukti     : ${session.evidence_count} file Telegram`,
+        "",
+        accepted?.full ? "⛔ Kuota penuh. Pengiriman tambahan otomatis ditolak. Menunggu verifikasi admin." : "Order masih terbuka untuk semua divisi yang menerima order.",
+      ].join("\n");
+      await notifyOrderChats(supabase, orderRef, text);
+      return;
+    }\n\n    if (!employee || !assignment) {
       await telegramAnswerCallback(callback.id, "Order ini bukan assignment Anda.", true);
       return;
     }
@@ -660,49 +710,7 @@ async function handleCallback(supabase: ReturnType<typeof createSupabaseAdmin>, 
       return;
     }
 
-    if (action === "finishgold") {
-      const session = await getSession(supabase, from.id, message.chat.id);
-      if (!session || session.order_ref !== orderRef || session.kind !== "gold" || session.stage !== "evidence"
-        || Number(session.evidence_count) < 1 || Number(session.requested_quantity) <= 0) {
-        await telegramAnswerCallback(callback.id, "Masukkan jumlah dan kirim minimal 1 bukti terlebih dahulu.", true);
-        return;
-      }
-      if (!employee) {
-        await telegramAnswerCallback(callback.id, "Akun karyawan belum terhubung.", true);
-        return;
-      }
-      const { data: accepted, error } = await supabase.rpc("cp_payroll_telegram_accept_gold", {
-        p_order_ref: orderRef,
-        p_employee_code: employee.employee_code,
-        p_division: employee.division,
-        p_telegram_user_id: from.id,
-        p_requested_quantity: Number(session.requested_quantity),
-      });
-      if (error) throw new Error(error.message);
-      if (accepted?.contributionId) {
-        await supabase.from("cp_payroll_telegram_evidence").update({ contribution_id: accepted.contributionId }).eq("session_id", session.id);
-      }
-      await clearSession(supabase, session.id);
-      await telegramAnswerCallback(callback.id, accepted?.full ? "Kuota Gold terpenuhi." : "Gold diterima.");
-      const rejected = Math.max(0, Number(accepted?.requested || 0) - Number(accepted?.accepted || 0));
-      const text = [
-        accepted?.full ? "🟡 GOLD ORDER TERPENUHI" : "🟢 GOLD MASUK",
-        "",
-        `Order     : ${orderRef}`,
-        `Karyawan  : ${employee.telegram_name || employee.employee_code}`,
-        `Divisi    : ${employee.division}`,
-        `Diajukan  : ${Number(accepted?.requested || 0)}`,
-        `Diterima  : ${Number(accepted?.accepted || 0)}`,
-        ...(rejected > 0 ? [`Ditolak    : ${rejected} (melewati sisa kuota)`] : []),
-        `Progress  : ${Number(accepted?.delivered || 0)} / ${Number(accepted?.target || 0)}`,
-        `Sisa      : ${Number(accepted?.remaining || 0)}`,
-        `Bukti     : ${session.evidence_count} file Telegram`,
-        "",
-        accepted?.full ? "⛔ Kuota penuh. Pengiriman tambahan otomatis ditolak. Menunggu verifikasi admin." : "Order masih terbuka untuk semua divisi yang menerima order.",
-      ].join("\n");
-      await notifyOrderChats(supabase, orderRef, text);
-      return;
-    }
+
   } catch (error) {
     console.error("Telegram callback error", error);
     await telegramAnswerCallback(callback.id, error instanceof Error ? error.message.slice(0, 180) : "Terjadi kesalahan.", true).catch(() => {});
