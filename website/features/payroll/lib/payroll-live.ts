@@ -53,6 +53,7 @@ function dailyAssignments(order: Order, day: NonNullable<Order["dailyWork"]>[num
 }
 
 export function isPayrollEligible(order: Order, includeClosed = false) {
+  if (order.sheetDeletedAt) return false;
   if (getPayrollEligibleGrossMinor(order, includeClosed) <= 0) return false;
   if (isDailySettlementOrder(order)) {
     return eligibleDailyRows(order, includeClosed).some((day) => dailyAssignments(order, day).length > 0);

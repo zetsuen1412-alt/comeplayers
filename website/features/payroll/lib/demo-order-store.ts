@@ -5,6 +5,7 @@ import { payrollStorage } from "@/features/payroll/lib/workspace-store";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { orders as seedOrders } from "@/features/payroll/lib/demo-data";
 import type { Order } from "@/features/payroll/types/domain";
+import { activeSheetOrders } from "./sheet-sync-policy";
 
 const STORAGE_KEY = "cp-ofs-demo-user-orders-v3";
 const OLD_STORAGE_KEYS = ["cp-ofs-demo-user-orders-v2", "cp-ofs-demo-user-orders-v1"];
@@ -50,9 +51,10 @@ export function useDemoOrders() {
     };
   }, []);
 
-  const allOrders = useMemo(() => mergeOrders(storedOrders), [storedOrders]);
+  const allOrders = useMemo(() => activeSheetOrders(mergeOrders(storedOrders)), [storedOrders]);
+  const archivedOrders = useMemo(() => storedOrders.filter(order => order.sheetDeletedAt), [storedOrders]);
   const userOrders = useMemo(() => storedOrders.filter((x) => x.id.startsWith("ord-user-")), [storedOrders]);
-  const changedSeedOrders = useMemo(() => storedOrders.filter((x) => !x.id.startsWith("ord-user-")), [storedOrders]);
+  const changedSeedOrders = useMemo(() => storedOrders.filter((x) => !x.sheetDeletedAt && !x.id.startsWith("ord-user-")), [storedOrders]);
 
   const addOrder = useCallback((order: Order) => {
     const existing = readStoredOrders();
@@ -81,6 +83,7 @@ export function useDemoOrders() {
 
   return {
     allOrders,
+    archivedOrders,
     userOrders,
     changedSeedOrders,
     addOrder,

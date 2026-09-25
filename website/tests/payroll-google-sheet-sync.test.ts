@@ -9,6 +9,8 @@ import {
 } from "../features/payroll/lib/google-sheet-sync";
 import { workspaceKeys, type WorkspaceState } from "../features/payroll/lib/workspace-model";
 import type { Employee, Order, ProductGame } from "../features/payroll/types/domain";
+import { attributeWorkspaceEdit } from "../features/payroll/lib/audit-model";
+import { activeSheetOrders } from "../features/payroll/lib/sheet-sync-policy";
 
 const employees: Employee[] = [
   { id: "e1", code: "EMP-IRWAN", name: "Irwan", team: "FH2", workforceStatus: "SHIFT", utilization: 0, earningsMinor: 0 },
@@ -60,6 +62,72 @@ function base(): WorkspaceState {
     [workspaceKeys.products]: structuredClone(games),
   };
 }
+
+function presence(references: string[] = []): GoogleSheetSyncPayload {
+  return { ...payload(), syncMode: "reconcile", rows: [], presence: { complete: true, startRow: 4908, references } };
+}
+
+test("complete presence archives only missing source orders and reappearance restores the same ID", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload());
+  const archived = mergeGoogleSheetPayroll(initial.state, presence());
+  assert.equal(archived.archived, 1);
+  assert.equal(activeSheetOrders(archived.state[workspaceKeys.orders] as Order[]).length, 0);
+  assert.equal((archived.state[workspaceKeys.orders] as Order[]).length, 1, "full record remains recoverable");
+  assert.equal(mergeGoogleSheetPayroll(archived.state, presence()).archived, 0);
+  const restored = mergeGoogleSheetPayroll(archived.state, payload());
+  assert.equal(restored.restored, 1);
+  assert.equal(restored.added, 0);
+  assert.equal(activeSheetOrders(restored.state[workspaceKeys.orders] as Order[]).length, 1);
+  assert.equal((restored.state[workspaceKeys.orders] as Order[])[0].id, (initial.state[workspaceKeys.orders] as Order[])[0].id);
+});
+
+test("locked, manual, other-source, verified, paid and Closing orders survive a source deletion", () => {
+  for (const patch of [{ sheetSyncLocked: true }, { id: "manual" }, { id: "gsheet:other:MUTASI_FH:1" }, { verifiedAt: payload().sentAt }, { payrollClosedAt: payload().sentAt }, { matchedPaymentMinor: 1 }, { inventoryConsumedAt: payload().sentAt }]) {
+    const initial = mergeGoogleSheetPayroll(base(), payload()).state;
+    Object.assign((initial[workspaceKeys.orders] as Order[])[0], patch);
+    assert.equal(mergeGoogleSheetPayroll(initial, presence()).archived, 0, JSON.stringify(patch));
+  }
+});
+
+test("missing rows in partial batches, older periods and moves before start never cause deletion", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload()).state;
+  assert.equal(mergeGoogleSheetPayroll(initial, { ...payload(), rows: [] }).archived, 0);
+  assert.equal(mergeGoogleSheetPayroll(initial, { ...presence(), presence: { complete: true, startRow: 6000, references: [] } }).archived, 0);
+  assert.equal(mergeGoogleSheetPayroll(initial, presence(["X2821"])).archived, 0);
+  assert.throws(() => mergeGoogleSheetPayroll(initial, { ...presence(), syncMode: "incremental" }), /lengkap/);
+  assert.throws(() => mergeGoogleSheetPayroll(initial, { ...presence(), rows: payload().rows }), /lengkap/);
+  assert.throws(() => mergeGoogleSheetPayroll(initial, { ...presence(), presence: { complete: false, startRow: 4908, references: [] } }), /lengkap/);
+});
+
+test("only a website admin can toggle a lock; audit identity is stamped and unlocking requests refresh", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload()).state;
+  const next = structuredClone(initial);
+  (next[workspaceKeys.orders] as Order[])[0].sheetSyncLocked = true;
+  assert.throws(() => attributeWorkspaceEdit(initial, next, { id: "member", name: "Member", isAdmin: false }, payload().sentAt), /admin website/);
+  const locked = attributeWorkspaceEdit(initial, next, { id: "admin", name: "Admin", isAdmin: true }, payload().sentAt);
+  assert.equal((locked[workspaceKeys.orders] as Order[])[0].sheetSyncLockedBy, "Admin");
+  const changed = payload(); changed.rows[0].values[4] = changed.rows[0].display![4] = "New sheet title";
+  assert.equal(mergeGoogleSheetPayroll(locked, changed).skippedProtected, 1);
+  assert.deepEqual(mergeGoogleSheetPayroll(locked, presence()).state, locked);
+  const unlock = structuredClone(locked); (unlock[workspaceKeys.orders] as Order[])[0].sheetSyncLocked = false;
+  const unlocked = attributeWorkspaceEdit(locked, unlock, { id: "admin", name: "Admin", isAdmin: true }, payload().sentAt);
+  assert.deepEqual(mergeGoogleSheetPayroll(unlocked, presence(["X2821"])).refreshReferences, ["X2821"]);
+  const result = mergeGoogleSheetPayroll(unlocked, changed);
+  assert.equal(result.updated, 1);
+  assert.equal((result.state[workspaceKeys.orders] as Order[])[0].sheetSyncRefreshRequested, undefined);
+});
+
+test("admin can restore an archive only with a lock; generic callers cannot forge archive metadata", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload()).state;
+  const archived = mergeGoogleSheetPayroll(initial, presence()).state;
+  const admin = { id: "admin", name: "Admin", isAdmin: true };
+  assert.throws(() => attributeWorkspaceEdit(initial, archived, admin, payload().sentAt), /Arsip spreadsheet/);
+  const restored = structuredClone(archived); delete (restored[workspaceKeys.orders] as Order[])[0].sheetDeletedAt;
+  assert.throws(() => attributeWorkspaceEdit(archived, restored, admin, payload().sentAt), /Arsip spreadsheet/);
+  (restored[workspaceKeys.orders] as Order[])[0].sheetSyncLocked = true;
+  const saved = attributeWorkspaceEdit(archived, restored, admin, payload().sentAt);
+  assert.equal(mergeGoogleSheetPayroll(saved, presence()).archived, 0);
+});
 
 test("Google Sheets sync parses WIB date/time correctly", () => {
   assert.equal(parseSheetOrderedAt("25/09/2026 0:24"), "2026-09-24T17:24:00.000Z");

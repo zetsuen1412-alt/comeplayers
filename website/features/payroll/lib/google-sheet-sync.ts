@@ -1,4 +1,5 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
+import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { canonical, workspaceKeys, type WorkspaceState } from "@/features/payroll/lib/workspace-model";
 import type { Employee, Order, OrderIssue, OrderWorkerAssignment, ProductGame } from "@/features/payroll/types/domain";
 
@@ -22,6 +23,8 @@ export type GoogleSheetSyncPayload = {
   sentAt: string;
   actor?: { id?: string; email?: string };
   rows: GoogleSheetSyncRow[];
+  /** Complete KODE inventory, sent separately after all row batches succeed. */
+  presence?: { complete: true; startRow: number; references: string[] };
 };
 
 export type GoogleSheetSyncIssue = {
@@ -34,6 +37,9 @@ export type GoogleSheetSyncMergeResult = {
   state: WorkspaceState;
   added: number;
   updated: number;
+  archived: number;
+  restored: number;
+  refreshReferences: string[];
   unchanged: number;
   skippedProtected: number;
   skippedConflicts: number;
@@ -319,15 +325,15 @@ function parseIncomingOrder(input: {
 }
 
 function protectedFromSheet(order: Order, closingReferences: Set<string>) {
-  return Boolean(order.payrollClosedAt || order.payrollPeriodId || order.verifiedAt
-    || order.operationalStatus === "verified" || order.financeStatus === "closed"
-    || order.dailyWork?.some(day => day.payrollClosedAt || day.payrollPeriodId || day.verifiedAt || day.status === "verified")
+  return Boolean(order.sheetSyncLocked || hasAutomaticSheetProtection(order)
     || closingReferences.has(order.externalReference.trim().toLowerCase()));
 }
 
 function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
   return jsonClean({
     ...existing,
+    sheetDeletedAt: undefined,
+    sheetSyncRefreshRequested: undefined,
     orderNumber: incoming.orderNumber,
     externalReference: incoming.externalReference,
     source: incoming.source,
@@ -364,6 +370,15 @@ export function validateGoogleSheetSyncPayload(value: unknown): GoogleSheetSyncP
   if (!Array.isArray(payload.headers) || payload.headers.length < 2 || payload.headers.length > 64) throw new Error("Header spreadsheet tidak valid.");
   if (!Array.isArray(payload.rows) || payload.rows.length > MAX_ROWS) throw new Error("Jumlah baris sinkronisasi terlalu besar.");
   if (!Number.isFinite(Date.parse(normalize(payload.sentAt)))) throw new Error("Waktu sinkronisasi tidak valid.");
+  if (payload.presence !== undefined) {
+    const presence = payload.presence;
+    if (payload.syncMode !== "reconcile" || payload.rows.length || presence.complete !== true
+      || !Number.isSafeInteger(presence.startRow) || presence.startRow < 2
+      || !Array.isArray(presence.references) || presence.references.length > 50000
+      || presence.references.some(ref => typeof ref !== "string" || !ref.trim() || ref.length > 200)) {
+      throw new Error("Daftar KODE lengkap tidak valid; penghapusan tidak diproses.");
+    }
+  }
   const rowNumbers = new Set<number>();
   for (const row of payload.rows) {
     if (!row || !Number.isSafeInteger(row.rowNumber) || row.rowNumber < 1 || !Array.isArray(row.values) || row.values.length > 64) throw new Error("Baris sinkronisasi tidak valid.");
@@ -395,6 +410,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       .flatMap(closing => closing.orderRefs ?? []).map(ref => ref.trim().toLowerCase()),
   );
   let added = 0, updated = 0, unchanged = 0, skippedProtected = 0, skippedConflicts = 0, skippedInvalid = 0;
+  let archived = 0, restored = 0;
 
   for (const row of payload.rows) {
     const parsed = parseIncomingOrder({ payload, row, columns, employees, games });
@@ -438,7 +454,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     if (protectedFromSheet(existing, closingReferences)) {
       skippedProtected++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedProtected" });
-      issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Pesanan sudah terverifikasi/Closing sehingga tidak diubah oleh spreadsheet." });
+      issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Pesanan dikunci admin atau dilindungi Gaji/Closing/stok/pembayaran; spreadsheet tidak boleh mengubahnya." });
       continue;
     }
 
@@ -447,11 +463,29 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       unchanged++;
       rowResults.push({ rowNumber: row.rowNumber, status: "unchanged" });
     } else {
+      if (existing.sheetDeletedAt) restored++;
       orders[index] = next; updated++;
       rowResults.push({ rowNumber: row.rowNumber, status: "updated" });
     }
   }
 
+  const present = payload.presence ? new Set(payload.presence.references.map(ref => ref.trim().toLowerCase())) : null;
+  const refreshReferences: string[] = [];
+  if (present && payload.presence) {
+    for (const order of orders) {
+      if (!order.id.startsWith(sheetSourcePrefix(payload))) continue;
+      const found = present.has(order.externalReference.trim().toLowerCase());
+      if (found) {
+        if (!protectedFromSheet(order, closingReferences) && (order.sheetSyncRefreshRequested || order.sheetDeletedAt)) refreshReferences.push(order.externalReference);
+        continue;
+      }
+      // A later Closing boundary never removes earlier periods or legacy unknown rows.
+      if (!order.importSourceRow || order.importSourceRow < payload.presence.startRow || order.sheetDeletedAt) continue;
+      if (protectedFromSheet(order, closingReferences)) { skippedProtected++; continue; }
+      order.sheetDeletedAt = payload.sentAt;
+      archived++;
+    }
+  }
   state[workspaceKeys.orders] = orders;
-  return { state, added, updated, unchanged, skippedProtected, skippedConflicts, skippedInvalid, issues: issues.slice(0, 100), rowResults };
+  return { state, added, updated, archived, restored, refreshReferences, unchanged, skippedProtected, skippedConflicts, skippedInvalid, issues: issues.slice(0, 100), rowResults };
 }

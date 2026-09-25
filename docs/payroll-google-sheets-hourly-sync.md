@@ -1,6 +1,6 @@
 # ComePlayers Payroll — sinkronisasi realtime + rekonsiliasi 1 menit
 
-Nama file lama dipertahankan agar tautan tetap bekerja. Sinkronisasi per jam sudah diganti dengan dua trigger Google Apps Script. Ini bukan otomatisasi Codex dan tidak memakai token Codex.
+Nama file lama dipertahankan agar tautan tetap bekerja. Sinkronisasi memakai trigger edit, perubahan struktur, dan pemeriksaan setiap menit. Ini bukan otomatisasi Codex dan tidak memakai token Codex.
 
 Sinkronisasi ini menghubungkan workbook Google Sheets **EVO GAMING 2026** langsung ke workspace Payroll ComePlayers tanpa membuat spreadsheet menjadi publik.
 
@@ -16,13 +16,25 @@ Installable onEdit memerlukan izin `UrlFetchApp`, sehingga jangan menggantinya d
 
 ## Lock, deduplikasi, dan pemulihan
 
-- Kedua handler memakai `LockService.getScriptLock()`. Lock meliputi pembacaan, HTTP, dan penyimpanan signature serta selalu dilepas melalui `finally`.
+### Kunci per pesanan dan penghapusan live
+
+Admin website dapat menekan **Kunci dari Sheet** pada satu order, atau mencentang beberapa order lalu **Kunci pilihan**. Kunci melindungi seluruh data order dari pembaruan maupun penghapusan oleh Sheet. Anggota biasa tidak dapat mengganti kunci melalui UI maupun endpoint. Identitas dan waktu penguncian dicatat server. **Buka kunci** meminta pembacaan ulang walaupun isi Sheet tidak berubah; pembaruan mengikuti pemeriksaan berikutnya (biasanya 1–2 siklus menit).
+
+`presence` hanya diterima sebagai rekonsiliasi terpisah dengan `rows: []`, `complete: true`, `startRow`, dan seluruh daftar `references`. Daftar ini mencakup KODE sebelum batas periode juga, sehingga pemindahan baris ke bagian lain tidak disalahartikan sebagai penghapusan. Apps Script membacanya ulang setelah pengiriman; perubahan daftar di tengah proses, batch tertunda, kegagalan HTTP, header rusak atau sheet hilang tidak boleh memicu arsip. Order manual, sumber lain, periode lama, pesanan yang dikunci, Gaji/Closing, stok dan pembayaran tetap dilindungi.
+
+Respons menambahkan `archived`, `restored`, dan `refreshReferences`. Arsip disimpan sebagai `sheetDeletedAt`, disembunyikan dari daftar aktif dan perhitungan Gaji, serta tersedia di panel **Dihapus dari Sheet**. Tidak ada penghapusan permanen atau pembayaran otomatis. Audit dan revision guard yang sama tetap berlaku; lock yang tersimpan bersamaan menyebabkan API membaca ulang sebelum menerapkan perubahan.
+
+Untuk instalasi mirror EVO → OTOMATIS, setelah deployment endpoint dan penggantian file Apps Script, jalankan **`activateComePlayersSourceSync()`**. Helper menggunakan `EGM_CONFIG` yang sudah ada untuk membaca EVO secara langsung dan memasang trigger pada sumber tersebut. `CP_SYNC_NAMESPACE_ID` mempertahankan identitas target lama agar tidak menduplikasi order; secret tetap dipakai tanpa dicetak. Helper mengaktifkan `CP_SYNC_DELETIONS=true` dan `CP_START_AFTER_CLOSING=true`. Pada mode ini batas aktif mengikuti penanda **CLOSING** terakhir di kolom A meskipun nomor baris bergeser. Jika penandanya hilang, sync berhenti dengan error, bukan mengarsipkan seluruh data.
+
+Trigger **onChange** menangani insert/delete baris; onEdit menangani edit/paste/clear; clock satu menit menangkap perubahan formula/API dan event yang terlewat. Semuanya berjalan di Google, termasuk ketika browser/komputer/Codex ditutup. Jadwal aktif sepanjang hari, tetapi bukan jaminan uptime 100%: kuota Apps Script, gangguan Google/Vercel, izin pemasang, dan jaringan tetap dapat menunda eksekusi. Periksa Executions serta `CP_LAST_SYNC_AT/RESULT`; tidak ada otomatisasi Codex tambahan.
+
+- Semua handler memakai `LockService.getScriptLock()`. Lock meliputi pembacaan, HTTP, dan penyimpanan signature serta selalu dilepas melalui `finally`.
 - Jika lock sibuk, edit dilewati tanpa menandainya berhasil; rekonsiliasi berikutnya membaca ulang nilai terbaru. Tidak ada dua penulisan Apps Script bersamaan. Revision guard database tetap menangani penulisan dari admin atau project script lain.
 - Signature SHA-256 (144 bit) mencakup header, nilai asli, tampilan, warna hitam BOOSTER, nomor baris, dan penanda duplikat. Signature disimpan dalam shard **Script Properties** (`CP_ROW_HASH_*`, 100 baris/shard), tidak di sel. Ini juga melakukan deduplikasi event edit berulang tanpa menunda edit pertama.
 - Hanya acknowledgement API yang memperbarui cache. Baris berhasil/unchanged tidak dikirim lagi selama input sama. Baris protected/conflict/invalid yang tidak berubah diberi jeda retry **15 menit** agar order historis tidak diunggah berulang tiap menit. Perubahan isi langsung mengabaikan jeda tersebut. Kegagalan HTTP tidak menandai baris berhasil dan dicoba lagi oleh trigger berikutnya.
 - Saat edit, hanya baris terdampak dibaca penuh. Kolom KODE dalam rentang aktif saja dipindai untuk mendeteksi kode duplikat di luar rentang edit; seluruh spreadsheet tidak diunggah.
 - Maksimal 100 baris/request, 10.000 baris data aktif per sheet. Satu batch tetap dikirim jika persiapan sheet memakan lebih dari 45 detik, agar sinkronisasi tidak terus tertunda tanpa kemajuan. Batch berikutnya ditunda ke rekonsiliasi berikutnya; batch yang sudah diakui tidak diulang. Header default tetap baris 2, data mulai baris 3 kecuali `CP_START_ROW` diatur.
-- Baris tanpa KODE tidak aktif. Signature baris kosong/dihapus dibersihkan saat rekonsiliasi, tetapi order di ComePlayers tidak dihapus.
+- Baris tanpa KODE tidak aktif. Jika `CP_SYNC_DELETIONS=true`, daftar KODE lengkap dikirim setelah batch berhasil; order yang hilang diarsipkan dari daftar aktif. Record dan audit tetap disimpan.
 - Cache memantau perubahan spreadsheet. Setelah perubahan master game/karyawan atau untuk rekonsiliasi paksa, jalankan `reinstallComePlayersPayrollRealtimeSync()` lalu `syncComePlayersPayroll()`; helper menghapus cache signature, bukan data payroll.
 
 ## Pemetaan
@@ -57,11 +69,11 @@ Untuk alur mirror, koreksi angka pada spreadsheet **sumber EVO GAMING 2026** set
 - Pesanan manual dengan `KODE` yang sama tidak pernah ditimpa otomatis.
 - Pesanan hasil sinkronisasi yang sudah `verified` atau sudah Closing tidak diubah.
 - Perlindungan juga mencakup `payrollPeriodId`, pekerjaan harian verified/Closing, dan KODE yang tercantum dalam catatan Closing.
-- KODE adalah identitas order dalam sumber sheet. Sort, insert, dan delete tidak memindahkan identitas order. Mengganti KODE berarti membuat draft baru; order KODE lama tetap ada untuk ditinjau manual. ID lama berbasis nomor baris tetap dipertahankan saat KODE cocok.
+- KODE adalah identitas order. Sort/insert tidak membuat duplikat; mengganti KODE membuat draft baru dan mengarsipkan KODE lama yang tidak lagi ada jika tidak dikunci. ID lama tetap dipertahankan saat KODE cocok.
 - Semua kemunculan KODE duplikat dilewati, bukan memilih baris pertama. Order dari sumber spreadsheet lain tidak diambil alih.
 - Baris yang tidak dapat memetakan game/karyawan diberi `importNeedsReview`; identitas karyawan tidak ditebak.
 - Pesanan baru masuk sebagai `draft` + finance `pending`, sehingga sinkronisasi tidak otomatis membayar gaji atau melakukan Closing.
-- Menghapus baris dari Google Sheets tidak otomatis menghapus pesanan di ComePlayers.
+- Menghapus baris/KODE mengarsipkan pesanan yang tidak dikunci dan tidak dilindungi. Tidak ada hard delete. Record dapat dipulihkan admin melalui **Dihapus dari Sheet → Pulihkan & kunci**, atau otomatis ketika KODE valid muncul kembali.
 - Jika Payroll sedang dikunci, perubahan ditolak oleh validation workspace dan akan dicoba lagi pada jadwal berikutnya.
 - Semua perubahan yang benar-benar tersimpan memakai revision guard dan audit workspace.
 
@@ -96,6 +108,8 @@ Setup menyimpan secret, email admin, spreadsheet ID, nama sheet dan header di **
 ```js
 ScriptApp.newTrigger("onComePlayersPayrollEdit")
   .forSpreadsheet(spreadsheet).onEdit().create();
+ScriptApp.newTrigger("onComePlayersPayrollChange")
+  .forSpreadsheet(spreadsheet).onChange().create();
 ScriptApp.newTrigger("syncComePlayersPayroll")
   .timeBased().everyMinutes(1).create();
 ```
@@ -115,7 +129,7 @@ Batas ini berupa nomor baris tetap. Perbarui nilainya ketika berpindah periode C
 1. Deploy endpoint baru ke production terlebih dahulu.
 2. Ganti isi project Apps Script workbook dengan versi terbaru `website/scripts/comeplayers-payroll-google-sheets.gs` dan Save.
 3. Jalankan **`reinstallComePlayersPayrollRealtimeSync()`** memakai akun pemasang lama. Secret/email yang sudah tersimpan tetap digunakan; helper juga menyimpan spreadsheet ID untuk trigger clock.
-4. Berikan izin baru Google bila diminta. Pastikan halaman Triggers menampilkan hanya satu **From spreadsheet / On edit** dan satu **Time-driven / Every minute** untuk ComePlayers.
+4. Berikan izin baru Google bila diminta. Pastikan Triggers menampilkan masing-masing satu **On edit**, **On change**, dan **Time-driven / Every minute** untuk ComePlayers.
 5. Jalankan `syncComePlayersPayroll()` satu kali, kemudian uji edit dan paste di order draft.
 
 Deploy Vercel atau merge GitHub **tidak otomatis memperbarui project Apps Script maupun trigger di akun Google**. Langkah instalasi Google ini harus dilakukan pada workbook sumber.

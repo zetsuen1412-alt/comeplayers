@@ -1,4 +1,5 @@
 import { canonical, payrollFailure, workspaceKeys as K, type WorkspaceState } from "./workspace-model";
+import type { Order } from "../types/domain";
 
 export const auditSections: Record<string,string> = {
   [K.orders]: "Pesanan", [K.employees]: "Karyawan", [K.advances]: "Kasbon", [K.settings]: "Pengaturan gaji",
@@ -34,8 +35,25 @@ export function diffWorkspace(before: WorkspaceState, after: WorkspaceState): Au
   return changes;
 }
 // Client annotations may supply a reason, but never the identity or clock of the editor.
-export function attributeWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState, actor: {id:string;name:string}, now: string) {
+export function attributeWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState, actor: {id:string;name:string;isAdmin?:boolean}, now: string) {
   const result = structuredClone(next);
+  const oldOrders = new Map(((previous[K.orders] ?? []) as Order[]).map(order => [order.id, order]));
+  for (const order of (result[K.orders] ?? []) as Order[]) {
+    const old = oldOrders.get(order.id);
+    if (Boolean(old?.sheetSyncLocked) !== Boolean(order.sheetSyncLocked)) {
+      if (!actor.isAdmin || !old || !order.id.startsWith("gsheet:")) payrollFailure("Hanya admin website yang dapat mengunci sinkronisasi pesanan spreadsheet.", 403);
+      order.sheetSyncLockedAt = now;
+      order.sheetSyncLockedBy = actor.name;
+      order.sheetSyncRefreshRequested = !order.sheetSyncLocked;
+    } else {
+      for (const key of ["sheetSyncLockedAt", "sheetSyncLockedBy", "sheetSyncRefreshRequested"] as const) {
+        if (canonical(order[key]) !== canonical(old?.[key])) payrollFailure("Metadata kunci sinkronisasi tidak boleh diubah langsung.", 403);
+      }
+    }
+    if (order.sheetDeletedAt !== old?.sheetDeletedAt) {
+      if (!actor.isAdmin || !old?.sheetDeletedAt || order.sheetDeletedAt || !order.sheetSyncLocked) payrollFailure("Arsip spreadsheet hanya dapat dipulihkan admin dengan mengunci pesanannya.", 403);
+    }
+  }
   const oldRows = (previous[K.history] ?? []) as Record<string,unknown>[];
   const rows = (result[K.history] ?? []) as Record<string,unknown>[];
   const oldById = new Map(oldRows.map(row => [row.id,row]));

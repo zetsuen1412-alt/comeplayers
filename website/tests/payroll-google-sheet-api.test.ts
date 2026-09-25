@@ -17,7 +17,7 @@ const payload: sync.GoogleSheetSyncPayload = {
   rows: [{ rowNumber: 3, values: ["25/09/2026 00:24", "CODE-1", "G2G", "Buyer", "ORDER", "", "2", "", "RO", "F2F", 20, 1000, 20000] }],
 };
 
-function harness(conflict?: "manual" | "verified" | "always") {
+function harness(conflict?: "manual" | "verified" | "locked" | "always") {
   let state: workspace.WorkspaceState = { [workspace.workspaceKeys.orders]: [] };
   let revision = 1;
   let saves = 0;
@@ -42,6 +42,7 @@ function harness(conflict?: "manual" | "verified" | "always") {
         const order = (state[workspace.workspaceKeys.orders] as Order[])[0];
         if (conflict === "manual") { order.id = "manual"; order.orderName = "Manually saved"; }
         if (conflict === "verified") { order.operationalStatus = "verified"; order.verifiedAt = "2026-09-25T01:00:00Z"; }
+        if (conflict === "locked") order.sheetSyncLocked = true;
         if (conflict === "always") order.buyerName = `Concurrent edit ${saves}`;
         revision++;
         return { error: { code: "40001", message: "Revision changed" } };
@@ -85,7 +86,7 @@ test("API returns mode, all six counters and per-row acknowledgements on save an
 });
 
 test("API rereads after a concurrent save and protects newly manual/verified orders", async () => {
-  for (const conflict of ["manual", "verified"] as const) {
+  for (const conflict of ["manual", "verified", "locked"] as const) {
     const h = harness(conflict);
     const response = await h.post();
     assert.equal(response.status, 200);
@@ -95,6 +96,14 @@ test("API rereads after a concurrent save and protects newly manual/verified ord
     assert.equal(h.saves, 1);
     assert.equal(h.audits, 0);
   }
+});
+
+test("API persists an archive-only reconciliation and restores without duplicating or Closing", async () => {
+  const h = harness(); await h.post();
+  const result = await (await h.post({ ...payload, syncMode: "reconcile", rows: [], presence: { complete: true, startRow: 3, references: [] } })).json();
+  assert.equal(result.archived, 1); assert.equal(result.saved, true); assert.equal(h.saves, 2);
+  const restored = await (await h.post()).json();
+  assert.equal(restored.restored, 1); assert.equal(restored.added, 0); assert.equal(h.saves, 3);
 });
 
 test("API rejects invalid syncMode and unauthenticated calls before reading payroll", async () => {
