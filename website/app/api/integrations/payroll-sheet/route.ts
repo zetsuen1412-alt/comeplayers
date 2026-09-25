@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { dispatchAddedSheetOrders } from "@/lib/payrollTelegram";
 import { recordAdminAudit } from "@/lib/adminSecurity";
 import { createSupabaseAdmin } from "@/lib/serverSupabase";
 import {
@@ -152,6 +153,8 @@ export async function POST(request: Request) {
       if (saveError?.code === "40001" && attempt < 2) continue;
       if (saveError) throw saveError;
 
+      const telegramDispatch = await dispatchAddedSheetOrders(supabaseAdmin, merged.state, merged.rowResults);
+
       await recordAdminAudit({
         adminId: actor.id,
         action: "payroll.google_sheets_sync",
@@ -172,6 +175,7 @@ export async function POST(request: Request) {
           skippedProtected: merged.skippedProtected,
           skippedConflicts: merged.skippedConflicts,
           skippedInvalid: merged.skippedInvalid,
+          telegramDispatched: telegramDispatch.sent,
         },
       });
 
@@ -189,6 +193,7 @@ export async function POST(request: Request) {
         skippedProtected: merged.skippedProtected,
         skippedConflicts: merged.skippedConflicts,
         skippedInvalid: merged.skippedInvalid,
+        telegramDispatched: telegramDispatch.sent,
         issues: merged.issues,
         rowResults: merged.rowResults,
       });
