@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    const { supabaseAdmin } = await requirePayrollAccess(request);
+    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
+    if (!actor.isAdmin) throw Object.assign(new Error("Hanya admin yang dapat membuka bukti Telegram."), { status: 403 });
     const ref = new URL(request.url).searchParams.get("ref")?.trim();
     if (!ref) return Response.json({ error: "Kode order wajib diisi." }, { status: 400 });
 
