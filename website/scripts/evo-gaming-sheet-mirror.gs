@@ -7,7 +7,7 @@ var EVO_GAMING_MIRROR = {
   sourceId: '1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo',
   targetId: '1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ',
   sheets: ['MUTASI FH'], // Add more sheet names only when explicitly desired.
-  chunkCells: 10000,
+  chunkCells: 2000,
   runBudgetMs: 45000,
   setupBudgetMs: 240000
 };
@@ -112,7 +112,7 @@ function egmRequireService_() {
 }
 
 function egmMetadata_(id) {
-  return Sheets.Spreadsheets.get(id, { fields: 'properties(defaultFormat,spreadsheetTheme),sheets(properties,merges,conditionalFormats)' });
+  return JSON.parse(JSON.stringify(Sheets.Spreadsheets.get(id, { fields: 'properties(defaultFormat,spreadsheetTheme),sheets(properties,merges,conditionalFormats)' })));
 }
 
 function egmSheet_(metadata, name) {
@@ -243,8 +243,10 @@ function egmA1_(range) {
 }
 
 function egmRead_(id, range) {
-  var response = Sheets.Spreadsheets.get(id, { ranges: [egmA1_(range)], fields:
-    'sheets(data(startRow,startColumn,rowData(values(effectiveValue,userEnteredValue,formattedValue,effectiveFormat(' + EGM_FORMAT_FIELDS + '),dataValidation))))' });
+  // Detach the Advanced Service response once; loops must not repeatedly traverse
+  // its service-backed objects while building values, formats and signatures.
+  var response = JSON.parse(JSON.stringify(Sheets.Spreadsheets.get(id, { ranges: [egmA1_(range)], fields:
+    'sheets(data(startRow,startColumn,rowData(values(effectiveValue,userEnteredValue,formattedValue,effectiveFormat(' + EGM_FORMAT_FIELDS + '),dataValidation))))' })));
   var data = ((response.sheets || [])[0] || {}).data || [];
   var grid = data[0] || {}, values = grid.rowData || [];
   return Array.from({ length: range.rows }, function (_, r) {
@@ -338,18 +340,21 @@ function egmCell_(cell, context, source) {
 
 function egmSyncRange_(context, range, explicitEdit, result) {
   var source = egmRead_(context.config.sourceId, range), target = egmRead_(context.config.targetId, range);
-  var prepared = source.map(function (row) { return row.map(function (cell) { return egmCell_(cell, context, true); }); });
-  var current = target.map(function (row) { return row.map(function (cell) { return egmCell_(cell, context, false); }); });
   var targetSheet = egmSheet_(context.target, range.name), requests = [], bytes = 0;
   var cache = CacheService.getScriptCache(), key = 'EGM_HASH_' + egmHash_([context.config.sourceId, context.config.targetId, range]);
-  var signature = egmHash_(prepared);
-  // Compare target too: cached signatures must never hide manual target drift.
-  if (signature === egmHash_(current)) { result.rowsUnchanged += range.rows; cache.put(key, signature, 21600); return; }
+  var rowSignatures = [];
   function flush() { egmWrite_(context, requests); requests = []; bytes = 0; }
   for (var r = 0; r < range.rows; r++) {
-    if (!explicitEdit && !prepared[r].some(function (cell) { return cell.userEnteredValue !== undefined; })) { result.blankRowsPreserved++; continue; }
-    if (egmCanonical_(prepared[r]) === egmCanonical_(current[r])) { result.rowsUnchanged++; continue; }
-    var rowData = { values: prepared[r] }, rowSize = egmUtf8Bytes_(JSON.stringify(rowData));
+    // Normalize one row at a time. Dropdown-rich sheets otherwise retain four
+    // full cell matrices plus their canonical JSON strings and exhaust Apps Script memory.
+    var prepared = source[r].map(function (cell) { return egmCell_(cell, context, true); });
+    var current = target[r].map(function (cell) { return egmCell_(cell, context, false); });
+    source[r] = null; target[r] = null;
+    rowSignatures.push(egmHash_(prepared));
+    // Compare target too: cached signatures must never hide manual target drift.
+    if (egmCanonical_(prepared) === egmCanonical_(current)) { result.rowsUnchanged++; continue; }
+    if (!explicitEdit && !prepared.some(function (cell) { return cell.userEnteredValue !== undefined; })) { result.blankRowsPreserved++; continue; }
+    var rowData = { values: prepared }, rowSize = egmUtf8Bytes_(JSON.stringify(rowData));
     if (bytes + rowSize > 1500000 && requests.length) flush();
     var last = requests[requests.length - 1];
     if (last && last.updateCells.start.rowIndex + last.updateCells.rows.length === range.row + r - 1) last.updateCells.rows.push(rowData);
@@ -358,5 +363,5 @@ function egmSyncRange_(context, range, explicitEdit, result) {
   }
   flush();
   // Store only successful non-sensitive signatures. A timeout/failure leaves edits queued.
-  cache.put(key, signature, 21600);
+  cache.put(key, egmHash_(rowSignatures), 21600);
 }

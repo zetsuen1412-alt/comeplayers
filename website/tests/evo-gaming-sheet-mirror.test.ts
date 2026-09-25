@@ -249,6 +249,23 @@ test('5000+ rows use bounded rectangular batches; same KODE values do not append
   const before = h.writes.length; h.reconcile(); assert.equal(h.writes.length, before);
 });
 
+test('dropdown-rich rows use bounded reads and writes and remain unchanged on the next sweep', () => {
+  const h = harness();
+  const rule = { condition: { type: 'ONE_OF_LIST', values: Array.from({ length: 80 }, (_, i) => ({ userEnteredValue: `WORKER-${i}` })) }, showCustomUi: true };
+  for (let row = 1; row <= 320; row++) {
+    for (let column = 1; column <= 19; column++) h.put(h.source, row, column, column === 2 ? `X${row}` : 'WORKER-1', column % 3 === 0 ? { dataValidation: rule } : {});
+  }
+  assert.equal(h.setup().complete, true);
+  assert.deepEqual(h.value(320, 2), { stringValue: 'X320' });
+  assert.deepEqual(h.target.cells.get('320:18')!.dataValidation.condition, rule.condition);
+  for (const read of h.reads.filter(r => r.ranges)) {
+    const bounds = /!A(\d+):S(\d+)$/.exec(read.ranges[0])!;
+    assert.ok((Number(bounds[2]) - Number(bounds[1]) + 1) * 19 <= 2000, 'bound the rich cell response');
+  }
+  assert.ok(h.writes.every(body => Buffer.byteLength(JSON.stringify(body)) < 1600000), 'bound serialized write payloads');
+  const before = h.writes.length; h.reconcile(); assert.equal(h.writes.length, before);
+});
+
 test('time-budget cursor resumes the remaining rows on the next minute', () => {
   const h = harness(); h.api.EVO_GAMING_MIRROR.chunkCells = 100; h.properties.EGM_CONFIG = JSON.stringify(h.api.EVO_GAMING_MIRROR);
   for (let row = 1; row <= 160; row++) h.put(h.source, row, 2, `ROW-${row}`);

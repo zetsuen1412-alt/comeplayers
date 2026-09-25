@@ -15,7 +15,7 @@ Hanya `MUTASI FH` diaktifkan. Sumber selalu menjadi master. Mirror tidak mengiri
 ## Konfigurasi dan pemasangan
 
 1. Pastikan ID sumber benar. ID bersifat case-sensitive: salin bagian setelah `/spreadsheets/d/` dari URL **EVO GAMING 2026**. Jangan menebak huruf yang mirip seperti `g/q` atau `O/Q`.
-2. Buka **EVO GAMING 2026** → **Extensions → Apps Script** memakai satu akun pemasang yang memiliki akses edit ke kedua workbook.
+2. Buka **EVO GAMING 2026** → **Extensions → Apps Script** memakai satu akun pemasang yang memiliki akses edit ke kedua workbook. Periksa pemilik project terlebih dahulu. Jika project sumber dimiliki akun lain, gunakan **OTOMATIS EVO GAMING 2026 → Extensions → Apps Script** milik akun pemasang. Script memakai ID eksplisit, jadi pemicu edit tetap terpasang pada **sumber**, meskipun project menempel di target. Jangan memasangnya di kedua project.
 3. Tambahkan file script baru bernama `evo-gaming-sheet-mirror`. Salin seluruh isi file `.gs` di atas. Pertahankan script lain yang sudah ada.
 4. Periksa bagian konfigurasi:
 
@@ -24,7 +24,7 @@ Hanya `MUTASI FH` diaktifkan. Sumber selalu menjadi master. Mirror tidak mengiri
      sourceId: '1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo',
      targetId: '1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ',
      sheets: ['MUTASI FH'],
-     chunkCells: 10000,
+     chunkCells: 2000,
      runBudgetMs: 45000,
      setupBudgetMs: 240000
    };
@@ -46,6 +46,8 @@ Hanya `MUTASI FH` diaktifkan. Sumber selalu menjadi master. Mirror tidak mengiri
 
 Jalankan installer hanya dari satu akun dan satu project. Google hanya menampilkan trigger milik akun saat ini. Installer tidak bisa menghapus trigger mirror yang dipasang akun lain atau project lain; pemiliknya harus menghapus trigger duplikat tersebut. Lock hanya berlaku untuk project ini.
 
+Pemasangan ComePlayers menggunakan project pada spreadsheet **target** milik `zetsuen1412@gmail.com`, bersama file Payroll yang sudah ada. File mirror tetap terpisah. `EGM_*` tidak menimpa properti `CP_*`; kedua integrasi berbagi Script Lock sehingga impor Payroll menunggu bila mirror sedang menulis. Jangan menjalankan setup mirror pada project sumber milik akun lain.
+
 ## Cara kerja
 
 - **Saat edit:** hanya koordinat range yang diedit dibaca dan disalin ke koordinat yang sama. Paste beberapa sel/baris, dropdown, teks multiline, angka `0`, boolean, currency, dan tanggal didukung. Script membaca nilai terkini, bukan `e.value`, agar paste dan clear berfungsi.
@@ -58,7 +60,7 @@ Jalankan installer hanya dari satu akun dan satu project. Google hanya menampilk
 - **Baris kosong:** rekonsiliasi melewati baris sumber yang seluruh nilai terhitungnya kosong dan tidak menghapus ekor data target di luar area aktif. Ini melindungi riwayat saat satu baris sumber dikosongkan sementara. Sebaliknya, clear langsung oleh pengguna diterapkan **hanya pada range edit tersebut**, termasuk jika seluruh range kosong. Sel kosong dalam baris aktif tetap mengikuti sumber.
 - **Concurrency:** `LockService.getScriptLock().tryLock()` membatasi satu penulis mirror. Edit yang berbenturan masuk antrean Script Properties berupa koordinat saja. Clear tidak hilang walaupun fallback melindungi baris kosong. Lock selalu dilepas lewat `finally`. Nilai dan format setiap batch ditulis bersamaan melalui `Sheets.Spreadsheets.batchUpdate`.
 - **Dedup:** hash mencakup nilai, format, dan validasi. Target juga dibandingkan agar perubahan manual di target dapat diperbaiki walaupun hash sumber tidak berubah. Tidak ada penulisan sel jika sudah sama. Cache menyimpan hash setelah batch sukses; kegagalan tidak dianggap tersinkron. Tidak ada ribuan panggilan `setValue` per sel.
-- **Ukuran besar:** baca maksimal 10.000 sel per chunk, tulis baris bersebelahan dalam batch berukuran terbatas, simpan cursor setelah sukses. Putaran biasa dibatasi 45 detik, setup/manual 240 detik. Sisa antrean dan rekonsiliasi dilanjutkan, termasuk paste besar; data tidak dibuang saat kehabisan waktu.
+- **Ukuran besar:** baca 2.000 sel per chunk secara default dan bandingkan/hash satu baris setiap kali; ini membatasi memori pada sheet yang kaya dropdown. Jangan menaikkan ukuran hanya berdasarkan jumlah baris. Script membaca respons API menjadi objek biasa sekali saja, tulis baris bersebelahan dalam batch berukuran terbatas, simpan cursor setelah sukses. Putaran biasa dibatasi 45 detik, setup/manual 240 detik. Sisa antrean dan rekonsiliasi dilanjutkan, termasuk paste besar; data tidak dibuang saat kehabisan waktu.
 
 Jadwal setiap menit bukan jaminan latensi tepat 60 detik: Google dapat menunda trigger, perhitungan sumber bisa belum selesai, atau kuota bisa habis. Untuk spreadsheet besar, pantau durasi/error **Executions** dan kuota harian akun. Konsumsi ini memakai layanan Google Apps Script, bukan kredit automation Codex.
 
@@ -99,3 +101,4 @@ node node_modules/tsx/dist/cli.mjs --test tests/evo-gaming-sheet-mirror.test.ts 
 Tes emulator tidak menggantikan otorisasi dan pengujian trigger nyata di akun Google. Merge GitHub juga tidak otomatis memasang Apps Script ke spreadsheet.
 
 Referensi: [installable triggers](https://developers.google.com/apps-script/guides/triggers/installable), [nilai dan format efektif Sheets](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/cells), [Advanced Sheets service](https://developers.google.com/apps-script/advanced/sheets), [kuota Apps Script](https://developers.google.com/apps-script/guides/services/quotas).
+
