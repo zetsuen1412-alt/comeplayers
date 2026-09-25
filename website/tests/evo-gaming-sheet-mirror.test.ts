@@ -25,7 +25,7 @@ function harness() {
   const cache: Record<string, string> = {};
   const triggers: Json[] = [{ handler: 'syncComePlayersPayroll', getHandlerFunction() { return this.handler; } }, { handler: 'onComePlayersPayrollEdit', getHandlerFunction() { return this.handler; } }];
   const writes: Json[] = [], reads: Json[] = [], lists = new Map<string, string[][]>();
-  let locked = false, failWrite = false, uuid = 0, elapsed = 0, delayRead = 0;
+  let locked = false, failWrite = false, uuid = 0, elapsed = 0, delayRead = 0, httpError = 0, digests = 0;
   let duringWrite: (() => void) | undefined;
   class FakeDate extends Date { static now() { return Date.now() + elapsed; } }
   const propertyStore = {
@@ -53,9 +53,10 @@ function harness() {
     PropertiesService: { getScriptProperties: () => propertyStore },
     CacheService: { getScriptCache: () => ({ get: (name: string) => cache[name] ?? null, put: (name: string, value: string) => { cache[name] = value; } }) },
     Utilities: { getUuid: () => String(++uuid), DigestAlgorithm: { SHA_256: 'sha256' }, Charset: { UTF_8: 'utf8' },
-      computeDigest: (_algorithm: string, text: string) => createHash('sha256').update(text).digest(), base64EncodeWebSafe: (buffer: Buffer) => buffer.toString('base64url') },
+      computeDigest: (_algorithm: string, text: string) => { digests++; return createHash('sha256').update(text).digest(); }, base64EncodeWebSafe: (buffer: Buffer) => buffer.toString('base64url') },
     LockService: { getScriptLock: () => ({ tryLock: () => { if (locked) return false; locked = true; return true; }, releaseLock: () => { locked = false; } }) },
     ScriptApp: {
+      getOAuthToken: () => 'test-oauth-token',
       getProjectTriggers: () => [...triggers], deleteTrigger: (trigger: Json) => triggers.splice(triggers.indexOf(trigger), 1),
       newTrigger: (handler: string) => {
         const trigger: Json = { handler, getHandlerFunction: () => handler };
@@ -118,6 +119,21 @@ function harness() {
       },
     } },
   });
+  context.UrlFetchApp = { fetch: (url: string, options: Json) => {
+    const endpoint = new URL(url);
+    assert.equal(endpoint.origin, 'https://sheets.googleapis.com', 'never send authorization outside Google Sheets');
+    assert.equal(options.followRedirects, false);
+    assert.equal(options.headers.Authorization, 'Bearer test-oauth-token');
+    if (httpError) return { getResponseCode: () => httpError, getContentText: () => 'private response must not appear in errors' };
+    const match = /^\/v4\/spreadsheets\/([^/:]+)(.*)$/.exec(endpoint.pathname)!;
+    const id = decodeURIComponent(match[1]), suffix = match[2], service = (context.Sheets as Json).Spreadsheets;
+    const query: Json = Object.fromEntries(endpoint.searchParams);
+    if (endpoint.searchParams.has('ranges')) query.ranges = endpoint.searchParams.getAll('ranges');
+    const result = suffix === ':batchUpdate' ? service.batchUpdate(JSON.parse(options.payload), id)
+      : suffix.startsWith('/values/') ? service.Values.get(id, decodeURIComponent(suffix.slice(8)), query)
+      : service.get(id, query);
+    return { getResponseCode: () => 200, getContentText: () => JSON.stringify(result) };
+  } };
   runInContext(script, context);
   const api = context as Json;
   Object.assign(api.EVO_GAMING_MIRROR, { sourceId: 'source', targetId: 'target' });
@@ -130,9 +146,10 @@ function harness() {
   return { source, target, books, properties, cache, triggers, writes, reads, lists, api, put, edit,
     setup: () => api.setupEvoGamingMirrorSync() as Result, reconcile: () => api.reconcileEvoGamingMirror() as Result,
     fail: (value: boolean) => { failWrite = value; }, lock: (value: boolean) => { locked = value; },
+    httpError: (status: number) => { httpError = status; },
     duringWrite: (callback: () => void) => { duringWrite = callback; }, delay: (ms: number) => { delayRead = ms; },
     value: (row: number, column: number, sheet = target) => sheet.cells.get(key(row, column))?.effectiveValue,
-    get locked() { return locked; }, get pending() { return Object.keys(properties).filter(k => k.startsWith('EGM_PENDING_')); },
+    get locked() { return locked; }, get digests() { return digests; }, get pending() { return Object.keys(properties).filter(k => k.startsWith('EGM_PENDING_')); },
   };
 }
 
@@ -246,6 +263,33 @@ test('5000+ rows use bounded rectangular batches; same KODE values do not append
   const h = harness(); for (let row = 1; row <= 5100; row++) h.put(h.source, row, 2, row === 5100 ? 'X2832' : 'DUPLICATE');
   assert.equal(h.setup().complete, true); assert.deepEqual(h.value(5100, 2), { stringValue: 'X2832' }); assert.deepEqual(h.value(5099, 2), { stringValue: 'DUPLICATE' });
   assert.ok(h.writes.length < 30, `batch writes: ${h.writes.length}`);
+  assert.ok(h.digests < 30, `native hash calls must be batched: ${h.digests}`);
+  const before = h.writes.length; h.reconcile(); assert.equal(h.writes.length, before);
+});
+
+test('HTTP quota failures keep edits queued without exposing response bodies or tokens', () => {
+  const h = harness(); h.put(h.source, 2, 2, 'RETRY'); h.httpError(429);
+  assert.throws(() => h.edit(2, 2), error => {
+    assert.match(String(error), /HTTP 429/); assert.doesNotMatch(String(error), /private response|test-oauth-token/); return true;
+  });
+  assert.equal(h.locked, false); assert.equal(h.pending.length, 1); assert.equal(h.writes.length, 0);
+  h.httpError(0); h.reconcile(); assert.deepEqual(h.value(2, 2), { stringValue: 'RETRY' }); assert.equal(h.pending.length, 0);
+});
+
+test('dropdown-rich rows use bounded reads and writes and remain unchanged on the next sweep', () => {
+  const h = harness();
+  const rule = { condition: { type: 'ONE_OF_LIST', values: Array.from({ length: 80 }, (_, i) => ({ userEnteredValue: `WORKER-${i}` })) }, showCustomUi: true };
+  for (let row = 1; row <= 320; row++) {
+    for (let column = 1; column <= 19; column++) h.put(h.source, row, column, column === 2 ? `X${row}` : 'WORKER-1', column % 3 === 0 ? { dataValidation: rule } : {});
+  }
+  assert.equal(h.setup().complete, true);
+  assert.deepEqual(h.value(320, 2), { stringValue: 'X320' });
+  assert.deepEqual(h.target.cells.get('320:18')!.dataValidation.condition, rule.condition);
+  for (const read of h.reads.filter(r => r.ranges)) {
+    const bounds = /!A(\d+):S(\d+)$/.exec(read.ranges[0])!;
+    assert.ok((Number(bounds[2]) - Number(bounds[1]) + 1) * 19 <= 2000, 'bound the rich cell response');
+  }
+  assert.ok(h.writes.every(body => Buffer.byteLength(JSON.stringify(body)) < 1600000), 'bound serialized write payloads');
   const before = h.writes.length; h.reconcile(); assert.equal(h.writes.length, before);
 });
 

@@ -7,7 +7,7 @@ var EVO_GAMING_MIRROR = {
   sourceId: '1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo',
   targetId: '1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ',
   sheets: ['MUTASI FH'], // Add more sheet names only when explicitly desired.
-  chunkCells: 10000,
+  chunkCells: 2000,
   runBudgetMs: 45000,
   setupBudgetMs: 240000
 };
@@ -112,7 +112,25 @@ function egmRequireService_() {
 }
 
 function egmMetadata_(id) {
-  return Sheets.Spreadsheets.get(id, { fields: 'properties(defaultFormat,spreadsheetTheme),sheets(properties,merges,conditionalFormats)' });
+  return egmApi_(id, '', { fields: 'properties(defaultFormat,spreadsheetTheme),sheets(properties,merges,conditionalFormats)' });
+}
+
+// Parse HTTP JSON directly. Large Advanced Service cell objects otherwise spend
+// substantial time/memory crossing the service bridge even within a small range.
+// The token is used only for Google's fixed API host, never persisted or logged.
+function egmApi_(id, suffix, query, body) {
+  var parameters = ['prettyPrint=false'];
+  Object.keys(query || {}).forEach(function (key) {
+    var values = Array.isArray(query[key]) ? query[key] : [query[key]];
+    values.forEach(function (value) { parameters.push(encodeURIComponent(key) + '=' + encodeURIComponent(value)); });
+  });
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + encodeURIComponent(id) + suffix + (parameters.length ? '?' + parameters.join('&') : '');
+  var options = { method: body ? 'post' : 'get', headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+    muteHttpExceptions: true, followRedirects: false };
+  if (body) { options.contentType = 'application/json'; options.payload = JSON.stringify(body); }
+  var response = UrlFetchApp.fetch(url, options), status = response.getResponseCode();
+  if (status < 200 || status >= 300) throw new Error('Google Sheets API HTTP ' + status + '; batch akan dicoba ulang dari cursor/antrean.');
+  return JSON.parse(response.getContentText());
 }
 
 function egmSheet_(metadata, name) {
@@ -193,7 +211,7 @@ function egmDrainEdits_(context, deadline, result) {
 function egmWrite_(context, requests) {
   if (!requests.length) return;
   if (context.config.targetId === context.config.sourceId) throw new Error('Dilarang menulis ke sumber.');
-  return Sheets.Spreadsheets.batchUpdate({ requests: requests }, context.config.targetId);
+  return egmApi_(context.config.targetId, ':batchUpdate', {}, { requests: requests });
 }
 
 function egmPrepareTarget_(context, name, rows, columns, layout) {
@@ -243,7 +261,7 @@ function egmA1_(range) {
 }
 
 function egmRead_(id, range) {
-  var response = Sheets.Spreadsheets.get(id, { ranges: [egmA1_(range)], fields:
+  var response = egmApi_(id, '', { ranges: [egmA1_(range)], fields:
     'sheets(data(startRow,startColumn,rowData(values(effectiveValue,userEnteredValue,formattedValue,effectiveFormat(' + EGM_FORMAT_FIELDS + '),dataValidation))))' });
   var data = ((response.sheets || [])[0] || {}).data || [];
   var grid = data[0] || {}, values = grid.rowData || [];
@@ -260,7 +278,11 @@ function egmCanonical_(value) {
 }
 
 function egmHash_(value) {
-  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, egmCanonical_(value), Utilities.Charset.UTF_8));
+  return egmHashText_(egmCanonical_(value));
+}
+
+function egmHashText_(text) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8));
 }
 
 function egmUtf8Bytes_(text) {
@@ -305,7 +327,7 @@ function egmValidation_(rule, context, source) {
   if (source && copy.condition && copy.condition.type === 'ONE_OF_RANGE') {
     var reference = copy.condition.values[0].userEnteredValue.replace(/^=/, '');
     if (!context.validationLists[reference]) {
-      var data = Sheets.Spreadsheets.Values.get(context.config.sourceId, reference, { valueRenderOption: 'FORMATTED_VALUE' });
+      var data = egmApi_(context.config.sourceId, '/values/' + encodeURIComponent(reference), { valueRenderOption: 'FORMATTED_VALUE' });
       var options = [];
       (data.values || []).forEach(function (row) { row.forEach(function (value) { var text = String(value); if (text !== '' && options.indexOf(text) < 0) options.push(text); }); });
       if (options.length > 500) throw new Error('Dropdown sumber memiliki lebih dari 500 opsi; gunakan daftar yang lebih kecil.');
@@ -338,18 +360,23 @@ function egmCell_(cell, context, source) {
 
 function egmSyncRange_(context, range, explicitEdit, result) {
   var source = egmRead_(context.config.sourceId, range), target = egmRead_(context.config.targetId, range);
-  var prepared = source.map(function (row) { return row.map(function (cell) { return egmCell_(cell, context, true); }); });
-  var current = target.map(function (row) { return row.map(function (cell) { return egmCell_(cell, context, false); }); });
   var targetSheet = egmSheet_(context.target, range.name), requests = [], bytes = 0;
   var cache = CacheService.getScriptCache(), key = 'EGM_HASH_' + egmHash_([context.config.sourceId, context.config.targetId, range]);
-  var signature = egmHash_(prepared);
-  // Compare target too: cached signatures must never hide manual target drift.
-  if (signature === egmHash_(current)) { result.rowsUnchanged += range.rows; cache.put(key, signature, 21600); return; }
+  var rowSignatures = [];
   function flush() { egmWrite_(context, requests); requests = []; bytes = 0; }
   for (var r = 0; r < range.rows; r++) {
-    if (!explicitEdit && !prepared[r].some(function (cell) { return cell.userEnteredValue !== undefined; })) { result.blankRowsPreserved++; continue; }
-    if (egmCanonical_(prepared[r]) === egmCanonical_(current[r])) { result.rowsUnchanged++; continue; }
-    var rowData = { values: prepared[r] }, rowSize = egmUtf8Bytes_(JSON.stringify(rowData));
+    // Normalize one row at a time. Dropdown-rich sheets otherwise retain four
+    // full cell matrices plus their canonical JSON strings and exhaust Apps Script memory.
+    var prepared = source[r].map(function (cell) { return egmCell_(cell, context, true); });
+    var current = target[r].map(function (cell) { return egmCell_(cell, context, false); });
+    source[r] = null; target[r] = null;
+    var canonical = egmCanonical_(prepared);
+    // One native digest per bounded batch, not thousands of service calls per sweep.
+    rowSignatures.push(canonical);
+    // Compare target too: cached signatures must never hide manual target drift.
+    if (canonical === egmCanonical_(current)) { result.rowsUnchanged++; continue; }
+    if (!explicitEdit && !prepared.some(function (cell) { return cell.userEnteredValue !== undefined; })) { result.blankRowsPreserved++; continue; }
+    var rowData = { values: prepared }, rowSize = egmUtf8Bytes_(JSON.stringify(rowData));
     if (bytes + rowSize > 1500000 && requests.length) flush();
     var last = requests[requests.length - 1];
     if (last && last.updateCells.start.rowIndex + last.updateCells.rows.length === range.row + r - 1) last.updateCells.rows.push(rowData);
@@ -358,5 +385,5 @@ function egmSyncRange_(context, range, explicitEdit, result) {
   }
   flush();
   // Store only successful non-sensitive signatures. A timeout/failure leaves edits queued.
-  cache.put(key, signature, 21600);
+  cache.put(key, egmHashText_(rowSignatures.join('\n')), 21600);
 }
