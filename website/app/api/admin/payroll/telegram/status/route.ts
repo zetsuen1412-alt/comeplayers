@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const [{ data: orders, error: orderError }, { data: assignments, error: assignmentError }] = await Promise.all([
       supabaseAdmin
         .from("cp_payroll_telegram_orders")
-        .select("order_ref,order_type,target_quantity,delivered_quantity,state,last_event_at,updated_at")
+        .select("order_ref,order_type,target_quantity,delivered_quantity,state,dispatch_status,last_event_at,updated_at")
         .order("updated_at", { ascending: false })
         .limit(5000),
       supabaseAdmin

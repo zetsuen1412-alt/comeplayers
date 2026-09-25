@@ -3,8 +3,7 @@ import { requirePayrollAccess } from '@/lib/payrollAccess';
 import { attributeWorkspaceEdit } from '@/features/payroll/lib/audit-model';
 import { adminErrorStatus } from '@/lib/adminSecurity';
 import { closeWorkspace, payrollFailure, validateWorkspace, validateWorkspaceEdit, workspaceKeys } from '@/features/payroll/lib/workspace-model';
-import { dispatchPayrollTelegramOrder } from '@/lib/payrollTelegram';
-import type { Order } from '@/features/payroll/types/domain';
+import { flushPayrollTelegramOutbox } from '@/lib/payrollTelegram';
 export const dynamic='force-dynamic';
 const response=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 function failure(error:unknown) { const status=adminErrorStatus(error);return response({error:status>=500?'Layanan payroll belum tersedia. Silakan coba lagi.':error instanceof Error?error.message:'Permintaan tidak valid.'},status); }
@@ -36,6 +35,7 @@ export async function POST(request:Request) {
     if(!closing){rejectUnauditedOrderRemoval(current.payload,state);validateWorkspaceEdit(current.payload,state);}
     const {data,error}=await supabaseAdmin.rpc('cp_save_payroll_workspace',{p_revision:body.expectedRevision,p_payload:state,p_actor:user.id,p_action:body.action});
     if(error){if(error.code==='42501')payrollFailure('Akses payroll telah dicabut.',403);if(error.code==='40001')payrollFailure('Data diubah pengguna lain. Muat ulang sebelum melanjutkan.',409);throw error;}
+    try { await flushPayrollTelegramOutbox(supabaseAdmin); } catch { /* Pending notices are retried by the minute worker. */ }
     return response({...data,...(closing?{record:closing.record,payroll:closing.payroll,orders:closing.orders}:{})});
   }catch(error){return failure(error);}
 }

@@ -55,7 +55,8 @@ test("payment UI uses protected server routes instead of browser order updates",
   assert.match(paymentPage, /DOKU&apos;s[\s\S]*multi-bank Virtual Account/);
   assert.match(paymentPage, /View \{sourceBank\} transfer steps/);
   assert.match(paymentPage, /fetch\("\/api\/paypal\/create-checkout-order"/);
-  assert.match(paymentPage, /isTrustedPayPalCheckoutUrl\(json\.approveUrl\)/);
+  assert.match(paymentPage, /readPayPalCheckoutReview\(json, total\)/);
+  assert.match(read("lib/paypalCheckout.ts"), /isTrustedPayPalCheckoutUrl/);
   assert.match(paymentPage, /paymentDetailsRef\.current\?\.scrollIntoView\(/);
   assert.match(paymentPage, /behavior: reduceMotion \? "auto" : "smooth"/);
   assert.equal(paymentPage.includes('hostname.endsWith(".doku.com")'), false);

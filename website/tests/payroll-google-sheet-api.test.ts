@@ -59,6 +59,7 @@ function harness(conflict?: "manual" | "verified" | "locked" | "always") {
       if (name.endsWith("serverSupabase")) return { createSupabaseAdmin: () => client };
       if (name.endsWith("google-sheet-sync")) return sync;
       if (name.endsWith("workspace-model")) return workspace;
+      if (name.endsWith("payrollTelegram")) return { dispatchAddedSheetOrders: async () => ({ sent: 0 }) };
       throw new Error(`Unexpected dependency: ${name}`);
     },
   });

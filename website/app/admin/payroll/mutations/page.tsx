@@ -44,7 +44,8 @@ type TelegramMutationStatus = {
   order_type: "boosting" | "gold" | "item";
   target_quantity: number | string;
   delivered_quantity: number | string;
-  state: "waiting" | "assigned" | "in_progress" | "paused" | "problem" | "done_pending_admin";
+  state: "waiting" | "assigned" | "in_progress" | "paused" | "problem" | "done_pending_admin" | "verified";
+  dispatch_status?: string;
   last_event_at?: string;
   assignment?: { employee_code?: string; division?: string; status?: string } | null;
 };
@@ -557,6 +558,8 @@ export default function MutationsPage() {
               if (!blocking && !adminVerified && telegram) {
                 if (telegram.state === "problem") status = { label: "Telegram · Bermasalah", cls: "bg-red-500 text-white" };
                 else if (telegram.state === "done_pending_admin") status = { label: "Telegram · DONE · cek admin", cls: "bg-yellow-400 text-black" };
+                else if (telegram.state === "verified") status = { label: "Diverifikasi admin", cls: "bg-zinc-200 text-black" };
+                else if (telegram.dispatch_status === "waiting_division") status = { label: "Menunggu divisi", cls: "bg-zinc-700 text-zinc-200" };
                 else if (telegram.state === "paused") status = { label: "Telegram · PAUSE", cls: "bg-orange-500 text-black" };
                 else if (telegram.state === "in_progress") status = { label: "Telegram · START", cls: "bg-emerald-500 text-black" };
                 else if (telegram.state === "assigned") status = { label: "Telegram · Karyawan dipilih", cls: "bg-violet-500/30 text-violet-100" };

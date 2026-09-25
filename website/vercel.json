@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
+      "path": "/api/cron/payroll-telegram",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/cron/release-escrow",
       "schedule": "0 3 * * *"
     },

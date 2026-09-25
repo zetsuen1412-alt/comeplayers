@@ -113,7 +113,7 @@ test("friend attacks require accepted friendships and create bell notifications"
   assert.match(route, /status", "accepted"/);
   assert.match(route, /type: "frontline_attack"/);
   assert.match(route, /Your CP Frontline base was attacked!/);
-  assert.match(route, /link_url: `\/messages\?game=cp-frontline&battle=/);
+  assert.match(route, /link_url: `\/cpcommunity\?game=cp-frontline&battle=/);
   assert.match(messages, /ARCADE_WINDOW_GAMES\.find/);
   assert.match(messages, /game\.id === requestedGame/);
 });

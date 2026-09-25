@@ -15,7 +15,10 @@ test("messages desktop density fits the complete UI at browser zoom 100 percent"
   assert.equal(page.includes("--messages-ui-scale"), false);
   assert.equal(page.includes("--messages-layout-width"), false);
   assert.equal(page.includes("--messages-layout-height"), false);
-  assert.equal(css.includes("transform: scale("), false);
+  // Icon pulse animations may scale; the full page must not.
+  const pageLayout = css.match(/\.page\s*\{[^}]*\}/)?.[0] ?? "";
+  assert.ok(pageLayout, "The page layout selector must exist");
+  assert.doesNotMatch(pageLayout, /transform:\s*scale/);
   assert.equal(/\bzoom\s*:/.test(css), false);
 
   assert.match(css, /width: 100vw;/);

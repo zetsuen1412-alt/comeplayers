@@ -37,6 +37,8 @@ export async function GET(request: Request) {
         assignmentId: row.assignment_id,
         contributionId: row.contribution_id,
         evidenceType: row.evidence_type,
+        employeeCode: row.employee_code,
+        division: row.division,
         mediaType: row.media_type,
         telegramChatId: row.telegram_chat_id,
         telegramMessageId: row.telegram_message_id,

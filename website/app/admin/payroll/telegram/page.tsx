@@ -6,6 +6,8 @@ import { PageHeader } from "@/features/payroll/components/page-header";
 
 type SetupState = {
   configured: boolean;
+  checklist?: Record<string, boolean>;
+  notices?: { pending: number; needsReview: number };
   bot?: { id: number; first_name: string; username?: string } | null;
   webhook?: { url?: string; pending_update_count?: number; last_error_message?: string } | null;
   botError?: string;
@@ -24,8 +26,12 @@ export default function TelegramPayrollPage() {
   }, []);
 
   useEffect(() => {
-    void refresh().catch(error => setMessage(error instanceof Error ? error.message : "Gagal memuat Telegram."));
-  }, [refresh]);
+    let active = true;
+    void authenticatedFetchJson<SetupState>("/api/admin/payroll/telegram/setup")
+      .then(result => { if (active) setState(result); })
+      .catch(error => { if (active) setMessage(error instanceof Error ? error.message : "Gagal memuat Telegram."); });
+    return () => { active = false; };
+  }, []);
 
   async function setupWebhook() {
     setBusy(true); setMessage("");
@@ -46,13 +52,34 @@ export default function TelegramPayrollPage() {
 
       <section className="cp-card p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Status bot</h2>
+        <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+          {Object.entries({ token: "Bot token", secret: "Webhook secret", reachable: "Bot terhubung", webhook: "Webhook aktif", admin: "Admin terdaftar", FH1: "Grup FH1", FH2: "Grup FH2", FH3: "Grup FH3", employees: "Tautan karyawan" }).map(([key, label]) =>
+            <li key={key}>{state?.checklist?.[key] ? "✅" : "⬜"} {label}</li>)}
+        </ul>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-zinc-950/60 p-4"><div className="text-xs text-zinc-500">Konfigurasi Vercel</div><div className={`mt-2 font-semibold ${state?.configured ? "text-emerald-300" : "text-amber-300"}`}>{state?.configured ? "Siap" : "Belum lengkap"}</div></div>
           <div className="rounded-xl bg-zinc-950/60 p-4"><div className="text-xs text-zinc-500">Bot</div><div className="mt-2 font-semibold">{state?.bot ? `@${state.bot.username || state.bot.first_name}` : "—"}</div></div>
           <div className="rounded-xl bg-zinc-950/60 p-4"><div className="text-xs text-zinc-500">Webhook</div><div className="mt-2 break-all text-sm">{state?.webhook?.url || "Belum aktif"}</div></div>
         </div>
         {state?.webhook?.last_error_message ? <div className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{state.webhook.last_error_message}</div> : null}
+        {state?.notices ? <p className="mt-3 text-sm text-zinc-400">Pesan menunggu: {state.notices.pending} · Perlu diperiksa: {state.notices.needsReview}</p> : null}
+        {state?.notices?.needsReview ? <p className="mt-2 text-sm text-amber-300">Ada hasil pengiriman yang belum pasti. Admin perlu mencocokkan antrean dengan pesan asli Telegram sebelum mengirim ulang agar tidak ganda.</p> : null}
         <button type="button" disabled={busy || !state?.configured} onClick={setupWebhook} className="mt-4 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-40">{busy ? "Memasang…" : "Pasang / Perbarui Webhook"}</button>
+      </section>
+
+      <section className="cp-card mt-5 p-5 sm:p-6">
+        <h2 className="text-lg font-semibold">Panduan pemasangan</h2>
+        <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-6 text-zinc-300">
+          <li>Buka <a className="text-emerald-300 underline" href="https://t.me/BotFather" target="_blank" rel="noreferrer">@BotFather</a>, kirim <code>/newbot</code>, lalu tentukan nama dan username bot.</li>
+          <li>Simpan token dari BotFather sebagai <code>TELEGRAM_BOT_TOKEN</code> di Vercel Environment Variables. Jangan tempelkan token ke chat/grup atau kode.</li>
+          <li>Di BotFather, kirim <code>/setprivacy</code>, pilih bot, lalu pilih <strong>Disable</strong>. Tambahkan ulang bot ke grup jika pengaturan belum berlaku, agar foto/video dan teks bukti diterima.</li>
+          <li>Isi <code>TELEGRAM_WEBHOOK_SECRET</code> dengan nilai acak aman minimal 16 karakter dari server atau pengelola kata sandi. Gunakan karakter huruf, angka, garis bawah, atau tanda minus. Deploy perubahan konfigurasi.</li>
+          <li>Buka halaman ini di website produksi, lalu klik <strong>Pasang / Perbarui Webhook</strong>.</li>
+          <li>Chat bot dengan <code>/myid</code>. Isi <code>TELEGRAM_ADMIN_USER_IDS</code> dengan ID angka admin; pisahkan beberapa ID dengan koma. Deploy ulang.</li>
+          <li>Tambahkan bot ke grup EVO GAMING — FH1, FH2, FH3. Admin menjalankan <code>/bind FH1</code>, <code>/bind FH2</code>, atau <code>/bind FH3</code> di grup yang sesuai.</li>
+          <li>Karyawan aktif menjalankan <code>/link KODE_KARYAWAN</code> di grup divisinya. Admin dapat menentukan leader dengan <code>/leader KODE_KARYAWAN</code>.</li>
+          <li>Order baru otomatis dikirim. Jenis order atau divisi yang belum jelas harus diperbaiki dahulu. Gunakan <code>/dispatch KODE_ORDER</code> untuk order lama.</li>
+        </ol>
       </section>
 
       <section className="cp-card mt-5 p-5 sm:p-6">

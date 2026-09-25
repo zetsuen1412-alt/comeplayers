@@ -1,4 +1,5 @@
 import "server-only";
+import { payrollTelegramKeyboard, type TelegramNotice } from "./payrollTelegramProtocol";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Order } from "@/features/payroll/types/domain";
@@ -12,7 +13,8 @@ export type TelegramWorkflowState =
   | "in_progress"
   | "paused"
   | "problem"
-  | "done_pending_admin";
+  | "done_pending_admin"
+  | "verified";
 
 type TelegramInlineButton = { text: string; callback_data: string };
 type TelegramReplyMarkup = { inline_keyboard: TelegramInlineButton[][] };
@@ -45,15 +47,17 @@ export function isTelegramAdmin(userId: number) {
 async function telegramApi<T>(method: string, payload: Record<string, unknown>): Promise<T> {
   const token = botToken();
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN belum dikonfigurasi.");
-  const response = await fetch(`${TELEGRAM_API}/bot${token}/${method}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    cache: "no-store",
-  });
-  const body = await response.json() as { ok?: boolean; result?: T; description?: string };
-  if (!response.ok || !body.ok) throw new Error(body.description || `Telegram ${method} gagal.`);
-  return body.result as T;
+  try {
+    const response = await fetch(`${TELEGRAM_API}/bot${token}/${method}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload), cache: "no-store", signal: AbortSignal.timeout(5000),
+    });
+    const body = await response.json() as { ok?: boolean; result?: T };
+    if (!response.ok || !body.ok) throw new Error("Telegram request failed");
+    return body.result as T;
+  } catch {
+    throw new Error("Telegram belum dapat dihubungi. Periksa konfigurasi dan koneksi bot.");
+  }
 }
 
 export async function telegramSendMessage(input: {
@@ -97,84 +101,6 @@ export async function telegramGetWebhookInfo() {
   return telegramApi<{ url?: string; pending_update_count?: number; last_error_message?: string }>("getWebhookInfo", {});
 }
 
-function buttonsForBoosting(orderRef: string, assigned: boolean): TelegramReplyMarkup {
-  return {
-    inline_keyboard: assigned
-      ? [
-          [
-            { text: "▶ START", callback_data: `cp:start:${orderRef}` },
-            { text: "⏸ PAUSE", callback_data: `cp:pause:${orderRef}` },
-            { text: "▶ RESUME", callback_data: `cp:resume:${orderRef}` },
-          ],
-          [
-            { text: "✅ DONE", callback_data: `cp:done:${orderRef}` },
-            { text: "⚠ BERMASALAH", callback_data: `cp:problem:${orderRef}` },
-          ],
-          [{ text: "👤 CARA PILIH / GANTI KARYAWAN", callback_data: `cp:assignhelp:${orderRef}` }],
-        ]
-      : [
-          [{ text: "👤 PILIH KARYAWAN", callback_data: `cp:assignhelp:${orderRef}` }],
-          [{ text: "⚠ BERMASALAH", callback_data: `cp:problem:${orderRef}` }],
-        ],
-  };
-}
-
-function buttonsForGold(orderRef: string): TelegramReplyMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: "🪙 KIRIM GOLD", callback_data: `cp:gold:${orderRef}` }],
-      [{ text: "⚠ BERMASALAH", callback_data: `cp:problem:${orderRef}` }],
-    ],
-  };
-}
-
-function orderText(order: Order, division: string) {
-  const game = order.gameName || order.game || "—";
-  const name = order.orderName || order.service || "—";
-  const task = order.task?.trim();
-  if (order.orderType === "gold") {
-    return [
-      "🪙 ORDER GOLD BARU",
-      "",
-      `Kode Order : ${order.externalReference}`,
-      `Game       : ${game}`,
-      `Target     : ${order.quantity.toLocaleString("id-ID")} Gold`,
-      `Divisi     : ${division}`,
-      `Proses     : ${order.process || "—"}`,
-      "",
-      `Progress   : 0 / ${order.quantity.toLocaleString("id-ID")}`,
-      "",
-      "Kuota adalah GLOBAL. Semua divisi yang menerima order ini boleh mengirim sampai target terpenuhi.",
-    ].join("\n");
-  }
-  return [
-    "🎮 ORDER BOOSTING BARU",
-    "",
-    `Kode Order : ${order.externalReference}`,
-    `Game       : ${game}`,
-    `Divisi     : ${division}`,
-    `Order      : ${name}`,
-    ...(task ? [`Task       : ${task}`] : []),
-    `Buyer      : ${order.buyerName || "—"}`,
-    `Proses     : ${order.process || "JOKI"}`,
-    "",
-    "Karyawan   : BELUM DITENTUKAN DI TELEGRAM",
-    "",
-    "Admin/leader gunakan:",
-    `/assign ${order.externalReference} KODE_KARYAWAN`,
-  ].join("\n");
-}
-
-function normalizedDivision(value: unknown) {
-  const text = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
-  if (["1", "FH1"].includes(text)) return "FH1";
-  if (["2", "FH2"].includes(text)) return "FH2";
-  if (["3", "FH3"].includes(text)) return "FH3";
-  if (text === "ADMIN") return "ADMIN";
-  if (text === "BANDAR") return "BANDAR";
-  return "";
-}
-
 export async function payrollWorkspaceOrder(supabaseAdmin: SupabaseClient, orderRef: string): Promise<Order | null> {
   const { data, error } = await supabaseAdmin
     .from("cp_payroll_workspace")
@@ -204,86 +130,46 @@ export async function payrollWorkspaceEmployees(supabaseAdmin: SupabaseClient) {
   }>;
 }
 
-export async function dispatchPayrollTelegramOrder(supabaseAdmin: SupabaseClient, order: Order) {
-  if (!telegramEnabled()) return { sent: 0, skipped: "bot_disabled" };
-  if (order.orderType !== "boosting" && order.orderType !== "gold") return { sent: 0, skipped: "unsupported_type" };
-
-  const { data: boundDivisions, error: divisionError } = await supabaseAdmin
-    .from("cp_payroll_telegram_divisions")
-    .select("division,chat_id,chat_title,chat_username")
-    .eq("active", true);
-  if (divisionError) throw new Error(divisionError.message);
-
-  const team = normalizedDivision(order.team);
-  const targets = order.orderType === "gold"
-    ? (boundDivisions || []).filter(row => ["FH1", "FH2", "FH3"].includes(row.division))
-    : team
-      ? (boundDivisions || []).filter(row => row.division === team)
-      : (boundDivisions || []).filter(row => ["FH1", "FH2", "FH3"].includes(row.division));
-
-  if (!targets.length) return { sent: 0, skipped: "no_bound_division" };
-
-  const { error: orderError } = await supabaseAdmin
-    .from("cp_payroll_telegram_orders")
-    .upsert({
-      order_ref: order.externalReference,
-      order_type: order.orderType,
-      target_quantity: order.orderType === "gold" ? Math.max(0, Number(order.quantity || 0)) : 1,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "order_ref", ignoreDuplicates: false });
-  if (orderError) throw new Error(orderError.message);
-
+/** Drains committed notices. Never retry an ambiguous Telegram send (no provider idempotency key). */
+export async function flushPayrollTelegramOutbox(supabase: SupabaseClient) {
+  if (!telegramEnabled() || (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production")) return { sent: 0 };
   let sent = 0;
-  for (const target of targets) {
-    const { data: existing } = await supabaseAdmin
-      .from("cp_payroll_telegram_order_chats")
-      .select("message_id")
-      .eq("order_ref", order.externalReference)
-      .eq("division", target.division)
-      .maybeSingle();
-    if (existing?.message_id) continue;
-
-    const message = await telegramSendMessage({
-      chatId: target.chat_id,
-      text: orderText(order, target.division),
-      replyMarkup: order.orderType === "gold"
-        ? buttonsForGold(order.externalReference)
-        : buttonsForBoosting(order.externalReference, false),
-    });
-    const { error } = await supabaseAdmin
-      .from("cp_payroll_telegram_order_chats")
-      .upsert({
-        order_ref: order.externalReference,
-        division: target.division,
-        chat_id: target.chat_id,
-        message_id: message.message_id,
-      }, { onConflict: "order_ref,division" });
-    if (error) throw new Error(error.message);
-    sent++;
+  const deadline = Date.now() + 12_000;
+  while (sent < 10 && Date.now() < deadline) {
+    const { data, error } = await supabase.rpc("cp_telegram_claim_outbox");
+    if (error) throw new Error("Antrean Telegram belum dapat diakses.");
+    const row = data?.[0];
+    if (!row) break;
+    try {
+      const notice = row.payload as TelegramNotice;
+      const message = await telegramSendMessage({ chatId: row.chat_id, text: notice.text.slice(0, 4000), replyMarkup: payrollTelegramKeyboard(notice) });
+      const { error: saved } = await supabase.from("cp_payroll_telegram_outbox").update({ status: "sent", message_id: message.message_id }).eq("id", row.id);
+      if (saved) throw new Error("Acknowledgement unavailable");
+      if (String(row.event_key).startsWith("dispatch:")) {
+        await supabase.from("cp_payroll_telegram_order_chats").update({ message_id: message.message_id }).eq("order_ref", row.order_ref).eq("chat_id", row.chat_id);
+        await supabase.from("cp_payroll_telegram_orders").update({ dispatch_status: "sent" }).eq("order_ref", row.order_ref);
+      }
+      sent++;
+    } catch {
+      await supabase.from("cp_payroll_telegram_outbox").update({ status: "uncertain" }).eq("id", row.id);
+      break;
+    }
   }
   return { sent };
 }
 
-export async function dispatchAddedSheetOrders(
-  supabaseAdmin: SupabaseClient,
-  state: WorkspaceState,
-  rowResults: Array<{ rowNumber: number; status: string }>,
-) {
-  if (!telegramEnabled()) return { sent: 0 };
-  const addedRows = new Set(rowResults.filter(row => row.status === "added").map(row => row.rowNumber));
-  if (!addedRows.size) return { sent: 0 };
-  const orders = ((state[workspaceKeys.orders] ?? []) as Order[])
-    .filter(order => order.importSourceRow && addedRows.has(order.importSourceRow) && !order.sheetDeletedAt);
-  let sent = 0;
-  for (const order of orders) {
-    try {
-      const result = await dispatchPayrollTelegramOrder(supabaseAdmin, order);
-      sent += result.sent;
-    } catch (error) {
-      console.error("Telegram payroll dispatch failed", order.externalReference, error);
-    }
-  }
-  return { sent };
+export async function dispatchPayrollTelegramOrder(supabase: SupabaseClient, order: Order) {
+  if (order.orderType !== "boosting" && order.orderType !== "gold") return { sent: 0, skipped: "unsupported_type" };
+  const { error } = await supabase.rpc("cp_telegram_dispatch", { p_order_ref: order.externalReference });
+  if (error) throw new Error("Order Telegram belum dapat dijadwalkan.");
+  return flushPayrollTelegramOutbox(supabase);
+}
+
+// The workspace database trigger enqueues new/corrected Sheet and manual orders atomically.
+export async function dispatchAddedSheetOrders(supabase: SupabaseClient, _state: WorkspaceState, _rows: Array<{ rowNumber: number; status: string }>) {
+  void _state; void _rows;
+  try { return await flushPayrollTelegramOutbox(supabase); }
+  catch { return { sent: 0 }; } // The minute worker retries pending rows independently of Sheet hashes.
 }
 
 export function telegramMessageLink(chatId: number, messageId: number, chatUsername?: string | null) {
@@ -293,8 +179,3 @@ export function telegramMessageLink(chatId: number, messageId: number, chatUsern
   if (raw.startsWith("-100")) return `https://t.me/c/${raw.slice(4)}/${messageId}`;
   return null;
 }
-
-export const telegramKeyboards = {
-  boosting: buttonsForBoosting,
-  gold: buttonsForGold,
-};

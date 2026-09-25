@@ -27,7 +27,7 @@ test("black BOOSTER legacy imports X2832/X2833 retain JUMLAH and become blocking
   const rows = orders();
   for (const [code, title, quantity, assigned] of [["X2832", "200M", 20, 200], ["X2833", "50M", 5, 50]] as const) {
     const order = rows.find((row) => row.externalReference === code)!;
-    assert.equal(order.orderType, undefined);
+    assert.equal(order.orderType, "gold");
     assert.equal(order.orderName, title);
     assert.equal(order.quantity, quantity);
     assert.equal(order.operationalStatus, "draft");
@@ -67,7 +67,7 @@ test("boosting, daily work, levels, ambiguous separators and bundles are not gue
   const order = example();
   for (const title of ["6 Hours Package", "Leveling 1 - 200", "1 Month Package", "200M + 50M", "200M x2", "1.000M", "1,000M", "200M 2 days"]) {
     assert.equal(statedOrderQuantity({ ...order, orderName: title }), null, title);
-    assert.deepEqual(analyzeOrderQuantityIssues({ ...order, orderName: title, process: "JOKI", quantity: 1 }), [], title);
+    assert.deepEqual(analyzeOrderQuantityIssues({ ...order, orderType: undefined, orderName: title, process: "JOKI", quantity: 1 }), [], title);
   }
   assert.deepEqual(analyzeOrderQuantityIssues({ ...order, orderType: "boosting", quantity: 1 }), []);
   assert.deepEqual(analyzeOrderQuantityIssues({ ...order, scheduleMode: "daily", quantity: 1 }), []);

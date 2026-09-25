@@ -35,7 +35,9 @@ test("mobile configuration supports Android, iOS, and cross-platform OTA updates
   assert.equal(appConfig.expo.android.package, "com.comeplayers.app");
   assert.equal(appConfig.expo.ios.bundleIdentifier, "com.comeplayers.app");
   assert.equal(easConfig.build.production.channel, "production");
-  assert.match(mobileSource, /Platform\.OS === "ios"/);
+  assert.match(mobileSource, /Updates\.checkForUpdateAsync/);
+  assert.match(mobileSource, /Updates\.fetchUpdateAsync/);
+  assert.match(mobileSource, /Updates\.reloadAsync/);
   assert.doesNotMatch(mobileSource, /ALLOWED_APP_PATHS/);
   assert.match(updateScript, /@\("android", "ios"\)/);
   assert.doesNotMatch(updateScript, /--platform all/);

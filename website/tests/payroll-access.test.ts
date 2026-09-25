@@ -11,6 +11,15 @@ import * as mutationReset from '../features/payroll/lib/mutation-reset';
 const K=model.workspaceKeys;
 const actor={id:'00000000-0000-4000-8000-000000000002',name:'Operator',isAdmin:false,email:'operator@example.test'};
 const order={id:'o1',externalReference:'MAN-01',quantity:1,grossMinor:10,expectedPaymentMinor:10,matchedPaymentMinor:0,orderedAt:'2026-09-17T00:00:00Z'};
+
+test('delegated payroll users cannot verify, close, or undo admin verification',()=>{
+  const draft={[K.orders]:[{...order,operationalStatus:'draft'}]};
+  const verified={[K.orders]:[{...order,operationalStatus:'verified',verifiedAt:'2026-09-26T00:00:00Z'}]};
+  assert.throws(()=>attributeWorkspaceEdit(draft,verified,actor,'now'),/Hanya admin/);
+  assert.throws(()=>attributeWorkspaceEdit(verified,draft,actor,'now'),/Hanya admin/);
+  assert.throws(()=>attributeWorkspaceEdit(draft,{[K.orders]:[{...order,financeStatus:'closed'}]},actor,'now'),/Hanya admin/);
+  assert.doesNotThrow(()=>attributeWorkspaceEdit(draft,verified,{...actor,isAdmin:true},'now'));
+});
 test('manual references trim, preserve entered case and reject duplicate or unsafe input',()=>{
   assert.equal(manualOrderCode(' G2G-123_A.1 '),'G2G-123_A.1');
   for(const value of ['', '  ', '../abc','a/b','a?b','a b','A'.repeat(65)])assert.throws(()=>manualOrderCode(value));
@@ -61,7 +70,7 @@ test('save endpoint ignores caller supplied actor and maps a concurrent revocati
   for(const revoked of [false,true]) {
     let call:any;
     const db={from:()=>({select:()=>({eq:()=>({single:async()=>({data:{revision:0,payload:{}},error:null})})})}),rpc:async(_name:string,args:any)=>{call=args;return revoked?{error:{code:'42501'}}:{data:{state:args.p_payload,revision:1}};}};
-    const route=load('app/api/admin/payroll/workspace/route.ts',{'@/lib/payrollAccess':{requirePayrollAccess:async()=>({user:{id:actor.id},actor,supabaseAdmin:db})},'@/lib/adminSecurity':{adminErrorStatus},'@/features/payroll/lib/workspace-model':model,'@/features/payroll/lib/audit-model':{attributeWorkspaceEdit},'@/features/payroll/lib/mutation-reset':mutationReset});
+    const route=load('app/api/admin/payroll/workspace/route.ts',{'@/lib/payrollAccess':{requirePayrollAccess:async()=>({user:{id:actor.id},actor,supabaseAdmin:db})},'@/lib/adminSecurity':{adminErrorStatus},'@/features/payroll/lib/workspace-model':model,'@/features/payroll/lib/audit-model':{attributeWorkspaceEdit},'@/features/payroll/lib/mutation-reset':mutationReset,'@/lib/payrollTelegram':{flushPayrollTelegramOutbox:async()=>({sent:0})}});
     const response=await route.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({action:'save',expectedRevision:0,actor:'forged',state:{[K.history]:[{id:'h1',editedBy:'Fake'}]}})}));
     assert.equal(response.status,revoked?403:200);assert.equal(call.p_actor,actor.id);assert.equal(call.p_payload[K.history][0].editedBy,actor.name);
   }
@@ -73,7 +82,7 @@ test('workspace endpoint rejects quantity mismatches before any save or Closing 
     const payload=action==='save'?{[K.orders]:[{...invalid,operationalStatus:'draft'}]}:{[K.orders]:[{...invalid,operationalStatus:'verified'}],[K.lock]:{id:'lock',from:'2026-09-17T00:00',to:'2026-09-17T23:59'}};
     let writes=0;
     const db={from:()=>({select:()=>({eq:()=>({single:async()=>({data:{revision:0,payload},error:null})})})}),rpc:async()=>{writes++;return {data:{}};}};
-    const route=load('app/api/admin/payroll/workspace/route.ts',{'@/lib/payrollAccess':{requirePayrollAccess:async()=>({user:{id:actor.id},actor,supabaseAdmin:db})},'@/lib/adminSecurity':{adminErrorStatus},'@/features/payroll/lib/workspace-model':model,'@/features/payroll/lib/audit-model':{attributeWorkspaceEdit},'@/features/payroll/lib/mutation-reset':mutationReset});
+    const route=load('app/api/admin/payroll/workspace/route.ts',{'@/lib/payrollAccess':{requirePayrollAccess:async()=>({user:{id:actor.id},actor:{...actor,isAdmin:true},supabaseAdmin:db})},'@/lib/adminSecurity':{adminErrorStatus},'@/features/payroll/lib/workspace-model':model,'@/features/payroll/lib/audit-model':{attributeWorkspaceEdit},'@/features/payroll/lib/mutation-reset':mutationReset,'@/lib/payrollTelegram':{flushPayrollTelegramOutbox:async()=>({sent:0})}});
     const response=await route.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({action,expectedRevision:0,state:{[K.orders]:[{...invalid,operationalStatus:'verified'}]}})}));
     assert.equal(response.status,409,action);
     assert.equal(writes,0,action);

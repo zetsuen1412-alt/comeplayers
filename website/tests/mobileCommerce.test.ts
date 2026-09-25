@@ -90,13 +90,13 @@ test("opening a saved top-up is a read and never attempts capture", async () => 
   assert.equal(result.status, 200); assert.equal(captures(), 0);
 });
 
-test("message acknowledgement does not wait for push delivery", async () => {
+test("group message acknowledgement does not wait for push delivery", async () => {
   const after: Array<() => Promise<void>> = [];
   let notifications = 0, inserted = 0, accessChecked = false;
   const message = { id: userId, created_at: new Date().toISOString(), message: "hello" };
   const db = { from(table: string) {
     const query: any = {
-      select: () => query, eq: () => query, gte: () => query, update: () => query,
+      select: () => query, eq: () => query, gte: () => query, update: () => query, upsert: () => query,
       insert: () => { assert.ok(accessChecked); inserted++; return query; },
       single: async () => ({ data: message, error: null }),
       maybeSingle: async () => ({ data: { username: "test" }, error: null }),
@@ -108,10 +108,10 @@ test("message acknowledgement does not wait for push delivery", async () => {
     "@/lib/chatContacts": { assertContactAllowed: async () => {} },
     "@/lib/apiErrors": { safeApiErrorMessage: () => "Failed" },
     "@/lib/backgroundJobs": { dispatchChatPushNotifications: async () => { notifications++; throw Error("Provider down"); } },
-    "@/lib/communityServer": { requireCommunityChannel: async () => {} },
+    "@/lib/communityServer": { requireCommunityChannel: async () => ({ channel: { id: "channel", type: "text" } }) },
     "@/lib/upstashRedis": { isUpstashRedisConfigured: () => false, invalidateUnreadCache: async () => {}, consumeRedisRateLimit: async () => {} },
     "@/lib/chatSafety": { analyzeChatMessage: () => ({ allowed: true, score: 0, level: "low", flags: [] }), chatMessagePreview: (value: string) => value },
-    "@/lib/chatServer": { assertChatUserCanSend: async () => {}, assertLegacyDirectMessagingAllowed: async () => {}, requireChatRoomAccess: async () => { accessChecked = true; return { room: { id: userId, buyer_id: userId, seller_id: "seller", status: "active" } }; }, isGroupRoom: () => false, createChatNotification: async () => {}, safeProfileLabel: () => "Test", chatErrorStatus: () => 500 },
+    "@/lib/chatServer": { assertChatUserCanSend: async () => {}, assertLegacyDirectMessagingAllowed: async () => {}, requireChatRoomAccess: async () => { accessChecked = true; return { room: { id: userId, buyer_id: userId, seller_id: "seller", status: "active" } }; }, isGroupRoom: () => true, listChatRoomMembers: async () => [{user_id:"other",status:"active"}], createChatNotification: async () => {}, safeProfileLabel: () => "Test", chatErrorStatus: () => 500 },
     "@/lib/serverSupabase": { requireAuthenticatedUser: async () => ({ id: userId }), createSupabaseAdmin: () => db },
   });
   const result = await handler.POST(new Request("https://example.test/message", { method: "POST", body: JSON.stringify({ message: "hello" }) }), { params: Promise.resolve({ id: userId }) });

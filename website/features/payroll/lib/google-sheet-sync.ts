@@ -229,6 +229,7 @@ function columnsFor(headers: string[]) {
     rate: headerIndex(headers, ["RATE", "HARGA", "PRICE"], 11),
     total: headerIndex(headers, ["TOTAL", "TOTAL HARGA", "GROSS"], 12),
     task: headerIndex(headers, ["TASK", "TUGAS", "KETERANGAN TASK"], -1),
+    orderType: headerIndex(headers, ["JENIS ORDER", "JENIS", "ORDER TYPE", "TYPE"], -1),
   };
 }
 
@@ -283,6 +284,17 @@ function parseIncomingOrder(input: {
   }
 
   const sheetTeam = mapTeam(displayAt(row, columns.team)) ?? mapTeam(booster);
+  const explicitType = folded(displayAt(row, columns.orderType));
+  const namedGoldDistribution = Boolean(status.trim()) && status.split(/[\r\n;|]+/).filter(part => part.trim())
+    .every(part => /^[\p{L}][\p{L} .'-]*\s*:?\s*\d+(?:[.,]\d+)?\s*[KMGB]$/iu.test(part.trim()));
+  const typeAliases: Record<string, Order["orderType"]> = {
+    GOLD: "gold", KOIN: "gold", COIN: "gold", BOOSTING: "boosting", BOOST: "boosting",
+    JOKI: "boosting", "JASA BOOSTING": "boosting", ITEM: "item", "ITEM GAME": "item",
+  };
+  const orderType = explicitType ? typeAliases[explicitType]
+    : ["JOKI", "BOOST", "BOOSTING"].includes(folded(process)) ? "boosting"
+      : row.boosterBlack && namedGoldDistribution ? "gold" : undefined;
+  if (!orderType) issues.push(importIssue("sheet_order_type_unknown", "Jenis order belum diketahui", "Isi JENIS ORDER dengan GOLD, BOOSTING, atau ITEM. Telegram menunggu jenis order yang jelas."));
   const firstWorker = assignments[0];
   const finalIssues = uniqueIssues(issues);
   // KODE is the identity; physical row numbers can move after sorts/deletions.
@@ -298,6 +310,7 @@ function parseIncomingOrder(input: {
       source,
       buyerName: buyerName || undefined,
       orderName,
+      orderType,
       task: task || undefined,
       game: game?.code || gameText || "—",
       gameId: game?.id,
@@ -339,6 +352,7 @@ function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
     source: incoming.source,
     buyerName: incoming.buyerName,
     orderName: incoming.orderName,
+    orderType: incoming.orderType,
     task: incoming.task,
     game: incoming.game,
     gameId: incoming.gameId,

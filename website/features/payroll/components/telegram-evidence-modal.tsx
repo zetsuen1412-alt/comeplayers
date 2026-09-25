@@ -11,6 +11,8 @@ type EvidenceRow = {
   link?: string | null;
   assignmentId?: string | null;
   contributionId?: string | null;
+  employeeCode?: string | null;
+  division?: string | null;
 };
 
 type EvidencePayload = {
@@ -18,12 +20,6 @@ type EvidencePayload = {
   assignments: Array<{ id: string; employee_code: string; division: string; status: string; started_at?: string | null; done_at?: string | null }>;
   contributions: Array<{ id: string; employee_code: string; division: string; requested_quantity: number; accepted_quantity: number; created_at: string }>;
   evidence: EvidenceRow[];
-};
-
-const label: Record<EvidenceRow["evidenceType"], string> = {
-  start: "START",
-  done: "DONE",
-  gold: "GOLD",
 };
 
 export function TelegramEvidenceModal({ orderRef, onClose }: { orderRef: string; onClose: () => void }) {
@@ -79,6 +75,7 @@ export function TelegramEvidenceModal({ orderRef, onClose }: { orderRef: string;
                   <div>
                     <div className="font-semibold">{row.mediaType === "video" ? "🎥 Video" : "📷 Foto / Screenshot"} {index + 1}</div>
                     <div className="mt-1 text-xs text-zinc-500">{new Date(row.createdAt).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })}</div>
+                    {row.employeeCode ? <div className="mt-1 text-xs text-zinc-400">{row.employeeCode} · {row.division}</div> : null}
                   </div>
                   {row.link ? <a href={row.link} target="_blank" rel="noreferrer" className="rounded-lg bg-sky-500 px-3 py-2 text-xs font-bold text-black">Buka Telegram</a> : <span className="text-xs text-zinc-600">Link tidak tersedia</span>}
                 </div>)}

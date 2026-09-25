@@ -47,10 +47,10 @@ test("marketplace game categories show mapped or actively listed games", () => {
   assert.match(gamesRoute, /let activeCategory/);
   assert.match(gamesRoute, /categoryProductGameIds/);
   assert.match(gamesRoute, /id\.in\.\(\$\{categoryGameIds\.join\(","\)\}\)/);
-  assert.match(gamesRoute, /from\("game_master"\)/);
+  assert.match(gamesRoute, /from\("game_master_marketplace_catalog"\)/);
   assert.match(gamesRoute, /if \(activeCategory\)[\s\S]*category_id\.eq/);
-  assert.match(adminGames, /Marketplace Category/);
-  assert.match(adminGames, /category_id: editCategoryId/);
+  assert.match(adminGames, /GameCategoryCheckboxes/);
+  assert.match(adminGames, /category_id/);
 });
 
 test("gift cards and software use curated non-game marketplace catalogs", () => {
@@ -99,7 +99,7 @@ test("dark legal center exposes marketplace policy menu pages", () => {
   assert.match(legalContent, /refund-cancellation-policy/);
   assert.match(legalContent, /advertising-policy/);
   assert.match(legalHub, /Legal Center/);
-  assert.match(legalArticle, /Legal Menu/);
+  assert.match(legalArticle, /Legal menu/);
   assert.match(privacyPage, /privacy-policy/);
   assert.match(termsPage, /terms-of-service/);
 });
@@ -110,10 +110,11 @@ test("checkout creates an immutable order pricing and seller tax snapshot", () =
     "scripts/comeplayers_profiles_full_name_v23_5.sql",
   );
 
-  assert.match(checkoutRoute, /create_marketplace_order_v13/);
-  assert.match(checkoutRoute, /create_marketplace_order_doku_v1/);
-  assert.match(checkoutRoute, /cp_apply_seller_tax_v23/);
-  assert.match(checkoutRoute, /cp_release_order_reservation/);
+  assert.match(checkoutRoute, /cp_create_quoted_marketplace_order_v1/);
+  assert.match(checkoutRoute, /verifyCheckoutQuote/);
+  const pricing = source("supabase/migrations/20260916144937_marketplace_pricing_consistency.sql");
+  assert.match(pricing, /cp_apply_seller_tax_v23/);
+  assert.match(pricing, /p_expected_quote/);
   assert.match(profilePatch, /ADD COLUMN IF NOT EXISTS full_name text/);
 });
 
@@ -243,6 +244,6 @@ test("dispute buyer-win refunds and seller-win escrow release use admin finance 
   assert.match(adminDisputesRoute, /refundMarketplaceOrder/);
   assert.match(adminDisputesRoute, /completeMarketplaceOrderAsAdmin/);
   assert.match(adminDisputesRoute, /recordAdminAudit/);
-  assert.match(adminOrderActions, /cp_admin_finalize_order_refund/);
+  assert.match(adminOrderActions, /cp_refund_order_to_wallet/);
   assert.match(adminOrderActions, /complete_order_and_release_escrow_v23/);
 });

@@ -6,6 +6,7 @@ import {
   telegramGetWebhookInfo,
   telegramSetWebhook,
   telegramWebhookSecret,
+  telegramAdminIds,
 } from "@/lib/payrollTelegram";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,9 @@ export async function GET(request: Request) {
     ]);
     if (divisionError) throw divisionError;
     if (employeeError) throw employeeError;
+    const { data: notices, error: noticeError } = await supabaseAdmin.from("cp_payroll_telegram_outbox")
+      .select("status,attempted_at").in("status", ["pending", "sending", "uncertain"]).limit(5000);
+    if (noticeError) throw noticeError;
 
     let bot = null, webhook = null, botError = "";
     if (telegramEnabled()) {
@@ -39,9 +43,22 @@ export async function GET(request: Request) {
 
     return Response.json({
       configured: telegramEnabled() && telegramWebhookSecret().length >= 16,
+      checklist: {
+        token: telegramEnabled(), secret: telegramWebhookSecret().length >= 16, reachable: Boolean(bot),
+        webhook: webhook?.url === "https://www.comeplayers.com/api/integrations/telegram/payroll",
+        admin: telegramAdminIds().size > 0,
+        FH1: Boolean(divisions?.some(row => row.division === "FH1" && row.active)),
+        FH2: Boolean(divisions?.some(row => row.division === "FH2" && row.active)),
+        FH3: Boolean(divisions?.some(row => row.division === "FH3" && row.active)),
+        employees: Boolean(employees?.some(row => row.active)),
+      },
       bot,
       webhook,
       botError,
+      notices: {
+        pending: (notices || []).filter(row => row.status === "pending").length,
+        needsReview: (notices || []).filter(row => row.status === "uncertain" || (row.status === "sending" && Date.parse(row.attempted_at) < Date.now() - 120_000)).length,
+      },
       divisions: divisions || [],
       employees: employees || [],
     }, { headers: { "Cache-Control": "no-store" } });
@@ -58,8 +75,8 @@ export async function POST(request: Request) {
     if (!telegramEnabled()) throw Object.assign(new Error("TELEGRAM_BOT_TOKEN belum dikonfigurasi di Vercel."), { status: 409 });
     if (telegramWebhookSecret().length < 16) throw Object.assign(new Error("TELEGRAM_WEBHOOK_SECRET belum dikonfigurasi di Vercel."), { status: 409 });
 
-    const origin = new URL(request.url).origin;
-    const url = `${origin}/api/integrations/telegram/payroll`;
+    if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") throw Object.assign(new Error("Pasang webhook melalui website produksi ComePlayers."), { status: 409 });
+    const url = "https://www.comeplayers.com/api/integrations/telegram/payroll";
     await telegramSetWebhook(url);
     const [bot, webhook] = await Promise.all([telegramGetMe(), telegramGetWebhookInfo()]);
     return Response.json({ ok: true, url, bot, webhook });
