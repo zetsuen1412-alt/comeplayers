@@ -5,11 +5,13 @@ import { getPayrollActor, withPayrollBatch, flushPayroll } from "@/features/payr
 import { hasAutomaticSheetProtection, isSheetOrder } from "@/features/payroll/lib/sheet-sync-policy";
 import { canonical } from "@/features/payroll/lib/workspace-model";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { MutationSpreadsheet } from "@/features/payroll/components/mutation-spreadsheet";
 import { MutationIssueModal } from "@/features/payroll/components/mutation-issue-modal";
+import { TelegramEvidenceModal } from "@/features/payroll/components/telegram-evidence-modal";
+import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { compareMutationOrders, defaultMutationSort, mutationSortLabel, toggleMutationSort, type MutationSortState } from "@/features/payroll/lib/mutation-table-sort";
 import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { MutationEditModal } from "@/features/payroll/components/mutation-edit-modal";
@@ -37,6 +39,15 @@ type DateMode = "all" | "today" | "week" | "month" | "range";
 type TypeFilter = "SEMUA" | "gold" | "item" | "boosting";
 type ProblemFilter = "SEMUA" | "BERMASALAH" | "NORMAL";
 type SortMode = "newest" | "oldest" | "highest" | "lowest" | "source_az" | "buyer_az" | "game_az" | "employee_az" | "employee_za" | "division_az" | "division_za";
+type TelegramMutationStatus = {
+  order_ref: string;
+  order_type: "boosting" | "gold" | "item";
+  target_quantity: number | string;
+  delivered_quantity: number | string;
+  state: "waiting" | "assigned" | "in_progress" | "paused" | "problem" | "done_pending_admin";
+  last_event_at?: string;
+  assignment?: { employee_code?: string; division?: string; status?: string } | null;
+};
 
 function dateDaysAgo(dateInput: string, days: number) {
   const date = new Date(`${dateInput}T12:00:00+07:00`);
@@ -177,7 +188,25 @@ export default function MutationsPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [selectedSyncIds, setSelectedSyncIds] = useState<string[]>([]);
   const [savingSyncLocks, setSavingSyncLocks] = useState(false);
+  const [telegramStatuses, setTelegramStatuses] = useState<Record<string, TelegramMutationStatus>>({});
+  const [telegramEvidenceOrder, setTelegramEvidenceOrder] = useState<string | null>(null);
   const canManageSync = getPayrollActor()?.isAdmin === true;
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const result = await authenticatedFetchJson<{ orders: TelegramMutationStatus[] }>("/api/admin/payroll/telegram/status");
+        if (!active) return;
+        setTelegramStatuses(Object.fromEntries(result.orders.map(row => [row.order_ref.trim().toLowerCase(), row])));
+      } catch {
+        // Mutasi tetap dapat dipakai bila integrasi Telegram belum dikonfigurasi.
+      }
+    };
+    void load();
+    const timer = window.setInterval(() => void load(), 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, []);
 
   async function setSheetLocks(ids: string[], locked: boolean, restore = false) {
     if (!canManageSync || isLocked || savingSyncLocks) return;
@@ -426,7 +455,7 @@ export default function MutationsPage() {
 
   return (
     <>
-      <PageHeader title="Mutasi" description={"Paket harian ditampilkan per Hari 1, Hari 2, dan seterusnya. Pembagian jumlah Gold/Item ditampilkan per karyawan dan masalah dapat diklik untuk melihat penyebabnya."} />
+      <PageHeader title="Mutasi" description={"Telegram: START = hijau, PAUSE = oranye, DONE = kuning, Bermasalah = merah. Setelah admin klik Pesanan ini selesai, baris kembali normal/putih dan masuk proses Gaji sesuai aturan."} />
 
       <section className="cp-card p-5 sm:p-6">
         <div>
@@ -514,16 +543,35 @@ export default function MutationsPage() {
 
       <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
         sortColumn={sortState.column} sortDirection={sortState.direction} onSort={(column) => setSortState((current) => toggleMutationSort(current, column))}
-        overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
-        onOverlayClose={() => { setTaskOrder(null); setEditingRow(null); setIssueRow(null); }}>
+        overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : telegramEvidenceOrder ? <TelegramEvidenceModal orderRef={telegramEvidenceOrder} onClose={() => setTelegramEvidenceOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
+        onOverlayClose={() => { setTaskOrder(null); setTelegramEvidenceOrder(null); setEditingRow(null); setIssueRow(null); }}>
           <tbody>
             {rows.map((row) => {
               const order = row.order;
               const issues = issuesByRow.get(row.id) ?? [];
-              const status = workStatus(row, issues);
+              const telegram = telegramStatuses[order.externalReference.trim().toLowerCase()];
+              let status = workStatus(row, issues);
               const blocking = hasBlockingOrderIssues(issues);
               const quantityBlocked = !row.day && analyzeOrderQuantityIssues(order).length > 0;
-              const rowClass = row.day?.payrollClosedAt || (!row.day && order.payrollClosedAt) ? "bg-emerald-500/10" : blocking || row.day?.status === "on_hold" || order.operationalStatus === "on_hold" ? "bg-red-500/10" : "";
+              const adminVerified = Boolean(row.day?.payrollClosedAt || (!row.day && order.payrollClosedAt) || row.day?.status === "verified" || (!row.day && order.operationalStatus === "verified"));
+              if (!blocking && !adminVerified && telegram) {
+                if (telegram.state === "problem") status = { label: "Telegram · Bermasalah", cls: "bg-red-500 text-white" };
+                else if (telegram.state === "done_pending_admin") status = { label: "Telegram · DONE · cek admin", cls: "bg-yellow-400 text-black" };
+                else if (telegram.state === "paused") status = { label: "Telegram · PAUSE", cls: "bg-orange-500 text-black" };
+                else if (telegram.state === "in_progress") status = { label: "Telegram · START", cls: "bg-emerald-500 text-black" };
+                else if (telegram.state === "assigned") status = { label: "Telegram · Karyawan dipilih", cls: "bg-violet-500/30 text-violet-100" };
+              }
+              const rowClass = adminVerified
+                ? ""
+                : blocking || row.day?.status === "on_hold" || order.operationalStatus === "on_hold" || telegram?.state === "problem"
+                  ? "bg-red-500/10"
+                  : telegram?.state === "done_pending_admin"
+                    ? "bg-yellow-400/15"
+                    : telegram?.state === "paused"
+                      ? "bg-orange-500/15"
+                      : telegram?.state === "in_progress"
+                        ? "bg-emerald-500/15"
+                        : "";
               return (
                 <tr key={row.id} className={rowClass}>
                   <td className="text-sm">{formatDateTimeID(row.orderedAt)}</td>
@@ -546,6 +594,7 @@ export default function MutationsPage() {
                         <label className="flex items-center gap-2 text-xs"><input type="checkbox" aria-label={`Pilih kunci ${order.externalReference}`} checked={selectedSyncIds.includes(order.id)} disabled={isLocked || savingSyncLocks} onChange={event => setSelectedSyncIds(ids => event.target.checked ? [...new Set([...ids, order.id])] : ids.filter(id => id !== order.id))} />Pilih</label>
                         <button disabled={isLocked || savingSyncLocks} onClick={() => void setSheetLocks([order.id], !order.sheetSyncLocked)} className="rounded-lg border border-amber-400/40 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{order.sheetSyncLocked ? "Buka kunci Sheet" : "Kunci dari Sheet"}</button>
                       </> : null}
+                      {canManageSync && telegram ? <button onClick={() => setTelegramEvidenceOrder(order.externalReference)} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-bold text-sky-100">📎 Bukti Telegram</button> : null}
                       <button onClick={() => setEditingRow(row)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
                       {issues.length ? <button onClick={() => setIssueRow({ row, issues })} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">⚠ Masalah ({issues.length})</button> : null}
                       {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}
