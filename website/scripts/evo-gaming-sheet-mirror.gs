@@ -112,7 +112,25 @@ function egmRequireService_() {
 }
 
 function egmMetadata_(id) {
-  return JSON.parse(JSON.stringify(Sheets.Spreadsheets.get(id, { fields: 'properties(defaultFormat,spreadsheetTheme),sheets(properties,merges,conditionalFormats)' })));
+  return egmApi_(id, '', { fields: 'properties(defaultFormat,spreadsheetTheme),sheets(properties,merges,conditionalFormats)' });
+}
+
+// Parse HTTP JSON directly. Large Advanced Service cell objects otherwise spend
+// substantial time/memory crossing the service bridge even within a small range.
+// The token is used only for Google's fixed API host, never persisted or logged.
+function egmApi_(id, suffix, query, body) {
+  var parameters = ['prettyPrint=false'];
+  Object.keys(query || {}).forEach(function (key) {
+    var values = Array.isArray(query[key]) ? query[key] : [query[key]];
+    values.forEach(function (value) { parameters.push(encodeURIComponent(key) + '=' + encodeURIComponent(value)); });
+  });
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + encodeURIComponent(id) + suffix + (parameters.length ? '?' + parameters.join('&') : '');
+  var options = { method: body ? 'post' : 'get', headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+    muteHttpExceptions: true, followRedirects: false };
+  if (body) { options.contentType = 'application/json'; options.payload = JSON.stringify(body); }
+  var response = UrlFetchApp.fetch(url, options), status = response.getResponseCode();
+  if (status < 200 || status >= 300) throw new Error('Google Sheets API HTTP ' + status + '; batch akan dicoba ulang dari cursor/antrean.');
+  return JSON.parse(response.getContentText());
 }
 
 function egmSheet_(metadata, name) {
@@ -193,7 +211,7 @@ function egmDrainEdits_(context, deadline, result) {
 function egmWrite_(context, requests) {
   if (!requests.length) return;
   if (context.config.targetId === context.config.sourceId) throw new Error('Dilarang menulis ke sumber.');
-  return Sheets.Spreadsheets.batchUpdate({ requests: requests }, context.config.targetId);
+  return egmApi_(context.config.targetId, ':batchUpdate', {}, { requests: requests });
 }
 
 function egmPrepareTarget_(context, name, rows, columns, layout) {
@@ -243,10 +261,8 @@ function egmA1_(range) {
 }
 
 function egmRead_(id, range) {
-  // Detach the Advanced Service response once; loops must not repeatedly traverse
-  // its service-backed objects while building values, formats and signatures.
-  var response = JSON.parse(JSON.stringify(Sheets.Spreadsheets.get(id, { ranges: [egmA1_(range)], fields:
-    'sheets(data(startRow,startColumn,rowData(values(effectiveValue,userEnteredValue,formattedValue,effectiveFormat(' + EGM_FORMAT_FIELDS + '),dataValidation))))' })));
+  var response = egmApi_(id, '', { ranges: [egmA1_(range)], fields:
+    'sheets(data(startRow,startColumn,rowData(values(effectiveValue,userEnteredValue,formattedValue,effectiveFormat(' + EGM_FORMAT_FIELDS + '),dataValidation))))' });
   var data = ((response.sheets || [])[0] || {}).data || [];
   var grid = data[0] || {}, values = grid.rowData || [];
   return Array.from({ length: range.rows }, function (_, r) {
@@ -307,7 +323,7 @@ function egmValidation_(rule, context, source) {
   if (source && copy.condition && copy.condition.type === 'ONE_OF_RANGE') {
     var reference = copy.condition.values[0].userEnteredValue.replace(/^=/, '');
     if (!context.validationLists[reference]) {
-      var data = Sheets.Spreadsheets.Values.get(context.config.sourceId, reference, { valueRenderOption: 'FORMATTED_VALUE' });
+      var data = egmApi_(context.config.sourceId, '/values/' + encodeURIComponent(reference), { valueRenderOption: 'FORMATTED_VALUE' });
       var options = [];
       (data.values || []).forEach(function (row) { row.forEach(function (value) { var text = String(value); if (text !== '' && options.indexOf(text) < 0) options.push(text); }); });
       if (options.length > 500) throw new Error('Dropdown sumber memiliki lebih dari 500 opsi; gunakan daftar yang lebih kecil.');
