@@ -165,21 +165,26 @@ function syncComePlayersPayrollRows_(mode, event) {
   if (secret.length < 24) throw new Error("CP_SYNC_SECRET belum dikonfigurasi.");
   if (!actorEmail) throw new Error("CP_ACTOR_EMAIL belum dikonfigurasi.");
   if (!Number.isInteger(headerRow) || headerRow < 1) throw new Error("CP_HEADER_ROW tidak valid.");
+  // Keep header mapping independent from the first open-period data row.
+  var dataStartRow = Number(config.CP_START_ROW || (headerRow + 1));
+  if (!Number.isSafeInteger(dataStartRow) || dataStartRow <= headerRow) {
+    throw new Error("CP_START_ROW harus berupa nomor baris setelah header.");
+  }
 
   var lastRow = sheet.getLastRow();
   var lastColumn = Math.min(Math.max(sheet.getLastColumn(), 13), 32);
-  var firstRow = event ? Math.max(headerRow + 1, event.range.getRow()) : headerRow + 1;
+  var firstRow = event ? Math.max(dataStartRow, event.range.getRow()) : dataStartRow;
   var endRow = event ? Math.min(lastRow, event.range.getLastRow()) : lastRow;
   var summary = { ok: true, saved: false, syncMode: mode, added: 0, updated: 0, unchanged: 0,
     skippedProtected: 0, skippedConflicts: 0, skippedInvalid: 0, sent: 0, deferred: 0 };
   if (endRow < firstRow) return summary;
-  if (lastRow - headerRow > 10000) throw new Error("Batas sinkronisasi 10000 baris aktif terlampaui.");
+  if (lastRow - dataStartRow + 1 > 10000) throw new Error("Batas sinkronisasi 10000 baris aktif terlampaui.");
 
   var headers = sheet.getRange(headerRow, 1, 1, lastColumn).getDisplayValues()[0];
   var codeColumn = findComePlayersHeader_(headers, ["KODE", "CODE", "ORDER CODE"], 1);
   var boosterColumn = findComePlayersHeader_(headers, ["BOOSTER", "KARYAWAN", "PEKERJA"], 5);
-  // Scan only KODE outside the edit range to catch duplicates across the sheet.
-  var codeValues = sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues();
+  // Scan KODE only in the configured period; earlier closed periods are excluded.
+  var codeValues = sheet.getRange(dataStartRow, codeColumn + 1, lastRow - dataStartRow + 1, 1).getDisplayValues();
   var codeCounts = Object.create(null);
   codeValues.forEach(function (row) {
     var key = String(row[0] || "").trim().toLowerCase();
@@ -205,7 +210,7 @@ function syncComePlayersPayrollRows_(mode, event) {
   if (mode === "reconcile") {
     Object.keys(buckets).forEach(function (key) {
       Object.keys(buckets[key]).forEach(function (number) {
-        var codeRow = codeValues[Number(number) - headerRow - 1];
+        var codeRow = codeValues[Number(number) - dataStartRow];
         if (!codeRow || !String(codeRow[0] || "").trim()) {
           delete buckets[key][number]; dirtyBuckets[key] = true;
         }
@@ -245,7 +250,8 @@ function syncComePlayersPayrollRows_(mode, event) {
   }
   saveSignatures();
   for (var offset = 0; offset < rows.length; offset += COMEPLAYERS_PAYROLL_BATCH_SIZE) {
-    if (Date.now() - startedAt > 45000) { summary.deferred = rows.length - offset; break; }
+    // Always make progress even when reading/signing a large sheet took 45s.
+    if (offset > 0 && Date.now() - startedAt > 45000) { summary.deferred = rows.length - offset; break; }
     var batch = rows.slice(offset, offset + COMEPLAYERS_PAYROLL_BATCH_SIZE);
     var payload = { version: 1, syncMode: mode, spreadsheetId: spreadsheet.getId(),
       spreadsheetName: spreadsheet.getName(), sheetName: sheet.getName(), headerRow: headerRow,

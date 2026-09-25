@@ -20,8 +20,8 @@ Installable onEdit memerlukan izin `UrlFetchApp`, sehingga jangan menggantinya d
 - Jika lock sibuk, edit dilewati tanpa menandainya berhasil; rekonsiliasi berikutnya membaca ulang nilai terbaru. Tidak ada dua penulisan Apps Script bersamaan. Revision guard database tetap menangani penulisan dari admin atau project script lain.
 - Signature SHA-256 (144 bit) mencakup header, nilai asli, tampilan, warna hitam BOOSTER, nomor baris, dan penanda duplikat. Signature disimpan dalam shard **Script Properties** (`CP_ROW_HASH_*`, 100 baris/shard), tidak di sel. Ini juga melakukan deduplikasi event edit berulang tanpa menunda edit pertama.
 - Hanya acknowledgement API yang memperbarui cache. Baris berhasil/unchanged tidak dikirim lagi selama input sama. Baris protected/conflict/invalid yang tidak berubah diberi jeda retry **15 menit** agar order historis tidak diunggah berulang tiap menit. Perubahan isi langsung mengabaikan jeda tersebut. Kegagalan HTTP tidak menandai baris berhasil dan dicoba lagi oleh trigger berikutnya.
-- Saat edit, hanya baris terdampak dibaca penuh. Kolom KODE saja dipindai untuk mendeteksi kode duplikat di luar rentang edit; seluruh spreadsheet tidak diunggah.
-- Maksimal 100 baris/request, 10.000 baris data per sheet. Setelah sekitar 45 detik, batch berikutnya ditunda ke rekonsiliasi berikutnya; batch yang sudah diakui tidak diulang. Header default tetap baris 2, data mulai baris 3.
+- Saat edit, hanya baris terdampak dibaca penuh. Kolom KODE dalam rentang aktif saja dipindai untuk mendeteksi kode duplikat di luar rentang edit; seluruh spreadsheet tidak diunggah.
+- Maksimal 100 baris/request, 10.000 baris data aktif per sheet. Satu batch tetap dikirim jika persiapan sheet memakan lebih dari 45 detik, agar sinkronisasi tidak terus tertunda tanpa kemajuan. Batch berikutnya ditunda ke rekonsiliasi berikutnya; batch yang sudah diakui tidak diulang. Header default tetap baris 2, data mulai baris 3 kecuali `CP_START_ROW` diatur.
 - Baris tanpa KODE tidak aktif. Signature baris kosong/dihapus dibersihkan saat rekonsiliasi, tetapi order di ComePlayers tidak dihapus.
 - Cache memantau perubahan spreadsheet. Setelah perubahan master game/karyawan atau untuk rekonsiliasi paksa, jalankan `reinstallComePlayersPayrollRealtimeSync()` lalu `syncComePlayersPayroll()`; helper menghapus cache signature, bukan data payroll.
 
@@ -93,6 +93,14 @@ ScriptApp.newTrigger("syncComePlayersPayroll")
 ```
 
 Trigger yang tidak berhubungan dengan ComePlayers tidak dihapus. Google tidak mengizinkan akun melihat/menghapus trigger milik akun lain; gunakan **akun pemasang lama**, dan minta pemilik lain menghapus trigger ComePlayers duplikat bila ada. Lock script tetap melindungi antar-eksekusi dalam project yang sama.
+
+### Mulai data setelah Closing
+
+Atur Script Property **`CP_START_ROW`** ke nomor baris order pertama setelah blok CLOSING, misalnya `4908`. Header tetap dibaca dari **`CP_HEADER_ROW`**; untuk header gabungan baris 1–2 yang judulnya berada di baris 1, gunakan `CP_HEADER_ROW=1`.
+
+Kedua trigger hanya membaca/mengirim data mulai `CP_START_ROW`. Edit/paste yang melintasi batas hanya mengirim bagian setelah batas; pemeriksaan KODE duplikat juga hanya mencakup rentang aktif tersebut. Order ComePlayers yang sudah ada tetap mengikuti perlindungan manual/verified/Closing. Mengubah batas tidak menghapus order apa pun.
+
+Batas ini berupa nomor baris tetap. Perbarui nilainya ketika berpindah periode Closing atau menyisipkan/menghapus baris sebelum batas. Kosongkan properti untuk kembali mulai setelah header. Nilai yang bukan bilangan bulat setelah header akan menghentikan sync, bukan mengimpor riwayat lama secara diam-diam. Setelah mengganti workbook atau membersihkan order melalui fitur resmi, jalankan helper reinstall agar cache lama tidak menahan impor ulang.
 
 ### Upgrade instalasi per jam yang sudah berjalan
 
