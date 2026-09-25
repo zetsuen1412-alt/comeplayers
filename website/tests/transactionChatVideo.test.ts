@@ -65,9 +65,11 @@ test("buyer and seller chat uses the dedicated page with direct video playback",
   const messages = read("app/messages/page.tsx");
   const attachmentRoute = read("app/api/messages/attachments/[id]/route.ts");
 
-  assert.match(chat, /uploadFileToSignedUrl/);
-  assert.match(chat, /video\/mp4,video\/webm,video\/quicktime/);
-  assert.match(chat, /<video[\s\S]*?controls[\s\S]*?playsInline/);
+  assert.match(chat, /SecureDirectConversation/);
+  const secureView = read("components/messages/SecureConversationView.tsx");
+  assert.match(secureView, /<video controls/);
+  assert.match(secureView, /video\/mp4/);
+  assert.match(read("lib/e2ee/webMessenger.ts"), /history\.sendAttachment/);
   assert.match(styles, /\.videoAttachment[\s\S]*?object-fit: contain/);
   assert.match(marketplace, /href=\{`\/chat\?seller=/);
   assert.doesNotMatch(marketplace, /href=\{`\/messages\?seller=/);

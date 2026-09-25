@@ -63,6 +63,36 @@ function base(): WorkspaceState {
   };
 }
 
+for (const [header, value, expected] of [["JENIS ORDER", "JASA BOOSTING", "boosting"], ["JENIS", "COIN", "gold"], ["ORDER TYPE", "gold", "gold"], ["TYPE", "ITEM GAME", "item"]]) {
+  test(`Sheet explicit ${header}=${value} wins and survives merge`, () => {
+    const input = payload(); input.headers = [...headers, header];
+    input.rows[0].values.push(value); input.rows[0].display!.push(value);
+    const initial = mergeGoogleSheetPayroll(base(), payload());
+    const result = mergeGoogleSheetPayroll(initial.state, input);
+    assert.equal((result.state[workspaceKeys.orders] as Order[])[0].orderType, expected);
+    assert.equal(mergeGoogleSheetPayroll(result.state, input).unchanged, 1);
+  });
+}
+test("legacy JOKI infers Boosting before black Booster Gold inference", () => {
+  const input = payload(); input.rows[0].values[9] = "JOKI"; input.rows[0].display![9] = "JOKI";
+  assert.equal((mergeGoogleSheetPayroll(base(), input).state[workspaceKeys.orders] as Order[])[0].orderType, "boosting");
+});
+test("black Booster named quantities infer Gold even before employees are linked", () => {
+  const input = payload(); input.rows[0].values[7] = "PERMANA 20M\nFARDAN 30M"; input.rows[0].display![7] = String(input.rows[0].values[7]);
+  assert.equal((mergeGoogleSheetPayroll(base(), input).state[workspaceKeys.orders] as Order[])[0].orderType, "gold");
+});
+test("ambiguous or invalid explicit type stays saved with warning and no type", () => {
+  for (const explicit of [false, true]) {
+    const input = payload();
+    if (explicit) { input.headers = [...headers, "TYPE"]; input.rows[0].values.push("unknown"); input.rows[0].display!.push("unknown"); }
+    else { input.rows[0].display![7] = "MULAI JAM 8"; input.rows[0].values[7] = "MULAI JAM 8"; }
+    const result = mergeGoogleSheetPayroll(base(), input);
+    const order = (result.state[workspaceKeys.orders] as Order[])[0];
+    assert.equal(result.added, 1); assert.equal(order.orderType, undefined);
+    assert.ok(order.importIssues?.some(issue => issue.code === "sheet_order_type_unknown"));
+  }
+});
+
 function presence(references: string[] = []): GoogleSheetSyncPayload {
   return { ...payload(), syncMode: "reconcile", rows: [], presence: { complete: true, startRow: 4908, references } };
 }

@@ -68,11 +68,11 @@ test("ComePlayers Strike V04 ships five Three.js modes and Black Core systems", 
 });
 
 test("ComePlayers Strike is discoverable without replacing the existing Arcade sitemap route", () => {
-  const browse = source("app/games/BrowseGamesClient.tsx");
+  const browse = source("components/arcade/ArcadeWindow.tsx");
   const sitemap = source("app/sitemap.ts");
 
-  assert.match(browse, /COMEPLAYERS STRIKE/);
-  assert.match(browse, /\/play\/comeplayers-strike/);
+  assert.match(browse, /ComePlayers Strike/);
+  assert.match(browse, /id: "comeplayers-strike"/);
   assert.match(sitemap, /absoluteUrl\("\/arcade"\)/);
   assert.match(sitemap, /absoluteUrl\("\/games\/comeplayers-strike"\)/);
 });

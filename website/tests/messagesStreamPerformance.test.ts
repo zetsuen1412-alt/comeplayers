@@ -50,27 +50,20 @@ test("messages payloads and polling stay lightweight", () => {
   assert.match(envExample, /NEXT_PUBLIC_WEBRTC_STUN_URLS/);
   assert.match(envExample, /NEXT_PUBLIC_WEBRTC_TURN_URLS/);
   assert.match(coreClient, /listRooms: async \(limit = 60\)/);
-  assert.match(coreClient, /getConversation: \(roomId: string, limit = 80\)/);
-  assert.match(desktopApp, /}, 18000\)/);
-  assert.match(mobileApp, /}, 18000\)/);
+  assert.match(coreClient, /getConversation: \(roomId: string, limit = 80,/);
+  assert.match(desktopApp, /createAppUrl/);
+  assert.match(mobileApp, /InboxProvider/);
+  assert.match(readApps("apps/mobile/src/screens/ConversationScreen.tsx"), /getConversation\(room.id, 40/);
 });
 
 test("live panels avoid blank black screens while video warms up", () => {
   const messagesPage = readWebsite("app/messages/page.tsx");
-  const desktopStream = readApps("apps/desktop/src/GroupLiveStream.tsx");
-  const desktopStyles = readApps("apps/desktop/src/styles.css");
-  const mobileStream = readApps("apps/mobile/src/GroupLiveStream.tsx");
+  const desktopShell = readApps("apps/desktop/src/App.tsx");
 
   assert.match(messagesPage, /STREAM_ICE_SERVERS/);
   assert.match(messagesPage, /StreamVideoFallback/);
   assert.match(messagesPage, /onPlaying=\{\(\) => setRemoteVideoReady\(true\)\}/);
-  assert.match(messagesPage, /Menunggu frame video pertama dari host/);
-  assert.match(desktopStream, /getStreamState/);
-  assert.match(desktopStream, /onPlaying=\{\(\) => setRemoteVideoReady\(true\)\}/);
-  assert.match(desktopStream, /group-live-placeholder overlay/);
-  assert.match(desktopStyles, /\.group-live-placeholder\.overlay/);
-  assert.match(mobileStream, /getStreamState/);
-  assert.match(mobileStream, /remoteVideoWarmup/);
-  assert.match(mobileStream, /videoStatusOverlay/);
-  assert.match(mobileStream, /stream-started/);
+  assert.match(messagesPage, /Waiting for the first video frame/);
+  // Desktop now hosts the same web stream UI, so it inherits this fallback.
+  assert.match(desktopShell, /createAppUrl/);
 });

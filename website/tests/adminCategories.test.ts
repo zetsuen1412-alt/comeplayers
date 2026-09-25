@@ -10,7 +10,7 @@ function source(file: string) {
 test("admin categories use one database table with CSV import and export", () => {
   const route = source("app/api/admin/categories/route.ts");
   const page = source("app/admin/categories/page.tsx");
-  const dashboard = source("app/admin/page.tsx");
+  const dashboard = source("components/admin/adminNavigation.ts");
 
   assert.match(route, /requireAdmin/);
   assert.match(route, /recordAdminAudit/);
@@ -24,11 +24,11 @@ test("admin categories use one database table with CSV import and export", () =>
 
   assert.match(page, /parseCsv/);
   assert.match(page, /csvRowsToRecords/);
-  assert.match(page, /Import CSV/);
-  assert.match(page, /Export CSV/);
+  assert.match(page, /Impor CSV/);
+  assert.match(page, /Ekspor CSV/);
   assert.match(page, /\/api\/admin\/categories/);
-  assert.match(page, /single public\.categories table/);
+  assert.match(page, /satu tabel public\.categories/);
 
   assert.match(dashboard, /href: "\/admin\/categories"/);
-  assert.match(dashboard, /label: "Categories"/);
+  assert.match(dashboard, /label: "Kategori"/);
 });

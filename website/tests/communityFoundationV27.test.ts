@@ -79,7 +79,7 @@ test("CPCommunity does not render the global Alexia pet", () => {
   );
   assert.match(
     conditionalChrome,
-    /!focusedPaymentRoute && !cpCommunityRoute \? <AlexiaPet \/>/,
+    /!focusedPaymentRoute &&[\s\S]*!cpCommunityRoute \? \([\s\S]*<AlexiaPet \/>/,
   );
 });
 

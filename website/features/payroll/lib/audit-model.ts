@@ -40,6 +40,11 @@ export function attributeWorkspaceEdit(previous: WorkspaceState, next: Workspace
   const oldOrders = new Map(((previous[K.orders] ?? []) as Order[]).map(order => [order.id, order]));
   for (const order of (result[K.orders] ?? []) as Order[]) {
     const old = oldOrders.get(order.id);
+    if (!actor.isAdmin && (((order.operationalStatus === "verified" || old?.operationalStatus === "verified") && order.operationalStatus !== old?.operationalStatus)
+      || ((order.financeStatus === "closed" || old?.financeStatus === "closed") && order.financeStatus !== old?.financeStatus)
+      || ["verifiedAt", "payrollClosedAt", "payrollPeriodId"].some(key => order[key as keyof Order] !== old?.[key as keyof Order]))) {
+      payrollFailure("Hanya admin website yang dapat memverifikasi pesanan atau melakukan Closing.", 403);
+    }
     if (Boolean(old?.sheetSyncLocked) !== Boolean(order.sheetSyncLocked)) {
       if (!actor.isAdmin || !old || !order.id.startsWith("gsheet:")) payrollFailure("Hanya admin website yang dapat mengunci sinkronisasi pesanan spreadsheet.", 403);
       order.sheetSyncLockedAt = now;
