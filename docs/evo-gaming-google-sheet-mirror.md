@@ -21,7 +21,7 @@ Hanya `MUTASI FH` diaktifkan. Sumber selalu menjadi master. Mirror tidak mengiri
 
    ```javascript
    var EVO_GAMING_MIRROR = {
-     sourceId: '1i8aqw507TPoVd66TcMooDhQTzZvoUcFuqrlBmH6Lrdo',
+     sourceId: '1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo',
      targetId: '1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ',
      sheets: ['MUTASI FH'],
      chunkCells: 10000,
@@ -30,7 +30,7 @@ Hanya `MUTASI FH` diaktifkan. Sumber selalu menjadi master. Mirror tidak mengiri
    };
    ```
 
-   ID sumber di atas berasal dari permintaan awal. Cocokkan dengan URL workbook sebelum menjalankan setup. Target adalah **OTOMATIS EVO GAMING 2026**.
+   ID sumber di atas diverifikasi dari URL workbook **EVO GAMING 2026** yang berisi `MUTASI FH` dan rumus A5070. Target adalah **OTOMATIS EVO GAMING 2026**. Cocokkan ID dengan URL workbook sebelum menjalankan setup di salinan/project lain.
 
 5. Pada **Services**, klik **+**, pilih **Google Sheets API**, versi **v4**, identifier **Sheets**, lalu **Add**. Jika proyek menggunakan Google Cloud project tersendiri, aktifkan Google Sheets API juga pada project tersebut. Ini diperlukan agar nilai dan format satu batch bisa ditulis bersama secara atomik, termasuk warna hasil conditional formatting.
 6. Simpan, pilih `setupEvoGamingMirrorSync`, lalu **Run**. Setujui otorisasi Google untuk membaca/menulis spreadsheet dan memasang trigger. Tidak diperlukan CRON_SECRET atau secret Payroll. Gunakan kode dari repository yang sudah diperiksa; tidak perlu membuat web app/deployment Apps Script.
