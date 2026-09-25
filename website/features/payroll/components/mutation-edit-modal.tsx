@@ -4,6 +4,7 @@ import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useMemo, useState } from "react";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import type { MutationChange } from "@/features/payroll/lib/demo-mutation-history-store";
 import type { Order, OrderDailyWork, OrderWorkerAssignment } from "@/features/payroll/types/domain";
@@ -47,6 +48,12 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
     : order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
   const isPayrollClosed = day ? Boolean(day.payrollClosedAt) : Boolean(order.payrollClosedAt);
   const stockLocksQuantity = Boolean(order.inventoryAllocations?.length);
+  const quantityIssues = day ? [] : analyzeOrderQuantityIssues({
+    ...order,
+    orderName: order.orderType === "gold" ? order.orderName : (orderName.trim() || undefined),
+    quantity: stockLocksQuantity ? order.quantity : Number(quantity),
+    workerAssignments: assignments,
+  });
   const dayTotal = order.scheduleTotalDays ?? order.dailyWork?.length ?? day?.sequence ?? 1;
   const dayLabel = day ? `Hari ${day.sequence}/${dayTotal}` : null;
   const availableEmployees = useMemo(() => employees
@@ -113,6 +120,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
     if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) return setError("Jumlah pesanan harus lebih dari 0.");
     if (!Number.isFinite(parsedRate) || parsedRate < 0) return setError("Tarif / harga per unit tidak valid.");
     if (isFinished && !reason.trim()) return setError("Untuk pesanan yang sudah selesai, isi alasan perubahan agar riwayat jelas.");
+    if (quantityIssues.length) return setError(quantityIssues.map((issue) => issue.description).join(" "));
 
     if (order.orderType !== "boosting" && !stockLocksQuantity) {
       const assigned = assignments.reduce((sum, row) => sum + Number(row.quantity || 0), 0);
@@ -207,6 +215,13 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
         {isFinished ? (
           <div className={`m-5 rounded-xl border p-4 text-sm leading-6 sm:m-6 ${isPayrollClosed ? "border-red-500/30 bg-red-500/10 text-red-100" : "border-amber-500/30 bg-amber-500/10 text-amber-100"}`}>
             <strong>{isPayrollClosed ? `${dayLabel ?? "Pesanan ini"} sudah Tutup Buku/Gajian.` : `${dayLabel ?? "Pesanan ini"} sudah selesai.`}</strong> Edit tetap diizinkan dan akan ditandai khusus di Riwayat Perubahan.{isPayrollClosed ? " Data gaji Tutup Buku lama tidak dihitung ulang otomatis; perubahan setelah Tutup Buku menjadi catatan koreksi." : ""}
+          </div>
+        ) : null}
+
+        {quantityIssues.length ? (
+          <div role="status" className="m-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100 sm:m-6">
+            <strong>Jumlah bermasalah</strong>
+            {quantityIssues.map((issue) => <p key={issue.code} className="mt-2">{issue.description}</p>)}
           </div>
         ) : null}
 

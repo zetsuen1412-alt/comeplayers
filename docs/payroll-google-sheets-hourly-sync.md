@@ -43,6 +43,14 @@ Installable onEdit memerlukan izin `UrlFetchApp`, sehingga jangan menggantinya d
 
 Header dicari berdasarkan nama. Jika header lama belum lengkap, fallback A–M tetap didukung.
 
+## Pemeriksaan jumlah di Mutasi
+
+Jumlah tetap berasal dari `JUMLAH`; sistem tidak menggantinya dengan angka tebakan dari nama pesanan. Mutasi menandai **Bermasalah** jika total alokasi karyawan berbeda dari JUMLAH pada Gold/Item, termasuk impor lama tanpa jenis yang mempunyai nama jumlah jelas atau proses F2F/MAIL/TRADE. Nama jumlah yang jelas (misalnya `200M`, `50M`, `40M SKADI`) juga dibandingkan dengan JUMLAH. Angka level, durasi, paket gabungan, dan pemisah angka ambigu tidak dipakai untuk menebak jumlah. Boosting dan pekerjaan harian tetap memakai aturan pembagiannya sendiri.
+
+Contoh: X2832 dengan nama `200M`, JUMLAH `20`, dan alokasi karyawan berjumlah `200M` menampilkan dua masalah: nama berbeda dari JUMLAH dan kelebihan alokasi `180M`. Pemeriksaan ini berlaku langsung untuk data yang sudah tersimpan tanpa impor ulang. Rincian juga terlihat saat Edit Mutasi. Pesanan dengan masalah jumlah tidak dapat diselesaikan atau masuk Closing sebelum dikoreksi; riwayat Closing yang sudah ada tidak ditulis ulang.
+
+Untuk alur mirror, koreksi angka pada spreadsheet **sumber EVO GAMING 2026** setelah memeriksa pesanan aslinya, karena spreadsheet target mengikuti sumber. Sinkronisasi berikutnya memperbarui order draft yang belum dilindungi, dan penanda masalah hilang jika nama, JUMLAH, serta alokasi sudah sesuai. Tarif dan TOTAL perlu diperiksa saat membetulkan JUMLAH.
+
 ## Aturan keselamatan
 
 - Sinkronisasi bersifat idempotent: payload yang sama tidak menambah pesanan kedua kali.
