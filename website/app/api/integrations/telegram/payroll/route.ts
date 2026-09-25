@@ -621,7 +621,9 @@ async function handleCallback(supabase: ReturnType<typeof createSupabaseAdmin>, 
       ].join("\n");
       await notifyOrderChats(supabase, orderRef, text);
       return;
-    }\n\n    if (!employee || !assignment) {
+    }
+
+    if (!employee || !assignment) {
       await telegramAnswerCallback(callback.id, "Order ini bukan assignment Anda.", true);
       return;
     }
