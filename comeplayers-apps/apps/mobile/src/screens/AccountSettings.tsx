@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { request } from "../api";
 import { PrimaryButton, StateBlock } from "../components";
 import { loadPreferences, updateAccount, type AccountPreferences, type PhoneCountry } from "../messagingApi";
-import { supabase } from "../runtime";
+import { apiUrl, supabase } from "../runtime";
 import { colors } from "../theme";
 
 export function AccountSettings({ section, onClose, onUpdated }: { section: "account" | "settings" | "security"; onClose: () => void; onUpdated: () => void }) {
@@ -57,8 +57,21 @@ export function AccountSettings({ section, onClose, onUpdated }: { section: "acc
     finally { setBusy(false); }
   };
   const setting = (key: keyof AccountPreferences["settings"], value: boolean | string) => void run(() => updateAccount({ action: "settings", [key]: value }), "Settings saved.");
+  const openPrivacyPage = async (path: "/privacy" | "/account/privacy") => {
+    try {
+      await Linking.openURL(`${apiUrl}${path}`);
+    } catch {
+      Alert.alert("Unable to open browser", "Please try again or visit ComePlayers.com to manage your privacy and account deletion.");
+    }
+  };
   const titles = { account: "Account", settings: "Settings", security: "Security" };
   return <Modal visible animationType="slide" onRequestClose={onClose}><View style={s.root}><View style={s.header}><Pressable accessibilityLabel="Back to profile" onPress={onClose} style={s.back}><Text style={s.backText}>‹</Text></Pressable><Text style={s.title}>{titles[section]}</Text></View><ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+    {section === "settings" ? <>
+      <Text style={s.heading}>Privacy and account deletion</Text>
+      <PrimaryButton label="Privacy policy" tone="neutral" onPress={() => void openPrivacyPage("/privacy")} />
+      <PrimaryButton label="Delete account" tone="neutral" onPress={() => void openPrivacyPage("/account/privacy")} />
+      <Text style={s.note}>Opens the ComePlayers website. Sign in to request deletion of your account and associated data. Review the deletion period and any records that must be retained before submitting your request.</Text>
+    </> : null}
     {!data ? <StateBlock loading={!message} title={message || "Loading account"} actionLabel={message ? "Retry" : undefined} onAction={() => void reload().catch(e => setMessage(e.message))} /> : <>
       {section === "account" ? <>
         <Text style={s.heading}>Your identity</Text><Text style={s.label}>Name</Text><TextInput style={s.input} value={fullName} onChangeText={setFullName} maxLength={80} /><Text style={s.label}>About</Text><TextInput style={s.input} value={bio} onChangeText={setBio} maxLength={160} /><PrimaryButton label="Save profile" loading={busy} onPress={() => void run(() => updateAccount({ action: "profile", fullName, bio }), "Profile updated.")} />

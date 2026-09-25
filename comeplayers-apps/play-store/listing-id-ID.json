@@ -1,0 +1,17 @@
+{
+  "status": "draft",
+  "language": "id-ID",
+  "title": "ComePlayers",
+  "shortDescription": "Terhubung dengan gamer, jelajahi komunitas, dan temukan marketplace game.",
+  "fullDescription": "ComePlayers menyatukan komunitas gamer, percakapan, dan penjelajahan marketplace dalam satu aplikasi.\n\nTERHUBUNG DENGAN KOMUNITAS\nTemukan ruang komunitas dan informasi turnamen. Tetap terhubung dengan teman serta anggota komunitas melalui percakapan di ComePlayers.\n\nPESAN DAN PANGGILAN\nKirim pesan, bagikan foto atau dokumen, dan gunakan panggilan suara atau video yang tersedia. Kamera dan mikrofon digunakan saat Anda memilih fitur yang membutuhkannya.\n\nJELAJAHI MARKETPLACE\nTelusuri katalog produk game dan lihat informasi produk. Kelola komunikasi terkait pesanan melalui akun ComePlayers Anda.\n\nKELOLA AKUN ANDA\nPerbarui profil, atur preferensi privasi, dan akses permintaan penghapusan akun melalui pengaturan aplikasi.\n\nBeberapa fitur memerlukan akun dan koneksi internet. Ketersediaan komunitas, produk, dan turnamen mengikuti layanan ComePlayers.\n\nBantuan: https://www.comeplayers.com/support\nKebijakan privasi: https://www.comeplayers.com/privacy",
+  "website": "https://www.comeplayers.com",
+  "privacyPolicyUrl": "https://www.comeplayers.com/privacy",
+  "accountDeletionUrl": "https://www.comeplayers.com/account/privacy",
+  "supportEmailCandidate": "admin@comeplayers.com",
+  "reviewNotes": [
+    "Draf lokal; belum disimpan atau dikirim ke Play Console.",
+    "Email diambil dari kebijakan website; pastikan kotak masuk dipantau sebelum digunakan.",
+    "Cocokkan semua klaim dengan AAB final dan hasil pengujian perangkat.",
+    "Kategori, negara distribusi, target usia, rating, deklarasi iklan, dan Data safety belum ditetapkan."
+  ]
+}

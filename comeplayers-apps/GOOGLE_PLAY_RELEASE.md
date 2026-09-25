@@ -1,5 +1,7 @@
 # Rilis ComePlayers ke Google Play
 
+Persiapan akun organisasi, hasil pemeriksaan lokal, dan pekerjaan yang masih diperlukan per 24 September 2026 tersedia di [catatan kesiapan rilis](play-store/READINESS-2026-09-24.md). Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json). Aplikasi belum diunggah atau diterbitkan pada sesi persiapan tersebut.
+
 ## Identitas tetap
 
 - Nama aplikasi: ComePlayers
