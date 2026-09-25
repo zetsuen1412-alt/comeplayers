@@ -43,6 +43,7 @@ const SHEET_ORDER_PREFIX = "gsheet:";
 const normalize = (value: unknown) => String(value ?? "").trim();
 const folded = (value: unknown) => normalize(value).replace(/\s+/g, " ").toUpperCase();
 const normalizedHeader = (value: unknown) => folded(value).replace(/[^A-Z0-9]/g, "");
+const jsonClean = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 function safeIdPart(value: string, maximum: number) {
   const normalized = value.trim().replace(/[^A-Za-z0-9._-]/g, "_");
@@ -257,7 +258,7 @@ function parseIncomingOrder(input: {
   const gameName = game?.name || gameText || "—";
 
   return {
-    order: {
+    order: jsonClean({
       id,
       orderNumber: reference,
       externalReference: reference,
@@ -286,7 +287,7 @@ function parseIncomingOrder(input: {
       importIssues: finalIssues.length ? finalIssues : undefined,
       importNeedsReview: finalIssues.length > 0,
       importSourceRow: row.rowNumber,
-    },
+    }),
   };
 }
 
@@ -295,7 +296,7 @@ function protectedFromSheet(order: Order) {
 }
 
 function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
-  return {
+  return jsonClean({
     ...existing,
     orderNumber: incoming.orderNumber,
     externalReference: incoming.externalReference,
@@ -320,7 +321,7 @@ function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
     importIssues: incoming.importIssues,
     importNeedsReview: incoming.importNeedsReview,
     importSourceRow: incoming.importSourceRow,
-  };
+  });
 }
 
 export function validateGoogleSheetSyncPayload(value: unknown): GoogleSheetSyncPayload {
