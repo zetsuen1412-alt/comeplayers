@@ -154,16 +154,33 @@ function parseWorkerList(status: string, process: string, employees: Employee[],
   const lookup = employeeLookup(employees);
   const assignments: OrderWorkerAssignment[] = [];
   const missing: string[] = [];
-  for (const [index, rawLine] of status.split(/\r?\n|;/).entries()) {
-    const line = rawLine.trim();
-    if (!line) continue;
-    const match = line.match(/^(.+?)(?:\s*[:=\-]\s*|\s+)(\d+(?:[.,]\d+)?)\s*(?:K|M|B|G)?\s*$/i);
-    if (!match) { missing.push(line); continue; }
-    const employee = lookup.get(folded(match[1]));
-    const quantity = parseUnit(match[2]);
-    if (!employee || quantity == null) { missing.push(line); continue; }
-    assignments.push(workerAssignment(employee, process, quantity, rowNumber, index));
+  const quantityPattern = /(\d+(?:[.,]\d+)?)\s*(?:K|M|B|G)?/gi;
+  let cursor = 0;
+  let assignmentIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = quantityPattern.exec(status)) !== null) {
+    const rawName = status
+      .slice(cursor, match.index)
+      .replace(/^[\s,;|/+&\-:=>]+|[\s,;|/+&\-:=>]+$/g, "")
+      .trim();
+    cursor = quantityPattern.lastIndex;
+    if (!rawName) continue;
+
+    const employee = lookup.get(folded(rawName));
+    const quantity = parseUnit(match[1]);
+    if (!employee || quantity == null) {
+      missing.push(`${rawName} ${match[0].trim()}`);
+      continue;
+    }
+    assignments.push(workerAssignment(employee, process, quantity, rowNumber, assignmentIndex++));
   }
+
+  const remainder = status
+    .slice(cursor)
+    .replace(/^[\s,;|/+&\-:=>]+|[\s,;|/+&\-:=>]+$/g, "")
+    .trim();
+  if (remainder) missing.push(remainder);
   return { assignments, missing };
 }
 
