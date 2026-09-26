@@ -178,6 +178,8 @@ export interface Order {
   employeeCode?: string;
   employeeName?: string;
   team?: string;
+  /** Admin chooses the destination; a leader may choose the worker later. */
+  assignmentMode?: "leader" | "direct";
   quantity: number;
   rateMinor?: number;
   grossMinor: number;

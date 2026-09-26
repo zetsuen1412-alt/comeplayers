@@ -63,6 +63,9 @@ export function OrderEntryForm() {
   const [quantity, setQuantity] = useState(1);
   const [rate, setRate] = useState(0);
   const [workerRows, setWorkerRows] = useState<DraftWorker[]>(() => [newWorkerRow(1)]);
+  const [division, setDivision] = useState("");
+  const [assignmentMode, setAssignmentMode] = useState<"leader" | "direct">("leader");
+  const leaderChooses = orderType !== "item" && assignmentMode === "leader";
   const [stockRows, setStockRows] = useState<DraftStock[]>([]);
   const [message, setMessage] = useState<{ type: "ok" | "error"; text: string; code?: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -108,7 +111,11 @@ export function OrderEntryForm() {
   const hasDuplicateWorker = new Set(employeeIds).size !== employeeIds.length;
   const workerAllocationMatches = workerAllocationCheck.matches;
   const workerQuantityMustMatch = orderType !== "boosting";
-  const workerSplitOk = !hasBlankWorker && !hasInvalidWorkerQuantity && !hasDuplicateWorker && (!workerQuantityMustMatch || workerAllocationMatches);
+  const hasWrongDivision = workerRows.some(row => {
+    const employee = employees.find(item => item.id === row.employeeId);
+    return employee && (employee.team !== division || !["NEW", "SHIFT", "FULL"].includes(employee.workforceStatus));
+  });
+  const workerSplitOk = Boolean(division) && (leaderChooses || (!hasBlankWorker && !hasInvalidWorkerQuantity && !hasDuplicateWorker && !hasWrongDivision && (!workerQuantityMustMatch || workerAllocationMatches)));
 
   const needsStock = orderType === "gold" || orderType === "item";
   const stockType = orderType === "item" ? "item" : "gold";
@@ -155,10 +162,7 @@ export function OrderEntryForm() {
     && Boolean(region)
     && Boolean(server)
     && (orderType === "gold" || Boolean(orderName.trim()))
-    && !hasBlankWorker
-    && !hasInvalidWorkerQuantity
-    && !hasDuplicateWorker
-    && (!workerQuantityMustMatch || workerAllocationMatches)
+    && workerSplitOk
     && stockMatches
     && (scheduleMode !== "daily" || (orderType === "boosting" && Boolean(scheduleStartDate) && scheduleDays >= 2 && scheduleDays <= 366))
     && !saving;
@@ -180,6 +184,9 @@ export function OrderEntryForm() {
 
   function changeOrderType(value: OrderType) {
     setOrderType(value);
+    if (value === "gold" && !["FH1", "FH2", "FH3"].includes(division)) {
+      setDivision(""); setWorkerRows([newWorkerRow(quantity)]);
+    }
     if (value === "gold") setOrderName("");
     if (value === "boosting") setStockRows([]);
     else {
@@ -231,10 +238,12 @@ export function OrderEntryForm() {
     if (!server) return setMessage({ type: "error", text: "Server wajib dipilih dari daftar permainan." });
     if (quantity <= 0) return setMessage({ type: "error", text: "Jumlah pesanan harus lebih dari 0." });
     if (rate < 0) return setMessage({ type: "error", text: "Tarif tidak boleh minus." });
-    if (hasBlankWorker) return setMessage({ type: "error", text: "Pilih karyawan pada semua baris pembagian." });
-    if (hasInvalidWorkerQuantity) return setMessage({ type: "error", text: "Jumlah yang dikerjakan setiap karyawan harus lebih dari 0." });
-    if (hasDuplicateWorker) return setMessage({ type: "error", text: "Karyawan yang sama tidak boleh dimasukkan dua kali dalam satu pesanan." });
-    if (workerQuantityMustMatch && !workerAllocationMatches) {
+    if (!division) return setMessage({ type: "error", text: "Pilih divisi tujuan pesanan." });
+    if (!leaderChooses && hasWrongDivision) return setMessage({ type: "error", text: "Pilih karyawan aktif dari divisi tujuan." });
+    if (!leaderChooses && hasBlankWorker) return setMessage({ type: "error", text: "Pilih karyawan pada semua baris pembagian." });
+    if (!leaderChooses && hasInvalidWorkerQuantity) return setMessage({ type: "error", text: "Jumlah yang dikerjakan setiap karyawan harus lebih dari 0." });
+    if (!leaderChooses && hasDuplicateWorker) return setMessage({ type: "error", text: "Karyawan yang sama tidak boleh dimasukkan dua kali dalam satu pesanan." });
+    if (!leaderChooses && workerQuantityMustMatch && !workerAllocationMatches) {
       const text = workerDifference > 0
         ? `Pembagian karyawan melebihi jumlah pesanan sebanyak ${workerDifference.toLocaleString("id-ID")}. Kurangi jumlah sebelum menyimpan.`
         : `Pembagian karyawan masih kurang ${Math.abs(workerDifference).toLocaleString("id-ID")}. Total pembagian harus sama dengan jumlah order.`;
@@ -269,7 +278,7 @@ export function OrderEntryForm() {
       const { orderedAt: orderTime, dueAt: due } = submittedTime;
       const nowCode = Date.now();
 
-      const assignments: OrderWorkerAssignment[] = workerRows.map((row, index) => {
+      const assignments: OrderWorkerAssignment[] = (leaderChooses ? [] : workerRows).map((row, index) => {
         const employee = employees.find((item) => item.id === row.employeeId)!;
         return {
           id: `asg-${nowCode}-${index + 1}`,
@@ -323,7 +332,8 @@ export function OrderEntryForm() {
         process: first?.process,
         employeeCode: first?.employeeCode,
         employeeName: first?.employeeName,
-        team: first?.team,
+        team: division,
+        assignmentMode: leaderChooses ? "leader" : "direct",
         quantity,
         rateMinor: rate,
         grossMinor: total,
@@ -350,7 +360,7 @@ export function OrderEntryForm() {
         type: "ok",
         text: needsStock
           ? `Pesanan ${orderCode} berhasil disimpan. Stok ${orderTypeLabels[orderType]} sudah dicadangkan dari gudang dan data otomatis masuk Mutasi.`
-          : `Pesanan ${orderCode} berhasil disimpan dengan ${assignments.length} karyawan dan otomatis masuk Mutasi.`,
+          : leaderChooses ? `Pesanan ${orderCode} disimpan untuk ${division}. Leader akan menentukan karyawan melalui Telegram.` : `Pesanan ${orderCode} berhasil disimpan dengan ${assignments.length} karyawan dan otomatis masuk Mutasi.`,
         code: orderCode,
       });
       setManualCode("");
@@ -366,6 +376,7 @@ export function OrderEntryForm() {
       setQuantity(1);
       setRate(0);
       setWorkerRows([newWorkerRow(1)]);
+      setDivision("");
       setStockRows(orderType === "boosting" ? [] : [newStockRow(1)]);
     } catch (error) {
       setMessage({ type: "error", text: error instanceof Error ? error.message : "Pesanan belum terkonfirmasi tersimpan. Muat ulang status sebelum mencoba lagi." });
@@ -472,13 +483,27 @@ export function OrderEntryForm() {
       <section className="cp-card p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold">2. Karyawan, Proses & Jumlah</h2>
-            <p className="mt-1 text-sm text-zinc-500">Satu pesanan boleh dikerjakan beberapa karyawan. Untuk Boosting, harga otomatis dibagi rata. Untuk Gold/Item, total jumlah karyawan harus sama dengan jumlah pesanan.</p>
+            <h2 className="text-xl font-semibold">2. Divisi & Karyawan</h2>
+            <p className="mt-1 text-sm text-zinc-500">Pilih divisi tujuan. Serahkan pemilihan karyawan kepada leader atau pilih langsung untuk request booster tertentu.</p>
           </div>
-          <button type="button" onClick={() => setWorkerRows((rows) => [...rows, newWorkerRow(orderType === "boosting" ? Math.max(1, quantity) : 0)])} className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold hover:bg-zinc-700">+ Tambah karyawan</button>
+          {!leaderChooses && <button type="button" onClick={() => setWorkerRows((rows) => [...rows, newWorkerRow(orderType === "boosting" ? Math.max(1, quantity) : 0)])} className="rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold hover:bg-zinc-700">+ Tambah karyawan</button>}
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <label className="text-sm">Divisi tujuan
+            <select required value={division} onChange={e => { setDivision(e.target.value); setWorkerRows([newWorkerRow(quantity)]); }} className={inputClass}>
+              <option value="">Pilih divisi</option>
+              {(orderType === "gold" ? ["FH1", "FH2", "FH3"] : ["FH1", "FH2", "FH3", "ADMIN", "BANDAR"]).map(team => <option key={team}>{team}</option>)}
+            </select>
+          </label>
+          {orderType !== "item" && <label className="text-sm">Penentuan karyawan
+            <select value={assignmentMode} onChange={e => setAssignmentMode(e.target.value as "leader" | "direct")} className={inputClass}>
+              <option value="leader">Ditentukan leader melalui Telegram</option>
+              <option value="direct">Pilih karyawan langsung / Request booster</option>
+            </select>
+          </label>}
+        </div>
+        {leaderChooses ? <p className="mt-4 rounded-xl bg-sky-500/10 p-4 text-sm text-sky-100">Order dikirim ke leader divisi yang dipilih. Leader memilih karyawan aktif dan mengirim bukti atas nama karyawan. Karyawan tidak memerlukan akun Telegram.</p> : <div className="mt-4 space-y-3">
           {workerRows.map((row, index) => {
             const employee = employees.find((x) => x.id === row.employeeId);
             const portionGross = orderType === "boosting" && workerRows.length > 0
@@ -494,11 +519,11 @@ export function OrderEntryForm() {
                   <label className="text-sm">Karyawan
                     <select value={row.employeeId} onChange={(e) => updateWorker(row.rowId, { employeeId: e.target.value })} className={inputClass}>
                       <option value="">Pilih karyawan</option>
-                      {employees.filter((x) => x.workforceStatus !== "RESIGN").map((x) => <option key={x.id} value={x.id}>{x.name} — {x.team} — {adminLabel(x.workforceStatus)}</option>)}
+                      {employees.filter((x) => x.team === division && ["NEW", "SHIFT", "FULL"].includes(x.workforceStatus)).map((x) => <option key={x.id} value={x.id}>{x.name} — {x.team} — {adminLabel(x.workforceStatus)}</option>)}
                     </select>
                   </label>
                   <div className="text-sm">FH
-                    <div className="mt-2 flex min-h-[50px] items-center rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 font-semibold text-yellow-300">{employee?.team ?? "Otomatis"}</div>
+                    <div className="mt-2 flex min-h-[50px] items-center rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-3 font-semibold text-yellow-300">{division || "Pilih divisi di atas"}</div>
                   </div>
                   <label className="text-sm">Proses
                     <select value={row.process} onChange={(e) => updateWorker(row.rowId, { process: e.target.value })} className={inputClass}>{processes.map((x) => <option key={x} value={x}>{x}</option>)}</select>
@@ -517,7 +542,7 @@ export function OrderEntryForm() {
               </div>
             );
           })}
-        </div>
+        </div>}
       </section>
 
       {needsStock ? (
@@ -600,7 +625,7 @@ export function OrderEntryForm() {
           ) : null}
         </div>
 
-        <div className={`mt-5 rounded-2xl border p-4 ${workerSplitOk ? "border-emerald-500/30 bg-emerald-500/10" : workerDifference > 0 || hasDuplicateWorker ? "border-red-500/30 bg-red-500/10" : "border-amber-500/30 bg-amber-500/10"}`}>
+        {leaderChooses ? <p className="mt-5 rounded-xl bg-sky-500/10 p-4 text-sm text-sky-100">{division ? `Divisi ${division} · Menunggu penentuan karyawan oleh leader.` : "Pilih divisi tujuan sebelum menyimpan."}</p> : <div className={`mt-5 rounded-2xl border p-4 ${workerSplitOk ? "border-emerald-500/30 bg-emerald-500/10" : workerDifference > 0 || hasDuplicateWorker ? "border-red-500/30 bg-red-500/10" : "border-amber-500/30 bg-amber-500/10"}`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="text-sm text-zinc-400">Pengecekan pembagian karyawan</div>
@@ -616,7 +641,7 @@ export function OrderEntryForm() {
           </div>
           {workerQuantityMustMatch && !workerAllocationMatches ? <p className="mt-2 text-sm">Untuk Gold/Item, total jumlah yang dikerjakan semua karyawan harus sama persis dengan jumlah pesanan.</p> : null}
           {orderType === "boosting" && workerRows.length > 1 ? <p className="mt-2 text-sm">Contoh: pesanan Rp10.000 dengan 2 karyawan = nilai pekerjaan Rp5.000 per karyawan, tetapi tetap hanya 1 pesanan di Mutasi.</p> : null}
-        </div>
+        </div>}
       </section>
 
       {message ? (

@@ -37,8 +37,8 @@ async function gold(userId = 101, chatId = -101, quantity = 50) {
 }
 before(async () => {
   db = new PGlite();
-  await db.exec("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb); insert into cp_payroll_workspace values(1,'{}');");
-  for (const file of ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql"]) {
+  await db.exec("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
+  for (const file of ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql", "20260926030002_payroll_telegram_leader_dispatch.sql"]) {
     await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8"));
   }
 });
@@ -177,4 +177,108 @@ test("legacy evidence-free Gold RPC is closed", async () => {
   await db.exec("savepoint expected_failure");
   await assert.rejects(db.query("select cp_payroll_telegram_accept_gold('G1','A','FH1',101,50)"), /sesi bukti atomik/);
   await db.exec("rollback to savepoint expected_failure");
+});
+
+async function configureLeader(divisions = ["FH1", "FH2", "FH3"], userId = 900) {
+  await db.query("select cp_telegram_configure_leader($1::text[],$2,'Leader')", [divisions, userId]);
+  await db.query("select cp_telegram_dispatch('B1')");
+  await db.query("select cp_telegram_dispatch('G1')");
+}
+const leader = { userId: 900, chatId: 900, chatType: "private" };
+
+test("one leader manages multiple divisions and selects workers without Telegram links", async () => {
+  await db.exec("delete from cp_payroll_telegram_employees");
+  await configureLeader();
+  const picker = await event("picker", leader);
+  assert.deepEqual(picker.employees?.map(e => e.name), ["Andi", "Budi"]);
+  const selected = await event("pick", { ...leader, employeeId: picker.employees![1].id });
+  assert.ok(!selected.rejected, selected.text);
+  const assignment = (await db.query("select employee_code,telegram_user_id,assigned_by_telegram_user_id from cp_payroll_telegram_assignments where order_ref='B1'")).rows[0];
+  assert.deepEqual(assignment, { employee_code: "B", telegram_user_id: null, assigned_by_telegram_user_id: 900 });
+  const row = (await db.query<{ payload: ReturnType<typeof workspace>; revision: number }>("select payload,revision from cp_payroll_workspace where id=1")).rows[0];
+  assert.equal((row.payload["cp-ofs-demo-user-orders-v3"][0] as { employeeName: string }).employeeName, "Budi");
+  assert.ok(row.revision > 0);
+  await event("start", leader); await media("photo", leader); await event("pause", leader); await event("resume", leader);
+  const session = await event("done", leader); await media("video", leader);
+  const finished = await event("finish", { ...leader, sessionId: session.sessionId });
+  assert.equal(finished.state, "done_pending_admin", finished.text);
+  const evidence = (await db.query("select employee_code,telegram_user_id,division from cp_payroll_telegram_evidence")).rows;
+  assert.deepEqual(evidence, [0, 1].map(() => ({ employee_code: "B", telegram_user_id: 900, division: "FH1" })));
+});
+
+test("outsiders, other-division leaders and former leaders cannot act for a worker", async () => {
+  await configureLeader(["FH1"]);
+  assert.equal((await event("picker", { ...leader, userId: 901 })).rejected, true);
+  assert.equal((await event("assign", { ...leader, employeeCode: "C" })).rejected, true);
+  await event("assign", { ...leader, employeeCode: "A" });
+  const session = await event("start", leader);
+  await db.query("select cp_telegram_configure_leader(array['FH1'],901,'Replacement')");
+  assert.equal((await event("start", leader)).rejected, true);
+  assert.equal((await event("finish", { ...leader, sessionId: session.sessionId })).rejected, true);
+  await db.query("select cp_telegram_dispatch('B1')");
+  assert.ok(!(await event("start", { userId: 901, chatId: 901 })).rejected);
+});
+
+test("leader can submit Gold for different unlinked employees and cap remains global", async () => {
+  await db.exec("delete from cp_payroll_telegram_employees");
+  await configureLeader();
+  await save([{ ...orders[1], team: "FH1", assignmentMode: "leader" }]);
+  const picker = await event("gold", { ...leader, ref: "G1" });
+  assert.equal(picker.keyboard, "goldpicker", picker.text);
+  for (const [index, quantity] of [120, 100].entries()) {
+    const session = await event("pickgold", { ...leader, ref: "G1", employeeId: picker.employees![index].id });
+    assert.ok(!session.rejected, session.text);
+    await event("amount", { ...leader, quantity }); await media("photo", leader);
+    const finished = await event("finish", { ...leader, sessionId: session.sessionId });
+    assert.equal(finished.accepted, index === 0 ? 120 : 80, finished.text);
+  }
+  const contributions = (await db.query("select employee_code,telegram_user_id from cp_payroll_telegram_gold_contributions order by employee_code")).rows;
+  assert.deepEqual(contributions, [{ employee_code: "A", telegram_user_id: 900 }, { employee_code: "B", telegram_user_id: 900 }]);
+  const saved = (await db.query<{ order: { workerAssignments: { employeeCode: string; quantity: number }[]; operationalStatus: string; verifiedAt?: string } }>("select payload->'cp-ofs-demo-user-orders-v3'->0 as \"order\" from cp_payroll_workspace where id=1")).rows[0].order;
+  assert.deepEqual(saved.workerAssignments.map(w => [w.employeeCode, w.quantity]), [["A", 120], ["B", 80]]);
+  assert.equal(saved.operationalStatus, "assigned"); assert.equal(saved.verifiedAt, undefined);
+});
+
+test("explicit website division routes Gold only to that division and request booster is assigned", async () => {
+  await configureLeader();
+  await save([
+    { ...orders[0], externalReference: "REQUEST", id: "request", assignmentMode: "direct", workerAssignments: [{ employeeCode: "B", employeeName: "Budi" }] },
+    { ...orders[1], externalReference: "GOLD2", id: "gold2", assignmentMode: "leader", team: "FH3" },
+  ]);
+  assert.equal(await count("cp_payroll_telegram_assignments", "order_ref='REQUEST' and employee_code='B'"), 1);
+  assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='GOLD2'"), 1);
+  assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='GOLD2' and division='FH3'"), 1);
+  assert.equal((await event("gold", { ...leader, ref: "GOLD2" })).employees?.[0]?.name, "Dedi");
+});
+
+test("shared leader receives one legacy Gold dispatch, and stale recipients are cancelled", async () => {
+  await configureLeader();
+  assert.equal(await count("cp_payroll_telegram_outbox", "order_ref='G1' and chat_id=900 and event_key like 'dispatch:%'"), 1);
+  const sent: number[] = [];
+  for (let i = 0; i < 8; i++) {
+    const rows = (await db.query<{ chat_id: number }>("select chat_id from cp_telegram_claim_outbox()")).rows;
+    sent.push(...rows.map(r => r.chat_id));
+  }
+  assert.deepEqual(sent, [900, 900]);
+  assert.equal(await count("cp_payroll_telegram_outbox", "status='cancelled'"), 4);
+});
+
+test("leader assignment and configuration functions remain service-only", async () => {
+  for (const role of ["anon", "authenticated"]) {
+    for (const fn of ["cp_telegram_configure_leader(text[],bigint,text)", "cp_telegram_save_worker(text,jsonb)", "cp_telegram_refresh_roster(jsonb)", "cp_telegram_save_gold_workers(text)"]) {
+      assert.equal((await db.query<{ allowed: boolean }>("select has_function_privilege($1,$2,'EXECUTE') allowed", [role, fn])).rows[0].allowed, false);
+    }
+  }
+});
+
+test("legacy Gold shared leader can choose any receiving FH while explicit Gold stays scoped", async () => {
+  await configureLeader();
+  const picker = await event("gold", { ...leader, ref: "G1" });
+  assert.deepEqual(picker.employees?.map(e => e.name), ["Andi · FH1", "Budi · FH1", "Candra · FH2", "Dedi · FH3"]);
+  const session = await event("pickgold", { ...leader, ref: "G1", employeeId: picker.employees![3].id });
+  assert.ok(!session.rejected, session.text); assert.match(session.text, /Dedi · FH3/);
+  await event("amount", { ...leader, quantity: 10 }); await media("photo", leader);
+  assert.equal((await event("finish", { ...leader, sessionId: session.sessionId })).accepted, 10);
+  assert.ok(!(await event("problem", { ...leader, ref: "G1" })).rejected);
+  assert.equal(await state("G1"), "problem");
 });

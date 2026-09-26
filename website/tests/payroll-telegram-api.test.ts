@@ -72,3 +72,31 @@ test("Telegram code never fetches, downloads, proxies or stores media binaries",
   const status = readFileSync(new URL("../app/api/admin/payroll/telegram/status/route.ts", import.meta.url), "utf8");
   assert.doesNotMatch(status, /telegram_chat_id|telegram_message_id|telegram_file_id|telegram_user_id|t\.me/);
 });
+
+test("only website admins can configure a leader and invalid IDs never reach Telegram", async () => {
+  let isAdmin = false; let reads = 0; let saved = 0;
+  const route = load("app/api/admin/payroll/telegram/leader/route.ts", {
+    "@/lib/payrollAccess": { requirePayrollAccess: async () => ({ actor: { isAdmin }, supabaseAdmin: { rpc: async () => { saved++; return {}; } } }) },
+    "@/lib/adminSecurity": { adminErrorStatus: (e: { status?: number }) => e.status ?? 500 },
+    "@/lib/payrollTelegram": { telegramGetPrivateChat: async (id: number) => { reads++; return { id, type: "private", first_name: "Leader" }; } },
+  });
+  const request = (body: unknown) => new Request("https://example.com/api/admin/payroll/telegram/leader", { method: "POST", body: JSON.stringify(body) });
+  assert.equal((await route.POST!(request({ userId: 900, divisions: ["FH1"] }))).status, 403);
+  assert.equal(reads, 0);
+  isAdmin = true;
+  for (const body of [{ userId: -900, divisions: ["FH1"] }, { userId: 900, divisions: [] }, { userId: 900, divisions: ["UNKNOWN"] }]) {
+    assert.equal((await route.POST!(request(body))).status, 400);
+  }
+  assert.equal(reads, 0); assert.equal(saved, 0);
+  assert.equal((await route.POST!(request({ userId: 900, divisions: ["FH1", "FH2"] }))).status, 200);
+  assert.equal(saved, 1);
+});
+
+test("Gold roster pagination preserves the selected employee and order in callbacks", () => {
+  const notice = { text: "", keyboard: "goldpicker", orderId: 123, page: 1, employees: Array.from({ length: 9 }, (_, i) => ({ id: i + 100, name: `Karyawan ${i}` })) };
+  const keyboard = protocol.payrollTelegramKeyboard(notice)!;
+  for (const row of keyboard.inline_keyboard) for (const button of row) assert.ok(Buffer.byteLength(button.callback_data) <= 64);
+  const result = protocol.parsePayrollTelegramUpdate({ update_id: 5, callback_query: { id: "c", from: { id: 900 }, data: keyboard.inline_keyboard[0][0].callback_data, message: { message_id: 9, chat: { id: 900, type: "private" } } } });
+  assert.equal(result?.action, "pickgold"); assert.equal(result?.orderId, "123"); assert.equal(result?.employeeId, "100");
+  assert.match(keyboard.inline_keyboard.at(-1)![1].callback_data, /goldpicker:123:2/);
+});

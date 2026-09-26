@@ -56,6 +56,8 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   }
   const references=new Set<string>();
   for(const row of list(workspaceKeys.orders)) {
+    if(row.assignmentMode!==undefined&&(!['leader','direct'].includes(String(row.assignmentMode))||!teams.includes(String(row.team)))) payrollFailure('Pilih divisi dan cara penentuan karyawan yang valid.');
+    if(row.assignmentMode!==undefined&&row.orderType==='gold'&&!['FH1','FH2','FH3'].includes(String(row.team))) payrollFailure('Divisi Gold harus FH1, FH2, atau FH3.');
     if(row.sheetSyncLocked!==undefined&&typeof row.sheetSyncLocked!=='boolean') payrollFailure('Kunci sinkronisasi tidak valid.');
     if(row.sheetDeletedAt!==undefined&&(typeof row.sheetDeletedAt!=='string'||!Number.isFinite(Date.parse(row.sheetDeletedAt)))) payrollFailure('Arsip spreadsheet tidak valid.');
     if(typeof row.externalReference!=='string'||!row.externalReference.trim()||references.has(row.externalReference.trim().toLowerCase())) payrollFailure('Kode order kosong atau duplikat.');

@@ -22,8 +22,8 @@ export function parsePayrollTelegramUpdate(update: PayrollTelegramUpdate): Teleg
     const current = prefix === "cp2" && /^\d+$/.test(id ?? "");
     return { ...base, action: action === "assignhelp" ? "picker" : action,
       ...(current ? { orderId: id } : { ref: id }),
-      ...(action === "picker" ? { page: /^\d{1,4}$/.test(extra ?? "") ? Number(extra) : 0 } : {}),
-      ...(action === "pick" ? { employeeId: extra } : {}) };
+      ...(["picker", "goldpicker"].includes(action) ? { page: /^\d{1,4}$/.test(extra ?? "") ? Number(extra) : 0 } : {}),
+      ...(["pick", "pickgold"].includes(action) ? { employeeId: extra } : {}) };
   }
   const text = message.text?.trim() ?? "";
   if (text.startsWith("/")) {
@@ -49,12 +49,14 @@ export function payrollTelegramKeyboard(notice: TelegramNotice): { inline_keyboa
     case "gold": return { inline_keyboard: [[button("🪙 KIRIM GOLD", "gold")], [button("⚠ BERMASALAH", "problem")]] };
     case "boosting": return { inline_keyboard: [[button("👤 PILIH / GANTI KARYAWAN", "picker")], [button("▶ START", "start"), button("⏸ PAUSE", "pause"), button("▶ RESUME", "resume")], [button("✅ DONE", "done"), button("⚠ BERMASALAH", "problem")]] };
     case "session": return { inline_keyboard: [[button("➕ TAMBAH BUKTI", "more", notice.sessionId!)], [button("✅ SELESAI UPLOAD", "finish", notice.sessionId!)], [button("❌ BATAL", "cancel", notice.sessionId!)]] };
+    case "goldpicker":
     case "picker": {
       const page = notice.page ?? 0;
-      const rows = (notice.employees ?? []).slice(0, 8).map(employee => [button(employee.name, "pick", `${notice.orderId}:${employee.id}`)]);
+      const gold = notice.keyboard === "goldpicker";
+      const rows = (notice.employees ?? []).slice(0, 8).map(employee => [button(employee.name, gold ? "pickgold" : "pick", `${notice.orderId}:${employee.id}`)]);
       const navigation = [
-        ...(page > 0 ? [button("◀ SEBELUMNYA", "picker", `${notice.orderId}:${page - 1}`)] : []),
-        ...((notice.employees?.length ?? 0) > 8 ? [button("BERIKUTNYA ▶", "picker", `${notice.orderId}:${page + 1}`)] : []),
+        ...(page > 0 ? [button("◀ SEBELUMNYA", gold ? "goldpicker" : "picker", `${notice.orderId}:${page - 1}`)] : []),
+        ...((notice.employees?.length ?? 0) > 8 ? [button("BERIKUTNYA ▶", gold ? "goldpicker" : "picker", `${notice.orderId}:${page + 1}`)] : []),
       ];
       if (navigation.length) rows.push(navigation);
       return { inline_keyboard: rows };
