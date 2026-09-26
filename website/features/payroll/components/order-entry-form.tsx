@@ -65,7 +65,7 @@ export function OrderEntryForm() {
   const [workerRows, setWorkerRows] = useState<DraftWorker[]>(() => [newWorkerRow(1)]);
   const [division, setDivision] = useState("");
   const [assignmentMode, setAssignmentMode] = useState<"leader" | "direct">("leader");
-  const leaderChooses = orderType !== "item" && assignmentMode === "leader";
+  const leaderChooses = assignmentMode === "leader";
   const [stockRows, setStockRows] = useState<DraftStock[]>([]);
   const [message, setMessage] = useState<{ type: "ok" | "error"; text: string; code?: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -496,12 +496,12 @@ export function OrderEntryForm() {
               {(orderType === "gold" ? ["FH1", "FH2", "FH3"] : ["FH1", "FH2", "FH3", "ADMIN", "BANDAR"]).map(team => <option key={team}>{team}</option>)}
             </select>
           </label>
-          {orderType !== "item" && <label className="text-sm">Penentuan karyawan
+          <label className="text-sm">Penentuan karyawan
             <select value={assignmentMode} onChange={e => setAssignmentMode(e.target.value as "leader" | "direct")} className={inputClass}>
               <option value="leader">Ditentukan leader melalui Telegram</option>
               <option value="direct">Pilih karyawan langsung / Request booster</option>
             </select>
-          </label>}
+          </label>
         </div>
         {leaderChooses ? <p className="mt-4 rounded-xl bg-sky-500/10 p-4 text-sm text-sky-100">Order dikirim ke leader divisi yang dipilih. Leader memilih karyawan aktif dan mengirim bukti atas nama karyawan. Karyawan tidak memerlukan akun Telegram.</p> : <div className="mt-4 space-y-3">
           {workerRows.map((row, index) => {

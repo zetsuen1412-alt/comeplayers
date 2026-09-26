@@ -16,7 +16,7 @@ type EvidenceRow = {
 };
 
 type EvidencePayload = {
-  order?: { order_ref?: string; state?: string; target_quantity?: number; delivered_quantity?: number } | null;
+  order?: { order_ref?: string; order_type?: string; state?: string; target_quantity?: number; delivered_quantity?: number } | null;
   assignments: Array<{ id: string; employee_code: string; division: string; status: string; started_at?: string | null; done_at?: string | null }>;
   contributions: Array<{ id: string; employee_code: string; division: string; requested_quantity: number; accepted_quantity: number; created_at: string }>;
   evidence: EvidenceRow[];
@@ -61,7 +61,7 @@ export function TelegramEvidenceModal({ orderRef, onClose }: { orderRef: string;
 
           {data?.order ? <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl bg-black/30 p-4"><div className="text-xs text-zinc-500">Status Telegram</div><div className="mt-2 font-semibold">{data.order.state || "—"}</div></div>
-            <div className="rounded-xl bg-black/30 p-4"><div className="text-xs text-zinc-500">Progress Gold</div><div className="mt-2 font-semibold">{Number(data.order.delivered_quantity || 0).toLocaleString("id-ID")} / {Number(data.order.target_quantity || 0).toLocaleString("id-ID")}</div></div>
+            <div className="rounded-xl bg-black/30 p-4"><div className="text-xs text-zinc-500">{data.order.order_type === "item" ? "Progress Item" : "Progress Gold"}</div><div className="mt-2 font-semibold">{Number(data.order.delivered_quantity || 0).toLocaleString("id-ID")} / {Number(data.order.target_quantity || 0).toLocaleString("id-ID")}</div></div>
             <div className="rounded-xl bg-black/30 p-4"><div className="text-xs text-zinc-500">Jumlah bukti</div><div className="mt-2 font-semibold">{data.evidence.length} file</div></div>
           </div> : null}
 

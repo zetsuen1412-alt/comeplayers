@@ -38,7 +38,7 @@ async function gold(userId = 101, chatId = -101, quantity = 50) {
 before(async () => {
   db = new PGlite();
   await db.exec("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
-  for (const file of ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql", "20260926030002_payroll_telegram_leader_dispatch.sql"]) {
+  for (const file of ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql", "20260926030002_payroll_telegram_leader_dispatch.sql", "20260926035622_payroll_telegram_item_workflow.sql"]) {
     await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8"));
   }
 });
@@ -58,10 +58,11 @@ test("duplicate sync and dispatch do not duplicate notices", async () => {
   await save(orders); await db.query("select cp_telegram_dispatch('B1')");
   assert.equal(await count("cp_payroll_telegram_outbox", "event_key like 'dispatch:%'"), 4);
 });
-test("unknown division waits; unknown/item type cleanly avoids Telegram", async () => {
-  await save([{ ...orders[0], id: "new", externalReference: "WAIT", team: undefined }, { ...orders[0], id: "unknown", externalReference: "UNKNOWN", orderType: undefined }, { ...orders[0], id: "item", externalReference: "ITEM", orderType: "item" }]);
+test("unknown division waits for Boosting and Item; unknown type avoids Telegram", async () => {
+  await save([{ ...orders[0], id: "new", externalReference: "WAIT", team: undefined }, { ...orders[0], id: "unknown", externalReference: "UNKNOWN", orderType: undefined }, { ...orders[0], id: "item", externalReference: "ITEM", orderType: "item", team: undefined }]);
   assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref in ('WAIT','UNKNOWN','ITEM')"), 0);
   assert.equal((await db.query<{ dispatch_status: string }>("select dispatch_status from cp_payroll_telegram_orders where order_ref='WAIT'")).rows[0].dispatch_status, "waiting_division");
+  assert.equal((await db.query<{ dispatch_status: string }>("select dispatch_status from cp_payroll_telegram_orders where order_ref='ITEM'")).rows[0].dispatch_status, "waiting_division");
 });
 test("worker cannot select employees", async () => { assert.equal((await event("picker")).rejected, true); });
 test("only the order division leader can select active linked employees", async () => {
@@ -281,4 +282,88 @@ test("legacy Gold shared leader can choose any receiving FH while explicit Gold 
   assert.equal((await event("finish", { ...leader, sessionId: session.sessionId })).accepted, 10);
   assert.ok(!(await event("problem", { ...leader, ref: "G1" })).rejected);
   assert.equal(await state("G1"), "problem");
+});
+
+const itemOrder = {
+  id: "manual:I1", externalReference: "I1", orderType: "item", quantity: 10, team: "FH1", orderName: "Ancient Core x10",
+  assignmentMode: "leader", operationalStatus: "assignment_pending", financeStatus: "pending", transferStatus: "PENDING",
+  rateMinor: 2000, grossMinor: 20000, workerAssignments: [],
+  inventoryAllocations: [{ inventoryStockId: "stock-1", employeeCode: "C", team: "FH2", quantity: 10, stockType: "item" }],
+};
+
+test("Item routes to one division with correct quantity and no duplicate dispatch", async () => {
+  await configureLeader(["FH1"], 900); await configureLeader(["FH2"], 901);
+  await save([itemOrder]); await save([itemOrder]); await db.query("select cp_telegram_dispatch('I1')");
+  const notices = (await db.query<{ chat_id: number; payload: { text: string; keyboard: string } }>("select chat_id,payload from cp_payroll_telegram_outbox where order_ref='I1' and event_key like 'dispatch:%'")).rows;
+  assert.equal(notices.length, 1); assert.equal(notices[0].chat_id, 900);
+  assert.match(notices[0].payload.text, /ORDER ITEM/); assert.match(notices[0].payload.text, /Target : 10/);
+  assert.equal(notices[0].payload.keyboard, "item");
+  assert.ok(payrollTelegramKeyboard(notices[0].payload)?.inline_keyboard.flat().some(b => b.text.includes("DONE")));
+});
+
+test("Item leader flow requires evidence, preserves warehouse/finance and finishes once", async () => {
+  await db.exec("delete from cp_payroll_telegram_employees");
+  await configureLeader(["FH1"]);
+  const inventory = [{ id: "stock-1", stockType: "item", onHand: 20, reserved: 10, employeeCode: "C" }];
+  await db.query("update cp_payroll_workspace set payload=$1::jsonb where id=1", [JSON.stringify({ ...workspace([itemOrder]), "cp-ofs-demo-inventory-v4": inventory })]);
+  const ctx = { ...leader, ref: "I1" };
+  const picker = await event("picker", ctx);
+  assert.deepEqual(picker.employees?.map(e => e.name), ["Andi", "Budi"]);
+  const picked = await event("pick", { ...ctx, employeeId: picker.employees![0].id });
+  assert.ok(!picked.rejected, picked.text); assert.equal(picked.keyboard, "item");
+  const startSession = await event("start", ctx);
+  assert.equal(await state("I1"), "assigned");
+  assert.equal((await event("finish", { ...ctx, sessionId: startSession.sessionId })).rejected, true);
+  assert.ok(!(await media("photo", ctx)).rejected); assert.equal(await state("I1"), "in_progress");
+  await event("pause", ctx); assert.equal(await state("I1"), "paused");
+  await event("resume", ctx); assert.equal(await state("I1"), "in_progress");
+  const done = await event("done", ctx);
+  assert.equal((await event("finish", { ...ctx, sessionId: done.sessionId })).rejected, true);
+  await media("photo", ctx); await media("video", ctx);
+  const updateId = nextId++;
+  const finish = await event("finish", { ...ctx, sessionId: done.sessionId }, false, updateId);
+  assert.equal(finish.state, "done_pending_admin", finish.text);
+  assert.equal((await event("finish", { ...ctx, sessionId: done.sessionId }, false, updateId)).duplicate, true);
+  assert.equal((await event("finish", { ...ctx, sessionId: done.sessionId })).rejected, true);
+  const data = (await db.query<{ payload: Record<string, unknown> }>("select payload from cp_payroll_workspace where id=1")).rows[0].payload;
+  const saved = (data["cp-ofs-demo-user-orders-v3"] as (Omit<typeof itemOrder, "workerAssignments"> & { workerAssignments: { employeeCode: string; quantity: number; process: string }[] })[])[0];
+  assert.deepEqual(data["cp-ofs-demo-inventory-v4"], inventory);
+  assert.deepEqual(saved.inventoryAllocations, itemOrder.inventoryAllocations);
+  assert.deepEqual(saved.workerAssignments.map(w => [w.employeeCode, w.quantity, w.process]), [["A", 10, "MAIL"]]);
+  assert.equal(saved.financeStatus, "pending"); assert.equal(saved.transferStatus, "PENDING"); assert.equal(saved.grossMinor, 20000);
+  assert.equal(saved.operationalStatus, "assigned"); assert.equal("verifiedAt" in saved, false); assert.equal("payrollClosedAt" in saved, false);
+  const workflow = (await db.query<{ delivered_quantity: number; target_quantity: number }>("select delivered_quantity,target_quantity from cp_payroll_telegram_orders where order_ref='I1'")).rows[0];
+  assert.equal(Number(workflow.delivered_quantity), 10); assert.equal(Number(workflow.target_quantity), 10);
+  assert.equal(await count("cp_payroll_telegram_evidence", "order_ref='I1' and employee_code='A' and telegram_user_id=900"), 3);
+  assert.equal(await count("cp_payroll_telegram_gold_contributions", "order_ref='I1'"), 0);
+});
+
+test("Item rejects other leaders, resigned workers, wrong divisions and Gold commands", async () => {
+  await configureLeader(["FH1"], 900); await configureLeader(["FH2"], 901); await save([itemOrder]);
+  assert.equal((await event("picker", { userId: 901, chatId: 901, ref: "I1" })).rejected, true);
+  assert.equal((await event("picker", { userId: 901, chatId: 900, ref: "I1" })).rejected, true);
+  for (const employeeCode of ["C", "R"]) assert.equal((await event("assign", { ...leader, ref: "I1", employeeCode })).rejected, true);
+  assert.ok(!(await event("assign", { ...leader, ref: "I1", employeeCode: "A" })).rejected);
+  for (const action of ["gold", "goldpicker", "pickgold"]) assert.equal((await event(action, { ...leader, ref: "I1", employeeId: "1" })).rejected, true);
+});
+
+test("Item direct request auto-assigns and replacement invalidates stale evidence", async () => {
+  await configureLeader(["FH1"]);
+  await save([{ ...itemOrder, assignmentMode: "direct", workerAssignments: [{ employeeCode: "B", employeeName: "Budi", team: "FH1", quantity: 10, process: "F2F" }] }]);
+  assert.equal(await count("cp_payroll_telegram_assignments", "order_ref='I1' and employee_code='B' and status='assigned'"), 1);
+  const old = await event("start", { ...leader, ref: "I1" });
+  assert.ok(!old.rejected, old.text);
+  assert.ok(!(await event("assign", { ...leader, ref: "I1", employeeCode: "A" })).rejected);
+  await media("photo", leader);
+  assert.equal(await count("cp_payroll_telegram_evidence", "order_ref='I1'"), 0);
+  assert.equal((await event("finish", { ...leader, sessionId: old.sessionId })).rejected, true);
+});
+
+for (const protection of [{ verifiedAt: "2026-09-26T00:00:00Z" }, { payrollClosedAt: "2026-09-26T00:00:00Z" }, { sheetDeletedAt: "2026-09-26T00:00:00Z" }]) test(`Item rejects actions after ${Object.keys(protection)[0]}`, async () => {
+  await configureLeader(["FH1"]); await save([itemOrder]);
+  await event("assign", { ...leader, ref: "I1", employeeCode: "A" });
+  await save([{ ...itemOrder, ...protection }]);
+  for (const action of ["picker", "assign", "start", "pause", "resume", "done", "problem"]) {
+    assert.equal((await event(action, { ...leader, ref: "I1", employeeCode: "B" })).rejected, true, action);
+  }
 });

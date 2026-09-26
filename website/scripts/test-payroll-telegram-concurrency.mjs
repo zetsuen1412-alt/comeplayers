@@ -35,7 +35,7 @@ try {
   for (let i = 0; i < 4; i++) { const c = postgres.getPgClient('postgres', '127.0.0.1'); await c.connect(); clients.push(c); }
   const db = clients[0];
   await db.query("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
-  for (const file of ['20260926030000_payroll_telegram_operations.sql', '20260926030001_payroll_telegram_durable_workflow.sql', '20260926030002_payroll_telegram_leader_dispatch.sql']) await db.query(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
+  for (const file of ['20260926030000_payroll_telegram_operations.sql', '20260926030001_payroll_telegram_durable_workflow.sql', '20260926030002_payroll_telegram_leader_dispatch.sql', '20260926035622_payroll_telegram_item_workflow.sql']) await db.query(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
   await db.query("insert into cp_payroll_telegram_divisions(division,chat_id) values('FH1',-1),('FH2',-2),('FH3',-3); insert into cp_payroll_telegram_employees(employee_code,telegram_user_id,division) values('A',1,'FH1'),('B',2,'FH2'),('C',3,'FH3');");
   const workspace = { 'cp-ofs-demo-user-orders-v3': [{ id: 'local-only', externalReference: 'LOCAL-GOLD', orderType: 'gold', quantity: 200, team: 'FH1', operationalStatus: 'draft' }], 'cp-ofs-demo-employees-v2': ['A','B','C'].map((code,i) => ({ code, name: code, team: `FH${i+1}`, workforceStatus: 'SHIFT' })) };
   await db.query('update cp_payroll_workspace set payload=$1::jsonb', [JSON.stringify(workspace)]);
@@ -73,6 +73,32 @@ try {
   assert.equal((await db.query('select count(*) n from cp_payroll_telegram_updates where update_id=$1',[sameId])).rows[0].n,'1');
   assert.equal((await db.query('select count(*) n from cp_payroll_telegram_outbox where event_key=$1',[`update:${sameId}`])).rows[0].n,'1');
   console.log('PASS: three independent PostgreSQL connections blocked concurrently; Gold capped at 200; duplicate update committed once.');
+  await db.query("select cp_telegram_configure_leader(array['FH1'],900,'Local leader')");
+  const item = { id: 'local-item', externalReference: 'LOCAL-ITEM', orderType: 'item', quantity: 10, team: 'FH1', assignmentMode: 'leader', operationalStatus: 'draft' };
+  workspace['cp-ofs-demo-user-orders-v3'].push(item);
+  await db.query('update cp_payroll_workspace set payload=$1::jsonb', [JSON.stringify(workspace)]);
+  const context = { chatId: 900, ref: 'LOCAL-ITEM' };
+  assert.ok(!(await event(db,900,'assign',{...context,employeeCode:'A'})).rejected);
+  await event(db,900,'start',context);
+  await event(db,900,'media',{...context,messageId:50,mediaType:'photo',fileId:'start-item',fileUniqueId:'start-item'});
+  const done = await event(db,900,'done',context);
+  await event(db,900,'media',{...context,messageId:51,mediaType:'photo',fileId:'done-item',fileUniqueId:'done-item'});
+  await db.query('begin'); await db.query('select id from cp_payroll_workspace where id=1 for update');
+  const itemFinishing = clients.slice(1).map(c=>event(c,900,'finish',{...context,sessionId:done.sessionId}));
+  waiting = 0;
+  for (let attempt=0; attempt<50; attempt++) {
+    await db.query('select pg_stat_clear_snapshot()');
+    waiting = Number((await db.query("select count(*) as n from pg_stat_activity where pid=any($1::int[]) and wait_event_type='Lock'", [pids.map(r=>r.rows[0].pid)])).rows[0].n);
+    if (waiting===3) break;
+    await new Promise(resolve=>setTimeout(resolve,20));
+  }
+  await db.query('commit');
+  const itemResults = await Promise.all(itemFinishing);
+  assert.equal(waiting,3);
+  assert.equal(itemResults.filter(r=>r.state==='done_pending_admin').length,1);
+  assert.equal(itemResults.filter(r=>r.rejected).length,2);
+  assert.equal((await db.query("select delivered_quantity from cp_payroll_telegram_orders where order_ref='LOCAL-ITEM'")).rows[0].delivered_quantity,'10');
+  console.log('PASS: three concurrent Item completions commit exactly once; delivered quantity stays 10.');
 } finally {
   if (clients[0]) await clients[0].query('rollback').catch(() => {});
   await Promise.all(clients.map(c=>c.end()));

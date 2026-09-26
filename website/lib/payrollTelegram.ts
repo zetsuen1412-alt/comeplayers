@@ -163,7 +163,7 @@ export async function flushPayrollTelegramOutbox(supabase: SupabaseClient) {
 }
 
 export async function dispatchPayrollTelegramOrder(supabase: SupabaseClient, order: Order) {
-  if (order.orderType !== "boosting" && order.orderType !== "gold") return { sent: 0, skipped: "unsupported_type" };
+  if (order.orderType !== "boosting" && order.orderType !== "gold" && order.orderType !== "item") return { sent: 0, skipped: "unsupported_type" };
   const { error } = await supabase.rpc("cp_telegram_dispatch", { p_order_ref: order.externalReference });
   if (error) throw new Error("Order Telegram belum dapat dijadwalkan.");
   return flushPayrollTelegramOutbox(supabase);

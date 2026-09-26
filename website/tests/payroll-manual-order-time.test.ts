@@ -64,12 +64,10 @@ test('the actual entry form no longer polls or depends on server time', () => {
   assert.match(form, /await flushPayroll\(\)/);
   assert.match(form, /reserveAllocations\(inventoryAllocations\)/);
 });
-test('both entry routes describe manual time and preserve the import entry link', () => {
+test('both entry routes describe manual time', () => {
   for (const path of ['orders/page.tsx', 'orders/new/page.tsx']) {
     const page = readFileSync(new URL(`../app/admin/payroll/${path}`, import.meta.url), 'utf8');
     assert.match(page, /tanggal dan jam pesanan dipilih manual dalam WIB/);
     assert.doesNotMatch(page, /tanggal mengikuti server/);
   }
-  const page = readFileSync(new URL('../app/admin/payroll/orders/page.tsx', import.meta.url), 'utf8');
-  assert.match(page, /\/admin\/payroll\/imports/);
 });

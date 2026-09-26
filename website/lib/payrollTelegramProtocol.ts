@@ -47,6 +47,7 @@ export function payrollTelegramKeyboard(notice: TelegramNotice): { inline_keyboa
   const button = (text: string, action: string, suffix: string | number = notice.orderId ?? ""): Button => ({ text, callback_data: `cp2:${action}:${suffix}` });
   switch (notice.keyboard) {
     case "gold": return { inline_keyboard: [[button("🪙 KIRIM GOLD", "gold")], [button("⚠ BERMASALAH", "problem")]] };
+    case "item":
     case "boosting": return { inline_keyboard: [[button("👤 PILIH / GANTI KARYAWAN", "picker")], [button("▶ START", "start"), button("⏸ PAUSE", "pause"), button("▶ RESUME", "resume")], [button("✅ DONE", "done"), button("⚠ BERMASALAH", "problem")]] };
     case "session": return { inline_keyboard: [[button("➕ TAMBAH BUKTI", "more", notice.sessionId!)], [button("✅ SELESAI UPLOAD", "finish", notice.sessionId!)], [button("❌ BATAL", "cancel", notice.sessionId!)]] };
     case "goldpicker":
