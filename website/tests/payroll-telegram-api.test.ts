@@ -100,3 +100,13 @@ test("Gold roster pagination preserves the selected employee and order in callba
   assert.equal(result?.action, "pickgold"); assert.equal(result?.orderId, "123"); assert.equal(result?.employeeId, "100");
   assert.match(keyboard.inline_keyboard.at(-1)![1].callback_data, /goldpicker:123:2/);
 });
+
+test("Item buttons use the standard evidence workflow, never Gold contributions", () => {
+  const buttons = protocol.payrollTelegramKeyboard({ text: "ORDER ITEM", keyboard: "item", orderId: 4321 })!.inline_keyboard.flat();
+  const actions = buttons.map(button => protocol.parsePayrollTelegramUpdate({ update_id: 5, callback_query: {
+    id: "c", from: { id: 900 }, data: button.callback_data,
+    message: { message_id: 9, chat: { id: 900, type: "private" } },
+  } }));
+  assert.deepEqual(actions.map(a => a?.action), ["picker", "start", "pause", "resume", "done", "problem"]);
+  assert.ok(actions.every(a => a?.orderId === "4321"));
+});

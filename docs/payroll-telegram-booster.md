@@ -51,6 +51,16 @@ Setiap setoran: leader menekan KIRIM GOLD, memilih karyawan, memasukkan jumlah (
 
 Jika sisa hanya 20M tetapi karyawan mengajukan 30M, hanya 20M diterima. Saat total mencapai target, order langsung dikunci dan semua pengiriman berikutnya ditolak. Mutasi menjadi kuning menunggu verifikasi admin.
 
+## Item
+
+Admin memilih jenis **Item**, divisi tujuan, dan stok Item yang sesuai dari Gudang. Jumlah stok harus sama dengan jumlah pesanan. Admin dapat menyerahkan pemilihan pekerja kepada leader atau meminta karyawan tertentu. Satu karyawan yang diminta langsung akan ditugaskan otomatis; beberapa request memerlukan pilihan leader seperti Boosting.
+
+Order dikirim hanya ke leader divisi tujuan dengan judul **ORDER ITEM** dan jumlah Item sebenarnya. Leader memilih karyawan, menekan **START**, lalu mengirim minimal satu foto/video bukti. **PAUSE**, **RESUME**, dan **BERMASALAH** tersedia. Untuk menyelesaikan seluruh order, tekan **DONE**, kirim bukti pengiriman Item, lalu **SELESAI UPLOAD**. Item memakai penyelesaian satu order penuh, bukan setoran kuota bertahap seperti Gold.
+
+Status menjadi kuning menunggu verifikasi admin di Mutasi. Penyelesaian mencatat seluruh jumlah Item sebagai terkirim. Stok/reservasi dan kepemilikan Gudang tidak diubah oleh aksi Telegram; pemilihan karyawan memperbarui pembagian pekerjaan, bukan pemilik stok. Nilai pesanan, pembayaran, Gaji dan Closing tetap mengikuti proses website. Order diverifikasi, Closing, atau diarsipkan dari Sheet menolak aksi Telegram berikutnya.
+
+Migrasi `website/supabase/migrations/20260926035622_payroll_telegram_item_workflow.sql` tidak mengirim order lama secara massal. Gunakan `/dispatch KODE_ORDER` dari akun admin Telegram untuk mengirim satu order Item lama yang masih aktif.
+
 ## Setup environment Vercel
 
 Tambahkan tiga Environment Variable: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (minimal 16 karakter), dan `TELEGRAM_ADMIN_USER_IDS` (pisahkan koma jika lebih dari satu).
@@ -71,7 +81,7 @@ Setelah environment variable ditambahkan dan deployment baru aktif:
 
 ## Order lama
 
-Gunakan `/dispatch X3101` untuk order lama. Order baru dari Sheet **dan input manual** masuk antrean dalam transaksi penyimpanan workspace. Boosting hanya ke divisinya; divisi kosong berstatus **Menunggu divisi**. Gold hanya ke FH1/FH2/FH3 aktif. Item dan jenis tak dikenal tidak masuk workflow. Grup yang belum dihubungkan dapat menerima order setelah `/dispatch` dijalankan ulang; kiriman yang sudah tercatat tidak digandakan.
+Gunakan `/dispatch X3101` untuk order lama. Order baru dari Sheet **dan input manual** masuk antrean dalam transaksi penyimpanan workspace. Boosting dan Item hanya ke divisinya; divisi kosong berstatus **Menunggu divisi**. Gold hanya ke FH1/FH2/FH3 aktif. Jenis tak dikenal tidak masuk workflow. Grup yang belum dihubungkan dapat menerima order setelah `/dispatch` dijalankan ulang; kiriman yang sudah tercatat tidak digandakan.
 
 ## Jenis order spreadsheet
 
