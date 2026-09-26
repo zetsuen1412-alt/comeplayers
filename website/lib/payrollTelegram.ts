@@ -97,6 +97,10 @@ export async function telegramGetMe() {
   return telegramApi<{ id: number; is_bot: boolean; first_name: string; username?: string }>("getMe", {});
 }
 
+export async function telegramGetPrivateChat(userId: number) {
+  return telegramApi<{ id: number; type: string; first_name?: string; last_name?: string; username?: string }>("getChat", { chat_id: userId });
+}
+
 export async function telegramGetWebhookInfo() {
   return telegramApi<{ url?: string; pending_update_count?: number; last_error_message?: string }>("getWebhookInfo", {});
 }

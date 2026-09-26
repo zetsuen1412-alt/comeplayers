@@ -1,6 +1,6 @@
 # Telegram Booster untuk Payroll ComePlayers
 
-Fitur ini menghubungkan Mutasi Payroll dengan satu grup Telegram per divisi.
+Alur utama: **admin website → akun Telegram leader → karyawan**. Satu akun leader dapat menangani beberapa divisi dan seluruh karyawan aktifnya. Karyawan tidak perlu punya akun Telegram atau menjalankan `/link`.
 
 ## Alur warna Mutasi
 
@@ -12,44 +12,42 @@ Fitur ini menghubungkan Mutasi Payroll dengan satu grup Telegram per divisi.
 
 Admin tetap menjadi pihak terakhir yang menekan **Pesanan ini selesai** di Mutasi. Setelah itu baris kembali normal/putih dan proses Gaji/Closing berjalan seperti sebelumnya.
 
-## Grup divisi
+## Akun leader dan divisi
 
-Gunakan satu grup Telegram untuk setiap divisi yang dipakai: FH1, FH2, FH3, ADMIN, dan BANDAR.
+Leader membuka bot, mengirim `/start`, lalu `/myid`. Admin membuka **Payroll → Telegram Booster**, memasukkan ID angka tersebut dan mencentang divisi leader (FH1/FH2/FH3/ADMIN/BANDAR). Satu ID boleh dipakai untuk beberapa divisi. Order baru dikirim ke chat pribadi leader. Tidak perlu membuat grup atau menghubungkan semua akun karyawan.
 
-Tambahkan bot ke grup, lalu admin Telegram menjalankan `/bind FH1` (gunakan FH2/FH3/ADMIN/BANDAR sesuai grup).
+Di **Pesanan**, admin wajib memilih **Divisi tujuan**, lalu memilih **Ditentukan leader melalui Telegram** atau **Pilih karyawan langsung / Request booster**. Pilihan langsung hanya menampilkan karyawan aktif dari divisi tersebut. Satu booster yang dipilih langsung otomatis ditugaskan; jika ada beberapa request, leader memilih penugasan aktif melalui tombol. Divisi tidak lagi disimpulkan dari pilihan karyawan. Stok Gold/Item tetap mengikuti validasi Gudang yang sudah ada.
+
+Mengganti leader berlaku untuk divisi yang dicentang, menutup sesi lama dan menghentikan antrean order menuju penerima lama. Order lama tidak dikirim ulang otomatis; admin dapat memakai `/dispatch KODE_ORDER`. Pengaturan grup dan tautan karyawan lama tetap kompatibel: `/bind FH1` harus dikirim admin di grup, bukan chat pribadi.
 
 ## Karyawan
 
-Setiap karyawan menghubungkan Telegram miliknya sekali dengan `/link EMP001`. Kode harus sama dengan Kode Karyawan di Payroll ComePlayers.
-
-Admin dapat menjadikan karyawan sebagai leader dengan `/leader EMP001`.
-
-Admin/leader divisi order memilih **PILIH / GANTI KARYAWAN**. Daftar menampilkan karyawan aktif (NEW/SHIFT/FULL) yang sudah menghubungkan Telegram di divisi tersebut, delapan per halaman. `/assign X3101 EMP001` tetap tersedia. Assignment dan bukti lama disimpan. `/link` tidak dapat mengambil alih akun/kode yang sudah terhubung; perubahan identitas harus ditangani admin.
+Leader memilih **PILIH / GANTI KARYAWAN**. Daftar mengambil semua karyawan aktif (NEW/SHIFT/FULL) dari Payroll pada divisi order, delapan per halaman. `/assign X3101 EMP001` tetap tersedia. Leader mengirim status dan bukti atas nama karyawan tersebut. Nama karyawan dan ID Telegram pengirim bukti disimpan terpisah. Penugasan ikut diperbarui di Mutasi dengan revisi workspace baru agar perubahan tidak tertimpa penyimpanan tab lama.
 
 ## Boosting
 
-1. Order baru dikirim otomatis ke grup sesuai FH/divisi.
+1. Order baru dikirim otomatis ke leader sesuai divisi yang dipilih admin.
 2. Admin/leader divisi order memilih karyawan melalui tombol atau /assign.
-3. Karyawan menekan START.
+3. Leader menekan START atas nama karyawan terpilih.
 4. Bot meminta minimal satu foto/screenshot/video bukti START.
 5. Setelah bukti diterima, Mutasi menjadi hijau.
 6. PAUSE membuat Mutasi oranye.
 7. RESUME mengembalikan Mutasi ke hijau.
 8. DONE meminta minimal satu bukti foto/screenshot/video. Beberapa file diperbolehkan.
-9. Setelah semua bukti terkirim, karyawan menekan SELESAI UPLOAD.
+9. Setelah semua bukti terkirim, leader menekan SELESAI UPLOAD.
 10. Mutasi menjadi kuning.
 11. Admin membuka Bukti Telegram di Mutasi, memeriksa file, lalu menekan Pesanan ini selesai.
 12. Mutasi kembali normal/putih. Status Telegram menjadi `verified`; notifikasi dikirim ke grup terkait. Semua tombol lama ditolak oleh database setelah verifikasi atau Closing, termasuk mengganti karyawan dan setoran Gold.
 
 Sesi DONE/Gold menghitung foto dan video secara terpisah. **TAMBAH BUKTI** melanjutkan sesi; **BATAL** menutup sesi tanpa menghapus bukti. Tombol selesai dari sesi lama tidak dapat menutup sesi baru. Telegram tidak pernah membayar gaji atau melakukan Closing otomatis.
 
-Foto dan video tidak dipindahkan melalui Vercel. ComePlayers hanya menyimpan Telegram chat/message/file ID. Admin membuka pesan asli Telegram untuk melihat atau mengunduh file.
+Foto dan video tidak dipindahkan melalui Vercel. ComePlayers hanya menyimpan Telegram chat/message/file ID. Tautan pesan tersedia untuk grup yang mendukungnya; bukti dari chat pribadi dibuka oleh akun leader di percakapan aslinya. Website tetap menampilkan metadata dan nama karyawan.
 
 ## Gold global lintas divisi
 
-Order Gold dikirim ke semua grup FH1/FH2/FH3 yang sudah di-bind. Tidak ada kuota per divisi. Kuota hanya satu secara global untuk order.
+Order baru dari form Pesanan dikirim hanya ke divisi pilihan admin. Order Sheet/legacy tanpa pilihan routing eksplisit tetap mengikuti aturan FH1/FH2/FH3 yang sudah ada. Satu akun penerima mendapat satu notifikasi meskipun menangani beberapa divisi. Kuota tetap satu secara global untuk order.
 
-Setiap setoran: tekan KIRIM GOLD, masukkan jumlah (contoh 30M), kirim minimal satu bukti foto/video, lalu tekan SELESAI UPLOAD. Server menerima jumlah secara atomik.
+Setiap setoran: leader menekan KIRIM GOLD, memilih karyawan, memasukkan jumlah (contoh 30M), mengirim minimal satu bukti foto/video, lalu menekan SELESAI UPLOAD. Ulangi untuk karyawan berikutnya. Server menerima jumlah secara atomik; untuk order baru dari form, pembagian aktual ikut diperbarui di Mutasi tanpa memverifikasi order atau membayar gaji.
 
 Jika sisa hanya 20M tetapi karyawan mengajukan 30M, hanya 20M diterima. Saat total mencapai target, order langsung dikunci dan semua pengiriman berikutnya ditolak. Mutasi menjadi kuning menunggu verifikasi admin.
 
@@ -67,9 +65,9 @@ Setelah environment variable ditambahkan dan deployment baru aktif:
 
 1. buka `/admin/payroll/telegram`;
 2. klik **Pasang / Perbarui Webhook**;
-3. tambahkan bot ke grup divisi;
-4. jalankan `/bind FH1`, `/bind FH2`, dan seterusnya;
-5. minta karyawan menjalankan `/link KODE_KARYAWAN`.
+3. leader membuka bot dan mengirim `/start` lalu `/myid`;
+4. isi ID leader dan pilih divisinya di website, lalu **Simpan leader**;
+5. buat order dengan divisi tujuan dan pilihan karyawan yang sesuai.
 
 ## Order lama
 
@@ -82,6 +80,8 @@ Kolom `JENIS ORDER`, `JENIS`, `ORDER TYPE`, atau `TYPE` diutamakan: GOLD/KOIN/CO
 ## Transaksi, retry, dan pengiriman pesan
 
 Migrasi tambahan: `website/supabase/migrations/20260926030001_payroll_telegram_durable_workflow.sql`. Tabel fondasi dan bukti lama dipertahankan. RPC `cp_telegram_process_update` mengunci workspace lalu order, memeriksa identitas/assignment/status, dan menyimpan aksi, update_id, bukti, kuota, serta antrean notifikasi dalam satu transaksi. Error database membatalkan transaksi agar Telegram dapat retry; penolakan aturan disimpan sehingga retry tidak mengulang aksi. RPC Gold lama tanpa bukti ditutup.
+
+Migrasi leader: `website/supabase/migrations/20260926030002_payroll_telegram_leader_dispatch.sql`. File dibuat dengan CLI dan diurutkan setelah fondasi bertanggal maju. Migrasi tidak mengirim order lama, menghapus bukti, atau mengubah kredensial. Endpoint konfigurasi leader hanya dapat dipakai admin website; RPC terkait tetap hanya untuk service role.
 
 Telegram `sendMessage` tidak menyediakan kunci idempotensi. Karena itu worker menandai pesan `sending` sebelum mengirim dan **tidak mengirim ulang secara buta** setelah timeout atau hasil yang tidak pasti. Baris `uncertain` atau `sending` yang tertinggal perlu diperiksa admin terhadap pesan asli Telegram; ini mencegah pesan ganda tetapi hasil pengiriman ambigu dapat memerlukan pemulihan manual. Pesan `pending` tetap diproses oleh worker berikutnya. Aksi bisnis tetap tersimpan meskipun Telegram sedang tidak tersedia.
 

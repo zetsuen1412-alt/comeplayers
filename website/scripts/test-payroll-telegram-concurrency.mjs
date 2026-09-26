@@ -34,8 +34,8 @@ try {
   console.log('Local PostgreSQL started.');
   for (let i = 0; i < 4; i++) { const c = postgres.getPgClient('postgres', '127.0.0.1'); await c.connect(); clients.push(c); }
   const db = clients[0];
-  await db.query("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb); insert into cp_payroll_workspace values(1,'{}');");
-  for (const file of ['20260926030000_payroll_telegram_operations.sql', '20260926030001_payroll_telegram_durable_workflow.sql']) await db.query(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
+  await db.query("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
+  for (const file of ['20260926030000_payroll_telegram_operations.sql', '20260926030001_payroll_telegram_durable_workflow.sql', '20260926030002_payroll_telegram_leader_dispatch.sql']) await db.query(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
   await db.query("insert into cp_payroll_telegram_divisions(division,chat_id) values('FH1',-1),('FH2',-2),('FH3',-3); insert into cp_payroll_telegram_employees(employee_code,telegram_user_id,division) values('A',1,'FH1'),('B',2,'FH2'),('C',3,'FH3');");
   const workspace = { 'cp-ofs-demo-user-orders-v3': [{ id: 'local-only', externalReference: 'LOCAL-GOLD', orderType: 'gold', quantity: 200, team: 'FH1', operationalStatus: 'draft' }], 'cp-ofs-demo-employees-v2': ['A','B','C'].map((code,i) => ({ code, name: code, team: `FH${i+1}`, workforceStatus: 'SHIFT' })) };
   await db.query('update cp_payroll_workspace set payload=$1::jsonb', [JSON.stringify(workspace)]);

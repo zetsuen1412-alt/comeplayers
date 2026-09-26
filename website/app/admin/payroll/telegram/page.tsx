@@ -11,14 +11,16 @@ type SetupState = {
   bot?: { id: number; first_name: string; username?: string } | null;
   webhook?: { url?: string; pending_update_count?: number; last_error_message?: string } | null;
   botError?: string;
-  divisions: Array<{ division: string; chat_id: number; chat_title?: string | null; chat_username?: string | null; active: boolean }>;
-  employees: Array<{ employee_code: string; telegram_user_id: number; telegram_username?: string | null; telegram_name?: string | null; division: string; role: string; active: boolean }>;
+  divisions: Array<{ division: string; chat_id: number; leader_telegram_user_id?: number | null; chat_title?: string | null; chat_username?: string | null; active: boolean }>;
+  employees: Array<{ employee_code: string; telegram_user_id: number | null; telegram_username?: string | null; telegram_name?: string | null; division: string; role: string; active: boolean }>;
 };
 
 export default function TelegramPayrollPage() {
   const [state, setState] = useState<SetupState | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [leaderId, setLeaderId] = useState("");
+  const [leaderDivisions, setLeaderDivisions] = useState<string[]>([]);
 
   const refresh = useCallback(async () => {
     const result = await authenticatedFetchJson<SetupState>("/api/admin/payroll/telegram/setup");
@@ -44,16 +46,43 @@ export default function TelegramPayrollPage() {
     } finally { setBusy(false); }
   }
 
+  async function saveLeader() {
+    setBusy(true); setMessage("");
+    try {
+      const result = await authenticatedFetchJson<{ name: string }>("/api/admin/payroll/telegram/leader", {
+        method: "POST", body: JSON.stringify({ userId: leaderId, divisions: leaderDivisions }),
+      });
+      setMessage(`✓ ${result.name} menjadi leader ${leaderDivisions.join(", ")}. Order baru akan dikirim ke chat pribadinya. Karyawan tidak perlu /link.`);
+      await refresh();
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Leader belum tersimpan."); }
+    finally { setBusy(false); }
+  }
+
   return (
     <>
-      <PageHeader title="Telegram Booster" description="Hubungkan grup per divisi, karyawan, bukti START/DONE, PAUSE, dan setoran Gold global ke Mutasi ComePlayers." />
+      <PageHeader title="Telegram Booster" description="Admin mengirim order ke leader. Satu akun leader memilih karyawan dan mengirim status serta bukti untuk seluruh divisinya." />
 
       {message ? <div className="mb-5 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm text-yellow-100">{message}</div> : null}
+
+      <section className="cp-card mb-5 p-5 sm:p-6">
+        <h2 className="text-lg font-semibold">Hubungkan akun leader</h2>
+        <p className="mt-2 text-sm leading-6 text-zinc-300">Leader membuka bot, mengirim <code>/start</code> lalu <code>/myid</code>. Masukkan ID angka tersebut dan pilih divisi yang ditangani. Satu akun boleh menangani beberapa divisi. Semua karyawan aktif di divisi itu langsung tersedia untuk dipilih.</p>
+        <label className="mt-4 block text-sm">ID Telegram leader
+          <input inputMode="numeric" value={leaderId} onChange={e => setLeaderId(e.target.value)} placeholder="ID dari /myid" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 p-3 sm:max-w-sm" />
+        </label>
+        <fieldset className="mt-4"><legend className="text-sm">Divisi yang ditangani</legend>
+          <div className="mt-2 flex flex-wrap gap-4">{["FH1", "FH2", "FH3", "ADMIN", "BANDAR"].map(d => <label key={d} className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={leaderDivisions.includes(d)} onChange={e => setLeaderDivisions(current => e.target.checked ? [...current, d] : current.filter(value => value !== d))} />{d}
+          </label>)}</div>
+        </fieldset>
+        <p className="mt-3 text-xs text-zinc-400">Menyimpan akan mengganti penerima untuk divisi yang dicentang. Order lama tidak dikirim ulang otomatis.</p>
+        <button type="button" disabled={busy || !leaderId.trim() || !leaderDivisions.length} onClick={saveLeader} className="mt-4 rounded-xl bg-yellow-400 px-4 py-3 text-sm font-bold text-black disabled:opacity-40">{busy ? "Menyimpan…" : "Simpan leader"}</button>
+      </section>
 
       <section className="cp-card p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Status bot</h2>
         <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
-          {Object.entries({ token: "Bot token", secret: "Webhook secret", reachable: "Bot terhubung", webhook: "Webhook aktif", admin: "Admin terdaftar", FH1: "Grup FH1", FH2: "Grup FH2", FH3: "Grup FH3", employees: "Tautan karyawan" }).map(([key, label]) =>
+          {Object.entries({ token: "Bot token", secret: "Webhook secret", reachable: "Bot terhubung", webhook: "Webhook aktif", admin: "Admin terdaftar", FH1: "Penerima FH1", FH2: "Penerima FH2", FH3: "Penerima FH3", employees: "Daftar karyawan" }).map(([key, label]) =>
             <li key={key}>{state?.checklist?.[key] ? "✅" : "⬜"} {label}</li>)}
         </ul>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -76,21 +105,22 @@ export default function TelegramPayrollPage() {
           <li>Isi <code>TELEGRAM_WEBHOOK_SECRET</code> dengan nilai acak aman minimal 16 karakter dari server atau pengelola kata sandi. Gunakan karakter huruf, angka, garis bawah, atau tanda minus. Deploy perubahan konfigurasi.</li>
           <li>Buka halaman ini di website produksi, lalu klik <strong>Pasang / Perbarui Webhook</strong>.</li>
           <li>Chat bot dengan <code>/myid</code>. Isi <code>TELEGRAM_ADMIN_USER_IDS</code> dengan ID angka admin; pisahkan beberapa ID dengan koma. Deploy ulang.</li>
-          <li>Tambahkan bot ke grup EVO GAMING — FH1, FH2, FH3. Admin menjalankan <code>/bind FH1</code>, <code>/bind FH2</code>, atau <code>/bind FH3</code> di grup yang sesuai.</li>
-          <li>Karyawan aktif menjalankan <code>/link KODE_KARYAWAN</code> di grup divisinya. Admin dapat menentukan leader dengan <code>/leader KODE_KARYAWAN</code>.</li>
+          <li>Daftarkan ID Telegram leader dan divisinya melalui form di atas. Karyawan tidak perlu menghubungkan akun Telegram.</li>
+          <li>Di Pesanan, admin memilih divisi dan memilih apakah karyawan ditentukan leader atau dipilih langsung. Leader memakai tombol order untuk memilih karyawan, START, PAUSE, RESUME, DONE, atau KIRIM GOLD.</li>
           <li>Order baru otomatis dikirim. Jenis order atau divisi yang belum jelas harus diperbaiki dahulu. Gunakan <code>/dispatch KODE_ORDER</code> untuk order lama.</li>
         </ol>
       </section>
 
       <section className="cp-card mt-5 p-5 sm:p-6">
-        <h2 className="text-lg font-semibold">1 grup Telegram per divisi</h2>
-        <p className="mt-2 text-sm text-zinc-400">Tambahkan bot ke grup FH1/FH2/FH3. Admin Telegram kemudian jalankan perintah <code>/bind FH1</code> di grup FH1, dan seterusnya.</p>
+        <h2 className="text-lg font-semibold">Penerima order per divisi</h2>
+        <p className="mt-2 text-sm text-zinc-400">Order masuk ke akun leader sesuai pilihan divisi admin. Pengaturan grup lama tetap tersedia bila diperlukan.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {["FH1", "FH2", "FH3", "ADMIN", "BANDAR"].map(division => {
             const row = state?.divisions.find(item => item.division === division);
             return <div key={division} className="rounded-xl border border-zinc-800 p-4">
               <div className="font-bold">{division}</div>
               <div className="mt-2 text-sm text-zinc-400">{row ? row.chat_title || row.chat_username || String(row.chat_id) : "Belum dihubungkan"}</div>
+              {row?.leader_telegram_user_id && <div className="mt-1 text-xs text-zinc-400">ID leader: {row.leader_telegram_user_id}</div>}
               <div className={`mt-2 text-xs ${row?.active ? "text-emerald-300" : "text-zinc-600"}`}>{row?.active ? "● Aktif" : "○ Belum aktif"}</div>
             </div>;
           })}
@@ -98,11 +128,11 @@ export default function TelegramPayrollPage() {
       </section>
 
       <section className="cp-card mt-5 p-5 sm:p-6">
-        <h2 className="text-lg font-semibold">Karyawan Telegram</h2>
-        <p className="mt-2 text-sm text-zinc-400">Karyawan menghubungkan akun sendiri dengan <code>/link KODE_KARYAWAN</code>. Admin dapat menjadikan karyawan leader dengan <code>/leader KODE_KARYAWAN</code>.</p>
+        <h2 className="text-lg font-semibold">Daftar karyawan untuk leader</h2>
+        <p className="mt-2 text-sm text-zinc-400">Daftar mengikuti karyawan di Payroll. Leader dapat memilih karyawan aktif tanpa akun Telegram masing-masing.</p>
         <div className="mt-4 overflow-x-auto">
           <table className="cp-table min-w-[760px]">
-            <thead><tr><th>Kode</th><th>Nama Telegram</th><th>Username</th><th>Divisi</th><th>Peran</th><th>Status</th></tr></thead>
+            <thead><tr><th>Kode</th><th>Nama</th><th>Username opsional</th><th>Divisi</th><th>Peran</th><th>Status</th></tr></thead>
             <tbody>
               {(state?.employees || []).map(row => <tr key={row.employee_code}>
                 <td className="font-semibold">{row.employee_code}</td>
@@ -112,7 +142,7 @@ export default function TelegramPayrollPage() {
                 <td>{row.role === "leader" ? "Leader" : "Karyawan"}</td>
                 <td>{row.active ? <span className="text-emerald-300">Aktif</span> : "Nonaktif"}</td>
               </tr>)}
-              {!state?.employees?.length ? <tr><td colSpan={6} className="text-zinc-500">Belum ada karyawan yang menjalankan /link.</td></tr> : null}
+              {!state?.employees?.length ? <tr><td colSpan={6} className="text-zinc-500">Daftar akan dimuat saat leader disimpan atau order diproses.</td></tr> : null}
             </tbody>
           </table>
         </div>
@@ -122,7 +152,7 @@ export default function TelegramPayrollPage() {
         <h2 className="text-lg font-semibold">Perintah operasional</h2>
         <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div className="rounded-xl bg-zinc-950/60 p-4"><code>/assign X3101 EMP001</code><p className="mt-2 text-zinc-400">Pilih atau ganti karyawan Boosting. Hanya admin/leader.</p></div>
-          <div className="rounded-xl bg-zinc-950/60 p-4"><code>/dispatch X3101</code><p className="mt-2 text-zinc-400">Kirim order lama ke grup Telegram yang sesuai.</p></div>
+          <div className="rounded-xl bg-zinc-950/60 p-4"><code>/dispatch X3101</code><p className="mt-2 text-zinc-400">Kirim order lama ke penerima divisi yang sesuai.</p></div>
         </div>
         <p className="mt-4 text-sm leading-6 text-zinc-400">START wajib minimal satu bukti foto/screenshot/video. DONE dapat menerima banyak foto/video dan baru berubah kuning setelah tombol <strong>SELESAI UPLOAD</strong>. PAUSE berwarna oranye, RESUME kembali hijau. Order Gold memakai kuota global lintas FH1/FH2/FH3 dan pengiriman tambahan ditolak otomatis saat target penuh.</p>
       </section>
