@@ -139,7 +139,7 @@ export default function TelegramPayrollPage() {
           <div className="rounded-xl bg-zinc-950/60 p-4"><code>/assign X3101 EMP001</code><p className="mt-2 text-zinc-400">Pilih atau ganti karyawan Boosting/Item. Hanya admin/leader.</p></div>
           <div className="rounded-xl bg-zinc-950/60 p-4"><code>/dispatch X3101</code><p className="mt-2 text-zinc-400">Kirim order lama ke penerima divisi yang sesuai.</p></div>
         </div>
-        <p className="mt-4 text-sm leading-6 text-zinc-400">START wajib minimal satu bukti foto/screenshot/video. DONE dapat menerima banyak foto/video dan baru berubah kuning setelah tombol <strong>SELESAI UPLOAD</strong>. PAUSE berwarna oranye, RESUME kembali hijau. Order Gold memakai kuota global lintas FH1/FH2/FH3 dan pengiriman tambahan ditolak otomatis saat target penuh.</p>
+        <p className="mt-4 text-sm leading-6 text-zinc-400">START wajib minimal satu bukti foto/screenshot/video. DONE dapat menerima banyak foto/video dan baru berubah kuning setelah tombol <strong>SELESAI UPLOAD</strong>. PAUSE berwarna oranye, RESUME kembali hijau. Order Gold dikirim hanya ke leader divisi tujuan. Total setoran karyawannya dibatasi jumlah pesanan dan pengiriman tambahan ditolak otomatis saat target penuh.</p>
       </section>
 
       <section className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm leading-6 text-amber-100">
