@@ -97,21 +97,6 @@ export default function TelegramPayrollPage() {
       </section>
 
       <section className="cp-card mt-5 p-5 sm:p-6">
-        <h2 className="text-lg font-semibold">Panduan pemasangan</h2>
-        <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-6 text-zinc-300">
-          <li>Buka <a className="text-emerald-300 underline" href="https://t.me/BotFather" target="_blank" rel="noreferrer">@BotFather</a>, kirim <code>/newbot</code>, lalu tentukan nama dan username bot.</li>
-          <li>Simpan token dari BotFather sebagai <code>TELEGRAM_BOT_TOKEN</code> di Vercel Environment Variables. Jangan tempelkan token ke chat/grup atau kode.</li>
-          <li>Di BotFather, kirim <code>/setprivacy</code>, pilih bot, lalu pilih <strong>Disable</strong>. Tambahkan ulang bot ke grup jika pengaturan belum berlaku, agar foto/video dan teks bukti diterima.</li>
-          <li>Isi <code>TELEGRAM_WEBHOOK_SECRET</code> dengan nilai acak aman minimal 16 karakter dari server atau pengelola kata sandi. Gunakan karakter huruf, angka, garis bawah, atau tanda minus. Deploy perubahan konfigurasi.</li>
-          <li>Buka halaman ini di website produksi, lalu klik <strong>Pasang / Perbarui Webhook</strong>.</li>
-          <li>Chat bot dengan <code>/myid</code>. Isi <code>TELEGRAM_ADMIN_USER_IDS</code> dengan ID angka admin; pisahkan beberapa ID dengan koma. Deploy ulang.</li>
-          <li>Daftarkan ID Telegram leader dan divisinya melalui form di atas. Karyawan tidak perlu menghubungkan akun Telegram.</li>
-          <li>Di Pesanan, admin memilih divisi dan memilih apakah karyawan ditentukan leader atau dipilih langsung. Leader memakai tombol order untuk memilih karyawan, START, PAUSE, RESUME, DONE, atau KIRIM GOLD.</li>
-          <li>Order baru otomatis dikirim. Jenis order atau divisi yang belum jelas harus diperbaiki dahulu. Gunakan <code>/dispatch KODE_ORDER</code> untuk order lama.</li>
-        </ol>
-      </section>
-
-      <section className="cp-card mt-5 p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Penerima order per divisi</h2>
         <p className="mt-2 text-sm text-zinc-400">Order masuk ke akun leader sesuai pilihan divisi admin. Pengaturan grup lama tetap tersedia bila diperlukan.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
