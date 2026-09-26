@@ -270,3 +270,15 @@ test("leader assignment and configuration functions remain service-only", async 
     }
   }
 });
+
+test("legacy Gold shared leader can choose any receiving FH while explicit Gold stays scoped", async () => {
+  await configureLeader();
+  const picker = await event("gold", { ...leader, ref: "G1" });
+  assert.deepEqual(picker.employees?.map(e => e.name), ["Andi · FH1", "Budi · FH1", "Candra · FH2", "Dedi · FH3"]);
+  const session = await event("pickgold", { ...leader, ref: "G1", employeeId: picker.employees![3].id });
+  assert.ok(!session.rejected, session.text); assert.match(session.text, /Dedi · FH3/);
+  await event("amount", { ...leader, quantity: 10 }); await media("photo", leader);
+  assert.equal((await event("finish", { ...leader, sessionId: session.sessionId })).accepted, 10);
+  assert.ok(!(await event("problem", { ...leader, ref: "G1" })).rejected);
+  assert.equal(await state("G1"), "problem");
+});

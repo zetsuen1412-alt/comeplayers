@@ -256,6 +256,10 @@ begin
       if item is null or nullif(item->>'sheetDeletedAt','') is not null then raise exception 'Order tidak aktif di Payroll.'; end if;
       if item->>'orderType' is distinct from o.order_type then raise exception 'Jenis order berubah. Admin perlu memeriksa workflow.'; end if;
       -- Resolve the division from the order/session, never from an arbitrary shared chat row.
+      -- Legacy Gold can serve several divisions sharing one leader chat.
+      if action='pickgold' and o.order_type='gold' and item->>'assignmentMode' is null then
+        select l.division into s.division from public.cp_payroll_telegram_employees l where l.callback_id::text=p_event->>'employeeId' and l.active;
+      end if;
       select d.division into division from public.cp_payroll_telegram_divisions d
         join public.cp_payroll_telegram_order_chats c on c.division=d.division and c.chat_id=d.chat_id
         where c.order_ref=ref and d.chat_id=chat and d.active
@@ -267,14 +271,21 @@ begin
       leader_managed:=exists(select 1 from public.cp_payroll_telegram_divisions d where d.division=division and d.active and d.chat_id=chat and d.leader_telegram_user_id=uid);
       managed:=p_is_admin or leader_managed or (e.role='leader' and e.division=division and emp->>'team'=e.division and coalesce(emp->>'workforceStatus','SHIFT') in ('NEW','SHIFT','FULL'));
       if action='gold' and coalesce(managed,false) then action:='goldpicker'; end if;
-      if action in ('picker','assign','pick','goldpicker') then
+      if action='problem' and o.order_type='gold' and coalesce(managed,false) then
+        if o.state='done_pending_admin' then raise exception 'Order menunggu verifikasi admin.'; end if;
+        update public.cp_payroll_telegram_orders set state='problem',updated_at=now(),last_event_at=now() where order_ref=ref;
+        result:=jsonb_build_object('text','BERMASALAH — '||ref,'keyboard','gold','orderId',o.callback_id); broadcast:=true;
+      elsif action in ('picker','assign','pick','goldpicker') then
         if (action<>'goldpicker' and o.order_type<>'boosting') or (action='goldpicker' and o.order_type<>'gold') or not coalesce(managed,false) then raise exception 'Hanya admin/leader divisi order dapat memilih karyawan.'; end if;
         if o.state='done_pending_admin' then raise exception 'Order menunggu verifikasi admin.'; end if;
         if action in ('picker','goldpicker') then
           select coalesce(jsonb_agg(v),'[]') into options from (
-            select l.callback_id as id,j->>'name' as name from public.cp_payroll_telegram_employees l
+            select l.callback_id as id,case when action='goldpicker' and item->>'assignmentMode' is null then (j->>'name')||' · '||l.division else j->>'name' end as name from public.cp_payroll_telegram_employees l
             join jsonb_array_elements(coalesce(w->'cp-ofs-demo-employees-v2','[]')) j on j->>'code'=l.employee_code
-            where l.active and l.division=division and j->>'team'=l.division and coalesce(j->>'workforceStatus','SHIFT') in ('NEW','SHIFT','FULL')
+            where l.active and (l.division=division or (action='goldpicker' and item->>'assignmentMode' is null and exists(
+              select 1 from public.cp_payroll_telegram_divisions d join public.cp_payroll_telegram_order_chats c on c.division=d.division and c.chat_id=d.chat_id
+              where c.order_ref=ref and d.division=l.division and d.chat_id=chat and d.active and (d.leader_telegram_user_id=uid or p_is_admin))))
+              and j->>'team'=l.division and coalesce(j->>'workforceStatus','SHIFT') in ('NEW','SHIFT','FULL')
             order by j->>'name',l.employee_code limit 9 offset page*8) v;
           result:=jsonb_build_object('text',ref||' — PILIH KARYAWAN','keyboard',case when action='goldpicker' then 'goldpicker' else 'picker' end,'orderId',o.callback_id,'page',page,'employees',options);
         else
@@ -321,7 +332,7 @@ begin
           update public.cp_payroll_telegram_sessions set closed_at=now() where telegram_user_id=uid and chat_id=chat and closed_at is null;
           insert into public.cp_payroll_telegram_sessions(telegram_user_id,chat_id,order_ref,assignment_id,employee_code,division,kind,stage)
             values(uid,chat,ref,a.id,e.employee_code,e.division,action,case when action='gold' then 'amount' else 'evidence' end) returning * into s;
-          result:=jsonb_build_object('text',case when action='gold' then 'Masukkan jumlah Gold (unit sama dengan target order).' else '📸🎥 BUKTI '||upper(action)||' WAJIB — '||ref||E'\nKirim foto/screenshot/video. DONE baru selesai setelah SELESAI UPLOAD.' end,'keyboard','session','sessionId',s.id);
+          result:=jsonb_build_object('text','Order: '||ref||E'\nKaryawan: '||(emp->>'name')||' · '||e.division||E'\n'||case when action='gold' then 'Masukkan jumlah Gold (unit sama dengan target order).' else '📸🎥 BUKTI '||upper(action)||' WAJIB'||E'\nKirim foto/screenshot/video. DONE baru selesai setelah SELESAI UPLOAD.' end,'keyboard','session','sessionId',s.id);
         elsif action='amount' then
           quantity:=(p_event->>'quantity')::numeric;
           if s.kind<>'gold' or s.stage<>'amount' or quantity is null or quantity<=0 or quantity>1e15 then raise exception 'Masukkan jumlah Gold positif yang valid.'; end if;
@@ -367,7 +378,7 @@ begin
           update public.cp_payroll_telegram_sessions set closed_at=now() where id=s.id;
           result:=jsonb_build_object('text','Sesi dibatalkan. Status order tidak diubah; bukti yang sudah dikirim tetap tersimpan.');
         elsif action='more' then
-          result:=jsonb_build_object('text','Kirim foto/video tambahan di grup ini.','keyboard','session','sessionId',s.id);
+          result:=jsonb_build_object('text','Kirim foto/video tambahan di percakapan ini.','keyboard','session','sessionId',s.id);
         elsif action in ('pause','resume','problem') then
           if action='pause' and (o.order_type<>'boosting' or a.status<>'in_progress') then raise exception 'PAUSE hanya saat pekerjaan berlangsung.'; end if;
           if action='resume' and (o.order_type<>'boosting' or a.status<>'paused') then raise exception 'RESUME hanya saat dijeda.'; end if;
