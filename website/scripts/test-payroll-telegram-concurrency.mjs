@@ -35,14 +35,14 @@ try {
   for (let i = 0; i < 4; i++) { const c = postgres.getPgClient('postgres', '127.0.0.1'); await c.connect(); clients.push(c); }
   const db = clients[0];
   await db.query("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
-  for (const file of ['20260926030000_payroll_telegram_operations.sql', '20260926030001_payroll_telegram_durable_workflow.sql', '20260926030002_payroll_telegram_leader_dispatch.sql', '20260926035622_payroll_telegram_item_workflow.sql']) await db.query(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
-  await db.query("insert into cp_payroll_telegram_divisions(division,chat_id) values('FH1',-1),('FH2',-2),('FH3',-3); insert into cp_payroll_telegram_employees(employee_code,telegram_user_id,division) values('A',1,'FH1'),('B',2,'FH2'),('C',3,'FH3');");
-  const workspace = { 'cp-ofs-demo-user-orders-v3': [{ id: 'local-only', externalReference: 'LOCAL-GOLD', orderType: 'gold', quantity: 200, team: 'FH1', operationalStatus: 'draft' }], 'cp-ofs-demo-employees-v2': ['A','B','C'].map((code,i) => ({ code, name: code, team: `FH${i+1}`, workforceStatus: 'SHIFT' })) };
+  for (const file of ['20260926030000_payroll_telegram_operations.sql', '20260926030001_payroll_telegram_durable_workflow.sql', '20260926030002_payroll_telegram_leader_dispatch.sql', '20260926035622_payroll_telegram_item_workflow.sql', '20260926041704_payroll_telegram_strict_division_routing.sql']) await db.query(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), 'utf8'));
+  await db.query("insert into cp_payroll_telegram_divisions(division,chat_id) values('FH1',-1),('FH2',-2),('FH3',-3); insert into cp_payroll_telegram_employees(employee_code,telegram_user_id,division) values('A',1,'FH1'),('B',2,'FH1'),('C',3,'FH1');");
+  const workspace = { 'cp-ofs-demo-user-orders-v3': [{ id: 'local-only', externalReference: 'LOCAL-GOLD', orderType: 'gold', quantity: 200, team: 'FH1', operationalStatus: 'draft' }], 'cp-ofs-demo-employees-v2': ['A','B','C'].map(code => ({ code, name: code, team: 'FH1', workforceStatus: 'SHIFT' })) };
   await db.query('update cp_payroll_workspace set payload=$1::jsonb', [JSON.stringify(workspace)]);
   await db.query("update cp_payroll_telegram_orders set delivered_quantity=180 where order_ref='LOCAL-GOLD'");
   let updateId = 1;
   async function event(client, userId, action, rest = {}, id = updateId++) {
-    return (await client.query('select cp_telegram_process_update($1,$2::jsonb,false) as result', [id, JSON.stringify({ userId, chatId: -userId, ref: 'LOCAL-GOLD', action, ...rest })])).rows[0].result;
+    return (await client.query('select cp_telegram_process_update($1,$2::jsonb,false) as result', [id, JSON.stringify({ userId, chatId: -1, ref: 'LOCAL-GOLD', action, ...rest })])).rows[0].result;
   }
   const sessions = [];
   for (let userId=1; userId<=3; userId++) {

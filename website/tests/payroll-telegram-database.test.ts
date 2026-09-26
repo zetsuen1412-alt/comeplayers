@@ -31,17 +31,17 @@ async function state(ref = "B1") { return (await db.query<{ state: string }>("se
 async function assign() { const result = await event("assign", { employeeCode: "A" }, true); assert.ok(!result.rejected, result.text); return result; }
 async function media(type = "photo", extra: Record<string, unknown> = {}) { return event("media", { mediaType: type, messageId: nextId, fileId: `file-${nextId}`, fileUniqueId: `unique-${nextId}`, ...extra }); }
 async function start(type = "photo") { await assign(); await event("start"); const result = await media(type); assert.ok(!result.rejected, result.text); }
-async function gold(userId = 101, chatId = -101, quantity = 50) {
+async function gold(userId = 103, chatId = -102, quantity = 50) {
   const s = await event("gold", { ref: "G1", userId, chatId }); assert.ok(!s.rejected, s.text);
   await event("amount", { userId, chatId, quantity }); await media("photo", { userId, chatId }); return { userId, chatId, sessionId: s.sessionId };
 }
-before(async () => {
-  db = new PGlite();
-  await db.exec("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
-  for (const file of ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql", "20260926030002_payroll_telegram_leader_dispatch.sql", "20260926035622_payroll_telegram_item_workflow.sql"]) {
-    await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8"));
-  }
-});
+const migrations = ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql", "20260926030002_payroll_telegram_leader_dispatch.sql", "20260926035622_payroll_telegram_item_workflow.sql", "20260926041704_payroll_telegram_strict_division_routing.sql"];
+const migrationSql = (file: string) => readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8");
+async function initialize(database: PGlite, files = migrations) {
+  await database.exec("create role anon; create role authenticated; create role service_role; create table cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now()); insert into cp_payroll_workspace(id,payload) values(1,'{}');");
+  for (const file of files) await database.exec(migrationSql(file));
+}
+before(async () => { db = new PGlite(); await initialize(db); });
 beforeEach(async () => {
   await db.exec("begin; insert into cp_payroll_telegram_divisions(division,chat_id) values('FH1',-101),('FH2',-102),('FH3',-103),('ADMIN',-104),('BANDAR',-105); insert into cp_payroll_telegram_employees(employee_code,telegram_user_id,division) values('A',101,'FH1'),('B',102,'FH1'),('C',103,'FH2'),('D',104,'FH3'),('R',105,'FH1');");
   await save(orders);
@@ -49,14 +49,15 @@ beforeEach(async () => {
 afterEach(async () => { await db.exec("rollback"); });
 after(async () => { await db.close(); });
 
-test("manual Boost dispatches only to its division; Sheet Gold only to FH1/FH2/FH3", async () => {
+test("manual Boost and Sheet Gold dispatch only to their respective divisions", async () => {
   assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='B1' and division='FH1'"), 1);
-  assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='G1'"), 3);
+  assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='G1'"), 1);
+  assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='G1' and division='FH2'"), 1);
   assert.equal(await count("cp_payroll_telegram_order_chats", "division in ('ADMIN','BANDAR')"), 0);
 });
 test("duplicate sync and dispatch do not duplicate notices", async () => {
   await save(orders); await db.query("select cp_telegram_dispatch('B1')");
-  assert.equal(await count("cp_payroll_telegram_outbox", "event_key like 'dispatch:%'"), 4);
+  assert.equal(await count("cp_payroll_telegram_outbox", "event_key like 'dispatch:%'"), 2);
 });
 test("unknown division waits for Boosting and Item; unknown type avoids Telegram", async () => {
   await save([{ ...orders[0], id: "new", externalReference: "WAIT", team: undefined }, { ...orders[0], id: "unknown", externalReference: "UNKNOWN", orderType: undefined }, { ...orders[0], id: "item", externalReference: "ITEM", orderType: "item", team: undefined }]);
@@ -122,24 +123,28 @@ for (const terminal of [{ operationalStatus: "verified" }, { verifiedAt: "2026-0
   for (const action of ["start", "pause", "resume", "done", "problem", "picker", "assign"]) assert.equal((await event(action, { employeeCode: "B" }, true)).rejected, true, action);
   assert.equal((await event("gold", { ref: "G1" })).rejected, true);
   await save(orders.map(o => ({ ...o, ...terminal })));
-  assert.equal(await count("cp_payroll_telegram_outbox", "event_key like 'verified:%'"), 4);
+  assert.equal(await count("cp_payroll_telegram_outbox", "event_key like 'verified:%'"), 2);
 });
 test("Gold cannot finish without evidence", async () => {
-  const s = await event("gold", { ref: "G1" }); await event("amount", { quantity: 50 });
-  assert.equal((await event("finish", { sessionId: s.sessionId })).rejected, true);
+  const actor = { userId: 103, chatId: -102 };
+  const s = await event("gold", { ...actor, ref: "G1" }); assert.ok(!s.rejected, s.text);
+  assert.ok(!(await event("amount", { ...actor, quantity: 50 })).rejected);
+  assert.equal((await event("finish", { ...actor, sessionId: s.sessionId })).rejected, true);
   assert.equal(await count("cp_payroll_telegram_gold_contributions"), 0);
 });
-test("180/200 + 50 accepts exactly 20, links evidence, notifies all three groups", async () => {
+test("180/200 + 50 accepts exactly 20, links evidence, notifies only the order division", async () => {
   await db.exec("update cp_payroll_telegram_orders set delivered_quantity=180 where order_ref='G1'");
   const s = await gold(); const id = nextId++; const result = await event("finish", s, false, id);
   assert.equal(result.accepted, 20); assert.equal(result.remaining, 0); assert.equal(await state("G1"), "done_pending_admin");
   assert.equal(await count("cp_payroll_telegram_evidence", "contribution_id is not null"), 1);
-  assert.equal(await count("cp_payroll_telegram_outbox", `event_key like 'update:${id}:%'`), 3);
+  assert.equal(await count("cp_payroll_telegram_outbox", `event_key like 'update:${id}:%'`), 1);
   assert.equal((await event("gold", { ref: "G1", userId: 103, chatId: -102 })).rejected, true);
 });
-test("overlapping Gold submissions across divisions cannot exceed global quota", async () => {
+test("overlapping Gold submissions in the order division cannot exceed its quota", async () => {
   await db.exec("update cp_payroll_telegram_orders set delivered_quantity=180 where order_ref='G1'");
-  const sessions = [await gold(101, -101, 15), await gold(103, -102, 20), await gold(104, -103, 10)];
+  await db.query("update cp_payroll_workspace set payload=jsonb_set(payload,'{cp-ofs-demo-employees-v2}',$1::jsonb) where id=1", [JSON.stringify([...employees, { code: "E", name: "Erik", team: "FH2", workforceStatus: "SHIFT" }, { code: "F", name: "Feri", team: "FH2", workforceStatus: "SHIFT" }])]);
+  await db.exec("insert into cp_payroll_telegram_employees(employee_code,telegram_user_id,division) values('E',106,'FH2'),('F',107,'FH2')");
+  const sessions = [await gold(103, -102, 15), await gold(106, -102, 20), await gold(107, -102, 10)];
   const results = await Promise.all(sessions.map(s => event("finish", s)));
   assert.equal(results.reduce((sum, r) => sum + (r.accepted ?? 0), 0), 20);
   assert.equal(await count("cp_payroll_telegram_gold_contributions"), 2);
@@ -152,7 +157,7 @@ test("duplicate update ID cannot duplicate assignment, evidence, contribution or
   await event("finish", s, false, id); const duplicate = await event("finish", s, false, id);
   assert.equal(duplicate.duplicate, true); assert.equal(await count("cp_payroll_telegram_gold_contributions"), 1);
   assert.equal(await count("cp_payroll_telegram_evidence"), 1);
-  assert.equal(await count("cp_payroll_telegram_outbox", `event_key like 'update:${id}:%'`), 3);
+  assert.equal(await count("cp_payroll_telegram_outbox", `event_key like 'update:${id}:%'`), 1);
 });
 test("repeated media delivery with a different update ID still counts one piece of evidence", async () => {
   await start(); await event("done"); const same = { messageId: 9000, fileId: "metadata-only", fileUniqueId: "same" };
@@ -164,7 +169,7 @@ test("link never hijacks another employee identity or leader role", async () => 
 });
 test("outbox claim is exclusive and a sending row is not blindly retried", async () => {
   const results = await Promise.all(Array.from({ length: 5 }, () => db.query<{ id: number }>("select id from cp_telegram_claim_outbox()")));
-  const ids = results.flatMap(r => r.rows.map(row => row.id)); assert.equal(ids.length, 4); assert.equal(new Set(ids).size, 4);
+  const ids = results.flatMap(r => r.rows.map(row => row.id)); assert.equal(ids.length, 2); assert.equal(new Set(ids).size, 2);
 });
 test("private workflow tables and RPCs deny anon/authenticated", async () => {
   for (const role of ["anon", "authenticated"]) {
@@ -186,6 +191,91 @@ async function configureLeader(divisions = ["FH1", "FH2", "FH3"], userId = 900) 
   await db.query("select cp_telegram_dispatch('G1')");
 }
 const leader = { userId: 900, chatId: 900, chatType: "private" };
+
+test("X2867 FH2 waits when only FH3 has a leader; missing Gold division never broadcasts", async () => {
+  await db.exec("update cp_payroll_telegram_divisions set active=false");
+  await configureLeader(["FH3"], 903);
+  await save([
+    { ...orders[1], id: "gsheet:X2867", externalReference: "X2867", quantity: 60, orderName: "60M Spiritvale" },
+    { ...orders[1], id: "no-team", externalReference: "NO-TEAM", team: "" },
+  ]);
+  assert.equal(await count("cp_payroll_telegram_outbox", "order_ref in ('X2867','NO-TEAM')"), 0);
+  assert.equal((await db.query<{ dispatch_status: string }>("select dispatch_status from cp_payroll_telegram_orders where order_ref='NO-TEAM'")).rows[0].dispatch_status, "waiting_division");
+  await db.query("select cp_telegram_configure_leader(array['FH2'],902,'FH2 leader')");
+  await db.query("select cp_telegram_dispatch('X2867')");
+  await db.query("select cp_telegram_dispatch('X2867')");
+  const notices = (await db.query<{ chat_id: number; payload: { text: string } }>("select chat_id,payload from cp_payroll_telegram_outbox where order_ref='X2867'")).rows;
+  assert.equal(notices.length, 1); assert.equal(notices[0].chat_id, 902);
+  assert.match(notices[0].payload.text, /Divisi : FH2/); assert.doesNotMatch(notices[0].payload.text, /GLOBAL/);
+});
+
+test("migration repairs wrong-division routing without deleting sent history or payroll data", async () => {
+  const legacy = new PGlite();
+  try {
+    await initialize(legacy, migrations.slice(0, -1));
+    await legacy.query("select cp_telegram_configure_leader(array['FH3'],903,'FH3 leader')");
+    const original = workspace([{ ...orders[1], id: "gsheet:X2867", externalReference: "X2867", quantity: 60 }]);
+    await legacy.query("update cp_payroll_workspace set payload=$1::jsonb where id=1", [JSON.stringify(original)]);
+    await legacy.exec("update cp_payroll_telegram_order_chats set message_id=135 where order_ref='X2867'; update cp_payroll_telegram_outbox set status='sent',message_id=135 where order_ref='X2867'; update cp_payroll_telegram_orders set dispatch_status='sent' where order_ref='X2867'; insert into cp_payroll_telegram_outbox(event_key,order_ref,chat_id,payload) values('update:999:903','X2867',903,'{}'); insert into cp_payroll_telegram_sessions(order_ref,telegram_user_id,chat_id,kind,stage,employee_code,division) values('X2867',903,903,'gold','evidence','D','FH3');");
+    await legacy.exec(migrationSql(migrations.at(-1)!));
+    assert.deepEqual((await legacy.query<{ payload: unknown }>("select payload from cp_payroll_workspace where id=1")).rows[0].payload, original);
+    assert.deepEqual((await legacy.query("select division,state,dispatch_status,delivered_quantity from cp_payroll_telegram_orders where order_ref='X2867'")).rows[0], { division: "FH2", state: "waiting", dispatch_status: "pending", delivered_quantity: "0" });
+    assert.deepEqual((await legacy.query("select division,message_id from cp_payroll_telegram_order_chats where order_ref='X2867'")).rows, [{ division: "FH3", message_id: 135 }]);
+    assert.deepEqual((await legacy.query("select status,message_id from cp_payroll_telegram_outbox where order_ref='X2867' order by id")).rows, [{ status: "sent", message_id: 135 }, { status: "cancelled", message_id: null }]);
+    assert.equal((await legacy.query<{ closed: boolean }>("select closed_at is not null as closed from cp_payroll_telegram_sessions where order_ref='X2867'")).rows[0].closed, true);
+    assert.equal((await legacy.query<{ allowed: boolean }>("select cp_telegram_route_allowed('X2867','FH3',903) as allowed")).rows[0].allowed, false);
+  } finally { await legacy.close(); }
+});
+
+test("legacy FH3 Gold buttons and open upload session cannot operate an FH2 order", async () => {
+  await configureLeader(["FH2"], 902); await configureLeader(["FH3"], 903);
+  await db.exec("insert into cp_payroll_telegram_order_chats(order_ref,division,chat_id,message_id) values('G1','FH3',903,135)");
+  const session = (await db.query<{ id: string }>("insert into cp_payroll_telegram_sessions(order_ref,telegram_user_id,chat_id,kind,stage,employee_code,division,requested_quantity) values('G1',903,903,'gold','evidence','D','FH3',10) returning id")).rows[0].id;
+  const workerId = (await db.query<{ callback_id: number }>("select callback_id from cp_payroll_telegram_employees where employee_code='C'")).rows[0].callback_id;
+  for (const action of ["gold", "goldpicker", "pickgold", "problem", "amount", "media", "finish"]) {
+    const result = await event(action, { userId: 903, chatId: 903, ref: "G1", employeeId: workerId, quantity: 10, sessionId: session, mediaType: "photo", messageId: nextId, fileId: "wrong-route", fileUniqueId: "wrong-route" });
+    assert.equal(result.rejected, true, `${action}: ${result.text}`);
+  }
+  assert.equal(await state("G1"), "waiting");
+  assert.equal(await count("cp_payroll_telegram_gold_contributions"), 0);
+  assert.equal(await count("cp_payroll_telegram_evidence"), 0);
+  assert.equal(await count("cp_payroll_telegram_order_chats", "order_ref='G1' and division='FH3' and message_id=135"), 1);
+  const picker = await event("gold", { userId: 902, chatId: 902, ref: "G1" });
+  assert.deepEqual(picker.employees?.map(e => e.name), ["Candra"]);
+});
+
+test("claims cancel old cross-division notices and later verification only notifies FH2", async () => {
+  await configureLeader(["FH2"], 902); await configureLeader(["FH3"], 903);
+  await db.exec("insert into cp_payroll_telegram_order_chats(order_ref,division,chat_id,message_id) values('G1','FH3',903,135)");
+  for (const key of ["dispatch:G1:903", "verified:G1:903", "update:999:903"]) {
+    await db.query("insert into cp_payroll_telegram_outbox(event_key,order_ref,chat_id,payload) values($1,'G1',903,'{}')", [key]);
+  }
+  await event("problem", { userId: 902, chatId: 902, ref: "G1" });
+  await save(orders.map(o => o.externalReference === "G1" ? { ...o, verifiedAt: "2026-09-26T05:00:00Z" } : o));
+  const claimed: { order_ref: string; chat_id: number }[] = [];
+  for (let i = 0; i < 12; i++) claimed.push(...(await db.query<{ order_ref: string; chat_id: number }>("select order_ref,chat_id from cp_telegram_claim_outbox()")).rows);
+  assert.ok(claimed.some(r => r.order_ref === "G1"));
+  assert.ok(claimed.filter(r => r.order_ref === "G1").every(r => r.chat_id === 902));
+  assert.equal(await count("cp_payroll_telegram_outbox", "order_ref='G1' and chat_id=903 and status='cancelled'"), 3);
+  assert.equal(await count("cp_payroll_telegram_outbox", "event_key='verified:G1:902'"), 1);
+});
+
+test("changing an order division invalidates old Gold sessions and sends to the new division", async () => {
+  await configureLeader(["FH2"], 902); await configureLeader(["FH3"], 903);
+  const ctx = { userId: 902, chatId: 902, ref: "G1" };
+  const picker = await event("gold", ctx);
+  const s = await event("pickgold", { ...ctx, employeeId: picker.employees![0].id });
+  await event("amount", { ...ctx, quantity: 10 }); await media("photo", ctx);
+  await save([{ ...orders[1], team: "FH3" }]);
+  assert.equal((await event("finish", { ...ctx, sessionId: s.sessionId })).rejected, true);
+  assert.equal(await count("cp_payroll_telegram_gold_contributions"), 0);
+  assert.equal(await count("cp_payroll_telegram_evidence", "order_ref='G1' and division='FH2'"), 1);
+  const newPicker = await event("gold", { userId: 903, chatId: 903, ref: "G1" });
+  assert.deepEqual(newPicker.employees?.map(e => e.name), ["Dedi"]);
+  const claimed = [];
+  for (let i = 0; i < 12; i++) claimed.push(...(await db.query<{ chat_id: number }>("select chat_id from cp_telegram_claim_outbox() where order_ref='G1' and event_key like 'dispatch:%'")).rows);
+  assert.deepEqual(claimed, [{ chat_id: 903 }]);
+});
 
 test("one leader manages multiple divisions and selects workers without Telegram links", async () => {
   await db.exec("delete from cp_payroll_telegram_employees");
@@ -261,23 +351,23 @@ test("shared leader receives one legacy Gold dispatch, and stale recipients are 
     sent.push(...rows.map(r => r.chat_id));
   }
   assert.deepEqual(sent, [900, 900]);
-  assert.equal(await count("cp_payroll_telegram_outbox", "status='cancelled'"), 4);
+  assert.equal(await count("cp_payroll_telegram_outbox", "status='cancelled'"), 2);
 });
 
 test("leader assignment and configuration functions remain service-only", async () => {
   for (const role of ["anon", "authenticated"]) {
-    for (const fn of ["cp_telegram_configure_leader(text[],bigint,text)", "cp_telegram_save_worker(text,jsonb)", "cp_telegram_refresh_roster(jsonb)", "cp_telegram_save_gold_workers(text)"]) {
+    for (const fn of ["cp_telegram_configure_leader(text[],bigint,text)", "cp_telegram_save_worker(text,jsonb)", "cp_telegram_refresh_roster(jsonb)", "cp_telegram_save_gold_workers(text)", "cp_telegram_route_allowed(text,text,bigint)"]) {
       assert.equal((await db.query<{ allowed: boolean }>("select has_function_privilege($1,$2,'EXECUTE') allowed", [role, fn])).rows[0].allowed, false);
     }
   }
 });
 
-test("legacy Gold shared leader can choose any receiving FH while explicit Gold stays scoped", async () => {
+test("Sheet Gold stays in its division even when one leader handles multiple divisions", async () => {
   await configureLeader();
   const picker = await event("gold", { ...leader, ref: "G1" });
-  assert.deepEqual(picker.employees?.map(e => e.name), ["Andi · FH1", "Budi · FH1", "Candra · FH2", "Dedi · FH3"]);
-  const session = await event("pickgold", { ...leader, ref: "G1", employeeId: picker.employees![3].id });
-  assert.ok(!session.rejected, session.text); assert.match(session.text, /Dedi · FH3/);
+  assert.deepEqual(picker.employees?.map(e => e.name), ["Candra"]);
+  const session = await event("pickgold", { ...leader, ref: "G1", employeeId: picker.employees![0].id });
+  assert.ok(!session.rejected, session.text); assert.match(session.text, /Candra · FH2/);
   await event("amount", { ...leader, quantity: 10 }); await media("photo", leader);
   assert.equal((await event("finish", { ...leader, sessionId: session.sessionId })).accepted, 10);
   assert.ok(!(await event("problem", { ...leader, ref: "G1" })).rejected);

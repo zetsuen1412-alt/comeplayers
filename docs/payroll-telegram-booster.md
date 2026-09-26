@@ -43,9 +43,11 @@ Sesi DONE/Gold menghitung foto dan video secara terpisah. **TAMBAH BUKTI** melan
 
 Foto dan video tidak dipindahkan melalui Vercel. ComePlayers hanya menyimpan Telegram chat/message/file ID. Tautan pesan tersedia untuk grup yang mendukungnya; bukti dari chat pribadi dibuka oleh akun leader di percakapan aslinya. Website tetap menampilkan metadata dan nama karyawan.
 
-## Gold global lintas divisi
+## Gold sesuai divisi order
 
-Order baru dari form Pesanan dikirim hanya ke divisi pilihan admin. Order Sheet/legacy tanpa pilihan routing eksplisit tetap mengikuti aturan FH1/FH2/FH3 yang sudah ada. Satu akun penerima mendapat satu notifikasi meskipun menangani beberapa divisi. Kuota tetap satu secara global untuk order.
+Semua order Gold, termasuk dari Sheet dan order lama, dikirim hanya ke leader divisi order (FH1/FH2/FH3). Contoh: X2867 dengan FH2 tidak dikirim ke FH3. Jika leader FH2 belum terhubung, order menunggu penerima FH2; tidak dialihkan ke divisi lain. Divisi kosong menunggu perbaikan di Sheet/website. Satu akun boleh menangani beberapa divisi, tetapi daftar karyawan tetap dibatasi ke divisi order. Total setoran seluruh karyawan memakai satu kuota untuk order tersebut.
+
+Migrasi `website/supabase/migrations/20260926041704_payroll_telegram_strict_division_routing.sql` menonaktifkan sesi dan antrean yang salah divisi tanpa menghapus order, bukti, atau riwayat pesan. Pesan lama tetap terlihat di Telegram, tetapi tombol dari penerima/divisi yang tidak sesuai ditolak. Setelah leader divisi yang benar terhubung, admin dapat memakai `/dispatch KODE_ORDER` untuk order lama.
 
 Setiap setoran: leader menekan KIRIM GOLD, memilih karyawan, memasukkan jumlah (contoh 30M), mengirim minimal satu bukti foto/video, lalu menekan SELESAI UPLOAD. Ulangi untuk karyawan berikutnya. Server menerima jumlah secara atomik; untuk order baru dari form, pembagian aktual ikut diperbarui di Mutasi tanpa memverifikasi order atau membayar gaji.
 
@@ -81,7 +83,7 @@ Setelah environment variable ditambahkan dan deployment baru aktif:
 
 ## Order lama
 
-Gunakan `/dispatch X3101` untuk order lama. Order baru dari Sheet **dan input manual** masuk antrean dalam transaksi penyimpanan workspace. Boosting dan Item hanya ke divisinya; divisi kosong berstatus **Menunggu divisi**. Gold hanya ke FH1/FH2/FH3 aktif. Jenis tak dikenal tidak masuk workflow. Grup yang belum dihubungkan dapat menerima order setelah `/dispatch` dijalankan ulang; kiriman yang sudah tercatat tidak digandakan.
+Gunakan `/dispatch X3101` untuk order lama. Order baru dari Sheet **dan input manual** masuk antrean dalam transaksi penyimpanan workspace. Boosting, Gold, dan Item hanya ke divisi order; divisi kosong berstatus **Menunggu divisi**. Gold memerlukan divisi FH1/FH2/FH3. Jenis tak dikenal tidak masuk workflow. Penerima yang belum dihubungkan dapat menerima order setelah `/dispatch` dijalankan ulang; kiriman yang sudah tercatat tidak digandakan.
 
 ## Jenis order spreadsheet
 
