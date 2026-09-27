@@ -1,5 +1,7 @@
 # Kesiapan Google Play — ComePlayers 0.15.0
 
+**Pembaruan:** persetujuan pemilik sudah diterima, website sudah dirilis, dan AAB 0.15.0 (22) sudah diterbitkan ke internal testing. Lihat [hasil rilis](RELEASE-2026-09-27.md). Isi di bawah adalah catatan persiapan sebelum persetujuan, bukan status terbaru.
+
 Status per 27 September 2026: sumber kandidat rilis siap ditinjau; **belum ada AAB 0.15.0 yang dibangun, diunggah, atau diterbitkan**. Catatan ini memperbarui status persiapan 24 September, bukan bukti persetujuan Google.
 
 ## Kandidat rilis

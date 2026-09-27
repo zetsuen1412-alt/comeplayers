@@ -1,6 +1,6 @@
 # Rilis ComePlayers ke Google Play
 
-Status kandidat Android 0.15.0, hasil pemeriksaan, dan persetujuan yang masih diperlukan tersedia di [catatan kesiapan 27 September 2026](play-store/READINESS-2026-09-27.md). [Catatan 24 September](play-store/READINESS-2026-09-24.md) menyimpan rincian kebijakan dan listing yang belum diverifikasi. Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json). Kandidat 0.15.0 belum dibangun, diunggah, atau diterbitkan.
+Android **0.15.0 (22) sudah diterbitkan ke internal testing Google Play**; daftar tester masih kosong dan belum ada rilis production publik. Website juga sudah dirilis. Lihat [hasil rilis 27 September 2026](play-store/RELEASE-2026-09-27.md) untuk identitas AAB, verifikasi, dan pekerjaan yang masih diperlukan. [Catatan kesiapan](play-store/READINESS-2026-09-27.md) menyimpan status sebelum persetujuan pemilik. Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json).
 
 ## Identitas tetap
 
