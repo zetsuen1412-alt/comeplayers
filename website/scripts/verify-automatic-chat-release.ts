@@ -20,7 +20,7 @@ async function actor(): Promise<Actor> {
   const id = created.data.user.id; users.push(id);
   const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
   const login = await client.auth.signInWithPassword({ email, password }); if (login.error) throw login.error;
-  const request: RecoveryTransport = async <T>(path: string, init = {}) => {
+  const request: RecoveryTransport = async <T>(path: string, init: { method?: string; body?: string; headers?: Record<string, string> } = {}) => {
     const r = await fetch(base + path, { ...init, headers: { ...init.headers, Authorization: `Bearer ${login.data.session!.access_token}`, "Content-Type": "application/json" }, signal: AbortSignal.timeout(30000) });
     const data = await r.json();
     if (!r.ok) throw new Error(`${path}: HTTP ${r.status}: ${data.error || "request failed"}`);
