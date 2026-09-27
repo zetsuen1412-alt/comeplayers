@@ -7,11 +7,14 @@
   "website": "https://www.comeplayers.com",
   "privacyPolicyUrl": "https://www.comeplayers.com/privacy",
   "accountDeletionUrl": "https://www.comeplayers.com/account/privacy",
-  "supportEmailCandidate": "admin@comeplayers.com",
+  "supportEmail": "admin@comeplayers.com",
+  "supportEmailConfirmedByOwner": true,
+  "category": "SOCIAL",
   "reviewNotes": [
-    "Draf lokal; belum disimpan atau dikirim ke Play Console.",
-    "Email diambil dari kebijakan website; pastikan kotak masuk dipantau sebelum digunakan.",
+    "Deskripsi Indonesia sudah disimpan sebagai draf di Play Console; listing lengkap belum dikirim untuk review.",
+    "Pemilik mengonfirmasi admin@comeplayers.com sebagai email dukungan; email dan website resmi sudah dipublikasikan melalui Store settings.",
+    "Kategori Social sudah disimpan dan menunggu pengiriman untuk review.",
     "Cocokkan semua klaim dengan AAB final dan hasil pengujian perangkat.",
-    "Kategori, negara distribusi, target usia, rating, deklarasi iklan, dan Data safety belum ditetapkan."
+    "Negara distribusi, target usia, rating, deklarasi iklan, dan Data safety belum ditetapkan."
   ]
 }
