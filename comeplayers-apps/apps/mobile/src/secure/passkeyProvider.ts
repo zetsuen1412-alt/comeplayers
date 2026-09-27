@@ -8,9 +8,15 @@ export function fromBase64(value: string): Uint8Array {
   return Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
 }
 
-export function recoveryCreateOptions(userId: string, salt: Uint8Array) {
+export type RecoveryAccountLabel = { email?: string; name?: string };
+const readableLabel = (value: string | undefined) => value?.replace(/[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g, "").trim().slice(0, 128);
+
+export function recoveryCreateOptions(userId: string, salt: Uint8Array, account: RecoveryAccountLabel = {}) {
+  const name = readableLabel(account.email) || readableLabel(account.name) || "Akun ComePlayers";
   return { challenge: base64url(random()), rp: { id: RECOVERY_RP_ID, name: "ComePlayers" },
-    user: { id: base64url(utf8(userId)), name: userId, displayName: "ComePlayers encrypted Messages" },
+    // The stable account handle is unchanged; these labels only identify the
+    // account in the password manager and are never authorization inputs.
+    user: { id: base64url(utf8(userId)), name, displayName: readableLabel(account.name) || name },
     pubKeyCredParams: [{ type: "public-key" as const, alg: -7 }, { type: "public-key" as const, alg: -257 }],
     authenticatorSelection: { residentKey: "required" as const, userVerification: "required" as const },
     attestation: "none" as const, timeout: 120000, extensions: { prf: { eval: { first: base64url(salt) } } } };

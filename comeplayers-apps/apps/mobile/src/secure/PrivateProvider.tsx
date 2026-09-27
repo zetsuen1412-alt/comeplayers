@@ -5,7 +5,6 @@ import { mobileSecureBinaryTransport, mobileSecureTransport } from "./mobileSecu
 import { SecureHistorySync } from "./secureHistorySync";
 import { SecureMessengerV2 } from "./secureMessengerV2";
 import { openVerifiedVault } from "./verifiedVault";
-import { SecureDeviceSetup } from "./SecureDeviceSetup";
 import { cleanPrivatePreviewCache } from "./mediaStore";
 import { applyNativeRecoveryPolicy } from "./nativeRecoveryPolicy";
 import { assertLocalAccountMatch, parseRecoveryPolicy } from "./recoveryPolicy";
@@ -15,14 +14,14 @@ import { supabase } from "../runtime";
 import type { SecureSetup } from "./secureSetup";
 import { maybeRunAutomaticDriveBackup } from "./driveBackupPreference";
 
-const Context = createContext<{ messenger: SecureMessengerV2 | null; error: string; reopen: () => void }>({ messenger: null, error: "", reopen: () => undefined });
+const Context = createContext<{ messenger: SecureMessengerV2 | null; setup: SecureSetup | null; error: string; reopen: () => void }>({ messenger: null, setup: null, error: "", reopen: () => undefined });
 export const usePrivateMessenger = () => useContext(Context);
 
 export function PrivateProvider({ userId, enabled, children }: { userId: string; enabled: boolean; children: ReactNode }) {
   const [messenger, setMessenger] = useState<SecureMessengerV2 | null>(null), [error, setError] = useState("");
-  const [setup, setSetup] = useState<SecureSetup | null>(null), [generation, setGeneration] = useState(0), [dismissed, setDismissed] = useState(false);
+  const [setup, setSetup] = useState<SecureSetup | null>(null), [generation, setGeneration] = useState(0);
   const runtime = useRef<SecureMessengerV2 | null>(null), queue = useRef<Promise<unknown>>(Promise.resolve());
-  const reopen = useCallback(() => { setDismissed(false); setGeneration(value => value + 1); }, []);
+  const reopen = useCallback(() => { setGeneration(value => value + 1); }, []);
   useEffect(() => {
     let alive = true, client: SecureMessengerV2 | null = null, checking = false, policyGeneration: number | null = null;
     setMessenger(null); setSetup(null); setError("");
@@ -75,7 +74,8 @@ export function PrivateProvider({ userId, enabled, children }: { userId: string;
     const listener = AppState.addEventListener("change", next => { if (next === "active") { void refresh(); void maybeRunAutomaticDriveBackup(userId); } });
     return () => { alive = false; clearInterval(timer); clearInterval(backupTimer); listener.remove(); void client?.pause(); };
   }, [userId, enabled, generation, reopen]);
-  const value = useMemo(() => ({ messenger, error: error || (dismissed && !messenger ? "Encrypted Messages are locked. Reopen account verification to continue." : ""), reopen }), [messenger, error, reopen, dismissed]);
-  const setupKey = setup?.kind === "new" ? setup.plan.session.device.id : setup?.kind === "recover" ? setup.snapshot.roster_hash : `loading-${generation}`;
-  return <Context.Provider value={value}>{children}{enabled && !messenger && !dismissed ? <SecureDeviceSetup key={setupKey} userId={userId} setup={setup} error={error} onActivated={reopen} onRetry={reopen} onDismiss={() => setDismissed(true)} /> : null}</Context.Provider>;
+  const value = useMemo(() => ({ messenger, setup, error, reopen }), [messenger, setup, error, reopen]);
+  // Setup belongs to the private conversation/settings that need it. Never cover
+  // the inbox, community or other tabs with an automatic onboarding modal.
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 }

@@ -8,6 +8,7 @@ import { exportVerifiedBackup, restoreVerifiedBackup } from "../secure/verifiedB
 import { backUpToGoogleDrive, downloadGoogleDriveBackup } from "../secure/googleDriveBackup";
 import { checkBackupCancellation } from "../secure/backupCancellation";
 import { usePrivateMessenger } from "../secure/PrivateProvider";
+import { SecureDeviceSetup } from "../secure/SecureDeviceSetup";
 import { colors } from "../theme";
 import { fetchRecoveryAccount } from "../secure/accountRecovery";
 import { mobileSecureTransport } from "../secure/mobileSecureTransport";
@@ -22,7 +23,7 @@ import {
 } from "../secure/driveBackupPreference";
 
 export function PrivateBackupSettings({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const { messenger, reopen } = usePrivateMessenger();
+  const { messenger, setup, error, reopen } = usePrivateMessenger();
   const [busy, setBusy] = useState(false), [status, setStatus] = useState("");
   const [automatic, setAutomatic] = useState<AutomaticDriveBackupPreference | null>(null);
   const running = useRef(false), controller = useRef<AbortController | null>(null);
@@ -118,6 +119,10 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
     }
   }
 
+  if (!messenger) return <Modal visible animationType="slide" onRequestClose={onClose}><View style={{ flex: 1, backgroundColor: colors.background, paddingTop: 24 }}>
+    <Pressable accessibilityRole="button" style={{ padding: 20, minHeight: 48 }} onPress={onClose}><Text style={s.link}>‹ Kembali</Text></Pressable>
+    <SecureDeviceSetup userId={userId} setup={setup} error={error} onActivated={reopen} onRetry={reopen} />
+  </View></Modal>;
   return <Modal visible animationType="slide" onRequestClose={() => { if (!running.current) onClose(); }}><ScrollView contentContainerStyle={s.page}>
     <Pressable disabled={busy} onPress={onClose}><Text style={s.link}>‹ Back to profile</Text></Pressable>
     <Text style={s.title}>End-to-end encrypted Messages</Text>
