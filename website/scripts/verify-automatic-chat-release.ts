@@ -17,7 +17,7 @@ async function actor(): Promise<Actor> {
   const username = `qa_chat_${randomUUID().slice(0, 8)}`, email = `${username}@example.invalid`, password = `Qa!${randomUUID()}Aa9`;
   const created = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { username } });
   if (created.error) throw created.error;
-  const id = created.data.user.id; users.push(id);
+  const id = created.data.user.id; users.push(id); console.log("QA account created.");
   const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
   const login = await client.auth.signInWithPassword({ email, password }); if (login.error) throw login.error;
   const request: RecoveryTransport = async <T>(path: string, init: { method?: string; body?: string; headers?: Record<string, string> } = {}) => {
@@ -26,7 +26,7 @@ async function actor(): Promise<Actor> {
     if (!r.ok) throw new Error(`${path}: HTTP ${r.status}: ${data.error || "request failed"}`);
     return data as T;
   };
-  await request("/api/account/session", { method: "POST" });
+  await request("/api/account/session", { method: "POST" }); console.log("QA session claimed.");
   return { id, request };
 }
 function signed(actor: Actor, device: DeviceSecrets): RecoveryTransport {
@@ -35,6 +35,7 @@ function signed(actor: Actor, device: DeviceSecrets): RecoveryTransport {
     return actor.request(path, { ...init, headers: { ...init.headers, "x-cp-device": proof.deviceId, "x-cp-time": proof.timestamp, "x-cp-nonce": proof.nonce, "x-cp-proof": proof.signature } });
   };
 }
+async function main() {
 try {
   assert.equal((await fetch(base + "/api/messages/secure/account/password", { method: "POST", body: "{}" })).status, 401);
   const a = await actor(), b = await actor(), plans = [];
@@ -45,10 +46,10 @@ try {
     const { plan } = prepareFirstDevice(user.id);
     const transport: RecoveryTransport = (path, init = {}) => user.request(path, { ...init, headers: { ...init.headers, ...recoveryHeaders(policy) } });
     let confirmed = false; await activateVerifiedDevice(plan, transport, async () => { confirmed = true; });
-    assert.equal(confirmed, true); assert.equal(plan.backup?.passkey, undefined); plans.push({ plan, transport });
+    assert.equal(confirmed, true); assert.equal(plan.backup?.passkey, undefined); plans.push({ plan, transport }); console.log("Passkey-free enrollment confirmed.");
   }
   const [pa, pb] = plans, ar = signed(a, pa.plan.session.device), br = signed(b, pb.plan.session.device);
-  const room = await a.request<{ room: { id: string } }>("/api/messages/contacts", { method: "POST", body: JSON.stringify({ userId: b.id }) }); rooms.push(room.room.id);
+  const room = await a.request<{ room: { id: string } }>("/api/messages/contacts", { method: "POST", body: JSON.stringify({ userId: b.id }) }); rooms.push(room.room.id); console.log("QA room ready.");
   const members = [pa, pb].map(p => ({ roster: p.plan.session.roster, admin: true }));
   const roots = new Map(members.map(m => [m.roster.identity.userId, m.roster.identity]));
   const { epoch, key } = await createEpoch(pa.plan.session.device, room.room.id, members, roots);
@@ -77,3 +78,5 @@ try {
   for (const id of users) { const r = await admin.auth.admin.deleteUser(id); if (r.error) throw r.error; }
   console.log("Generated QA accounts and rooms removed.");
 }
+}
+void main().catch(reason => { console.error(reason instanceof Error ? reason.message : "Release verification failed"); process.exitCode = 1; });
