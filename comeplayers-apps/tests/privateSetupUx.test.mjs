@@ -32,14 +32,15 @@ function load(file, dependencies = {}, globals = {}) {
 const userId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const policy = load('secure/recoveryPolicy.ts');
 const feedback = load('secure/setupFeedback.ts');
+const recoverUI = () => ({ kind: 'recover', snapshot: { roster_hash: 'hash', roster: { devices: [] }, encrypted_backup: { passkey: {} } } });
 const fresh = () => ({ kind: 'new', plan: { session: { device: { id: 'device-1' } }, backup: {}, recoveryIdentity: { userId } } });
 const flush = async () => { for (let i = 0; i < 15; i++) await Promise.resolve(); };
 const deferred = () => { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; };
 function setupUI(activate) {
   return load('secure/SecureDeviceSetup.tsx', {
-    'react-native': Object.fromEntries(['ActivityIndicator', 'Pressable', 'ScrollView', 'Text', 'View'].map(name => [name, name]).concat([['StyleSheet', { create: value => value }], ['Linking', { openURL: async () => {} }]])),
+    'react-native': Object.fromEntries(['ActivityIndicator', 'Pressable', 'ScrollView', 'Text', 'TextInput', 'View'].map(name => [name, name]).concat([['StyleSheet', { create: value => value }], ['Linking', { openURL: async () => {} }]])),
     '@expo/vector-icons/Ionicons': 'Icon', '../components': { PrimaryButton: 'Button' }, '../theme': { colors: {} },
-    './secureSetup': { activatePasskeySetup: activate }, './setupFeedback': feedback,
+    './secureSetup': { activatePasskeySetup: activate, activatePasswordSetup: activate }, './setupFeedback': feedback,
   }).SecureDeviceSetup;
 }
 async function render(t, component, props) {
@@ -52,7 +53,7 @@ async function render(t, component, props) {
 test('setup is contextual: one primary action, no automatic prompt; cancellation allows an explicit retry', async t => {
   let prompts = 0, completed = 0;
   const UI = setupUI(async () => { prompts++; if (prompts === 1) throw { error: 'UserCancelled' }; });
-  const view = await render(t, UI, { userId, setup: fresh(), error: '', onActivated: () => completed++, onRetry() {} });
+  const view = await render(t, UI, { userId, setup: recoverUI(), error: '', onActivated: () => completed++, onRetry() {} });
   assert.equal(prompts, 0); assert.equal(view.root.findAllByType('Modal').length, 0);
   assert.equal(view.root.findAllByType('Button').length, 1);
   await act(async () => { view.root.findByType('Button').props.onPress(); await flush(); });
@@ -65,7 +66,7 @@ test('setup is contextual: one primary action, no automatic prompt; cancellation
 
 test('double taps cannot duplicate activation and completion refreshes the provider after navigating back', async t => {
   const pending = deferred(); let prompts = 0, completed = 0;
-  const view = await render(t, setupUI(() => { prompts++; return pending.promise; }), { userId, setup: fresh(), error: '', onActivated: () => completed++, onRetry() {} });
+  const view = await render(t, setupUI(() => { prompts++; return pending.promise; }), { userId, setup: recoverUI(), error: '', onActivated: () => completed++, onRetry() {} });
   const click = view.root.findByType('Button').props.onPress;
   await act(async () => { click(); click(); });
   assert.equal(prompts, 1); assert.equal(view.root.findByType('Button').props.disabled, true);
@@ -88,12 +89,12 @@ test('eight-device recovery requires explicit replacement and account changes re
   assert.equal(retried, 1);
 });
 
-function providerUI({ snapshot = null, vault = null } = {}) {
+function providerUI({ snapshot = null, vault = null, automatic = true } = {}) {
   let prepared = 0, current;
   const dependencies = {
     'react-native': { AppState: { currentState: 'active', addEventListener: () => ({ remove() {} }) } },
     './accountRecovery': { prepareFirstDevice: () => { prepared++; return fresh(); } },
-    './mobileSecureTransport': { mobileSecureTransport: async () => ({ account: snapshot }), mobileSecureBinaryTransport() {} },
+    './mobileSecureTransport': { mobileSecureTransport: async () => ({ account: snapshot, recovery: { generation: 0, resetAt: null, requirePasskey: false, allowDeviceSetup: automatic } }), mobileSecureBinaryTransport() {} },
     './secureHistorySync': { SecureHistorySync: class {} },
     './secureMessengerV2': { SecureMessengerV2: class { sync = async () => {}; pause = async () => {}; } },
     './verifiedVault': { openVerifiedVault: async () => vault }, './mediaStore': { cleanPrivatePreviewCache() {} },
@@ -101,6 +102,7 @@ function providerUI({ snapshot = null, vault = null } = {}) {
     './crypto': { fingerprint: () => 'root' }, './multiDevice': { verifyRoster() {}, rosterHash: () => 'hash' },
     '../runtime': { supabase: { auth: { getSession: async () => ({ data: { session: { user: { id: userId } } } }) } } },
     './driveBackupPreference': { maybeRunAutomaticDriveBackup: async () => {} },
+    './automaticEnrollment': { ensureAutomaticEnrollment: async () => { if (snapshot) return false; prepared++; snapshot = { roster: { identity: { userId }, devices: [{ id: 'device-1' }] }, roster_hash: 'hash' }; vault = { descriptor: { deviceId: 'device-1' }, get: async () => ({ identity: { userId } }) }; return true; } },
   };
   const { PrivateProvider, usePrivateMessenger } = load('secure/PrivateProvider.tsx', dependencies);
   function Child() { current = usePrivateMessenger(); return React.createElement('Inbox'); }
@@ -112,7 +114,7 @@ test('a new account lands in the inbox without any setup overlay', async t => {
   const f = providerUI(), view = await render(t, f.App);
   assert.equal(view.root.findAllByType('Inbox').length, 1);
   assert.equal(view.root.findAllByType('Modal').length, 0);
-  assert.equal(f.current().setup.kind, 'new'); assert.equal(f.prepared(), 1);
+  assert.equal(f.current().setup, null); assert.ok(f.current().messenger); assert.equal(f.prepared(), 1);
 });
 
 test('an existing encrypted account always stays in recovery; no replacement identity is created', async t => {
@@ -137,7 +139,7 @@ function activationFixture() {
     './nativePasskey': { createNativePasskeyRecovery: async (_root, label) => { assert.equal(label.email, 'player@example.com'); prompts++; await prompt.promise; return { signature: 'passkey-proof' }; } },
     './crypto': { fingerprint: () => 'root' }, './multiDevice': { verifyRoster() {}, rosterHash: () => 'hash' },
     '../runtime': { supabase: { auth: { getSession: async () => ({ data: { session: { user: { id: signedIn, email: 'player@example.com' } } } }) } } },
-    './recoveryPolicy': policy,
+    './recoveryPolicy': policy, './passwordRecovery': { openPasswordRecovery: async () => 'test-key' },
   });
   return { ...api, prompt, prompts: () => prompts, saved: () => saved, posts: () => posts, switchAccount: () => { signedIn = 'another'; }, failPost: value => { failPost = value; } };
 }
@@ -185,4 +187,19 @@ test('cancelling verification after saving a passkey retries the saved credentia
   const result = await native.createNativePasskeyRecovery(root);
   assert.equal(result.signature, 'encrypted-recovery'); assert.equal(created, 1); assert.equal(verified, 2);
   assert.ok(prf.every(value => value === 0), 'PRF bytes are wiped after sealing');
+});
+
+test('new-device password recovery never calls a native passkey prompt', async t => {
+  let recovered = 0;
+  const setup = { kind: 'recover', snapshot: { roster_hash: 'password', roster: { devices: [] }, encrypted_backup: { password: {} } } };
+  const view = await render(t, setupUI(async (_user, _setup, password) => { assert.equal(password, 'correct backup password'); recovered++; }), { userId, setup, error: '', onActivated() {}, onRetry() {} });
+  assert.equal(recovered, 0); assert.equal(view.root.findByType('Button').props.disabled, true);
+  await act(async () => view.root.findByType('TextInput').props.onChangeText('correct backup password'));
+  await act(async () => { view.root.findByType('Button').props.onPress(); await flush(); });
+  assert.equal(recovered, 1);
+});
+
+test('a server without automatic enrollment does not send the user to passkey creation', async t => {
+  const f = providerUI({ automatic: false }); await render(t, f.App);
+  assert.equal(f.current().setup, null); assert.equal(f.prepared(), 0); assert.match(f.current().error, /Automatic chat setup/);
 });

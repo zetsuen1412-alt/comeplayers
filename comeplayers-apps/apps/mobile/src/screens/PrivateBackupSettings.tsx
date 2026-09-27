@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as Sharing from "expo-sharing";
 import { File } from "expo-file-system";
@@ -10,9 +10,11 @@ import { checkBackupCancellation } from "../secure/backupCancellation";
 import { usePrivateMessenger } from "../secure/PrivateProvider";
 import { SecureDeviceSetup } from "../secure/SecureDeviceSetup";
 import { colors } from "../theme";
-import { fetchRecoveryAccount } from "../secure/accountRecovery";
+import { type AccountSnapshot, fetchRecoveryAccount } from "../secure/accountRecovery";
 import { mobileSecureTransport } from "../secure/mobileSecureTransport";
 import { passkeyError, unlockNativePasskeyRecovery } from "../secure/nativePasskey";
+import { enablePasswordBackup } from "../secure/passwordBackupSetup";
+import { openPasswordRecovery } from "../secure/passwordRecovery";
 import { supabase } from "../runtime";
 import { fingerprint } from "../secure/crypto";
 import {
@@ -24,6 +26,7 @@ import {
 
 export function PrivateBackupSettings({ userId, onClose }: { userId: string; onClose: () => void }) {
   const { messenger, setup, error, reopen } = usePrivateMessenger();
+  const [account, setAccount] = useState<AccountSnapshot | null>(null), [password, setPassword] = useState(""), [confirmation, setConfirmation] = useState("");
   const [busy, setBusy] = useState(false), [status, setStatus] = useState("");
   const [automatic, setAutomatic] = useState<AutomaticDriveBackupPreference | null>(null);
   const running = useRef(false), controller = useRef<AbortController | null>(null);
@@ -34,7 +37,9 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
 
   useEffect(() => {
     refreshAutomatic();
-    return () => { controller.current?.abort(); };
+    let alive = true;
+    void fetchRecoveryAccount(mobileSecureTransport).then(value => { if (alive) setAccount(value); }).catch(() => { if (alive) setStatus("Status cadangan belum bisa dimuat. Buka kembali halaman ini."); });
+    return () => { alive = false; controller.current?.abort(); };
   }, [userId, messenger]);
 
   async function currentSession() {
@@ -42,6 +47,18 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
     if (data.session?.user.id !== userId) throw new Error("The signed-in account changed. Reopen backup settings.");
     if (!data.session.user.email) throw new Error("Your ComePlayers account email is unavailable.");
     return data.session;
+  }
+
+  async function savePassword() {
+    if (running.current) return;
+    if (password !== confirmation) { setStatus("Konfirmasi sandi belum sama."); return; }
+    running.current = true; setBusy(true); setStatus("Melindungi cadangan…");
+    try {
+      await currentSession(); await enablePasswordBackup(userId, password);
+      setAccount(await fetchRecoveryAccount(mobileSecureTransport)); setConfirmation("");
+      setStatus("Sandi cadangan siap. Pilih Google Drive atau simpan file untuk mencadangkan riwayat chat.");
+    } catch (reason) { setStatus(passkeyError(reason)); }
+    finally { running.current = false; setBusy(false); }
   }
 
   async function disableAutomatic() {
@@ -65,11 +82,10 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
     let file: File | undefined, paused = false;
     try {
       const session = await currentSession();
-      const account = await fetchRecoveryAccount(mobileSecureTransport), passkey = account?.encrypted_backup.passkey;
-      if (!account || !passkey || account.roster.identity.userId !== userId) throw new Error("Complete account passkey setup before saving or restoring encrypted backups.");
-      setStatus("Confirm your account passkey…");
-      // The user never types a recovery code. The passkey derives the backup key locally.
-      const key = await unlockNativePasskeyRecovery(passkey, account.roster.identity);
+      const account = await fetchRecoveryAccount(mobileSecureTransport), passkey = account?.encrypted_backup.passkey, recovery = account?.encrypted_backup.password;
+      if (!account || (!passkey && !recovery) || account.roster.identity.userId !== userId) throw new Error("Atur sandi cadangan terlebih dahulu.");
+      setStatus(recovery ? "Membuka cadangan…" : "Konfirmasi kunci akses yang tersimpan…");
+      const key = recovery ? await openPasswordRecovery(recovery, password, account.roster.identity) : await unlockNativePasskeyRecovery(passkey!, account.roster.identity);
       checkBackupCancellation(abort.signal); await currentSession();
       if (action === "enable-auto" || action === "drive-backup") {
         const { backup, email } = await backUpToGoogleDrive(userId, key, setStatus, abort.signal, session.user.email);
@@ -123,37 +139,46 @@ export function PrivateBackupSettings({ userId, onClose }: { userId: string; onC
     <Pressable accessibilityRole="button" style={{ padding: 20, minHeight: 48 }} onPress={onClose}><Text style={s.link}>‹ Kembali</Text></Pressable>
     <SecureDeviceSetup userId={userId} setup={setup} error={error} onActivated={reopen} onRetry={reopen} />
   </View></Modal>;
-  return <Modal visible animationType="slide" onRequestClose={() => { if (!running.current) onClose(); }}><ScrollView contentContainerStyle={s.page}>
-    <Pressable disabled={busy} onPress={onClose}><Text style={s.link}>‹ Back to profile</Text></Pressable>
-    <Text style={s.title}>End-to-end encrypted Messages</Text>
-    <Text style={s.text}>Direct-message history is stored in this device's encrypted vault. On a new device, sign in to the same ComePlayers account and confirm the synced passkey. There is no recovery code to type or save.</Text>
-    <View style={s.card}><Text style={s.label}>THIS DEVICE</Text><Text selectable style={s.value}>{messenger?.vault.descriptor.deviceId || "Verify this device first"}</Text><Text style={s.text}>Account {userId.slice(0, 8)}…</Text></View>
-
-    <Text style={s.title}>Google Drive backup</Text>
-    <Text style={s.text}>ComePlayers recommends Google Drive for device replacement. The Drive account must use the same email as your ComePlayers login. Google receives only an encrypted archive inside the private app-data folder.</Text>
+  return <Modal visible animationType="slide" onRequestClose={() => { if (!running.current) onClose(); }}><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.page}>
+    <Pressable accessibilityRole="button" disabled={busy} onPress={onClose}><Text style={s.link}>‹ Kembali</Text></Pressable>
+    <Text accessibilityRole="header" style={s.title}>Chat & cadangan</Text>
+    <View style={s.card}><Text style={s.value}>Chat siap digunakan</Text><Text style={s.text}>Pesan pribadi dienkripsi otomatis di perangkat ini. Passkey tidak diperlukan untuk mulai chat.</Text></View>
+    <Text style={s.title}>Cadangan chat · opsional</Text>
+    <Text style={s.text}>Cadangkan chat untuk memulihkannya saat berganti atau kehilangan ponsel. Tanpa cadangan atau perangkat lama, pesan terenkripsi tidak bisa dipulihkan hanya dengan login.</Text>
+    {account && !account.encrypted_backup.password ? <View style={s.card}>
+      <Text style={s.value}>Buat sandi cadangan</Text>
+      <Text style={s.text}>Gunakan minimal 12 karakter, misalnya beberapa kata acak. Sandi ini berbeda dari sandi login dan tidak dikirim ke ComePlayers. Simpan baik-baik; kami tidak dapat meresetnya untuk membuka cadangan.</Text>
+      <TextInput accessibilityLabel="Sandi cadangan baru" secureTextEntry autoCapitalize="none" autoCorrect={false} maxLength={1024} editable={!busy} placeholder="Sandi cadangan" placeholderTextColor={colors.textDim} value={password} onChangeText={setPassword} style={s.input} />
+      <TextInput accessibilityLabel="Ulangi sandi cadangan" secureTextEntry autoCapitalize="none" autoCorrect={false} maxLength={1024} editable={!busy} placeholder="Ulangi sandi cadangan" placeholderTextColor={colors.textDim} value={confirmation} onChangeText={setConfirmation} style={s.input} />
+      <PrimaryButton label="Simpan sandi cadangan" loading={busy} disabled={busy || password.length < 12 || !confirmation} onPress={() => void savePassword()} />
+    </View> : null}
+    {account?.encrypted_backup.password ? <View style={s.card}><Text style={s.value}>Dilindungi sandi cadangan</Text><TextInput accessibilityLabel="Sandi cadangan chat" secureTextEntry autoCapitalize="none" autoCorrect={false} maxLength={1024} editable={!busy} placeholder="Masukkan sandi cadangan" placeholderTextColor={colors.textDim} value={password} onChangeText={setPassword} style={s.input} /></View> : account?.encrypted_backup.passkey ? <Text style={s.text}>Cadangan lama Anda menggunakan kunci akses yang tersimpan. Metode ini tetap tersedia untuk memulihkan chat lama.</Text> : null}
+    <Text style={s.title}>Google Drive</Text>
+    <Text style={s.text}>Gunakan akun Google dengan email yang sama seperti akun ComePlayers. Hanya salinan terenkripsi yang disimpan di Drive.</Text>
     <View style={s.card}>
-      <Text style={s.label}>AUTOMATIC BACKUP</Text>
-      <Text style={s.value}>{automatic?.enabled ? "Active" : "Off"}</Text>
-      <Text style={s.text}>{automatic?.email || "Not connected"}</Text>
-      <Text style={s.text}>Last backup: {automatic?.lastBackupAt ? new Date(automatic.lastBackupAt).toLocaleString() : "Never"}</Text>
-      {automatic?.needsReconnect ? <Text style={s.warning}>Reconnect Google Drive from this screen so automatic backup can continue.</Text> : null}
+      <Text style={s.label}>CADANGAN OTOMATIS</Text>
+      <Text style={s.value}>{automatic?.enabled ? "Aktif" : "Nonaktif"}</Text>
+      <Text style={s.text}>{automatic?.email || "Belum terhubung"}</Text>
+      <Text style={s.text}>Terakhir dicadangkan: {automatic?.lastBackupAt ? new Date(automatic.lastBackupAt).toLocaleString() : "Belum pernah"}</Text>
+      {automatic?.needsReconnect ? <Text style={s.warning}>Hubungkan kembali Google Drive untuk melanjutkan cadangan otomatis.</Text> : null}
     </View>
     {automatic?.enabled
-      ? <PrimaryButton label="Turn off automatic backup" tone="neutral" disabled={busy} onPress={() => void disableAutomatic()} />
-      : <PrimaryButton label="Enable automatic Google Drive backup" disabled={busy || !messenger} onPress={() => void perform("enable-auto")} />}
-    <PrimaryButton label="Back up now" tone="neutral" disabled={busy || !messenger} onPress={() => void perform("drive-backup")} />
-    <PrimaryButton label="Restore latest Google Drive backup" tone="neutral" disabled={busy || !messenger} onPress={() => void perform("drive-restore")} />
+      ? <PrimaryButton label="Matikan cadangan otomatis" tone="neutral" disabled={busy} onPress={() => void disableAutomatic()} />
+      : <PrimaryButton label="Aktifkan cadangan otomatis" disabled={busy || !messenger || !(account?.encrypted_backup.passkey || account?.encrypted_backup.password) || Boolean(account?.encrypted_backup.password && password.length < 12)} onPress={() => void perform("enable-auto")} />}
+    <PrimaryButton label="Cadangkan sekarang" tone="neutral" disabled={busy || !messenger || !(account?.encrypted_backup.passkey || account?.encrypted_backup.password) || Boolean(account?.encrypted_backup.password && password.length < 12)} onPress={() => void perform("drive-backup")} />
+    <PrimaryButton label="Pulihkan dari Google Drive" tone="neutral" disabled={busy || !messenger || !(account?.encrypted_backup.passkey || account?.encrypted_backup.password) || Boolean(account?.encrypted_backup.password && password.length < 12)} onPress={() => void perform("drive-restore")} />
 
-    <Text style={s.title}>Extra encrypted file</Text>
-    <Text style={s.text}>You can also keep a manual encrypted copy outside Google Drive. It uses the same account passkey and does not expose the decryption key.</Text>
-    <PrimaryButton label="Save encrypted backup file" tone="neutral" disabled={busy || !messenger} onPress={() => void perform("export")} />
-    <PrimaryButton label="Restore from backup file" tone="neutral" disabled={busy || !messenger} onPress={() => void perform("import")} />
-    <Text style={s.text}>Backups created before an encryption-identity reset do not belong to the new identity. Existing local history is never deleted just because a backup fails.</Text>
+    <Text style={s.title}>File cadangan</Text>
+    <Text style={s.text}>Simpan salinan terenkripsi di tempat pilihan Anda. Gunakan sandi cadangan atau kunci akses yang sama untuk membukanya.</Text>
+    <PrimaryButton label="Simpan file cadangan" tone="neutral" disabled={busy || !messenger || !(account?.encrypted_backup.passkey || account?.encrypted_backup.password) || Boolean(account?.encrypted_backup.password && password.length < 12)} onPress={() => void perform("export")} />
+    <PrimaryButton label="Pulihkan dari file" tone="neutral" disabled={busy || !messenger || !(account?.encrypted_backup.passkey || account?.encrypted_backup.password) || Boolean(account?.encrypted_backup.password && password.length < 12)} onPress={() => void perform("import")} />
+    <Text style={s.text}>Riwayat di perangkat ini tetap tersimpan jika proses cadangan gagal.</Text>
     {status ? <Text accessibilityLiveRegion="polite" style={s.text}>{status}</Text> : null}
-    {busy ? <Pressable onPress={() => controller.current?.abort()}><Text style={s.link}>Cancel transfer</Text></Pressable> : null}
+    {busy ? <Pressable onPress={() => controller.current?.abort()}><Text style={s.link}>Batalkan transfer</Text></Pressable> : null}
   </ScrollView></Modal>;
 }
 const s = StyleSheet.create({
+  input: { color: colors.text, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.textDim, borderRadius: 12, padding: 14, minHeight: 50 },
   page: { flexGrow: 1, padding: 24, gap: 20, backgroundColor: colors.background },
   title: { color: colors.text, fontSize: 22, fontWeight: "700" },
   text: { color: colors.textMuted, fontSize: 15, lineHeight: 23 },

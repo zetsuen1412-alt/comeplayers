@@ -108,6 +108,7 @@ function authorizedDevice(roster: AccountRoster, deviceId: string): DevicePublic
 
 export type EncryptedIdentityBackup = {
   passkey?: import("./passkeyRecovery").PasskeyRecovery;
+  password?: import("./passwordRecovery").PasswordRecovery;
   v: 2; id: string; userId: string; rootFingerprint: string; createdAt: string;
   ciphertext: string; signature: string;
 };

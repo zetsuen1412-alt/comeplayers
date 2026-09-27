@@ -1,5 +1,5 @@
 /** Public metadata only. A login token is never encryption key material. */
-export type RecoveryPolicy = { generation: number; resetAt: string | null; requirePasskey: boolean };
+export type RecoveryPolicy = { generation: number; resetAt: string | null; requirePasskey: boolean; allowDeviceSetup?: boolean };
 export const RECOVERY_CLIENT_VERSION = "1";
 export const LEGACY_RECOVERY_POLICY: RecoveryPolicy = { generation: 0, resetAt: null, requirePasskey: false };
 
@@ -10,7 +10,8 @@ export function parseRecoveryPolicy(value: unknown): RecoveryPolicy {
   if (!Number.isSafeInteger(p.generation) || Number(p.generation) < 0 || Number(p.generation) > 2147483647 || typeof p.requirePasskey !== "boolean") throw new Error("Invalid account recovery policy.");
   if (p.generation === 0 && p.resetAt !== null) throw new Error("Invalid account reset checkpoint.");
   if (Number(p.generation) > 0 && (typeof p.resetAt !== "string" || !Number.isFinite(Date.parse(p.resetAt)) || p.requirePasskey !== true)) throw new Error("Invalid account reset checkpoint.");
-  return { generation: Number(p.generation), resetAt: p.resetAt as string | null, requirePasskey: p.requirePasskey };
+  if (p.allowDeviceSetup !== undefined && typeof p.allowDeviceSetup !== "boolean") throw new Error("Invalid device setup policy.");
+  return { generation: Number(p.generation), resetAt: p.resetAt as string | null, requirePasskey: p.requirePasskey, ...(p.allowDeviceSetup !== undefined ? { allowDeviceSetup: p.allowDeviceSetup } : {}) };
 }
 export function recoveryGenerationKey(userId: string): string {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) throw new Error("Invalid account identity.");

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppState } from "react-native";
-import { prepareFirstDevice, type AccountSnapshot, type VerifiedSession } from "./accountRecovery";
+import { type AccountSnapshot, type VerifiedSession } from "./accountRecovery";
 import { mobileSecureBinaryTransport, mobileSecureTransport } from "./mobileSecureTransport";
 import { SecureHistorySync } from "./secureHistorySync";
 import { SecureMessengerV2 } from "./secureMessengerV2";
@@ -11,6 +11,7 @@ import { assertLocalAccountMatch, parseRecoveryPolicy } from "./recoveryPolicy";
 import { fingerprint } from "./crypto";
 import { verifyRoster, rosterHash } from "./multiDevice";
 import { supabase } from "../runtime";
+import { ensureAutomaticEnrollment } from "./automaticEnrollment";
 import type { SecureSetup } from "./secureSetup";
 import { maybeRunAutomaticDriveBackup } from "./driveBackupPreference";
 
@@ -32,7 +33,8 @@ export function PrivateProvider({ userId, enabled, children }: { userId: string;
       const { data } = await supabase.auth.getSession();
       if (!alive || data.session?.user.id !== userId) return;
       if (response.account === undefined) throw new Error("Invalid secure account response. Local history was preserved.");
-      const policy = parseRecoveryPolicy(response.recovery), snapshot = response.account;
+      const policy = parseRecoveryPolicy(response.recovery);
+      let snapshot = response.account;
       if (snapshot) {
         if (snapshot.roster.identity.userId !== userId) throw new Error("The encrypted account does not match this login.");
         verifyRoster(snapshot.roster, snapshot.roster.identity);
@@ -42,7 +44,20 @@ export function PrivateProvider({ userId, enabled, children }: { userId: string;
       if (!alive) return;
       policyGeneration = policy.generation;
       cleanPrivatePreviewCache();
-      const vault = await openVerifiedVault(userId);
+      let vault = await openVerifiedVault(userId);
+      if (!vault && policy.allowDeviceSetup) {
+        await ensureAutomaticEnrollment(userId, policy);
+        if (!alive) return;
+        vault = await openVerifiedVault(userId);
+        const latest = await mobileSecureTransport<{ account: AccountSnapshot | null; recovery?: unknown }>("/api/messages/secure/account");
+        if (parseRecoveryPolicy(latest.recovery).generation !== policy.generation) throw new Error("The recovery policy changed. Refresh before continuing.");
+        if (latest.account === undefined) throw new Error("Invalid secure account response.");
+        snapshot = latest.account;
+        if (snapshot) {
+          verifyRoster(snapshot.roster, snapshot.roster.identity);
+          if (snapshot.roster.identity.userId !== userId || rosterHash(snapshot.roster) !== snapshot.roster_hash) throw new Error("Invalid account recovery checkpoint.");
+        }
+      }
       if (!alive) return;
       if (vault) {
         const local = await vault.get<VerifiedSession["roster"]>("account-roster", userId);
@@ -52,7 +67,7 @@ export function PrivateProvider({ userId, enabled, children }: { userId: string;
         runtime.current = client;
         if (alive) { setMessenger(client); void client.sync().catch(reason => { if (alive) setError(reason instanceof Error ? reason.message : "Encrypted synchronization failed."); }); void maybeRunAutomaticDriveBackup(userId); }
       } else if (snapshot) setSetup({ kind: "recover", snapshot, policy });
-      else { const prepared = prepareFirstDevice(userId); setSetup({ kind: "new", ...prepared, policy }); }
+      else throw new Error("Automatic chat setup is not available yet. Please update ComePlayers and try again.");
     };
     const task = queue.current.catch(() => undefined).then(start);
     queue.current = task;
