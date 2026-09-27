@@ -10,10 +10,25 @@
   "supportEmail": "admin@comeplayers.com",
   "supportEmailConfirmedByOwner": true,
   "category": "SOCIAL",
+  "visualAssets": {
+    "appIcon": {
+      "source": "assets/comeplayers-brand-source.png",
+      "consoleDimensions": "512x512",
+      "status": "saved_as_draft"
+    },
+    "featureGraphic": {
+      "source": "assets/comeplayers-feature-source.png",
+      "consoleDimensions": "1024x500",
+      "status": "saved_as_draft"
+    },
+    "screenshots": "pending_real_device_captures"
+  },
   "reviewNotes": [
     "Deskripsi Indonesia sudah disimpan sebagai draf di Play Console; listing lengkap belum dikirim untuk review.",
     "Pemilik mengonfirmasi admin@comeplayers.com sebagai email dukungan; email dan website resmi sudah dipublikasikan melalui Store settings.",
     "Kategori Social sudah disimpan dan menunggu pengiriman untuk review.",
+    "Nama ComePlayers, ikon dari pemilik, dan feature graphic sudah disimpan sebagai draft. Minimal dua screenshot asli aplikasi masih diperlukan.",
+    "Nama sementara (unreviewed) mengikuti status review pertama Google Play; perubahan draft belum menerbitkan branding.",
     "Cocokkan semua klaim dengan AAB final dan hasil pengujian perangkat.",
     "Negara distribusi, target usia, rating, deklarasi iklan, dan Data safety belum ditetapkan."
   ]
