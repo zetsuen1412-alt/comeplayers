@@ -8,17 +8,17 @@ import ts from 'typescript';
 // Real archive cryptography is covered by the private protocol tests, not these doubles.
 function load(name, dependencies = {}) {
   const file = new URL(`../../comeplayers-apps/apps/mobile/src/secure/${name}.ts`, import.meta.url);
-  const module = { exports: {} };
+  const testModule = { exports: {} };
   const { outputText, diagnostics } = ts.transpileModule(readFileSync(file, 'utf8'), {
     fileName: file.pathname, reportDiagnostics: true,
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, esModuleInterop: true },
   });
   assert.equal(diagnostics?.length || 0, 0);
   runInNewContext(outputText, {
-    module, exports: module.exports, TextDecoder, setTimeout,
+    module: testModule, exports: testModule.exports, TextDecoder, setTimeout,
     require(id) { if (!(id in dependencies)) throw new Error(`Unexpected dependency: ${id}`); return dependencies[id]; },
   }, { filename: file.pathname, timeout: 2000 });
-  return module.exports;
+  return testModule.exports;
 }
 
 const userId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';

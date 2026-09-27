@@ -93,6 +93,7 @@ import CommunityVoicePanel, {
   type CommunityVoiceDockState,
 } from "@/components/messages/CommunityVoicePanel";
 import { useMessagesRedisRealtime } from "@/components/messages/useMessagesRedisRealtime";
+import { createRefreshQueue } from "@/lib/live/refresh-queue";
 import {
   createStreamIceServers,
   type PublicChatStreamState,
@@ -2263,6 +2264,10 @@ export default function MessagesPage() {
   );
   const typingStopTimerRef = useRef<number | null>(null);
   const autoStoppingLiveRoomsRef = useRef<Set<string>>(new Set());
+  const conversationRequestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => {
+    conversationRequestRef.current?.abort();
+  }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
 
   const selectedRoom = useMemo(
     () =>
@@ -2643,6 +2648,9 @@ export default function MessagesPage() {
       : "",
   ) {
     if (!roomId) return;
+    conversationRequestRef.current?.abort();
+    const controller = new AbortController();
+    conversationRequestRef.current = controller;
     const knownRoom = roomsRef.current.find((room) => room.id === roomId) || null;
     if (knownRoom && !isGroupRoom(knownRoom)) {
       setConversation({ room: knownRoom, messages: [] });
@@ -2656,20 +2664,28 @@ export default function MessagesPage() {
         : "";
       const data = await authenticatedFetchJson<ConversationResponse>(
         `/api/messages/rooms/${roomId}?limit=80${channelQuery}`,
+        { signal: controller.signal },
       );
+      if (controller.signal.aborted) return;
       setConversation(data);
       await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
         method: "POST",
         body: JSON.stringify({
           channelId: data.channel?.id || channelId || undefined,
         }),
+        signal: controller.signal,
       });
+      if (controller.signal.aborted) return;
+      window.dispatchEvent(new CustomEvent("cp-community-read", { detail: { roomId } }));
       setRooms((current) =>
         current.map((room) =>
           room.id === roomId ? { ...room, unread_count: 0 } : room,
         ),
       );
     } catch (loadError) {
+      if (controller.signal.aborted) return;
+      const status = (loadError as { status?: number })?.status;
+      if (status === 401 || status === 403 || status === 404) setConversation(null);
       if (!silent) {
         setError(
           loadError instanceof Error
@@ -2678,7 +2694,7 @@ export default function MessagesPage() {
         );
       }
     } finally {
-      if (!silent) setLoadingMessages(false);
+      if (!controller.signal.aborted) setLoadingMessages(false);
     }
   }
 
@@ -3404,10 +3420,14 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!userId) return;
+    let active = true;
+    let refreshing = false;
     const timer = window.setInterval(async () => {
+      if (refreshing || document.visibilityState !== "visible" || !navigator.onLine) return;
+      refreshing = true;
       try {
         await loadRooms(selectedRoomId);
-        if (selectedRoomId) {
+        if (active && selectedRoomId) {
           const channelId =
             communityChannelSelection?.roomId === selectedRoomId
               ? communityChannelSelection.channel.id
@@ -3416,9 +3436,11 @@ export default function MessagesPage() {
         }
       } catch {
         // Polling is a quiet fallback for cross-tab updates.
+      } finally {
+        refreshing = false;
       }
     }, 15000);
-    return () => window.clearInterval(timer);
+    return () => { active = false; window.clearInterval(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
 
@@ -3434,10 +3456,12 @@ export default function MessagesPage() {
       communityChannelSelection?.roomId === selectedRoomId
         ? communityChannelSelection.channel.id
         : "";
-    const refresh = () => {
-      void loadConversation(selectedRoomId, true, activeChannelId);
-      void loadRooms(selectedRoomId);
-    };
+    const queue = createRefreshQueue(async () => {
+      await Promise.all([loadConversation(selectedRoomId, true, activeChannelId), loadRooms(selectedRoomId)]);
+    }, () => document.visibilityState === "visible" && navigator.onLine);
+    const refresh = () => queue.request();
+    window.addEventListener("online", refresh);
+    document.addEventListener("visibilitychange", refresh);
     const channel = supabase
       .channel(`chat-room:${selectedRoomId}`, {
         config: { private: true, broadcast: { self: false } },
@@ -3460,7 +3484,7 @@ export default function MessagesPage() {
           table: "chat_message_reactions",
           filter: `room_id=eq.${selectedRoomId}`,
         },
-        () => void loadConversation(selectedRoomId, true),
+        refresh,
       )
       .on("broadcast", { event: "typing" }, (event) => {
         const payload = event.payload as {
@@ -3484,7 +3508,7 @@ export default function MessagesPage() {
           return next;
         });
       })
-      .subscribe();
+      .subscribe((status) => { if (status === "SUBSCRIBED") refresh(); });
     typingChannelRef.current = channel;
 
     const staleTimer = window.setInterval(() => {
@@ -3498,6 +3522,9 @@ export default function MessagesPage() {
     }, 1200);
 
     return () => {
+      queue.dispose();
+      window.removeEventListener("online", refresh);
+      document.removeEventListener("visibilitychange", refresh);
       window.clearTimeout(resetTypingTimer);
       window.clearInterval(staleTimer);
       if (typingStopTimerRef.current)

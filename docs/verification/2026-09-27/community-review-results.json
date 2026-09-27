@@ -1,0 +1,115 @@
+{
+  "reviewedAt": "2026-09-27",
+  "branch": "codex/community-live-security-ux",
+  "productionDeployment": false,
+  "website": {
+    "next": "16.3.6",
+    "productionBuild": { "passed": true },
+    "check": {
+      "passed": true,
+      "tests": 711,
+      "lintErrors": 0,
+      "lintWarnings": 311
+    },
+    "typecheckAfterFinalPresenceFix": true,
+    "publicSmoke": {
+      "passed": true,
+      "tests": 4
+    },
+    "recoveryRegression": {
+      "passed": true,
+      "tests": 22
+    }
+  },
+  "applications": {
+    "typecheck": {
+      "passed": true,
+      "workspaces": [
+        "chat-core",
+        "mobile",
+        "desktop"
+      ]
+    },
+    "nativeDeviceTest": false,
+    "newInstallers": false
+  },
+  "communityBrowser": {
+    "passed": true,
+    "checks": 13,
+    "viewports": [
+      1280,
+      390
+    ],
+    "api": "isolated test server",
+    "realtime": "simulated events",
+    "productionAccountWrites": false
+  },
+  "productionDependencyAudit": {
+    "website": {
+      "before": {
+        "critical": 1,
+        "high": 4,
+        "moderate": 1
+      },
+      "after": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 0
+      }
+    },
+    "apps": {
+      "before": {
+        "critical": 0,
+        "high": 1,
+        "moderate": 14
+      },
+      "after": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 14
+      }
+    }
+  },
+  "supabase": {
+    "readOnly": true,
+    "migrationsApplied": false,
+    "advisorSummary": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 81,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+      },
+      {
+        "name": "function_search_path_mutable",
+        "level": "WARN",
+        "count": 5,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable"
+      },
+      {
+        "name": "extension_in_public",
+        "level": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public"
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "level": "WARN",
+        "count": 64,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable"
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 69,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+      }
+    ]
+  }
+}

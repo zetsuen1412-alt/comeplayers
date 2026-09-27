@@ -3,6 +3,7 @@ import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { chatErrorStatus } from "@/lib/chatServer";
 import {
   normalizeCommunityChannelName,
+  notifyCommunityChanged,
   requireCommunityAccess,
 } from "@/lib/communityServer";
 import {
@@ -96,6 +97,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       metadata: updates,
     });
 
+    await notifyCommunityChanged(supabaseAdmin, access.community.room_id);
     return NextResponse.json({ ok: true, channel });
   } catch (error) {
     const status = chatErrorStatus(error);
@@ -161,6 +163,7 @@ export async function DELETE(request: Request, context: RouteContext) {
       metadata: { name: existing.name },
     });
 
+    await notifyCommunityChanged(supabaseAdmin, access.community.room_id);
     return NextResponse.json({ ok: true });
   } catch (error) {
     const status = chatErrorStatus(error);

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { chatErrorStatus } from "@/lib/chatServer";
-import { requireCommunityAccess } from "@/lib/communityServer";
+import { notifyCommunityChanged, requireCommunityAccess } from "@/lib/communityServer";
 import {
   createSupabaseAdmin,
   requireAuthenticatedUser,
@@ -64,6 +64,7 @@ export async function POST(request: Request, context: RouteContext) {
       metadata: { name },
     });
 
+    await notifyCommunityChanged(supabaseAdmin, access.community.room_id);
     return NextResponse.json({ ok: true, category }, { status: 201 });
   } catch (error) {
     const status = chatErrorStatus(error);

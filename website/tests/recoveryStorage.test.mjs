@@ -7,7 +7,7 @@ import ts from 'typescript';
 // Execute the actual reset adapters with storage doubles, not real user stores.
 // These tests do not claim to exercise native SQLite or a physical browser.
 function load(source, dependencies = {}, globals = {}) {
-  const module = { exports: {} };
+  const testModule = { exports: {} };
   const { outputText, diagnostics } = ts.transpileModule(readFileSync(source, 'utf8'), {
     fileName: source.pathname,
     reportDiagnostics: true,
@@ -15,11 +15,11 @@ function load(source, dependencies = {}, globals = {}) {
   });
   assert.equal(diagnostics?.length || 0, 0);
   runInNewContext(outputText, {
-    module, exports: module.exports,
+    module: testModule, exports: testModule.exports,
     require(name) { if (!(name in dependencies)) throw new Error(`Unexpected test dependency: ${name}`); return dependencies[name]; },
     ...globals,
   }, { filename: source.pathname, timeout: 2000 });
-  return module.exports;
+  return testModule.exports;
 }
 const policy = load(new URL('../lib/e2ee/recoveryPolicy.ts', import.meta.url));
 const a = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';

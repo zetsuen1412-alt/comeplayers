@@ -3,6 +3,8 @@ import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { chatErrorStatus } from "@/lib/chatServer";
 import {
   COMMUNITY_PERMISSION_NAMES,
+  assertCommunityPermissionsGrantable,
+  notifyCommunityChanged,
   requireCommunityAccess,
 } from "@/lib/communityServer";
 import {
@@ -46,7 +48,10 @@ export async function POST(request: Request, context: RouteContext) {
     const name = String(body.name || "").trim().replace(/\s+/g, " ");
     const color = /^#[0-9a-f]{6}$/i.test(String(body.color || "")) ? String(body.color) : "#94a3b8";
     const allowed = new Set<string>(COMMUNITY_PERMISSION_NAMES);
-    const permissions = Array.from(new Set((body.permissions || []).map(String).filter((permission) => allowed.has(permission))));
+    if (body.permissions !== undefined && (!Array.isArray(body.permissions) || body.permissions.some((permission) => typeof permission !== "string" || !allowed.has(permission)))) {
+      return NextResponse.json({ error: "Choose valid community permissions." }, { status: 400 });
+    }
+    const permissions = Array.from(new Set(body.permissions || []));
     if (!name || name.length > 40) {
       return NextResponse.json({ error: "Role name is required and must be 40 characters or fewer." }, { status: 400 });
     }
@@ -58,6 +63,7 @@ export async function POST(request: Request, context: RouteContext) {
       communityId,
       permission: "manage_roles",
     });
+    assertCommunityPermissionsGrantable(access, permissions as (typeof COMMUNITY_PERMISSION_NAMES)[number][]);
     const { data: highest, error: highestError } = await supabaseAdmin
       .from("chat_community_roles")
       .select("position")
@@ -91,6 +97,7 @@ export async function POST(request: Request, context: RouteContext) {
       target_id: role.id,
       metadata: { name, permissions },
     });
+    await notifyCommunityChanged(supabaseAdmin, access.community.room_id);
     return NextResponse.json({ ok: true, role }, { status: 201 });
   } catch (error) {
     const status = chatErrorStatus(error);

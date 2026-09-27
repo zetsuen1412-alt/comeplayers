@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCommunityAccess } from "@/lib/communityServer";
 import {
   chatErrorStatus,
   isAdminUser,
@@ -109,6 +110,7 @@ export async function POST(request: Request, context: RouteContext) {
     const now = new Date().toISOString();
 
     if (action === "start") {
+      await requireCommunityAccess({ supabaseAdmin, userId: user.id, roomId, permission: "start_stream" });
       if (
         String(access.room.stream_status || "idle").toLowerCase() === "live" &&
         access.room.stream_host_id &&

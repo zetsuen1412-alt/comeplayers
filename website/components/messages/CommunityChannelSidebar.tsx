@@ -1,477 +1,205 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  FaBullhorn,
-  FaComments,
-  FaHashtag,
-  FaLock,
-  FaPlus,
-  FaShoppingCart,
-  FaTrophy,
-  FaVolumeUp,
-} from "react-icons/fa";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FaBullhorn, FaChevronDown, FaCog, FaHashtag, FaLock, FaPlus, FaSearch, FaSyncAlt, FaVolumeUp } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { supabase } from "@/lib/supabase";
+import { createRefreshQueue } from "@/lib/live/refresh-queue";
+import CommunityChannelEditor, { type ChannelEditorTarget } from "./CommunityChannelEditor";
 
-export type CommunityCategory = {
-  id: string;
-  community_id: string;
-  name: string;
-  position: number;
-};
-
+export type CommunityCategory = { id: string; community_id: string; name: string; position: number };
 export type CommunityChannel = {
-  id: string;
-  community_id: string;
-  category_id?: string | null;
-  name: string;
-  channel_type: "text" | "announcement" | "voice";
-  topic?: string | null;
-  position: number;
-  is_private: boolean;
-  is_read_only: boolean;
-  is_default: boolean;
-  unread_count?: number;
+  id: string; community_id: string; category_id?: string | null; name: string;
+  channel_type: "text" | "announcement" | "voice"; topic?: string | null; position: number;
+  is_private: boolean; is_read_only: boolean; is_default: boolean; unread_count?: number;
 };
-
 export type CommunityBundle = {
-  community: {
-    id: string;
-    room_id: string;
-    name: string;
-    description?: string | null;
-    icon_url?: string | null;
-    status?: string | null;
-  };
+  community: { id: string; room_id: string; name: string; description?: string | null; icon_url?: string | null; status?: string | null };
   categories: CommunityCategory[];
   channels: CommunityChannel[];
-  currentUser: {
-    memberRole: string;
-    permissions: string[];
-    isOwner: boolean;
-    isAdmin: boolean;
-  };
+  currentUser: { userId?: string; memberRole: string; permissions: string[]; isOwner: boolean; isAdmin: boolean };
 };
-
 type Props = {
-  roomId: string;
-  selectedChannelId: string;
+  roomId: string; selectedChannelId: string;
   onSelectChannel: (channel: CommunityChannel, source?: "auto" | "user" | "shortcut") => void;
-  onNotice?: (message: string) => void;
-  onError?: (message: string) => void;
-  onBundleChange?: (bundle: CommunityBundle) => void;
-  preferredChannelId?: string;
+  onNotice?: (message: string) => void; onError?: (message: string) => void;
+  onBundleChange?: (bundle: CommunityBundle) => void; preferredChannelId?: string;
   voiceShortcutToken?: number;
-  activeVoice?: {
-    channelId: string;
-    participantCount: number;
-    connected: boolean;
-  };
+  activeVoice?: { channelId: string; participantCount: number; connected: boolean };
 };
 
-function channelIcon(channel: CommunityChannel) {
-  const normalizedName = channel.name.toLowerCase();
-  if (channel.channel_type === "voice") return <FaVolumeUp />;
-  if (channel.channel_type === "announcement") return <FaBullhorn />;
-  if (normalizedName.includes("esport") || normalizedName.includes("tournament")) {
-    return <FaTrophy />;
-  }
-  if (normalizedName.includes("market") || normalizedName.includes("shop")) {
-    return <FaShoppingCart />;
-  }
-  if (channel.is_default || normalizedName === "general") return <FaComments />;
-  return <FaHashtag />;
-}
-
-export default function CommunityChannelSidebar({
-  roomId,
-  selectedChannelId,
-  onSelectChannel,
-  onNotice,
-  onError,
-  onBundleChange,
-  preferredChannelId = "",
-  voiceShortcutToken = 0,
-  activeVoice,
-}: Props) {
+export default function CommunityChannelSidebar(props: Props) {
+  const { roomId, selectedChannelId, activeVoice, voiceShortcutToken = 0 } = props;
   const [bundle, setBundle] = useState<CommunityBundle | null>(null);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState("");
-  const handledVoiceShortcutRef = useRef(0);
-  const permissions = useMemo(
-    () => new Set(bundle?.currentUser.permissions || []),
-    [bundle?.currentUser.permissions],
-  );
-  const canManageChannels =
-    Boolean(bundle?.currentUser.isAdmin || bundle?.currentUser.isOwner) ||
-    permissions.has("*") ||
-    permissions.has("manage_channels");
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [showTopics, setShowTopics] = useState(true);
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+  const [editor, setEditor] = useState<ChannelEditorTarget | null>(null);
+  const [connection, setConnection] = useState("Connecting");
+  const [syncedAt, setSyncedAt] = useState("");
+  const current = useRef(props);
+  const requestRef = useRef<AbortController | null>(null);
+  const handledVoiceShortcut = useRef(0);
+  const realtimeReady = useRef(false);
+  useEffect(() => { current.current = props; });
 
-
-  async function loadBundle(requestedChannelId?: string) {
-    if (!roomId) return;
-    setLoading(true);
+  const loadBundle = useCallback(async (requestedChannelId?: string) => {
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
     try {
       const data = await authenticatedFetchJson<CommunityBundle>(
-        `/api/messages/communities/by-room/${roomId}`,
+        `/api/messages/communities/by-room/${roomId}`, { signal: controller.signal },
       );
+      if (controller.signal.aborted) return;
       setBundle(data);
-      onBundleChange?.(data);
-      const targetChannelId = requestedChannelId || preferredChannelId;
-      const preferred =
-        data.channels.find((channel) => channel.id === targetChannelId) ||
-        data.channels.find((channel) => channel.id === selectedChannelId) ||
-        data.channels.find((channel) => channel.is_default) ||
-        data.channels.find((channel) => channel.channel_type !== "voice") ||
-        data.channels[0];
-      if (preferred && preferred.id !== selectedChannelId)
-        onSelectChannel(preferred, "auto");
-    } catch (error) {
-      onError?.(
-        error instanceof Error
-          ? error.message
-          : "Unable to load server channels.",
-      );
+      setError("");
+      setSyncedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      const latest = current.current;
+      latest.onBundleChange?.(data);
+      const target = requestedChannelId || latest.selectedChannelId || latest.preferredChannelId;
+      const preferred = data.channels.find((item) => item.id === target)
+        || data.channels.find((item) => item.is_default)
+        || data.channels.find((item) => item.channel_type !== "voice") || data.channels[0];
+      if (preferred && preferred.id !== latest.selectedChannelId) latest.onSelectChannel(preferred, "auto");
+    } catch (reason) {
+      if (!controller.signal.aborted) {
+        setError(reason instanceof Error ? reason.message : "Unable to load channels.");
+        // Remove cached channel metadata if authorization has been revoked.
+        const status = (reason as { status?: number })?.status;
+        if (status === 401 || status === 403 || status === 404) setBundle(null);
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
-  }
-
-  useEffect(() => {
-    // The parent keys this sidebar by room ID, so every room starts with fresh
-    // local channel state while this request hydrates its community bundle.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadBundle(preferredChannelId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
 
   useEffect(() => {
-    if (
-      !voiceShortcutToken ||
-      !bundle ||
-      handledVoiceShortcutRef.current === voiceShortcutToken
-    )
-      return;
-    handledVoiceShortcutRef.current = voiceShortcutToken;
-    const voiceChannel = bundle.channels.find(
-      (channel) => channel.channel_type === "voice",
-    );
-    if (!voiceChannel) {
-      onError?.("This server does not have a voice channel yet.");
-      return;
-    }
-    onSelectChannel(voiceChannel, "shortcut");
-      onNotice?.(`Opened server voice channel ${voiceChannel.name}.`);
-  }, [voiceShortcutToken, bundle, onError, onNotice, onSelectChannel]);
+    const queue = createRefreshQueue(() => loadBundle(), () => document.visibilityState === "visible" && navigator.onLine);
+    const initialLoad = window.setTimeout(() => void loadBundle(), 0);
+    const wake = () => {
+      if (!navigator.onLine) setConnection("Offline");
+      else { setConnection(realtimeReady.current ? "Live" : "Auto refresh"); queue.request(); }
+    };
+    const timer = window.setInterval(() => queue.request(), 30_000);
+    const readChanged = (event: Event) => {
+      if ((event as CustomEvent<{ roomId?: string }>).detail?.roomId === roomId) queue.request();
+    };
+    window.addEventListener("cp-community-read", readChanged);
+    window.addEventListener("online", wake);
+    window.addEventListener("offline", wake);
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      queue.dispose();
+      window.clearTimeout(initialLoad);
+      requestRef.current?.abort();
+      window.clearInterval(timer);
+      window.removeEventListener("cp-community-read", readChanged);
+      window.removeEventListener("online", wake);
+      window.removeEventListener("offline", wake);
+      document.removeEventListener("visibilitychange", wake);
+    };
+  }, [loadBundle, roomId]);
 
-  async function createChannel(
-    category: CommunityCategory,
-    type: CommunityChannel["channel_type"],
-  ) {
-    if (!bundle || !canManageChannels) return;
-    const example =
-      type === "voice"
-        ? "gaming-lounge"
-        : type === "announcement"
-          ? "updates"
-          : "new-channel";
-    const name = window.prompt(`Channel name (${type})`, example)?.trim();
-    if (!name) return;
-    const topic = window.prompt("Optional channel topic", "") || "";
-    setBusy(`channel:${category.id}`);
-    try {
-      const data = await authenticatedFetchJson<{ channel: CommunityChannel }>(
-        `/api/messages/communities/${bundle.community.id}/channels`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            name,
-            type,
-            topic,
-            categoryId: category.id,
-          }),
-        },
-      );
-      onNotice?.(`#${data.channel.name} created.`);
-      await loadBundle(data.channel.id);
-    } catch (error) {
-      onError?.(
-        error instanceof Error
-          ? error.message
-          : "Channel could not be created.",
-      );
-    } finally {
-      setBusy("");
-    }
-  }
+  const communityId = bundle?.community.id;
+  useEffect(() => {
+    if (!communityId) return;
+    const queue = createRefreshQueue(() => loadBundle(), () => document.visibilityState === "visible" && navigator.onLine);
+    const channel = supabase.channel(`community-navigation:${roomId}:${communityId}`);
+    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `id=eq.${roomId}` }, () => queue.request());
+    channel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages", filter: `room_id=eq.${roomId}` }, () => queue.request());
+    let active = true;
+    channel.subscribe((status) => {
+      if (!active) return;
+      realtimeReady.current = status === "SUBSCRIBED";
+      setConnection(!navigator.onLine ? "Offline" : status === "SUBSCRIBED" ? "Live" : "Auto refresh");
+      if (status === "SUBSCRIBED") queue.request();
+    });
+    return () => { active = false; realtimeReady.current = false; queue.dispose(); void supabase.removeChannel(channel); };
+  }, [communityId, roomId, loadBundle]);
 
-  async function createCategory() {
-    if (!bundle || !canManageChannels) return;
-    const name = window.prompt("Category name", "NEW HUB")?.trim();
-    if (!name) return;
-    setBusy("category");
-    try {
-      await authenticatedFetchJson(
-        `/api/messages/communities/${bundle.community.id}/categories`,
-        {
-          method: "POST",
-          body: JSON.stringify({ name }),
-        },
-      );
-      onNotice?.(`${name.toUpperCase()} category created.`);
-      await loadBundle(selectedChannelId);
-    } catch (error) {
-      onError?.(
-        error instanceof Error
-          ? error.message
-          : "Category could not be created.",
-      );
-    } finally {
-      setBusy("");
-    }
-  }
+  useEffect(() => {
+    if (!voiceShortcutToken || !bundle || handledVoiceShortcut.current === voiceShortcutToken) return;
+    handledVoiceShortcut.current = voiceShortcutToken;
+    const channel = bundle.channels.find((item) => item.channel_type === "voice");
+    if (channel) current.current.onSelectChannel(channel, "shortcut");
+    else current.current.onError?.("This server does not have a voice channel yet.");
+  }, [voiceShortcutToken, bundle]);
 
-  if (loading && !bundle) {
-    return (
-      <div className="rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-gray-500">
-        Loading channels...
+  const canManage = Boolean(bundle?.currentUser.isOwner || bundle?.currentUser.isAdmin
+    || bundle?.currentUser.permissions.some((permission) => permission === "*" || permission === "manage_channels"));
+  const groups = useMemo(() => {
+    if (!bundle) return [];
+    const needle = query.trim().toLowerCase();
+    const channels = bundle.channels.filter((channel) =>
+      (!needle || `${channel.name} ${channel.topic || ""}`.toLowerCase().includes(needle))
+      && (!unreadOnly || Number(channel.unread_count) > 0),
+    ).sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
+    const result = [...bundle.categories].sort((a, b) => a.position - b.position).map((category) => ({
+      ...category, channels: channels.filter((channel) => channel.category_id === category.id),
+    }));
+    const known = new Set(bundle.categories.map((category) => category.id));
+    const uncategorized = channels.filter((channel) => !channel.category_id || !known.has(channel.category_id));
+    if (uncategorized.length) result.push({ id: "uncategorized", community_id: bundle.community.id, name: "Other channels", position: 999, channels: uncategorized });
+    return result.filter((group) => group.channels.length || (canManage && !needle && !unreadOnly));
+  }, [bundle, query, unreadOnly, canManage]);
+
+  if (loading && !bundle) return <div role="status" className="rounded-xl bg-white/5 p-4 text-sm text-gray-300">Loading your channels…</div>;
+  if (!bundle) return <div role="alert" className="space-y-3 rounded-xl bg-white/5 p-4 text-sm text-gray-300"><p>{error || "No channels available."}</p><button type="button" onClick={() => void loadBundle()} className="min-h-11 rounded-lg border border-cyan-300/30 px-3 text-cyan-200">Try again</button></div>;
+
+  return (
+    <nav data-community-sidebar aria-label="Community channels" className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden">
+      <div className="shrink-0 space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0"><p className="truncate text-sm font-bold text-white">Chat Hub</p><p role="status" className="mt-1 text-xs text-gray-400"><span className={connection === "Live" ? "text-emerald-300" : "text-amber-200"}>{connection}</span>{syncedAt ? ` · Updated ${syncedAt}` : ""}</p></div>
+          <button type="button" aria-label="Refresh channels" title="Refresh channels" onClick={() => void loadBundle()} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-300 hover:bg-white/10 focus-visible:outline-cyan-300"><FaSyncAlt /></button>
+        </div>
+        <label className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/15 px-3 text-gray-400"><FaSearch aria-hidden="true" /><input aria-label="Search channels" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a channel…" className="min-h-11 w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-gray-500" /></label>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+          <button type="button" aria-pressed={unreadOnly} onClick={() => setUnreadOnly(!unreadOnly)} className={`min-h-8 rounded-lg border px-2.5 ${unreadOnly ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-200" : "border-white/15 text-gray-300"}`}>Unread only</button>
+          <label className="flex min-h-8 cursor-pointer items-center gap-1.5 text-gray-300"><input type="checkbox" checked={showTopics} onChange={(event) => setShowTopics(event.target.checked)} className="accent-cyan-300" />Show topics</label>
+        </div>
       </div>
-    );
-  }
-
-  if (!bundle) return null;
-
-  const textChannels = bundle.channels
-    .filter((channel) => channel.channel_type !== "voice")
-    .sort((a, b) => a.position - b.position);
-  const voiceChannels = bundle.channels
-    .filter((channel) => channel.channel_type === "voice")
-    .sort((a, b) => a.position - b.position);
-
-  function categoryFor(type: CommunityChannel["channel_type"]) {
-    const expected = type === "voice" ? "VOICE" : type === "announcement" ? "INFORMATION" : "TEXT";
-    return (
-      bundle?.categories.find((category) => category.name.toUpperCase().includes(expected)) ||
-      bundle?.categories[0] ||
-      null
-    );
-  }
-
-  const textCategory = categoryFor("text");
-  const voiceCategory = categoryFor("voice");
-
-  return (
-    <div
-      data-community-sidebar
-      className="relative flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden pb-10"
-    >
-      <section className="shrink-0 rounded-xl border border-cyan-400/12 bg-black/10 p-2">
-        <div className="mb-1.5 flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-300">
-              Chat Hub
-            </span>
-            <span className="h-1 w-1 rounded-full bg-cyan-400/70" />
-          </div>
-          {canManageChannels && textCategory ? (
-            <button
-              type="button"
-              onClick={() => void createChannel(textCategory, "text")}
-              disabled={busy === `channel:${textCategory.id}`}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-50"
-              title="Create chat channel"
-            >
-              <FaPlus />
-            </button>
-          ) : null}
-        </div>
-        <div className="grid gap-1.5">
-          {textChannels.length ? (
-            textChannels.map((channel) => (
-              <ChannelButton
-                key={channel.id}
-                channel={channel}
-                active={selectedChannelId === channel.id}
-                onClick={() => onSelectChannel(channel, "user")}
-              />
-            ))
-          ) : (
-            <p className="rounded-lg border border-dashed border-white/10 px-3 py-2 text-[10px] text-gray-600">
-              No chat channels yet.
-            </p>
-          )}
-        </div>
-      </section>
-
-      <section className="min-h-0 flex-1 rounded-xl border border-cyan-400/12 bg-black/10 p-2">
-        <div className="mb-1.5 flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-300">
-              Voice Lobbies
-            </span>
-            <span className="flex items-end gap-px" aria-hidden="true">
-              {[5, 9, 13, 8].map((height, index) => (
-                <i
-                  key={index}
-                  className="block w-0.5 rounded-full bg-cyan-300/60"
-                  style={{ height }}
-                />
-              ))}
-            </span>
-          </div>
-          {canManageChannels && voiceCategory ? (
-            <button
-              type="button"
-              onClick={() => void createChannel(voiceCategory, "voice")}
-              disabled={busy === `channel:${voiceCategory.id}`}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-50"
-              title="Create voice lobby"
-            >
-              <FaPlus />
-            </button>
-          ) : null}
-        </div>
-        <div className="max-h-full space-y-1.5 overflow-y-auto pr-0.5">
-          {voiceChannels.length ? (
-            voiceChannels.map((channel) => (
-              <VoiceChannelButton
-                key={channel.id}
-                channel={channel}
-                active={selectedChannelId === channel.id}
-                connected={Boolean(activeVoice?.connected && activeVoice.channelId === channel.id)}
-                participantCount={
-                  activeVoice?.channelId === channel.id
-                    ? activeVoice.participantCount
-                    : 0
-                }
-                onClick={() => onSelectChannel(channel, "user")}
-              />
-            ))
-          ) : (
-            <p className="rounded-lg border border-dashed border-white/10 px-3 py-2 text-[10px] text-gray-600">
-              No voice lobbies yet.
-            </p>
-          )}
-        </div>
-      </section>
-
-      {canManageChannels ? (
-        <div className="absolute inset-x-0 bottom-0 flex justify-center">
-          <button
-            type="button"
-            onClick={() => void createCategory()}
-            disabled={busy === "category"}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.025] text-gray-400 transition hover:border-cyan-400/35 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-50"
-            title="Create channel category"
-          >
-            <FaPlus />
-          </button>
-        </div>
-      ) : null}
-
-      <div className="sr-only">
-        Role: {bundle.currentUser.memberRole || "member"}
+      {error ? <p role="alert" className="rounded-lg bg-amber-400/10 p-2 text-xs text-amber-200">{error} Use refresh to retry.</p> : null}
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+        {groups.length ? groups.map((group) => {
+          const closed = collapsed.has(group.id) && !query && !unreadOnly;
+          return <section key={group.id} className="rounded-xl border border-white/[0.07] bg-black/10 p-2">
+            <div className="flex items-center gap-1">
+              <button type="button" aria-expanded={!closed} aria-controls={`category-${group.id}`} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group.id)) next.delete(group.id); else next.add(group.id); return next; })} className="flex min-h-10 min-w-0 flex-1 items-center gap-2 px-1 text-left text-xs font-bold text-gray-300">
+                <FaChevronDown aria-hidden="true" className={closed ? "-rotate-90" : ""} /><span className="truncate">{group.name}</span><span className="ml-auto text-gray-500">{group.channels.length}</span>
+              </button>
+              {canManage ? <button type="button" aria-label={`Create channel in ${group.name}`} onClick={() => setEditor({ kind: "channel", categoryId: group.id === "uncategorized" ? "" : group.id })} className="flex h-9 w-9 items-center justify-center rounded-lg text-cyan-200 hover:bg-white/10"><FaPlus /></button> : null}
+            </div>
+            <div id={`category-${group.id}`} hidden={closed} className="space-y-1">
+              {group.channels.map((channel) => {
+                const active = selectedChannelId === channel.id;
+                const connected = Boolean(activeVoice?.connected && activeVoice.channelId === channel.id);
+                const unread = Number(channel.unread_count || 0);
+                const Icon = channel.channel_type === "voice" ? FaVolumeUp : channel.channel_type === "announcement" ? FaBullhorn : FaHashtag;
+                return <div key={channel.id} className={`flex items-center rounded-lg border ${active ? "border-cyan-300/45 bg-cyan-300/10" : "border-transparent hover:bg-white/5"}`}>
+                  <button data-community-channel data-voice-channel={channel.channel_type === "voice" || undefined} type="button" aria-current={active ? "page" : undefined} title={channel.topic || channel.name} onClick={() => props.onSelectChannel(channel, "user")} className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left focus-visible:outline-cyan-300">
+                    <Icon aria-hidden="true" className={connected ? "shrink-0 text-emerald-300" : active ? "shrink-0 text-cyan-200" : "shrink-0 text-gray-400"} />
+                    <span className="min-w-0 flex-1"><span className={`block truncate text-sm ${active || unread ? "font-bold text-white" : "text-gray-300"}`}>{channel.name}</span>{showTopics && channel.topic ? <span className="mt-0.5 block truncate text-xs text-gray-400">{channel.topic}</span> : null}{connected ? <span className="block text-xs text-emerald-300">Connected · {activeVoice?.participantCount} in voice</span> : null}</span>
+                    {channel.is_private ? <FaLock aria-label="Private channel" className="shrink-0 text-xs text-gray-400" /> : null}
+                    {unread > 0 ? <span aria-label={`${unread} unread messages`} className="rounded-full bg-cyan-300 px-1.5 py-0.5 text-xs font-bold text-slate-950">{unread > 99 ? "99+" : unread}</span> : null}
+                  </button>
+                  {canManage ? <button type="button" aria-label={`Settings for ${channel.name}`} onClick={() => setEditor({ kind: "channel", channel })} className="flex h-10 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:text-cyan-200 focus-visible:outline-cyan-300"><FaCog /></button> : null}
+                </div>;
+              })}
+              {!group.channels.length ? <p className="px-2 py-3 text-xs text-gray-400">Create a channel to get started.</p> : null}
+            </div>
+          </section>;
+        }) : <div className="rounded-xl border border-dashed border-white/15 p-4 text-sm text-gray-300"><p>{unreadOnly ? "You're all caught up. No unread channels match." : "No channels match your search."}</p><button type="button" onClick={() => { setQuery(""); setUnreadOnly(false); }} className="mt-2 min-h-10 text-cyan-200">Show all channels</button></div>}
       </div>
-    </div>
-  );
-}
-
-function ChannelButton({
-  channel,
-  active,
-  onClick,
-}: {
-  channel: CommunityChannel;
-  active: boolean;
-  onClick: () => void;
-}) {
-  const unread = Number(channel.unread_count || 0);
-  return (
-    <button
-      data-community-channel
-      type="button"
-      onClick={onClick}
-      title={channel.topic || channel.name}
-      className={`group flex min-h-11 w-full items-center gap-2.5 rounded-lg border px-2.5 py-1.5 text-left transition ${
-        active
-          ? "border-cyan-400/60 bg-gradient-to-r from-cyan-400/15 to-cyan-400/[0.04] text-cyan-50 shadow-[inset_3px_0_0_#22d3ee]"
-          : "border-white/[0.065] bg-white/[0.018] text-gray-300 hover:border-cyan-400/25 hover:bg-cyan-400/[0.055]"
-      }`}
-    >
-      <span
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
-          channel.channel_type === "announcement"
-            ? "bg-yellow-400/10 text-yellow-300"
-            : active
-              ? "bg-cyan-400/15 text-cyan-200"
-              : "bg-white/5 text-cyan-300/80"
-        }`}
-      >
-        {channelIcon(channel)}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[11px] font-black leading-4">
-          {channel.name}
-        </span>
-      </span>
-      {unread > 0 ? (
-        <span
-          className={`min-w-5 rounded-full px-1.5 py-0.5 text-center text-[8px] font-black ${
-            channel.channel_type === "announcement"
-              ? "bg-yellow-400 text-black"
-              : "bg-cyan-400 text-black"
-          }`}
-        >
-          {unread > 99 ? "99+" : unread}
-        </span>
-      ) : null}
-      {channel.is_private ? <FaLock className="text-[9px] text-gray-600" /> : null}
-    </button>
-  );
-}
-
-function VoiceChannelButton({
-  channel,
-  active,
-  connected,
-  participantCount,
-  onClick,
-}: {
-  channel: CommunityChannel;
-  active: boolean;
-  connected: boolean;
-  participantCount: number;
-  onClick: () => void;
-}) {
-  const live = channel.name.toLowerCase().includes("scrim") || channel.name.toLowerCase().includes("live");
-  return (
-    <button
-      data-community-channel
-      data-voice-channel
-      type="button"
-      onClick={onClick}
-      title={channel.topic || channel.name}
-      className={`group flex min-h-10 w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition ${
-        active
-          ? "border-cyan-400/70 bg-cyan-400/10 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.12)]"
-          : "border-white/[0.065] bg-white/[0.018] text-gray-300 hover:border-cyan-400/30 hover:bg-cyan-400/[0.05]"
-      }`}
-    >
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${connected ? "bg-emerald-400/15 text-emerald-300" : live ? "bg-red-400/10 text-red-300" : "bg-cyan-400/10 text-cyan-300"}`}>
-        {channelIcon(channel)}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[11px] font-black leading-4">{channel.name}</span>
-      </span>
-      {connected ? (
-        <span className="rounded-md bg-emerald-400/10 px-1.5 py-1 text-[8px] font-black text-emerald-300">
-          {participantCount}
-        </span>
-      ) : (
-        <span className="rounded-md border border-cyan-400/20 px-1.5 py-1 text-[8px] font-black text-cyan-300 opacity-0 transition group-hover:opacity-100">
-          Open
-        </span>
-      )}
-    </button>
+      {canManage ? <div className="flex shrink-0 gap-2 border-t border-white/10 pt-2">
+        <button type="button" onClick={() => setEditor({ kind: "channel" })} className="min-h-11 flex-1 rounded-lg bg-cyan-300/10 px-2 text-xs font-bold text-cyan-200">+ Channel</button>
+        <button type="button" onClick={() => setEditor({ kind: "category" })} className="min-h-11 flex-1 rounded-lg border border-white/10 px-2 text-xs text-gray-300">+ Category</button>
+      </div> : null}
+      {editor ? <CommunityChannelEditor bundle={bundle} target={editor} onClose={() => setEditor(null)} onSaved={(channel) => { setEditor(null); props.onNotice?.(channel ? `#${channel.name} saved.` : "Category created."); void loadBundle(channel?.id); }} /> : null}
+    </nav>
   );
 }

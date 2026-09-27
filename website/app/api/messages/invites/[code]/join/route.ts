@@ -157,7 +157,7 @@ export async function POST(request: Request, context: RouteContext) {
       if (useError) throw new Error(useError.message);
     }
 
-    await bootstrapCommunityForRoom({ supabaseAdmin, roomId, actorId: user.id });
+    await bootstrapCommunityForRoom({ supabaseAdmin, roomId, actorId: user.id, newMemberId: user.id });
     await supabaseAdmin.from("chat_community_audit_logs").insert({
       community_id: communityId,
       actor_id: user.id,

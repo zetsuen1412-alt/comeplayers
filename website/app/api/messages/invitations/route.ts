@@ -192,6 +192,7 @@ export async function PATCH(request: Request) {
           supabaseAdmin,
           roomId: String(invitation.room_id),
           actorId: user.id,
+          newMemberId: user.id,
         });
       } catch (communityError) {
         console.error(
