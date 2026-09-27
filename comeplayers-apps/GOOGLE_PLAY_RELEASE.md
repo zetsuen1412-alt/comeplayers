@@ -1,6 +1,6 @@
 # Rilis ComePlayers ke Google Play
 
-Persiapan akun organisasi, hasil pemeriksaan lokal, dan pekerjaan yang masih diperlukan per 24 September 2026 tersedia di [catatan kesiapan rilis](play-store/READINESS-2026-09-24.md). Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json). Aplikasi belum diunggah atau diterbitkan pada sesi persiapan tersebut.
+Status kandidat Android 0.15.0, hasil pemeriksaan, dan persetujuan yang masih diperlukan tersedia di [catatan kesiapan 27 September 2026](play-store/READINESS-2026-09-27.md). [Catatan 24 September](play-store/READINESS-2026-09-24.md) menyimpan rincian kebijakan dan listing yang belum diverifikasi. Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json). Kandidat 0.15.0 belum dibangun, diunggah, atau diterbitkan.
 
 ## Identitas tetap
 
@@ -49,10 +49,11 @@ Profil production:
 ## 4. Upload ke internal testing
 
 ```powershell
-npm run android:submit -- -Latest
+cd apps/mobile
+npx eas-cli@24.5.0 submit --platform android --profile production --id <BUILD_ID_TERVERIFIKASI>
 ```
 
-Profil submit mengarah ke track `internal`. Uji setidaknya:
+Ganti placeholder dengan ID build final yang sudah diverifikasi. Jangan menggunakan `--latest`, karena dapat memilih AAB lama atau build dari pekerjaan lain. Profil submit mengarah ke track `internal`, bukan rilis publik production. Uji setidaknya:
 
 - login, logout, dan pemulihan sesi;
 - daftar room, membuka room, mengirim dan menerima pesan;

@@ -1,0 +1,6 @@
+ComePlayers 0.15.0
+
+- Pembaruan komunitas langsung saat ada aktivitas baru.
+- Perbaikan akses dan keamanan ruang komunitas.
+- Penyempurnaan tampilan dan navigasi komunitas.
+- Pembaruan komponen Android untuk meningkatkan keandalan aplikasi.
