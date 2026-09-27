@@ -47,6 +47,7 @@ export default function SecureDirectConversation({ userId, room }: { userId: str
   const [client, setClient] = useState<WebMessenger | null>(null), [setup, setSetup] = useState<Setup | null>(null);
   const [busy, setBusy] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState(""), [refresh, setRefresh] = useState(0);
   const [removeDeviceIds, setRemoveDeviceIds] = useState<string[]>([]);
+  const [policyGeneration, setPolicyGeneration] = useState<number | null>(null);
   const submitting = useRef(false), alive = useRef(true), currentPolicy = useRef<RecoveryPolicy | null>(null);
   const cached = useRef<{ setup: Setup; selection: string; plan: EnrollmentPlan } | null>(null);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
@@ -61,6 +62,7 @@ export default function SecureDirectConversation({ userId, room }: { userId: str
       const vault = await openBrowserVault(userId);
       if (!active) return;
       currentPolicy.current = policy;
+      setPolicyGeneration(policy.generation);
       if (vault) {
         assertLocalAccountMatch(vault.checkpoint.rootFingerprint, account ? fingerprint(account.roster.identity) : null, vault.checkpoint.deviceId, account?.roster.devices.map(device => device.id) ?? []);
         if (account) await vault.updateRoster(account.roster);
@@ -146,7 +148,7 @@ export default function SecureDirectConversation({ userId, room }: { userId: str
     } catch (reason) { if (alive.current) setError(reason instanceof Error ? reason.message : "The account passkey could not be opened."); }
     finally { submitting.current = false; if (alive.current) setBusy(false); }
   }
-  if (client) return <div className="flex min-h-0 flex-1 flex-col"><GoogleDriveAutoBackupAgent userId={userId} vault={client.vault} />{notice ? <p role="status" className="border-b border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs text-cyan-100">{notice}</p> : null}<SecureConversationView key={`${userId}:${room.id}:${currentPolicy.current?.generation}`} userId={userId} room={room} messenger={client} /></div>;
+  if (client) return <div className="flex min-h-0 flex-1 flex-col"><GoogleDriveAutoBackupAgent userId={userId} vault={client.vault} />{notice ? <p role="status" className="border-b border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs text-cyan-100">{notice}</p> : null}<SecureConversationView key={`${userId}:${room.id}:${policyGeneration}`} userId={userId} room={room} messenger={client} /></div>;
   const recoverable = setup?.kind === "new" || (setup?.kind === "recover" && Boolean(setup.snapshot.encrypted_backup.passkey));
   const devices = setup?.kind === "recover" ? setup.snapshot.roster.devices : [];
   return <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-5"><section className="w-full max-w-xl rounded-3xl border border-cyan-400/30 bg-[#071722] p-6 shadow-2xl">

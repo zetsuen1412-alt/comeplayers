@@ -1,4 +1,5 @@
 import { assertContactAllowed } from "@/lib/chatContacts";
+import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { NextResponse } from "next/server";
 import { chatErrorStatus, requireChatRoomAccess, safeProfileLabel } from "@/lib/chatServer";
 import { requireCommunityChannel } from "@/lib/communityServer";
@@ -31,7 +32,8 @@ export async function POST(request: Request) {
     await safeRedis("typing-write", () => writeTyping({ userId: user.id, roomId, channelId, name: safeProfileLabel(profile), at: Date.now() }, body.active !== false), undefined);
     return NextResponse.json({ ok: true, enabled: isUpstashRedisConfigured() });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Typing update failed." }, { status: chatErrorStatus(error) });
+    const status = chatErrorStatus(error);
+    return NextResponse.json({ error: safeApiErrorMessage(error, "Typing update failed.", status) }, { status });
   }
 }
 
@@ -45,6 +47,7 @@ export async function GET(request: Request) {
     const users = await safeRedis("typing-read", () => readTyping(roomId, channelId, user.id), []);
     return NextResponse.json({ enabled: isUpstashRedisConfigured(), users });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Typing lookup failed." }, { status: chatErrorStatus(error) });
+    const status = chatErrorStatus(error);
+    return NextResponse.json({ error: safeApiErrorMessage(error, "Typing lookup failed.", status) }, { status });
   }
 }

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AppState, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { Session } from "@supabase/supabase-js";
 import {
   isGroupRoom,
@@ -17,7 +17,7 @@ import {
   loadCommunity,
   loadTournaments,
 } from "../api";
-import { chatClient } from "../runtime";
+import { chatClient, supabase } from "../runtime";
 import { colors, radius } from "../theme";
 import type { AppTab, CommunityBundle, Tournament, TournamentRegistration, VoiceToken } from "../types";
 import { ContactsSheet } from "./ContactsSheet";
@@ -53,43 +53,102 @@ export function CommunityScreen({ session, onOpenRoom, onNavigate }: {
   const [joinTarget, setJoinTarget] = useState<Tournament | null>(null);
   const [gameUsername, setGameUsername] = useState("");
   const [joining, setJoining] = useState(false);
+  const [search, setSearch] = useState("");
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [syncStatus, setSyncStatus] = useState("Connecting");
+  const [syncError, setSyncError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const userId = session?.user.id || "";
+  const generation = useRef(0);
+  const pending = useRef<Promise<void> | null>(null);
+  const dialogPending = useRef(false);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setMessage("");
+  const reload = useCallback((quiet = false): Promise<void> => {
+    if (pending.current) return pending.current;
+    const version = generation.current;
+    if (!quiet) setRefreshing(true);
+    const operation = (async () => {
     try {
       const [feed, allRooms, inviteData] = await Promise.all([
-        loadTournaments(Boolean(session)),
-        session ? chatClient.listRooms() : Promise.resolve([]),
-        session ? chatClient.listInvitations() : Promise.resolve({ received: [], sent: [] }),
+        loadTournaments(Boolean(userId)),
+        userId ? chatClient.listRooms() : Promise.resolve([]),
+        userId ? chatClient.listInvitations() : Promise.resolve({ received: [], sent: [] }),
       ]);
+      if (generation.current !== version) return;
       const groups = allRooms.filter(isGroupRoom);
       setTournaments(feed.tournaments);
       setRegistrations(feed.registrations);
       setRooms(groups);
       setInvitations(inviteData.received);
+      setSyncError("");
       setSelectedRoomId((current) => current && groups.some((room) => room.id === current) ? current : groups[0]?.id || "");
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : "Community is temporarily unavailable.");
+      if (generation.current === version) setSyncError(reason instanceof Error ? reason.message : "Community is temporarily unavailable.");
     } finally {
-      setLoading(false);
+      if (generation.current === version) { setLoading(false); setRefreshing(false); }
     }
-  }, [session]);
-
-  useEffect(() => { void reload(); }, [reload]);
+    })();
+    pending.current = operation;
+    void operation.finally(() => { if (pending.current === operation) pending.current = null; });
+    return operation;
+  }, [userId]);
 
   useEffect(() => {
-    if (!session || view !== "voice" || !selectedRoomId) { setCommunity(null); return; }
+    generation.current++;
+    pending.current = null;
+    setRooms([]); setInvitations([]); setRegistrations([]); setCommunity(null); setVoiceConnection(null);
+    setLoading(true);
+    void reload();
     let active = true;
+    let scheduled: ReturnType<typeof setTimeout> | undefined;
+    let dirty = false;
+    const changed = () => {
+      dirty = true;
+      if (scheduled || AppState.currentState !== "active") return;
+      scheduled = setTimeout(() => {
+        scheduled = undefined;
+        if (!active || AppState.currentState !== "active") return;
+        // Retain events received during a read for a trailing refresh.
+        if (pending.current) { void pending.current.then(() => { if (active && dirty) changed(); }); return; }
+        dirty = false;
+        void reload(true);
+      }, 400);
+    };
+    const channel = userId ? supabase.channel(`community-hub:${userId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms" }, changed)
+      .subscribe((status) => { if (active) { setSyncStatus(status === "SUBSCRIBED" ? "Live" : "Auto refresh"); if (status === "SUBSCRIBED") changed(); } }) : null;
+    const timer = setInterval(changed, 30_000);
+    const listener = AppState.addEventListener("change", (state) => { if (state === "active") changed(); });
+    return () => { active = false; generation.current++; clearTimeout(scheduled); clearInterval(timer); listener.remove(); if (channel) void supabase.removeChannel(channel); };
+  }, [reload, userId]);
+
+  useEffect(() => {
+    if (!userId || view !== "voice" || !selectedRoomId) { setCommunity(null); setCommunityLoading(false); return; }
+    let active = true;
+    let running = false;
+    setCommunity(null);
     setCommunityLoading(true);
-    void loadCommunity(selectedRoomId)
+    const refresh = () => {
+      if (running || AppState.currentState !== "active") return;
+      running = true;
+      void loadCommunity(selectedRoomId)
       .then((bundle) => active && setCommunity(bundle))
       .catch((reason) => active && setMessage(reason instanceof Error ? reason.message : "Voice lobbies could not be loaded."))
-      .finally(() => active && setCommunityLoading(false));
-    return () => { active = false; };
-  }, [selectedRoomId, session, view]);
+      .finally(() => { running = false; if (active) setCommunityLoading(false); });
+    };
+    refresh();
+    const channel = supabase.channel(`community-voice:${selectedRoomId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `id=eq.${selectedRoomId}` }, refresh)
+      .subscribe(status => { if (active && status === "SUBSCRIBED") refresh(); });
+    const timer = setInterval(refresh, 30_000);
+    const listener = AppState.addEventListener("change", state => { if (state === "active") refresh(); });
+    return () => { active = false; clearInterval(timer); listener.remove(); void supabase.removeChannel(channel); };
+  }, [selectedRoomId, userId, view]);
 
   const registeredIds = useMemo(() => new Set(registrations.map((item) => item.tournament_id)), [registrations]);
+  const visibleRooms = useMemo(() => rooms.filter((room) =>
+    (!search.trim() || `${roomName(room)} ${room.description || ""}`.toLowerCase().includes(search.trim().toLowerCase()))
+    && (!unreadOnly || Number(room.unread_count) > 0)), [rooms, search, unreadOnly]);
 
   const openDialog = (next: Dialog, room?: ChatRoom) => {
     setDialog(next);
@@ -101,6 +160,8 @@ export function CommunityScreen({ session, onOpenRoom, onNavigate }: {
   };
 
   const submitDialog = async () => {
+    if (dialogPending.current) return;
+    dialogPending.current = true;
     setDialogBusy(true);
     setMessage("");
     try {
@@ -120,6 +181,7 @@ export function CommunityScreen({ session, onOpenRoom, onNavigate }: {
     } catch (reason) {
       setMessage(reason instanceof Error ? reason.message : "Action could not be completed.");
     } finally {
+      dialogPending.current = false;
       setDialogBusy(false);
     }
   };
@@ -164,11 +226,12 @@ export function CommunityScreen({ session, onOpenRoom, onNavigate }: {
 
   return (
     <>
-      <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void reload()} tintColor={colors.blue} />}>
         <View style={styles.hero}>
           <Text style={styles.kicker}>COMMUNITY NETWORK</Text>
           <Text style={styles.heroTitle}>Your people, always connected.</Text>
           <Text style={styles.heroText}>Chat, manage servers, invite people, and join live voice or video without leaving the Android app.</Text>
+          <Text accessibilityLiveRegion="polite" style={styles.syncStatus}>{syncError ? "Sync interrupted · pull down to retry" : `${syncStatus} · updates automatically`}</Text>
         </View>
         <View style={styles.tabs}>
           <ViewTab label="Chat Hub" active={view === "hub"} onPress={() => setView("hub")} />
@@ -176,8 +239,15 @@ export function CommunityScreen({ session, onOpenRoom, onNavigate }: {
           <ViewTab label="Contacts" active={contactsOpen} onPress={() => setContactsOpen(true)} />
         </View>
         {message ? <View style={styles.notice}><Text style={styles.noticeText}>{message}</Text></View> : null}
+        {syncError ? <Panel><StateBlock title="Unable to sync community" message={syncError} actionLabel="Try again" onAction={() => void reload()} /></Panel> : null}
 
-        {view === "hub" ? <ChatHub rooms={rooms} invitations={invitations} loading={loading} onOpenRoom={onOpenRoom} onCreate={() => openDialog("create-group")} onInvite={(room) => openDialog("invite-player", room)} onAnswer={answerInvitation} /> : null}
+        {view === "hub" ? <View style={styles.searchPanel}>
+          <TextInput accessibilityLabel="Search community servers" value={search} onChangeText={setSearch} placeholder="Find your community…" placeholderTextColor={colors.textDim} autoCapitalize="none" style={styles.searchInput} />
+          <Pressable accessibilityRole="button" accessibilityState={{ selected: unreadOnly }} onPress={() => setUnreadOnly(!unreadOnly)} style={[styles.filterChip, unreadOnly && styles.serverChipActive]}><Text style={styles.filterText}>{unreadOnly ? "✓ Unread only" : "Unread only"}</Text></Pressable>
+          {(search || unreadOnly) && !visibleRooms.length ? <StateBlock title="No matching servers" message="Try a different name or show all your servers." actionLabel="Clear filters" onAction={() => { setSearch(""); setUnreadOnly(false); }} /> : null}
+        </View> : null}
+
+        {view === "hub" && (visibleRooms.length > 0 || (!search && !unreadOnly) || invitations.length > 0) ? <ChatHub hideEmpty={Boolean(search || unreadOnly)} rooms={visibleRooms} invitations={invitations} loading={loading} onOpenRoom={onOpenRoom} onCreate={() => openDialog("create-group")} onInvite={(room) => openDialog("invite-player", room)} onAnswer={answerInvitation} /> : null}
         {view === "voice" ? <VoiceHub rooms={rooms} selectedRoomId={selectedRoomId} onSelectRoom={setSelectedRoomId} community={community} loading={communityLoading} onJoin={joinVoice} onCreate={() => openDialog("create-voice")} /> : null}
 
         {view === "hub" ? (
@@ -204,8 +274,8 @@ export function CommunityScreen({ session, onOpenRoom, onNavigate }: {
 
 function ViewTab({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) { return <Pressable onPress={onPress} style={[styles.viewTab, active && styles.viewTabActive]}><Text style={[styles.viewTabText, active && styles.viewTabTextActive]}>{label}</Text></Pressable>; }
 
-function ChatHub({ rooms, invitations, loading, onOpenRoom, onCreate, onInvite, onAnswer }: { rooms: ChatRoom[]; invitations: PartyInvitation[]; loading: boolean; onOpenRoom: (room: ChatRoom) => void; onCreate: () => void; onInvite: (room: ChatRoom) => void; onAnswer: (invite: PartyInvitation, action: "accept" | "decline") => void }) {
-  return <><SectionTitle eyebrow="CHAT HUB" title="Community servers" actionLabel="Create server" onAction={onCreate} />{loading ? <Panel><StateBlock loading title="Loading servers" /></Panel> : rooms.length ? <View style={styles.roomGrid}>{rooms.map((room) => <View key={room.id} style={styles.roomCard}><Avatar uri={room.other?.avatar_url} name={roomName(room)} accent="blue" /><Text style={styles.roomTitle} numberOfLines={1}>{roomName(room)}</Text><Text style={styles.roomPreview} numberOfLines={2}>{roomPreview(room)}</Text><Text style={styles.roomMembers}>{room.member_count || room.members?.length || 1} members</Text><View style={styles.roomActions}><Pressable style={styles.roomOpen} onPress={() => onOpenRoom(room)}><Text style={styles.roomOpenText}>Open chat</Text></Pressable><Pressable style={styles.roomInvite} onPress={() => onInvite(room)}><Text style={styles.roomInviteText}>Invite</Text></Pressable></View></View>)}</View> : <Panel><StateBlock title="No servers yet" message="Create your first server and invite other players." actionLabel="Create server" onAction={onCreate} /></Panel>}{invitations.length ? <><SectionTitle eyebrow="INVITATIONS" title="Waiting for your answer" /><View style={styles.invitationList}>{invitations.map((invite) => <View key={invite.id} style={styles.invitation}><Avatar uri={invite.inviter?.avatar_url} name={profileName(invite.inviter)} size={40} /><View style={styles.invitationCopy}><Text style={styles.invitationTitle}>{invite.room?.title || "Community server"}</Text><Text style={styles.invitationFrom}>From {profileName(invite.inviter)}</Text></View><Pressable onPress={() => onAnswer(invite, "accept")} style={styles.accept}><Text style={styles.acceptText}>Accept</Text></Pressable><Pressable onPress={() => onAnswer(invite, "decline")} style={styles.decline}><Text style={styles.declineText}>×</Text></Pressable></View>)}</View></> : null}</>;
+function ChatHub({ hideEmpty = false, rooms, invitations, loading, onOpenRoom, onCreate, onInvite, onAnswer }: { hideEmpty?: boolean; rooms: ChatRoom[]; invitations: PartyInvitation[]; loading: boolean; onOpenRoom: (room: ChatRoom) => void; onCreate: () => void; onInvite: (room: ChatRoom) => void; onAnswer: (invite: PartyInvitation, action: "accept" | "decline") => void }) {
+  return <><SectionTitle eyebrow="CHAT HUB" title="Community servers" actionLabel="Create server" onAction={onCreate} />{loading ? <Panel><StateBlock loading title="Loading servers" /></Panel> : rooms.length ? <View style={styles.roomGrid}>{rooms.map((room) => <View key={room.id} style={styles.roomCard}><Avatar uri={room.other?.avatar_url} name={roomName(room)} accent="blue" /><Text style={styles.roomTitle} numberOfLines={1}>{roomName(room)}</Text><Text style={styles.roomPreview} numberOfLines={2}>{roomPreview(room)}</Text><Text style={styles.roomMembers}>{room.member_count || room.members?.length || 1} members</Text><View style={styles.roomActions}><Pressable style={styles.roomOpen} onPress={() => onOpenRoom(room)}><Text style={styles.roomOpenText}>Open chat</Text></Pressable><Pressable style={styles.roomInvite} onPress={() => onInvite(room)}><Text style={styles.roomInviteText}>Invite</Text></Pressable></View></View>)}</View> : hideEmpty ? null : <Panel><StateBlock title="No servers yet" message="Create your first server and invite other players." actionLabel="Create server" onAction={onCreate} /></Panel>}{invitations.length ? <><SectionTitle eyebrow="INVITATIONS" title="Waiting for your answer" /><View style={styles.invitationList}>{invitations.map((invite) => <View key={invite.id} style={styles.invitation}><Avatar uri={invite.inviter?.avatar_url} name={profileName(invite.inviter)} size={40} /><View style={styles.invitationCopy}><Text style={styles.invitationTitle}>{invite.room?.title || "Community server"}</Text><Text style={styles.invitationFrom}>From {profileName(invite.inviter)}</Text></View><Pressable onPress={() => onAnswer(invite, "accept")} style={styles.accept}><Text style={styles.acceptText}>Accept</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Decline invitation" onPress={() => onAnswer(invite, "decline")} style={styles.decline}><Text style={styles.declineText}>×</Text></Pressable></View>)}</View></> : null}</>;
 }
 
 function VoiceHub({ rooms, selectedRoomId, onSelectRoom, community, loading, onJoin, onCreate }: { rooms: ChatRoom[]; selectedRoomId: string; onSelectRoom: (id: string) => void; community: CommunityBundle | null; loading: boolean; onJoin: (channelId: string) => void; onCreate: () => void }) {
@@ -224,42 +294,47 @@ function ActionDialog({ dialog, title, description, identifier, busy, onTitle, o
 function Info({ label, value }: { label: string; value: string }) { return <View style={styles.info}><Text style={styles.infoLabel}>{label}</Text><Text style={styles.infoValue} numberOfLines={1}>{value}</Text></View>; }
 
 const styles = StyleSheet.create({
+  syncStatus: { marginTop: 14, fontSize: 12, color: colors.green, fontWeight: "700" },
+  searchPanel: { gap: 10, marginBottom: 16 },
+  searchInput: { minHeight: 48, paddingHorizontal: 14, borderRadius: radius.medium, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.panel, color: colors.text, fontSize: 15 },
+  filterChip: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingHorizontal: 14, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.borderStrong },
+  filterText: { color: colors.text, fontSize: 13, fontWeight: "700" },
   page: { padding: 16, paddingBottom: 36, backgroundColor: colors.background },
   hero: { padding: 22, borderRadius: 25, borderWidth: 1, borderColor: "rgba(39,183,255,.28)", backgroundColor: "#071825" },
-  kicker: { color: colors.blue, fontSize: 9, fontWeight: "900", letterSpacing: 1.9 },
+  kicker: { color: colors.blue, fontSize: 12, fontWeight: "900", letterSpacing: 1.9 },
   heroTitle: { marginTop: 8, color: colors.text, fontSize: 29, lineHeight: 33, fontWeight: "900" },
   heroText: { marginTop: 10, color: colors.textMuted, fontSize: 12, lineHeight: 18 },
   signInPanel: { marginTop: 14 },
   tabs: { flexDirection: "row", gap: 7, marginVertical: 15, padding: 5, borderRadius: radius.medium, backgroundColor: colors.panel },
-  viewTab: { flex: 1, alignItems: "center", paddingVertical: 11, borderRadius: 12 },
+  viewTab: { minHeight: 44, justifyContent: "center", flex: 1, alignItems: "center", paddingVertical: 11, borderRadius: 12 },
   viewTabActive: { backgroundColor: colors.yellowSoft },
-  viewTabText: { color: colors.textMuted, fontSize: 9, fontWeight: "900" },
+  viewTabText: { color: colors.textMuted, fontSize: 12, fontWeight: "900" },
   viewTabTextActive: { color: colors.yellow },
   notice: { marginBottom: 14, padding: 12, borderRadius: radius.medium, borderWidth: 1, borderColor: "rgba(54,226,160,.24)", backgroundColor: "rgba(54,226,160,.08)" },
-  noticeText: { color: colors.green, fontSize: 10, lineHeight: 15, fontWeight: "700" },
+  noticeText: { color: colors.green, fontSize: 12, lineHeight: 18, fontWeight: "700" },
   roomGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 24 },
   roomCard: { width: "48%", minHeight: 194, padding: 14, borderRadius: radius.large, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel },
   roomTitle: { marginTop: 10, color: colors.text, fontSize: 14, fontWeight: "900" },
-  roomPreview: { minHeight: 31, marginTop: 5, color: colors.textMuted, fontSize: 9, lineHeight: 14 },
-  roomMembers: { marginTop: 8, color: colors.textDim, fontSize: 8, fontWeight: "800" },
+  roomPreview: { minHeight: 31, marginTop: 5, color: colors.textMuted, fontSize: 12, lineHeight: 18 },
+  roomMembers: { marginTop: 8, color: colors.textDim, fontSize: 12, fontWeight: "800" },
   roomActions: { flexDirection: "row", gap: 6, marginTop: 12 },
-  roomOpen: { flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 9, backgroundColor: colors.blueSoft },
-  roomOpenText: { color: colors.blue, fontSize: 7, fontWeight: "900" },
-  roomInvite: { paddingHorizontal: 10, alignItems: "center", justifyContent: "center", borderRadius: 9, backgroundColor: colors.yellowSoft },
-  roomInviteText: { color: colors.yellow, fontSize: 7, fontWeight: "900" },
+  roomOpen: { minHeight: 44, justifyContent: "center", flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 9, backgroundColor: colors.blueSoft },
+  roomOpenText: { color: colors.blue, fontSize: 12, fontWeight: "900" },
+  roomInvite: { minHeight: 44, paddingHorizontal: 10, alignItems: "center", justifyContent: "center", borderRadius: 9, backgroundColor: colors.yellowSoft },
+  roomInviteText: { color: colors.yellow, fontSize: 12, fontWeight: "900" },
   invitationList: { gap: 8, marginBottom: 24 },
   invitation: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 66, padding: 10, borderRadius: radius.medium, backgroundColor: colors.panel },
   invitationCopy: { flex: 1 },
-  invitationTitle: { color: colors.text, fontSize: 11, fontWeight: "900" },
-  invitationFrom: { marginTop: 3, color: colors.textMuted, fontSize: 8 },
-  accept: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: 9, backgroundColor: colors.yellow },
-  acceptText: { color: colors.background, fontSize: 8, fontWeight: "900" },
-  decline: { width: 30, height: 30, alignItems: "center", justifyContent: "center" },
+  invitationTitle: { color: colors.text, fontSize: 12, fontWeight: "900" },
+  invitationFrom: { marginTop: 3, color: colors.textMuted, fontSize: 12 },
+  accept: { minHeight: 44, justifyContent: "center", paddingHorizontal: 10, paddingVertical: 8, borderRadius: 9, backgroundColor: colors.yellow },
+  acceptText: { color: colors.background, fontSize: 12, fontWeight: "900" },
+  decline: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   declineText: { color: colors.red, fontSize: 18 },
   serverPicker: { gap: 7, paddingBottom: 13 },
   serverChip: { paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel },
   serverChipActive: { borderColor: "rgba(39,183,255,.5)", backgroundColor: colors.blueSoft },
-  serverChipText: { color: colors.textMuted, fontSize: 9, fontWeight: "800" },
+  serverChipText: { color: colors.textMuted, fontSize: 12, fontWeight: "800" },
   serverChipTextActive: { color: colors.blue },
   voiceList: { gap: 9 },
   voiceCard: { minHeight: 78, flexDirection: "row", alignItems: "center", gap: 12, padding: 13, borderRadius: radius.medium, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel },
@@ -267,45 +342,45 @@ const styles = StyleSheet.create({
   voiceIconText: { color: colors.blue, fontSize: 22 },
   voiceCopy: { flex: 1 },
   voiceName: { color: colors.text, fontSize: 13, fontWeight: "900", textTransform: "capitalize" },
-  voiceTopic: { marginTop: 4, color: colors.textMuted, fontSize: 8, lineHeight: 12 },
-  joinVoice: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: colors.yellow },
-  joinVoiceText: { color: colors.background, fontSize: 9, fontWeight: "900" },
-  voiceNote: { marginVertical: 15, color: colors.textDim, fontSize: 9, lineHeight: 14, textAlign: "center" },
+  voiceTopic: { marginTop: 4, color: colors.textMuted, fontSize: 12, lineHeight: 18 },
+  joinVoice: { minHeight: 44, justifyContent: "center", paddingHorizontal: 15, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: colors.yellow },
+  joinVoiceText: { color: colors.background, fontSize: 12, fontWeight: "900" },
+  voiceNote: { marginVertical: 15, color: colors.textDim, fontSize: 12, lineHeight: 18, textAlign: "center" },
   friendSection: { gap: 8, marginBottom: 18 },
-  friendSectionTitle: { color: colors.textDim, fontSize: 8, fontWeight: "900", letterSpacing: 1.1 },
+  friendSectionTitle: { color: colors.textDim, fontSize: 12, fontWeight: "900", letterSpacing: 1.1 },
   friendRow: { minHeight: 70, flexDirection: "row", alignItems: "center", gap: 9, padding: 11, borderRadius: radius.medium, backgroundColor: colors.panel },
   friendCopy: { flex: 1 },
-  friendName: { color: colors.text, fontSize: 11, fontWeight: "900" },
-  friendStatus: { marginTop: 3, color: colors.textDim, fontSize: 8, textTransform: "capitalize" },
+  friendName: { color: colors.text, fontSize: 12, fontWeight: "900" },
+  friendStatus: { marginTop: 3, color: colors.textDim, fontSize: 12, textTransform: "capitalize" },
   friendOnline: { color: colors.green },
   friendPrimary: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: 9, backgroundColor: colors.blueSoft },
-  friendPrimaryText: { color: colors.blue, fontSize: 7, fontWeight: "900" },
+  friendPrimaryText: { color: colors.blue, fontSize: 12, fontWeight: "900" },
   friendSecondary: { paddingHorizontal: 7, paddingVertical: 8 },
-  friendSecondaryText: { color: colors.red, fontSize: 7, fontWeight: "900" },
+  friendSecondaryText: { color: colors.red, fontSize: 12, fontWeight: "900" },
   tournamentList: { gap: 12 },
   tournamentCard: { padding: 18, borderRadius: radius.large, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel },
   featured: { borderColor: "rgba(255,208,0,.35)", backgroundColor: "#151507" },
   tournamentHead: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
   tournamentHeadCopy: { flex: 1 },
-  game: { color: colors.blue, fontSize: 8, fontWeight: "900", textTransform: "uppercase" },
+  game: { color: colors.blue, fontSize: 12, fontWeight: "900", textTransform: "uppercase" },
   tournamentTitle: { marginTop: 5, color: colors.text, fontSize: 18, lineHeight: 22, fontWeight: "900" },
-  verified: { paddingHorizontal: 8, paddingVertical: 5, borderRadius: radius.pill, color: colors.green, fontSize: 7, fontWeight: "900", backgroundColor: "rgba(54,226,160,.09)" },
-  description: { marginTop: 10, color: colors.textMuted, fontSize: 10, lineHeight: 16 },
+  verified: { paddingHorizontal: 8, paddingVertical: 5, borderRadius: radius.pill, color: colors.green, fontSize: 12, fontWeight: "900", backgroundColor: "rgba(54,226,160,.09)" },
+  description: { marginTop: 10, color: colors.textMuted, fontSize: 12, lineHeight: 18 },
   infoRow: { flexDirection: "row", gap: 6, marginTop: 15 },
   info: { flex: 1, padding: 9, borderRadius: radius.small, backgroundColor: colors.panelStrong },
-  infoLabel: { color: colors.textDim, fontSize: 6, fontWeight: "900" },
-  infoValue: { marginTop: 3, color: colors.text, fontSize: 8, fontWeight: "800" },
+  infoLabel: { color: colors.textDim, fontSize: 12, fontWeight: "900" },
+  infoValue: { marginTop: 3, color: colors.text, fontSize: 12, fontWeight: "800" },
   tournamentFooter: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginVertical: 13 },
-  prizeLabel: { color: colors.textDim, fontSize: 7, fontWeight: "900" },
+  prizeLabel: { color: colors.textDim, fontSize: 12, fontWeight: "900" },
   prize: { marginTop: 3, color: colors.yellow, fontSize: 16, fontWeight: "900" },
-  players: { color: colors.textMuted, fontSize: 9, fontWeight: "800" },
+  players: { color: colors.textMuted, fontSize: 12, fontWeight: "800" },
   modalBackdrop: { flex: 1, alignItems: "center", justifyContent: "center", padding: 22, backgroundColor: "rgba(0,0,0,.78)" },
   modalCard: { width: "100%", maxWidth: 440, padding: 22, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,208,0,.3)", backgroundColor: colors.backgroundRaised },
-  modalKicker: { color: colors.yellow, fontSize: 8, fontWeight: "900", letterSpacing: 1.5 },
+  modalKicker: { color: colors.yellow, fontSize: 12, fontWeight: "900", letterSpacing: 1.5 },
   modalTitle: { marginTop: 8, color: colors.text, fontSize: 22, fontWeight: "900" },
-  modalText: { marginTop: 9, color: colors.textMuted, fontSize: 11, lineHeight: 17 },
+  modalText: { marginTop: 9, color: colors.textMuted, fontSize: 12, lineHeight: 18 },
   modalInput: { minHeight: 50, marginVertical: 10, paddingHorizontal: 14, borderRadius: radius.medium, borderWidth: 1, borderColor: colors.borderStrong, color: colors.text, backgroundColor: colors.panel },
   modalMultiline: { minHeight: 85, paddingTop: 13, textAlignVertical: "top" },
   cancel: { alignItems: "center", marginTop: 10, padding: 10 },
-  cancelText: { color: colors.textMuted, fontSize: 11, fontWeight: "800" },
+  cancelText: { color: colors.textMuted, fontSize: 12, fontWeight: "800" },
 });

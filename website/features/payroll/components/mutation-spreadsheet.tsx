@@ -149,8 +149,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
     endDrag(); setExpanded(false);
     requestAnimationFrame(() => expandButton.current?.focus({ preventScroll: true }));
   }
-  function renderContent() {
-    return <div className="mutation-sheet-content" data-resizing={resizing}>
+  const content = <div className="mutation-sheet-content" data-resizing={resizing}>
       <div className="mutation-sheet-toolbar">
         <div className="mutation-sheet-heading"><h2 id={headingId}>Tabel Mutasi</h2><p id={helpId}>Klik judul kolom untuk mengurutkan. Klik lagi untuk membalik urutan. Tarik batas kanan judul untuk mengubah lebar, atau klik dua kali batas untuk menyesuaikan isi.</p></div>
         <button type="button" className="mutation-sheet-action" onClick={() => fitColumns()} disabled={readOnly}>Rapikan semua kolom</button>
@@ -196,9 +195,8 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
       <div className="mutation-sheet-footer"><span>{rowCount.toLocaleString('id-ID')} baris mutasi · {mutationColumns.length} kolom · {filterLabel}</span><div role="status" aria-live="polite">{message || 'Pengaturan lebar disimpan di browser ini. Data pesanan dan hasil ekspor tidak berubah.'}</div></div>
       {overlay}
     </div>;
-  }
   return <>
-    <section className="mutation-sheet" hidden={expanded} aria-label="Pengaturan tabel Mutasi">{!expanded && renderContent()}</section>
-    <dialog ref={dialog} className="mutation-sheet-dialog" aria-labelledby={headingId} onCancel={event => { event.preventDefault(); if (overlay) onOverlayClose?.(); else closeExpanded(); }}>{expanded && renderContent()}</dialog>
+    <section className="mutation-sheet" hidden={expanded} aria-label="Pengaturan tabel Mutasi">{!expanded && content}</section>
+    <dialog ref={dialog} className="mutation-sheet-dialog" aria-labelledby={headingId} onCancel={event => { event.preventDefault(); if (overlay) onOverlayClose?.(); else closeExpanded(); }}>{expanded && content}</dialog>
   </>;
 }

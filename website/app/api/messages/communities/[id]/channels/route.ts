@@ -3,6 +3,7 @@ import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { chatErrorStatus } from "@/lib/chatServer";
 import {
   normalizeCommunityChannelName,
+  notifyCommunityChanged,
   requireCommunityAccess,
 } from "@/lib/communityServer";
 import {
@@ -120,6 +121,7 @@ export async function POST(request: Request, context: RouteContext) {
       metadata: { name, type: channelType },
     });
 
+    await notifyCommunityChanged(supabaseAdmin, access.community.room_id);
     return NextResponse.json({ ok: true, channel }, { status: 201 });
   } catch (error) {
     const status = chatErrorStatus(error);

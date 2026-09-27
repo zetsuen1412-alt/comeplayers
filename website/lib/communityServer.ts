@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { isAdminUser } from "@/lib/chatServer";
+import { isAdminUser, requireChatRoomAccess } from "@/lib/chatServer";
 
 export const COMMUNITY_PERMISSION_NAMES = [
   "view_channels",
@@ -180,12 +180,38 @@ export function hasCommunityPermission(
   return access.isAdmin || access.isOwner || access.permissions.has("*") || access.permissions.has(permission);
 }
 
+export function assertCommunityPermissionsGrantable(access: CommunityAccess, permissions: CommunityPermission[]) {
+  if (permissions.some((permission) => !hasCommunityPermission(access, permission))) {
+    throw statusError("You can only grant permissions that you already have.", 403);
+  }
+}
+
+/** Update the room timestamp to invalidate existing RLS-protected subscriptions.
+ * Community metadata tables need not be exposed to Realtime. */
+export async function notifyCommunityChanged(supabaseAdmin: SupabaseClient, roomId: string) {
+  try {
+    const { error } = await supabaseAdmin.from("chat_rooms")
+      .update({ updated_at: new Date().toISOString() }).eq("id", roomId);
+    if (error) console.error("Community refresh signal failed; clients will reconcile on their next refresh.");
+  } catch {
+    // The original mutation succeeded. Never encourage a duplicate write just
+    // because the optional refresh signal could not be delivered.
+    console.error("Community refresh signal failed; clients will reconcile on their next refresh.");
+  }
+}
+
 export async function bootstrapCommunityForRoom(input: {
   supabaseAdmin: SupabaseClient;
   roomId: string;
   actorId?: string;
+  newMemberId?: string;
 }) {
   const { supabaseAdmin, roomId } = input;
+  // Bootstrapping writes through the service role, including role assignments.
+  // Authenticate the actor's membership before any of those writes can happen.
+  if (input.actorId) {
+    await requireChatRoomAccess({ supabaseAdmin, roomId, userId: input.actorId, allowAdmin: false });
+  }
   const { data: room, error: roomError } = await supabaseAdmin
     .from("chat_rooms")
     .select("id,room_type,title,description,created_by,buyer_id,seller_id,status,created_at,updated_at")
@@ -200,7 +226,15 @@ export async function bootstrapCommunityForRoom(input: {
   const ownerId = String(room.created_by || room.buyer_id || room.seller_id || input.actorId || "");
   if (!ownerId) throw statusError("Community owner is unavailable.", 400);
 
-  const { data: community, error: communityError } = await supabaseAdmin
+  const { data: existingCommunity, error: existingCommunityError } = await supabaseAdmin
+    .from("chat_communities")
+    .select("id,room_id,owner_id,name,description,icon_url,status,created_at,updated_at")
+    .eq("room_id", roomId)
+    .maybeSingle();
+  if (existingCommunityError) throw new Error(existingCommunityError.message);
+  const { data: community, error: communityError } = existingCommunity
+    ? { data: existingCommunity, error: null }
+    : await supabaseAdmin
     .from("chat_communities")
     .upsert(
       {
@@ -318,6 +352,8 @@ export async function bootstrapCommunityForRoom(input: {
   );
 
   const assignments = (members || []).flatMap((member) => {
+    // Joining a server must not recreate roles revoked from existing members.
+    if (existingCommunity && String(member.user_id) !== input.newMemberId) return [];
     const legacyRole = String(member.member_role || "member").toLowerCase();
     const roleName =
       legacyRole === "owner"
@@ -360,6 +396,7 @@ export async function bootstrapCommunityForRoom(input: {
     if (error) throw new Error(error.message);
   }
 
+  await notifyCommunityChanged(supabaseAdmin, roomId);
   return community as CommunityRow;
 }
 
@@ -402,9 +439,9 @@ export async function requireCommunityAccess(input: {
       .eq("user_id", userId),
   ]);
 
-  if (memberResult.error && !schemaMissing(memberResult.error)) throw new Error(memberResult.error.message);
-  if (banResult.error && !schemaMissing(banResult.error)) throw new Error(banResult.error.message);
-  if (assignmentResult.error && !schemaMissing(assignmentResult.error)) {
+  if (memberResult.error) throw new Error(memberResult.error.message);
+  if (banResult.error) throw new Error(banResult.error.message);
+  if (assignmentResult.error) {
     throw new Error(assignmentResult.error.message);
   }
 
@@ -432,14 +469,8 @@ export async function requireCommunityAccess(input: {
   }
 
   const legacyRole = String(memberResult.data?.member_role || "member").toLowerCase();
-  if (!permissions.size) {
-    if (legacyRole === "owner") permissions.add("*");
-    else if (legacyRole === "moderator") {
-      for (const permission of DEFAULT_ROLE_DEFINITIONS[2].permissions) permissions.add(permission);
-    } else {
-      for (const permission of DEFAULT_ROLE_DEFINITIONS[3].permissions) permissions.add(permission);
-    }
-  }
+  // Empty or removed roles must stay empty. Legacy roles are assigned by the
+  // migration/bootstrap, never inferred here after a manager revokes access.
   if (isOwner || admin) permissions.add("*");
 
   const access: CommunityAccess = {
@@ -563,8 +594,9 @@ export async function loadCommunityBundle(input: {
       unread_count: unreadByChannel.get(String(channel.id)) || 0,
     })),
     roles: rolesResult.data || [],
-    readStates: readStatesResult.data || [],
+    readStates: (readStatesResult.data || []).filter((state) => visibleChannelIds.includes(String(state.channel_id))),
     currentUser: {
+      userId,
       memberRole: access.memberRole,
       roleIds: access.roleIds,
       permissions: Array.from(access.permissions),
@@ -617,7 +649,14 @@ export async function requireCommunityChannel(input: {
     if (channel.is_read_only && !hasCommunityPermission(access, "manage_messages")) {
       throw statusError("This channel is read-only.", 403);
     }
-    if (!hasCommunityPermission(access, "send_messages")) {
+    // Use the same policy as database writes: explicit channel denies win,
+    // and an explicit channel allow can grant sending to a restricted role.
+    const { data: canSend, error: permissionError } = await supabaseAdmin.rpc(
+      "cp_can_send_chat_channel_v27",
+      { p_channel_id: channel.id, p_user_id: userId },
+    );
+    if (permissionError) throw new Error(permissionError.message);
+    if (canSend !== true) {
       throw statusError("You are not allowed to send messages in this channel.", 403);
     }
   }
