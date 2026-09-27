@@ -3,7 +3,7 @@ const path = require("node:path");
 const { withAppBuildGradle } = require("expo/config-plugins");
 
 const MARKER = "// ComePlayers original release signing guard";
-const signingGuard = fs.readFileSync(path.join(__dirname, "original-release-signing.gradle"), "utf8").trim();
+const signingGuard = fs.readFileSync(path.join(__dirname, "original-release-signing.gradle"), "utf8").replace(/\r\n/g, "\n").trim();
 
 module.exports = function withAndroidReleaseSigning(config) {
   return withAppBuildGradle(config, (gradleConfig) => {
