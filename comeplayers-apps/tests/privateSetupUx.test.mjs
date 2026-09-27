@@ -203,3 +203,31 @@ test('a server without automatic enrollment does not send the user to passkey cr
   const f = providerUI({ automatic: false }); await render(t, f.App);
   assert.equal(f.current().setup, null); assert.equal(f.prepared(), 0); assert.match(f.current().error, /Automatic chat setup/);
 });
+
+test('backup settings keep chat ready and offer a password only as an optional action', async t => {
+  let saved = 0, passkeys = 0;
+  const account = { roster: { identity: { userId } }, encrypted_backup: {} };
+  const { PrivateBackupSettings } = load('screens/PrivateBackupSettings.tsx', {
+    'react-native': Object.fromEntries(['Modal', 'Pressable', 'ScrollView', 'Text', 'TextInput', 'View'].map(name => [name, name]).concat([['StyleSheet', { create: value => value }]])),
+    'expo-document-picker': {}, 'expo-sharing': {}, 'expo-file-system': {},
+    '../components': { PrimaryButton: 'Button' }, '../theme': { colors: {} },
+    '../secure/verifiedBackup': {}, '../secure/googleDriveBackup': {}, '../secure/backupCancellation': {},
+    '../secure/PrivateProvider': { usePrivateMessenger: () => ({ messenger: {}, setup: null, error: '', reopen() {} }) },
+    '../secure/SecureDeviceSetup': { SecureDeviceSetup: 'Setup' },
+    '../secure/accountRecovery': { fetchRecoveryAccount: async () => account }, '../secure/mobileSecureTransport': {},
+    '../secure/nativePasskey': { passkeyError: e => e.message, unlockNativePasskeyRecovery: async () => { passkeys++; } },
+    '../secure/passwordBackupSetup': { enablePasswordBackup: async (_id, password) => { assert.equal(password, 'optional backup password'); saved++; account.encrypted_backup.password = {}; } },
+    '../secure/passwordRecovery': {}, '../secure/crypto': {},
+    '../runtime': { supabase: { auth: { getSession: async () => ({ data: { session: { user: { id: userId, email: 'player@example.com' } } } }) } } },
+    '../secure/driveBackupPreference': { readAutomaticDriveBackup: async () => null },
+  });
+  const view = await render(t, PrivateBackupSettings, { userId, onClose() {} });
+  assert.match(JSON.stringify(view.toJSON()), /Chat siap digunakan/);
+  assert.equal(saved, 0); assert.equal(passkeys, 0); assert.equal(view.root.findAllByType('Setup').length, 0);
+  const save = () => view.root.findAllByType('Button').find(node => node.props.label === 'Simpan sandi cadangan');
+  assert.equal(save().props.disabled, true);
+  await act(async () => { for (const input of view.root.findAllByType('TextInput')) input.props.onChangeText('optional backup password'); });
+  await act(async () => { save().props.onPress(); await flush(); });
+  assert.equal(saved, 1); assert.equal(passkeys, 0);
+  assert.match(JSON.stringify(view.toJSON()), /Sandi cadangan siap/);
+});
