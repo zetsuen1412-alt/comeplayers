@@ -39,6 +39,7 @@ const makeMessenger = extra => ({ messages: async () => [], sync: async () => {}
 function conversation(api) {
   return load('components/messages/SecureConversationView.tsx', {
     '@/lib/authenticatedFetch': { authenticatedFetchJson: api }, './SecureDirectCall': 'Calls',
+    './BrowserPasswordBackupSettings': 'OptionalBackupSettings',
   });
 }
 const button = (view, label) => view.root.findAllByType('button').find(node => node.props['aria-label'] === label || node.children.includes(label));

@@ -17,10 +17,12 @@ before(async () => {
     stdin: { contents: `
       import React from 'react'; import {createRoot} from 'react-dom/client';
       import Gate from './components/messages/SecureDirectConversation';
+      import Conversation from './components/messages/SecureConversationView';
       import {rosterHash} from './lib/e2ee/protocol';
       export * from './lib/e2ee/crypto'; export * from './lib/e2ee/protocol';
       export * from './lib/e2ee/account'; export * from './lib/e2ee/browserVault';
       export * from './lib/e2ee/browserEnrollment'; export * from './lib/e2ee/passwordRecovery';
+      export * from './lib/e2ee/browserPasswordBackup';
       export async function transport(path, init = {}) {
         const body = init.body ? JSON.parse(init.body) : null;
         const response = await window.server({path, init, hash: body?.roster ? rosterHash(body.roster) : null});
@@ -32,10 +34,15 @@ before(async () => {
         window.fixtureRoot = createRoot(document.getElementById('root'));
         window.fixtureRoot.render(React.createElement(React.Fragment, null, ...Array.from({length: count}, (_, i) => React.createElement(Gate, {key: i, userId: window.fixtureUser, room: {id: 'test-room-' + i, type: 'direct'}}))));
       }
+      export async function mountConversation() {
+        const root = createRoot(document.getElementById('root'));
+        const messenger = {messages: async()=>[], saveRoom:async()=>{}, sync:async()=>{}, markRead:async()=>{}, error:''};
+        root.render(React.createElement(Conversation, {userId:window.fixtureUser, room:{id:'test-room',type:'direct',other:{full_name:'Synthetic contact'}},messenger}));
+      }
     `, resolveDir: website, sourcefile: 'enrollment-fixture.tsx', loader: 'tsx' },
     plugins: [{name: 'isolated-auth-and-view', setup(b) {
       b.onResolve({filter: /^@\/lib\/(supabase|authenticatedFetch)$/}, args => ({path: args.path, namespace: 'fixture'}));
-      b.onResolve({filter: /^\.\/(SecureConversationView|GoogleDriveAutoBackupAgent)$/}, args => ({path: args.path, namespace: 'fixture'}));
+      b.onResolve({filter: /^\.\/(SecureConversationView|GoogleDriveAutoBackupAgent|SecureDirectCall)$/}, args => ({path: args.path, namespace: 'fixture'}));
       b.onLoad({filter: /.*/, namespace: 'fixture'}, args => ({contents:
         args.path.endsWith('supabase') ? `export const supabase={auth:{getSession:async()=>({data:{session:{user:{id:window.fixtureUser,email:'synthetic@example.test'}}}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})}};` :
         args.path.endsWith('authenticatedFetch') ? `export const authenticatedFetchJson=(...args)=>window.fixtureTransport(...args);` :
@@ -56,10 +63,19 @@ after(async () => { await browser?.close(); });
 async function fixture(t, options = {}) {
   const context = await browser.newContext({serviceWorkers: 'block'});
   t.after(() => context.close());
-  const state = {account: null, posts: [], gets: 0, ...options};
+  const state = {account: null, posts: [], passwordPosts: [], gets: 0, ...options};
   await context.exposeFunction('server', async request => {
     if (request.init.method === 'POST') {
       const body = JSON.parse(request.init.body);
+      if (request.path.endsWith('/password')) {
+        state.passwordPosts.push(body);
+        if (state.beforePasswordPost) await state.beforePasswordPost(state, request);
+        if (state.losePasswordRequest) { state.losePasswordRequest = false; return {error:'Network connection lost before sending'}; }
+        if (state.account.encrypted_backup.password && state.account.encrypted_backup.password.signature !== body.recovery.signature) return {error:'Sandi cadangan sudah diatur.',status:409};
+        state.account = {...state.account, encrypted_backup:{...state.account.encrypted_backup,password:body.recovery}};
+        if (state.losePasswordResponse) { state.losePasswordResponse = false; return {error:'Network connection lost after saving'}; }
+        return {passwordSignature:body.recovery.signature};
+      }
       state.posts.push(body);
       if (state.beforePost) await state.beforePost(state, request);
       if (state.account && state.account.roster_hash !== request.hash) return {error: 'The encryption identity cannot change.', status: 409};
@@ -92,6 +108,7 @@ async function fixture(t, options = {}) {
   return {page, context, state};
 }
 const enroll = page => page.evaluate(policy => Fixture.ensureAutomaticBrowserEnrollment(window.fixtureUser, policy, Fixture.transport, async () => {}), policy);
+const enableBackup = (page, password = 'synthetic backup password') => page.evaluate(password => Fixture.enableBrowserPasswordBackup(window.fixtureUser, password, Fixture.transport, async () => {}), password);
 const session = page => page.evaluate(async () => {
   const vault = await Fixture.openBrowserVault(window.fixtureUser);
   if (!vault) return null;
@@ -171,7 +188,7 @@ test('concurrent mobile registration retains the existing account instead of rep
   assert.deepEqual(state.account, original); assert.equal(await session(page), null);
   await page.reload(); await page.evaluate(() => Fixture.mount());
   await page.getByRole('heading', {name: 'Buka chat Anda'}).waitFor();
-  assert.match(await page.locator('body').innerText(), /perangkat lama/);
+  assert.match(await page.locator('body').innerText(), /browser lama/);
   assert.equal(await page.evaluate(() => window.credentialsRequested), 0);
   assert.equal(state.posts.length, 1);
 });
@@ -251,4 +268,81 @@ test('an already open vault cannot bypass a changed server identity', async t =>
   await assert.rejects(enroll(page), /identity changed/);
   assert.deepEqual(await session(page), original);
   assert.equal(state.posts.length, 1);
+});
+
+test('optional backup stays behind Info and enables export only after explicit confirmation', async t => {
+  const {page, state} = await fixture(t); await enroll(page);
+  const initial = state.account;
+  await page.evaluate(() => Fixture.mountConversation());
+  assert.equal(await page.getByLabel('Buat sandi cadangan').count(), 0);
+  assert.equal(await page.getByRole('button', {name:'Cadangan chat (opsional)',exact:true}).count(), 0);
+  await page.getByRole('button', {name:'Info percakapan',exact:true}).click();
+  assert.equal(await page.getByLabel('Buat sandi cadangan').count(), 0);
+  assert.equal(await page.getByRole('button', {name:'Unduh cadangan akun',exact:true}).count(), 0);
+  await page.getByRole('button', {name:'Cadangan chat (opsional)',exact:true}).click();
+  await page.getByLabel('Buat sandi cadangan').fill('synthetic backup password');
+  await page.getByLabel('Ulangi sandi cadangan').fill('synthetic mismatched password');
+  await page.getByRole('button', {name:'Simpan sandi cadangan',exact:true}).click();
+  await page.getByRole('alert').filter({hasText:'Kedua sandi belum sama'}).waitFor();
+  assert.equal(state.passwordPosts.length,0);
+  await page.getByLabel('Ulangi sandi cadangan').fill('synthetic backup password');
+  await page.getByRole('button', {name:'Simpan sandi cadangan',exact:true}).click();
+  await page.getByRole('status').filter({hasText:'Sandi cadangan sudah aktif'}).waitFor();
+  await page.getByRole('button', {name:'Unduh cadangan akun',exact:true}).waitFor();
+  assert.equal(await page.getByLabel('Buat sandi cadangan').count(),0);
+  assert.equal(state.passwordPosts.length,1);
+  assert.deepEqual(state.account.roster,initial.roster);
+  assert.equal(state.account.encrypted_backup.ciphertext,initial.encrypted_backup.ciphertext);
+  assert.equal(await page.evaluate(() => window.credentialsRequested),0);
+});
+
+test('lost optional backup request retries the exact durable sealed wrapper after reload', async t => {
+  const {page,state} = await fixture(t,{losePasswordRequest:true}); await enroll(page);
+  state.beforePasswordPost = async () => {
+    assert.equal(await page.evaluate(async () => (await (await Fixture.openBrowserVault(window.fixtureUser)).list('password-backup-pending-v1')).length),1);
+  };
+  await assert.rejects(enableBackup(page),/connection lost/);
+  const signature = state.passwordPosts[0].recovery.signature;
+  assert.equal(JSON.stringify(state.passwordPosts).includes('synthetic backup password'),false);
+  await page.reload(); await enableBackup(page);
+  assert.equal(state.passwordPosts.length,2);
+  assert.equal(state.passwordPosts[1].recovery.signature,signature);
+  assert.equal(await page.evaluate(async () => (await (await Fixture.openBrowserVault(window.fixtureUser)).list('password-backup-pending-v1')).length),0);
+});
+
+test('lost optional backup response confirms the existing wrapper without another POST or secret upload', async t => {
+  const {page,state} = await fixture(t,{losePasswordResponse:true}); await enroll(page);
+  await assert.rejects(enableBackup(page),/connection lost/);
+  const account = state.account;
+  await page.reload(); await enableBackup(page);
+  assert.equal(state.passwordPosts.length,1); assert.deepEqual(state.account,account);
+  await assert.rejects(enableBackup(page,'synthetic different password'),/Sandi cadangan tidak cocok/);
+  assert.equal(state.passwordPosts.length,1); assert.deepEqual(state.account,account);
+  const proof = await page.evaluate(async recovery => {
+    const vault = await Fixture.openBrowserVault(window.fixtureUser), root = await vault.get('root-recovery-v2',window.fixtureUser), {device} = await vault.session();
+    const key = await Fixture.openPasswordRecovery(recovery,'synthetic backup password',root);
+    const restored = Fixture.openIdentityBackup(recovery.backup,key,window.fixtureUser,root);
+    const body = JSON.stringify({recovery});
+    return {sameRoot:Fixture.fingerprint(restored) === Fixture.fingerprint(root),noSecrets:[root.signingSecret,root.encryptionSecret,device.identity.signingSecret,device.identity.encryptionSecret,key,'synthetic backup password'].every(value => !body.includes(value))};
+  },state.account.encrypted_backup.password);
+  assert.deepEqual(proof,{sameRoot:true,noSecrets:true});
+});
+
+test('optional backup aborts on account switch or a conflicting server root', async t => {
+  const {page,state} = await fixture(t); await enroll(page);
+  await assert.rejects(page.evaluate(() => Fixture.enableBrowserPasswordBackup(window.fixtureUser,'synthetic backup password',Fixture.transport,async()=>{throw new Error('signed-in account changed');})),/account changed/);
+  assert.equal(state.passwordPosts.length,0);
+  const original = state.account;
+  state.account = await page.evaluate(() => {const {plan}=Fixture.prepareFirstDevice(window.fixtureUser); return {roster:plan.session.roster,roster_hash:Fixture.rosterHash(plan.session.roster),encrypted_backup:plan.backup,updated_at:new Date().toISOString()};});
+  await assert.rejects(enableBackup(page)); assert.equal(state.passwordPosts.length,0);
+  state.account=original;
+  await assert.rejects(page.evaluate(() => {
+    let reads=0;
+    return Fixture.enableBrowserPasswordBackup(window.fixtureUser,'synthetic backup password',async(path,init={})=>{
+      const response=await Fixture.transport(path,init);
+      if(!init.method && ++reads===2) response.recovery={generation:1,resetAt:new Date().toISOString(),requirePasskey:true,allowDeviceSetup:true};
+      return response;
+    },async()=>{});
+  }));
+  assert.equal(state.passwordPosts.length,0);
 });

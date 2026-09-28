@@ -6,6 +6,7 @@ import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import type { AccountSnapshot } from "@/lib/e2ee/account";
 import type { WebMessenger, SecurePrivateMessage, SecureRoom } from "@/lib/e2ee/webMessenger";
 import SecureDirectCall from "./SecureDirectCall";
+import BrowserPasswordBackupSettings from "./BrowserPasswordBackupSettings";
 
 type Preview = { url: string; name: string; mime: string };
 export default function SecureConversationView({ userId, room, messenger }: { userId: string; room: SecureRoom; messenger: WebMessenger }) {
@@ -18,6 +19,7 @@ export default function SecureConversationView({ userId, room, messenger }: { us
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [busy, setBusy] = useState(true), [error, setError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null), bottom = useRef<HTMLDivElement>(null);
+  const backupConfirmed = useRef(false);
   const alive = useRef(true), writing = useRef(false), previews = useRef<Record<string, Preview>>({});
   const peer = room.other?.full_name || room.other?.username || "Pengguna ComePlayers";
   const refresh = useCallback(async () => {
@@ -78,8 +80,8 @@ export default function SecureConversationView({ userId, room, messenger }: { us
     if (!detailsOpen) return;
     let current = true;
     void authenticatedFetchJson<{ account: AccountSnapshot | null }>("/api/messages/secure/account")
-      .then(({ account }) => { if (current) setBackupMethod(account?.encrypted_backup.password ? "password" : account?.encrypted_backup.passkey ? "passkey" : null); })
-      .catch(() => { if (current) setBackupMethod(null); });
+      .then(({ account }) => { if (current) setBackupMethod(backupConfirmed.current || account?.encrypted_backup.password ? "password" : account?.encrypted_backup.passkey ? "passkey" : null); })
+      .catch(() => { if (current && !backupConfirmed.current) setBackupMethod(null); });
     return () => { current = false; };
   }, [detailsOpen, userId]);
   async function openVerification() {
@@ -108,12 +110,13 @@ export default function SecureConversationView({ userId, room, messenger }: { us
       <SecureDirectCall messenger={messenger} roomId={room.id} userId={userId} peerName={peer} onError={callError} />
       <button type="button" onClick={() => setDetailsOpen(value => !value)} aria-expanded={detailsOpen} aria-controls="chat-details" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl p-3 text-slate-300 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-yellow-300" aria-label="Info percakapan"><FaEllipsisH /></button>
     </header>
-    {detailsOpen ? <section id="chat-details" aria-label="Info percakapan" className="border-b border-white/10 bg-[#091b2a] px-4 py-4 text-sm leading-6 text-slate-300">
+    {detailsOpen ? <section id="chat-details" aria-label="Info percakapan" className="max-h-[55dvh] shrink-0 overflow-y-auto border-b border-white/10 bg-[#091b2a] px-4 py-4 text-sm leading-6 text-slate-300">
       <h3 className="text-base font-bold text-white">Privasi percakapan</h3>
       <p>Pesan baru hanya dapat dibaca oleh Anda dan penerima. Anda bisa terus mengobrol tanpa membuka menu ini.</p>
       <p className="mt-2">Pesan bertanda “Riwayat lama” berasal dari layanan chat sebelumnya dan belum memakai perlindungan yang sama saat dikirim.</p>
       <button type="button" onClick={() => void openVerification()} aria-expanded={showSecurityCode} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-3 font-semibold text-cyan-200 hover:bg-white/10"><FaShieldAlt aria-hidden="true" />Periksa identitas kontak (opsional)</button>
       {showSecurityCode ? <div className="mt-2 rounded-xl bg-white/5 p-3"><p>Jika ingin memeriksa identitas kontak, cocokkan angka ini secara langsung dengannya.</p><p className="mt-2 break-all font-mono text-base text-white">{securityBusy ? "Memuat pemeriksaan…" : securityCode || "Pemeriksaan belum tersedia. Anda bisa mencoba lagi nanti."}</p>{securityError ? <details className="mt-2"><summary className="flex min-h-11 cursor-pointer items-center">Lihat rincian</summary><p className="break-words">{securityError}</p></details> : null}</div> : null}
+      <BrowserPasswordBackupSettings key={userId} userId={userId} enabled={backupMethod === "password"} onEnabled={() => { backupConfirmed.current = true; setBackupMethod("password"); }} />
       {backupMethod ? <><button type="button" onClick={() => void downloadBackup()} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-3 font-semibold text-cyan-200 hover:bg-white/10"><FaDownload aria-hidden="true" />Unduh cadangan akun</button><p className="text-sm text-slate-400">File ini berisi identitas akun, bukan seluruh pesan. {backupMethod === "password" ? "Pemulihan memakai sandi cadangan Anda." : "Pemulihan memakai kunci akses yang pernah Anda simpan."}</p></> : null}
     </section> : null}
     {error || messenger.error ? <div className="border-b border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-100"><p role="alert">Chat belum bisa diperbarui. Pesan yang belum terkirim tetap ada di kolom pesan.</p><button type="button" disabled={busy} onClick={() => void mutate(() => messenger.sync(room.id))} className="mt-2 min-h-11 rounded-xl bg-white/10 px-4 font-semibold disabled:opacity-50">Coba lagi</button><details className="mt-2"><summary className="flex min-h-11 cursor-pointer items-center">Lihat rincian</summary><p className="break-words">{error || messenger.error}</p></details></div> : null}
