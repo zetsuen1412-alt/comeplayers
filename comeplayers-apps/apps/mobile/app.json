@@ -65,7 +65,7 @@
     ],
     "android": {
       "package": "com.comeplayers.app",
-      "versionCode": 23,
+      "versionCode": 24,
       "runtimeVersion": "0.16.0",
       "allowBackup": false,
       "permissions": [
