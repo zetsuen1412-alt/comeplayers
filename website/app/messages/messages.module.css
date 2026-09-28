@@ -5392,6 +5392,29 @@
   font-weight: 700;
 }
 
+/* Discovery is paused: let community information fill the freed space. */
+.simpleCommunity .communityHomeFocused {
+  display: block;
+  overflow-y: auto;
+}
+
+.simpleCommunity .communityHomeFocused .commandGrid {
+  height: auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+  margin-top: 16px;
+}
+
+.simpleCommunity .communityHomeFocused .commandGrid > .commandCard {
+  grid-column: 1;
+}
+
+.simpleCommunity .rightPanelTabs {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: none;
+}
+
 @media (min-width: 1024px) {
   .simpleCommunity .topHeader {
     height: 72px !important;

@@ -2,10 +2,51 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import vm from "node:vm";
+import ts from "typescript";
 
 function read(file: string) {
   return fs.readFileSync(path.join(process.cwd(), file), "utf8");
 }
+
+test("paused squad discovery performs no fetch and hides its navigation while preserving communities", async () => {
+  const source = read("app/messages/page.tsx");
+  const tree = ts.createSourceFile("page.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  let flag = "";
+  let tabs = "";
+  let loadMatchmaking = "";
+  const entrypoints: ts.JsxElement[] = [];
+  function visit(node: ts.Node) {
+    if (ts.isVariableDeclaration(node)) {
+      if (node.name.getText(tree) === "SQUAD_DISCOVERY_ENABLED") flag = node.getText(tree);
+      if (node.name.getText(tree) === "COMMUNITY_PANEL_TABS") tabs = node.getText(tree);
+    }
+    if (ts.isFunctionDeclaration(node) && node.name?.text === "loadMatchmaking") loadMatchmaking = node.getText(tree);
+    if (ts.isJsxElement(node)) {
+      const tag = node.openingElement.tagName.getText(tree);
+      if ((tag === "button" && node.getText(tree).includes("setCreateAsParty(true)"))
+        || (tag === "section" && node.openingElement.getText(tree).includes("styles.commandSquadSidebar"))) entrypoints.push(node);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(tree);
+  assert.ok(flag && tabs && loadMatchmaking);
+  const execute = (code: string) => vm.runInNewContext(ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, {
+    authenticatedFetchJson: () => { throw new Error("Paused discovery must not request matchmaking"); },
+  });
+  assert.equal(execute(`const ${flag}; SQUAD_DISCOVERY_ENABLED;`), false);
+  assert.deepEqual(Array.from(execute(`const ${flag}; const ${tabs}; COMMUNITY_PANEL_TABS;`)), ["members", "events"]);
+  await assert.doesNotReject(() => execute(`const ${flag}; ${loadMatchmaking}; loadMatchmaking();`));
+  assert.equal(entrypoints.length, 4);
+  for (const entrypoint of entrypoints) {
+    let parent: ts.Node | undefined = entrypoint.parent;
+    while (parent && !(ts.isJsxExpression(parent) && parent.expression?.getText(tree).startsWith("SQUAD_DISCOVERY_ENABLED ?"))) parent = parent.parent;
+    assert.ok(parent, "Every party creation and discovery card entrypoint must be guarded");
+  }
+  assert.match(source, /if \(!SQUAD_DISCOVERY_ENABLED \|\| !profile\?\.id\) return;\s+void loadMatchmaking/);
+  assert.match(source, /<FaServer \/> Buat komunitas/);
+  assert.match(source, /onClick=\{\(\) => openRoom\(room\)\}/);
+});
 
 test("joined squads remain openable and member controls respect role hierarchy", () => {
   const page = read("app/messages/page.tsx");

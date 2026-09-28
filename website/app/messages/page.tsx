@@ -415,6 +415,13 @@ const STREAM_ICE_SERVERS = createStreamIceServers({
   turnCredential: process.env.NEXT_PUBLIC_WEBRTC_TURN_CREDENTIAL,
 });
 
+// Temporarily focus communities on chat, voice, and events. Keep existing
+// groups and invitations intact so discovery can be restored independently.
+const SQUAD_DISCOVERY_ENABLED = false;
+const COMMUNITY_PANEL_TABS: RightPanelTab[] = SQUAD_DISCOVERY_ENABLED
+  ? ["members", "squad", "events"]
+  : ["members", "events"];
+
 const REACTION_EMOJIS = ["👍", "❤️", "😂", "🔥", "🎮", "✅"] as const;
 
 const CLEAN_REACTION_EMOJIS = [
@@ -2109,7 +2116,8 @@ export default function MessagesPage() {
   >([]);
   const [matchmakingLoading, setMatchmakingLoading] = useState(false);
   const [matchmakingBusy, setMatchmakingBusy] = useState("");
-  const [createAsParty, setCreateAsParty] = useState(false);
+  const [createAsPartyRequested, setCreateAsParty] = useState(false);
+  const createAsParty = SQUAD_DISCOVERY_ENABLED && createAsPartyRequested;
   const [partyGame, setPartyGame] = useState("");
   const [partyMode, setPartyMode] = useState("Ranked");
   const [partyRank, setPartyRank] = useState("");
@@ -2126,7 +2134,10 @@ export default function MessagesPage() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPinnedPanel, setShowPinnedPanel] = useState(false);
   const [showMemberPanel, setShowMemberPanel] = useState(false);
-  const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>("members");
+  const [requestedRightPanelTab, setRightPanelTab] = useState<RightPanelTab>("members");
+  const rightPanelTab = !SQUAD_DISCOVERY_ENABLED && requestedRightPanelTab === "squad"
+    ? "members"
+    : requestedRightPanelTab;
   const [serverViewMode, setServerViewMode] = useState<ServerViewMode>("home");
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showInviteComposer, setShowInviteComposer] = useState(false);
@@ -2815,6 +2826,7 @@ export default function MessagesPage() {
   }
 
   async function loadMatchmaking(silent = false) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!silent) setMatchmakingLoading(true);
     try {
       const data = await authenticatedFetchJson<{
@@ -2896,6 +2908,7 @@ export default function MessagesPage() {
   }
 
   async function autoInviteRandomPlayers(count: number) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!selectedRoomId) return;
     setMatchmakingBusy(`auto:${selectedRoomId}`);
     setError("");
@@ -2932,6 +2945,7 @@ export default function MessagesPage() {
   }
 
   async function joinParty(party: MatchmakingParty) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!party.id) return;
     if (party.joined) {
       setSelectedRoomId(party.id);
@@ -3001,6 +3015,7 @@ export default function MessagesPage() {
   }
 
   async function togglePartyDiscovery(open: boolean) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!selectedRoomId || !selectedRoom?.party_game) return;
     setMatchmakingBusy(`toggle:${selectedRoomId}`);
     setError("");
@@ -3079,6 +3094,7 @@ export default function MessagesPage() {
   }
 
   async function createGroup() {
+    const publishParty = SQUAD_DISCOVERY_ENABLED && createAsParty;
     setCreatingGroup(true);
     setError("");
     setNotice("");
@@ -3092,13 +3108,13 @@ export default function MessagesPage() {
           title: groupTitle,
           description: groupDescription.startsWith("@") ? "" : groupDescription,
           memberIds: selectedMemberIds,
-          openParty: createAsParty,
-          game: createAsParty ? partyGame : undefined,
-          mode: createAsParty ? partyMode : undefined,
-          rank: createAsParty ? partyRank : undefined,
-          platform: createAsParty ? partyPlatform : undefined,
-          region: createAsParty ? partyRegion : undefined,
-          partySize: createAsParty ? partySize : undefined,
+          openParty: publishParty,
+          game: publishParty ? partyGame : undefined,
+          mode: publishParty ? partyMode : undefined,
+          rank: publishParty ? partyRank : undefined,
+          platform: publishParty ? partyPlatform : undefined,
+          region: publishParty ? partyRegion : undefined,
+          partySize: publishParty ? partySize : undefined,
         }),
       });
       const roomId = String(data.room?.id || "");
@@ -3108,8 +3124,8 @@ export default function MessagesPage() {
       setShowCreateGroup(false);
       setNotice(
         data.invitationCount
-          ? `${createAsParty ? "Party" : "Server"} created. ${data.invitationCount} player invitation${data.invitationCount === 1 ? "" : "s"} waiting for acceptance.`
-          : createAsParty
+          ? `${publishParty ? "Party" : "Server"} created. ${data.invitationCount} player invitation${data.invitationCount === 1 ? "" : "s"} waiting for acceptance.`
+          : publishParty
             ? "Party published to Squad Finder."
             : "Server created.",
       );
@@ -3397,7 +3413,7 @@ export default function MessagesPage() {
   }, [profile?.id]);
 
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!SQUAD_DISCOVERY_ENABLED || !profile?.id) return;
     void loadMatchmaking();
     const timer = window.setInterval(() => void loadMatchmaking(true), 30000);
     return () => window.clearInterval(timer);
@@ -3636,6 +3652,7 @@ export default function MessagesPage() {
   }
 
   async function openCommunityOverlay(view: Exclude<CommunityOverlay, null>) {
+    if (view === "discover" && !SQUAD_DISCOVERY_ENABLED) return;
     setCommunityOverlay(view);
     setShowPlayMenu(false);
     setShowCreateMenu(false);
@@ -3947,6 +3964,7 @@ export default function MessagesPage() {
   }
 
   function openSquadCreator() {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     setCreateAsParty(true);
     setShowCreateGroup(false);
     setShowSquadFinder(true);
@@ -3956,6 +3974,7 @@ export default function MessagesPage() {
   }
 
   function openCommandSquadFinder() {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     setServerViewMode("chat");
     setRightPanelTab("squad");
     setShowMemberPanel(true);
@@ -4483,7 +4502,7 @@ export default function MessagesPage() {
           <button
             type="button"
             onClick={() => {
-                if (!requireLogin("Masuk untuk membuat komunitas atau tim.")) return;
+                if (!requireLogin("Masuk untuk membuat komunitas.")) return;
               setShowCreateMenu((current) => !current);
               setShowPlayMenu(false);
               setShowFriendsMenu(false);
@@ -4509,7 +4528,7 @@ export default function MessagesPage() {
               >
                 <FaServer /> Buat komunitas
               </button>
-              <button
+              {SQUAD_DISCOVERY_ENABLED ? (<button
                 type="button"
                 onClick={() => {
                   setCreateAsParty(true);
@@ -4519,7 +4538,7 @@ export default function MessagesPage() {
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-yellow-400/10 hover:text-yellow-200"
               >
                 <FaCrosshairs /> Buat tim
-              </button>
+              </button>) : null}
               <button
                 type="button"
                 onClick={() => {
@@ -4772,7 +4791,7 @@ export default function MessagesPage() {
         </section>
       ) : null}
 
-      {communityOverlay ? (
+      {communityOverlay && (communityOverlay !== "discover" || SQUAD_DISCOVERY_ENABLED) ? (
         <div
           className="fixed inset-0 z-[80] flex items-center justify-center bg-[#01050d]/78 p-5 backdrop-blur-md"
           role="dialog"
@@ -5357,7 +5376,7 @@ export default function MessagesPage() {
                 <button
                   onClick={() => setShowCreateGroup((current) => !current)}
                   className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/35 text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
-                  title="Buat komunitas atau tim"
+                  title={SQUAD_DISCOVERY_ENABLED ? "Buat komunitas atau tim" : "Buat komunitas"}
                 >
                   {showCreateGroup ? <FaTimes /> : <FaPlus />}
                 </button>
@@ -5567,7 +5586,7 @@ export default function MessagesPage() {
                     <FaTimes />
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-[#030914] p-1">
+                {SQUAD_DISCOVERY_ENABLED ? (<div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-[#030914] p-1">
                   <button
                     type="button"
                     onClick={() => setCreateAsParty(false)}
@@ -5584,7 +5603,7 @@ export default function MessagesPage() {
                     <FaCrosshairs className="mr-2 inline" />
                     Squad Finder
                   </button>
-                </div>
+                </div>) : null}
                 <p className="mt-3 text-xs text-gray-400">
                   All users can create a server. The server creator becomes the
                   Creator and can appoint Leaders.
@@ -6022,8 +6041,7 @@ export default function MessagesPage() {
                   <p className={styles.emptyConversationEyebrow}>ComePlayers Messenger</p>
                   <h2>Select a conversation</h2>
                   <p className={styles.emptyConversationCopy}>
-                    Chat with your squad, organize a server, or keep marketplace
-                    discussions protected in one place.
+                    Pilih komunitas atau percakapan untuk mulai mengobrol.
                   </p>
                   <div className={styles.emptyConversationActions}>
                     <button
@@ -6035,7 +6053,7 @@ export default function MessagesPage() {
                     >
                       <FaPlus /> Buat komunitas
                     </button>
-                    <button
+                    {SQUAD_DISCOVERY_ENABLED ? (<button
                       type="button"
                       onClick={() => {
                         setCreateAsParty(true);
@@ -6043,7 +6061,7 @@ export default function MessagesPage() {
                       }}
                     >
                       <FaCrosshairs /> Publish squad
-                    </button>
+                    </button>) : null}
                     <Link href="/marketplace">
                       <FaShoppingCart /> Toko
                     </Link>
@@ -6051,12 +6069,12 @@ export default function MessagesPage() {
                   <div className={styles.emptyConversationTrust}>
                     <span><FaShieldAlt /> Protected chats</span>
                     <span><FaUsers /> Server communities</span>
-                    <span><FaGamepad /> Squad ready</span>
+                    <span><FaVolumeUp /> Ruang suara</span>
                   </div>
                 </div>
               </div>
             ) : selectedIsGroup && serverViewMode === "home" ? (
-              <div className={styles.commandCenter}>
+              <div className={`${styles.commandCenter} ${!SQUAD_DISCOVERY_ENABLED ? styles.communityHomeFocused : ""}`}>
                 <section className={styles.commandHero}>
                   <div className={styles.commandHeroBackdrop} />
                   <div className={styles.commandHeroContent}>
@@ -6073,7 +6091,7 @@ export default function MessagesPage() {
                         </h1>
                         <p className="mt-1 line-clamp-2 max-w-2xl text-sm text-slate-300">
                           {selectedServer?.description || selectedRoom.description ||
-                            "Plan sessions, find a squad, join voice, watch live gameplay, and keep up with your server."}
+                            "Mengobrol, bergabung ke ruang suara, dan mengikuti kegiatan komunitas bersama teman-teman."}
                         </p>
                       </div>
                     </div>
@@ -6200,7 +6218,7 @@ export default function MessagesPage() {
 
                 </div>
 
-                <section className={`${styles.commandCard} ${styles.commandSquadCard} ${styles.commandSquadSidebar}`}>
+                {SQUAD_DISCOVERY_ENABLED ? (<section className={`${styles.commandCard} ${styles.commandSquadCard} ${styles.commandSquadSidebar}`}>
                   <div className={styles.commandSquadHero}>
                     <div className={styles.commandSquadHeading}>
                       <span className={styles.commandSquadEyebrow}>
@@ -6289,7 +6307,7 @@ export default function MessagesPage() {
                       <p className={styles.commandEmpty}>No open squads are available.</p>
                     )}
                   </div>
-                </section>
+                </section>) : null}
               </div>
             ) : (
               <>
@@ -6438,7 +6456,7 @@ export default function MessagesPage() {
                                 <FaUserPlus /> Undang anggota
                               </button>
                             ) : null}
-                            {selectedRoom.party_game &&
+                            {SQUAD_DISCOVERY_ENABLED && selectedRoom.party_game &&
                             canManageSelectedGroupMembers ? (
                               <button
                                 type="button"
@@ -6489,7 +6507,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
                   </div>
-                  {selectedIsGroup && selectedRoom.party_game ? (
+                  {SQUAD_DISCOVERY_ENABLED && selectedIsGroup && selectedRoom.party_game ? (
                     <div
                       className={`${styles.channelTagRow} mt-3 flex flex-wrap gap-2 text-[10px] font-bold text-gray-400`}
                     >
@@ -7174,10 +7192,10 @@ export default function MessagesPage() {
                   {selectedIsGroup && showMemberPanel && wideMessagesLayout ? (
                     <aside
                       className={`${styles.rightRail} ${styles.rightPanelTabbed} hidden min-h-0 xl:grid`}
-                      aria-label="Anggota, tim, dan kegiatan komunitas"
+                      aria-label="Anggota dan kegiatan komunitas"
                     >
                       <div className={styles.rightPanelTabs}>
-                        {(["members", "squad", "events"] as RightPanelTab[]).map(
+                        {COMMUNITY_PANEL_TABS.map(
                           (tab) => (
                             <button
                               key={tab}
@@ -7268,7 +7286,7 @@ export default function MessagesPage() {
                           </>
                         ) : null}
 
-                        {rightPanelTab === "squad" ? (
+                        {SQUAD_DISCOVERY_ENABLED && rightPanelTab === "squad" ? (
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
@@ -7436,7 +7454,7 @@ export default function MessagesPage() {
                         ) : null}
                       </section>
 
-                      {showSquadFinder ? (
+                      {SQUAD_DISCOVERY_ENABLED && showSquadFinder ? (
                         <section
                           className={`${styles.finderOverlay} border border-cyan-400/30 bg-[#061421]/98 p-4 shadow-2xl`}
                         >
@@ -7571,7 +7589,7 @@ export default function MessagesPage() {
                         </form>
                       ) : null}
 
-                      {canManageSelectedGroupMembers &&
+                      {SQUAD_DISCOVERY_ENABLED && canManageSelectedGroupMembers &&
                       selectedRoom.party_game ? (
                         <div className="shrink-0 rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.05] p-3 shadow-[inset_0_0_24px_rgba(250,204,21,0.03)]">
                           <div className="flex items-start gap-3">
@@ -7796,7 +7814,7 @@ export default function MessagesPage() {
                         </div>
                       </div>
 
-                      <div className="shrink-0 rounded-2xl border border-cyan-400/20 bg-[#071827]/76 p-4 shadow-[inset_0_0_30px_rgba(6,182,212,0.05)]">
+                      {SQUAD_DISCOVERY_ENABLED ? (<div className="shrink-0 rounded-2xl border border-cyan-400/20 bg-[#071827]/76 p-4 shadow-[inset_0_0_30px_rgba(6,182,212,0.05)]">
                         <div className="flex items-center justify-between gap-2 px-1">
                           <div>
                             <p className="text-[11px] font-black uppercase tracking-[0.14em] text-gray-400">
@@ -7816,7 +7834,7 @@ export default function MessagesPage() {
                             {showSquadFinder ? "Hide" : "View"}
                           </button>
                         </div>
-                        {showSquadFinder ? (
+                        {SQUAD_DISCOVERY_ENABLED && showSquadFinder ? (
                           <div className="mt-3 space-y-2">
                             {matchmakingLoading ? (
                               <div className="rounded-xl border border-white/10 p-3 text-xs text-gray-500">
@@ -7892,7 +7910,7 @@ export default function MessagesPage() {
                             )}
                           </div>
                         ) : null}
-                      </div>
+                      </div>) : null}
                     </aside>
                   ) : null}
                 </div>
