@@ -75,7 +75,9 @@ const errors = [];
 page.on("pageerror", error => errors.push(error.message));
 try {
   await page.goto(url);
-  await page.getByRole("button", { name: "Pengaturan ruang general", exact: true }).waitFor();
+  await page.locator("[data-community-channel]").first().waitFor();
+  assert.equal(await page.getByRole("button", { name: "Pengaturan ruang general", exact: true }).count(), 0);
+  assert.equal(await page.getByRole("button", { name: /^Ruang chat/ }).count(), 1);
   await page.screenshot({ path: path.join(output, "desktop.png"), fullPage: true });
   await page.getByRole("searchbox", { name: "Cari ruang obrolan" }).fill("market");
   await page.getByRole("button", { name: "marketplace" }).waitFor();
@@ -83,10 +85,12 @@ try {
   await page.getByRole("searchbox").fill("");
   await page.getByRole("button", { name: "Belum dibaca" }).click();
   assert.equal(await page.locator("[data-community-channel]").count(), 1);
-  await page.getByRole("button", { name: "Semua", exact: true }).click();
+  await page.getByRole("button", { name: "Belum dibaca" }).click();
   await page.getByRole("button", { name: /^VOICE LOBBIES/ }).click();
   assert.equal(await page.locator("[data-voice-channel]").isVisible(), false);
   await page.getByRole("button", { name: /^VOICE LOBBIES/ }).click();
+  await page.getByRole("button", { name: "Pilihan daftar ruang" }).click();
+  await page.getByLabel("Tampilkan pengaturan ruang", { exact: true }).check();
   await page.getByRole("button", { name: "Pengaturan ruang general" }).click();
   await page.getByRole("dialog", { name: "Pengaturan ruang" }).waitFor();
   await page.getByLabel("Nama ruang").fill("squad-chat");
@@ -96,6 +100,7 @@ try {
   await page.getByRole("button", { name: "Pengaturan ruang squad-chat" }).waitFor();
   assert.equal(writes.at(-1).method, "PATCH");
   assert.equal(writes.at(-1).body.isReadOnly, true);
+  await page.getByRole("button", { name: "Pilihan daftar ruang" }).click();
   await page.getByRole("button", { name: "Tambah ruang", exact: true }).click();
   await page.getByLabel("Nama ruang").fill("game-night");
   await page.getByRole("combobox", { name: "Jenis ruang", exact: true }).selectOption("voice");
@@ -103,7 +108,7 @@ try {
   await page.getByRole("button", { name: "Tambahkan", exact: true }).click();
   await page.getByRole("button", { name: "Pengaturan ruang game-night" }).waitFor();
   assert.equal(writes.at(-1).body.type, "voice");
-  await page.getByText("Atur daftar ruang", { exact: true }).click();
+  await page.getByRole("button", { name: "Pilihan daftar ruang" }).click();
   await page.getByRole("button", { name: "Tambah kategori", exact: true }).click();
   await page.getByLabel("Nama kategori").fill("EVENTS");
   await page.getByRole("button", { name: "Tambahkan", exact: true }).click();
@@ -117,11 +122,13 @@ try {
   await page.evaluate(() => { window.__online = true; window.dispatchEvent(new Event("online")); });
   await page.getByRole("button", { name: "Pengaturan ruang back-online" }).waitFor();
   fail = true;
+  await page.getByRole("button", { name: "Pilihan daftar ruang" }).click();
   await page.getByRole("button", { name: "Muat ulang ruang obrolan" }).click();
   await page.getByRole("alert").waitFor();
   fail = false;
   await page.getByRole("button", { name: "Muat ulang ruang obrolan" }).click();
   await page.getByRole("alert").waitFor({ state: "hidden" });
+  await page.getByRole("button", { name: "Pilihan daftar ruang" }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: path.join(output, "mobile.png"), fullPage: true });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
@@ -135,7 +142,9 @@ try {
   writes = [];
   await page.reload();
   await page.getByRole("searchbox").waitFor();
+  await page.getByRole("button", { name: "Pilihan daftar ruang" }).click();
   assert.equal(await page.getByRole("button", { name: "Tambah ruang", exact: true }).count(), 0);
+  assert.equal(await page.getByLabel("Tampilkan pengaturan ruang", { exact: true }).count(), 0);
   assert.equal(await page.getByRole("button", { name: "Pengaturan ruang general" }).count(), 0);
   assert.equal(writes.length, 0);
   assert.deepEqual(errors, []);
