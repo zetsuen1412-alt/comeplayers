@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createCsv } from "@/lib/csv";
 import { createSimpleXlsx } from "@/lib/simpleXlsx";
-import { parseDeliveryEtaMinutes } from "@/lib/bulkListingSpreadsheet";
+import { parseDeliveryEtaMinutes, resolveBulkListingStatus } from "@/lib/bulkListingSpreadsheet";
 import {
   convertCurrencyToUsd,
   fallbackExchangeRateMap,
@@ -1038,6 +1038,7 @@ export async function POST(request: Request) {
       title: string;
       ok: boolean;
       published?: boolean;
+      pendingReview?: boolean;
       error?: string;
     }> = [];
 
@@ -1051,6 +1052,11 @@ export async function POST(request: Request) {
         );
 
         if (row.action === "create") {
+          const nextStatus = resolveBulkListingStatus(
+            preparedRow.policy.decision,
+            row.status,
+            row.stock
+          );
           const { data, error } = await supabaseAdmin
             .from("products")
             .insert({
@@ -1060,10 +1066,7 @@ export async function POST(request: Request) {
               seller_price_currency: row.priceCurrency,
               seller_price_amount: row.enteredPrice,
               stock: row.stock,
-              status:
-                preparedRow.policy.decision === "allow" && row.stock > 0
-                  ? row.status
-                  : "inactive",
+              status: nextStatus,
               policy_status:
                 preparedRow.policy.decision === "allow"
                   ? "allowed"
@@ -1112,7 +1115,8 @@ export async function POST(request: Request) {
             productId: Number(data.id),
             title: row.title,
             ok: true,
-            published: preparedRow.policy.decision === "allow",
+            published: nextStatus === "active",
+            pendingReview: preparedRow.policy.decision === "review",
           });
           continue;
         }
@@ -1125,6 +1129,11 @@ export async function POST(request: Request) {
         const effectiveStock = existing.has_variants
           ? Number(existing.stock || 0)
           : row.stock;
+        const nextStatus = resolveBulkListingStatus(
+          preparedRow.policy.decision,
+          row.status,
+          effectiveStock
+        );
 
         const { data: updatedProduct, error } = await supabaseAdmin
           .from("products")
@@ -1139,10 +1148,7 @@ export async function POST(request: Request) {
                 }
               : {}),
             stock: effectiveStock,
-            status:
-              preparedRow.policy.decision === "allow" && effectiveStock > 0
-                ? row.status
-                : "inactive",
+            status: nextStatus,
             policy_status:
               preparedRow.policy.decision === "allow"
                 ? "allowed"
@@ -1201,7 +1207,8 @@ export async function POST(request: Request) {
           productId: row.productId,
           title: row.title,
           ok: true,
-          published: preparedRow.policy.decision === "allow",
+          published: nextStatus === "active",
+          pendingReview: preparedRow.policy.decision === "review",
         });
       } catch (rowError) {
         results.push({
@@ -1220,7 +1227,7 @@ export async function POST(request: Request) {
     const publishedCreates = results.filter(
       (row) => row.ok && row.action === "create" && row.published
     ).length;
-    const pendingReview = results.filter((row) => row.ok && !row.published).length;
+    const pendingReview = results.filter((row) => row.ok && row.pendingReview).length;
     const failed = results.filter((row) => !row.ok).length;
 
     if (historyId) {

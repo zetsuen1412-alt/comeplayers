@@ -4,6 +4,7 @@ import {
   BULK_LISTING_MAX_ROWS,
   normalizeBulkListingHeader,
   parseDeliveryEtaMinutes,
+  resolveBulkListingStatus,
   tableRowsToBulkListingRecords,
 } from "../lib/bulkListingSpreadsheet";
 
@@ -31,6 +32,13 @@ test("delivery ETA accepts minutes and friendly time labels", () => {
   assert.equal(parseDeliveryEtaMinutes("1 hour"), 60);
   assert.equal(parseDeliveryEtaMinutes("3 days"), 4320);
   assert.equal(Number.isNaN(parseDeliveryEtaMinutes("tomorrow")), true);
+});
+
+test("inactive and unavailable imports are not reported as published", () => {
+  assert.equal(resolveBulkListingStatus("allow", "active", 1), "active");
+  assert.equal(resolveBulkListingStatus("allow", "inactive", 1), "inactive");
+  assert.equal(resolveBulkListingStatus("allow", "active", 0), "inactive");
+  assert.equal(resolveBulkListingStatus("review", "active", 1), "inactive");
 });
 
 test("spreadsheet rows become bulk listing records and preserve source row numbers", () => {

@@ -50,5 +50,5 @@ test("admin and payroll have Indonesian language roots while the transparent log
 test("admin navigation retains every existing route and has localized searchable labels", () => {
   const code = read("components/admin/adminNavigation.ts");
   for (const title of ["Ringkasan", "Pesanan", "Pelanggan & pengguna", "Rekonsiliasi", "Penggajian & operasional", "Promo kilat", "Kepercayaan & risiko"]) assert.ok(code.includes(`label: "${title}"`), title);
-  assert.equal((code.match(/href: "/g) || []).length, 26);
+  assert.equal((code.match(/href: "/g) || []).length, 27);
 });
