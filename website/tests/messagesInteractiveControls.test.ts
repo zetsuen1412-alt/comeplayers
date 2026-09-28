@@ -30,7 +30,7 @@ test("livestream controls expose real watcher state and survive layout changes",
     page,
     /if \(!streamHostActive && !streamViewerActive\)[\s\S]{0,180}setWideMessagesLayout/,
   );
-  assert.match(page, /streamViewerActive[\s\S]{0,100}"Leave Live"/);
+  assert.match(page, /streamViewerActive[\s\S]{0,100}"Keluar siaran"/);
 });
 
 test("voice output and channel polling keep their advertised state", () => {

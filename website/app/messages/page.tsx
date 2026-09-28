@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import MessagesLoadingOperatorV15 from "@/components/messages/MessagesLoadingOperatorV15";
 import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 
 
@@ -416,7 +415,7 @@ const STREAM_ICE_SERVERS = createStreamIceServers({
   turnCredential: process.env.NEXT_PUBLIC_WEBRTC_TURN_CREDENTIAL,
 });
 
-const REACTION_EMOJIS = ["ðŸ‘", "â¤ï¸", "ðŸ˜‚", "ðŸ”¥", "ðŸŽ®", "âœ…"] as const;
+const REACTION_EMOJIS = ["👍", "❤️", "😂", "🔥", "🎮", "✅"] as const;
 
 const CLEAN_REACTION_EMOJIS = [
   "\u{1F44D}",
@@ -1624,7 +1623,7 @@ function GroupLiveStreamPanel({
           disabled={busy || (!hosting && !hostIsMe && !watching)}
           className="sr-only"
         >
-          Stop Live
+          Akhiri siaran
         </button>
         <button
           type="button"
@@ -1633,7 +1632,7 @@ function GroupLiveStreamPanel({
           disabled={busy || !streamReady || !live || hosting || hostIsMe}
           className="sr-only"
         >
-          Watch Live
+          Tonton siaran
         </button>
 
         {stageVisible ? (
@@ -1767,7 +1766,7 @@ function GroupLiveStreamPanel({
               disabled={busy}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-red-400/35 bg-red-500/15 text-sm font-black text-red-100 transition hover:bg-red-500 hover:text-white disabled:opacity-50"
             >
-              <FaStop /> Stop Live
+              <FaStop /> Akhiri siaran
             </button>
           ) : live ? (
             watching ? (
@@ -1806,7 +1805,7 @@ function GroupLiveStreamPanel({
                 }`}
                 title="Watch live. Right-click or Ctrl-click to open in a new tab."
               >
-                <FaVideo /> Watch Live
+                <FaVideo /> Tonton siaran
               </a>
             )
           ) : (
@@ -1817,7 +1816,7 @@ function GroupLiveStreamPanel({
               disabled={busy || !streamReady}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/15 text-sm font-black text-cyan-100 shadow-[0_0_26px_rgba(6,182,212,0.22)] transition hover:bg-cyan-400 hover:text-black disabled:opacity-50"
             >
-              <FaDesktop /> {busy ? "Starting..." : "Go Live"}
+              <FaDesktop /> {busy ? "Starting..." : "Mulai siaran"}
             </button>
           )}
         </div>
@@ -1981,7 +1980,7 @@ function GroupLiveStreamPanel({
                 disabled={busy || !streamReady}
                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-cyan-400 px-4 text-sm font-black text-black hover:bg-cyan-300 disabled:opacity-50"
               >
-                <FaDesktop /> {busy ? "Starting..." : "Go Live"}
+                <FaDesktop /> {busy ? "Starting..." : "Mulai siaran"}
               </button>
             )}
           </div>
@@ -2082,9 +2081,6 @@ export default function MessagesPage() {
     Record<string, { name: string; at: number }>
   >({});
   const [loading, setLoading] = useState(true);
-  const [loaderDataReady, setLoaderDataReady] = useState(false);
-  const [loaderCanExit, setLoaderCanExit] = useState(false);
-  const loaderStartedAtRef = useRef(Date.now());
   const [viewerMode, setViewerMode] = useState<"guest" | "authenticated">(
     "guest",
   );
@@ -2092,6 +2088,7 @@ export default function MessagesPage() {
   const [guestServerPreview, setGuestServerPreview] =
     useState<GuestServerPreview | null>(null);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [conversationLoadError, setConversationLoadError] = useState("");
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -2128,7 +2125,7 @@ export default function MessagesPage() {
   const [invitationBusy, setInvitationBusy] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPinnedPanel, setShowPinnedPanel] = useState(false);
-  const [showMemberPanel, setShowMemberPanel] = useState(true);
+  const [showMemberPanel, setShowMemberPanel] = useState(false);
   const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>("members");
   const [serverViewMode, setServerViewMode] = useState<ServerViewMode>("home");
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -2648,6 +2645,8 @@ export default function MessagesPage() {
       : "",
   ) {
     if (!roomId) return;
+    // Background updates must not replace a pending load and swallow its retry state.
+    if (silent && conversationRequestRef.current && !conversationRequestRef.current.signal.aborted) return;
     conversationRequestRef.current?.abort();
     const controller = new AbortController();
     conversationRequestRef.current = controller;
@@ -2655,9 +2654,15 @@ export default function MessagesPage() {
     if (knownRoom && !isGroupRoom(knownRoom)) {
       setConversation({ room: knownRoom, messages: [] });
       setLoadingMessages(false);
+      conversationRequestRef.current = null;
       return;
     }
-    if (!silent) setLoadingMessages(true);
+    if (!silent) {
+      setLoadingMessages(true);
+      setConversationLoadError("");
+      setError("");
+    }
+    let conversationReady = false;
     try {
       const channelQuery = channelId
         ? `&channel=${encodeURIComponent(channelId)}`
@@ -2668,6 +2673,10 @@ export default function MessagesPage() {
       );
       if (controller.signal.aborted) return;
       setConversation(data);
+      conversationReady = true;
+      setConversationLoadError("");
+      // The conversation is ready; marking it read must not keep messages hidden.
+      setLoadingMessages(false);
       await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
         method: "POST",
         body: JSON.stringify({
@@ -2686,7 +2695,8 @@ export default function MessagesPage() {
       if (controller.signal.aborted) return;
       const status = (loadError as { status?: number })?.status;
       if (status === 401 || status === 403 || status === 404) setConversation(null);
-      if (!silent) {
+      if (!silent && !conversationReady) {
+        setConversationLoadError("Pesan belum dapat dimuat. Periksa koneksi lalu coba lagi.");
         setError(
           loadError instanceof Error
             ? loadError.message
@@ -2695,6 +2705,7 @@ export default function MessagesPage() {
       }
     } finally {
       if (!controller.signal.aborted) setLoadingMessages(false);
+      if (conversationRequestRef.current === controller) conversationRequestRef.current = null;
     }
   }
 
@@ -3999,16 +4010,16 @@ export default function MessagesPage() {
       liveAction.click();
       return;
     }
-    setNotice("The Server Live panel is not ready yet. Wait a moment and try again.");
+    setNotice("Siaran sedang disiapkan. Tunggu sebentar lalu coba lagi.");
   }
 
   function openLiveLobbyPicker() {
     if (!selectedIsGroup || !selectedRoomId) {
-      setError("Choose a server before starting a live session.");
+      setError("Pilih komunitas sebelum memulai siaran.");
       return;
     }
     if (!serverVoiceChannels.length) {
-      setError("This server does not have a Voice Lobby yet.");
+      setError("Komunitas ini belum memiliki ruang suara.");
       return;
     }
 
@@ -4071,7 +4082,7 @@ export default function MessagesPage() {
       if (attempts >= maxAttempts) {
         setAutoStartLiveAfterLobbyPick(false);
         setNotice(
-          "Voice Lobby is selected. Press Go Live again if the stream has not started.",
+          "Voice Lobby is selected. Press Mulai siaran again if the stream has not started.",
         );
         return;
       }
@@ -4252,57 +4263,14 @@ export default function MessagesPage() {
     }
   }
 
-  useEffect(() => {
-    if (loading) return;
-
-    let cancelled = false;
-    let readyTimer: number | null = null;
-    let exitTimer: number | null = null;
-
-    async function finishMessagesBoot() {
-      const minimumVisibleMs = 900;
-      const elapsed = Date.now() - loaderStartedAtRef.current;
-      const remaining = Math.max(0, minimumVisibleMs - elapsed);
-
-      if (remaining > 0) {
-        await new Promise<void>((resolve) => {
-          readyTimer = window.setTimeout(resolve, remaining);
-        });
-      }
-
-      try {
-        await document.fonts?.ready;
-      } catch {
-        // Font readiness is optional; data readiness remains the source of truth.
-      }
-
-      await new Promise<void>((resolve) =>
-        window.requestAnimationFrame(() =>
-          window.requestAnimationFrame(() => resolve()),
-        ),
-      );
-
-      if (cancelled) return;
-      setLoaderDataReady(true);
-
-      exitTimer = window.setTimeout(() => {
-        if (!cancelled) setLoaderCanExit(true);
-      }, 520);
-    }
-
-    void finishMessagesBoot();
-
-    return () => {
-      cancelled = true;
-      if (readyTimer !== null) window.clearTimeout(readyTimer);
-      if (exitTimer !== null) window.clearTimeout(exitTimer);
-    };
-  }, [loading]);
-
-
-
-  if (loading || !loaderCanExit) {
-    return <MessagesLoadingOperatorV15 ready={loaderDataReady} />;
+  // Open the workspace as soon as its data is ready. Fonts and decorative
+  // loading animations must not keep an authenticated user outside their chat.
+  if (loading) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-[#10161d] px-6 text-base text-slate-200" role="status" aria-live="polite">
+        Memuat komunitas…
+      </main>
+    );
   }
 
   if (String(viewerMode) === "guest") {
@@ -4341,7 +4309,7 @@ export default function MessagesPage() {
   return (
     <main
       data-messages-page="true"
-      className={`${styles.page} ${styles.messageTypography} relative overflow-hidden bg-[#02060d] text-white`}
+      className={`${styles.page} ${styles.messageTypography} ${styles.simpleCommunity} relative overflow-hidden bg-[#02060d] text-white`}
     >
       {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
         const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId);
@@ -4357,9 +4325,6 @@ export default function MessagesPage() {
           display: none !important;
         }
       `}</style>
-      <div className="pointer-events-none fixed inset-0 bg-[#02060d]" />
-      <div className="pointer-events-none fixed inset-0 bg-[url('/hero-bg.webp')] bg-cover bg-center opacity-45" />
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_58%_28%,rgba(6,182,212,0.22),transparent_30%),radial-gradient(circle_at_18%_80%,rgba(250,204,21,0.08),transparent_28%),linear-gradient(180deg,rgba(1,7,18,0.88)_0%,rgba(1,10,24,0.66)_42%,rgba(1,7,14,0.92)_100%)]" />
 
       <ArcadeWindow
         key={arcadeWindowKey}
@@ -4374,8 +4339,8 @@ export default function MessagesPage() {
         <Link
           href="/"
           className={`${styles.headerBrandLink} flex shrink-0 cursor-pointer items-center rounded-lg outline-none transition focus-visible:ring-2 focus-visible:ring-cyan-300`}
-          title="Go to ComePlayers homepage"
-          aria-label="Go to ComePlayers homepage"
+          title="Beranda ComePlayers"
+          aria-label="Beranda ComePlayers"
         >
           <span className={styles.headerLogoCrop}>
             <Image
@@ -4403,7 +4368,7 @@ export default function MessagesPage() {
               className="inline-flex items-center gap-2 transition hover:text-cyan-300"
               aria-expanded={showPlayMenu}
             >
-              Games
+              Game
               <FaChevronDown
                 className={`text-[10px] text-cyan-300 transition ${showPlayMenu ? "rotate-180" : ""}`}
               />
@@ -4429,7 +4394,7 @@ export default function MessagesPage() {
                     }}
                     className="inline-flex items-center gap-2 rounded-xl border border-yellow-400/25 bg-yellow-400/10 px-3 py-2 text-xs font-black text-yellow-200 transition hover:bg-yellow-400/20"
                   >
-                    View All <FaArrowRight className="text-[9px]" />
+                    Lihat semua <FaArrowRight className="text-[9px]" />
                   </button>
                 </div>
 
@@ -4502,14 +4467,14 @@ export default function MessagesPage() {
             ref={globalSearchRef}
             value={globalSearch}
             onChange={(event) => setGlobalSearch(event.target.value)}
-            aria-label="Search servers, games, and players"
-            placeholder="Search servers, games, players..."
+            aria-label="Cari komunitas, game, dan teman"
+            placeholder="Cari komunitas, game, teman…"
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-gray-500"
           />
           <button
             type="submit"
             className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-black text-gray-400 hover:border-cyan-400/30 hover:text-cyan-200"
-            title="Search"
+            title="Cari"
           >
             {"\u2318K"}
           </button>
@@ -4542,7 +4507,7 @@ export default function MessagesPage() {
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
               >
-                <FaServer /> Create Server
+                <FaServer /> Buat komunitas
               </button>
               <button
                 type="button"
@@ -4748,7 +4713,7 @@ export default function MessagesPage() {
                         {displayName(invite.invitee)}
                       </p>
                       <p className="truncate text-[10px] text-gray-500">
-                        {invite.room?.title || "Squad"} Â· Pending
+                        {invite.room?.title || "Squad"} · Pending
                       </p>
                     </div>
                     <span className="rounded-full border border-yellow-400/20 px-2 py-1 text-[9px] font-black text-yellow-300">
@@ -4762,7 +4727,7 @@ export default function MessagesPage() {
               href="/notifications"
               className="flex items-center justify-center gap-2 rounded-xl border border-cyan-400/25 px-3 py-2.5 text-xs font-black text-cyan-200 hover:bg-cyan-400/10"
             >
-              View all notifications <FaArrowRight />
+              Lihat semua notifications <FaArrowRight />
             </Link>
           </div>
         </section>
@@ -4824,7 +4789,7 @@ export default function MessagesPage() {
                   {communityOverlay === "discover"
                     ? "Discover Players & Squads"
                     : communityOverlay === "members"
-                      ? "Server Members"
+                      ? "Anggota komunitas"
                       : communityOverlay === "rankings"
                         ? "Server Rankings"
                         : "Tournaments & Events"}
@@ -4877,7 +4842,7 @@ export default function MessagesPage() {
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 {party.party_game || "Game not specified"}
-                                {party.party_mode ? ` Â· ${party.party_mode}` : ""}
+                                {party.party_mode ? ` · ${party.party_mode}` : ""}
                               </p>
                             </div>
                             <span className="text-xs font-black text-cyan-300">
@@ -4945,7 +4910,7 @@ export default function MessagesPage() {
                             {displayName(member.profile)}
                           </p>
                           <p className="text-[10px] font-bold text-gray-500">
-                            {memberRoleLabel(member.member_role)} Â·{" "}
+                            {memberRoleLabel(member.member_role)} ·{" "}
                             {redisEnabled
                               ? onlineUserIds.has(member.user_id)
                                 ? "Online"
@@ -5030,7 +4995,7 @@ export default function MessagesPage() {
                             {displayName(entry.member.profile)}
                           </p>
                           <p className="mt-0.5 text-[10px] text-gray-500">
-                            {memberRoleLabel(entry.member.member_role)} Â·{" "}
+                            {memberRoleLabel(entry.member.member_role)} ·{" "}
                             {entry.online
                               ? "Online"
                               : redisEnabled
@@ -5104,7 +5069,7 @@ export default function MessagesPage() {
                   href="/announcements"
                   className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/30 px-4 py-2 text-xs font-black text-cyan-200 hover:bg-cyan-400/10"
                 >
-                  View all announcements <FaArrowRight />
+                  Lihat semua announcements <FaArrowRight />
                 </Link>
               </div>
             ) : null}
@@ -5115,6 +5080,7 @@ export default function MessagesPage() {
       <section className="relative z-10 min-w-0">
         <section
           data-mobile-pane={selectedRoom && !mobileInboxOpen ? "chat" : "list"}
+          data-live-active={streamIsActive || undefined}
           className={`${styles.workspace} ${selectedIsGroup && (showMemberPanel || serverViewMode === "home") ? styles.workspaceWithPanel : styles.workspaceNoPanel} box-border grid h-[calc(100vh-92px)] grid-cols-1 gap-4 overflow-hidden px-4 pb-28 lg:grid-cols-[330px_minmax(0,1fr)] lg:px-6`}
         >
           <aside className={`${styles.leftRail} min-h-0`}>
@@ -5177,7 +5143,7 @@ export default function MessagesPage() {
                   setShowCreateGroup(true);
                 }}
                 className={`${styles.serverRailButton} ${styles.serverRailAdd}`}
-                title="Create Server"
+                title="Buat komunitas"
               >
                 <FaPlus />
               </button>
@@ -5279,7 +5245,7 @@ export default function MessagesPage() {
                   }
                 >
                   <FaUserPlus />
-                  <span>Invite People</span>
+                  <span>Undang teman</span>
                 </button>
               ) : null}
 
@@ -5296,7 +5262,7 @@ export default function MessagesPage() {
                     }}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                   >
-                    <FaPlus /> Create Server
+                    <FaPlus /> Buat komunitas
                   </button>
                   {canManageServerIdentity ? (
                     <>
@@ -5306,7 +5272,7 @@ export default function MessagesPage() {
                         disabled={serverIdentityBusy}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-40"
                       >
-                        <FaCog /> Rename Server
+                        <FaCog /> Ubah nama komunitas
                       </button>
                       <button
                         type="button"
@@ -5314,7 +5280,7 @@ export default function MessagesPage() {
                         disabled={serverIdentityBusy}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-40"
                       >
-                        <FaCamera /> Change Server Icon
+                        <FaCamera /> Ubah foto komunitas
                       </button>
                     </>
                   ) : null}
@@ -5324,7 +5290,7 @@ export default function MessagesPage() {
                       onClick={() => void openServerInviteModal()}
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                     >
-                      <FaExternalLinkAlt /> Invite People
+                      <FaExternalLinkAlt /> Undang teman
                     </button>
                   ) : null}
                   <button
@@ -5332,13 +5298,13 @@ export default function MessagesPage() {
                     onClick={() => void openCommunityOverlay("members")}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                   >
-                    <FaUsers /> Server Members
+                    <FaUsers /> Anggota komunitas
                   </button>
                   <Link
                     href="/announcements"
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                   >
-                    <FaCalendarAlt /> Server Announcements
+                    <FaCalendarAlt /> Pengumuman komunitas
                   </Link>
                 </div>
               ) : null}
@@ -5359,7 +5325,7 @@ export default function MessagesPage() {
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 transition ${serverViewMode === "home" && communityOverlay === null ? "border-cyan-400/70 bg-cyan-400/15 text-cyan-200 shadow-[0_0_22px_rgba(6,182,212,0.2),inset_0_0_18px_rgba(6,182,212,0.08)]" : "border-transparent text-gray-400 hover:bg-white/5 hover:text-white"}`}
                 >
-                  <FaHome /> Server Home
+                  <FaHome /> Beranda komunitas
                 </button>
                 <button
                   type="button"
@@ -5374,7 +5340,7 @@ export default function MessagesPage() {
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 transition ${serverViewMode === "chat" && communityOverlay === null ? "border-cyan-400/70 bg-cyan-400/15 text-cyan-200 shadow-[0_0_22px_rgba(6,182,212,0.2),inset_0_0_18px_rgba(6,182,212,0.08)]" : "border-transparent text-gray-400 hover:bg-white/5 hover:text-white"}`}
                 >
-                  <FaComments /> Messages
+                  <FaComments /> Chat
                 </button>
               </div>
 
@@ -5384,14 +5350,14 @@ export default function MessagesPage() {
                   <input
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search chats or servers"
+                    placeholder="Cari percakapan atau komunitas"
                     className="h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-600"
                   />
                 </div>
                 <button
                   onClick={() => setShowCreateGroup((current) => !current)}
                   className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/35 text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
-                  title="Create server or squad"
+                  title="Buat komunitas atau tim"
                 >
                   {showCreateGroup ? <FaTimes /> : <FaPlus />}
                 </button>
@@ -5586,7 +5552,7 @@ export default function MessagesPage() {
                       id="create-server-title"
                       className="text-lg font-black text-white"
                     >
-                      {createAsParty ? "Publish Squad" : "Create Server"}
+                      {createAsParty ? "Publish Squad" : "Buat komunitas"}
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
                       Invitations require player acceptance.
@@ -5764,7 +5730,7 @@ export default function MessagesPage() {
                     ? "Creating..."
                     : createAsParty
                       ? `Publish Squad (${selectedMemberIds.length + 1}/${partySize})`
-                      : `Create Server (${selectedMemberIds.length + 1})`}
+                      : `Buat komunitas (${selectedMemberIds.length + 1})`}
                 </button>
                     </div>
                   </div>,
@@ -5772,12 +5738,12 @@ export default function MessagesPage() {
                 )
               : null}
 
-            <div
+            {!selectedIsGroup ? <div
               className={`${styles.leftSectionSummary} flex items-center justify-between border-b border-white/10 px-4 py-3`}
             >
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">
                 {selectedIsGroup
-                  ? "Text Channels"
+                  ? "Ruang komunitas"
                   : roomBuckets.find((bucket) => bucket.id === roomBucket)
                       ?.label || "Channels"}
               </p>
@@ -5786,10 +5752,10 @@ export default function MessagesPage() {
                   ? conversationMembers.length
                   : filteredRooms.length}
               </span>
-            </div>
+            </div> : null}
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
               {selectedIsGroup ? (
-                <div className="h-full min-h-0">
+                <div className={styles.channelSidebarArea}>
                   <CommunityChannelSidebar
                     key={`sidebar:${selectedRoomId}`}
                     roomId={selectedRoomId}
@@ -5849,21 +5815,10 @@ export default function MessagesPage() {
                     onError={setError}
                     voiceShortcutToken={voiceShortcutToken}
                   />
-                  <div
+                  <details
                     className={`${styles.otherChats} border-t border-white/10 pt-3`}
                   >
-                    <div className="mb-2 flex items-center justify-between px-1">
-                      <p className="text-[10px] font-black uppercase text-gray-500">
-                        Other Chats
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setRoomBucket("all")}
-                        className="text-[10px] font-black text-cyan-300 hover:text-cyan-200"
-                      >
-                        View
-                      </button>
-                    </div>
+                    <summary className="min-h-11 cursor-pointer px-2 py-3 text-sm font-semibold text-slate-300">Percakapan lainnya</summary>
                     {filteredRooms
                       .filter((room) => room.id !== selectedRoomId)
                       .slice(0, 4)
@@ -5905,7 +5860,7 @@ export default function MessagesPage() {
                                 ) : (
                                   <span>
                                     {group
-                                      ? `${room.member_count || 0} members`
+                                      ? `${room.member_count || 0} anggota`
                                       : "Direct"}
                                   </span>
                                 )}
@@ -5919,15 +5874,15 @@ export default function MessagesPage() {
                           </button>
                         );
                       })}
-                  </div>
+                  </details>
                 </div>
               ) : filteredRooms.length === 0 ? (
                 <div className={styles.emptyRoomList}>
                   <span className={styles.emptyRoomListIcon}>
                     <FaComments />
                   </span>
-                  <strong>No conversations yet</strong>
-                  <p>Create a gaming server or start a protected product chat.</p>
+                  <strong>Belum ada percakapan</strong>
+                  <p>Buat komunitas untuk mulai mengobrol bersama teman.</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -5935,10 +5890,10 @@ export default function MessagesPage() {
                       setShowCreateGroup(true);
                     }}
                   >
-                    <FaPlus /> Create server
+                    <FaPlus /> Buat komunitas
                   </button>
                   <Link href="/marketplace">
-                    <FaShoppingCart /> Browse marketplace
+                    <FaShoppingCart /> Buka toko
                   </Link>
                 </div>
               ) : (
@@ -6014,14 +5969,14 @@ export default function MessagesPage() {
                   )
                 }
                 className="flex w-full items-center gap-3 rounded-xl bg-black/20 p-2 text-left hover:bg-white/[0.06]"
-                title="Open account menu"
+                title="Buka menu akun"
               >
                 <ProfileAvatar profile={profile} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-black">
                     {displayName(profile)}
                   </p>
-                  <p className="text-[10px] text-emerald-300">â— Online</p>
+                  <p className="text-[10px] text-emerald-300">Akun saya</p>
                 </div>
                 <FaCog className="text-gray-500" />
               </button>
@@ -6036,7 +5991,7 @@ export default function MessagesPage() {
                 <button
                   type="button"
                   onClick={openMobileInbox}
-                  aria-label="Back to conversations"
+                  aria-label="Pilih ruang obrolan"
                 >
                   <FaArrowLeft />
                 </button>
@@ -6078,7 +6033,7 @@ export default function MessagesPage() {
                         setShowCreateGroup(true);
                       }}
                     >
-                      <FaPlus /> Create server
+                      <FaPlus /> Buat komunitas
                     </button>
                     <button
                       type="button"
@@ -6090,7 +6045,7 @@ export default function MessagesPage() {
                       <FaCrosshairs /> Publish squad
                     </button>
                     <Link href="/marketplace">
-                      <FaShoppingCart /> Marketplace
+                      <FaShoppingCart /> Toko
                     </Link>
                   </div>
                   <div className={styles.emptyConversationTrust}>
@@ -6136,12 +6091,12 @@ export default function MessagesPage() {
                         disabled={!canInviteToServer}
                         className={styles.commandSecondaryButton}
                       >
-                        <FaUserPlus /> Invite People
+                        <FaUserPlus /> Undang teman
                       </button>
                     </div>
                   </div>
                   <div className={styles.commandStats}>
-                    <div><strong>{conversationMembers.length}</strong><span>Members</span></div>
+                    <div><strong>{conversationMembers.length}</strong><span>Anggota</span></div>
                     <div><strong>{redisEnabled ? onlineConversationMembers.length : 0}</strong><span>Online</span></div>
                     <div><strong>{serverVoiceChannels.length}</strong><span>Voice Rooms</span></div>
                     <div><strong>{messagesToday}</strong><span>Messages Today</span></div>
@@ -6223,8 +6178,8 @@ export default function MessagesPage() {
 
                   <section className={`${styles.commandCard} ${styles.commandCardWide}`}>
                     <div className={styles.commandCardHeader}>
-                      <div><p>Upcoming Events</p><span>What is happening in the community</span></div>
-                      <button type="button" onClick={() => void openCommunityOverlay("events")}>View all</button>
+                      <div><p>Kegiatan mendatang</p><span>What is happening in the community</span></div>
+                      <button type="button" onClick={() => void openCommunityOverlay("events")}>Lihat semua</button>
                     </div>
                     <div className={styles.commandEventGrid}>
                       {announcements.slice(0, 3).map((announcement) => (
@@ -6251,7 +6206,7 @@ export default function MessagesPage() {
                       <span className={styles.commandSquadEyebrow}>
                         <FaCrosshairs /> Squad Discovery
                       </span>
-                      <h2>Find <span>Squad</span></h2>
+                      <h2>Find <span>Tim</span></h2>
                       <p>Team up. Queue faster. Play together.</p>
                     </div>
                   </div>
@@ -6310,7 +6265,7 @@ export default function MessagesPage() {
                               </strong>
                               <small className="block truncate">
                                 {party.member_count}/{party.party_size || 5} players
-                                {party.party_mode ? ` Â· ${party.party_mode}` : ""}
+                                {party.party_mode ? ` · ${party.party_mode}` : ""}
                               </small>
                             </div>
                             <button
@@ -6363,9 +6318,9 @@ export default function MessagesPage() {
                           {selectedIsGroup
                             ? selectedCommunityChannel?.topic ||
                               selectedRoom.description ||
-                              "General discussion for all server members."
+                              "Tempat mengobrol bersama anggota komunitas."
                             : selectedRoom.order_id
-                              ? `Protected order chat Â· Order #${selectedRoom.order_id}`
+                              ? `Protected order chat · Order #${selectedRoom.order_id}`
                               : "Protected pre-sale product chat"}
                         </p>
                       </div>
@@ -6377,8 +6332,8 @@ export default function MessagesPage() {
                         <span className="inline-flex items-center gap-2 border-r border-white/10 px-1 pr-5 text-xs font-medium text-gray-300">
                           <FaCircle className="text-[8px] text-emerald-400" />
                           {redisEnabled
-                            ? `${onlineUserIds.size} members online`
-                            : `${conversationMembers.length} members`}
+                            ? `${onlineUserIds.size} anggota online`
+                            : `${conversationMembers.length} anggota`}
                         </span>
                       ) : null}
                       {selectedRoom.party_game ? (
@@ -6400,7 +6355,7 @@ export default function MessagesPage() {
                           href={`/orders/${selectedRoom.order_id}`}
                           className="rounded-full border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300 hover:bg-yellow-400 hover:text-black"
                         >
-                          Open Order
+                          Lihat pesanan
                         </Link>
                       ) : null}
                       {selectedRoom.product_id ? (
@@ -6408,7 +6363,7 @@ export default function MessagesPage() {
                           href={`/product/${selectedRoom.product_id}`}
                           className="rounded-full border border-cyan-400/40 px-3 py-2 text-xs font-black text-cyan-300 hover:bg-cyan-400 hover:text-black"
                         >
-                          View Product
+                          Lihat produk
                         </Link>
                       ) : null}
                       <button
@@ -6417,32 +6372,54 @@ export default function MessagesPage() {
                           setShowPinnedPanel((current) => !current)
                         }
                         className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${showPinnedPanel ? "bg-cyan-400/10 text-cyan-200" : "text-gray-400 hover:bg-white/5 hover:text-cyan-300"}`}
-                        title="Channel brief"
+                        title="Tentang ruang ini"
                       >
                         <FaThumbtack />
                       </button>
                       <button
                         type="button"
                         onClick={() => {
+                          if (!wideMessagesLayout) { void openCommunityOverlay("members"); return; }
                           setRightPanelTab("members");
                           setShowMemberPanel((current) => !current);
                         }}
-                        className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${showMemberPanel ? "bg-cyan-400/10 text-cyan-200" : "text-gray-400 hover:bg-white/5 hover:text-cyan-300"}`}
-                        title={showMemberPanel ? "Hide member panel" : "Show member panel"}
+                        className={`${styles.membersToggle} flex items-center justify-center gap-2 rounded-lg transition ${showMemberPanel ? "bg-cyan-400/10 text-cyan-200" : "text-gray-300 hover:bg-white/5 hover:text-cyan-300"}`}
+                        title={showMemberPanel ? "Tutup daftar anggota" : "Lihat anggota"}
+                        aria-label={showMemberPanel ? "Tutup daftar anggota" : "Lihat anggota"}
+                        aria-expanded={showMemberPanel || communityOverlay === "members"}
                       >
-                        <FaUsers />
+                        <FaUsers /><span>Anggota</span>
                       </button>
                       <div className="relative">
                         <button
                           type="button"
                           onClick={() => setShowMoreMenu((current) => !current)}
                           className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${showMoreMenu ? "bg-cyan-400/10 text-cyan-200" : "text-gray-400 hover:bg-white/5 hover:text-cyan-300"}`}
-                          title="More"
+                          title="Lainnya" aria-label="Pilihan percakapan"
                         >
                           <FaEllipsisH />
                         </button>
                         {showMoreMenu ? (
                           <div className="absolute right-0 top-11 z-40 w-56 overflow-hidden rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-2 text-xs font-bold shadow-[0_22px_60px_rgba(0,0,0,0.55)]">
+                            {selectedIsGroup ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowMoreMenu(false);
+                                  handleDockLiveAction();
+                                }}
+                                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-200 hover:bg-white/10"
+                              >
+                                <FaBroadcastTower />
+                                {streamIsActive
+                                  ? selectedRoom.stream_host_id === userId
+                                    ? "Akhiri siaran"
+                                    : streamViewerActive
+                                      ? "Keluar siaran"
+                                      : "Tonton siaran"
+                                  : "Mulai siaran"}
+                              </button>
+                            ) : null}
                             {selectedIsGroup &&
                             canManageSelectedGroupMembers ? (
                               <button
@@ -6458,7 +6435,7 @@ export default function MessagesPage() {
                                 }}
                                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                               >
-                                <FaUserPlus /> Invite player
+                                <FaUserPlus /> Undang anggota
                               </button>
                             ) : null}
                             {selectedRoom.party_game &&
@@ -6487,7 +6464,7 @@ export default function MessagesPage() {
                               }}
                               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                             >
-                              <FaArrowRight /> Refresh room
+                              <FaArrowRight /> Muat ulang percakapan
                             </button>
                             <button
                               type="button"
@@ -6498,14 +6475,14 @@ export default function MessagesPage() {
                                     `${window.location.origin}/cpcommunity?room=${selectedRoom.id}`,
                                   )
                                   .then(
-                                    () => setNotice("Room link copied."),
+                                    () => setNotice("Tautan ruang disalin."),
                                     () =>
-                                      setError("Could not copy the room link."),
+                                      setError("Tautan belum dapat disalin. Coba lagi."),
                                   );
                               }}
                               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                             >
-                              <FaPaperclip /> Copy room link
+                              <FaPaperclip /> Salin tautan ruang
                             </button>
                           </div>
                         ) : null}
@@ -6552,12 +6529,12 @@ export default function MessagesPage() {
                       <FaThumbtack className="mt-0.5 shrink-0 text-yellow-300" />
                       <div>
                         <p className="font-black text-yellow-200">
-                          Channel brief
+                          Tentang ruang ini
                         </p>
                         <p className="mt-1 text-gray-400">
                           {selectedCommunityChannel?.topic ||
                             selectedRoom.description ||
-                            "No channel topic has been published yet."}
+                            "Belum ada deskripsi untuk ruang ini."}
                         </p>
                       </div>
                     </div>
@@ -6620,11 +6597,11 @@ export default function MessagesPage() {
                       >
                         <strong className="text-cyan-300">
                           {selectedCommunityChannel.channel_type === "voice"
-                            ? `ðŸ”Š ${selectedCommunityChannel.name}`
+                            ? `🔊 ${selectedCommunityChannel.name}`
                             : `#${selectedCommunityChannel.name}`}
                         </strong>
                         {selectedCommunityChannel.topic
-                          ? ` â€” ${selectedCommunityChannel.topic}`
+                          ? ` — ${selectedCommunityChannel.topic}`
                           : ""}
                         {selectedChannelIsVoice ? (
                           <span className="ml-2 text-emerald-300">
@@ -6644,7 +6621,7 @@ export default function MessagesPage() {
                             type="button"
                             onClick={() => setShowVoicePanel(false)}
                             className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-[#061421]/90 text-gray-400 hover:border-cyan-400/30 hover:text-white"
-                            title="Close voice controls"
+                            title="Tutup kontrol suara"
                           >
                             <FaTimes />
                           </button>
@@ -6677,11 +6654,8 @@ export default function MessagesPage() {
                     ) : null}
 
                     <div
-                      className={`${styles.messageViewport} ${!selectedIsGroup ? "hidden" : ""} relative flex-1 overflow-hidden bg-[url('/hero-bg.webp')] bg-cover bg-center`}
+                      className={`${styles.messageViewport} ${!selectedIsGroup ? "hidden" : ""} relative flex-1 overflow-hidden`}
                     >
-                      <div className="pointer-events-none absolute inset-0 bg-[#02101c]/78" />
-                      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(6,182,212,0.22),transparent_30%),linear-gradient(90deg,rgba(2,8,18,0.86),rgba(4,18,33,0.62)_50%,rgba(2,8,18,0.8))]" />
-                      <div className="pointer-events-none absolute inset-0 bg-[url('/brand/comeplayers-cp-v6.png')] bg-[length:132px_auto] bg-center bg-no-repeat opacity-[0.055]" />
                       <div
                         className={`${styles.messageScroller} relative z-10 h-full overflow-y-auto p-5 lg:p-6 ${selectedIsGroup && selectedChannelIsVoice && wideMessagesLayout ? "xl:pr-[356px]" : ""}`}
                       >
@@ -6690,7 +6664,7 @@ export default function MessagesPage() {
                             <div>
                               <FaHeadphones className="mx-auto mb-3 text-3xl text-emerald-300" />
                               <p className="font-black text-gray-300">
-                                Voice channel selected
+                                Ruang suara
                               </p>
                               <p className="mt-1">
                                 Use the LiveKit controls above to talk, enable
@@ -6699,8 +6673,15 @@ export default function MessagesPage() {
                             </div>
                           </div>
                         ) : loadingMessages ? (
-                          <div className="flex h-full items-center justify-center text-gray-400">
-                            Loading chat...
+                          <div role="status" className="flex h-full items-center justify-center text-slate-300">
+                            Memuat percakapan…
+                          </div>
+                        ) : conversationLoadError ? (
+                          <div role="alert" className={styles.conversationState}>
+                            <p>{conversationLoadError}</p>
+                            <button type="button" onClick={() => void loadConversation(selectedRoom.id)}>
+                              Coba lagi
+                            </button>
                           </div>
                         ) : conversation?.messages?.length ? (
                           <div
@@ -6910,14 +6891,12 @@ export default function MessagesPage() {
                                 <FaShieldAlt className="mx-auto text-4xl text-cyan-300" />
                               )}
                               <h2 className="mt-4 text-2xl font-black">
-                                {selectedIsGroup
-                                  ? "Start the server conversation"
-                                  : "Start a protected conversation"}
+                                Mulai percakapan
                               </h2>
                               <p className="mt-2 text-gray-400">
                                 {selectedIsGroup
-                                  ? "Share updates with the server or start a live gameplay session."
-                                  : "Ask about the product without sharing external contact details."}
+                                  ? "Tulis pesan di bawah untuk menyapa teman-teman."
+                                  : "Tanyakan tentang produk langsung di percakapan ini."}
                               </p>
                             </div>
                           </div>
@@ -6933,7 +6912,7 @@ export default function MessagesPage() {
                           .map((entry) => entry.name)
                           .slice(0, 3)
                           .join(", ")}{" "}
-                        typingâ€¦
+                        sedang mengetik…
                       </div>
                     ) : null}
 
@@ -7059,10 +7038,10 @@ export default function MessagesPage() {
                                 className={`${styles.composerPicker} absolute bottom-[58px] left-12 z-30 grid w-48 grid-cols-2 gap-2 rounded-xl border border-yellow-400/25 bg-[#061421]/98 p-3 shadow-2xl`}
                               >
                                 {[
-                                  "ðŸŽ GG Pack",
-                                  "ðŸ† MVP Badge",
-                                  "âš¡ Boost",
-                                  "ðŸ’Ž Gem Drop",
+                                  "🎁 GG Pack",
+                                  "🏆 MVP Badge",
+                                  "⚡ Boost",
+                                  "💎 Gem Drop",
                                 ].map((gift) => (
                                   <button
                                     key={gift}
@@ -7101,7 +7080,7 @@ export default function MessagesPage() {
                                 selectedIsGroup
                                   ? selectedChannelIsVoice
                                     ? "Voice channels do not accept text messages."
-                                    : `Message #${selectedCommunityChannel?.name || "general"}`
+                                    : `Tulis pesan di #${selectedCommunityChannel?.name || "general"}`
                                   : "Type a protected message..."
                               }
                               className="min-h-[46px] flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-6 outline-none placeholder:text-gray-600"
@@ -7136,14 +7115,14 @@ export default function MessagesPage() {
                                 className={`${styles.composerPicker} absolute bottom-[58px] right-12 z-30 flex flex-wrap gap-2 rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-3 shadow-2xl`}
                               >
                                 {[
-                                  "ðŸ˜€",
-                                  "ðŸ”¥",
-                                  "ðŸŽ®",
-                                  "ðŸ‘",
-                                  "â¤ï¸",
-                                  "ðŸ˜‚",
-                                  "âœ…",
-                                  "ðŸ†",
+                                  "😀",
+                                  "🔥",
+                                  "🎮",
+                                  "👍",
+                                  "❤️",
+                                  "😂",
+                                  "✅",
+                                  "🏆",
                                 ].map((emoji) => (
                                   <button
                                     key={emoji}
@@ -7173,17 +7152,17 @@ export default function MessagesPage() {
                               }
                               className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-transparent text-lg text-cyan-300 transition hover:bg-cyan-400/10 hover:text-cyan-100 disabled:opacity-40"
                               title={
-                                editingMessage ? "Save message" : "Send message"
+                                editingMessage ? "Simpan pesan" : "Kirim pesan"
                               }
                             >
-                              {sending || uploading ? "â€¦" : <FaPaperPlane />}
+                              {sending || uploading ? "…" : <FaPaperPlane />}
                             </button>
                           </div>
                           <p
                             className={`${styles.composerHint} mt-2 flex items-center justify-between text-[10px] text-gray-600`}
                           >
                             <span>
-                              Enter to send Â· Shift+Enter for a new line
+                              Enter untuk mengirim · Shift+Enter untuk baris baru
                             </span>
                             <span>{draft.length}/2000</span>
                           </p>
@@ -7195,7 +7174,7 @@ export default function MessagesPage() {
                   {selectedIsGroup && showMemberPanel && wideMessagesLayout ? (
                     <aside
                       className={`${styles.rightRail} ${styles.rightPanelTabbed} hidden min-h-0 xl:grid`}
-                      aria-label="Server members, squad, and events"
+                      aria-label="Anggota, tim, dan kegiatan komunitas"
                     >
                       <div className={styles.rightPanelTabs}>
                         {(["members", "squad", "events"] as RightPanelTab[]).map(
@@ -7208,10 +7187,10 @@ export default function MessagesPage() {
                               className={styles.rightPanelTab}
                             >
                               {tab === "members"
-                                ? "Members"
+                                ? "Anggota"
                                 : tab === "squad"
-                                  ? "Squad"
-                                  : "Events"}
+                                  ? "Tim"
+                                  : "Kegiatan"}
                             </button>
                           ),
                         )}
@@ -7222,19 +7201,19 @@ export default function MessagesPage() {
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
-                                <p>Server Members</p>
+                                <p>Anggota komunitas</p>
                                 <span>{conversationMembers.length} total</span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => void openCommunityOverlay("members")}
                               >
-                                View All
+                                Lihat semua
                               </button>
                             </div>
 
                             <div className={styles.memberStatusSection}>
-                              <p>Online â€” {onlineConversationMembers.length}</p>
+                              <p>Online — {onlineConversationMembers.length}</p>
                               {onlineConversationMembers.length ? (
                                 onlineConversationMembers.slice(0, 7).map((member) => (
                                   <button
@@ -7260,12 +7239,12 @@ export default function MessagesPage() {
                                   </button>
                                 ))
                               ) : (
-                                <p className={styles.rightPanelEmpty}>No members online.</p>
+                                <p className={styles.rightPanelEmpty}>Belum ada anggota online.</p>
                               )}
                             </div>
 
                             <div className={styles.memberStatusSection}>
-                              <p>Offline â€” {offlineConversationMembers.length}</p>
+                              <p>Offline — {offlineConversationMembers.length}</p>
                               {offlineConversationMembers.slice(0, 6).map((member) => (
                                 <button
                                   key={`offline:${member.user_id}`}
@@ -7293,7 +7272,7 @@ export default function MessagesPage() {
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
-                                <p>Squad</p>
+                                <p>Tim</p>
                                 <span>
                                   {conversationMembers.length}/
                                   {selectedRoom.party_size || Math.max(conversationMembers.length, 5)} players
@@ -7356,7 +7335,7 @@ export default function MessagesPage() {
                                     <span className={styles.squadInviteIcon}>
                                       <FaPlus />
                                     </span>
-                                    <span className="text-sm font-medium">Invite Player</span>
+                                    <span className="text-sm font-medium">Undang anggota</span>
                                   </button>
                                 ),
                               )}
@@ -7398,19 +7377,19 @@ export default function MessagesPage() {
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
-                                <p>Upcoming Events</p>
+                                <p>Kegiatan mendatang</p>
                                 <span>Server activities and tournaments</span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => void openCommunityOverlay("events")}
                               >
-                                View All
+                                Lihat semua
                               </button>
                             </div>
                             <div className={styles.eventList}>
                               {announcementsLoading ? (
-                                <p className={styles.rightPanelEmpty}>Loading events...</p>
+                                <p className={styles.rightPanelEmpty}>Memuat kegiatan…</p>
                               ) : announcements.length ? (
                                 announcements.slice(0, 4).map((announcement) => (
                                   <Link
@@ -7449,7 +7428,7 @@ export default function MessagesPage() {
                                   href="/announcements"
                                   className={styles.rightPanelEmpty}
                                 >
-                                  No published events. Browse announcements â†’
+                                  Belum ada kegiatan. Lihat pengumuman →
                                 </Link>
                               )}
                             </div>
@@ -7503,7 +7482,7 @@ export default function MessagesPage() {
                                     <p className="truncate text-[10px] text-gray-500">
                                       {party.member_count}/{party.party_size || 5}
                                       {party.party_mode
-                                        ? ` Â· ${party.party_mode}`
+                                        ? ` · ${party.party_mode}`
                                         : ""}
                                     </p>
                                   </div>
@@ -7565,7 +7544,7 @@ export default function MessagesPage() {
                           }}
                         >
                           <label className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-500">
-                            Invite player Â· acceptance required
+                            Undang anggota · acceptance required
                           </label>
                           <div className="mt-2 flex gap-2">
                             <input
@@ -7584,7 +7563,7 @@ export default function MessagesPage() {
                                 memberActionBusy.startsWith("invite:")
                               }
                               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/40 bg-cyan-400/10 text-cyan-200 transition hover:bg-cyan-400 hover:text-black disabled:opacity-40"
-                              title="Invite player"
+                              title="Undang anggota"
                             >
                               <FaUserPlus />
                             </button>
@@ -7716,7 +7695,7 @@ export default function MessagesPage() {
                                   className={`text-[10px] font-bold ${targetIsOwner ? "text-yellow-400" : targetIsModerator ? "text-cyan-300" : "text-gray-500"}`}
                                 >
                                   {memberRoleLabel(member.member_role)}
-                                  {liveHost ? " Â· Live host" : ""}
+                                  {liveHost ? " · Live host" : ""}
                                 </p>
                               </div>
                               <div className="flex shrink-0 gap-1 opacity-0 transition group-hover:opacity-100">
@@ -7766,13 +7745,13 @@ export default function MessagesPage() {
                       <div className="shrink-0 rounded-2xl border border-cyan-400/20 bg-[#071827]/76 p-4 shadow-[inset_0_0_30px_rgba(6,182,212,0.05)]">
                         <div className="mb-3 flex items-center justify-between">
                           <p className="text-[11px] font-black uppercase tracking-[0.14em] text-gray-300">
-                            Upcoming Events
+                            Kegiatan mendatang
                           </p>
                           <Link
                             href="/announcements"
                             className="text-[10px] font-black text-cyan-300 hover:text-cyan-200"
                           >
-                            View All
+                            Lihat semua
                           </Link>
                         </div>
                         <div className="space-y-3">
@@ -7868,8 +7847,8 @@ export default function MessagesPage() {
                                             `${party.party_game || "Game"} Squad`}
                                         </p>
                                         <p className="mt-1 truncate text-[10px] text-gray-500">
-                                          {party.party_game || "Any game"} Â·{" "}
-                                          {party.party_mode || "Any mode"} Â·{" "}
+                                          {party.party_game || "Any game"} ·{" "}
+                                          {party.party_mode || "Any mode"} ·{" "}
                                           {party.party_region || "Any region"}
                                         </p>
                                         <div className="mt-2 flex items-center gap-2 text-[10px] font-bold text-gray-400">
@@ -8148,7 +8127,7 @@ export default function MessagesPage() {
           className="fixed inset-0 z-[130] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
-          aria-label="Choose a Voice Lobby for live streaming"
+          aria-label="Pilih ruang suara untuk siaran"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setShowLiveLobbyPicker(false);
@@ -8159,7 +8138,7 @@ export default function MessagesPage() {
             <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
-                  Go Live
+                  Mulai siaran
                 </p>
                 <h2 className="mt-1 text-xl font-black text-white">
                   Choose a Voice Lobby
@@ -8244,7 +8223,7 @@ export default function MessagesPage() {
         </div>
       ) : null}
 
-      {selectedIsGroup && selectedRoom ? (
+      {selectedIsGroup && selectedRoom && streamIsActive ? (
         <div
           className={`${styles.voiceDock} ${showMemberPanel ? "" : styles.voiceDockExpanded} fixed bottom-4 left-[370px] right-6 z-30 hidden h-20 items-center overflow-hidden rounded-2xl border border-yellow-400/25 bg-[#07131f]/94 shadow-[0_0_34px_rgba(250,204,21,0.12),inset_0_0_28px_rgba(255,255,255,0.025)] backdrop-blur-xl xl:flex 2xl:right-[365px]`}
         >
@@ -8257,7 +8236,7 @@ export default function MessagesPage() {
               }`}
             >
               <FaBroadcastTower />
-              {streamIsActive ? "Live Now" : "Live Ready"}
+              {streamIsActive ? "Sedang siaran" : "Siaran"}
             </span>
 
             <ServerAvatar
@@ -8274,7 +8253,7 @@ export default function MessagesPage() {
                 {streamIsActive
                   ? selectedRoom.stream_title || selectedRoom.party_game || "Live gameplay"
                   : selectedRoom.party_game || "Start a server livestream"}
-                {selectedRoom.party_mode ? ` Â· ${selectedRoom.party_mode}` : ""}
+                {selectedRoom.party_mode ? ` · ${selectedRoom.party_mode}` : ""}
               </p>
             </div>
 
@@ -8282,7 +8261,7 @@ export default function MessagesPage() {
               <span className={`h-2.5 w-2.5 rounded-full ${streamIsActive ? "bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.7)]" : "bg-gray-600"}`} />
               <div>
                 <p className="text-lg font-black leading-5 text-white">{streamViewerCount}</p>
-                <p className="text-[9px] text-gray-500">Watching Now</p>
+                <p className="text-[9px] text-gray-500">Penonton</p>
               </div>
             </div>
 
@@ -8294,8 +8273,8 @@ export default function MessagesPage() {
                 </p>
                 <p className="text-[9px] text-gray-500">
                   {streamIsActive
-                    ? `Started by ${displayName(selectedRoom.stream_host)}`
-                    : "Live Duration"}
+                    ? `Dimulai oleh ${displayName(selectedRoom.stream_host)}`
+                    : "Durasi siaran"}
                 </p>
               </div>
             </div>
@@ -8323,11 +8302,11 @@ export default function MessagesPage() {
             >
               {streamIsActive
                 ? selectedRoom.stream_host_id === userId
-                  ? "Stop Live"
+                  ? "Akhiri siaran"
                   : streamViewerActive
-                    ? "Leave Live"
-                    : "Watch Live"
-                : "Go Live"}
+                    ? "Keluar siaran"
+                    : "Tonton siaran"
+                : "Mulai siaran"}
             </button>
           </div>
         </div>

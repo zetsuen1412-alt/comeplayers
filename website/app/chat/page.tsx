@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import ChatClient from "./ChatClient";
 
 export const metadata: Metadata = {
-  title: "Chat Customer & Seller | ComePlayers",
+  title: "Chat",
   description:
-    "Secure transaction chat between ComePlayers customers and sellers.",
+    "Percakapan pribadi dan obrolan transaksi Anda di ComePlayers.",
 };
 
 export default function ChatPage() {
