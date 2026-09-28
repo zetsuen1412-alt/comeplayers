@@ -12,9 +12,14 @@ export function authTransport(supabaseUrl: string, apiUrl: string, transport: ty
 }
 
 export function authenticationMessage(reason: unknown): string {
-  const message = reason instanceof Error ? reason.message : "Sign-in failed. Please try again.";
+  const message = reason instanceof Error ? reason.message : "";
   if (/UnknownHostException|Unable to resolve host|Network request failed|fetch failed|Failed to fetch|NetworkError|timed? ?out/i.test(message)) {
-    return "Cannot connect to ComePlayers. Check your internet connection and try again.";
+    return "Belum tersambung ke ComePlayers. Periksa internet, lalu coba lagi.";
   }
-  return message;
+  if (/invalid login credentials|invalid credentials/i.test(message)) return "Email atau sandi belum cocok. Periksa kembali atau pilih Lupa sandi.";
+  if (/email not confirmed/i.test(message)) return "Buka email pendaftaran dan konfirmasi akun Anda terlebih dahulu.";
+  if (/rate limit|too many requests|too many attempts/i.test(message)) return "Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.";
+  if (/DEVELOPER_ERROR|sign.in.*config|configuration|id.?token/i.test(message)) return "Google belum bisa digunakan di versi ini. Perbarui dari Google Play atau pilih Gunakan email.";
+  if (/password.*(weak|short|characters)|weak.*password/i.test(message)) return "Gunakan sandi yang lebih kuat, minimal 12 karakter.";
+  return "Belum berhasil masuk. Coba lagi sebentar, atau gunakan cara masuk lainnya.";
 }

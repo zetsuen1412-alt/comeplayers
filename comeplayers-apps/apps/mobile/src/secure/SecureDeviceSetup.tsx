@@ -42,7 +42,7 @@ function SetupContent({ userId, setup, error, onActivated, onRetry }: Props) {
       {!setup && !error ? <View style={s.loading}><ActivityIndicator color={colors.yellow} /><Text accessibilityLiveRegion="polite" style={s.copy}>Menyiapkan chat…</Text></View> : <>
         <View style={s.icon}><Ionicons name={setup?.kind === "recover" ? "chatbubbles-outline" : "chatbubble-ellipses-outline"} size={34} color={colors.yellow} /></View>
         <Text accessibilityRole="header" style={s.title}>{!setup ? "Chat belum terhubung" : setup.kind === "new" ? "Menyiapkan chat" : "Buka chat Anda"}</Text>
-        <Text style={s.copy}>{!setup ? "Periksa koneksi internet, lalu coba lagi." : setup.kind === "new" ? "Chat akan disiapkan otomatis. Anda tidak perlu membuat passkey." : passwordRecovery ? "Masukkan sandi cadangan yang Anda buat di perangkat lama." : available ? "Pulihkan chat menggunakan kunci akses yang pernah Anda simpan." : "Buka ComePlayers di perangkat yang pernah Anda gunakan, lalu aktifkan pemulihan chat di Pengaturan akun."}</Text>
+        <Text style={s.copy}>{!setup ? "Periksa koneksi internet, lalu coba lagi." : setup.kind === "new" ? "Sebentar, chat Anda sedang disiapkan otomatis." : passwordRecovery ? "Masukkan sandi cadangan yang Anda buat di perangkat lama." : available ? "Pulihkan chat menggunakan kunci akses yang pernah Anda simpan." : "Buka ComePlayers di ponsel lama, lalu pilih Profil → Chat & cadangan untuk menyiapkan pemulihan."}</Text>
         {passwordRecovery ? <TextInput accessibilityLabel="Sandi cadangan chat" placeholder="Sandi cadangan" placeholderTextColor={colors.textMuted} secureTextEntry autoCapitalize="none" autoCorrect={false} maxLength={1024} editable={!busy} value={password} onChangeText={setPassword} style={s.password} /> : null}
         {passwordRecovery && hasPasskey ? <Pressable accessibilityRole="button" style={s.helpButton} disabled={busy} onPress={() => { setUsePasskey(true); setPassword(""); }}><Text style={s.link}>Gunakan kunci akses yang tersimpan</Text></Pressable> : null}
         {devices.length >= 8 ? <View style={s.devices}><Text style={s.deviceTitle}>Pilih perangkat lama untuk diganti</Text><Text style={s.hint}>Akun ini sudah terhubung ke 8 perangkat. Perangkat yang dipilih akan kehilangan akses chat.</Text>{devices.map((device, index) => <Pressable key={device.id} style={s.device} disabled={busy} accessibilityRole="checkbox" accessibilityState={{ checked: removeDeviceIds.includes(device.id), disabled: busy }} onPress={() => setRemoveDeviceIds(current => current.includes(device.id) ? current.filter(id => id !== device.id) : [...current, device.id])}><Ionicons name={removeDeviceIds.includes(device.id) ? "checkbox" : "square-outline"} size={23} color={colors.yellow} /><Text style={s.deviceText}>Perangkat {index + 1} · {new Date(device.createdAt).toLocaleDateString("id-ID")}</Text></Pressable>)}</View> : null}
@@ -55,7 +55,6 @@ function SetupContent({ userId, setup, error, onActivated, onRetry }: Props) {
           <Text style={s.helpCopy}>Belum mengatur pemulihan? Buka Profil → Chat & cadangan di perangkat lama. Anda tetap bisa memakai fitur lain melalui tombol kembali.</Text>
           <Pressable accessibilityRole="link" style={s.support} onPress={() => { void Linking.openURL("https://www.comeplayers.com/support").catch(() => setFeedback({ kind: "error", message: "Hubungi admin@comeplayers.com untuk bantuan.", refresh: false })); }}><Text style={s.link}>Hubungi dukungan</Text></Pressable>
         </View> : null}
-        <View style={s.privacy}><Ionicons name="lock-closed-outline" size={13} color={colors.textMuted} /><Text style={s.privacyText}>Chat pribadi dilindungi enkripsi end-to-end</Text></View>
       </>}
     </View>
   </ScrollView>;
@@ -68,8 +67,8 @@ const s = StyleSheet.create({
   loading: { alignItems: "center", gap: 16 },
   icon: { alignSelf: "center", width: 76, height: 76, borderRadius: 26, alignItems: "center", justifyContent: "center", backgroundColor: colors.yellowSoft, marginBottom: 6 },
   title: { color: colors.text, fontSize: 25, lineHeight: 32, fontWeight: "700", textAlign: "center" },
-  copy: { color: colors.textMuted, fontSize: 15, lineHeight: 23, textAlign: "center" },
-  password: { color: colors.text, borderWidth: 1, borderColor: colors.textDim, borderRadius: 14, padding: 16, minHeight: 52, backgroundColor: colors.panel },
+  copy: { color: colors.textMuted, fontSize: 17, lineHeight: 26, textAlign: "center" },
+  password: { fontSize: 17, color: colors.text, borderWidth: 1, borderColor: colors.textDim, borderRadius: 14, padding: 16, minHeight: 54, backgroundColor: colors.panel },
   hint: { color: colors.textMuted, fontSize: 13, lineHeight: 20, textAlign: "center" },
   devices: { gap: 12, padding: 16, backgroundColor: colors.panel, borderRadius: 16 },
   deviceTitle: { color: colors.text, fontSize: 15, fontWeight: "600" },
@@ -78,7 +77,7 @@ const s = StyleSheet.create({
   notice: { color: colors.textMuted, textAlign: "center", fontSize: 14, lineHeight: 22 },
   error: { color: colors.red },
   helpButton: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  link: { color: colors.textMuted, fontSize: 14, fontWeight: "600" },
+  link: { color: colors.textMuted, fontSize: 16, fontWeight: "600" },
   help: { padding: 18, gap: 12, borderRadius: 16, backgroundColor: colors.panel },
   helpCopy: { color: colors.textMuted, fontSize: 14, lineHeight: 22 },
   support: { minHeight: 44, justifyContent: "center" },

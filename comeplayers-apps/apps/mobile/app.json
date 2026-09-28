@@ -2,7 +2,7 @@
   "expo": {
     "name": "ComePlayers",
     "slug": "comeplayers",
-    "version": "0.15.0",
+    "version": "0.16.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "scheme": "comeplayers",
@@ -12,8 +12,8 @@
     },
     "updates": {
       "url": "https://u.expo.dev/a663aa70-99b7-4c8f-93ea-5f8637baa2df",
-      "checkAutomatically": "NEVER",
-      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ALWAYS",
+      "fallbackToCacheTimeout": 2000,
       "requestHeaders": {
         "expo-channel-name": "production"
       }
@@ -65,8 +65,8 @@
     ],
     "android": {
       "package": "com.comeplayers.app",
-      "versionCode": 22,
-      "runtimeVersion": "0.15.0",
+      "versionCode": 23,
+      "runtimeVersion": "0.16.0",
       "allowBackup": false,
       "permissions": [
         "android.permission.CAMERA",

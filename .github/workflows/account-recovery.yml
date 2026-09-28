@@ -15,6 +15,13 @@ on:
       - 'website/tests/*Recovery*'
       - 'website/tests/sql/recoveryPolicy.sql'
       - 'comeplayers-apps/apps/mobile/src/secure/**'
+      - 'comeplayers-apps/apps/mobile/src/screens/**'
+      - 'comeplayers-apps/apps/mobile/src/components.tsx'
+      - 'comeplayers-apps/apps/mobile/src/authTransport.ts'
+      - 'comeplayers-apps/apps/mobile/src/mobileUpdates.ts'
+      - 'comeplayers-apps/apps/mobile/App.tsx'
+      - 'comeplayers-apps/package*.json'
+      - 'comeplayers-apps/tests/*.test.mjs'
       - 'comeplayers-apps/apps/mobile/src/screens/PrivateBackupSettings.tsx'
       - 'comeplayers-apps/apps/mobile/plugins/**'
       - 'comeplayers-apps/tests/androidReleaseSigning.test.cjs'
@@ -73,6 +80,9 @@ jobs:
       - name: Mobile typecheck
         working-directory: comeplayers-apps
         run: npm run typecheck --workspace @comeplayers/mobile
+      - name: Chat, sign-in and update lifecycle component checks
+        working-directory: comeplayers-apps
+        run: npm run test:chat-onboarding
       - name: Shared recovery policy parity
         run: cmp website/lib/e2ee/recoveryPolicy.ts comeplayers-apps/apps/mobile/src/secure/recoveryPolicy.ts
       - name: Original Android certificate guard in isolated Gradle fixtures

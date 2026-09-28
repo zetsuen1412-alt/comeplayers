@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   ActivityIndicator,
   Image,
@@ -13,12 +14,12 @@ import {
 import { colors, radius } from "./theme";
 import type { AppTab } from "./types";
 
-const TAB_META: Array<{ id: AppTab; label: string; icon: string }> = [
-  { id: "home", label: "News", icon: "▤" },
-  { id: "community", label: "Community", icon: "◉" },
-  { id: "messages", label: "Messages", icon: "▤" },
-  { id: "marketplace", label: "Market", icon: "◆" },
-  { id: "profile", label: "Profile", icon: "●" },
+const TAB_META: Array<{ id: AppTab; label: string; icon: "chatbubbles-outline" | "people-outline" | "newspaper-outline" | "storefront-outline" | "person-outline" }> = [
+  { id: "messages", label: "Chat", icon: "chatbubbles-outline" },
+  { id: "community", label: "Komunitas", icon: "people-outline" },
+  { id: "home", label: "Berita", icon: "newspaper-outline" },
+  { id: "marketplace", label: "Toko", icon: "storefront-outline" },
+  { id: "profile", label: "Profil", icon: "person-outline" },
 ];
 
 export function BrandMark({ compact = false }: { compact?: boolean }) {
@@ -76,19 +77,20 @@ export function BottomTabs({
             onPress={() => onChange(tab.id)}
             style={({ pressed }) => [
               styles.tab,
+              tab.id === "community" && { flex: 1.5 },
               selected && styles.tabSelected,
               pressed && styles.pressed,
             ]}
           >
             <View>
-              {tab.id === "messages" ? <View style={{ width: 24, height: 20, marginTop: 4, marginBottom: 5, borderWidth: 2, borderRadius: 7, borderColor: selected ? colors.yellow : colors.textDim, alignItems: "center", justifyContent: "center" }}><Text style={{ color: selected ? colors.yellow : colors.textDim, fontSize: 12, lineHeight: 12 }}>•••</Text><View style={{ position: "absolute", left: 3, bottom: -5, width: 7, height: 7, borderLeftWidth: 2, borderColor: selected ? colors.yellow : colors.textDim, transform: [{skewY: "-35deg"}] }} /></View> : <Text style={[styles.tabIcon, selected && styles.tabIconSelected]}>{tab.icon}</Text>}
+              <Ionicons name={tab.icon} size={25} color={selected ? colors.yellow : colors.textMuted} />
               {tab.id === "messages" && unread > 0 ? (
                 <View style={styles.tabBadge}>
                   <Text style={styles.tabBadgeText}>{unread > 99 ? "99+" : unread}</Text>
                 </View>
               ) : null}
             </View>
-            <Text style={[styles.tabLabel, selected && styles.tabLabelSelected]}>
+            <Text numberOfLines={2} style={[styles.tabLabel, selected && styles.tabLabelSelected]}>
               {tab.label}
             </Text>
           </Pressable>
@@ -324,6 +326,9 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
+    minWidth: 0,
+    minHeight: 60,
+    paddingVertical: 8,
     alignItems: "center",
     justifyContent: "center",
     gap: 3,
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
   tabSelected: { backgroundColor: "rgba(255,208,0,0.08)" },
   tabIcon: { color: colors.textDim, fontSize: 22, lineHeight: 24, fontWeight: "900" },
   tabIconSelected: { color: colors.yellow },
-  tabLabel: { color: colors.textDim, fontSize: 9, fontWeight: "800" },
+  tabLabel: { maxWidth: "100%", color: colors.textMuted, fontSize: 12, lineHeight: 18, fontWeight: "600", textAlign: "center" },
   tabLabelSelected: { color: colors.text },
   tabBadge: {
     position: "absolute",
@@ -371,20 +376,21 @@ const styles = StyleSheet.create({
   stateBlock: { alignItems: "center", paddingHorizontal: 24, paddingVertical: 40 },
   stateIcon: { color: colors.blue, fontSize: 32, fontWeight: "900" },
   stateTitle: { color: colors.text, fontSize: 16, fontWeight: "900", marginTop: 10, textAlign: "center" },
-  stateMessage: { color: colors.textMuted, fontSize: 12, lineHeight: 18, marginTop: 7, textAlign: "center" },
-  stateButton: { marginTop: 16, paddingHorizontal: 18, paddingVertical: 11, borderRadius: radius.pill, backgroundColor: colors.yellow },
-  stateButtonText: { color: colors.background, fontSize: 11, fontWeight: "900" },
+  stateMessage: { color: colors.textMuted, fontSize: 16, lineHeight: 24, marginTop: 7, textAlign: "center" },
+  stateButton: { minHeight: 48, justifyContent: "center", marginTop: 16, paddingHorizontal: 18, paddingVertical: 12, borderRadius: radius.pill, backgroundColor: colors.yellow },
+  stateButtonText: { color: colors.background, fontSize: 16, fontWeight: "700" },
   primaryButton: {
-    minHeight: 48,
+    minHeight: 52,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: radius.medium,
     backgroundColor: colors.yellow,
   },
   primaryBlue: { backgroundColor: colors.blue },
   primaryNeutral: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.panelStrong },
-  primaryButtonText: { color: colors.background, fontSize: 13, fontWeight: "900" },
+  primaryButtonText: { color: colors.background, fontSize: 16, fontWeight: "700", textAlign: "center" },
   primaryNeutralText: { color: colors.text },
   disabled: { opacity: 0.45 },
   pressed: { opacity: 0.78 },

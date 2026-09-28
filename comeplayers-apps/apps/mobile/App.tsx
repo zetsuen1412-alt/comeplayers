@@ -2,7 +2,7 @@ import "react-native-url-polyfill/auto";
 
 import * as Updates from "expo-updates";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, AppState, BackHandler, Linking, Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, AppState, BackHandler, Linking, Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import type { Session } from "@supabase/supabase-js";
 import type { ChatRoom } from "@comeplayers/chat-core";
@@ -27,13 +27,9 @@ import { PrivateProvider } from "./src/secure/PrivateProvider";
 import { CommerceProvider } from "./src/CommerceProvider";
 import { parseCommerceLink, type CommerceLink } from "./src/commercePolicy";
 import { AccountSessionGuard } from "./src/AccountSessionGuard";
-
-type UpdateStage = "checking" | "downloading" | "applying" | "ready" | "warning";
-type UpdateUi = { stage: UpdateStage; message: string; visible: boolean };
+import { createMobileUpdateController, type MobileUpdateState } from "./src/mobileUpdates";
 
 const UPDATE_RECHECK_INTERVAL_MS = 30 * 60 * 1000;
-const UPDATE_CHECK_TIMEOUT_MS = 15_000;
-const UPDATE_DOWNLOAD_TIMEOUT_MS = 90_000;
 const PLAY_STORE_CHECK_TIMEOUT_MS = 20_000;
 
 function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string): Promise<T> {
@@ -43,39 +39,16 @@ function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string)
   });
 }
 
-async function checkPlayStoreBinaryUpdate(setUi: (next: UpdateUi) => void, blocking: boolean) {
+async function checkPlayStoreBinaryUpdate() {
   if (__DEV__ || Platform.OS !== "android" || !PlayStoreUpdates) return;
   try {
-    setUi({ stage: "checking", message: "Checking the latest Google Play release...", visible: blocking });
     await withTimeout(PlayStoreUpdates.checkAndStartUpdateAsync(), PLAY_STORE_CHECK_TIMEOUT_MS, "Google Play update check");
   } catch (reason) {
     console.warn("[ComePlayers] Google Play update check unavailable:", reason);
   }
 }
 
-async function checkAndApplyMobileUpdate(setUi: (next: UpdateUi) => void, blocking: boolean) {
-  if (__DEV__ || !Updates.isEnabled) {
-    if (blocking) setUi({ stage: "ready", message: "", visible: false });
-    return;
-  }
-  try {
-    setUi({ stage: "checking", message: "Checking for the latest ComePlayers update...", visible: blocking });
-    const update = await withTimeout(Updates.checkForUpdateAsync(), UPDATE_CHECK_TIMEOUT_MS, "Expo update check");
-    if (!update.isAvailable) { setUi({ stage: "ready", message: "", visible: false }); return; }
-    setUi({ stage: "downloading", message: "Downloading the latest experience...", visible: blocking });
-    await withTimeout(Updates.fetchUpdateAsync(), UPDATE_DOWNLOAD_TIMEOUT_MS, "Expo update download");
-    if (!blocking) { setUi({ stage: "ready", message: "", visible: false }); return; }
-    setUi({ stage: "applying", message: "Update ready. Reopening ComePlayers...", visible: true });
-    await Updates.reloadAsync();
-  } catch (reason) {
-    console.warn("[ComePlayers] Mobile OTA update failed:", reason);
-    setUi({ stage: "warning", message: "Update check failed. You can continue and the app will retry later.", visible: blocking });
-  }
-}
-
 function NativeComePlayersApp() {
-  const updateRunningRef = useRef(false);
-  const lastUpdateCheckRef = useRef(0);
   const [commerceLink, setCommerceLink] = useState<CommerceLink | null>(null);
   useEffect(() => {
     const open = (url: string) => { const link = parseCommerceLink(url); if (link) { setCommerceLink(link); setRoom(null); setTab("profile"); } };
@@ -105,35 +78,17 @@ function NativeComePlayersApp() {
     if (session) void loadPreferences().then(data => { if (alive) setAccount(data); }).catch(() => undefined);
     return () => { alive = false; };
   }, [session?.user.id]);
-  const [bootReady, setBootReady] = useState(true);
-  const [updateUi, setUpdateUi] = useState<UpdateUi>({ stage: "ready", message: "", visible: false });
-
-  const runUpdateCheck = useCallback(async (blocking: boolean) => {
-    if (updateRunningRef.current) return;
-    updateRunningRef.current = true;
-    lastUpdateCheckRef.current = Date.now();
-    try {
-      await checkPlayStoreBinaryUpdate(setUpdateUi, blocking);
-      await checkAndApplyMobileUpdate(setUpdateUi, blocking);
-    } finally {
-      updateRunningRef.current = false;
-      if (blocking) setBootReady(true);
-    }
-  }, []);
-
-  useEffect(() => { void runUpdateCheck(false); }, [runUpdateCheck]);
   useEffect(() => {
     supabase.auth.startAutoRefresh();
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") {
         supabase.auth.startAutoRefresh();
-        if (Date.now() - lastUpdateCheckRef.current >= UPDATE_RECHECK_INTERVAL_MS) void runUpdateCheck(false);
       } else {
         supabase.auth.stopAutoRefresh();
       }
     });
     return () => { subscription.remove(); supabase.auth.stopAutoRefresh(); };
-  }, [runUpdateCheck]);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -169,15 +124,15 @@ function NativeComePlayersApp() {
     return () => subscription.remove();
   }, [room, tab]);
 
-  if (!bootReady || !authReady) {
-    return <View style={styles.boot}><BrandMark /><Text style={styles.bootEyebrow}>NATIVE MOBILE EXPERIENCE</Text><Text style={styles.bootTitle}>Play. Trade. Connect.</Text><ActivityIndicator size="large" color={colors.yellow} style={styles.spinner} /><Text style={styles.bootMessage}>{!bootReady ? updateUi.message : "Connecting your ComePlayers account..."}</Text>{updateUi.stage === "warning" ? <Pressable style={styles.continueButton} onPress={() => setBootReady(true)}><Text style={styles.continueText}>Continue</Text></Pressable> : null}</View>;
+  if (!authReady) {
+    return <View style={styles.boot}><BrandMark /><Text style={styles.bootTitle}>Selamat datang di ComePlayers</Text><ActivityIndicator size="large" color={colors.yellow} style={styles.spinner} /><Text style={styles.bootMessage}>Menyiapkan akun Anda…</Text></View>;
   }
 
   if (!session) return <ProfileScreen session={null} />;
   if (mfaRequired) return <MfaChallenge onVerified={() => { setMfaRequired(false); refreshAccount(); }} />;
 
-  const title = tab === "home" ? "News" : tab === "community" ? "Community" : tab === "marketplace" ? "Marketplace" : tab === "messages" ? "Messages" : "Your profile";
-  const subtitle = session ? `Connected as ${session.user.email || "player"}` : "ComePlayers mobile";
+  const title = tab === "home" ? "Berita" : tab === "community" ? "Komunitas" : tab === "marketplace" ? "Toko" : tab === "messages" ? "Chat" : "Profil";
+  const subtitle = tab === "community" ? "Temukan teman dan kegiatan bersama" : tab === "marketplace" ? "Belanja kebutuhan Anda" : tab === "home" ? "Kabar terbaru untuk Anda" : "Kelola akun Anda";
   const Conversation = room?.room_type === "group" ? ConversationScreen : PrivateConversationScreen;
   return <PrivateProvider key={`private:${session.user.id}`} userId={session.user.id} enabled={!(account?.phoneRequired && !account.phoneVerified)}><CommerceProvider key={session.user.id} userId={session.user.id}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
     {tab !== "messages" ? <ScreenHeader title={title} subtitle={subtitle} /> : null}
@@ -189,12 +144,41 @@ function NativeComePlayersApp() {
       {tab === "profile" ? <ProfileScreen session={session} commerceLink={commerceLink} onCommerceLinkHandled={() => setCommerceLink(null)} onAccountUpdated={refreshAccount} /> : null}
     </Suspense></View>
     <BottomTabs active={tab} onChange={(next) => { setRoom(null); setTab(next); }} unread={unread} />
-    {updateUi.visible && updateUi.stage !== "ready" ? <View pointerEvents="none" style={styles.updateToast}><ActivityIndicator size="small" color={colors.yellow} /><Text style={styles.updateText}>{updateUi.message}</Text></View> : null}
   </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider></CommerceProvider></PrivateProvider>;
 }
 
 export default function App() {
-  return <SafeAreaProvider><AccountSessionGuard /><StatusBar barStyle="light-content" backgroundColor={colors.background} /><SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}><NativeComePlayersApp /></SafeAreaView></SafeAreaProvider>;
+  const { isUpdatePending } = Updates.useUpdates();
+  const [update, setUpdate] = useState<MobileUpdateState>({ status: "idle" });
+  const controller = useRef<ReturnType<typeof createMobileUpdateController> | null>(null);
+  useEffect(() => {
+    const current = createMobileUpdateController({
+      isEnabled: !__DEV__ && Updates.isEnabled,
+      checkForUpdateAsync: Updates.checkForUpdateAsync,
+      fetchUpdateAsync: Updates.fetchUpdateAsync,
+      reloadAsync: Updates.reloadAsync,
+    }, setUpdate, { onError: error => console.warn("[ComePlayers] Pembaruan belum tersedia:", error) });
+    controller.current = current;
+    let lastCheck = 0;
+    const check = () => {
+      if (Date.now() - lastCheck < UPDATE_RECHECK_INTERVAL_MS) return;
+      lastCheck = Date.now();
+      // A slow Play Store response must not delay downloading a ready app update.
+      void checkPlayStoreBinaryUpdate();
+      void current.check();
+    };
+    check();
+    const listener = AppState.addEventListener("change", state => { if (state === "active") check(); });
+    return () => { listener.remove(); current.dispose(); controller.current = null; };
+  }, []);
+  useEffect(() => { if (isUpdatePending) controller.current?.markPending(); }, [isUpdatePending]);
+  const applyUpdate = () => Alert.alert("Terapkan pembaruan?", "Aplikasi akan dibuka ulang. Selesaikan pesan atau panggilan Anda terlebih dahulu.", [
+    { text: "Nanti", style: "cancel" },
+    { text: "Terapkan", onPress: () => { void controller.current?.apply(); } },
+  ]);
+  return <SafeAreaProvider><AccountSessionGuard /><StatusBar barStyle="light-content" backgroundColor={colors.background} /><SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}><NativeComePlayersApp />
+    {update.status !== "idle" ? <View style={styles.updateNotice} accessibilityLiveRegion="polite"><View style={styles.updateCopy}><Text style={styles.updateTitle}>{update.status === "applying" ? "Membuka pembaruan…" : "Pembaruan siap"}</Text><Text style={styles.updateText}>{update.error || "Terapkan saat Anda sudah selesai menggunakan aplikasi."}</Text></View>{update.status === "applying" ? <ActivityIndicator color={colors.yellow} /> : <Pressable accessibilityRole="button" accessibilityLabel="Terapkan pembaruan ComePlayers" style={styles.updateButton} onPress={applyUpdate}><Text style={styles.updateButtonText}>Terapkan</Text></Pressable>}</View> : null}
+  </SafeAreaView></SafeAreaProvider>;
 }
 
 const styles = StyleSheet.create({
@@ -202,12 +186,13 @@ const styles = StyleSheet.create({
   app: { flex: 1, backgroundColor: colors.background },
   content: { flex: 1 },
   boot: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 30, backgroundColor: colors.background },
-  bootEyebrow: { marginTop: 5, color: colors.blue, fontSize: 10, fontWeight: "900", letterSpacing: 2.1 },
   bootTitle: { marginTop: 9, color: colors.text, fontSize: 26, fontWeight: "900" },
   spinner: { marginTop: 27 },
-  bootMessage: { maxWidth: 390, marginTop: 17, color: colors.textMuted, fontSize: 12, lineHeight: 18, textAlign: "center" },
-  continueButton: { minWidth: 170, alignItems: "center", marginTop: 20, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.yellow },
-  continueText: { color: colors.background, fontSize: 12, fontWeight: "900" },
-  updateToast: { position: "absolute", bottom: 82, alignSelf: "center", maxWidth: "90%", flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 13, paddingVertical: 10, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,208,0,.3)", backgroundColor: "rgba(5,7,12,.97)" },
-  updateText: { flexShrink: 1, color: "#f3e6a6", fontSize: 9, fontWeight: "800" },
+  bootMessage: { maxWidth: 390, marginTop: 17, color: colors.textMuted, fontSize: 16, lineHeight: 24, textAlign: "center" },
+  updateNotice: { flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.background },
+  updateCopy: { flex: 1, gap: 4 },
+  updateTitle: { color: colors.text, fontSize: 16, fontWeight: "700" },
+  updateText: { color: colors.textMuted, fontSize: 14, lineHeight: 20 },
+  updateButton: { minHeight: 48, minWidth: 88, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, borderRadius: 12, backgroundColor: colors.yellow },
+  updateButtonText: { color: colors.background, fontSize: 16, fontWeight: "700" },
 });
