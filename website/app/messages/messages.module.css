@@ -5237,6 +5237,16 @@
 }
 
 .simpleCommunity .leftProfileCard {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  min-width: 0;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  transform: none !important;
+  float: none !important;
+  z-index: auto;
   display: block !important;
   height: auto !important;
   flex: none;
@@ -5506,6 +5516,31 @@
   .simpleCommunity .workspace {
     gap: 0 !important;
     padding: 0 !important;
+  }
+
+  /* One scroll surface keeps every room reachable when the header, filters,
+     account footer, or larger system text would otherwise consume the pane. */
+  .simpleCommunity .workspace[data-mobile-pane="list"] .leftRail {
+    display: block !important;
+    overflow-y: auto !important;
+  }
+
+  .simpleCommunity .leftCommunityPanel {
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .simpleCommunity .leftCommunityPanel > div:last-child,
+  .simpleCommunity .channelSidebarArea,
+  .simpleCommunity :global([data-community-sidebar]) {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .simpleCommunity :global([data-community-sidebar]) > :global(.overflow-y-auto) {
+    min-height: auto !important;
+    flex: none !important;
+    overflow: visible !important;
   }
 
   .simpleCommunity .channelHeader {

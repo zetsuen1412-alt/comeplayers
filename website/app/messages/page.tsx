@@ -4428,7 +4428,7 @@ export default function MessagesPage() {
             <button
               type="button"
               onClick={() => {
-                if (!requireLogin("Sign in to open Contacts.")) return;
+                if (!requireLogin("Masuk untuk membuka kontak.")) return;
                 setShowFriendsMenu((current) => !current);
                 setShowPrivateMessages(false);
                 setShowPlayMenu(false);
@@ -4439,7 +4439,7 @@ export default function MessagesPage() {
               className="inline-flex items-center gap-2 transition hover:text-cyan-300"
               aria-expanded={showFriendsMenu}
             >
-              Contacts
+              Kontak
               <FaChevronDown
                 className={`text-[10px] text-cyan-300 transition ${showFriendsMenu ? "rotate-180" : ""}`}
               />
@@ -4452,7 +4452,7 @@ export default function MessagesPage() {
             }}
             className="transition hover:text-cyan-300"
           >
-            Tournaments
+            Turnamen
           </button>
         </nav>
         <form
@@ -4483,7 +4483,7 @@ export default function MessagesPage() {
           <button
             type="button"
             onClick={() => {
-              if (!requireLogin("Sign in to create a server or squad.")) return;
+                if (!requireLogin("Masuk untuk membuat komunitas atau tim.")) return;
               setShowCreateMenu((current) => !current);
               setShowPlayMenu(false);
               setShowFriendsMenu(false);
@@ -4494,7 +4494,7 @@ export default function MessagesPage() {
             className="inline-flex h-11 items-center gap-2 rounded-full border border-cyan-400/15 bg-[#07131f]/82 px-5 text-sm font-black shadow-[inset_0_0_18px_rgba(255,255,255,0.03)] transition hover:border-yellow-400/60 hover:text-yellow-300"
             aria-expanded={showCreateMenu}
           >
-            <FaPlus className="text-yellow-400" /> Create
+            <FaPlus className="text-yellow-400" /> Buat
           </button>
           {showCreateMenu ? (
             <div className="absolute right-0 top-14 z-[75] w-56 rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-2 text-xs font-bold shadow-[0_22px_65px_rgba(0,0,0,0.65)] backdrop-blur-xl">
@@ -4518,7 +4518,7 @@ export default function MessagesPage() {
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-yellow-400/10 hover:text-yellow-200"
               >
-                <FaCrosshairs /> Publish Squad
+                <FaCrosshairs /> Buat tim
               </button>
               <button
                 type="button"
@@ -4529,7 +4529,7 @@ export default function MessagesPage() {
                 disabled={!selectedRoom || selectedChannelIsVoice}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <FaEdit /> New Message
+                <FaEdit /> Pesan baru
               </button>
               <button
                 type="button"
@@ -4539,7 +4539,7 @@ export default function MessagesPage() {
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
               >
-                <FaGamepad /> Seller Center
+                <FaGamepad /> Pusat penjual
               </button>
             </div>
           ) : null}
@@ -4600,10 +4600,10 @@ export default function MessagesPage() {
           href="/marketplace"
           className={styles.shopButton}
           title="Open ComePlayers Shop"
-          aria-label="Open ComePlayers Shop"
+          aria-label="Buka Toko ComePlayers"
         >
           <FaShoppingCart />
-          <span>SHOP</span>
+          <span>Toko</span>
         </Link>
       </header>
 
@@ -5154,7 +5154,7 @@ export default function MessagesPage() {
             <div className="relative border-b border-cyan-400/12 p-4">
               <div className={styles.mobileInboxHeading}>
                 <div className="min-w-0">
-                  <p>{selectedIsGroup ? "Server channels" : "Messages"}</p>
+                  <p>{selectedIsGroup ? "Ruang komunitas" : "Chat"}</p>
                   <span>
                     {selectedIsGroup
                       ? selectedServer?.name || roomTitle(selectedRoom)
@@ -5163,7 +5163,7 @@ export default function MessagesPage() {
                 </div>
                 {selectedRoom ? (
                   <button type="button" onClick={openAllMobileChats}>
-                    All chats
+                    Semua percakapan
                   </button>
                 ) : null}
               </div>
@@ -8141,17 +8141,17 @@ export default function MessagesPage() {
                   Mulai siaran
                 </p>
                 <h2 className="mt-1 text-xl font-black text-white">
-                  Choose a Voice Lobby
+                  Pilih ruang untuk siaran
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
-                  Live streaming is only available from a server Voice Lobby. Select one to join and go live automatically.
+                  Pilih ruang suara di bawah. Anda akan langsung bergabung dan memulai siaran di ruang tersebut.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowLiveLobbyPicker(false)}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-slate-400 transition hover:bg-white/5 hover:text-white"
-                title="Close"
+                title="Tutup" aria-label="Tutup pilihan ruang siaran"
               >
                 <FaTimes />
               </button>
@@ -8168,7 +8168,7 @@ export default function MessagesPage() {
                     key={`live-lobby:${channel.id}`}
                     type="button"
                     onClick={() => selectLiveLobbyForStreaming(channel)}
-                    className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${
+                    className={`flex w-full flex-wrap items-center gap-3 rounded-2xl border p-4 text-left transition sm:flex-nowrap ${
                       selected
                         ? "border-yellow-400/60 bg-yellow-400/10 shadow-[0_0_24px_rgba(250,204,21,0.12)]"
                         : "border-white/10 bg-white/[0.035] hover:border-cyan-400/35 hover:bg-cyan-400/[0.07]"
@@ -8189,18 +8189,18 @@ export default function MessagesPage() {
                       </span>
                       <span className="mt-1 block truncate text-xs text-slate-400">
                         {connected
-                          ? `${voiceDockState.participantCount} connected`
-                          : channel.topic || "Ready to join and start live"}
+                          ? `${voiceDockState.participantCount} peserta terhubung`
+                          : channel.topic || "Siaran bersama anggota di ruang ini"}
                       </span>
                     </span>
                     <span
-                      className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${
+                      className={`w-full shrink-0 rounded-lg px-3 py-2 text-center text-sm font-bold sm:w-auto sm:max-w-[150px] ${
                         selected
                           ? "bg-yellow-400 text-black"
                           : "border border-white/10 text-slate-400"
                       }`}
                     >
-                      {selected ? "Joining" : "Auto Start"}
+                      {selected ? "Sedang bergabung…" : "Gabung & mulai siaran"}
                     </span>
                   </button>
                 );
@@ -8209,14 +8209,14 @@ export default function MessagesPage() {
 
             <div className="flex items-center justify-between gap-3 border-t border-white/10 bg-black/20 px-5 py-4">
               <p className="text-xs font-bold text-slate-400">
-                Pick one lobby and ComePlayers will join it and start live automatically.
+                Belum siap siaran? Pilih Batal untuk kembali mengobrol.
               </p>
               <button
                 type="button"
                 onClick={() => setShowLiveLobbyPicker(false)}
                 className="min-h-11 rounded-xl border border-white/10 px-5 text-sm font-black text-slate-300 transition hover:bg-white/5 hover:text-white"
               >
-                Cancel
+                Batal
               </button>
             </div>
           </div>
