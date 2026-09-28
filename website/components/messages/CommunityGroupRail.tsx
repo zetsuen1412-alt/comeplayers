@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FaComments, FaPlus } from "react-icons/fa";
+import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import styles from "./community-group-rail.module.css";
 
 export type CommunityGroupRailRoom = {
@@ -23,16 +24,19 @@ type Props = {
 
 function GroupAvatar({ name, iconUrl }: { name: string; iconUrl?: string | null }) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const words = name.trim().split(/\s+/u);
-  const initials = (words.length > 1
-    ? `${Array.from(words[0] || "")[0] || ""}${Array.from(words[1] || "")[0] || ""}`
-    : Array.from(words[0] || "CP").slice(0, 2).join("")).toLocaleUpperCase("id-ID");
-  const showImage = iconUrl && iconUrl !== failedUrl && /^(https?:\/\/|\/(?!\/))/.test(iconUrl);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
+  const customUrl = String(iconUrl || "").trim();
+  const showCustomImage = customUrl !== failedUrl && /^(https?:\/\/|\/(?!\/)|data:image\/(?:png|jpeg|webp);base64,)/i.test(customUrl);
+  const imageUrl = showCustomImage ? customUrl : DEFAULT_COMMUNITY_GROUP_ICON;
+  const initials = Array.from(name.trim() || "CP").slice(0, 2).join("").toLocaleUpperCase("id-ID");
   return <span className={styles.avatar} aria-hidden="true">
-    {showImage ? (
+    {fallbackFailed && !showCustomImage ? initials : (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={iconUrl} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailedUrl(iconUrl)} />
-    ) : initials}
+      <img src={imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => {
+        if (showCustomImage) setFailedUrl(customUrl);
+        else setFallbackFailed(true);
+      }} />
+    )}
   </span>;
 }
 

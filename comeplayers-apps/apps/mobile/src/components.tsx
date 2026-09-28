@@ -131,6 +131,20 @@ export function Avatar({
   );
 }
 
+export function GroupAvatar({ uri, size = 44 }: { uri?: string | null; size?: number }) {
+  const source: ImageSourcePropType = uri?.trim()
+    ? { uri: uri.trim() }
+    : require("../assets/adaptive-icon.png");
+  return (
+    <Image
+      accessibilityLabel="Foto grup"
+      source={source}
+      resizeMode="cover"
+      style={[styles.groupAvatar, { width: size, height: size, borderRadius: Math.round(size * 0.25) }]}
+    />
+  );
+}
+
 export function SectionTitle({
   eyebrow,
   title,
@@ -353,6 +367,7 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: { color: colors.white, fontSize: 8, fontWeight: "900" },
   avatar: { backgroundColor: colors.panelStrong },
+  groupAvatar: { backgroundColor: colors.panelStrong },
   avatarFallback: { alignItems: "center", justifyContent: "center", borderWidth: 1 },
   avatarBlue: { backgroundColor: colors.blueSoft, borderColor: "rgba(39,183,255,0.45)" },
   avatarYellow: { backgroundColor: colors.yellowSoft, borderColor: "rgba(255,208,0,0.45)" },

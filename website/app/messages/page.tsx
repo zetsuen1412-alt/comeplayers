@@ -77,6 +77,7 @@ import {
 import AuthModal from "@/components/auth/AuthModal";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
 import ChatMessagesLoginGate from "@/components/messages/ChatMessagesLoginGate";
 import ArcadeWindow, {
@@ -568,17 +569,23 @@ function ServerAvatar({
   name: string;
   className?: string;
 }) {
-  const safeIcon = safeServerIconUrl(iconUrl);
-  const style: CSSProperties | undefined = safeIcon
-    ? { backgroundImage: `url("${safeIcon.replace(/"/g, "%22")}")` }
-    : undefined;
+  const [failedCustomUrl, setFailedCustomUrl] = useState<string | null>(null);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
+  const customUrl = safeServerIconUrl(iconUrl);
+  const showCustomImage = Boolean(customUrl && customUrl !== failedCustomUrl);
+  const imageUrl = showCustomImage ? customUrl : DEFAULT_COMMUNITY_GROUP_ICON;
   return (
     <span
-      className={`flex shrink-0 items-center justify-center bg-[#10273a] bg-cover bg-center font-black text-cyan-200 ${className}`}
-      style={style}
+      className={`flex shrink-0 items-center justify-center overflow-hidden bg-[#10273a] font-black text-cyan-200 ${className}`}
       aria-label={`${name} server icon`}
     >
-      {safeIcon ? null : name.slice(0, 1).toUpperCase() || <FaServer />}
+      {fallbackFailed && !showCustomImage ? <FaServer aria-hidden="true" /> : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" onError={() => {
+          if (showCustomImage) setFailedCustomUrl(customUrl);
+          else setFallbackFailed(true);
+        }} />
+      )}
     </span>
   );
 }
@@ -5319,9 +5326,7 @@ export default function MessagesPage() {
                       guestServerPreview?.name ||
                       "Komunitas saya"
                     }
-                    iconUrl={
-                      selectedServer?.icon_url || guestServerPreview?.iconUrl
-                    }
+                    iconUrl={selectedServer ? selectedServer.icon_url : guestServerPreview?.iconUrl}
                     className="h-12 w-12 rounded-xl border border-cyan-400/25 shadow-[0_0_22px_rgba(6,182,212,0.12)]"
                   />
                   <div className="min-w-0 flex-1">
@@ -5939,16 +5944,20 @@ export default function MessagesPage() {
                       onClick={() => openRoom(room)}
                       className={`mb-1 flex w-full gap-3 rounded-xl border p-3 text-left transition ${selectedRoomId === room.id ? "border-cyan-400/45 bg-cyan-400/10" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}
                     >
-                      <ProfileAvatar
-                        profile={group ? null : room.other}
-                        size="md"
-                        fallback={group ? <FaUsers /> : roomInitial(room)}
-                        className={
-                          group
-                            ? "bg-cyan-400/15 text-cyan-200"
-                            : "bg-white/10 text-cyan-300"
-                        }
-                      />
+                      {group ? (
+                        <ServerAvatar
+                          name={roomTitle(room)}
+                          iconUrl={room.server?.icon_url}
+                          className="h-11 w-11 rounded-xl border border-cyan-400/25"
+                        />
+                      ) : (
+                        <ProfileAvatar
+                          profile={room.other}
+                          size="md"
+                          fallback={roomInitial(room)}
+                          className="bg-white/10 text-cyan-300"
+                        />
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-black">

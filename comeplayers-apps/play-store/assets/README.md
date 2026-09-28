@@ -1,6 +1,7 @@
 # Aset listing ComePlayers
 
 - `comeplayers-brand-source.png`: logo yang diberikan pemilik, disalin tanpa perubahan. Play Console menyesuaikannya menggunakan preset App icon menjadi 512×512 dengan keseluruhan logo tetap terlihat.
+- `comeplayers-app-icon-2026.png`: ikon baru yang diberikan pemilik pada 28 September 2026, disiapkan sebagai PNG 512×512 untuk mengganti App icon di Play Console. Versi ini juga menjadi ikon launcher Android/iOS dan avatar bawaan grup yang belum punya foto.
 - `comeplayers-feature-source.png`: gambar promosi yang dibuat dengan built-in imagegen memakai logo pemilik sebagai referensi. Play Console menyesuaikannya menggunakan preset Feature graphic menjadi 1024×500. File sumber ini bukan screenshot aplikasi.
 
 Gambar listing disimpan terpisah dari ikon native pada AAB 0.15.0. Mengubah aset Play Store tidak mengganti ikon launcher aplikasi yang sudah terpasang. Nama sementara `(unreviewed)` berasal dari status review pertama Google Play, meskipun field App name sudah berisi ComePlayers.

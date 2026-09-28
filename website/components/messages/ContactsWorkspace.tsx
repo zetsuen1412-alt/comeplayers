@@ -4,10 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaArrowLeft, FaBan, FaCommentDots, FaPaperPlane, FaPlus, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { authenticatedFetchJson as api } from "@/lib/authenticatedFetch";
+import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import styles from "./ContactsWorkspace.module.css";
 
 type Profile = { id: string; username?: string | null; full_name?: string | null; avatar_url?: string | null };
-type Room = { id: string; title?: string; room_type?: string; other?: Profile; unread_count?: number; last_message?: string; last_message_at?: string; blocked_by_me?: boolean; contact_unavailable?: boolean };
+type Room = { id: string; title?: string; room_type?: string; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string; last_message_at?: string; blocked_by_me?: boolean; contact_unavailable?: boolean };
 type Message = { id: string; sender_id: string; message: string; created_at: string; deleted_at?: string; is_read?: boolean; sender?: Profile; attachment?: { file_name: string } };
 type Props = { userId: string; active: boolean; friendMenuOpen: boolean; privateMessagesOpen: boolean; onCloseFriendMenu: () => void; onClosePrivateMessages: () => void; onUnreadChange?: (count: number) => void };
 const name = (p?: Profile) => p?.username || p?.full_name || "ComePlayers user";
@@ -17,6 +18,23 @@ const errorText = (e: unknown) => e instanceof Error ? e.message : "Please try a
 
 function Avatar({ profile, title }: { profile?: Profile; title?: string }) {
   return <span className={styles.avatar}>{profile?.avatar_url ? <img src={profile.avatar_url} alt="" onError={e => { e.currentTarget.style.display = "none"; }} /> : (title || name(profile)).slice(0, 1).toUpperCase()}</span>;
+}
+
+function GroupAvatar({ iconUrl, title }: { iconUrl?: string | null; title: string }) {
+  const [failedCustomUrl, setFailedCustomUrl] = useState<string | null>(null);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
+  const customUrl = String(iconUrl || "").trim();
+  const showCustomImage = customUrl !== failedCustomUrl && /^(https?:\/\/|\/(?!\/)|data:image\/(?:png|jpeg|webp);base64,)/i.test(customUrl);
+  const imageUrl = showCustomImage ? customUrl : DEFAULT_COMMUNITY_GROUP_ICON;
+  return <span className={`${styles.avatar} ${styles.groupAvatar}`} aria-label={`${title} group icon`}>
+    {fallbackFailed && !showCustomImage ? title.slice(0, 1).toUpperCase() : (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => {
+        if (showCustomImage) setFailedCustomUrl(customUrl);
+        else setFallbackFailed(true);
+      }} />
+    )}
+  </span>;
 }
 
 export default function ContactsWorkspace(props: Props) {
@@ -157,7 +175,7 @@ export default function ContactsWorkspace(props: Props) {
         {mode === "chats" ? <div className={styles.tabs}>{["all", "unread", "groups"].map(value => <button key={value} aria-pressed={filter===value} onClick={()=>setFilter(value)}>{value}</button>)}</div> : null}
         <div className={styles.list}>
           {(mode !== "chats" || query.length >= 2) ? <><p className={styles.label}>{mode === "blocked" ? "Blocked contacts" : query ? "People" : "Recently contacted"}</p>{loading ? <p className={styles.empty}>Loading contacts…</p> : users.map(user => <button className={styles.row} key={user.id} disabled={busy} onClick={()=>choose(user)}><Avatar profile={user} /><span className={styles.copy}><strong>{name(user)}</strong><small>@{user.username || "player"}</small></span><span className={styles.accent}>{mode === "blocked" ? "Unblock" : mode === "group" ? members.some(p=>p.id===user.id) ? "Selected" : "Select" : "Chat"}</span></button>)}{!loading && !users.length ? <p className={styles.empty}>{mode === "blocked" ? "No blocked contacts." : "Search an exact username or a complete verified phone number, including country code. No friend request needed."}</p> : null}</> : null}
-          {mode === "chats" ? <><p className={styles.label}>Chats</p>{filtered.map(room => <button className={styles.row} key={room.id} onClick={()=>{setSelected(room); setNotice("");}}><Avatar profile={room.other} title={roomName(room)} /><span className={styles.copy}><strong>{roomName(room)}</strong><small>{room.last_message || "No messages yet"}</small></span><span className={styles.meta}>{room.last_message_at ? new Date(room.last_message_at).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : ""}{room.unread_count ? <b>{room.unread_count}</b> : null}</span></button>)}{!filtered.length ? <p className={styles.empty}>No conversations here yet. Open Contacts to start a chat.</p> : null}</> : null}
+          {mode === "chats" ? <><p className={styles.label}>Chats</p>{filtered.map(room => <button className={styles.row} key={room.id} onClick={()=>{setSelected(room); setNotice("");}}>{room.room_type === "group" ? <GroupAvatar iconUrl={room.server?.icon_url} title={roomName(room)} /> : <Avatar profile={room.other} title={roomName(room)} />}<span className={styles.copy}><strong>{roomName(room)}</strong><small>{room.last_message || "No messages yet"}</small></span><span className={styles.meta}>{room.last_message_at ? new Date(room.last_message_at).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : ""}{room.unread_count ? <b>{room.unread_count}</b> : null}</span></button>)}{!filtered.length ? <p className={styles.empty}>No conversations here yet. Open Contacts to start a chat.</p> : null}</> : null}
         </div>
       </> : <>
         {selected.room_type === "group" ? <form className={styles.invite} onSubmit={e=>{e.preventDefault(); void action(async()=>{await api(`/api/messages/rooms/${selected.id}/members`,json("POST",{identifier:invite.trim()}));setInvite("");setNotice("Group invitation sent.");});}}><input aria-label="Invite by username or phone" placeholder="Invite by username or phone" value={invite} onChange={e=>setInvite(e.target.value)} /><button disabled={busy || !invite.trim()}><FaPlus /> Invite</button></form> : null}
