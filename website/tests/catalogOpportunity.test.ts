@@ -24,16 +24,17 @@ for (const [categoryCode, expectedTitle] of cases) {
 
     assert.match(idea.title, new RegExp(`^${expectedTitle} Aion Classic`));
     assert.match(idea.description, /EVO GAMING FARMING HOUSE/);
-    assert.match(idea.description, /ditangani langsung oleh tim EVO GAMING/);
-    assert.match(idea.description, /Permintaan untuk game lain dapat diajukan/);
-    assert.match(idea.description, /cakupan dan harga dapat didiskusikan/);
-    assert.match(idea.description, /checkout ComePlayers/);
-    assert.doesNotMatch(idea.description, /payment only in g2g|trusted 100%|anti-cheat guarantee|all are personal stock|5 to 10 minutes/i);
+    assert.match(idea.description, /handled directly by the EVO GAMING team/);
+    assert.match(idea.description, /Requests for other games are welcome/);
+    assert.match(idea.description, /Scope and price can be discussed/);
+    assert.match(idea.description, /5–10 minutes.*when a service slot is available/);
+    assert.match(idea.description, /ComePlayers checkout only/);
+    assert.doesNotMatch(idea.description, /payment only in g2g|trusted 100%|anti-cheat guarantee|all are personal stock/i);
     assert.doesNotMatch(idea.description, /g2g\.com/i);
     assert.equal(idea.gameName, "Aion Classic");
     assert.equal(idea.sourceUrl, "https://www.g2g.com/id/categories/aion-classic-boosting-service");
     if (categoryCode === "boosting") {
-      assert.match(idea.description, /VPN atau siaran progres dapat dibahas jika tersedia/);
+      assert.match(idea.description, /VPN and progress streaming can be arranged where available/);
     }
   });
 }
