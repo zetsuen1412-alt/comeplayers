@@ -29,6 +29,7 @@ import type { BrowserVault } from "./browserVault";
 import {
   decryptSecureAttachment,
   encryptSecureAttachment,
+  MAX_SECURE_ATTACHMENT,
   verifySecureAttachment,
   type SecureAttachment,
 } from "./secureAttachment";
@@ -95,17 +96,33 @@ function sameRoot(a: PublicIdentity, b: PublicIdentity) {
   return fingerprint(a) === fingerprint(b);
 }
 
-async function readExactBytes(response: Response, expected: number): Promise<Uint8Array> {
+export async function readExactBytes(response: Response, expected: number): Promise<Uint8Array> {
   if (!response.ok) throw new Error("The encrypted attachment could not be downloaded.");
-  if (!Number.isSafeInteger(expected) || expected < 41 || expected > 4 * 1024 * 1024 + 40) {
+  if (!Number.isSafeInteger(expected) || expected < 41 || expected > MAX_SECURE_ATTACHMENT + 40) {
     throw new Error("Invalid encrypted attachment size.");
   }
   const declared = response.headers.get("content-length");
   if (declared !== null && Number(declared) !== expected) {
     throw new Error("Encrypted attachment size does not match.");
   }
-  const value = new Uint8Array(await response.arrayBuffer());
-  if (value.length !== expected) throw new Error("The encrypted attachment download is incomplete.");
+  if (!response.body) throw new Error("The encrypted attachment download is empty.");
+  const reader = response.body.getReader();
+  const value = new Uint8Array(expected);
+  let offset = 0;
+  try {
+    while (true) {
+      const { done, value: chunk } = await reader.read();
+      if (done) break;
+      if (offset + chunk.length > expected) {
+        throw new Error("Encrypted attachment exceeds the expected size.");
+      }
+      value.set(chunk, offset);
+      offset += chunk.length;
+    }
+  } finally {
+    await reader.cancel().catch(() => undefined);
+  }
+  if (offset !== expected) throw new Error("The encrypted attachment download is incomplete.");
   return value;
 }
 

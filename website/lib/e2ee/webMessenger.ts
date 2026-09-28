@@ -397,7 +397,7 @@ export class WebMessenger {
       if (!file.name.trim() || file.name.length > 180) {
         throw new Error("Choose a file with a valid name under 180 characters.");
       }
-      if (!file.size || file.size > MAX_SECURE_ATTACHMENT) throw new Error("Choose a file under 4 MB.");
+      if (!file.size || file.size > MAX_SECURE_ATTACHMENT) throw new Error("Choose a file up to 8 MB.");
       const bytes = new Uint8Array(await file.arrayBuffer());
       try {
         result = await this.history.sendAttachment(room.id, base, {

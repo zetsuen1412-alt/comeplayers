@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import {
   attachmentSignatureMatches,
+  isVideoAttachmentMime,
   r2StoragePath,
   safeAttachmentName,
   validateAttachmentMetadata,
@@ -127,14 +128,14 @@ async function preparePresignedUpload(request: Request) {
     const uploadUrl = await createR2UploadUrl({
       objectKey,
       contentType: metadata.mimeType,
-      expiresIn: 90,
+      expiresIn: isVideoAttachmentMime(metadata.mimeType) ? 600 : 300,
     });
     return NextResponse.json({
       ok: true,
       upload: {
         url: uploadUrl,
         method: "PUT",
-        expiresIn: 90,
+        expiresIn: isVideoAttachmentMime(metadata.mimeType) ? 600 : 300,
         headers: {
           "Content-Type": metadata.mimeType,
         },

@@ -1,6 +1,6 @@
 import { decryptBytes, digest, encryptBytes, hex, random, unhex } from "./crypto";
 
-export const MAX_SECURE_ATTACHMENT = 4 * 1024 * 1024;
+export const MAX_SECURE_ATTACHMENT = 8 * 1024 * 1024;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const KEY = /^[0-9a-f]{64}$/;
 const allowedMime = /^(image\/(jpeg|png|webp)|video\/mp4|audio\/(mp4|m4a|mpeg)|application\/pdf)$/;
@@ -59,7 +59,7 @@ export function encryptSecureAttachment(
   },
 ): { attachment: SecureAttachment; ciphertext: Uint8Array } {
   if (!bytes.length || bytes.length > MAX_SECURE_ATTACHMENT) {
-    throw new Error("Choose a file under 4 MB.");
+    throw new Error("Choose a file up to 8 MB.");
   }
   if (![details.eventId, details.roomId, details.epochId, details.blobId].every((value) => UUID.test(value))) {
     throw new Error("Invalid encrypted attachment destination.");

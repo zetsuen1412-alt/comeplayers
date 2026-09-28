@@ -70,23 +70,43 @@ export async function GET(request: Request, context: RouteContext) {
     const before = String(searchParams.get("before") || "").trim();
     const requestedChannelId = String(searchParams.get("channel") || "").trim();
     const search = String(searchParams.get("search") || "").trim().slice(0, 100);
-    const [preference, privacy] = await Promise.all([
+    const groupRoom = isGroupRoom(room);
+    const otherContactId = room.buyer_id === user.id ? room.seller_id : room.buyer_id;
+    const membersRequest = groupRoom
+      ? listChatRoomMembers({ roomId, supabaseAdmin })
+      : Promise.resolve([]);
+    const productRequest = room.product_id
+      ? supabaseAdmin
+          .from("products")
+          .select("id,title,image_url,price,game_name,category,seller_id")
+          .eq("id", Number(room.product_id))
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null });
+    const orderRequest = room.order_id
+      ? supabaseAdmin
+          .from("orders")
+          .select("id,status,payment_status,product_title,created_at")
+          .eq("id", Number(room.order_id))
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null });
+    const blockRequest = !groupRoom
+      ? supabaseAdmin.from("chat_user_blocks").select("blocker_id")
+          .or(`and(blocker_id.eq.${user.id},blocked_id.eq.${otherContactId}),and(blocker_id.eq.${otherContactId},blocked_id.eq.${user.id})`)
+      : Promise.resolve({ data: [], error: null });
+    const [preference, privacy, channelAccess] = await Promise.all([
       supabaseAdmin.from("cp_chat_preferences").select("cleared_before").eq("user_id", user.id).eq("room_id", roomId).maybeSingle(),
-      !isGroupRoom(room) ? supabaseAdmin.from("cp_messaging_settings").select("read_receipts").in("user_id", [room.buyer_id, room.seller_id]) : Promise.resolve({ data: [], error: null }),
+      !groupRoom ? supabaseAdmin.from("cp_messaging_settings").select("read_receipts").in("user_id", [room.buyer_id, room.seller_id]) : Promise.resolve({ data: [], error: null }),
+      groupRoom ? requireCommunityChannel({
+        supabaseAdmin,
+        userId: user.id,
+        roomId,
+        channelId: requestedChannelId || null,
+      }) : Promise.resolve(null),
     ]);
     if (preference.error) throw preference.error;
     if (privacy.error) throw privacy.error;
     const shareReceipts = !privacy.data?.some(p => p.read_receipts === false);
-    const selectedChannel = isGroupRoom(room)
-      ? (
-          await requireCommunityChannel({
-            supabaseAdmin,
-            userId: user.id,
-            roomId,
-            channelId: requestedChannelId || null,
-          })
-        ).channel
-      : null;
+    const selectedChannel = channelAccess?.channel || null;
 
     let messagesQuery = supabaseAdmin
       .from("chat_messages")
@@ -113,30 +133,18 @@ export async function GET(request: Request, context: RouteContext) {
       messagesQuery = messagesQuery.in("id", stars.data.length ? stars.data.map(s => s.message_id) : ["00000000-0000-0000-0000-000000000000"]);
     }
 
-    const [messagesResult, members, productResult, orderResult] = await Promise.all([
+    const [messagesResult, members, productResult, orderResult, blockResult] = await Promise.all([
       messagesQuery,
-      isGroupRoom(room)
-        ? listChatRoomMembers({ roomId, supabaseAdmin })
-        : Promise.resolve([]),
-      room.product_id
-        ? supabaseAdmin
-            .from("products")
-            .select("id,title,image_url,price,game_name,category,seller_id")
-            .eq("id", Number(room.product_id))
-            .maybeSingle()
-        : Promise.resolve({ data: null, error: null }),
-      room.order_id
-        ? supabaseAdmin
-            .from("orders")
-            .select("id,status,payment_status,product_title,created_at")
-            .eq("id", Number(room.order_id))
-            .maybeSingle()
-        : Promise.resolve({ data: null, error: null }),
+      membersRequest,
+      productRequest,
+      orderRequest,
+      blockRequest,
     ]);
 
     if (messagesResult.error) throw new Error(messagesResult.error.message);
     if (productResult.error) throw new Error(productResult.error.message);
     if (orderResult.error) throw new Error(orderResult.error.message);
+    if (blockResult.error) throw new Error(blockResult.error.message);
 
     const messageRows = ((messagesResult.data || []) as MessageRow[]).reverse();
     const messageMap = new Map(messageRows.map((message) => [message.id, message]));
@@ -144,30 +152,7 @@ export async function GET(request: Request, context: RouteContext) {
       new Set(messageRows.map((message) => message.reply_to_id).filter(Boolean) as string[])
     );
     const missingReplyIds = replyIds.filter((replyId) => !messageMap.has(replyId));
-
-    if (missingReplyIds.length) {
-      const { data, error } = await supabaseAdmin
-        .from("chat_messages")
-        .select("id,room_id,channel_id,sender_id,receiver_id,message,message_type,attachment_id,reply_to_id,moderation_status,risk_score,risk_flags,is_read,read_at,created_at,edited_at,deleted_at")
-        .eq("room_id", roomId)
-        .in("id", missingReplyIds);
-      if (error) throw new Error(error.message);
-      for (const reply of (data || []) as MessageRow[]) messageMap.set(reply.id, reply);
-    }
-
     const visibleMessageIds = messageRows.map((message) => message.id).filter(Boolean);
-    const { data: reactionData, error: reactionError } = visibleMessageIds.length
-      ? await supabaseAdmin
-          .from("chat_message_reactions")
-          .select("message_id,user_id,emoji,created_at")
-          .eq("room_id", roomId)
-          .in("message_id", visibleMessageIds)
-      : { data: [], error: null };
-    if (reactionError && !/does not exist|schema cache/i.test(reactionError.message)) {
-      throw new Error(reactionError.message);
-    }
-    const reactions = (reactionData || []) as ReactionRow[];
-
     const attachmentIds = Array.from(
       new Set(
         messageRows
@@ -176,19 +161,38 @@ export async function GET(request: Request, context: RouteContext) {
           .filter((value) => Number.isInteger(value) && value > 0)
       )
     );
-
+    // These lookups depend on the visible page, but not on each other.
+    const [replyResult, reactionResult, attachmentResult] = await Promise.all([
+      missingReplyIds.length
+        ? supabaseAdmin.from("chat_messages")
+            .select("id,room_id,channel_id,sender_id,receiver_id,message,message_type,attachment_id,reply_to_id,moderation_status,risk_score,risk_flags,is_read,read_at,created_at,edited_at,deleted_at")
+            .eq("room_id", roomId)
+            .in("id", missingReplyIds)
+        : Promise.resolve({ data: [], error: null }),
+      visibleMessageIds.length
+        ? supabaseAdmin.from("chat_message_reactions")
+            .select("message_id,user_id,emoji,created_at")
+            .eq("room_id", roomId)
+            .in("message_id", visibleMessageIds)
+        : Promise.resolve({ data: [], error: null }),
+      attachmentIds.length
+        ? supabaseAdmin.from("chat_attachments")
+            .select("id,room_id,message_id,file_name,mime_type,size_bytes,moderation_status,created_at,deleted_at")
+            .in("id", attachmentIds)
+            .eq("room_id", roomId)
+            .is("deleted_at", null)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+    if (replyResult.error) throw new Error(replyResult.error.message);
+    for (const reply of (replyResult.data || []) as MessageRow[]) messageMap.set(reply.id, reply);
+    if (reactionResult.error && !/does not exist|schema cache/i.test(reactionResult.error.message)) {
+      throw new Error(reactionResult.error.message);
+    }
+    const reactions = (reactionResult.data || []) as ReactionRow[];
+    if (attachmentResult.error) throw new Error(attachmentResult.error.message);
     const attachmentMap = new Map<number, Record<string, unknown>>();
-    if (attachmentIds.length) {
-      const { data, error } = await supabaseAdmin
-        .from("chat_attachments")
-        .select("id,room_id,message_id,file_name,mime_type,size_bytes,moderation_status,created_at,deleted_at")
-        .in("id", attachmentIds)
-        .eq("room_id", roomId)
-        .is("deleted_at", null);
-      if (error) throw new Error(error.message);
-      for (const attachment of data || []) {
-        attachmentMap.set(Number(attachment.id), attachment as Record<string, unknown>);
-      }
+    for (const attachment of attachmentResult.data || []) {
+      attachmentMap.set(Number(attachment.id), attachment as Record<string, unknown>);
     }
 
     const profileIds = Array.from(
@@ -232,10 +236,6 @@ export async function GET(request: Request, context: RouteContext) {
       reactionsByMessage.set(reaction.message_id, emojiMap);
     }
 
-    const otherContactId = room.buyer_id === user.id ? room.seller_id : room.buyer_id;
-    const blockResult = !isGroupRoom(room) ? await supabaseAdmin.from("chat_user_blocks").select("blocker_id")
-      .or(`and(blocker_id.eq.${user.id},blocked_id.eq.${otherContactId}),and(blocker_id.eq.${otherContactId},blocked_id.eq.${user.id})`) : { data: [], error: null };
-    if (blockResult.error) throw new Error(blockResult.error.message);
     return NextResponse.json({
       room: {
         ...room,

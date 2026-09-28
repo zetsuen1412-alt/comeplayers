@@ -10,6 +10,7 @@ import {
   FaVideoSlash,
 } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { selectCurrentAccountCall } from "@/lib/callPresence";
 import type { Room as LiveKitRoom, Track as LiveKitTrack } from "livekit-client";
 
 type CallRecord = {
@@ -48,6 +49,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   const [busy, setBusy] = useState(false);
   const [microphone, setMicrophone] = useState(true);
   const [camera, setCamera] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const mounted = useRef(false);
   const joining = useRef(false);
   const polling = useRef(false);
@@ -55,6 +57,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   const failedCalls = useRef(new Set<string>());
   const liveRoom = useRef<LiveKitRoom | null>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const pendingMedia = useRef<HTMLElement[]>([]);
 
   const updateCall = useCallback((value: CallRecord | null) => {
     callRef.current = value;
@@ -62,6 +65,8 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   }, []);
 
   const clearMedia = useCallback(() => {
+    pendingMedia.current.forEach(element => element.remove());
+    pendingMedia.current = [];
     stage.current?.querySelectorAll("audio,video").forEach((element) => {
       const media = element as HTMLMediaElement;
       media.pause();
@@ -78,7 +83,14 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     setConnected(false);
     setMicrophone(true);
     setCamera(false);
+    setAudioBlocked(false);
   }, [clearMedia]);
+
+  useEffect(() => {
+    if (!stage.current || !pendingMedia.current.length) return;
+    pendingMedia.current.forEach(element => stage.current?.appendChild(element));
+    pendingMedia.current = [];
+  }, [call]);
 
   const join = useCallback(async (target: CallRecord) => {
     if (!mounted.current || joining.current || liveRoom.current || failedCalls.current.has(target.id) || target.status !== "accepted") return;
@@ -103,7 +115,8 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         } else {
           element.className = "hidden";
         }
-        stage.current?.appendChild(element);
+        if (stage.current) stage.current.appendChild(element);
+        else pendingMedia.current.push(element);
       };
       room
         .on(livekit.RoomEvent.TrackSubscribed, (track) => attach(track))
@@ -112,6 +125,9 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         })
         .on(livekit.RoomEvent.TrackUnsubscribed, (track) => track.detach().forEach((element) => element.remove()))
         .on(livekit.RoomEvent.LocalTrackUnpublished, (publication) => publication.track?.detach().forEach((element) => element.remove()))
+        .on(livekit.RoomEvent.AudioPlaybackStatusChanged, () => {
+          if (liveRoom.current === room) setAudioBlocked(!room.canPlaybackAudio);
+        })
         .on(livekit.RoomEvent.Disconnected, () => { if (liveRoom.current === room) disconnectMedia(); });
       const token = await callApi<TokenResponse>("/api/messages/calls", "PATCH", { id: target.id, action: "token" });
       if (!mounted.current || liveRoom.current !== room) return;
@@ -126,6 +142,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
       if (!mounted.current || liveRoom.current !== room) { void room.disconnect(true); return; }
       setMicrophone(true);
       setCamera(target.media === "video");
+      setAudioBlocked(!room.canPlaybackAudio);
       setConnected(true);
     } catch (cause) {
       if (!mounted.current) return;
@@ -148,10 +165,10 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         `/api/messages/calls?active=1${callRef.current ? `&id=${encodeURIComponent(callRef.current.id)}` : ""}`,
       );
       if (!mounted.current) return;
-      const current = result.calls.find((item) => item.room_id === roomId) || null;
+      const current = selectCurrentAccountCall(result.calls, roomId, callRef.current?.id);
       updateCall(current);
       if (current?.status === "accepted") void join(current);
-      if (!current || !["ringing", "accepted", "scheduled"].includes(current.status)) disconnectMedia();
+      if (!current) disconnectMedia();
     } catch {
       // A short poll failure must not tear down a live media session.
     } finally { polling.current = false; }
@@ -160,7 +177,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   useEffect(() => {
     mounted.current = true;
     void poll();
-    const timer = window.setInterval(() => void poll(), 2500);
+    const timer = window.setInterval(() => void poll(), 1500);
     return () => { mounted.current = false; window.clearInterval(timer); };
   }, [poll]);
 
@@ -238,6 +255,17 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     }
   }
 
+  async function enableAudio() {
+    const room = liveRoom.current;
+    if (!room) return;
+    try {
+      await room.startAudio();
+      setAudioBlocked(!room.canPlaybackAudio);
+    } catch {
+      onError("Audio playback is blocked. Tap Enable sound again or check your browser sound setting.");
+    }
+  }
+
   const incoming = call?.caller_id !== userId && call?.status === "ringing";
   if (!call) {
     return (
@@ -259,6 +287,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         <div ref={stage} className="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden py-5">
           {!connected ? <div className="flex h-28 w-28 animate-pulse items-center justify-center rounded-full bg-emerald-400/15 text-4xl text-emerald-300">{call.media === "video" ? <FaVideo /> : <FaPhone />}</div> : null}
         </div>
+        {audioBlocked ? <button type="button" onClick={() => void enableAudio()} className="mb-3 min-h-11 rounded-xl bg-yellow-400 px-5 font-bold text-black">Enable sound</button> : null}
         <div className="flex items-center justify-center gap-3">
           {incoming ? (
             <>

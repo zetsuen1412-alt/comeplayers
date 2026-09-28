@@ -14,7 +14,23 @@ import { colors, radius } from "../theme";
 import { AudioPlayback, ChatMedia, VoiceRecorder, type PendingAttachment } from "./ChatMedia";
 import { useCalls } from "../CallProvider";
 import { loadChatPreferences, updateChatPreference, type ChatPreference } from "../messagingApi";
+import { uploadChatAttachment } from "../chatAttachmentUpload";
 import type { AppTab } from "../types";
+
+// Keep only a few recently opened group conversations in memory. Reopening a
+// room paints its last messages immediately while an authenticated refresh runs.
+const recentConversations = new Map<string, { messages: ChatMessage[]; room: ChatRoom; at: number }>();
+function cachedConversation(key: string) {
+  const entry = recentConversations.get(key);
+  if (entry && Date.now() - entry.at < 5 * 60_000) return entry;
+  recentConversations.delete(key);
+  return null;
+}
+function rememberConversation(key: string, messages: ChatMessage[], room: ChatRoom) {
+  recentConversations.delete(key);
+  recentConversations.set(key, { messages: messages.slice(-40), room, at: Date.now() });
+  if (recentConversations.size > 8) recentConversations.delete(recentConversations.keys().next().value!);
+}
 
 export function ConversationScreen({ room, session, onBack, onRead, onNavigate }: { room: ChatRoom; session: Session; onBack: () => void; onRead: () => void; onNavigate: (tab: AppTab) => void }) {
   const { startCall } = useCalls();
@@ -42,15 +58,17 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
   const mutations = useRef(0);
   const refreshPending = useRef(false);
   const reloadRef = useRef<(quiet?: boolean) => Promise<void>>(async () => undefined);
-  const [details, setDetails] = useState(room);
+  const cacheKey = `${session.user.id}:${room.id}`;
+  const [details, setDetails] = useState(() => cachedConversation(cacheKey)?.room || room);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [blockBusy, setBlockBusy] = useState(false);
   const blocked = !!details.contact_unavailable;
   const listRef = useRef<FlatList<ChatMessage>>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => cachedConversation(cacheKey)?.messages || []);
   const [draft, setDraft] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !cachedConversation(cacheKey));
   const [sending, setSending] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const reload = useCallback(async (quiet = false) => {
@@ -63,6 +81,7 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
       const data = await chatClient.getConversation(room.id, 40, { search, media: view === "media", starred: view === "starred" });
       if (current !== generation.current) return;
       if (mutation !== mutations.current) { refreshPending.current = true; return; }
+      if (!search && view === "chat") rememberConversation(cacheKey, data.messages, data.room);
       setMessages(previous => {
         const ids = new Set(data.messages.map(message => message.id));
         const next = quiet ? [...previous.filter(message => !ids.has(message.id) && message.created_at < (data.messages[0]?.created_at || "")), ...data.messages] : data.messages;
@@ -81,13 +100,15 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
     } catch (reason) {
       if (current === generation.current && !quiet) setError(reason instanceof Error ? reason.message : "Chat belum bisa dimuat.");
     } finally { if (current === generation.current) { inFlight.current = null; if (!quiet) setLoading(false); if (refreshPending.current) { refreshPending.current = false; void reloadRef.current(true); } } }
-  }, [room.id, search, view, session.user.id]);
+  }, [room.id, search, view, session.user.id, cacheKey]);
   reloadRef.current = reload;
   const displayMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   useEffect(() => {
     generation.current++; inFlight.current = null; refreshPending.current = false;
-    setMessages([]); setHasOlder(false);
+    const cached = !search && view === "chat" ? cachedConversation(cacheKey) : null;
+    setMessages(cached?.messages || []); setHasOlder(!!cached && cached.messages.length === 40); setLoading(!cached);
+    if (cached) setDetails(cached.room);
     let connected = false;
     let changed: ReturnType<typeof setTimeout> | undefined;
     const schedule = () => {
@@ -99,12 +120,12 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
       .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages", filter: `room_id=eq.${room.id}` }, schedule)
       .on("postgres_changes", { event: "*", schema: "public", table: "chat_message_reactions", filter: `room_id=eq.${room.id}` }, schedule)
       .subscribe(status => { connected = status === "SUBSCRIBED"; if (connected) schedule(); });
-    const debounce = setTimeout(() => void reload(), search ? 350 : 0);
+    const debounce = setTimeout(() => void reload(!!cached), search ? 350 : 0);
     let ticks = 0;
     const timer = setInterval(() => { ticks++; if (!connected || ticks % 5 === 0) void reload(true); }, 6000);
     const subscription = AppState.addEventListener("change", state => { if (state === "active") void reload(true); });
     return () => { generation.current++; refreshPending.current = false; clearTimeout(debounce); clearTimeout(changed); clearInterval(timer); subscription.remove(); void supabase.removeChannel(channel); };
-  }, [reload]);
+  }, [reload, cacheKey, search, view]);
   useEffect(() => { let active = true; void loadChatPreferences().then(data => { if (active) { setPrefs(data.preferences.find(p => p.room_id === room.id) || null); setStars(data.starred); } }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, [room.id]);
   const perform = async (action: () => Promise<unknown>) => { setError(""); try { await action(); mutations.current++; await reload(true); } catch (e) { setError(e instanceof Error ? e.message : "Belum berhasil. Coba lagi."); } };
   const preference = async (values: Record<string, unknown>) => {
@@ -123,14 +144,14 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
       if (result.canceled || !result.assets[0]) return;
       const asset = result.assets[0];
       if (asset.type === "video") {
-        if (!asset.fileSize || asset.fileSize > 4 * 1024 * 1024) throw new Error("Pilih video berukuran kurang dari 4 MB.");
+        if (asset.fileSize && asset.fileSize > 100 * 1024 * 1024) throw new Error("Pilih video berukuran maksimal 100 MB.");
         setAttachment({ uri: asset.uri, name: asset.fileName || "video.mp4", type: asset.mimeType || "video/mp4", size: asset.fileSize });
       } else { const image = await manipulateAsync(asset.uri, [{ resize: { width: 1400 } }], { compress: .7, format: SaveFormat.JPEG }); setAttachment({ uri: image.uri, name: `photo-${Date.now()}.jpg`, type: "image/jpeg" }); }
       setEditing(null);
     } catch (e) { setError(e instanceof Error ? e.message : "Foto belum bisa dipilih."); }
   };
   const chooseDocument = async () => {
-    try { const result = await DocumentPicker.getDocumentAsync({ type: ["application/pdf", "audio/mp4"], copyToCacheDirectory: true }); if (result.canceled) return; const file = result.assets[0]; if (!file) return; if (!file.size || file.size > 4 * 1024 * 1024) throw new Error("Pilih file PDF atau M4A berukuran kurang dari 4 MB."); setAttachment({ uri: file.uri, name: file.name, type: file.mimeType || "application/pdf", size: file.size }); setEditing(null); }
+    try { const result = await DocumentPicker.getDocumentAsync({ type: ["application/pdf", "audio/mp4"], copyToCacheDirectory: true }); if (result.canceled) return; const file = result.assets[0]; if (!file) return; if (!file.size || file.size > 10 * 1024 * 1024) throw new Error("Pilih file PDF atau M4A berukuran maksimal 10 MB."); setAttachment({ uri: file.uri, name: file.name, type: file.mimeType || "application/pdf", size: file.size }); setEditing(null); }
     catch (e) { setError(e instanceof Error ? e.message : "Dokumen belum bisa dipilih."); }
   };
 
@@ -141,7 +162,7 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
     try {
       if (editing) await chatClient.editMessage(room.id, editing.id, message);
       else {
-        const uploaded = attachment ? await chatClient.uploadAttachment(room.id, attachment) : null;
+        const uploaded = attachment ? await uploadChatAttachment(room.id, attachment, setUploadProgress) : null;
         const result = await chatClient.sendMessage(room.id, message, uploaded?.id, reply?.id);
         if (!search && view === "chat") setMessages(previous => previous.some(row => row.id === result.message.id) ? previous : [...previous, { ...result.message, attachment: uploaded || null, reply_to: reply || null }]);
       }
@@ -151,7 +172,7 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
       setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 60);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Pesan belum terkirim. Coba lagi.");
-    } finally { setSending(false); }
+    } finally { setSending(false); setUploadProgress(null); }
   };
 
   const toggleBlock = () => {
@@ -179,9 +200,9 @@ export function ConversationScreen({ room, session, onBack, onRead, onNavigate }
     {error ? <ChatProblemNotice title="Chat belum bisa diperbarui" error={error} onRetry={() => void reload()} /> : null}
     {blocked ? <Text style={styles.error}>{details.blocked_by_me ? "Kontak ini diblokir. Buka Pilihan chat untuk membuka blokir." : "Kontak ini belum bisa menerima pesan."}</Text> : null}
     {reply || editing ? <View style={styles.draftPreview}><View style={{ flex: 1 }}><Text style={styles.action}>{editing ? "Ubah pesan" : `Balas ${reply?.sender?.username || "pesan"}`}</Text><Text numberOfLines={2} style={styles.subtitle}>{(editing || reply)?.message || "Lampiran"}</Text></View><Pressable accessibilityLabel="Batalkan balasan atau perubahan" onPress={() => { setReply(null); if (editing) setDraft(""); setEditing(null); }}><Ionicons name="close" size={25} color={colors.text} /></Pressable></View> : null}
-    {attachment ? <View style={styles.draftPreview}>{attachment.type.startsWith("image/") ? <Image source={{ uri: attachment.uri }} style={{ width: 52, height: 52, borderRadius: 8 }} /> : <Ionicons name={attachment.type.startsWith("audio/") ? "mic" : "document"} size={28} color={colors.yellow} />}<View style={{ flex: 1 }}><Text numberOfLines={1} style={styles.action}>{attachment.name}</Text><Text style={styles.subtitle}>Siap dikirim</Text></View><Pressable accessibilityLabel="Hapus lampiran" onPress={() => setAttachment(null)}><Ionicons name="close" size={25} color={colors.text} /></Pressable></View> : null}
+    {attachment ? <View style={styles.draftPreview}>{attachment.type.startsWith("image/") ? <Image source={{ uri: attachment.uri }} style={{ width: 52, height: 52, borderRadius: 8 }} /> : <Ionicons name={attachment.type.startsWith("audio/") ? "mic" : attachment.type.startsWith("video/") ? "videocam" : "document"} size={28} color={colors.yellow} />}<View style={{ flex: 1 }}><Text numberOfLines={1} style={styles.action}>{attachment.name}</Text><Text style={styles.subtitle}>{sending ? uploadProgress === null ? "Mengirim lampiran…" : `Mengunggah ${uploadProgress}%…` : "Siap dikirim"}</Text></View><Pressable accessibilityLabel="Hapus lampiran" disabled={sending} onPress={() => setAttachment(null)}><Ionicons name="close" size={25} color={colors.text} /></Pressable></View> : null}
     {attachment?.type.startsWith("audio/") ? <AudioPlayback url={attachment.uri} compact /> : null}
-    {recording ? <VoiceRecorder onCancel={() => setRecording(false)} onReady={file => { setRecording(false); setAttachment(file); }} /> : <View style={styles.composer}><View style={styles.inputGroup}><TextInput editable={!blocked && !sending} accessibilityLabel="Ketik pesan" value={draft} onChangeText={setDraft} placeholder="Ketik pesan" placeholderTextColor={colors.textDim} style={styles.input} multiline maxLength={2000} /><Pressable accessibilityRole="button" accessibilityLabel="Tambah lampiran" style={styles.iconButton} disabled={blocked || sending || !!editing} onPress={() => Alert.alert("Kirim lampiran", "Pilih file berukuran maksimal 4 MB.", [{ text: "Foto atau video", onPress: () => void chooseImage() }, { text: "Dokumen atau rekaman suara", onPress: () => void chooseDocument() }, { text: "Batal", style: "cancel" }])}><Ionicons name="attach" size={25} color={colors.textMuted} /></Pressable>{!draft && !attachment ? <Pressable accessibilityRole="button" accessibilityLabel="Ambil foto" style={styles.iconButton} disabled={blocked || sending || !!editing} onPress={() => void chooseImage(true)}><Ionicons name="camera-outline" size={25} color={colors.textMuted} /></Pressable> : null}</View><Pressable accessibilityLabel={draft.trim() || attachment || editing ? "Kirim pesan" : "Rekam pesan suara"} disabled={sending || blocked} onPress={() => draft.trim() || attachment || editing ? void send() : setRecording(true)} style={[styles.send, (sending || blocked) && styles.sendDisabled]}>{sending ? <ActivityIndicator size="small" color={colors.background} /> : <Ionicons name={draft.trim() || attachment || editing ? "send" : "mic"} size={23} color={colors.background} />}</Pressable></View>}
+    {recording ? <VoiceRecorder onCancel={() => setRecording(false)} onReady={file => { setRecording(false); setAttachment(file); }} /> : <View style={styles.composer}><View style={styles.inputGroup}><TextInput editable={!blocked && !sending} accessibilityLabel="Ketik pesan" value={draft} onChangeText={setDraft} placeholder="Ketik pesan" placeholderTextColor={colors.textDim} style={styles.input} multiline maxLength={2000} /><Pressable accessibilityRole="button" accessibilityLabel="Tambah lampiran" style={styles.iconButton} disabled={blocked || sending || !!editing} onPress={() => Alert.alert("Kirim lampiran", "Foto dan dokumen maksimal 10 MB; video maksimal 100 MB.", [{ text: "Foto atau video", onPress: () => void chooseImage() }, { text: "Dokumen atau rekaman suara", onPress: () => void chooseDocument() }, { text: "Batal", style: "cancel" }])}><Ionicons name="attach" size={25} color={colors.textMuted} /></Pressable>{!draft && !attachment ? <Pressable accessibilityRole="button" accessibilityLabel="Ambil foto" style={styles.iconButton} disabled={blocked || sending || !!editing} onPress={() => void chooseImage(true)}><Ionicons name="camera-outline" size={25} color={colors.textMuted} /></Pressable> : null}</View><Pressable accessibilityLabel={draft.trim() || attachment || editing ? "Kirim pesan" : "Rekam pesan suara"} disabled={sending || blocked} onPress={() => draft.trim() || attachment || editing ? void send() : setRecording(true)} style={[styles.send, (sending || blocked) && styles.sendDisabled]}>{sending ? <ActivityIndicator size="small" color={colors.background} /> : <Ionicons name={draft.trim() || attachment || editing ? "send" : "mic"} size={23} color={colors.background} />}</Pressable></View>}
     <ContactsSheet visible={inviteOpen} onClose={() => setInviteOpen(false)} onOpenRoom={() => {}} inviteRoom={room} />
     <ContactsSheet allowGroups visible={newGroup} initialMode="group" onClose={() => setNewGroup(false)} onOpenRoom={() => { setNewGroup(false); onBack(); }} />
     <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}><Pressable style={styles.backdrop} onPress={() => setMenuOpen(false)}><ScrollView style={styles.menu} contentContainerStyle={{ paddingVertical: 8 }}>{[

@@ -154,7 +154,7 @@ export class PrivateMessenger {
     let media: LocalMedia | undefined, wire: MediaWire | undefined;
     if (file) {
       if (!allowedMime.test(file.type)) throw new Error("Choose a photo, MP4 video, voice message or PDF.");
-      const source = new File(file.uri); if (!source.size || source.size > MAX_PRIVATE_FILE) throw new Error("Choose a file under 4 MB.");
+      const source = new File(file.uri); if (!source.size || source.size > MAX_PRIVATE_FILE) throw new Error("Choose a file under 8 MB.");
       const bytes = await source.bytes();
       media = await storeMedia(this.vault, bytes, file.name, file.type);
       const key = random(), encrypted = encryptBytes(key, bytes, `cp-attachment-v1:${id}`);

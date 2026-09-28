@@ -52,13 +52,16 @@ function screen(provider, overrides = {}) {
     '../components': { Avatar: 'Avatar' }, '../CallProvider': { useCalls: () => ({ startCall: async () => {} }) },
     '../secure/PrivateProvider': { usePrivateMessenger: () => provider }, '../secure/SecureDeviceSetup': { SecureDeviceSetup: 'Recovery' },
     '../secure/mediaStore': {}, './ChatMedia': { AudioPlayback: 'Audio', VoiceRecorder: 'Recorder' }, '../theme': theme,
-    '../InboxProvider': { useInbox: () => ({ preferences: [], reload: async () => {} }) }, '../runtime': { chatClient: {} },
+    '../InboxProvider': { useInbox: () => ({ preferences: [], reload: async () => {} }) }, '../runtime': { chatClient: {}, supabase: {
+      channel: () => ({ on() { return this; }, subscribe() { return this; }, send: async () => {} }),
+      removeChannel: async () => {},
+    } },
     '../messagingApi': { loadPreferences: async () => ({ settings: { read_receipts: false } }), updateChatPreference: async () => {} },
     './ChatProblemNotice': { ChatProblemNotice }, ...overrides,
   }).PrivateConversationScreen;
 }
 function messenger(overrides = {}) {
-  return { ready: true, vault: { search: async () => [] }, subscribe: () => () => {}, markRead: async () => {}, send: async () => {}, sync: async () => {}, ...overrides };
+  return { ready: true, vault: { list: async () => [], search: async () => [] }, subscribe: () => () => {}, markRead: async () => {}, send: async () => {}, sync: async () => {}, ...overrides };
 }
 const props = { session, room, onBack() {}, onRead() {}, onNavigate() {} };
 
@@ -104,4 +107,25 @@ test('failed send retains draft; retry synchronizes once and original error rema
   assert.equal(syncs, 1);
   assert.equal(view.root.findByType('TextInput').props.value, 'Pesan saya');
   assert.equal(view.root.findAllByType(ChatProblemNotice).length, 0);
+});
+
+test('private chat broadcasts a metadata-only invalidation and refreshes on an incoming event', async t => {
+  let incoming, syncs = 0;
+  const sent = [];
+  const channel = { on(type, filter, callback) { if (type === 'broadcast' && filter.event === 'secure-message') incoming = callback; return this; }, subscribe() { return this; }, send: async event => { sent.push(event); } };
+  const view = await render(t, screen({ messenger: messenger({ sync: async () => { syncs++; } }), setup: null, error: '', reopen() {} }, {
+    '../runtime': { chatClient: {}, supabase: { channel: () => channel, removeChannel: async () => {} } },
+  }), props);
+  await act(async () => view.root.findByType('TextInput').props.onChangeText('Halo'));
+  await act(async () => { view.root.findAllByType('Pressable').find(n => n.props.accessibilityLabel === 'Kirim pesan').props.onPress(); await flush(); });
+  assert.equal(JSON.stringify(sent), JSON.stringify([{ type: 'broadcast', event: 'secure-message', payload: { roomId: room.id } }]));
+  await act(async () => { incoming(); await new Promise(resolve => setTimeout(resolve, 125)); });
+  assert.equal(syncs, 1);
+});
+
+test('recent encrypted photos become inline previews without an extra tap', async t => {
+  const photos = Array.from({ length: 5 }, (_, i) => ({ id: `photo-${i}`, sender_id: 'person-2', created_at: new Date(Date.now() - i * 1000).toISOString(), message: '', secureAttachment: { name: `photo-${i}.jpg`, mime: 'image/jpeg', size: 1000 } }));
+  const downloaded = [];
+  await render(t, screen({ messenger: messenger({ vault: { list: async () => photos, search: async () => photos }, downloadMedia: async message => { downloaded.push(message.id); } }), setup: null, error: '', reopen() {} }), props);
+  assert.deepEqual(downloaded, photos.slice(0, 4).map(photo => photo.id));
 });

@@ -1,33 +1,38 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin, requireAuthenticatedUser } from "@/lib/serverSupabase";
 import { accountApiError, inputError } from "@/lib/accountApi";
-import { assertLegacyDirectMessagingAllowed, requireChatRoomAccess } from "@/lib/chatServer";
+import { requireChatRoomAccess } from "@/lib/chatServer";
 import { assertContactAllowed } from "@/lib/chatContacts";
 import { createDirectCallToken, createLiveKitRoomServiceClient, getLiveKitServerUrl } from "@/lib/livekitServer";
 import { limitedBody, privateActor, privateRoom, uuid } from "@/lib/privateMessaging";
 import { secureActor } from "@/lib/secureHistoryProtocol";
+import { activeCallFilter, visibleCallStatus } from "@/lib/callPresence";
 
 export async function GET(request: Request) {
   try {
     const user = await requireAuthenticatedUser(request);
     const db = createSupabaseAdmin();
-    const scope = `caller_id.eq.${user.id},callee_id.eq.${user.id}`;
-    const expiry = await db.from("cp_calls").update({ status: "missed", ended_at: new Date().toISOString() }).eq("status", "ringing").lt("created_at", new Date(Date.now() - 60000).toISOString()).or(scope);
-    if (expiry.error) throw expiry.error;
-    const expiredActive = await db.from("cp_calls").update({ status: "ended", ended_at: new Date().toISOString() }).eq("status", "accepted").lt("answered_at", new Date(Date.now() - 3600000).toISOString()).or(scope).select("id");
-    if (expiredActive.error) throw expiredActive.error;
-    for (const call of expiredActive.data) await createLiveKitRoomServiceClient().deleteRoom(`cp-call-${call.id}`).catch(() => undefined);
     const params = new URL(request.url).searchParams;
     const activeOnly = params.get("active") === "1";
     const current = params.get("id");
-    let query = db.from("cp_calls").select("*").or(scope);
-    if (activeOnly) query = current && /^[0-9a-f-]{36}$/i.test(current) ? query.or(`status.in.(ringing,accepted),id.eq.${current}`) : query.in("status", ["ringing", "accepted"]);
+    const now = Date.now();
+    const scope = `caller_id.eq.${user.id},callee_id.eq.${user.id}`;
+    // The frequent active-call poll must stay read-only. Historical cleanup can
+    // run when the call history is opened or before a new call is created.
+    if (!activeOnly) {
+      const expiry = await db.from("cp_calls").update({ status: "missed", ended_at: new Date(now).toISOString() }).eq("status", "ringing").lt("created_at", new Date(now - 60000).toISOString()).or(scope);
+      if (expiry.error) throw expiry.error;
+      const expiredActive = await db.from("cp_calls").update({ status: "ended", ended_at: new Date(now).toISOString() }).eq("status", "accepted").lt("answered_at", new Date(now - 3600000).toISOString()).or(scope).select("id");
+      if (expiredActive.error) throw expiredActive.error;
+      for (const call of expiredActive.data || []) await createLiveKitRoomServiceClient().deleteRoom(`cp-call-${call.id}`).catch(() => undefined);
+    }
+    const query = db.from("cp_calls").select("*").or(activeOnly ? activeCallFilter(user.id, current, now) : scope);
     const calls = await query.order("created_at", { ascending: false }).limit(activeOnly ? 4 : 100);
     if (calls.error) throw calls.error;
     const ids = [...new Set(calls.data.flatMap(c => [c.caller_id, c.callee_id]))];
     const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url").in("id", ids) : { data: [], error: null };
     if (people.error) throw people.error;
-    return NextResponse.json({ calls: calls.data.map(c => ({ ...c, other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) });
+    return NextResponse.json({ calls: calls.data.map(c => ({ ...visibleCallStatus(c, now), other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }
 export async function POST(request: Request) {
@@ -40,7 +45,8 @@ export async function POST(request: Request) {
     if (body.secureEventId != null || request.headers.has("x-cp-device")) throw inputError("Update ComePlayers to use account-based calls.", 426);
     const roomId = uuid(body.roomId);
     const { room, target } = await privateRoom(db, user.id, roomId);
-    await assertLegacyDirectMessagingAllowed(db, room);
+    // Voice calls use a separate LiveKit room and do not access message keys or
+    // history. An enrolled private-message identity must not block account calls.
     const scheduled = body.scheduledAt ? String(body.scheduledAt) : null;
     if (scheduled && !Number.isFinite(Date.parse(scheduled))) throw inputError("Choose a valid call time.");
     getLiveKitServerUrl();

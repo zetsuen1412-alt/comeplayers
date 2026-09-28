@@ -197,7 +197,7 @@ export class SecureMessengerV2 {
     if (file) {
       if (!allowedMime.test(file.type)) throw new Error("Choose a photo, MP4 video, voice message or PDF.");
       if (!file.name.trim() || file.name.length > 180) throw new Error("Choose a file with a valid name under 180 characters.");
-      const source = new File(file.uri); if (!source.size || source.size > MAX_PRIVATE_FILE) throw new Error("Choose a file under 4 MB.");
+      const source = new File(file.uri); if (!source.size || source.size > MAX_PRIVATE_FILE) throw new Error("Choose a file under 8 MB.");
       const bytes = await source.bytes(); localMedia = await storeMedia(this.vault, bytes, file.name, file.type);
       result = await this.history.sendAttachment(room.id, base, { bytes, name: file.name, mime: file.type }); bytes.fill(0);
     } else result = await this.history.send(room.id, base, null, true) as DecryptedHistory<MessagePayload>;

@@ -334,6 +334,7 @@ type Message = {
   sender?: Profile | null;
   reply_to?: ReplyPreview | null;
   reactions?: ReactionSummary[];
+  optimistic?: boolean;
 };
 
 type ConversationResponse = {
@@ -711,6 +712,10 @@ function isImageAttachment(attachment?: Attachment | null) {
   return String(attachment?.mime_type || "").startsWith("image/");
 }
 
+function isVideoAttachment(attachment?: Attachment | null) {
+  return String(attachment?.mime_type || "").startsWith("video/");
+}
+
 function isGenericAttachmentMessage(message?: string | null) {
   return (
     String(message || "")
@@ -723,11 +728,14 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const automaticRetry = useRef(0);
+  const previewElement = useRef<HTMLElement | null>(null);
   const isImage = isImageAttachment(attachment);
+  const isVideo = isVideoAttachment(attachment);
 
   async function reveal(silent = false) {
     setLoading(true);
-    if (!silent) setError("");
+    if (!silent) { setError(""); automaticRetry.current = 0; }
     try {
       const data = await authenticatedFetchJson<{ url: string }>(
         `/api/messages/attachments/${attachment.id}`,
@@ -745,17 +753,30 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
   }
 
   useEffect(() => {
-    if (!isImage) return;
+    if (!isImage && !isVideo) return;
+    automaticRetry.current = 0;
     setUrl("");
     setError("");
-    void reveal(true);
+    const element = previewElement.current;
+    if (!element || typeof IntersectionObserver === "undefined") {
+      void reveal(true);
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      void reveal(true);
+    }, { rootMargin: "400px" });
+    observer.observe(element);
+    return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attachment.id, isImage]);
+  }, [attachment.id, isImage, isVideo]);
 
   if (isImage) {
     if (url) {
       return (
         <a
+          ref={(node) => { previewElement.current = node; }}
           href={url}
           target="_blank"
           rel="noreferrer"
@@ -768,7 +789,8 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
             className="max-h-[430px] max-w-full rounded-2xl border border-white/10 object-contain shadow-2xl shadow-black/30"
             onError={() => {
               setUrl("");
-              void reveal(true);
+              if (automaticRetry.current++ === 0) void reveal(true);
+              else setError("Image preview is unavailable.");
             }}
           />
         </a>
@@ -776,7 +798,7 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
     }
 
     return (
-      <div className="inline-flex min-h-36 min-w-64 max-w-full items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-gray-400">
+      <div ref={(node) => { previewElement.current = node; }} className="inline-flex min-h-36 min-w-64 max-w-full items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-gray-400">
         {loading ? "Loading image..." : "Image preview is unavailable."}
         {error ? (
           <button
@@ -786,6 +808,37 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
             Retry
           </button>
         ) : null}
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div ref={(node) => { previewElement.current = node; }} className="max-w-[min(100%,680px)] overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+        {url ? (
+          <video
+            key={url}
+            controls
+            playsInline
+            preload="metadata"
+            className="max-h-[430px] w-full bg-black object-contain"
+            aria-label={`Putar video ${attachment.file_name}`}
+            onError={() => setError("Video tidak bisa diputar di browser ini. Coba buka video atau muat ulang tautannya.")}
+          >
+            <source src={url} type={attachment.mime_type} />
+            Browser Anda tidak mendukung pemutaran video ini.
+          </video>
+        ) : (
+          <div role="status" className="flex min-h-40 min-w-64 items-center justify-center px-5 py-4 text-sm text-gray-300">
+            {loading ? "Menyiapkan video…" : "Video belum bisa diputar."}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs text-gray-300">
+          <span className="min-w-0 truncate">{attachment.file_name}</span>
+          {url ? <a href={url} target="_blank" rel="noreferrer" className="font-bold text-cyan-300">Buka video</a> : null}
+          {error ? <button type="button" onClick={() => void reveal()} className="font-bold text-cyan-300">Muat ulang</button> : null}
+        </div>
+        {error ? <p role="alert" className="px-3 pb-2 text-xs text-amber-200">{error}</p> : null}
       </div>
     );
   }
@@ -2079,6 +2132,7 @@ export default function MessagesPage() {
   const [conversation, setConversation] = useState<ConversationResponse | null>(
     null,
   );
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   const [search, setSearch] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
   const [roomBucket, setRoomBucket] = useState<RoomBucket>("all");
@@ -2617,6 +2671,18 @@ export default function MessagesPage() {
     });
   }, [rooms, roomBucket, search]);
 
+  const renderedMessages = useMemo(() => {
+    const confirmed = conversation?.room.id === selectedRoomId &&
+      (!selectedChannelId || conversation.channel?.id === selectedChannelId)
+      ? conversation.messages
+      : [];
+    const pending = optimisticMessages.filter((message) =>
+      message.room_id === selectedRoomId &&
+      (!selectedChannelId || message.channel_id === selectedChannelId),
+    );
+    return [...confirmed, ...pending];
+  }, [conversation, optimisticMessages, selectedRoomId, selectedChannelId]);
+
   const filteredCandidates = useMemo(() => {
     const query = groupDescription.startsWith("@")
       ? groupDescription.slice(1).trim().toLowerCase()
@@ -2627,7 +2693,7 @@ export default function MessagesPage() {
     );
   }, [candidateUsers, groupDescription]);
 
-  async function loadRooms(preferredRoomId?: string) {
+  async function loadRooms(preferredRoomId?: string, selectRoom = true) {
     const data = await authenticatedFetchJson<{ rooms: Room[] }>(
       "/api/messages/rooms?limit=60",
     );
@@ -2635,7 +2701,7 @@ export default function MessagesPage() {
     setRooms(data.rooms || []);
     const nextId =
       preferredRoomId || selectedRoomId || data.rooms?.[0]?.id || "";
-    if (nextId) setSelectedRoomId(nextId);
+    if (nextId && selectRoom) setSelectedRoomId(nextId);
     return data.rooms || [];
   }
 
@@ -3282,7 +3348,7 @@ export default function MessagesPage() {
         // request now has its own timeout.
         setLoading(false);
 
-        const { data: profileData } = await withMessagesTimeout(
+        void withMessagesTimeout(
           supabase
             .from("profiles")
             .select(
@@ -3292,9 +3358,12 @@ export default function MessagesPage() {
             .maybeSingle(),
           MESSAGES_AUTH_BOOT_TIMEOUT_MS,
           "Profile loading took too long.",
-        );
-        if (!active) return;
-        setProfile((profileData || null) as Profile | null);
+        ).then(({ data: profileData }) => {
+          if (active) setProfile((profileData || null) as Profile | null);
+        }).catch(() => {
+          // Profile details are supplemental; slow profile storage must not
+          // prevent the room list and conversation from opening.
+        });
 
         const incomingParams = new URLSearchParams(window.location.search);
         const incomingProductId = Number(incomingParams.get("product") || 0);
@@ -3322,7 +3391,7 @@ export default function MessagesPage() {
         deepLinkChannelIdRef.current = routeChannelId;
 
         const queryRoomId = await createRoomFromQuery();
-        const roomList = await loadRooms(queryRoomId);
+        const roomList = await loadRooms(queryRoomId, false);
         const queryRoom = queryRoomId
           ? roomList.find((room) => room.id === queryRoomId) || null
           : null;
@@ -3363,7 +3432,8 @@ export default function MessagesPage() {
           setServerViewMode("chat");
           setSelectedRoomId(initialRoomId);
           setMobileInboxOpen(compactMessagesLayout && !hasExplicitConversationTarget);
-          await loadConversation(initialRoomId);
+          // The selected-room effect loads this once. Calling it here too
+          // aborted the first request and made the chat appear to load twice.
         } else if (compactMessagesLayout) {
           setSelectedRoomId("");
           setConversation(null);
@@ -3482,8 +3552,11 @@ export default function MessagesPage() {
         ? communityChannelSelection.channel.id
         : "";
     const queue = createRefreshQueue(async () => {
-      await Promise.all([loadConversation(selectedRoomId, true, activeChannelId), loadRooms(selectedRoomId)]);
-    }, () => document.visibilityState === "visible" && navigator.onLine);
+      // Keep the invalidation queued while a room switch or foreground load
+      // is in flight; otherwise the newly arrived message can be missed.
+      if (conversationRequestRef.current && !conversationRequestRef.current.signal.aborted) return false;
+      await Promise.all([loadConversation(selectedRoomId, true, activeChannelId), loadRooms(undefined, false)]);
+    }, () => document.visibilityState === "visible" && navigator.onLine, 120);
     const refresh = () => queue.request();
     window.addEventListener("online", refresh);
     document.addEventListener("visibilitychange", refresh);
@@ -3532,6 +3605,10 @@ export default function MessagesPage() {
           }
           return next;
         });
+      })
+      .on("broadcast", { event: "message" }, (event) => {
+        const payload = event.payload as { roomId?: string; channelId?: string };
+        if (payload.roomId === selectedRoomId && String(payload.channelId || "") === activeChannelId) refresh();
       })
       .subscribe((status) => { if (status === "SUBSCRIBED") refresh(); });
     typingChannelRef.current = channel;
@@ -4197,42 +4274,87 @@ export default function MessagesPage() {
     }
   }
 
-  async function sendMessage(attachmentId?: number) {
-    if (channelComposerDisabled) return;
-    if (!selectedRoomId || (!draft.trim() && !attachmentId)) return;
+  async function sendMessage(attachment?: Attachment) {
+    if (channelComposerDisabled || sending) return;
+    if (!selectedRoomId || (!draft.trim() && !attachment)) return;
+    const roomId = selectedRoomId;
+    const channelId = selectedChannelId;
+    const messageText = draft.trim();
+    const reply = replyingTo;
+    const messageChannel = typingChannelRef.current;
+    const pendingMessage: Message | null = editingMessage ? null : {
+      id: `pending:${crypto.randomUUID()}`,
+      room_id: roomId,
+      channel_id: channelId || null,
+      sender_id: userId,
+      receiver_id: userId,
+      message: messageText || "Attachment",
+      message_type: attachment ? "attachment" : "text",
+      attachment_id: attachment?.id || null,
+      attachment: attachment || null,
+      sender: profile,
+      reply_to: reply ? { id: reply.id, sender_id: reply.sender_id, message: reply.message, sender: reply.sender } : null,
+      created_at: new Date().toISOString(),
+      optimistic: true,
+    };
     setSending(true);
     setError("");
     setNotice("");
+    if (pendingMessage) {
+      setOptimisticMessages((current) => [...current, pendingMessage]);
+      setDraft((current) => current.trim() === messageText ? "" : current);
+    }
     try {
       if (editingMessage) {
         await authenticatedFetchJson(
-          `/api/messages/rooms/${selectedRoomId}/messages/${editingMessage.id}`,
-          { method: "PATCH", body: JSON.stringify({ message: draft.trim() }) },
+          `/api/messages/rooms/${roomId}/messages/${editingMessage.id}`,
+          { method: "PATCH", body: JSON.stringify({ message: messageText }) },
         );
         setNotice("Message edited.");
       } else {
-        await authenticatedFetchJson(
-          `/api/messages/rooms/${selectedRoomId}/messages`,
+        const delivered = await authenticatedFetchJson<{ message: Message }>(
+          `/api/messages/rooms/${roomId}/messages`,
           {
             method: "POST",
             body: JSON.stringify({
-              message: draft.trim(),
-              attachmentId,
-              replyToId: replyingTo?.id || undefined,
+              message: messageText,
+              attachmentId: attachment?.id,
+              replyToId: reply?.id || undefined,
               channelId: selectedChannelId || undefined,
             }),
           },
         );
+        if (pendingMessage) {
+          setOptimisticMessages((current) => current.filter((message) => message.id !== pendingMessage.id));
+        }
+        if (delivered.message) {
+          const confirmed = { ...delivered.message, attachment: attachment || null, sender: profile };
+          setConversation((current) => current?.room.id === roomId &&
+            !current.messages.some((message) => message.id === confirmed.id)
+            ? { ...current, messages: [...current.messages, confirmed] }
+            : current);
+        }
+        if (messageChannel) void messageChannel.send({
+          type: "broadcast",
+          event: "message",
+          payload: { roomId, channelId },
+        }).catch(() => undefined);
       }
-      setDraft("");
+      setDraft((current) => current.trim() === messageText ? "" : current);
       setReplyingTo(null);
       setEditingMessage(null);
       signalTyping(false);
-      await Promise.all([
-        loadConversation(selectedRoomId, true),
-        loadRooms(selectedRoomId),
-      ]);
+      // The message is visible immediately; a background snapshot fills in
+      // moderation, reactions and unread counts without blocking the composer.
+      void Promise.all([
+        loadConversation(roomId, true, channelId),
+        loadRooms(undefined, false),
+      ]).catch(() => undefined);
     } catch (sendError) {
+      if (pendingMessage) {
+        setOptimisticMessages((current) => current.filter((message) => message.id !== pendingMessage.id));
+        setDraft((current) => current || messageText);
+      }
       setError(
         sendError instanceof Error
           ? sendError.message
@@ -4248,23 +4370,55 @@ export default function MessagesPage() {
     setUploading(true);
     setError("");
     try {
-      const formData = new FormData();
-      formData.set("roomId", selectedRoomId);
-      formData.set("file", file);
-      const uploaded = await authenticatedFetchJson<{
-        attachment: { id: number; moderation_status: string };
-      }>("/api/messages/attachments", {
-        method: "POST",
-        body: formData,
-      });
-      const attachmentId = Number(uploaded.attachment?.id);
-      if (
-        !attachmentId ||
-        uploaded.attachment?.moderation_status !== "approved"
-      ) {
-        throw new Error("Attachment verification did not finish.");
+      let attachmentId = 0;
+      // Large media goes directly from the browser to R2. Routing a 100 MB
+      // video through the Next.js function needlessly buffers it in memory.
+      if (file.type.startsWith("video/") || file.size >= 4 * 1024 * 1024) {
+        const prepared = await authenticatedFetchJson<{
+          upload: { url: string; method: string; headers: Record<string, string> };
+          attachment: { id: number };
+        }>("/api/messages/attachments", {
+          method: "POST",
+          body: JSON.stringify({
+            roomId: selectedRoomId,
+            fileName: file.name,
+            mimeType: file.type,
+            sizeBytes: file.size,
+          }),
+        });
+        attachmentId = Number(prepared.attachment?.id);
+        if (!attachmentId) throw new Error("Attachment preparation failed.");
+        const uploaded = await fetch(prepared.upload.url, {
+          method: prepared.upload.method || "PUT",
+          headers: prepared.upload.headers,
+          body: file,
+        });
+        if (!uploaded.ok) throw new Error("Upload failed. Please try again.");
+        // This endpoint verifies the stored bytes and approves the attachment
+        // before the message can reference it.
+        await authenticatedFetchJson(`/api/messages/attachments/${attachmentId}`);
+      } else {
+        const formData = new FormData();
+        formData.set("roomId", selectedRoomId);
+        formData.set("file", file);
+        const uploaded = await authenticatedFetchJson<{
+          attachment: { id: number; moderation_status: string };
+        }>("/api/messages/attachments", {
+          method: "POST",
+          body: formData,
+        });
+        attachmentId = Number(uploaded.attachment?.id);
+        if (!attachmentId || uploaded.attachment?.moderation_status !== "approved") {
+          throw new Error("Attachment verification did not finish.");
+        }
       }
-      await sendMessage(attachmentId);
+      await sendMessage({
+        id: attachmentId,
+        file_name: file.name,
+        mime_type: file.type,
+        size_bytes: file.size,
+        moderation_status: "approved",
+      });
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -6446,7 +6600,7 @@ export default function MessagesPage() {
                       <div className="border-b border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-3">
                         <p className="flex items-center gap-2 text-xs font-bold text-emerald-200">
                           <FaLock />
-                          Direct message, lampiran, dan panggilan baru dienkripsi end-to-end. Riwayat disimpan terenkripsi di perangkat ini.
+                          Pesan pribadi dan lampiran baru dienkripsi end-to-end. Riwayat disimpan terenkripsi di perangkat ini. Panggilan dilindungi selama pengiriman melalui LiveKit.
                         </p>
                       </div>
                     ) : null}
@@ -6560,11 +6714,11 @@ export default function MessagesPage() {
                               Coba lagi
                             </button>
                           </div>
-                        ) : conversation?.messages?.length ? (
+                        ) : renderedMessages.length ? (
                           <div
                             className={`${styles.groupMessageList} space-y-5`}
                           >
-                            {conversation.messages.map((message) => {
+                            {renderedMessages.map((message) => {
                               const mine = message.sender_id === userId;
                               const sender =
                                 message.sender ||
@@ -6575,15 +6729,18 @@ export default function MessagesPage() {
                               const imageAttachment = isImageAttachment(
                                 message.attachment,
                               );
+                              const videoAttachment = isVideoAttachment(
+                                message.attachment,
+                              );
                               const showMessageText = Boolean(
                                 message.message &&
                                 !(
-                                  imageAttachment &&
+                                  (imageAttachment || videoAttachment) &&
                                   isGenericAttachmentMessage(message.message)
                                 ),
                               );
                               const imageOnly =
-                                imageAttachment && !showMessageText;
+                                (imageAttachment || videoAttachment) && !showMessageText;
                               if (selectedIsGroup) {
                                 return (
                                   <div
@@ -6605,6 +6762,7 @@ export default function MessagesPage() {
                                         <span className="text-[11px] text-gray-500">
                                           {formatMessageTime(message.created_at)}
                                         </span>
+                                        {message.optimistic ? <span className="text-[11px] text-cyan-300">Mengirim…</span> : null}
                                         {message.moderation_status ===
                                         "reported" ? (
                                           <span className="text-[11px] text-red-300">
@@ -6641,7 +6799,7 @@ export default function MessagesPage() {
                                           ) : null}
                                         </div>
                                       ) : null}
-                                      <MessageInteractions
+                                      {!message.optimistic ? <MessageInteractions
                                         message={message}
                                         mine={mine}
                                         onReply={() => beginReply(message)}
@@ -6655,7 +6813,7 @@ export default function MessagesPage() {
                                         onReport={() =>
                                           void reportMessage(message)
                                         }
-                                      />
+                                      /> : null}
                                     </div>
                                   </div>
                                 );
@@ -6720,7 +6878,8 @@ export default function MessagesPage() {
                                         {message.edited_at ? (
                                           <span>Edited</span>
                                         ) : null}
-                                        {mine && !selectedIsGroup ? (
+                                        {message.optimistic ? <span>Mengirim…</span> : null}
+                                        {mine && !selectedIsGroup && !message.optimistic ? (
                                           <span>
                                             {message.is_read ? "Read" : "Sent"}
                                           </span>
@@ -6731,7 +6890,7 @@ export default function MessagesPage() {
                                         ) : null}
                                       </div>
                                     </div>
-                                    <MessageInteractions
+                                    {!message.optimistic ? <MessageInteractions
                                       message={message}
                                       mine={mine}
                                       onReply={() => beginReply(message)}
@@ -6745,7 +6904,7 @@ export default function MessagesPage() {
                                       onReport={() =>
                                         void reportMessage(message)
                                       }
-                                    />
+                                    /> : null}
                                   </div>
                                   {mine ? (
                                     <ProfileAvatar
