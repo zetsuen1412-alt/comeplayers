@@ -44,7 +44,7 @@ test("messages payloads and polling stay lightweight", () => {
   assert.doesNotMatch(roomDetailRoute, /\.limit\(300\)/);
   assert.match(roomDetailRoute, /\.order\("created_at", \{ ascending: false \}\)/);
   assert.match(roomDetailRoute, /\.in\("message_id", visibleMessageIds\)/);
-  assert.match(messagesPage, /\/api\/messages\/rooms\?limit=60/);
+  assert.match(messagesPage, /\/api\/messages\/rooms\?scope=social&limit=60/);
   assert.match(messagesPage, /\?limit=80/);
   assert.match(messagesPage, /}, 15000\)/);
   assert.match(envExample, /NEXT_PUBLIC_WEBRTC_STUN_URLS/);

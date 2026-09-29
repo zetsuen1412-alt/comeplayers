@@ -11,17 +11,25 @@ import { getUnreadCache, setUnreadCache } from "@/lib/upstashRedis";
 export async function GET(request: Request) {
   try {
     const user = await requireAuthenticatedUser(request);
-    const cached = await getUnreadCache(user.id);
+    const socialOnly = new URL(request.url).searchParams.get("scope") === "social";
+    const cached = socialOnly ? null : await getUnreadCache(user.id);
     if (cached !== null) {
       return NextResponse.json({ count: cached, cache: "upstash" });
     }
     const supabaseAdmin = createSupabaseAdmin();
-    const { count, error } = await supabaseAdmin
+    let directUnreadQuery = supabaseAdmin
       .from("chat_messages")
-      .select("id", { count: "exact", head: true })
+      .select(socialOnly ? "id,chat_rooms!inner(id)" : "id", { count: "exact", head: true })
       .eq("receiver_id", user.id)
       .eq("is_read", false)
       .is("deleted_at", null);
+    if (socialOnly) {
+      directUnreadQuery = directUnreadQuery
+        .is("chat_rooms.product_id", null)
+        .is("chat_rooms.order_id", null)
+        .or("room_type.is.null,room_type.not.in.(product,order,group)", { referencedTable: "chat_rooms" });
+    }
+    const { count, error } = await directUnreadQuery;
     if (error) throw new Error(error.message);
 
     const { data: memberships, error: membershipError } = await supabaseAdmin
@@ -128,8 +136,8 @@ export async function GET(request: Request) {
     }
 
     const total = (count || 0) + groupUnread;
-    await setUnreadCache(user.id, total);
-    return NextResponse.json({ count: total, cache: "supabase" });
+    if (!socialOnly) await setUnreadCache(user.id, total);
+    return NextResponse.json({ count: total, cache: "supabase", scope: socialOnly ? "social" : "all" });
   } catch (error) {
     const status = chatErrorStatus(error);
     console.error("Unread message count failed:", error);

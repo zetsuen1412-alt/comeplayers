@@ -75,8 +75,8 @@ import {
   FaShoppingCart,
 } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
-import { useCurrency } from "@/components/CurrencyProvider";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
 import ChatMessagesLoginGate from "@/components/messages/ChatMessagesLoginGate";
@@ -409,7 +409,7 @@ type SignalPayload = {
   candidate?: RTCIceCandidateInit;
 };
 
-type RoomBucket = "all" | "live" | "group" | "trade" | "direct";
+type RoomBucket = "all" | "group" | "direct";
 
 const STREAM_ICE_SERVERS = createStreamIceServers({
   stunUrls: process.env.NEXT_PUBLIC_WEBRTC_STUN_URLS,
@@ -421,6 +421,8 @@ const STREAM_ICE_SERVERS = createStreamIceServers({
 // Temporarily focus communities on chat, voice, and events. Keep existing
 // groups and invitations intact so discovery can be restored independently.
 const SQUAD_DISCOVERY_ENABLED = false;
+// Community broadcasts are retired; realtime chat and LiveKit calls remain.
+const COMMUNITY_BROADCASTS_ENABLED = false;
 const COMMUNITY_PANEL_TABS: RightPanelTab[] = SQUAD_DISCOVERY_ENABLED
   ? ["members", "squad", "events"]
   : ["members", "events"];
@@ -697,20 +699,12 @@ function canAssignGroupLeaders(role?: string | null, profile?: Profile | null) {
   );
 }
 
-function isLiveRoom(room?: Room | null) {
-  return String(room?.stream_status || "").toLowerCase() === "live";
-}
-
 function isTradeRoom(room?: Room | null) {
-  return Boolean(
-    room?.product_id || room?.order_id || room?.product || room?.order,
-  );
+  return isTransactionChatRoom(room);
 }
 
 function bucketMatches(room: Room, bucket: RoomBucket) {
-  if (bucket === "live") return isLiveRoom(room);
   if (bucket === "group") return isGroupRoom(room);
-  if (bucket === "trade") return isTradeRoom(room);
   if (bucket === "direct") return !isGroupRoom(room) && !isTradeRoom(room);
   return true;
 }
@@ -2125,7 +2119,6 @@ function GroupLiveStreamPanel({
 
 export default function MessagesPage() {
   const router = useRouter();
-  const { formatPrice } = useCurrency();
   const [userId, setUserId] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -2212,6 +2205,11 @@ export default function MessagesPage() {
   const [arcadeWindowKey, setArcadeWindowKey] = useState(0);
   const [showFriendsMenu, setShowFriendsMenu] = useState(false);
   const [showPrivateMessages, setShowPrivateMessages] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("inbox") === "1") {
+      setShowPrivateMessages(true);
+    }
+  }, []);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
@@ -2611,13 +2609,11 @@ export default function MessagesPage() {
       (sum, room) => sum + Number(room.unread_count || 0),
       0,
     );
-    const live = rooms.filter(isLiveRoom).length;
     const groups = rooms.filter(isGroupRoom).length;
-    const trades = rooms.filter(isTradeRoom).length;
     const direct = rooms.filter(
       (room) => !isGroupRoom(room) && !isTradeRoom(room),
     ).length;
-    return { unread, live, groups, trades, direct };
+    return { unread, groups, direct };
   }, [rooms]);
 
   const roomBuckets = useMemo(
@@ -2629,22 +2625,10 @@ export default function MessagesPage() {
         count: rooms.length,
       },
       {
-        id: "live" as const,
-        label: "Live",
-        icon: <FaBroadcastTower />,
-        count: roomStats.live,
-      },
-      {
         id: "group" as const,
         label: "Servers",
         icon: <FaUsers />,
         count: roomStats.groups,
-      },
-      {
-        id: "trade" as const,
-        label: "Trade",
-        icon: <FaShieldAlt />,
-        count: roomStats.trades,
       },
       {
         id: "direct" as const,
@@ -2657,8 +2641,6 @@ export default function MessagesPage() {
       rooms.length,
       roomStats.direct,
       roomStats.groups,
-      roomStats.live,
-      roomStats.trades,
     ],
   );
 
@@ -2702,14 +2684,15 @@ export default function MessagesPage() {
 
   async function loadRooms(preferredRoomId?: string, selectRoom = true) {
     const data = await authenticatedFetchJson<{ rooms: Room[] }>(
-      "/api/messages/rooms?limit=60",
+      "/api/messages/rooms?scope=social&limit=60",
     );
-    roomsRef.current = data.rooms || [];
-    setRooms(data.rooms || []);
+    const socialRooms = (data.rooms || []).filter((room) => !isTradeRoom(room));
+    roomsRef.current = socialRooms;
+    setRooms(socialRooms);
     const nextId =
-      preferredRoomId || selectedRoomId || data.rooms?.[0]?.id || "";
+      preferredRoomId || selectedRoomId || socialRooms[0]?.id || "";
     if (nextId && selectRoom) setSelectedRoomId(nextId);
-    return data.rooms || [];
+    return socialRooms;
   }
 
   function openRoom(room: Room) {
@@ -2724,6 +2707,29 @@ export default function MessagesPage() {
     setCommunityChannelSelection(null);
     setSelectedRoomId(room.id);
     setMobileInboxOpen(false);
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", `/messages?room=${encodeURIComponent(room.id)}`);
+    }
+  }
+
+  async function openPrivateRoomById(roomId: string) {
+    try {
+      let room = roomsRef.current.find((item) => item.id === roomId) || null;
+      if (!room) {
+        const detail = await authenticatedFetchJson<ConversationResponse>(
+          `/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`,
+        );
+        room = detail.room;
+        if (room && !isTradeRoom(room)) {
+          roomsRef.current = [room, ...roomsRef.current];
+          setRooms(roomsRef.current);
+        }
+      }
+      if (!room) throw new Error("Percakapan tidak ditemukan.");
+      openRoom(room);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Percakapan belum bisa dibuka.");
+    }
   }
 
   async function loadConversation(
@@ -3398,10 +3404,23 @@ export default function MessagesPage() {
         deepLinkChannelIdRef.current = routeChannelId;
 
         const queryRoomId = await createRoomFromQuery();
-        const roomList = await loadRooms(queryRoomId, false);
-        const queryRoom = queryRoomId
+        let roomList = await loadRooms(queryRoomId, false);
+        let queryRoom = queryRoomId
           ? roomList.find((room) => room.id === queryRoomId) || null
           : null;
+        if (queryRoomId && !queryRoom) {
+          // A direct link may point to a marketplace room or to an older
+          // social conversation outside the first inbox page.
+          const detail = await authenticatedFetchJson<ConversationResponse>(
+            `/api/messages/rooms/${encodeURIComponent(queryRoomId)}?limit=1`,
+          ).catch(() => null);
+          queryRoom = detail?.room || null;
+          if (queryRoom && !isTradeRoom(queryRoom)) {
+            roomList = [queryRoom, ...roomList];
+            roomsRef.current = roomList;
+            setRooms(roomList);
+          }
+        }
         if (queryRoom && isTradeRoom(queryRoom)) {
           router.replace(`/chat?room=${encodeURIComponent(queryRoom.id)}`);
           return;
@@ -3412,7 +3431,7 @@ export default function MessagesPage() {
             )
           : null;
         const initialRoomId =
-          queryRoomId ||
+          queryRoom?.id ||
           deepLinkedRoom?.id ||
           roomList.find((room) => isGroupRoom(room))?.id ||
           roomList[0]?.id ||
@@ -3421,7 +3440,7 @@ export default function MessagesPage() {
           "(max-width: 1023px)",
         ).matches;
         const hasExplicitConversationTarget = Boolean(
-          queryRoomId || deepLinkedRoom || routeChannelId,
+          queryRoom || deepLinkedRoom || routeChannelId,
         );
         if (initialRoomId) {
           const initialRoom =
@@ -3528,7 +3547,9 @@ export default function MessagesPage() {
       if (refreshing || document.visibilityState !== "visible" || !navigator.onLine) return;
       refreshing = true;
       try {
-        await loadRooms(selectedRoomId);
+        // A background refresh updates the inbox but must never choose a
+        // conversation after the user has opened the room list or server home.
+        await loadRooms(undefined, false);
         if (active && selectedRoomId) {
           const channelId =
             communityChannelSelection?.roomId === selectedRoomId
@@ -4178,6 +4199,7 @@ export default function MessagesPage() {
   }
 
   function handleDockLiveAction() {
+    if (!COMMUNITY_BROADCASTS_ENABLED) return;
     const streamIsLive =
       String(selectedRoom?.stream_status || "").toLowerCase() === "live";
     if (streamIsLive) {
@@ -4213,7 +4235,7 @@ export default function MessagesPage() {
   }
 
   useEffect(() => {
-    if (!autoStartLiveAfterLobbyPick || !selectedIsGroup || !selectedChannelIsVoice)
+    if (!COMMUNITY_BROADCASTS_ENABLED || !autoStartLiveAfterLobbyPick || !selectedIsGroup || !selectedChannelIsVoice)
       return;
     beginAutoStartLiveFlow();
   }, [
@@ -4505,8 +4527,18 @@ export default function MessagesPage() {
       className={`${styles.page} ${styles.messageTypography} ${styles.simpleCommunity} relative overflow-hidden bg-[#02060d] text-white`}
     >
       {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
-        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId);
-        const room = available.find(item => item.id === roomId);
+        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId, false);
+        let room = available.find(item => item.id === roomId) || null;
+        if (!room) {
+          const detail = await authenticatedFetchJson<ConversationResponse>(
+            `/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`,
+          );
+          room = detail.room;
+          if (room && !isTradeRoom(room)) {
+            roomsRef.current = [room, ...roomsRef.current];
+            setRooms(roomsRef.current);
+          }
+        }
         if (!room) throw new Error("Conversation not found.");
         setShowPrivateMessages(false); setShowFriendsMenu(false); setCommunityOverlay(null);
         openRoom(room);
@@ -4807,6 +4839,7 @@ export default function MessagesPage() {
         privateMessagesOpen={showPrivateMessages}
         onCloseFriendMenu={() => setShowFriendsMenu(false)}
         onClosePrivateMessages={() => setShowPrivateMessages(false)}
+        onOpenPrivateRoom={(roomId) => void openPrivateRoomById(roomId)}
         onUnreadChange={setPrivateUnreadCount}
       />
 
@@ -5273,7 +5306,7 @@ export default function MessagesPage() {
       <section className="relative z-10 min-w-0">
         <section
           data-mobile-pane={selectedRoom && !mobileInboxOpen ? "chat" : "list"}
-          data-live-active={streamIsActive || undefined}
+          data-live-active={COMMUNITY_BROADCASTS_ENABLED && streamIsActive || undefined}
           className={`${styles.workspace} ${selectedIsGroup && (showMemberPanel || serverViewMode === "home") ? styles.workspaceWithPanel : styles.workspaceNoPanel} box-border grid h-[calc(100vh-92px)] grid-cols-1 gap-4 overflow-hidden px-4 pb-28 lg:grid-cols-[330px_minmax(0,1fr)] lg:px-6`}
         >
           <aside className={`${styles.leftRail} min-h-0`}>
@@ -5282,6 +5315,11 @@ export default function MessagesPage() {
                 rooms={serverRooms.map((room) => ({ id: room.id, name: roomTitle(room), iconUrl: room.server?.icon_url, unreadCount: room.unread_count }))}
                 selectedRoomId={selectedRoomId}
                 onSelect={selectServer}
+                onOpenMessages={() => {
+                  if (!requireLogin("Masuk untuk membuka pesan pengguna.")) return;
+                  setShowPrivateMessages(true);
+                  setShowFriendsMenu(false);
+                }}
                 onCreate={() => {
                   if (!requireLogin("Masuk untuk membuat komunitas.")) return;
                   setCreateAsParty(false);
@@ -5882,8 +5920,12 @@ export default function MessagesPage() {
                         roomId: selectedRoomId,
                         channel,
                       });
-                      if (source !== "auto") setServerViewMode("chat");
-                      if (source !== "auto") setMobileInboxOpen(false);
+                      // An automatic initial selection only loads a channel.
+                      // Refreshes must not move the user out of Home, open a
+                      // panel, change the URL, or discard an in-progress draft.
+                      if (source === "auto") return;
+                      setServerViewMode("chat");
+                      setMobileInboxOpen(false);
                       replaceServerChannelAddress(selectedRoomId, channel.id);
                       deepLinkServerIdRef.current = "";
                       deepLinkChannelIdRef.current = "";
@@ -5981,7 +6023,7 @@ export default function MessagesPage() {
                           {group ? (
                             <span>{room.member_count || 0} anggota</span>
                           ) : null}
-                          {live ? (
+                          {COMMUNITY_BROADCASTS_ENABLED && live ? (
                             <span className="rounded-full bg-red-500 px-2 py-0.5 text-white">
                               LIVE
                             </span>
@@ -6382,7 +6424,7 @@ export default function MessagesPage() {
                           {selectedRoom.party_game}
                         </span>
                       ) : null}
-                      {String(
+                      {COMMUNITY_BROADCASTS_ENABLED && String(
                         selectedRoom.stream_status || "",
                       ).toLowerCase() === "live" ? (
                         <span className="inline-flex items-center gap-2 rounded-full bg-red-500 px-3 py-2 text-xs font-black text-white">
@@ -6441,23 +6483,17 @@ export default function MessagesPage() {
                         </button>
                         {showMoreMenu ? (
                           <div className="absolute right-0 top-11 z-40 w-56 overflow-hidden rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-2 text-xs font-bold shadow-[0_22px_60px_rgba(0,0,0,0.55)]">
-                            {selectedIsGroup ? (
+                            {selectedIsGroup && streamIsActive && selectedRoom.stream_host_id === userId ? (
                               <button
                                 type="button"
                                 onClick={() => {
                                   setShowMoreMenu(false);
-                                  handleDockLiveAction();
+                                  void forceStopHostedLive(selectedRoom.id, "Siaran lama sudah diakhiri.");
                                 }}
                                 className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-200 hover:bg-white/10"
                               >
                                 <FaBroadcastTower />
-                                {streamIsActive
-                                  ? selectedRoom.stream_host_id === userId
-                                    ? "Akhiri siaran"
-                                    : streamViewerActive
-                                      ? "Keluar siaran"
-                                      : "Tonton siaran"
-                                  : "Mulai siaran"}
+                                Akhiri siaran lama
                               </button>
                             ) : null}
                             {selectedIsGroup &&
@@ -6585,44 +6621,8 @@ export default function MessagesPage() {
                   className={`${styles.conversationGrid} min-h-0 flex-1 ${selectedIsGroup && showMemberPanel ? "grid xl:grid-cols-[minmax(0,1fr)_320px]" : "flex flex-col"}`}
                 >
                   <div
-                    className={`${styles.chatColumn} ${streamIsActive ? styles.chatColumnLive : styles.chatColumnFocus} flex min-h-0 flex-col`}
+                    className={`${styles.chatColumn} ${COMMUNITY_BROADCASTS_ENABLED && streamIsActive ? styles.chatColumnLive : styles.chatColumnFocus} flex min-h-0 flex-col`}
                   >
-                    {selectedRoom.product ? (
-                      <div className="border-b border-white/10 bg-cyan-400/5 p-4">
-                        <div className="flex items-center justify-between gap-4 rounded-2xl border border-cyan-400/20 bg-black/30 p-4">
-                          <div className="min-w-0">
-                            <p className="text-xs font-black uppercase tracking-wider text-cyan-300">
-                              Product Context
-                            </p>
-                            <p className="truncate font-black">
-                              {selectedRoom.product.title || "Product"}
-                            </p>
-                          </div>
-                          <p className="shrink-0 font-black text-green-300">
-                            {formatPrice(selectedRoom.product.price || 0)}
-                          </p>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {!selectedIsGroup ? (
-                      <div className="border-b border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-3">
-                        <p className="flex items-center gap-2 text-xs font-bold text-emerald-200">
-                          <FaLock />
-                          Pesan pribadi dan lampiran baru dienkripsi end-to-end. Riwayat disimpan terenkripsi di perangkat ini. Panggilan dilindungi selama pengiriman melalui LiveKit.
-                        </p>
-                      </div>
-                    ) : null}
-
-                    {!selectedIsGroup ? (
-                      <div className="border-b border-yellow-400/20 bg-yellow-400/10 px-5 py-3 text-sm text-yellow-100">
-                        <strong>Safety:</strong> Never move payment outside
-                        ComePlayers. Sellers must send account credentials
-                        through the encrypted delivery form on the order page,
-                        not chat.
-                      </div>
-                    ) : null}
-
                     {!selectedIsGroup ? (
                       <SecureDirectConversation
                         key={`secure-direct:${userId}:${selectedRoom.id}`}
@@ -6645,8 +6645,7 @@ export default function MessagesPage() {
                           : ""}
                         {selectedChannelIsVoice ? (
                           <span className="ml-2 text-emerald-300">
-                            Secure LiveKit voice, video, and screen sharing are
-                            available in this channel.
+                            Anda dapat berbicara, menyalakan kamera, atau membagikan layar di ruang ini.
                           </span>
                         ) : null}
                       </div>
@@ -6666,7 +6665,7 @@ export default function MessagesPage() {
                             <FaTimes />
                           </button>
                         ) : null}
-                        {selectedChannelIsVoice ? (
+                        {COMMUNITY_BROADCASTS_ENABLED && selectedChannelIsVoice ? (
                           <div className={styles.liveBridgeHost} aria-hidden="true">
                             <GroupLiveStreamPanel
                               key={`voice-live-bridge:${selectedRoom.id}:${selectedChannelId}`}
@@ -6707,8 +6706,8 @@ export default function MessagesPage() {
                                 Ruang suara
                               </p>
                               <p className="mt-1">
-                                Use the LiveKit controls above to talk, enable
-                                video, share your screen, or leave.
+                                Gunakan tombol di atas untuk berbicara, menyalakan kamera,
+                                membagikan layar, atau keluar.
                               </p>
                             </div>
                           </div>
@@ -8167,7 +8166,7 @@ export default function MessagesPage() {
           </div>
         </div>
       ) : null}
-      {showLiveLobbyPicker ? (
+      {COMMUNITY_BROADCASTS_ENABLED && showLiveLobbyPicker ? (
         <div
           className="fixed inset-0 z-[130] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
           role="dialog"
@@ -8268,7 +8267,7 @@ export default function MessagesPage() {
         </div>
       ) : null}
 
-      {selectedIsGroup && selectedRoom && streamIsActive ? (
+      {COMMUNITY_BROADCASTS_ENABLED && selectedIsGroup && selectedRoom && streamIsActive ? (
         <div
           className={`${styles.voiceDock} ${showMemberPanel ? "" : styles.voiceDockExpanded} fixed bottom-4 left-[370px] right-6 z-30 hidden h-20 items-center overflow-hidden rounded-2xl border border-yellow-400/25 bg-[#07131f]/94 shadow-[0_0_34px_rgba(250,204,21,0.12),inset_0_0_28px_rgba(255,255,255,0.025)] backdrop-blur-xl xl:flex 2xl:right-[365px]`}
         >

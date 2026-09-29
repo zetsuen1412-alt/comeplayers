@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaComments, FaSearch, FaShoppingBag, FaUsers } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { supabase } from "@/lib/supabase";
 import styles from "./chat.module.css";
 
@@ -116,12 +117,15 @@ export default function ChatClient() {
   const loadRooms = useCallback(async (preferredRoomId = "", silent = false) => {
     if (!silent) setLoadingRooms(true);
     try {
-      const result = await authenticatedFetchJson<RoomsResponse>("/api/messages/rooms?limit=100&scope=direct");
-      const next = (result.rooms || []).filter(room => room.room_type !== "group");
-      setRooms(next);
+      const result = await authenticatedFetchJson<RoomsResponse>("/api/messages/rooms?limit=100&scope=transaction");
+      const next = (result.rooms || []).filter(isTransactionChatRoom);
+      setRooms(current => {
+        const retained = preferredRoomId && current.find(room => room.id === preferredRoomId && isTransactionChatRoom(room) && !next.some(item => item.id === room.id));
+        return retained ? [retained, ...next] : next;
+      });
       setSelectedRoomId((current) => {
         const requested = preferredRoomId || current;
-        return requested && next.some((room) => room.id === requested) ? requested : next[0]?.id || "";
+        return requested && (preferredRoomId || next.some((room) => room.id === requested)) ? requested : next[0]?.id || "";
       });
       return next;
     } catch (cause) {
@@ -154,7 +158,25 @@ export default function ChatClient() {
         }
       }
       if (cancelled) return;
-      await loadRooms(preferredRoomId);
+      const next = await loadRooms(preferredRoomId);
+      if (cancelled) return;
+      if (preferredRoomId && !next.some(room => room.id === preferredRoomId)) {
+        try {
+          const result = await authenticatedFetchJson<{ room: Room }>(`/api/messages/rooms/${encodeURIComponent(preferredRoomId)}`);
+          if (cancelled) return;
+          if (!result.room || !isTransactionChatRoom(result.room)) {
+            window.location.replace(`/messages?room=${encodeURIComponent(preferredRoomId)}`);
+            return;
+          }
+          const requestedRoom = result.room;
+          setRooms(current => [requestedRoom, ...current.filter(room => room.id !== requestedRoom.id)]);
+          setSelectedRoomId(requestedRoom.id);
+        } catch (cause) {
+          if (!cancelled) setError(cause instanceof Error ? cause.message : "Percakapan belum bisa dibuka.");
+          setSelectedRoomId(next[0]?.id || "");
+          preferredRoomId = "";
+        }
+      }
       if (preferredRoomId && window.matchMedia("(max-width: 760px)").matches) setMobileChatOpen(true);
     })();
     return () => { cancelled = true; };
@@ -179,7 +201,8 @@ export default function ChatClient() {
     return rooms.filter((room) => [profileName(room.other), room.product?.title, room.order?.product_title, room.order_id ? `#${room.order_id}` : ""]
       .some((value) => String(value || "").toLowerCase().includes(query)));
   }, [rooms, search]);
-  const selectedRoom = rooms.find((room) => room.id === selectedRoomId) || null;
+  const selectedCandidate = rooms.find((room) => room.id === selectedRoomId) || null;
+  const selectedRoom = isTransactionChatRoom(selectedCandidate) ? selectedCandidate : null;
 
   if (!authReady) {
     return <main className={styles.page}><div role="status" className={`${styles.shell} ${styles.loadingShell}`}><span className={styles.spinner} aria-hidden="true" /><p>Menyiapkan chat…</p></div></main>;
@@ -190,8 +213,8 @@ export default function ChatClient() {
         <section className={`${styles.shell} ${styles.loginShell}`}>
           <div className={styles.loginIcon}><FaComments /></div>
           <span className={styles.eyebrow}>COMEPLAYERS</span>
-          <h1>Mulai mengobrol</h1>
-          <p>Masuk untuk melanjutkan percakapan dengan teman, pembeli, atau penjual.</p>
+          <h1>Chat Toko</h1>
+          <p>Masuk untuk mengobrol dengan pembeli atau penjual tentang produk dan pesanan.</p>
           <button type="button" onClick={() => setAuthOpen(true)} className={styles.primaryButton}>Masuk ke ComePlayers</button>
           <Link href="/marketplace" className={styles.secondaryLink}><FaShoppingBag aria-hidden="true" /> Kembali ke toko</Link>
         </section>
@@ -205,22 +228,26 @@ export default function ChatClient() {
       {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
         if (!rooms.some(room => room.id === roomId)) {
           const result = await authenticatedFetchJson<{ room: Room }>(`/api/messages/rooms/${encodeURIComponent(roomId)}`);
-          if (!result.room || result.room.room_type === "group") throw new Error("Percakapan belum bisa dibuka.");
+          if (!result.room) throw new Error("Percakapan belum bisa dibuka.");
+          if (!isTransactionChatRoom(result.room)) {
+            window.location.assign(`/messages?room=${encodeURIComponent(roomId)}`);
+            return;
+          }
           setRooms(current => [result.room, ...current.filter(room => room.id !== roomId)]);
         }
         setSelectedRoomId(roomId); setMobileChatOpen(true);
       }} /> : null}
-      <section className={styles.shell} aria-label="Chat ComePlayers">
-        <aside aria-label="Daftar chat" className={`${styles.sidebar} ${mobileChatOpen ? styles.sidebarHiddenMobile : ""}`}>
+      <section className={styles.shell} aria-label="Chat Toko ComePlayers">
+        <aside aria-label="Daftar chat toko" className={`${styles.sidebar} ${mobileChatOpen ? styles.sidebarHiddenMobile : ""}`}>
           <div className={styles.sidebarHeader}>
-            <div><span className={styles.eyebrow}>COMEPLAYERS</span><h1>Chat</h1></div>
-            <span className={styles.roomCount} aria-label={`${rooms.length} percakapan`}>{rooms.length}</span>
+            <div><span className={styles.eyebrow}>COMEPLAYERS</span><h1>Chat Toko</h1></div>
+            <span className={styles.roomCount} aria-label={`${rooms.length} percakapan toko`}>{rooms.length}</span>
           </div>
           <label className={styles.searchBox}>
             <FaSearch aria-hidden="true" /><span className={styles.srOnly}>Cari nama, produk, atau pesanan</span>
-            <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cari percakapan" />
+            <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cari pembeli, produk, atau pesanan" />
           </label>
-          <div className={styles.listHeading}>Percakapan</div>
+          <div className={styles.listHeading}>Pembeli dan penjual</div>
           {error ? <div className={styles.listError}><p role="alert">Chat belum bisa dimuat.</p><button type="button" onClick={() => { setError(""); void loadRooms(selectedRoomId); }}>Coba lagi</button><details><summary>Lihat rincian</summary><p>{error}</p></details></div> : null}
           <div className={styles.roomList}>
             {loadingRooms ? <div role="status" className={styles.listLoading}><span className={styles.spinner} aria-hidden="true" /> Memuat chat…</div> : filteredRooms.length ? filteredRooms.map((room) => {
@@ -236,9 +263,9 @@ export default function ChatClient() {
                   {room.unread_count > 0 ? <span aria-label={`${room.unread_count} pesan belum dibaca`} className={styles.unreadBadge}>{room.unread_count > 99 ? "99+" : room.unread_count}</span> : null}
                 </button>
               );
-            }) : <div className={styles.emptyList}><span><FaComments aria-hidden="true" /></span><strong>{search ? "Chat tidak ditemukan" : "Belum ada percakapan"}</strong><p>{search ? "Coba nama lain, produk, atau nomor pesanan." : "Percakapan muncul setelah Anda menghubungi seseorang."}</p>{search ? <button type="button" onClick={() => setSearch("")}>Lihat semua chat</button> : <Link href="/cpcommunity">Temukan teman</Link>}</div>}
+            }) : <div className={styles.emptyList}><span><FaComments aria-hidden="true" /></span><strong>{search ? "Chat tidak ditemukan" : "Belum ada chat toko"}</strong><p>{search ? "Coba nama lain, produk, atau nomor pesanan." : "Chat dengan pembeli atau penjual muncul saat Anda membuka produk atau pesanan."}</p>{search ? <button type="button" onClick={() => setSearch("")}>Lihat semua chat</button> : <Link href="/marketplace">Jelajahi produk</Link>}</div>}
           </div>
-          <nav className={styles.sidebarFooter} aria-label="Jelajahi ComePlayers"><Link href="/cpcommunity"><FaUsers aria-hidden="true" /> Komunitas</Link><Link href="/marketplace"><FaShoppingBag aria-hidden="true" /> Toko</Link></nav>
+          <nav className={styles.sidebarFooter} aria-label="Kotak masuk ComePlayers"><Link href="/messages"><FaUsers aria-hidden="true" /> Pesan pribadi</Link><Link href="/marketplace"><FaShoppingBag aria-hidden="true" /> Toko</Link></nav>
         </aside>
         <section className={`${styles.chatPanel} ${mobileChatOpen ? styles.chatPanelOpenMobile : ""}`}>
           {selectedRoom ? (
@@ -247,7 +274,7 @@ export default function ChatClient() {
               <SecureDirectConversation key={selectedRoom.id} userId={userId} room={selectedRoom} />
             </div>
           ) : (
-            <div className={styles.noSelection}><span><FaComments aria-hidden="true" /></span><h2>Pilih percakapan</h2><p>Pilih nama di daftar chat untuk mulai mengobrol.</p></div>
+            <div className={styles.noSelection}><span><FaComments aria-hidden="true" /></span><h2>Pilih chat toko</h2><p>Pilih pembeli atau penjual di daftar untuk mulai mengobrol.</p></div>
           )}
         </section>
       </section>

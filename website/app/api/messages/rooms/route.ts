@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { chatRoomListFilter } from "@/lib/chatRoomListFilter";
 import {
   chatErrorStatus,
   isGroupRoom,
@@ -32,17 +33,22 @@ export async function GET(request: Request) {
     const supabaseAdmin = createSupabaseAdmin();
     const { searchParams } = new URL(request.url);
     const limit = clampPositiveInteger(searchParams.get("limit"), 60, 20, 100);
-    const directOnly = searchParams.get("scope") === "direct";
+    const scope = searchParams.get("scope");
+    const directOnly = scope === "direct";
+    const transactionOnly = scope === "transaction";
+    const socialOnly = scope === "social";
+    // Apply the inbox scope before LIMIT. Client-side filtering could hide a
+    // recent order behind a long list of ordinary direct messages (or vice versa).
     let directQuery = supabaseAdmin.from("chat_rooms").select(roomSelect)
-      .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
-    if (directOnly) directQuery = directQuery.neq("room_type", "group");
+      .or(chatRoomListFilter(user.id, transactionOnly ? "transaction" : socialOnly ? "social" : directOnly ? "direct" : "all"));
+    if (directOnly || transactionOnly) directQuery = directQuery.neq("room_type", "group");
 
     const [directRoomsResult, memberRoomsResult] = await Promise.all([
       directQuery
       .order("last_message_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
         .limit(limit),
-      directOnly ? Promise.resolve({ data: [], error: null }) : supabaseAdmin
+      directOnly || transactionOnly ? Promise.resolve({ data: [], error: null }) : supabaseAdmin
         .from("chat_room_members")
         .select("room_id,user_id,member_role,status,invited_by,last_read_at,joined_at,updated_at")
         .eq("user_id", user.id)
@@ -63,11 +69,11 @@ export async function GET(request: Request) {
       new Set(currentMemberships.map((member) => member.room_id).filter(Boolean))
     );
 
+    let membershipRoomsQuery = supabaseAdmin.from("chat_rooms").select(roomSelect)
+      .in("id", membershipRoomIds.length ? membershipRoomIds : ["00000000-0000-0000-0000-000000000000"]);
+    if (socialOnly) membershipRoomsQuery = membershipRoomsQuery.eq("room_type", "group");
     const membershipRoomsResult = membershipRoomIds.length
-      ? await supabaseAdmin
-          .from("chat_rooms")
-          .select(roomSelect)
-          .in("id", membershipRoomIds)
+      ? await membershipRoomsQuery
           .order("last_message_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false })
           .limit(limit)

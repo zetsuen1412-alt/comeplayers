@@ -29,6 +29,7 @@ import { supabase } from "@/lib/supabase";
 import MarketplaceSearch from "@/components/marketplace/MarketplaceSearch";
 import AuthModal, { type AuthMode } from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import ComePlayersLogo from "@/components/brand/ComePlayersLogo";
 import LocaleCurrencySwitcher from "@/components/layout/LocaleCurrencySwitcher";
 import {
@@ -80,6 +81,7 @@ type ChatToast = {
   message: string | null;
   created_at: string;
   sender_name: string;
+  href: string;
 };
 
 type Profile = {
@@ -312,7 +314,7 @@ function MainHeaderContent() {
   async function loadUnreadMessages() {
     try {
       const data = await authenticatedFetchJson<{ count: number }>(
-        "/api/messages/unread"
+        "/api/messages/unread?scope=social"
       );
       setUnreadMessageCount(Number(data.count || 0));
     } catch (error) {
@@ -343,11 +345,18 @@ function MainHeaderContent() {
     message: string | null;
     created_at: string;
   }) {
-    const { data: senderProfile } = await supabase
-      .from("profiles")
-      .select("username,email")
-      .eq("id", messageRow.sender_id)
-      .maybeSingle();
+    const [{ data: senderProfile }, { data: room }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("username,email")
+        .eq("id", messageRow.sender_id)
+        .maybeSingle(),
+      supabase
+        .from("chat_rooms")
+        .select("id,room_type,product_id,order_id")
+        .eq("id", messageRow.room_id)
+        .maybeSingle(),
+    ]);
 
     const senderName =
       senderProfile?.username ||
@@ -361,6 +370,9 @@ function MainHeaderContent() {
       message: messageRow.message,
       created_at: messageRow.created_at,
       sender_name: senderName,
+      // The community page resolves an unknown room before opening it. This
+      // fallback also handles a temporarily unavailable room lookup safely.
+      href: `${isTransactionChatRoom(room) ? "/chat" : "/messages"}?room=${encodeURIComponent(messageRow.room_id)}`,
     });
 
     window.setTimeout(() => {
@@ -800,10 +812,10 @@ function MainHeaderContent() {
               {user ? (
                 <>
                   <Link
-                    href="/chat"
+                    href="/messages?inbox=1"
                     className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-[#111827] text-gray-300 transition hover:bg-[#1f2937] hover:text-white"
-                    title={t("header.messages")}
-                    aria-label={t("header.messages")}
+                    title="Pesan pengguna"
+                    aria-label="Pesan pengguna"
                   >
                     <FaCommentDots />
 
@@ -913,9 +925,10 @@ function MainHeaderContent() {
             {user ? (
               <>
                 <Link
-                  href="/chat"
+                  href="/messages?inbox=1"
                   className="relative flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-[#111827] text-gray-300 transition hover:bg-[#1f2937] hover:text-white"
-                  title={t("header.messages")}
+                  title="Pesan pengguna"
+                  aria-label="Pesan pengguna"
                 >
                   <FaCommentDots />
 
@@ -1046,7 +1059,8 @@ function MainHeaderContent() {
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { href: "/chat", label: t("header.messages"), icon: FaCommentDots },
+                      { href: "/messages?inbox=1", label: "Pesan pengguna", icon: FaCommentDots },
+                      { href: "/chat", label: "Chat Toko", icon: FaShoppingBag },
                       { href: "/my-orders", label: t("header.myOrders"), icon: FaShoppingBag },
                       { href: "/wallet", label: t("header.wallet"), icon: FaWallet },
                       { href: "/account", label: t("header.account"), icon: FaCog },
@@ -1310,6 +1324,15 @@ function MainHeaderContent() {
                     </Link>
 
                     <Link
+                      href="/chat"
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="flex items-center gap-3 rounded-xl px-4 py-3 font-bold text-gray-200 transition hover:bg-white/10 hover:text-white"
+                    >
+                      <FaCommentDots className="text-gray-300" />
+                      Chat Toko
+                    </Link>
+
+                    <Link
                       href="/resolution-center"
                       onClick={() => setShowProfileDropdown(false)}
                       className="flex items-center gap-3 rounded-xl px-4 py-3 font-bold text-gray-200 transition hover:bg-white/10 hover:text-white"
@@ -1450,7 +1473,7 @@ function MainHeaderContent() {
         <button
           onClick={() => {
             setChatToast(null);
-            router.push(`/chat?room=${chatToast.room_id}`);
+            router.push(chatToast.href);
           }}
           className="fixed bottom-4 left-3 right-3 z-[10001] rounded-2xl border border-cyan-400/30 bg-[#111827] p-4 text-left shadow-[0_20px_60px_rgba(0,0,0,0.95)] transition hover:border-cyan-300 hover:bg-[#182238] sm:bottom-6 sm:left-auto sm:right-6 sm:w-[360px] sm:max-w-[calc(100vw-2rem)]"
         >

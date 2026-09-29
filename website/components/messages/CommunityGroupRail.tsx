@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { FaComments, FaPlus } from "react-icons/fa";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
@@ -17,6 +16,7 @@ type Props = {
   rooms: readonly CommunityGroupRailRoom[];
   selectedRoomId: string;
   onSelect: (roomId: string) => void;
+  onOpenMessages: () => void;
   onCreate: () => void;
   guestPreview?: { name: string; iconUrl?: string | null } | null;
   onGuestSignIn?: () => void;
@@ -41,12 +41,12 @@ function GroupAvatar({ name, iconUrl }: { name: string; iconUrl?: string | null 
 }
 
 /** Membership-backed navigation only. Selection and creation stay with the parent. */
-export default function CommunityGroupRail({ rooms, selectedRoomId, onSelect, onCreate, guestPreview, onGuestSignIn }: Props) {
+export default function CommunityGroupRail({ rooms, selectedRoomId, onSelect, onOpenMessages, onCreate, guestPreview, onGuestSignIn }: Props) {
   return <nav className={styles.rail} aria-label="Pesan dan grup ComePlayers" data-community-group-rail>
-    <Link href="/chat" className={`${styles.entry} ${styles.privateLink}`} title="Pesan pribadi" aria-label="Buka pesan pribadi">
+    <button type="button" onClick={onOpenMessages} className={`${styles.entry} ${styles.privateLink}`} title="Pesan pengguna" aria-label="Buka pesan pengguna">
       <span className={`${styles.avatar} ${styles.privateIcon}`} aria-hidden="true"><FaComments /></span>
       <span className={styles.name}>Pesan</span>
-    </Link>
+    </button>
     <p className={styles.heading}>GRUP</p>
     <div className={styles.groups}>
       {rooms.map(room => {

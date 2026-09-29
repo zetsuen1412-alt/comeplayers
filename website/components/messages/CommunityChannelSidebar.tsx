@@ -62,11 +62,15 @@ export default function CommunityChannelSidebar(props: Props) {
       setSyncedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
       const latest = current.current;
       latest.onBundleChange?.(data);
-      const target = requestedChannelId || latest.selectedChannelId || latest.preferredChannelId;
-      const preferred = data.channels.find((item) => item.id === target)
-        || data.channels.find((item) => item.is_default)
-        || data.channels.find((item) => item.channel_type !== "voice") || data.channels[0];
-      if (preferred && preferred.id !== latest.selectedChannelId) latest.onSelectChannel(preferred, "auto");
+      // Background updates may briefly omit a channel. Keep the user's
+      // selection instead of silently jumping to another room on every sync.
+      if (!latest.selectedChannelId) {
+        const target = requestedChannelId || latest.preferredChannelId;
+        const preferred = data.channels.find((item) => item.id === target)
+          || data.channels.find((item) => item.is_default)
+          || data.channels.find((item) => item.channel_type !== "voice") || data.channels[0];
+        if (preferred) latest.onSelectChannel(preferred, "auto");
+      }
     } catch (reason) {
       if (!controller.signal.aborted) {
         setError(reason instanceof Error ? reason.message : "Unable to load channels.");
@@ -84,7 +88,7 @@ export default function CommunityChannelSidebar(props: Props) {
     const initialLoad = window.setTimeout(() => void loadBundle(), 0);
     const wake = () => {
       if (!navigator.onLine) setConnection("Offline");
-      else { setConnection(realtimeReady.current ? "Live" : "Auto refresh"); queue.request(); }
+      else { setConnection(realtimeReady.current ? "Tersambung" : "Menyegarkan"); queue.request(); }
     };
     const timer = window.setInterval(() => queue.request(), 30_000);
     const readChanged = (event: Event) => {
@@ -117,7 +121,7 @@ export default function CommunityChannelSidebar(props: Props) {
     channel.subscribe((status) => {
       if (!active) return;
       realtimeReady.current = status === "SUBSCRIBED";
-      setConnection(!navigator.onLine ? "Offline" : status === "SUBSCRIBED" ? "Live" : "Auto refresh");
+      setConnection(!navigator.onLine ? "Offline" : status === "SUBSCRIBED" ? "Tersambung" : "Menyegarkan");
       if (status === "SUBSCRIBED") queue.request();
     });
     return () => { active = false; realtimeReady.current = false; queue.dispose(); void supabase.removeChannel(channel); };

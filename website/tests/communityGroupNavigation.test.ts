@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
+import { isTransactionChatRoom } from "../lib/chatRoomScope";
 
 // Execute the actual page handlers: no network, rendered copy of the handler,
 // or user session. This catches state left behind by switching groups.
@@ -41,6 +42,7 @@ function fixture(width: number) {
       history: { replaceState(_state: unknown, _unused: string, url: string) { urls.push(url); } },
     },
     router: { push(url: string) { routes.push(url); } },
+    isTransactionChatRoom,
   };
   for (const name of Object.keys(state)) {
     globals[`set${name[0].toUpperCase()}${name.slice(1)}`] = (value: unknown) => { calls.push(name); state[name] = value; };
@@ -99,4 +101,13 @@ test("order-linked conversations keep their private-chat route instead of enteri
   assert.deepEqual(f.routes, ["/chat?room=trade%2Froom"]);
   assert.deepEqual(f.calls, []);
   assert.deepEqual(f.state, before);
+});
+
+test("ordinary direct messages stay in the community conversation view", () => {
+  const f = fixture(390);
+  f.openRoom({ id: "friend-room", room_type: "direct" });
+  assert.deepEqual(f.routes, []);
+  assert.equal(f.state.selectedRoomId, "friend-room");
+  assert.equal(f.state.mobileInboxOpen, false);
+  assert.deepEqual(f.urls, ["/messages?room=friend-room"]);
 });

@@ -4,17 +4,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaArrowLeft, FaBan, FaCommentDots, FaPaperPlane, FaPlus, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { authenticatedFetchJson as api } from "@/lib/authenticatedFetch";
+import { isSocialChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import styles from "./ContactsWorkspace.module.css";
 
 type Profile = { id: string; username?: string | null; full_name?: string | null; avatar_url?: string | null };
-type Room = { id: string; title?: string; room_type?: string; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string; last_message_at?: string; blocked_by_me?: boolean; contact_unavailable?: boolean };
+type Room = { id: string; title?: string; room_type?: string; product_id?: number | null; order_id?: number | null; product?: unknown; order?: unknown; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string; last_message_at?: string; blocked_by_me?: boolean; contact_unavailable?: boolean };
 type Message = { id: string; sender_id: string; message: string; created_at: string; deleted_at?: string; is_read?: boolean; sender?: Profile; attachment?: { file_name: string } };
-type Props = { userId: string; active: boolean; friendMenuOpen: boolean; privateMessagesOpen: boolean; onCloseFriendMenu: () => void; onClosePrivateMessages: () => void; onUnreadChange?: (count: number) => void };
-const name = (p?: Profile) => p?.username || p?.full_name || "ComePlayers user";
-const roomName = (r: Room) => r.room_type === "group" ? r.title || "Group" : name(r.other);
+type Props = { userId: string; active: boolean; friendMenuOpen: boolean; privateMessagesOpen: boolean; onCloseFriendMenu: () => void; onClosePrivateMessages: () => void; onOpenPrivateRoom: (roomId: string) => void; onUnreadChange?: (count: number) => void };
+const name = (p?: Profile) => p?.username || p?.full_name || "Pengguna ComePlayers";
+const roomName = (r: Room) => r.room_type === "group" ? r.title || "Grup" : name(r.other);
 const json = (method: string, body: unknown) => ({ method, body: JSON.stringify(body) });
-const errorText = (e: unknown) => e instanceof Error ? e.message : "Please try again.";
+const errorText = (e: unknown) => e instanceof Error ? e.message : "Coba lagi.";
 
 function Avatar({ profile, title }: { profile?: Profile; title?: string }) {
   return <span className={styles.avatar}>{profile?.avatar_url ? <img src={profile.avatar_url} alt="" onError={e => { e.currentTarget.style.display = "none"; }} /> : (title || name(profile)).slice(0, 1).toUpperCase()}</span>;
@@ -61,9 +62,10 @@ export default function ContactsWorkspace(props: Props) {
   const [conversationLoading, setConversationLoading] = useState(false);
 
   const loadRooms = useCallback(async () => {
-    const result = await api<{ rooms: Room[] }>("/api/messages/rooms?limit=100");
-    setRooms(result.rooms);
-    callbacks.current.onUnreadChange?.(result.rooms.reduce((sum, r) => sum + (r.room_type === "group" ? 0 : r.unread_count || 0), 0));
+    const result = await api<{ rooms: Room[] }>("/api/messages/rooms?scope=social&limit=100");
+    const socialRooms = (result.rooms || []).filter(isSocialChatRoom);
+    setRooms(socialRooms);
+    callbacks.current.onUnreadChange?.(socialRooms.reduce((sum, r) => sum + (r.room_type === "group" ? 0 : r.unread_count || 0), 0));
   }, []);
   useEffect(() => {
     if (!active || !userId) { setRooms([]); setSelected(null); return; }
@@ -111,11 +113,7 @@ export default function ContactsWorkspace(props: Props) {
     return () => { live = false; clearTimeout(timer); controller.abort(); };
   }, [visible, active, mode, query, selectedId]);
   useEffect(() => {
-    if (!visible || !selectedId) return;
-    if (selected?.room_type !== "group") {
-      window.location.assign(`/chat?room=${encodeURIComponent(selectedId)}`);
-      return;
-    }
+    if (!visible || !selectedId || selected?.room_type !== "group") return;
     let live = true; let running = false;
     let lastId = "";
     setConversationLoading(true); setMessages([]); setDraft(""); setInvite("");
@@ -146,36 +144,45 @@ export default function ContactsWorkspace(props: Props) {
     setBusy(true); setNotice("");
     try { await fn(); } catch (e) { setNotice(errorText(e)); } finally { setBusy(false); }
   };
+  const openConversation = (room: Room) => {
+    if (!isSocialChatRoom(room)) { setNotice("Percakapan ini ada di Chat Toko."); return; }
+    if (room.room_type === "group") { setSelected(room); setNotice(""); return; }
+    props.onOpenPrivateRoom(room.id);
+    props.onCloseFriendMenu();
+    props.onClosePrivateMessages();
+  };
   const choose = (user: Profile) => {
     if (mode === "group") { setMembers(rows => rows.some(p => p.id === user.id) ? rows.filter(p => p.id !== user.id) : [...rows, user]); return; }
     void action(async () => {
       if (mode === "blocked") { await api("/api/messages/blocks", json("DELETE", { userId: user.id })); setUsers(rows => rows.filter(p => p.id !== user.id)); return; }
-      const data = await api<{ room: Room }>("/api/messages/contacts", json("POST", { userId: user.id })); setSelected(data.room);
+      const data = await api<{ room: Room }>("/api/messages/contacts", json("POST", { userId: user.id }));
+      if (!isSocialChatRoom(data.room)) throw new Error("Percakapan ini ada di Chat Toko.");
+      openConversation(data.room);
     });
   };
   const close = () => { props.onCloseFriendMenu(); props.onClosePrivateMessages(); };
   const filtered = rooms.filter(r => (filter !== "unread" || !!r.unread_count) && (filter !== "groups" || r.room_type === "group") && `${roomName(r)} ${r.last_message || ""}`.toLowerCase().includes(query.toLowerCase()));
   if (!visible || !active) return null;
   return createPortal(<div className={styles.backdrop} onMouseDown={e => { if (e.target === e.currentTarget) close(); }}>
-    <div ref={panel} className={styles.panel} role="dialog" aria-modal="true" aria-label={selected ? roomName(selected) : "Messages and contacts"} tabIndex={-1}>
+    <div ref={panel} className={styles.panel} role="dialog" aria-modal="true" aria-label={selected ? roomName(selected) : "Pesan dan kontak"} tabIndex={-1}>
       <header className={styles.header}>
-        {selected ? <button aria-label="Back to chats" onClick={() => { setSelected(null); setNotice(""); }}><FaArrowLeft /></button> : <FaCommentDots />}
-        <h2>{selected ? roomName(selected) : mode === "chats" ? "Messages" : mode === "blocked" ? "Blocked contacts" : mode === "group" ? "New group" : "Contacts"}</h2>
+        {selected ? <button aria-label="Kembali ke daftar chat" onClick={() => { setSelected(null); setNotice(""); }}><FaArrowLeft /></button> : <FaCommentDots />}
+        <h2>{selected ? roomName(selected) : mode === "chats" ? "Pesan pengguna" : mode === "blocked" ? "Kontak diblokir" : mode === "group" ? "Grup baru" : "Kontak"}</h2>
         {selected && selected.room_type !== "group" && selected.other ? <button title={selected.blocked_by_me ? "Unblock contact" : "Block contact"} aria-label={selected.blocked_by_me ? "Unblock contact" : "Block contact"} disabled={busy} onClick={() => {
           const block = !selected.blocked_by_me;
           if (!window.confirm(block ? "Block this contact? Direct messages and invitations will stop. Shared groups are not affected." : "Unblock this contact?")) return;
           void action(async () => { await api("/api/messages/blocks", json(block ? "POST" : "DELETE", { userId: selected.other!.id })); const data = await api<{room: Room}>(`/api/messages/rooms/${selected.id}`); setSelected(data.room); });
         }}><FaBan /></button> : null}
-        <button onClick={close} aria-label="Close messages"><FaTimes /></button>
+        <button onClick={close} aria-label="Tutup pesan"><FaTimes /></button>
       </header>
       {!selected ? <>
-        <nav className={styles.tabs} aria-label="Contacts views">{([['chats','Chats'],['contacts','Contacts'],['group','New group'],['blocked','Blocked']] as const).map(([id,label]) => <button key={id} aria-pressed={mode===id} onClick={() => { setMode(id); setQuery(""); setNotice(""); }}>{label}</button>)}</nav>
-        {mode === "group" ? <div className={styles.group}><input aria-label="Group name" placeholder="Group name" value={groupName} maxLength={80} onChange={e=>setGroupName(e.target.value)} /><small>{members.length} selected: {members.map(name).join(", ")}</small><button disabled={busy || groupName.trim().length < 3} onClick={() => void action(async () => { const data = await api<{ room: Room }>("/api/messages/groups", json("POST", {title: groupName.trim(), memberIds: members.map(p=>p.id)})); setMembers([]); setGroupName(""); setSelected(data.room); await loadRooms(); })}><FaUsers /> Create group</button></div> : null}
-        {mode !== "blocked" ? <label className={styles.search}><FaSearch /><input aria-label="Search chats or contacts" placeholder="Search username or phone number" value={query} autoComplete="off" onChange={e=>setQuery(e.target.value)} /></label> : null}
-        {mode === "chats" ? <div className={styles.tabs}>{["all", "unread", "groups"].map(value => <button key={value} aria-pressed={filter===value} onClick={()=>setFilter(value)}>{value}</button>)}</div> : null}
+        <nav className={styles.tabs} aria-label="Menu pesan">{([['chats','Chat'],['contacts','Kontak'],['group','Grup baru'],['blocked','Diblokir']] as const).map(([id,label]) => <button key={id} aria-pressed={mode===id} onClick={() => { setMode(id); setQuery(""); setNotice(""); }}>{label}</button>)}</nav>
+        {mode === "group" ? <div className={styles.group}><input aria-label="Nama grup" placeholder="Nama grup" value={groupName} maxLength={80} onChange={e=>setGroupName(e.target.value)} /><small>{members.length} dipilih: {members.map(name).join(", ")}</small><button disabled={busy || groupName.trim().length < 3} onClick={() => void action(async () => { const data = await api<{ room: Room }>("/api/messages/groups", json("POST", {title: groupName.trim(), memberIds: members.map(p=>p.id)})); setMembers([]); setGroupName(""); setSelected(data.room); await loadRooms(); })}><FaUsers /> Buat grup</button></div> : null}
+        {mode !== "blocked" ? <label className={styles.search}><FaSearch /><input aria-label="Cari chat atau kontak" placeholder="Cari nama pengguna atau nomor telepon" value={query} autoComplete="off" onChange={e=>setQuery(e.target.value)} /></label> : null}
+        {mode === "chats" ? <div className={styles.tabs}>{([['all','Semua'],['unread','Belum dibaca'],['groups','Grup']] as const).map(([value,label]) => <button key={value} aria-pressed={filter===value} onClick={()=>setFilter(value)}>{label}</button>)}</div> : null}
         <div className={styles.list}>
-          {(mode !== "chats" || query.length >= 2) ? <><p className={styles.label}>{mode === "blocked" ? "Blocked contacts" : query ? "People" : "Recently contacted"}</p>{loading ? <p className={styles.empty}>Loading contacts…</p> : users.map(user => <button className={styles.row} key={user.id} disabled={busy} onClick={()=>choose(user)}><Avatar profile={user} /><span className={styles.copy}><strong>{name(user)}</strong><small>@{user.username || "player"}</small></span><span className={styles.accent}>{mode === "blocked" ? "Unblock" : mode === "group" ? members.some(p=>p.id===user.id) ? "Selected" : "Select" : "Chat"}</span></button>)}{!loading && !users.length ? <p className={styles.empty}>{mode === "blocked" ? "No blocked contacts." : "Search an exact username or a complete verified phone number, including country code. No friend request needed."}</p> : null}</> : null}
-          {mode === "chats" ? <><p className={styles.label}>Chats</p>{filtered.map(room => <button className={styles.row} key={room.id} onClick={()=>{setSelected(room); setNotice("");}}>{room.room_type === "group" ? <GroupAvatar iconUrl={room.server?.icon_url} title={roomName(room)} /> : <Avatar profile={room.other} title={roomName(room)} />}<span className={styles.copy}><strong>{roomName(room)}</strong><small>{room.last_message || "No messages yet"}</small></span><span className={styles.meta}>{room.last_message_at ? new Date(room.last_message_at).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : ""}{room.unread_count ? <b>{room.unread_count}</b> : null}</span></button>)}{!filtered.length ? <p className={styles.empty}>No conversations here yet. Open Contacts to start a chat.</p> : null}</> : null}
+          {(mode !== "chats" || query.length >= 2) ? <><p className={styles.label}>{mode === "blocked" ? "Kontak diblokir" : query ? "Orang" : "Kontak terbaru"}</p>{loading ? <p className={styles.empty}>Memuat kontak…</p> : users.map(user => <button className={styles.row} key={user.id} disabled={busy} onClick={()=>choose(user)}><Avatar profile={user} /><span className={styles.copy}><strong>{name(user)}</strong><small>@{user.username || "player"}</small></span><span className={styles.accent}>{mode === "blocked" ? "Buka blokir" : mode === "group" ? members.some(p=>p.id===user.id) ? "Dipilih" : "Pilih" : "Chat"}</span></button>)}{!loading && !users.length ? <p className={styles.empty}>{mode === "blocked" ? "Belum ada kontak diblokir." : "Cari nama pengguna atau nomor telepon lengkap dengan kode negara. Anda bisa langsung mengobrol tanpa permintaan teman."}</p> : null}</> : null}
+          {mode === "chats" ? <><p className={styles.label}>Chat</p>{filtered.map(room => <button className={styles.row} key={room.id} onClick={()=>openConversation(room)}>{room.room_type === "group" ? <GroupAvatar iconUrl={room.server?.icon_url} title={roomName(room)} /> : <Avatar profile={room.other} title={roomName(room)} />}<span className={styles.copy}><strong>{roomName(room)}</strong><small>{room.last_message || "Belum ada pesan"}</small></span><span className={styles.meta}>{room.last_message_at ? new Date(room.last_message_at).toLocaleDateString("id-ID",{month:"short",day:"numeric"}) : ""}{room.unread_count ? <b>{room.unread_count}</b> : null}</span></button>)}{!filtered.length ? <p className={styles.empty}>Belum ada chat. Buka Kontak untuk memulai.</p> : null}</> : null}
         </div>
       </> : <>
         {selected.room_type === "group" ? <form className={styles.invite} onSubmit={e=>{e.preventDefault(); void action(async()=>{await api(`/api/messages/rooms/${selected.id}/members`,json("POST",{identifier:invite.trim()}));setInvite("");setNotice("Group invitation sent.");});}}><input aria-label="Invite by username or phone" placeholder="Invite by username or phone" value={invite} onChange={e=>setInvite(e.target.value)} /><button disabled={busy || !invite.trim()}><FaPlus /> Invite</button></form> : null}
