@@ -2,7 +2,7 @@ import "react-native-url-polyfill/auto";
 
 import * as Updates from "expo-updates";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, AppState, BackHandler, Linking, Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, AppState, BackHandler, Keyboard, Linking, Platform, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import type { Session } from "@supabase/supabase-js";
 import type { ChatRoom } from "@comeplayers/chat-core";
@@ -22,6 +22,8 @@ import { CallProvider } from "./src/CallProvider";
 import { loadPreferences, type AccountPreferences } from "./src/messagingApi";
 import { MfaChallenge } from "./src/screens/MfaChallenge";
 import { MessageAlerts } from "./src/MessageAlerts";
+import { NotificationProvider } from "./src/NotificationProvider";
+import { NotificationPrompt } from "./src/NotificationPrompt";
 import { InboxProvider } from "./src/InboxProvider";
 import { PrivateProvider } from "./src/secure/PrivateProvider";
 import { CommerceProvider } from "./src/CommerceProvider";
@@ -57,7 +59,10 @@ function NativeComePlayersApp() {
     return () => subscription.remove();
   }, []);
   const [tab, setTab] = useState<AppTab>("messages");
-  const [room, setRoom] = useState<ChatRoom | null>(null);
+  const [roomState, setRoomState] = useState<{ room: ChatRoom; channelId?: string } | null>(null);
+  const room = roomState?.room || null;
+  const setRoom = useCallback((next: ChatRoom | null) => setRoomState(next ? { room: next } : null), []);
+  const openNotificationRoom = useCallback((next: ChatRoom, channelId?: string) => setRoomState({ room: next, channelId }), []);
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -134,7 +139,7 @@ function NativeComePlayersApp() {
   const title = tab === "home" ? "Berita" : tab === "community" ? "Komunitas" : tab === "marketplace" ? "Toko" : tab === "messages" ? "Chat" : "Profil";
   const subtitle = tab === "community" ? "Temukan teman dan kegiatan bersama" : tab === "marketplace" ? "Belanja kebutuhan Anda" : tab === "home" ? "Kabar terbaru untuk Anda" : "Kelola akun Anda";
   const Conversation = room?.room_type === "group" ? ConversationScreen : PrivateConversationScreen;
-  return <PrivateProvider key={`private:${session.user.id}`} userId={session.user.id} enabled={!(account?.phoneRequired && !account.phoneVerified)}><CommerceProvider key={session.user.id} userId={session.user.id}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><CallProvider session={session} account={account}>{room && session ? <Conversation key={room.id} room={room} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
+  return <PrivateProvider key={`private:${session.user.id}`} userId={session.user.id} enabled={!(account?.phoneRequired && !account.phoneVerified)}><CommerceProvider key={session.user.id} userId={session.user.id}><InboxProvider key={session.user.id} userId={session.user.id} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)}><NotificationProvider session={session} enabled={!mfaRequired && !(account?.phoneRequired && !account.phoneVerified)} unread={unread} activeRoom={room?.id} activeChannel={roomState?.channelId} messagesEnabled={account?.settings.message_notifications !== false} onOpen={openNotificationRoom}><CallProvider session={session} account={account}>{room && session ? <Conversation key={`${room.id}:${roomState?.channelId || "default"}`} room={room} channelId={roomState?.channelId} session={session} onBack={() => setRoom(null)} onNavigate={next => { setRoom(null); setTab(next); }} onRead={() => setUnread((value) => Math.max(0, value - Number(room.unread_count || 0)))} /> : <View style={styles.app}>
     {tab !== "messages" ? <ScreenHeader title={title} subtitle={subtitle} /> : null}
     <View style={styles.content}><Suspense fallback={<ActivityIndicator style={{ padding: 30 }} color={colors.yellow} />}>
       {tab === "home" ? <NewsScreen /> : null}
@@ -143,12 +148,19 @@ function NativeComePlayersApp() {
       {tab === "messages" ? <MessagesScreen session={session} account={account} onOpenRoom={setRoom} onNavigate={setTab} onUnreadChange={setUnread} /> : null}
       {tab === "profile" ? <ProfileScreen session={session} commerceLink={commerceLink} onCommerceLinkHandled={() => setCommerceLink(null)} onAccountUpdated={refreshAccount} /> : null}
     </Suspense></View>
+    {tab === "messages" ? <NotificationPrompt /> : null}
     <BottomTabs active={tab} onChange={(next) => { setRoom(null); setTab(next); }} unread={unread} />
-  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></InboxProvider></CommerceProvider></PrivateProvider>;
+  </View>}<MessageAlerts session={session} account={account} activeRoom={room?.id} onOpen={setRoom} onUnread={setUnread} /></CallProvider></NotificationProvider></InboxProvider></CommerceProvider></PrivateProvider>;
 }
 
 export default function App() {
   const { isUpdatePending } = Updates.useUpdates();
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
   const [update, setUpdate] = useState<MobileUpdateState>({ status: "idle" });
   const controller = useRef<ReturnType<typeof createMobileUpdateController> | null>(null);
   useEffect(() => {
@@ -177,7 +189,7 @@ export default function App() {
     { text: "Terapkan", onPress: () => { void controller.current?.apply(); } },
   ]);
   return <SafeAreaProvider><AccountSessionGuard /><StatusBar barStyle="light-content" backgroundColor={colors.background} /><SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}><NativeComePlayersApp />
-    {update.status !== "idle" ? <View style={styles.updateNotice} accessibilityLiveRegion="polite"><View style={styles.updateCopy}><Text style={styles.updateTitle}>{update.status === "applying" ? "Membuka pembaruan…" : "Pembaruan siap"}</Text><Text style={styles.updateText}>{update.error || "Terapkan saat Anda sudah selesai menggunakan aplikasi."}</Text></View>{update.status === "applying" ? <ActivityIndicator color={colors.yellow} /> : <Pressable accessibilityRole="button" accessibilityLabel="Terapkan pembaruan ComePlayers" style={styles.updateButton} onPress={applyUpdate}><Text style={styles.updateButtonText}>Terapkan</Text></Pressable>}</View> : null}
+    {update.status !== "idle" && !keyboardVisible ? <View style={styles.updateNotice} accessibilityLiveRegion="polite"><View style={styles.updateCopy}><Text style={styles.updateTitle}>{update.status === "applying" ? "Membuka pembaruan…" : "Pembaruan siap"}</Text><Text style={styles.updateText}>{update.error || "Terapkan saat Anda sudah selesai menggunakan aplikasi."}</Text></View>{update.status === "applying" ? <ActivityIndicator color={colors.yellow} /> : <Pressable accessibilityRole="button" accessibilityLabel="Terapkan pembaruan ComePlayers" style={styles.updateButton} onPress={applyUpdate}><Text style={styles.updateButtonText}>Terapkan</Text></Pressable>}</View> : null}
   </SafeAreaView></SafeAreaProvider>;
 }
 

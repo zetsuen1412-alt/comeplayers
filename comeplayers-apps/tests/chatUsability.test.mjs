@@ -15,7 +15,8 @@ function load(file, dependencies) {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   });
   assert.equal(diagnostics?.length || 0, 0);
-  runInNewContext(outputText, { module: mod, exports: mod.exports, Error, setTimeout, clearTimeout, console,
+  runInNewContext(outputText, { module: mod, exports: mod.exports, Error, setTimeout, clearTimeout, setInterval, clearInterval, console,
+    requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout,
     require(name) {
       if (name === 'react') return React;
       if (name === 'react/jsx-runtime') return JsxRuntime;
@@ -28,12 +29,15 @@ function load(file, dependencies) {
 const native = Object.fromEntries(['ActivityIndicator', 'Image', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'Text', 'TextInput', 'View'].map(name => [name, name]));
 native.StyleSheet = { create: value => value };
 native.Platform = { OS: 'android' };
+native.Keyboard = { metrics: () => undefined, addListener: () => ({ remove() {} }), scheduleLayoutAnimation() {} };
 native.Alert = { alert() {} };
+native.AppState = { currentState: 'active', addEventListener: () => ({ remove() {} }) };
 native.Modal = ({ visible, children }) => visible ? React.createElement('Modal', null, children) : null;
 native.FlatList = ({ data, renderItem, ListEmptyComponent, ListFooterComponent }) => React.createElement('List', null,
   data.length ? data.map((item) => React.createElement(React.Fragment, { key: item.id }, renderItem({ item }))) : ListEmptyComponent, ListFooterComponent);
 const theme = { colors: {} };
 const { ChatProblemNotice } = load('screens/ChatProblemNotice.tsx', { 'react-native': native, '../theme': theme });
+const chatKeyboardLayout = load('screens/ChatKeyboardLayout.tsx', { 'react-native': native });
 const userId = 'person-1';
 const room = { id: 'room-1', other: { id: 'person-2', username: 'teman' } };
 const session = { user: { id: userId } };
@@ -57,7 +61,7 @@ function screen(provider, overrides = {}) {
       removeChannel: async () => {},
     } },
     '../messagingApi': { loadPreferences: async () => ({ settings: { read_receipts: false } }), updateChatPreference: async () => {} },
-    './ChatProblemNotice': { ChatProblemNotice }, ...overrides,
+    './ChatProblemNotice': { ChatProblemNotice }, './ChatKeyboardLayout': chatKeyboardLayout, ...overrides,
   }).PrivateConversationScreen;
 }
 function messenger(overrides = {}) {
@@ -107,6 +111,48 @@ test('failed send retains draft; retry synchronizes once and original error rema
   assert.equal(syncs, 1);
   assert.equal(view.root.findByType('TextInput').props.value, 'Pesan saya');
   assert.equal(view.root.findAllByType(ChatProblemNotice).length, 0);
+});
+
+test('typing while a private message sends keeps the composer and the new draft', async t => {
+  let completeSend;
+  const view = await render(t, screen({ messenger: messenger({ send: () => new Promise(resolve => { completeSend = resolve; }) }), setup: null, error: '', reopen() {} }), props);
+  await act(async () => view.root.findByType('TextInput').props.onChangeText('Pesan pertama'));
+  const input = view.root.findByType('TextInput');
+  await act(async () => view.root.findAllByType('Pressable').find(n => n.props.accessibilityLabel === 'Kirim pesan').props.onPress());
+  assert.equal(view.root.findByType('TextInput'), input);
+  assert.equal(input.props.editable, true);
+  await act(async () => input.props.onChangeText('Pesan berikutnya'));
+  await act(async () => { completeSend(); await flush(); });
+  assert.equal(view.root.findByType('TextInput'), input);
+  assert.equal(input.props.value, 'Pesan berikutnya');
+  assert.equal(view.root.findAllByType('Modal').length, 0);
+});
+
+test('typing while a group message sends retains focus and does not erase the next draft', async t => {
+  const group = { id: 'group-focus', room_type: 'group', server: { name: 'Keluarga' } };
+  let completeSend;
+  const { ConversationScreen } = load('screens/ConversationScreen.tsx', {
+    'react-native': native, '@expo/vector-icons/Ionicons': 'Icon', '@comeplayers/chat-core': { roomName: () => 'Keluarga' },
+    'expo-image-picker': {}, 'expo-document-picker': {}, 'expo-image-manipulator': {},
+    './ContactsSheet': { ContactsSheet: 'Contacts' }, './ChatProblemNotice': { ChatProblemNotice }, './ChatKeyboardLayout': chatKeyboardLayout,
+    '../components': { Avatar: 'Avatar', GroupAvatar: 'GroupAvatar' }, '../CallProvider': { useCalls: () => ({ startCall: async () => {} }) },
+    './ChatMedia': { AudioPlayback: 'Audio', VoiceRecorder: 'Recorder', ChatMedia: 'Media' }, '../theme': { ...theme, radius: {} },
+    '../runtime': { chatClient: {
+      getConversation: async () => ({ messages: [], room: group }),
+      sendMessage: () => new Promise(resolve => { completeSend = () => resolve({ message: { id: 'sent', message: 'Pesan pertama', sender_id: userId, created_at: new Date().toISOString() } }); }),
+    }, supabase: { channel: () => ({ on() { return this; }, subscribe() { return this; } }), removeChannel: async () => {} } },
+    '../messagingApi': { loadChatPreferences: async () => ({ preferences: [], starred: [] }) }, '../chatAttachmentUpload': {},
+  });
+  const view = await render(t, ConversationScreen, { ...props, room: group });
+  await act(async () => view.root.findByType('TextInput').props.onChangeText('Pesan pertama'));
+  const input = view.root.findByType('TextInput');
+  await act(async () => view.root.findAllByType('Pressable').find(n => n.props.accessibilityLabel === 'Kirim pesan').props.onPress());
+  assert.equal(input.props.editable, true);
+  assert.equal(view.root.findByType('TextInput'), input);
+  await act(async () => input.props.onChangeText('Pesan berikutnya'));
+  await act(async () => { completeSend(); await flush(); });
+  assert.equal(view.root.findByType('TextInput'), input);
+  assert.equal(input.props.value, 'Pesan berikutnya');
 });
 
 test('private chat broadcasts a metadata-only invalidation and refreshes on an incoming event', async t => {

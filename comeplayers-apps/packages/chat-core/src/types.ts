@@ -161,6 +161,7 @@ export type ChatRoom = {
 };
 
 export type Conversation = {
+  channel?: { id: string; name: string; channel_type: string } | null;
   room: ChatRoom & {
     me?: PublicProfile | null;
     role?: string | null;

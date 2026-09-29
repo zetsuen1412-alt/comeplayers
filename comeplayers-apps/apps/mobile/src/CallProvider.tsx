@@ -7,8 +7,10 @@ const DirectCallScreen = lazy(() => import("./screens/DirectCallScreen").then(mo
 import { request } from "./api";
 import { colors } from "./theme";
 import type { VoiceToken } from "./types";
+import { useIncomingRingtone } from "./notificationSounds";
+import { useNotifications } from "./NotificationProvider";
 
-const Context = createContext<{ startCall: (roomId: string, media: "audio" | "video") => Promise<void> }>({ startCall: async () => undefined });
+const Context = createContext<{ startCall: (roomId: string, media: "audio" | "video") => Promise<void>; callActive: boolean }>({ startCall: async () => undefined, callActive: false });
 export const useCalls = () => useContext(Context);
 export function CallProvider({ session, account, children }: { session: Session | null; account: AccountPreferences | null; children: ReactNode }) {
   const [active, setActive] = useState<CallRecord | null>(null);
@@ -17,8 +19,11 @@ export function CallProvider({ session, account, children }: { session: Session 
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const activeRef = useRef(active); activeRef.current = active;
+  const { incomingCallSignal, setCallActive: reportCallActive } = useNotifications();
+  const incoming = active?.callee_id === session?.user.id;
+  useIncomingRingtone(!!active && incoming && active.status === "ringing" && !busy && account?.settings.call_notifications !== false);
   const startCall = useCallback(async (roomId: string, media: "audio" | "video") => {
-    if (activeRef.current && ["ringing", "accepted"].includes(activeRef.current.status)) throw new Error("Finish your current call first.");
+    if (activeRef.current && ["ringing", "accepted"].includes(activeRef.current.status)) throw new Error("Selesaikan panggilan yang sedang berlangsung terlebih dahulu.");
     const result = await createCall(roomId, media);
     setError(""); setConnection(null); setActive(result.call);
   }, []);
@@ -44,13 +49,13 @@ export function CallProvider({ session, account, children }: { session: Session 
           const incoming = calls.find(c => c.callee_id === session.user.id && c.status === "ringing");
           if (incoming) setActive(incoming);
         }
-      } catch (e) { if (alive && activeRef.current) setError(e instanceof Error ? e.message : "Call connection lost."); }
+      } catch (e) { if (alive && activeRef.current) setError(e instanceof Error ? e.message : "Sambungan panggilan terputus."); }
       finally { loading = false; }
     };
     void poll(); const timer = setInterval(() => void poll(), 2000);
     const listener = AppState.addEventListener("change", state => { if (state === "active") void poll(); });
     return () => { alive = false; clearInterval(timer); listener.remove(); };
-  }, [session?.user.id, account?.phoneRequired, account?.phoneVerified, account?.settings.call_notifications]);
+  }, [session?.user.id, account?.phoneRequired, account?.phoneVerified, account?.settings.call_notifications, incomingCallSignal]);
   useEffect(() => {
     if (!active || active.status !== "accepted" || connection || busy) return;
     let alive = true;
@@ -64,20 +69,21 @@ export function CallProvider({ session, account, children }: { session: Session 
   const finish = async () => {
     if (busy) return;
     const call = activeRef.current; setConnection(null); setBusy(true); setError("");
-    try { if (call && ["ringing", "accepted", "scheduled"].includes(call.status)) await changeCall(call.id, "end"); setActive(null); }
-    catch (e) { setError(e instanceof Error ? e.message : "Could not end the call. Try again."); }
+    try { if (call && ["ringing", "accepted", "scheduled"].includes(call.status)) await changeCall(call.id, call.status === "ringing" && call.callee_id === session?.user.id ? "decline" : "end"); setActive(null); }
+    catch (e) { setError(e instanceof Error ? e.message : "Panggilan belum dapat diakhiri. Coba lagi."); }
     finally { setBusy(false); }
   };
   const accept = async () => {
     if (!active || busy) return; setBusy(true); setError("");
     try { if (active.secure_event_id || active.encryption_envelope) throw new Error("Ask your contact to start a new call."); await changeCall(active.id, "accept"); setActive({ ...active, status: "accepted", answered_at: new Date().toISOString() }); }
-    catch (e) { setError(e instanceof Error ? e.message : "Could not answer call."); }
+    catch (e) { setError(e instanceof Error ? e.message : "Panggilan belum dapat dijawab. Coba lagi."); }
     finally { setBusy(false); }
   };
-  const incoming = active?.callee_id === session?.user.id;
-  const context = useMemo(() => ({ startCall }), [startCall]);
+  const callActive = !!active;
+  useEffect(() => { reportCallActive(callActive); return () => reportCallActive(false); }, [callActive, reportCallActive]);
+  const context = useMemo(() => ({ startCall, callActive }), [startCall, callActive]);
   return <Context.Provider value={context}>{children}
-    {active && connection ? <Suspense fallback={<Modal visible><View style={s.page}><Text style={s.subtitle}>Connecting call…</Text></View></Modal>}><DirectCallScreen connection={connection} call={active} peerId={active.caller_id === session?.user.id ? active.callee_id : active.caller_id} onLeave={() => void finish()} onRetry={() => { setError(""); setConnection(null); setRetry(value => value + 1); }} /></Suspense> : <Modal visible={!!active} animationType="slide" onRequestClose={() => void finish()}><View style={s.page}><Text style={s.eyebrow}>COMEPLAYERS · {active?.media === "video" ? "VIDEO CALL" : "VOICE CALL"}</Text><Avatar name={active?.other?.username || "Contact"} uri={active?.other?.avatar_url} size={100} /><Text style={s.title}>{active?.other?.username || active?.other?.full_name || "ComePlayers contact"}</Text><Text style={s.subtitle}>{active?.status === "ringing" ? incoming ? "Incoming call" : "Calling…" : active?.status === "accepted" ? "Connecting…" : active?.status === "missed" ? "No answer" : active?.status === "declined" ? "Call declined" : "Call ended"}</Text>{error ? <Text style={s.error}>{error}</Text> : null}<View style={s.actions}>{error && active?.status === "accepted" ? <PrimaryButton label="Retry connection" onPress={() => { setError(""); setRetry(v => v + 1); }} /> : null}{incoming && active?.status === "ringing" ? <PrimaryButton label={active.media === "video" ? "Answer with video" : "Answer"} onPress={() => void accept()} loading={busy} /> : null}<Pressable style={s.end} onPress={() => void finish()}><Text style={s.endText}>{active?.status === "ringing" ? incoming ? "Decline" : "Cancel call" : active?.status === "accepted" ? "End call" : "Close"}</Text></Pressable></View><Text style={s.note}>Calls connect through ComePlayers. Incoming alerts are available while the app is open.</Text></View></Modal>}
+    {active && connection ? <Suspense fallback={<Modal visible><View style={s.page}><Text style={s.subtitle}>Menyambungkan panggilan…</Text></View></Modal>}><DirectCallScreen connection={connection} call={active} peerId={active.caller_id === session?.user.id ? active.callee_id : active.caller_id} onLeave={() => void finish()} onRetry={() => { setError(""); setConnection(null); setRetry(value => value + 1); }} /></Suspense> : <Modal visible={!!active} animationType="slide" onRequestClose={() => void finish()}><View style={s.page}><Text style={s.eyebrow}>COMEPLAYERS · {active?.media === "video" ? "PANGGILAN VIDEO" : "PANGGILAN SUARA"}</Text><Avatar name={active?.other?.username || "Kontak"} uri={active?.other?.avatar_url} size={100} /><Text style={s.title}>{active?.other?.username || active?.other?.full_name || "Kontak ComePlayers"}</Text><Text style={s.subtitle}>{active?.status === "ringing" ? incoming ? "Panggilan masuk" : "Memanggil…" : active?.status === "accepted" ? "Menyambungkan…" : active?.status === "missed" ? "Tidak dijawab" : active?.status === "declined" ? "Panggilan ditolak" : "Panggilan selesai"}</Text>{error ? <Text style={s.error}>{error}</Text> : null}<View style={s.actions}>{error && active?.status === "accepted" ? <PrimaryButton label="Coba sambungkan lagi" onPress={() => { setError(""); setRetry(v => v + 1); }} /> : null}{incoming && active?.status === "ringing" ? <PrimaryButton label={active.media === "video" ? "Jawab dengan video" : "Jawab"} onPress={() => void accept()} loading={busy} /> : null}<Pressable style={s.end} onPress={() => void finish()}><Text style={s.endText}>{active?.status === "ringing" ? incoming ? "Tolak" : "Batalkan" : active?.status === "accepted" ? "Akhiri panggilan" : "Tutup"}</Text></Pressable></View><Text style={s.note}>Panggilan pribadi melalui ComePlayers.</Text></View></Modal>}
   </Context.Provider>;
 }
 const s = StyleSheet.create({ page: { flex: 1, backgroundColor: colors.background, justifyContent: "center", alignItems: "center", padding: 28, gap: 24 }, eyebrow: { color: colors.yellow, fontSize: 12, letterSpacing: 2 }, title: { color: colors.text, fontSize: 27, fontWeight: "700" }, subtitle: { color: colors.textMuted, fontSize: 18 }, error: { color: colors.red, textAlign: "center" }, actions: { width: "100%", gap: 18, marginTop: 32 }, end: { padding: 17, borderRadius: 24, backgroundColor: "#9f243b", alignItems: "center" }, endText: { color: "#fff", fontSize: 17, fontWeight: "700" }, note: { color: colors.textDim, textAlign: "center", fontSize: 12, lineHeight: 18 } });

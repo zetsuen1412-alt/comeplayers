@@ -126,27 +126,29 @@ export function createChatClient(options: {
       const result = await request<{ rooms: ChatRoom[] }>(`/api/messages/rooms?limit=${safeLimit}&scope=direct`);
       return result.rooms || [];
     },
-    getConversation: (roomId: string, limit = 80, options: { before?: string; search?: string; media?: boolean; starred?: boolean } = {}) => {
+    getConversation: (roomId: string, limit = 80, options: { before?: string; search?: string; media?: boolean; starred?: boolean; channelId?: string } = {}) => {
       const safeLimit = Math.min(120, Math.max(20, Math.trunc(limit || 80)));
       const query = new URLSearchParams({ limit: String(safeLimit) });
       if (options.before) query.set("before", options.before);
       if (options.search) query.set("search", options.search);
       if (options.media) query.set("media", "true");
       if (options.starred) query.set("starred", "true");
+      if (options.channelId) query.set("channel", options.channelId);
       return request<Conversation>(
         `/api/messages/rooms/${encodeURIComponent(roomId)}?${query}`
       );
     },
-    markRead: (roomId: string) =>
+    markRead: (roomId: string, channelId?: string, lastReadMessageId?: string) =>
       request<{ ok: boolean }>(`/api/messages/rooms/${encodeURIComponent(roomId)}/read`, {
         method: "POST",
-        body: JSON.stringify({}),
+        body: JSON.stringify({ channelId, lastReadMessageId }),
       }),
     sendMessage: (
       roomId: string,
       message: string,
       attachmentId?: number,
-      replyToId?: string
+      replyToId?: string,
+      channelId?: string
     ) =>
       request<{ ok: boolean; message: ChatMessage }>(
         `/api/messages/rooms/${encodeURIComponent(roomId)}/messages`,
@@ -156,6 +158,7 @@ export function createChatClient(options: {
             message: message.trim(),
             attachmentId: attachmentId || undefined,
             replyToId: replyToId || undefined,
+            channelId: channelId || undefined,
           }),
         }
       ),

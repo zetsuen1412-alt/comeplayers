@@ -151,7 +151,7 @@ export default function SecureConversationView({ userId, room, messenger }: { us
     } catch (reason) { if (alive.current) setError(reason instanceof Error ? reason.message : "Cadangan belum bisa diunduh."); }
   }
   const time = (value: string) => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(new Date(value)) : "";
-  return <div className="flex min-h-0 flex-1 flex-col bg-[#07131f]">
+  return <div data-active-chat-room={room.id} className="flex min-h-0 flex-1 flex-col bg-[#07131f]">
     <header className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-[#091b2a] px-4 py-3">
       <div aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cyan-400/15 font-black text-cyan-200">{room.other?.avatar_url ? <img src={room.other.avatar_url} alt="" className="h-full w-full object-cover" /> : peer.slice(0, 1).toUpperCase()}</div>
       <div className="min-w-0 flex-1"><h2 className="truncate text-lg font-bold">{peer}</h2><p className="text-sm text-slate-300">Chat pribadi</p></div>

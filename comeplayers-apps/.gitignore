@@ -10,6 +10,7 @@ node_modules/
 /apps/mobile/ios/
 /apps/mobile/credentials.json
 /apps/mobile/credentials/
+/apps/mobile/google-services.json
 **/src-tauri/target/
 *.keystore
 *.jks

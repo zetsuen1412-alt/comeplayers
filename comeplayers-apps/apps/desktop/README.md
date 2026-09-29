@@ -30,9 +30,17 @@ apps/desktop/src-tauri/target/release/bundle/nsis/
 ## Updater release
 
 ```powershell
-npm run desktop:update:prepare -- -Version 1.0.0 -DownloadUrl https://downloads.comeplayers.com/desktop/ComePlayers_1.0.0_x64-setup.exe
+npm run desktop:update:prepare -- -Version 1.0.1 -DownloadUrl https://downloads.comeplayers.com/desktop/ComePlayers_1.0.1_x64-setup.exe
 ```
 
 Script memvalidasi versi installer, signature, URL, dan checksum sebelum menyiapkan folder `release/desktop/VERSION`.
 
 Gunakan rilis `0.5.2` atau yang lebih baru. Folder lama `release/desktop/0.5.1` tidak boleh dipublikasikan karena installer di dalamnya masih berversi `0.4.0`.
+
+## Notifikasi versi 1.0.1
+
+Pusat notifikasi tersedia di `/notifications`. Pengguna dapat mengaktifkan notifikasi Windows dan memilih suara pesan/nada dering. Izin Windows yang diblokir harus diubah melalui Windows Settings. Notifikasi sistem menggunakan identitas paket MSIX yang dikembalikan Windows; build NSIS menggunakan identifier aplikasi yang terpasang.
+
+Notifikasi pesan dan panggilan tetap berjalan saat aplikasi terbuka atau diminimalkan. Menutup proses aplikasi menghentikan penerimaan; versi ini belum memasang layanan push Windows untuk proses yang sudah ditutup. Browser juga harus tetap terbuka. Nada dering berhenti saat dijawab, ditolak, disenyapkan, kedaluwarsa, atau pengguna keluar. Notifikasi tidak memindahkan percakapan secara otomatis.
+
+Pemeriksaan perangkat sebelum publikasi: instal paket, login, aktifkan notifikasi, minimalkan jendela, kirim pesan dan panggilan dari akun kedua, lalu jawab/tolak dan pastikan suara berhenti. Ulangi dengan chat dibisukan dan notifikasi akun dimatikan. Kompilasi/unit test tidak menggantikan pemeriksaan notifikasi Windows pada paket terpasang.

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaComments, FaSearch, FaShoppingBag, FaUsers } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
@@ -242,18 +241,6 @@ export default function ChatClient() {
 
   return (
     <main className={styles.page}>
-      {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
-        if (!rooms.some(room => room.id === roomId)) {
-          const result = await authenticatedFetchJson<{ room: Room }>(`/api/messages/rooms/${encodeURIComponent(roomId)}`);
-          if (!result.room) throw new Error("Percakapan belum bisa dibuka.");
-          if (!isTransactionChatRoom(result.room)) {
-            window.location.assign(`/cpcommunity?room=${encodeURIComponent(roomId)}`);
-            return;
-          }
-          setRooms(current => [result.room, ...current.filter(room => room.id !== roomId)]);
-        }
-        setSelectedRoomId(roomId); setMobileChatOpen(true);
-      }} /> : null}
       <section className={styles.shell} aria-label="Chat Toko ComePlayers">
         <aside aria-label="Daftar chat toko" className={`${styles.sidebar} ${mobileChatOpen ? styles.sidebarHiddenMobile : ""}`}>
           <div className={styles.sidebarHeader}>

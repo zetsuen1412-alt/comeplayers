@@ -16,6 +16,7 @@ import { ProfileCommerce } from "./ProfileCommerce";
 import type { CommerceLink } from "../commercePolicy";
 import { authenticationMessage } from "../authTransport";
 import { PrivateBackupSettings } from "./PrivateBackupSettings";
+import { unregisterDeviceNotifications } from "../NotificationProvider";
 
 export function ProfileScreen({ session, onAccountUpdated, commerceLink, onCommerceLinkHandled }: { session: Session | null; onAccountUpdated?: () => void; commerceLink?: CommerceLink | null; onCommerceLinkHandled?: () => void }) {
   const [section, setSection] = useState<"account" | "settings" | "security" | null>(null);
@@ -122,6 +123,7 @@ export function ProfileScreen({ session, onAccountUpdated, commerceLink, onComme
 
   const signOut = async () => {
     setLoading(true);
+    await unregisterDeviceNotifications();
     await Promise.allSettled([supabase.auth.signOut(), GoogleSignin.signOut()]);
     setLoading(false);
   };

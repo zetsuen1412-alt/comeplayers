@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { selectCurrentAccountCall } from "@/lib/callPresence";
+import { silenceCallAlert } from "@/lib/clientAlerts";
 import type { Room as LiveKitRoom, Track as LiveKitTrack } from "livekit-client";
 
 type CallRecord = {
@@ -214,6 +215,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
       if (call.secure_event_id || call.encryption_envelope) throw new Error("Ask your contact to start a new call.");
       await callApi("/api/messages/calls", "PATCH", { id: call.id, action: "accept" });
       const accepted = { ...call, status: "accepted" as const, answered_at: new Date().toISOString() };
+      silenceCallAlert(call.id);
       updateCall(accepted);
       await join(accepted);
     } catch (cause) {
@@ -229,6 +231,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     updateCall(null);
     setConnectionError("");
     if (!current) return;
+    silenceCallAlert(current.id);
     failedCalls.current.add(current.id);
     endedCalls.current.add(current.id);
     try {

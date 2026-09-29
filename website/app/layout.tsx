@@ -15,6 +15,7 @@ import "./globals.css";
 import MfaSessionGate from "@/components/account/MfaSessionGate";
 import AccountSessionGuard from "@/components/account/AccountSessionGuard";
 import LiveUpdates from "@/components/LiveUpdates";
+import AccountNotificationCenter from "@/components/messages/AccountNotificationCenter";
 
 
 
@@ -173,6 +174,7 @@ export default async function RootLayout({
         <MfaSessionGate />
         <AccountSessionGuard />
         <LiveUpdates />
+        <AccountNotificationCenter />
         <CurrencyProvider
           key={`${country}:${locale}:${currency}`}
           country={country}

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createSupabaseAdmin, requireAuthenticatedUser } from "@/lib/serverSupabase";
 import { accountApiError, inputError } from "@/lib/accountApi";
 import { requireChatRoomAccess } from "@/lib/chatServer";
@@ -8,6 +8,7 @@ import { limitedBody, privateActor, privateRoom, uuid } from "@/lib/privateMessa
 import { secureActor } from "@/lib/secureHistoryProtocol";
 import { activeCallFilter, decideCallAction, visibleCallStatus } from "@/lib/callPresence";
 import { recordCallRoomActivity, type CallActivityStatus } from "@/lib/callRoomActivity";
+import { sendCallPushNotifications } from "@/lib/pushNotifications";
 
 export async function GET(request: Request) {
   try {
@@ -60,6 +61,14 @@ export async function POST(request: Request) {
       media: result.data.media === "video" ? "video" : "audio",
       status: result.data.status === "scheduled" ? "scheduled" : "ringing",
     }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
+    if (result.data.status === "ringing") {
+      after(async () => {
+        try {
+          const profile = await db.from("profiles").select("username,full_name").eq("id", user.id).maybeSingle();
+          await sendCallPushNotifications({ supabaseAdmin: db, callId: result.data.id, senderName: profile.data?.username || profile.data?.full_name || "ComePlayers" });
+        } catch (error) { console.warn("Incoming call notification unavailable:", error instanceof Error ? error.name : "unknown"); }
+      });
+    }
     return NextResponse.json({ call: result.data }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }

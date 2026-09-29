@@ -29,7 +29,6 @@ import { supabase } from "@/lib/supabase";
 import MarketplaceSearch from "@/components/marketplace/MarketplaceSearch";
 import AuthModal, { type AuthMode } from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
-import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import ComePlayersLogo from "@/components/brand/ComePlayersLogo";
 import LocaleCurrencySwitcher from "@/components/layout/LocaleCurrencySwitcher";
 import {
@@ -72,16 +71,6 @@ type NotificationItem = {
   link_url: string | null;
   is_read: boolean;
   created_at: string;
-};
-
-type ChatToast = {
-  id: string;
-  room_id: string;
-  sender_id: string;
-  message: string | null;
-  created_at: string;
-  sender_name: string;
-  href: string;
 };
 
 type Profile = {
@@ -143,7 +132,6 @@ function MainHeaderContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
-  const [chatToast, setChatToast] = useState<ChatToast | null>(null);
   const [announcementUnreadCount, setAnnouncementUnreadCount] = useState(0);
   const [latestNotifications, setLatestNotifications] = useState<
     NotificationItem[]
@@ -326,62 +314,6 @@ function MainHeaderContent() {
     }
   }
 
-  function playChatSound() {
-    try {
-      const audio = new Audio("/sounds/chat.mp3");
-      audio.volume = 0.35;
-      audio.play().catch(() => {
-        // Browser may block sound until the user interacts with the page.
-      });
-    } catch {
-      // Ignore sound errors.
-    }
-  }
-
-  async function showChatToastFromMessage(messageRow: {
-    id: string;
-    room_id: string;
-    sender_id: string;
-    message: string | null;
-    created_at: string;
-  }) {
-    const [{ data: senderProfile }, { data: room }] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("username,email")
-        .eq("id", messageRow.sender_id)
-        .maybeSingle(),
-      supabase
-        .from("chat_rooms")
-        .select("id,room_type,product_id,order_id")
-        .eq("id", messageRow.room_id)
-        .maybeSingle(),
-    ]);
-
-    const senderName =
-      senderProfile?.username ||
-      senderProfile?.email ||
-      "New message";
-
-    setChatToast({
-      id: messageRow.id,
-      room_id: messageRow.room_id,
-      sender_id: messageRow.sender_id,
-      message: messageRow.message,
-      created_at: messageRow.created_at,
-      sender_name: senderName,
-      // The community page resolves an unknown room before opening it. This
-      // fallback also handles a temporarily unavailable room lookup safely.
-      href: `${isTransactionChatRoom(room) ? "/chat" : "/cpcommunity"}?room=${encodeURIComponent(messageRow.room_id)}`,
-    });
-
-    window.setTimeout(() => {
-      setChatToast((current) =>
-        current?.id === messageRow.id ? null : current
-      );
-    }, 7000);
-  }
-
   async function loadAnnouncements(currentUserId?: string) {
     const request = ++announcementRequestRef.current;
     const isCurrentRequest = () => request === announcementRequestRef.current &&
@@ -522,7 +454,6 @@ function MainHeaderContent() {
         setWalletBalance(0);
         setUnreadCount(0);
         setUnreadMessageCount(0);
-        setChatToast(null);
         setAnnouncementUnreadCount(0);
         setLatestNotifications([]);
         await loadAnnouncements();
@@ -552,7 +483,6 @@ function MainHeaderContent() {
         setWalletBalance(0);
         setUnreadCount(0);
         setUnreadMessageCount(0);
-        setChatToast(null);
         setAnnouncementUnreadCount(0);
         setLatestNotifications([]);
         setShowProfileDropdown(false);
@@ -594,24 +524,7 @@ function MainHeaderContent() {
           table: "chat_messages",
           filter: `receiver_id=eq.${user.id}`,
         },
-        async (payload) => {
-          await loadUnreadMessages();
-
-          if (payload.eventType === "INSERT") {
-            const newMessage = payload.new as {
-              id: string;
-              room_id: string;
-              sender_id: string;
-              message: string | null;
-              created_at: string;
-            };
-
-            if (newMessage.sender_id !== user.id) {
-              playChatSound();
-              await showChatToastFromMessage(newMessage);
-            }
-          }
-        }
+        () => { void loadUnreadMessages(); }
       )
       .subscribe();
 
@@ -683,7 +596,6 @@ function MainHeaderContent() {
       window.removeEventListener(NOTIFICATION_INBOX_CHANGED, handleInboxChange);
     };
     // Refresh on navigation/open/focus even when Realtime is unavailable.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, pathname, showNotificationDropdown]);
 
   function openAuthModal(mode: Extract<AuthMode, "login" | "register">) {
@@ -732,7 +644,6 @@ function MainHeaderContent() {
     setWalletBalance(0);
     setUnreadCount(0);
     setUnreadMessageCount(0);
-    setChatToast(null);
     setAnnouncementUnreadCount(0);
     setLatestNotifications([]);
     setShowProfileDropdown(false);
@@ -1469,50 +1380,6 @@ function MainHeaderContent() {
         </div>
       )}
 
-      {chatToast && user && (
-        <button
-          onClick={() => {
-            setChatToast(null);
-            router.push(chatToast.href);
-          }}
-          className="fixed bottom-4 left-3 right-3 z-[10001] rounded-2xl border border-cyan-400/30 bg-[#111827] p-4 text-left shadow-[0_20px_60px_rgba(0,0,0,0.95)] transition hover:border-cyan-300 hover:bg-[#182238] sm:bottom-6 sm:left-auto sm:right-6 sm:w-[360px] sm:max-w-[calc(100vw-2rem)]"
-        >
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cyan-400 font-black text-black">
-              {getInitial(chatToast.sender_name)}
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-3">
-                <p className="truncate font-black text-white">
-                  {chatToast.sender_name}
-                </p>
-                <span className="text-xs font-bold text-cyan-300">
-                  {t("header.newChat")}
-                </span>
-              </div>
-
-              <p className="mt-1 line-clamp-2 text-sm text-gray-300">
-                {chatToast.message || t("header.sentMessage")}
-              </p>
-
-              <p className="mt-2 text-xs font-bold text-cyan-300">
-                {t("header.openConversation")}
-              </p>
-            </div>
-
-            <span
-              onClick={(event) => {
-                event.stopPropagation();
-                setChatToast(null);
-              }}
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-sm font-black text-gray-400 hover:bg-white hover:text-black"
-            >
-              x
-            </span>
-          </div>
-        </button>
-      )}
 
       <AuthModal
         open={showAuthModal}

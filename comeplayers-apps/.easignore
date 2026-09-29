@@ -27,3 +27,5 @@ apps/mobile/ios/
 *.pem
 .DS_Store
 Thumbs.db
+# Include the verified Firebase client file in native build archives.
+!apps/mobile/google-services.json

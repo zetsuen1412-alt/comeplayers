@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 
 
 
@@ -4546,23 +4545,6 @@ export default function MessagesPage() {
       data-messages-page="true"
       className={`${styles.page} ${styles.messageTypography} ${styles.simpleCommunity} relative overflow-hidden bg-[#02060d] text-white`}
     >
-      {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
-        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId, false);
-        let room = available.find(item => item.id === roomId) || null;
-        if (!room) {
-          const detail = await authenticatedFetchJson<ConversationResponse>(
-            `/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`,
-          );
-          room = detail.room;
-          if (room && !isTradeRoom(room)) {
-            roomsRef.current = [room, ...roomsRef.current];
-            setRooms(roomsRef.current);
-          }
-        }
-        if (!room) throw new Error("Conversation not found.");
-        setShowPrivateMessages(false); setShowFriendsMenu(false); setCommunityOverlay(null);
-        openRoom(room);
-      }} /> : null}
       <style>{`
         body.messages-shell > nav:first-of-type,
         body.messages-shell > header:first-of-type,
@@ -6640,6 +6622,8 @@ export default function MessagesPage() {
                 </div>
 
                 <div
+                  data-active-chat-room={selectedRoom.id}
+                  data-active-chat-channel={selectedIsGroup ? selectedChannelId || undefined : undefined}
                   className={`${styles.conversationGrid} min-h-0 flex-1 ${selectedIsGroup && showMemberPanel ? "grid xl:grid-cols-[minmax(0,1fr)_320px]" : "flex flex-col"}`}
                 >
                   <div
@@ -8380,8 +8364,6 @@ export default function MessagesPage() {
     </main>
   );
 }
-
-
 
 
 
