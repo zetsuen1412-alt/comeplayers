@@ -75,6 +75,8 @@ try {
     }
     finally { $versionProcess.Dispose() }
     $logPath = Join-Path $logs ("unity-" + $Task.ToLowerInvariant() + '.log')
+    # Keep diagnostics specific to this invocation if Unity exits before writing a log.
+    [IO.File]::WriteAllText($logPath, '')
     $method = switch ($Task) { 'Windows' { 'BuildWindows' }; 'Android' { 'BuildAndroid' }; 'PlayMode' { 'PlayMode' }; default { 'Verify' } }
     $startInfo = [Diagnostics.ProcessStartInfo]::new()
     $startInfo.FileName = $EditorPath
@@ -99,6 +101,11 @@ try {
             Write-Result 'failed' "Unity exceeded the $TimeoutMinutes minute timeout. See $logPath" 1
             exit 1
         }
+    }
+    if ($process.ExitCode -eq 198 -and (Test-Path -LiteralPath $logPath) -and
+        (Select-String -LiteralPath $logPath -SimpleMatch 'No valid Unity Editor license found' -Quiet)) {
+        Write-Result 'license_required' "Unity $detectedVersion is installed but has no active Editor license. Sign in and activate your license in Unity Hub, then retry $Task. Project compilation and build did not run. Log: $logPath" 1
+        exit 1
     }
     $engineResultPath = Join-Path $logs 'unity-task-result.json'
     $engineResult = if (Test-Path -LiteralPath $engineResultPath) { Get-Content -Raw -LiteralPath $engineResultPath | ConvertFrom-Json } else { $null }

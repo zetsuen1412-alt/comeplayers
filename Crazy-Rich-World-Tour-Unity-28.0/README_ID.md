@@ -2,7 +2,7 @@
 
 Dikembangkan dari source Unity 28.0 dan Zero Dice 29.0, memakai backend Supabase yang sama (`uyehruetoxedmookyfcd`). Nama folder tetap `Crazy-Rich-World-Tour-Unity-28.0` agar path proyek tidak berubah; versi aplikasi sekarang **30.0**. Source asli 28.0 tersimpan pada commit `ac93c986`, source 29.0 pada `54fc69b9`.
 
-**Status: pembaruan source, belum build perangkat terverifikasi.** Unity CLI sudah terpasang; installer Editor 6000.0.84f1, Hub, serta paket Android sudah diunduh. Pemasangan Editor/Hub terhenti pada izin administrator Windows dan akun belum memiliki lisensi Unity aktif. Tes SQL, kontrak C#, geometri, aset GLB, dan sintaks lulus; compile Unity, shader, Play Mode, APK/EXE, dan visual di perangkat masih perlu dijalankan. Lihat [QA 30.0](QA_30_ID.md).
+**Status: pembaruan source, belum build perangkat terverifikasi.** Unity Hub 3.21.3, Editor 6000.0.84f1, dan Android Build Support beserta JDK/SDK/NDK sudah terpasang; proyek terdaftar di Hub. Percobaan Verify mencapai Editor tetapi berhenti dengan exit 198, `No valid Unity Editor license found`; percobaan berikutnya terhenti pada koneksi layanan lisensi. Tes SQL, kontrak C#, geometri, aset GLB, sintaks, dan pemeriksaan API runtime/Editor melalui compiler mandiri lulus; compile melalui Editor, shader, Play Mode, APK/EXE, dan visual di perangkat masih menunggu aktivasi lisensi dan pengujian. Lihat [QA 30.0](QA_30_ID.md).
 
 ## Pembaruan 30.0 dan perbaikan 29.1
 

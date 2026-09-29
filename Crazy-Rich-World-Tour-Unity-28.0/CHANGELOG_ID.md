@@ -10,11 +10,12 @@
 - Refresh token bersama, pembatasan tindakan ganda, sinkronisasi saat kembali fokus, timeout RPC yang tetap diperiksa server, serta perbaikan status hasil/rematch.
 - Setup/build Editor idempoten dan mempertahankan pekerjaan scene, pemeriksaan shader/input, scripts batch dengan exit code eksplisit dan laporan unik per invocation.
 - Batch build memeriksa versi Editor sebelum membuka proyek, menolak patch yang berbeda, dan menghindari perpindahan GameObject ke scene yang sama pada setup.
+- Kondisi lisensi Editor tidak aktif dilaporkan sebagai `license_required` dengan instruksi aktivasi Hub; exit script tetap gagal sampai lisensi tersedia.
 - Runner Play Mode khusus Editor untuk snapshot fixture, GLB/shader, ZERO stationary, lima langkah, UI dan cleanup, dengan JSON/PNG hasil. Runner disiapkan, belum dijalankan pada Unity.
 - 16 tes Node lulus, termasuk seluruh regresi SQL 29.0 dan enam GLB; 66 protokol + 40 tindakan + 2.506 geometri/catalog/path assertion C# lulus. Sintaks seluruh C# diperiksa untuk Editor/Windows dan Android.
 - Backend dan aturan Zero Dice/Last Player Standing tetap dari 29.0. Tidak ada migrasi baru atau sistem Pendant/Artifact.
 
-Compile penuh Unity, Play Mode, visual shader/UI, dan build perangkat masih belum diverifikasi. Installer Editor/Hub dan paket Android sudah diunduh; pemasangan terhenti pada izin administrator Windows dan lisensi belum aktif. Versi source 30.0 bukan klaim APK/EXE produksi siap.
+Lanjutan 30 September: Hub, Editor, dan modul Android beserta JDK/SDK/NDK berhasil dipasang dan dikenali Hub; pemeriksaan API 26 file runtime dan 6 file Editor melalui compiler mandiri lulus. Compile penuh Unity, Play Mode, visual shader/UI, dan build perangkat masih belum diverifikasi: Editor menolak Verify dengan exit 198 karena lisensi belum aktif, lalu percobaan berikutnya terhenti pada layanan lisensi. Versi source 30.0 bukan klaim APK/EXE produksi siap.
 
 ## 29.0 — Zero Dice System (29 September 2026)
 
