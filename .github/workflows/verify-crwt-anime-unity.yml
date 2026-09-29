@@ -22,13 +22,14 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Regression tests
         working-directory: Crazy-Rich-World-Tour-Unity-28.0
-        shell: pwsh
+        shell: bash
         run: |
+          set -euo pipefail
           npm test
-          ./tests/check-client.ps1
-          ./tests/check-actions.ps1
-          ./tests/check-board.ps1
-          ./tests/check-csharp-syntax.ps1
+          pwsh -NoProfile -File tests/check-client.ps1
+          pwsh -NoProfile -File tests/check-actions.ps1
+          pwsh -NoProfile -File tests/check-board.ps1
+          pwsh -NoProfile -File tests/check-csharp-syntax.ps1
       - name: Diff safety
         shell: bash
         run: |
