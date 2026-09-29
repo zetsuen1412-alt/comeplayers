@@ -1,9 +1,0 @@
-ComePlayers Marble V73 - Cinematic Dice Motion Update
-
-- Added six metallic face frames per die to create stepped bevel depth around every face.
-- Upgraded all twenty-one pips per die from two layers to three: dark socket, metallic ring, and raised ivory cap.
-- Increased pip mesh smoothness and separated each layer for stronger contact shadows.
-- Added a pre-roll anticipation squash before every throw.
-- Reworked the airborne arc with stronger vertical stretch and more natural directional separation.
-- Added two-stage impact compression, rebound rotation, micro-bounce, and final settling.
-- Preserved authoritative values, replay data, multiplayer protocol, and V72 save compatibility.
