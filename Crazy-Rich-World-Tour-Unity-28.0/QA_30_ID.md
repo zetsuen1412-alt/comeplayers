@@ -1,5 +1,22 @@
 # QA 30.0 — Chibi World
 
+## Koreksi hasil player: hotfix layar magenta
+
+Paket awal di bawah berhasil dikompilasi dan startup log-nya bersih, tetapi UI player menjadi magenta. Editor memiliki shader yang tidak otomatis disertakan dalam player, dan render Play Mode sebelumnya hanya menangkap kamera papan. Karena itu bukti tersebut belum membuktikan UI overlay pada EXE.
+
+Perbaikan menyertakan `UI/Default` dari material UI bawaan, dengan validasi sebelum seluruh build. Verify, Windows, dan Android dijalankan ulang dan lulus. EXE lama direproduksi magenta; EXE baru diperiksa lewat tangkapan jendela asli, lalu tombol demo offline membuka lobby dan papan/HUD yang tampil normal. Tidak ada login online atau RPC gameplay yang diuji.
+
+[Laporan hotfix](QA/30.0/ui-fix/verification.json), [login](QA/30.0/ui-fix/windows-login.jpg), [lobby](QA/30.0/ui-fix/windows-lobby.jpg), [papan/HUD](QA/30.0/ui-fix/windows-match.jpg).
+
+Paket pengganti di `Builds/Distributions/`:
+
+| Paket | Byte | SHA256 |
+| --- | ---: | --- |
+| `Crazy-Rich-World-Tour-30.0-Windows-UI-Fix.zip` | 41.724.628 | `B7510525B91366DE931A126B24335AD0EB47E762586394E7F7ECF1D8987BFB99` |
+| `Crazy-Rich-World-Tour-30.0-Android-UI-Fix.apk` | 41.595.864 | `2A0877C06860D4921F838D642F94FFF5BA4A10B4C3D1F6D635770507FAE1E7D2` |
+
+ZIP: seluruh 227 entry diperiksa. APK: signature v1/v2 valid, debug-signed, min SDK 23/target 36, ARM64 IL2CPP, zipalign dan tujuh ELF mendukung alignment 16 KiB secara statis. Enam GLB pada kedua paket cocok dengan source. Pengujian HP fisik dan multiplayer tetap belum selesai. Tabel paket awal berikut merupakan catatan historis dan digantikan paket `UI-Fix`.
+
 ## Verifikasi yang dijalankan
 
 - `npm test`: 16 pengujian lulus. Termasuk 10 regresi PostgreSQL nyata dalam PGlite (49 pasangan, 100.000 simulasi, 1.140 kasus anti-farming, bot/timeout/cron, START, focus, idempotency, ACL, Last Player Standing) dan enam pengujian struktur GLB.

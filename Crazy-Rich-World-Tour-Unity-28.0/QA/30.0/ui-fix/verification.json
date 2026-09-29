@@ -1,0 +1,75 @@
+{
+  "patch": "30.0 UI Fix",
+  "verifiedAt": "2026-09-29T19:24:32.2664024+00:00",
+  "unityVersion": "6000.0.84f1",
+  "rootCause": "Runtime-created Canvas graphics used UI/Default, which was absent from Always Included Shaders; editor rendering and successful build/startup did not detect stripped player UI shader.",
+  "change": "Retain the actual built-in default Graphic material shader; validate runtime UI/glTF shader inclusion in Verify and every player build.",
+  "tasks": [
+    {
+      "task": "Verify",
+      "runId": "be3c16cf8d4242f69dab95277f4d6e72",
+      "unityVersion": "6000.0.84f1",
+      "error": "",
+      "success": true
+    },
+    {
+      "task": "Windows",
+      "runId": "1ae2699c083b4049aef5f6eb7414f71f",
+      "unityVersion": "6000.0.84f1",
+      "error": "",
+      "success": true
+    },
+    {
+      "task": "Android",
+      "runId": "2785cf75397744b89b8200e2cd06a147",
+      "unityVersion": "6000.0.84f1",
+      "error": "",
+      "success": true
+    }
+  ],
+  "windows": {
+    "file": "Crazy-Rich-World-Tour-30.0-Windows-UI-Fix.zip",
+    "bytes": 41724628,
+    "sha256": "B7510525B91366DE931A126B24335AD0EB47E762586394E7F7ECF1D8987BFB99",
+    "entries": 227,
+    "allPackagedFilesRehashed": true,
+    "characterHashesMatchSource": 6,
+    "visualChecks": [
+      "Old EXE reproduced full-screen magenta.",
+      "Fixed EXE displayed login illustration, labels, fields and buttons.",
+      "DEMO OFFLINE 3D opened the rendered lobby.",
+      "MAIN DEMO 3D opened board and HUD without full-screen magenta."
+    ],
+    "screenshots": [
+      "windows-login.jpg",
+      "windows-lobby.jpg",
+      "windows-match.jpg"
+    ],
+    "startupErrors": [],
+    "cleanShutdownLogged": true
+  },
+  "android": {
+    "file": "Crazy-Rich-World-Tour-30.0-Android-UI-Fix.apk",
+    "bytes": 41595864,
+    "sha256": "2A0877C06860D4921F838D642F94FFF5BA4A10B4C3D1F6D635770507FAE1E7D2",
+    "identity": {
+      "applicationId": "com.ComePlayers.CrazyRichWorldTour",
+      "versionName": "30.0",
+      "versionCode": "1",
+      "minSdk": "23",
+      "targetSdk": "36",
+      "compileSdk": "36",
+      "nativeCode": "'arm64-v8a'",
+      "launcher": "com.unity3d.player.UnityPlayerGameActivity",
+      "internetPermission": true
+    },
+    "signatureV1": true,
+    "signatureV2": true,
+    "debugSigned": true,
+    "zipAlignment16KiB": true,
+    "nativeElfAlignment16KiB": true,
+    "characterHashesMatchSource": 6,
+    "deviceRuntimeTested": false
+  },
+  "scope": "Windows visual UI regression checked on real executable; no login/account actions or online gameplay. Android build and static package verification only. Server RNG and gameplay code unchanged. Earlier Play Mode dice checks remain historical evidence, not rerun in this UI-only patch."
+}

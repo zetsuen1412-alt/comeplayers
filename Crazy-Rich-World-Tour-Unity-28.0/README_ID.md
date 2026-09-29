@@ -1,5 +1,7 @@
 # Crazy Rich: World Tour 30.0 — Chibi World
 
+**Hotfix 30 September: layar magenta pada player diperbaiki.** Shader `UI/Default` kini disertakan dan diperiksa sebelum build. Login → demo offline → lobby → papan/HUD sudah diperiksa langsung pada EXE Windows baru. Gunakan paket bernama `UI-Fix`; hasil build lama tidak membuktikan UI tampil. Lihat [bukti perbaikan](QA/30.0/ui-fix/verification.json) dan [handoff untuk ChatGPT](HANDOFF_CHATGPT_ID.md).
+
 Dikembangkan dari source Unity 28.0 dan Zero Dice 29.0, memakai backend Supabase yang sama (`uyehruetoxedmookyfcd`). Nama folder tetap `Crazy-Rich-World-Tour-Unity-28.0` agar path proyek tidak berubah; versi aplikasi sekarang **30.0**. Source asli 28.0 tersimpan pada commit `ac93c986`, source 29.0 pada `54fc69b9`.
 
 **Status: kompilasi Editor, Play Mode, build Windows, dan APK Android ARM64/IL2CPP sudah lulus pada Unity 6000.0.84f1.** Pengujian runtime di AMD Radeon 780M memuat enam GLB, menjalankan enam state dadu, memastikan ZERO tidak bergerak, mengembalikan ROLL, dan memeriksa 0+5 tepat lima langkah tanpa replay snapshot duplikat. Paket ini untuk pengujian; gameplay multiplayer end-to-end dan perangkat Android fisik belum diverifikasi. Lihat [QA 30.0](QA_30_ID.md).

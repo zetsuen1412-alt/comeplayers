@@ -1,5 +1,7 @@
 # Buka Crazy Rich 30.0 di Unity 6
 
+Perbaikan player terbaru menyertakan shader UI. Gunakan paket `Crazy-Rich-World-Tour-30.0-Windows-UI-Fix.zip` atau `Crazy-Rich-World-Tour-30.0-Android-UI-Fix.apk` di `Builds/Distributions/`; paket tanpa akhiran `UI-Fix` adalah build lama yang dapat tampil magenta. Source Git terbaru sudah berisi perbaikan dan pemeriksaan retensi shader.
+
 1. Buka **Unity Hub**.
 2. Pasang **Unity 6.0 LTS 6000.0.84f1**, sesuai ProjectVersion.txt. [Rilis resmi dan installer](https://unity.com/releases/editor/whats-new/6000.0.84f1).
 3. Untuk Android, pasang modul **Android Build Support + SDK/NDK + OpenJDK** dari Unity Hub.
@@ -31,4 +33,4 @@ Package Manager memerlukan internet saat pertama kali memasang glTFast 6.14.1, u
 
 Nama folder asal 28.0 tetap dipertahankan. Hub, Editor 6000.0.84f1, dan modul Android terpasang; lisensi Personal aktif pada 30 September 2026. Editor lokal: `C:/Users/kafka/Unity/Hub/Editor/6000.0.84f1/Editor/Unity.exe`. Kompilasi, Verify, dan Play Mode lulus. Jika Hub menampilkan lisensi aktif tetapi batch mencatat `Connection to channel LicenseClient-kafka refused`, jalankan dari terminal Windows dengan akses IPC normal; lingkungan proses terisolasi dapat menghalangi layanan lisensi. Ikuti [QA 30.0](QA_30_ID.md) untuk hasil build dan pengujian perangkat.
 
-Paket uji lokal tersedia di `Builds/Distributions/`: ekstrak seluruh `Crazy-Rich-World-Tour-30.0-Windows.zip`, kemudian jalankan EXE di dalamnya. `Crazy-Rich-World-Tour-30.0-Android.apk` adalah APK ARM64 dengan sertifikat debug, min SDK 23 dan target SDK 36. Paket serta file checksum tidak masuk Git; hasil verifikasinya ada di `QA/30.0/build-verification.json`. Build Windows dan APK telah lulus, tetapi QA multiplayer dan perangkat Android fisik belum selesai.
+Paket uji lokal tersedia di `Builds/Distributions/`: ekstrak seluruh `Crazy-Rich-World-Tour-30.0-Windows-UI-Fix.zip`, kemudian jalankan EXE di dalamnya. `Crazy-Rich-World-Tour-30.0-Android-UI-Fix.apk` adalah APK ARM64 dengan sertifikat debug, min SDK 23 dan target SDK 36. Paket serta file checksum tidak masuk Git; hasil verifikasinya ada di `QA/30.0/ui-fix/verification.json`. Build Windows dan APK telah lulus, tetapi QA multiplayer dan perangkat Android fisik belum selesai.

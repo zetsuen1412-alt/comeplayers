@@ -28,6 +28,7 @@ namespace ComePlayers.CrazyRich.Editor
         public static void Verify() => Execute("Verify", () =>
         {
             CrwtProjectSetup.Ensure();
+            CrwtRuntimeShaderChecks.Run();
             ValidateInput();
             CrwtDiceChecks.Run();
             CrwtBoardChecks.Run();

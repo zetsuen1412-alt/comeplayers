@@ -174,5 +174,7 @@
     "Android signature/package/native alignment verified statically; physical device rendering, touch, resume and performance remain untested.",
     "APK uses Android Debug certificate and is intended for testing, not store release.",
     "No production backend changes in this update."
-  ]
+  ],
+  "supersededBy": "ui-fix/verification.json",
+  "knownIssue": "Original player UI could render full-screen magenta. Build/startup checks alone did not detect missing UI/Default. Use UI-Fix packages."
 }

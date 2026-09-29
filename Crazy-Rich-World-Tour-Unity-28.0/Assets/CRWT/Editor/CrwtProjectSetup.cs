@@ -15,6 +15,7 @@ namespace ComePlayers.CrazyRich.Editor
         private const string SceneDir = "Assets/CRWT/Scenes";
         // Editor state belongs in Library; writing it cannot trigger an asset import loop.
         private const string Marker = "Library/CRWT/setup-30.complete";
+        private const string UiShaderMarker = "Library/CRWT/setup-30-ui-shaders.complete";
         private const string StandardMaterialPath = "Assets/CRWT/Resources/Materials/CRWT_Standard.mat";
         private static readonly string[] RuntimeShaders = { "glTF/PbrMetallicRoughness" };
         public static readonly string[] ScenePaths =
@@ -36,7 +37,8 @@ namespace ComePlayers.CrazyRich.Editor
         private static void AutoEnsure()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            if (File.Exists(Marker) && ScenePaths.All(File.Exists) && File.Exists(StandardMaterialPath)) return;
+            if (File.Exists(Marker) && File.Exists(UiShaderMarker) && ScenePaths.All(File.Exists)
+                && File.Exists(StandardMaterialPath)) return;
             if (EditorApplication.isCompiling || EditorApplication.isUpdating)
             {
                 EditorApplication.delayCall += AutoEnsure;
@@ -88,12 +90,13 @@ namespace ComePlayers.CrazyRich.Editor
             if (PlayerSettings.bundleVersion != CrwtRuntimeConfig.ClientVersion)
                 PlayerSettings.bundleVersion = CrwtRuntimeConfig.ClientVersion;
             EnsureStandardMaterial();
-            EnsureCharacterShader();
+            EnsureRuntimeShaders();
             EnsureUiInputBindings();
             EnsureArtTextureImports();
             ValidateScenes();
             Directory.CreateDirectory(Path.GetDirectoryName(Marker));
             if (!File.Exists(Marker)) File.WriteAllText(Marker, "CRWT 30.0 scene setup complete.\n");
+            if (!File.Exists(UiShaderMarker)) File.WriteAllText(UiShaderMarker, "CRWT runtime UI shader retained.\n");
             Debug.Log("[CRWT 30] Setup complete; existing scenes and unsaved editor work were preserved.");
         }
 
@@ -198,16 +201,21 @@ namespace ComePlayers.CrazyRich.Editor
                     + " must use opaque Standard defaults, no feature keywords, and Enable GPU Instancing.");
         }
 
-        private static void EnsureCharacterShader()
+        private static void EnsureRuntimeShaders()
         {
-            // Runtime glTF materials are invisible to scene-based shader stripping.
-            // Include all variants, including the GLB assets' vertex-color variants.
+            // These scenes contain controllers only. Runtime-created Image,
+            // RawImage, Text and Starwheel graphics all use this Canvas shader,
+            // which build-time scene dependency collection cannot discover.
+            var runtimeShaders = RuntimeShaders.Select(Shader.Find).ToList();
+            runtimeShaders.Add(UnityEngine.UI.Graphic.defaultGraphicMaterial.shader);
+            if (runtimeShaders.Any(shader => !shader))
+                throw new InvalidOperationException("Resolve the built-in UI shader and com.unity.cloud.gltfast before setup.");
             var settings = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset");
             if (settings.Length == 0) throw new InvalidOperationException("GraphicsSettings is not available.");
             var serialized = new SerializedObject(settings[0]);
             var shaders = serialized.FindProperty("m_AlwaysIncludedShaders");
             if (shaders == null || !shaders.isArray)
-                throw new InvalidOperationException("Cannot configure runtime glTF shader inclusion.");
+                throw new InvalidOperationException("Cannot configure runtime UI/glTF shader inclusion.");
             bool changed = false;
             // Standard is now retained by its real Resources material. Remove
             // the previous setup's blanket inclusion and its unused variants.
@@ -219,11 +227,8 @@ namespace ComePlayers.CrazyRich.Editor
                 shaders.DeleteArrayElementAtIndex(i);
                 changed = true;
             }
-            foreach (var shaderName in RuntimeShaders)
+            foreach (var shader in runtimeShaders.Distinct())
             {
-                var shader = Shader.Find(shaderName);
-                if (shader == null)
-                    throw new InvalidOperationException("Resolve the built-in renderer and com.unity.cloud.gltfast before setup: missing " + shaderName);
                 bool found = false;
                 for (int i = 0; i < shaders.arraySize; i++)
                     if (shaders.GetArrayElementAtIndex(i).objectReferenceValue == shader) { found = true; break; }

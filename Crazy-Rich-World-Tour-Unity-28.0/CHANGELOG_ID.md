@@ -1,5 +1,12 @@
 # Changelog
 
+## 30.0 — Hotfix layar magenta (30 September 2026)
+
+- Memperbaiki shader `UI/Default` yang terbuang saat build karena seluruh Canvas, panel, teks UI, gambar dan Starwheel dibuat saat runtime. Setup mengambil shader dari material UI bawaan dan menyertakannya dalam Always Included.
+- Menambahkan pemeriksaan retensi shader untuk Verify dan setiap build, termasuk Build Profiles. Marker perbaikan terpisah agar pembaruan tidak mereset pengaturan Player yang sudah ada.
+- Mereproduksi magenta pada EXE lama, lalu memeriksa login, lobby dan papan/HUD demo offline pada EXE baru. Bukti tangkapan jendela dan laporan ada di `QA/30.0/ui-fix/`.
+- Verify, build Windows, dan build Android ARM64 lulus. Paket baru memakai akhiran `UI-Fix`; APK tetap debug-signed dan belum diuji pada HP. Tidak ada perubahan backend, RNG, atau aturan pertandingan.
+
 ## 30.0 — Chibi World (29 September 2026)
 
 - Menggabungkan perbaikan fondasi 29.1: 32 posisi tile unik, kontrol lelang untuk semua peserta eligible, pilihan kota/resort, seluruh distrik Festival, pemilihan aset likuidasi, kartu/target, dan konfirmasi aksi yang mengakhiri partisipasi.
