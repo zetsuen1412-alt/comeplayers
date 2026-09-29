@@ -109,5 +109,5 @@ test("ordinary direct messages stay in the community conversation view", () => {
   assert.deepEqual(f.routes, []);
   assert.equal(f.state.selectedRoomId, "friend-room");
   assert.equal(f.state.mobileInboxOpen, false);
-  assert.deepEqual(f.urls, ["/messages?room=friend-room"]);
+  assert.deepEqual(f.urls, ["/cpcommunity?room=friend-room"]);
 });

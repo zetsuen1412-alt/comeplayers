@@ -2708,7 +2708,7 @@ export default function MessagesPage() {
     setSelectedRoomId(room.id);
     setMobileInboxOpen(false);
     if (typeof window !== "undefined") {
-      window.history.replaceState({}, "", `/messages?room=${encodeURIComponent(room.id)}`);
+      window.history.replaceState({}, "", `/cpcommunity?room=${encodeURIComponent(room.id)}`);
     }
   }
 

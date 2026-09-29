@@ -372,7 +372,7 @@ function MainHeaderContent() {
       sender_name: senderName,
       // The community page resolves an unknown room before opening it. This
       // fallback also handles a temporarily unavailable room lookup safely.
-      href: `${isTransactionChatRoom(room) ? "/chat" : "/messages"}?room=${encodeURIComponent(messageRow.room_id)}`,
+      href: `${isTransactionChatRoom(room) ? "/chat" : "/cpcommunity"}?room=${encodeURIComponent(messageRow.room_id)}`,
     });
 
     window.setTimeout(() => {
@@ -812,7 +812,7 @@ function MainHeaderContent() {
               {user ? (
                 <>
                   <Link
-                    href="/messages?inbox=1"
+                    href="/cpcommunity?inbox=1"
                     className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-[#111827] text-gray-300 transition hover:bg-[#1f2937] hover:text-white"
                     title="Pesan pengguna"
                     aria-label="Pesan pengguna"
@@ -925,7 +925,7 @@ function MainHeaderContent() {
             {user ? (
               <>
                 <Link
-                  href="/messages?inbox=1"
+                  href="/cpcommunity?inbox=1"
                   className="relative flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-[#111827] text-gray-300 transition hover:bg-[#1f2937] hover:text-white"
                   title="Pesan pengguna"
                   aria-label="Pesan pengguna"
@@ -1059,7 +1059,7 @@ function MainHeaderContent() {
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { href: "/messages?inbox=1", label: "Pesan pengguna", icon: FaCommentDots },
+                      { href: "/cpcommunity?inbox=1", label: "Pesan pengguna", icon: FaCommentDots },
                       { href: "/chat", label: "Chat Toko", icon: FaShoppingBag },
                       { href: "/my-orders", label: t("header.myOrders"), icon: FaShoppingBag },
                       { href: "/wallet", label: t("header.wallet"), icon: FaWallet },

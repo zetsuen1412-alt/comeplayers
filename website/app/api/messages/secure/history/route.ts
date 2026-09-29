@@ -53,7 +53,7 @@ export async function POST(request: Request) {
           const profile = await db.from("profiles").select("username,full_name,email").eq("id", user.id).maybeSingle();
           if (profile.error) throw profile.error;
           const senderName = safeProfileLabel(profile.data), preview = "New end-to-end encrypted message";
-          const inbox = isTransactionChatRoom(room) ? "/chat" : "/messages";
+          const inbox = isTransactionChatRoom(room) ? "/chat" : "/cpcommunity";
           await createChatNotification({ supabaseAdmin: db, receiverId: String(claim.data), senderName, roomId, preview, linkUrl: `${inbox}?room=${encodeURIComponent(roomId)}` });
           await dispatchChatPushNotifications({ supabaseAdmin: db, receiverIds: [String(claim.data)], senderName, roomId, preview });
         } catch (error) { console.warn("Secure message notification failed:", error instanceof Error ? error.message : error); }

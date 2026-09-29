@@ -165,7 +165,7 @@ export default function ChatClient() {
           const result = await authenticatedFetchJson<{ room: Room }>(`/api/messages/rooms/${encodeURIComponent(preferredRoomId)}`);
           if (cancelled) return;
           if (!result.room || !isTransactionChatRoom(result.room)) {
-            window.location.replace(`/messages?room=${encodeURIComponent(preferredRoomId)}`);
+            window.location.replace(`/cpcommunity?room=${encodeURIComponent(preferredRoomId)}`);
             return;
           }
           const requestedRoom = result.room;
@@ -230,7 +230,7 @@ export default function ChatClient() {
           const result = await authenticatedFetchJson<{ room: Room }>(`/api/messages/rooms/${encodeURIComponent(roomId)}`);
           if (!result.room) throw new Error("Percakapan belum bisa dibuka.");
           if (!isTransactionChatRoom(result.room)) {
-            window.location.assign(`/messages?room=${encodeURIComponent(roomId)}`);
+            window.location.assign(`/cpcommunity?room=${encodeURIComponent(roomId)}`);
             return;
           }
           setRooms(current => [result.room, ...current.filter(room => room.id !== roomId)]);
@@ -265,7 +265,7 @@ export default function ChatClient() {
               );
             }) : <div className={styles.emptyList}><span><FaComments aria-hidden="true" /></span><strong>{search ? "Chat tidak ditemukan" : "Belum ada chat toko"}</strong><p>{search ? "Coba nama lain, produk, atau nomor pesanan." : "Chat dengan pembeli atau penjual muncul saat Anda membuka produk atau pesanan."}</p>{search ? <button type="button" onClick={() => setSearch("")}>Lihat semua chat</button> : <Link href="/marketplace">Jelajahi produk</Link>}</div>}
           </div>
-          <nav className={styles.sidebarFooter} aria-label="Kotak masuk ComePlayers"><Link href="/messages"><FaUsers aria-hidden="true" /> Pesan pribadi</Link><Link href="/marketplace"><FaShoppingBag aria-hidden="true" /> Toko</Link></nav>
+          <nav className={styles.sidebarFooter} aria-label="Kotak masuk ComePlayers"><Link href="/cpcommunity?inbox=1"><FaUsers aria-hidden="true" /> Pesan pribadi</Link><Link href="/marketplace"><FaShoppingBag aria-hidden="true" /> Toko</Link></nav>
         </aside>
         <section className={`${styles.chatPanel} ${mobileChatOpen ? styles.chatPanelOpenMobile : ""}`}>
           {selectedRoom ? (

@@ -361,7 +361,7 @@ export async function POST(request: Request, context: RouteContext) {
             senderName,
             roomId,
             preview: notificationPreview,
-            linkUrl: `${isTransactionChatRoom(room) ? "/chat" : "/messages"}?room=${encodeURIComponent(roomId)}`,
+            linkUrl: `${isTransactionChatRoom(room) ? "/chat" : "/cpcommunity"}?room=${encodeURIComponent(roomId)}`,
           });
         }
 
