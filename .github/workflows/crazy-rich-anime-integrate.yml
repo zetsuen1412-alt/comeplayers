@@ -1,0 +1,50 @@
+name: Integrate Crazy Rich anime presentation
+on:
+  push:
+    branches: [codex/crazy-rich-anime-v108]
+    paths: [ComePlayersMarble/tools/apply-v108-anime.cjs]
+permissions:
+  contents: write
+concurrency:
+  group: crazy-rich-anime-v108-one-shot
+  cancel-in-progress: false
+jobs:
+  integrate:
+    if: github.repository == 'zetsuen1412-alt/comeplayers' && github.ref == 'refs/heads/codex/crazy-rich-anime-v108'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: codex/crazy-rich-anime-v108
+      - name: Install isolated test compiler
+        run: npm install --prefix "$RUNNER_TEMP/cr-anime-compiler" --ignore-scripts --no-audit --no-fund typescript@5.8.3
+      - name: Apply checked integration and run presentation tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NODE_PATH="$RUNNER_TEMP/cr-anime-compiler/node_modules"
+          node ComePlayersMarble/tools/apply-v108-anime.cjs
+          (cd ComePlayersMarble && npm install --package-lock-only --ignore-scripts --no-audit --no-fund)
+          node ComePlayersMarble/tools/test-v108-anime.cjs | tee ComePlayersMarble/VERIFICATION_V108.txt
+          git diff --check
+          test -z "$(git diff --name-only -- ComePlayersMarble/assets/scripts/core ComePlayersMarble/assets/scripts/network ComePlayersMarble/assets/scripts/camera ComePlayersMarble/assets/scripts/dice ComePlayersMarble/assets/scripts/save)"
+      - name: Commit only the isolated game presentation changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm ComePlayersMarble/tools/apply-v108-anime.cjs
+          git add ComePlayersMarble/assets/scripts/board/BoardView.ts ComePlayersMarble/assets/scripts/ui/FrontEndShell.ts ComePlayersMarble/assets/scripts/ui/MatchHUD.ts ComePlayersMarble/assets/scenes/Match.scene ComePlayersMarble/package.json ComePlayersMarble/package-lock.json ComePlayersMarble/VERIFICATION_V108.txt
+          git commit -m 'feat(game): integrate V108 anime presentation foundation'
+          git push origin HEAD:codex/crazy-rich-anime-v108
+      - name: Package source, not a playable binary
+        run: git archive --format=zip --output=Crazy-Rich-World-Tour-V108-source.zip HEAD ComePlayersMarble
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Crazy-Rich-World-Tour-V108-source
+          path: Crazy-Rich-World-Tour-V108-source.zip
+          retention-days: 14
