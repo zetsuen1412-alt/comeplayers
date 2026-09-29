@@ -2,7 +2,7 @@
 
 Dikembangkan dari source Unity 28.0 dan Zero Dice 29.0, memakai backend Supabase yang sama (`uyehruetoxedmookyfcd`). Nama folder tetap `Crazy-Rich-World-Tour-Unity-28.0` agar path proyek tidak berubah; versi aplikasi sekarang **30.0**. Source asli 28.0 tersimpan pada commit `ac93c986`, source 29.0 pada `54fc69b9`.
 
-**Status: pembaruan source, belum build perangkat terverifikasi.** Unity Editor belum tersedia pada mesin ini. Tes SQL, kontrak C#, geometri, aset GLB, dan sintaks lulus; compile Unity, shader, Play Mode, APK/EXE, dan visual di perangkat masih perlu dijalankan. Lihat [QA 30.0](QA_30_ID.md).
+**Status: pembaruan source, belum build perangkat terverifikasi.** Unity CLI sudah terpasang; installer Editor 6000.0.84f1, Hub, serta paket Android sudah diunduh. Pemasangan Editor/Hub terhenti pada izin administrator Windows dan akun belum memiliki lisensi Unity aktif. Tes SQL, kontrak C#, geometri, aset GLB, dan sintaks lulus; compile Unity, shader, Play Mode, APK/EXE, dan visual di perangkat masih perlu dijalankan. Lihat [QA 30.0](QA_30_ID.md).
 
 ## Pembaruan 30.0 dan perbaikan 29.1
 
@@ -42,7 +42,7 @@ Tes SQL berjalan di PostgreSQL PGlite lokal dengan source fungsi server yang die
 Last Player Standing, properti House/Tower/Hotel/Landmark, auction, takeover, liquidation, bankruptcy, Cards, Character Skills, ranked normalization, multi-map, Festival, World Travel, spectator, replay, social, tournament foundation, dan rematch tetap memakai sistem yang ada. Tidak ada round-limit victory, Pendant, atau Artifact baru.
 
 ## Cara membuka
-1. Install Unity Hub dan Unity 6, dengan modul Windows Build Support dan/atau Android Build Support.
+1. Install Unity Hub dan Unity **6000.0.84f1**, lalu aktifkan lisensi yang sesuai. Windows Mono tersedia bersama Editor; Android memerlukan Android Build Support, SDK/NDK, dan OpenJDK.
 2. `Add project from disk` lalu pilih folder ini.
 3. Tunggu Package Manager selesai memasang `uGUI`, `Newtonsoft JSON`, dan `glTFast`.
 4. Script `CrwtProjectSetup` otomatis membuat empat scene: `CRWT_Bootstrap`, `CRWT_Login`, `CRWT_Lobby`, `CRWT_Match`.

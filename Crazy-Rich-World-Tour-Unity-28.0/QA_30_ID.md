@@ -10,10 +10,14 @@
 - `pwsh -File tests/check-csharp-syntax.ps1`: parsing C#9 semua source untuk cabang Editor/Windows dan Android. Ini bukan type-check terhadap API Unity.
 - `node tools/verify-release.mjs`: JSON/GLB, metadata/aset, pemeriksaan tidak ada RNG Unity atau secret key tertanam. Checksum source ada di BUILD_SHA256.txt.
 - `tools/Invoke-Unity.ps1 -Task Verify` sudah dicoba dan melaporkan `not_available`, exit 2. Tidak dihitung sebagai tes Unity yang lulus.
+- Lanjutan pemasangan: Unity CLI 1.0.0-beta.11 terpasang; unduhan Editor 6000.0.84f1 selesai dan tervalidasi oleh CLI. Installer Hub 3.21.3 lolos SHA-512 manifest resmi dan Authenticode Unity. Seluruh 12 paket Android selesai diunduh dan ukuran cocok dengan manifest. Pemasangan Hub/Editor gagal memperoleh izin administrator Windows (`ELEVATION_FAILED`); tidak ada lisensi aktif. Tidak ada build yang dijalankan dari unduhan saja.
+- Script batch kini memeriksa versi Editor sebelum membuka proyek. Pemeriksaan executable yang salah berhasil ditolak; ini tidak dihitung sebagai compile Unity.
 
 Pembaruan ini tidak mengubah database produksi. Kontrak RPC lelang, travel, likuidasi, kartu, snapshot, dan timeout diperiksa read-only dari fungsi Supabase yang sudah ada. Fixture SQL tetap hanya untuk database lokal; jangan diimpor ke produksi.
 
 ## Verifikasi yang memerlukan Unity Editor dan perangkat
+
+Smoke test otomatis tersedia melalui `tools/Invoke-Unity.ps1 -Task PlayMode`, tetapi **belum dijalankan** karena instalasi/lisensi terhalang. Runner Editor-only memakai snapshot deterministik tanpa RPC, menguji pemuatan GLB sebenarnya (fallback tidak dianggap lulus), shader, lifecycle dadu, ZERO tanpa gerakan, 0+5 lima langkah, tombol ROLL, snapshot duplikat, dan cleanup. Laporan JSON/PNG di `Logs/` baru merupakan bukti setelah command benar-benar sukses.
 
 1. Resolusi Package Manager, compile runtime/Editor, kemudian **Crazy Rich > 30.0 > Verify Project**. Pemeriksaan ini termasuk setup dua kali dengan scene uji yang belum disimpan, untuk memastikan scene aktif, dirty state, dan waktu modifikasi scene tidak berubah.
 2. Login → lobby → pilih map → create/join/quick match → ready → start → result → rematch. Coba klik ganda dan keluar scene saat request masih berjalan.

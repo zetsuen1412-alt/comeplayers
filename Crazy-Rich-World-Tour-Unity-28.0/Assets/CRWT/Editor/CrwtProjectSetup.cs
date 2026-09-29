@@ -92,7 +92,7 @@ namespace ComePlayers.CrazyRich.Editor
             try
             {
                 var root = new GameObject(Path.GetFileNameWithoutExtension(path) + "_Root");
-                SceneManager.MoveGameObjectToScene(root, scene);
+                if (root.scene != scene) SceneManager.MoveGameObjectToScene(root, scene);
                 root.AddComponent(controller);
                 if (!EditorSceneManager.SaveScene(scene, path))
                     throw new IOException("Could not save generated scene: " + path);

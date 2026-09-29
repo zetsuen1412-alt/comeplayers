@@ -25,7 +25,7 @@ namespace ComePlayers.CrazyRich.Editor
             {
                 SceneManager.SetActiveScene(sentinel);
                 var unsaved = new GameObject("CRWT_Setup_Preservation_Check");
-                SceneManager.MoveGameObjectToScene(unsaved, sentinel);
+                if (unsaved.scene != sentinel) SceneManager.MoveGameObjectToScene(unsaved, sentinel);
                 unsaved.transform.position = new Vector3(1.25f,2.5f,-3.75f);
                 EditorSceneManager.MarkSceneDirty(sentinel);
                 int count = SceneManager.sceneCount;

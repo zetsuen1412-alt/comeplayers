@@ -12,6 +12,18 @@ namespace ComePlayers.CrazyRich.Editor
 {
     public static class CrwtBuildMenu
     {
+        [MenuItem("Crazy Rich/30.0/Play Mode Smoke Test")]
+        public static void PlayMode()
+        {
+            try { CrwtRuntimeSmoke.Run(); }
+            catch (Exception ex)
+            {
+                WriteResult("PlayMode", false, ex.Message);
+                if (Application.isBatchMode) { Debug.LogException(ex); EditorApplication.Exit(1); }
+                else throw;
+            }
+        }
+
         [MenuItem("Crazy Rich/30.0/Verify Project")]
         public static void Verify() => Execute("Verify", () =>
         {
@@ -102,7 +114,7 @@ namespace ComePlayers.CrazyRich.Editor
             catch (Exception ex) { WriteResult(task, false, ex.Message); throw; }
         }
 
-        private static void WriteResult(string task, bool success, string error)
+        internal static void WriteResult(string task, bool success, string error)
         {
             if (!Application.isBatchMode) return;
             var args = Environment.GetCommandLineArgs();
