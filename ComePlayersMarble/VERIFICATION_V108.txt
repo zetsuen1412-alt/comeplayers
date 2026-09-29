@@ -1,0 +1,9 @@
+PASS rounded meshes have finite vertices, unit normals, valid winding and bounded geometry
+PASS cel shading is non-mutating, finite, and uses a color per vertex
+PASS light interface keeps text contrast at least 4.5:1
+PASS panels reuse Graphics during state changes instead of stacking components
+PASS human and bots share full chibi faces, with distinct hair and ownership accents
+PASS board keeps dice lane open and tall scenery outside the property track
+PASS all tile types and all property tiers construct successfully
+PASS active board, interface and ROLL paths are integrated
+8 V108 checks passed. These are geometry/presentation tests, not Cocos GPU/build tests.

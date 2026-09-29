@@ -1,3 +1,4 @@
+import { ANIME, animeTextColor, animeSurfaceColor, drawAnimePanel, drawAnimeRoll } from '../presentation/AnimeTheme';
 import {
     BlockInputEvents,
     Button,
@@ -227,26 +228,26 @@ export class MatchHUD {
         // INFO panel so Academy, Journey, Fortune, liquidation, and tactical data never cover play.
         const chrome = this.uiNode('VideoReferenceHudChromeV105', this.safeRoot, Vec3.ZERO, 2200, 1080);
         const chromeGraphics = chrome.addComponent(Graphics);
-        chromeGraphics.fillColor = new Color(55, 39, 30, 238);
+        chromeGraphics.fillColor = animeSurfaceColor(new Color(55, 39, 30, 238));
         chromeGraphics.fillRect(-1100, 482, 2200, 58);
         chromeGraphics.fillRect(-1100, -540, 2200, 60);
-        chromeGraphics.fillColor = new Color(166, 122, 52, 210);
+        chromeGraphics.fillColor = animeSurfaceColor(new Color(166, 122, 52, 210));
         chromeGraphics.fillRect(-1100, 476, 2200, 4);
         chromeGraphics.fillRect(-1100, -482, 2200, 4);
-        chromeGraphics.fillColor = new Color(231, 192, 91, 195);
+        chromeGraphics.fillColor = animeSurfaceColor(new Color(231, 192, 91, 195));
         chromeGraphics.fillRect(-1100, 472, 2200, 2);
         chromeGraphics.fillRect(-1100, -478, 2200, 2);
 
         const topBar = this.uiNode('VideoReferenceTopBarV105', this.safeRoot, new Vec3(0, 512), 1920, 50);
         this.drawPanel(topBar, 1920, 50, new Color(61, 46, 36, 248), new Color(216, 176, 80));
-        this.childLabel(topBar, 'Brand', 'COMEPLAYERS MARBLE', 19, new Vec3(-675, 7), new Color(247, 205, 84), 310, 27, Label.HorizontalAlign.LEFT);
-        this.childLabel(topBar, 'MapName', 'WORLD MAP  •  VIDEO REFERENCE  •  V107', 10, new Vec3(-675, -15), new Color(224, 215, 188), 330, 18, Label.HorizontalAlign.LEFT);
+        this.childLabel(topBar, 'Brand', 'CRAZY RICH: WORLD TOUR', 19, new Vec3(-675, 7), new Color(247, 205, 84), 310, 27, Label.HorizontalAlign.LEFT);
+        this.childLabel(topBar, 'MapName', 'WORLD TOUR  •  ANIME ADVENTURE', 10, new Vec3(-675, -15), new Color(224, 215, 188), 330, 18, Label.HorizontalAlign.LEFT);
         this.status = this.childLabel(topBar, 'Status', 'Match ready', 16, new Vec3(-45, 7), Color.WHITE, 690, 26);
         this.roundInfo = this.childLabel(topBar, 'RoundInfo', 'ROUND 1 / 12', 10, new Vec3(-45, -15), new Color(227, 216, 190), 650, 18);
 
         const timerMedallion = this.uiNode('CleanTimerMedallionV102', topBar, new Vec3(475, 0), 60, 60);
         const timerGraphics = timerMedallion.addComponent(Graphics);
-        timerGraphics.fillColor = new Color(72, 50, 38, 255);
+        timerGraphics.fillColor = animeSurfaceColor(new Color(72, 50, 38, 255));
         timerGraphics.strokeColor = new Color(236, 191, 74, 255);
         timerGraphics.lineWidth = 4;
         timerGraphics.circle(0, 0, 25);
@@ -382,7 +383,7 @@ export class MatchHUD {
             this.playerCards.push(panel);
             const headerStrip = this.uiNode('PlayerColorStrip', panel, new Vec3(0, 36), 272, 7);
             const stripGraphics = headerStrip.addComponent(Graphics);
-            stripGraphics.fillColor = slotColor;
+            stripGraphics.fillColor = animeSurfaceColor(slotColor);
             stripGraphics.roundRect(-136, -3.5, 272, 7, 3);
             stripGraphics.fill();
             const avatar = this.uiNode('PortraitCard', panel, new Vec3(-111, -3), 52, 66);
@@ -391,7 +392,7 @@ export class MatchHUD {
             this.childLabel(avatar, 'Seat', `P${index + 1}`, 8, new Vec3(0, -24), new Color(244, 232, 205), 40, 14);
             const rankNode = this.uiNode('RankMedallion', panel, new Vec3(-136, 31), 34, 34);
             const rankGraphics = rankNode.addComponent(Graphics);
-            rankGraphics.fillColor = new Color(48, 36, 34, 255);
+            rankGraphics.fillColor = animeSurfaceColor(new Color(48, 36, 34, 255));
             rankGraphics.strokeColor = slotColor;
             rankGraphics.lineWidth = 2;
             rankGraphics.circle(0, 0, 14);
@@ -411,12 +412,12 @@ export class MatchHUD {
             this.panels.push(this.childLabel(panel, 'Info', '', 10, new Vec3(31, -2), Color.WHITE, 192, 74, Label.HorizontalAlign.LEFT));
             const statusStrip = this.uiNode(`CleanPlayerStatusStripV102-${index}`, panel, new Vec3(31, -35), 184, 10);
             const statusGraphics = statusStrip.addComponent(Graphics);
-            statusGraphics.fillColor = new Color(slotColor.r, slotColor.g, slotColor.b, 58);
+            statusGraphics.fillColor = animeSurfaceColor(new Color(slotColor.r, slotColor.g, slotColor.b, 58));
             statusGraphics.roundRect(-92, -5, 184, 10, 4);
             statusGraphics.fill();
             const reserveBar = this.uiNode(`CleanCashReserveBarV102-${index}`, statusStrip, new Vec3(-88, 0), 176, 6);
             const reserveGraphics = reserveBar.addComponent(Graphics);
-            reserveGraphics.fillColor = slotColor;
+            reserveGraphics.fillColor = animeSurfaceColor(slotColor);
             reserveGraphics.roundRect(0, -3, 176, 6, 3);
             reserveGraphics.fill();
             reserveBar.setScale(0.22, 1, 1);
@@ -428,7 +429,7 @@ export class MatchHUD {
         this.matchIntro.addComponent(UITransform).setContentSize(1920, 1080);
         this.matchIntro.addComponent(BlockInputEvents);
         const introScrim = this.matchIntro.addComponent(Graphics);
-        introScrim.fillColor = new Color(3, 11, 20, 220);
+        introScrim.fillColor = animeSurfaceColor(new Color(3, 11, 20, 220));
         introScrim.fillRect(-960, -540, 1920, 1080);
         const introPanel = this.uiNode('MatchIntroPanel', this.matchIntro, Vec3.ZERO, 980, 390);
         this.drawPanel(introPanel, 980, 390, new Color(61, 43, 38, 255), new Color(235, 190, 76));
@@ -1073,11 +1074,11 @@ export class MatchHUD {
             card?.setScale(isCurrent ? 1.035 : 1, isCurrent ? 1.035 : 1, 1);
             if (turnIndicator) {
                 turnIndicator.string = entry.bankrupt ? 'OUT' : isCurrent ? 'TURN' : entry.bot ? 'CPU' : 'WAIT';
-                turnIndicator.color = entry.bankrupt
+                turnIndicator.color = animeTextColor(entry.bankrupt
                     ? new Color(178, 103, 94)
                     : isCurrent
                         ? new Color(255, 226, 122)
-                        : new Color(206, 194, 169);
+                        : new Color(206, 194, 169));
             }
             const active = model.currentPlayerIndex === index ? '>> ' : '';
             const status = entry.bankrupt
@@ -1093,7 +1094,7 @@ export class MatchHUD {
                 entry.freeWorldTravelCredits > 0 ? `TRAVEL x${entry.freeWorldTravelCredits}` : '',
                 shieldCharges > 0 ? `SHIELD x${shieldCharges}` : '',
             ].filter((value) => value.length > 0);
-            label.color = Color.fromHEX(new Color(), entry.color);
+            label.color = animeTextColor(Color.fromHEX(new Color(), entry.color));
             const team = entry.teamId ? `  |  TEAM ${entry.teamId}` : '';
             const standing = liveRanking.find((result) => result.playerId === entry.id);
             const rank = standing?.rank ?? index + 1;
@@ -1113,6 +1114,7 @@ export class MatchHUD {
             && !model.hasPendingOlympicDecision
             && !model.hasPendingGameCenterDecision
             && !model.hasPendingPaymentDecision;
+        this.rollButton.node.active = this.rollButton.interactable;
         for (const button of [...this.diceParityButtons, ...this.diceRangeButtons]) {
             button.interactable = this.rollButton.interactable;
         }
@@ -1330,7 +1332,7 @@ ${groupForecast}  |  ${takeoverTags}${liquidationLine}${unpaidLine}`;
                 ? 'FORTUNE SIGNAL  •  CPU ANALYSING THREE CARDS'
                 : 'FORTUNE SIGNAL  •  CHOOSE ONE OF THREE CARDS';
             this.fortuneRarity.string = 'CARD SELECTION';
-            this.fortuneRarity.color = new Color(181, 119, 255);
+            this.fortuneRarity.color = animeTextColor(new Color(181, 119, 255));
             this.fortuneTitle.string = 'READ THE EFFECT BEFORE YOU COMMIT';
             this.fortuneDescription.string = 'Economy, movement, defense, property, attack, and travel cards can change the match immediately.';
             for (let slot = 0; slot < this.fortuneChoiceButtons.length; slot++) {
@@ -1349,7 +1351,7 @@ ${fortuneEffectPreview(card)}`;
         } else if (fortune) {
             this.fortunePrompt.string = 'FORTUNE SIGNAL  •  CARD REVEALED';
             this.fortuneRarity.string = `${fortune.rarity}  •  ${fortuneCardCategory(fortune)}`;
-            this.fortuneRarity.color = this.rarityColor(fortune.rarity);
+            this.fortuneRarity.color = animeTextColor(this.rarityColor(fortune.rarity));
             this.fortuneTitle.string = fortune.title;
             this.fortuneDescription.string = `${fortune.description}
 
@@ -1382,7 +1384,7 @@ ${fortuneEffectPreview(fortune)}`;
 
     public setTimer(seconds: number): void {
         this.timer.string = `${seconds}`;
-        this.timer.color = seconds <= 5 ? new Color(255, 91, 91) : new Color(30, 202, 255);
+        this.timer.color = animeTextColor(seconds <= 5 ? new Color(255, 91, 91) : new Color(30, 202, 255));
     }
 
     public showMatchIntro(kicker: string, value: string, detail: string): void {
@@ -1407,7 +1409,7 @@ ${fortuneEffectPreview(fortune)}`;
         this.turnBannerToken++;
         const token = this.turnBannerToken;
         this.turnBannerTitle.string = `${playerName.toUpperCase()}'S TURN`;
-        this.turnBannerTitle.color = Color.fromHEX(new Color(), colorHex);
+        this.turnBannerTitle.color = animeTextColor(Color.fromHEX(new Color(), colorHex));
         this.turnBannerSubtitle.string = subtitle;
         Tween.stopAllByTarget(this.turnBanner);
         this.turnBanner.setPosition(0, 386);
@@ -1437,11 +1439,11 @@ ${fortuneEffectPreview(fortune)}`;
         const token = this.diceRevealToken;
         const total = first + second;
         this.diceRevealTitle.string = `${total}`;
-        this.diceRevealTitle.color = isDouble
+        this.diceRevealTitle.color = animeTextColor(isDouble
             ? new Color(255, 226, 122)
             : total >= 10
                 ? new Color(255, 151, 70)
-                : new Color(121, 217, 255);
+                : new Color(121, 217, 255));
         this.diceRevealSubtitle.string = isDouble
             ? `${first} + ${second}  •  DOUBLE  •  EXTRA TURN`
             : total >= 10
@@ -1479,7 +1481,7 @@ ${fortuneEffectPreview(fortune)}`;
         this.landingCardKicker.string = `${playerName.toUpperCase()} ARRIVED`;
         this.landingCardTitle.string = tileName.toUpperCase();
         this.landingCardType.string = typeLabel;
-        this.landingCardType.color = Color.fromHEX(new Color(), colorHex);
+        this.landingCardType.color = animeTextColor(Color.fromHEX(new Color(), colorHex));
         this.landingCardMessage.string = message;
         Tween.stopAllByTarget(this.landingCard);
         this.landingCard.setPosition(0, 195);
@@ -1505,9 +1507,9 @@ ${fortuneEffectPreview(fortune)}`;
         this.liveAcademyRail.string = objective.completed
             ? `LIVE ACADEMY  •  ${objective.title}  •  COMPLETE  •  REWARD READY`
             : `LIVE ACADEMY  •  ${objective.title}  •  ${objective.progressLabel}  •  ${objective.description}`;
-        this.liveAcademyRail.color = objective.completed
+        this.liveAcademyRail.color = animeTextColor(objective.completed
             ? new Color(255, 226, 122)
-            : new Color(211, 242, 255);
+            : new Color(211, 242, 255));
     }
 
     public setLiveAcademyResult(
@@ -1538,9 +1540,9 @@ ${fortuneEffectPreview(fortune)}`;
     public showGameCenterResult(result: Readonly<GameCenterResult>): void {
         this.gameCenterResult.active = true;
         this.gameCenterResultTitle.string = result.won ? 'SIGNAL MATCH!' : 'SIGNAL MISSED';
-        this.gameCenterResultTitle.color = result.won
+        this.gameCenterResultTitle.color = animeTextColor(result.won
             ? new Color(245, 195, 35)
-            : new Color(30, 202, 255);
+            : new Color(30, 202, 255));
         this.gameCenterResultNumbers.string = `${result.laneTitle}  |  PICK ${result.selectedNumber}  |  TARGET ${result.targetNumber}`;
         this.gameCenterResultReward.string = result.won
             ? `GROSS +CP ${result.grossReward.toLocaleString('en-US')}  •  ENTRY -CP ${result.entryCost.toLocaleString('en-US')}  •  NET +CP ${result.netChange.toLocaleString('en-US')}`
@@ -1597,7 +1599,7 @@ ${fortuneEffectPreview(fortune)}`;
         label.string = text;
         label.fontSize = size;
         label.lineHeight = size + 7;
-        label.color = color;
+        label.color = animeTextColor(color);
         label.horizontalAlign = alignment;
         label.verticalAlign = Label.VerticalAlign.CENTER;
         label.overflow = Label.Overflow.SHRINK;
@@ -1672,21 +1674,13 @@ ${fortuneEffectPreview(fortune)}`;
     ): Button {
         const diameter = radius * 2;
         const node = this.uiNode(`${text}RoundButton`, parent, position, diameter, diameter);
-        const graphics = node.addComponent(Graphics);
-        graphics.fillColor = new Color(4, 9, 15, 220);
-        graphics.circle(0, -5, radius + 7);
-        graphics.fill();
-        graphics.fillColor = color;
-        graphics.strokeColor = new Color(255, 228, 128, 255);
-        graphics.lineWidth = 4;
-        graphics.circle(0, 0, radius);
-        graphics.fill();
-        graphics.stroke();
+        drawAnimeRoll(node.addComponent(Graphics), radius);
         const button = node.addComponent(Button);
         button.transition = Button.Transition.SCALE;
         button.zoomScale = 0.92;
         node.on(Button.EventType.CLICK, action);
-        this.childLabel(node, `${text}Label`, text, fontSize, Vec3.ZERO, new Color(10, 14, 21), diameter - 16, diameter - 16);
+        this.childLabel(node, `${text}Label`, text, fontSize, Vec3.ZERO,
+            ANIME.ink, diameter - 16, diameter - 16);
         return button;
     }
 
@@ -1700,22 +1694,7 @@ ${fortuneEffectPreview(fortune)}`;
     }
 
     private drawPanel(node: Node, width: number, height: number, fill: Color, stroke: Color): void {
-        const graphics = node.addComponent(Graphics);
-        graphics.fillColor = new Color(0, 0, 0, 104);
-        graphics.roundRect(-width / 2 + 6, -height / 2 - 7, width, height, 11);
-        graphics.fill();
-        graphics.fillColor = fill;
-        graphics.strokeColor = stroke;
-        graphics.lineWidth = 3;
-        graphics.roundRect(-width / 2, -height / 2, width, height, 11);
-        graphics.fill();
-        graphics.stroke();
-        graphics.strokeColor = new Color(255, 255, 255, 55);
-        graphics.lineWidth = 2;
-        graphics.roundRect(-width / 2 + 6, -height / 2 + 6, width - 12, height - 12, 7);
-        graphics.stroke();
-        graphics.fillColor = new Color(255, 255, 255, 20);
-        graphics.fillRect(-width / 2 + 12, height / 2 - 15, width - 24, 7);
+        drawAnimePanel(node, width, height, fill, stroke, /Button$/.test(node.name));
     }
 
     private selectTravelSlot(slot: number): void {
@@ -1794,7 +1773,7 @@ ${fortuneEffectPreview(fortune)}`;
             const value = parityValues[index] ?? 'AUTO';
             const selected = value === this.diceControlParity;
             label.string = selected ? `◆ ${value}` : value;
-            label.color = selected ? new Color(255, 226, 122) : new Color(224, 215, 197);
+            label.color = animeTextColor(selected ? new Color(255, 226, 122) : new Color(224, 215, 197));
             label.node.setScale(selected ? 1.06 : 1, selected ? 1.06 : 1, 1);
         });
         const rangeValues: readonly DiceControlRange[] = ['LOW', 'MID', 'HIGH'];
@@ -1802,7 +1781,7 @@ ${fortuneEffectPreview(fortune)}`;
             const value = rangeValues[index] ?? 'MID';
             const selected = value === this.diceControlRange;
             label.string = selected ? `◆ ${value}` : value;
-            label.color = selected ? new Color(255, 226, 122) : new Color(224, 215, 197);
+            label.color = animeTextColor(selected ? new Color(255, 226, 122) : new Color(224, 215, 197));
             label.node.setScale(selected ? 1.06 : 1, selected ? 1.06 : 1, 1);
         });
     }
@@ -1860,7 +1839,7 @@ ${fortuneEffectPreview(fortune)}`;
             const entry = summary.entries[index];
             label.node.active = entry !== undefined;
             if (!entry) continue;
-            label.color = Color.fromHEX(new Color(), entry.color);
+            label.color = animeTextColor(Color.fromHEX(new Color(), entry.color));
             label.string = `#${entry.rank}  ${entry.name.toUpperCase()}${entry.teamId ? `  |  TEAM ${entry.teamId}` : ''}${entry.bankrupt ? '  |  BANKRUPT' : ''}\nNET CP ${entry.netWorth.toLocaleString('en-US')}  |  CASH CP ${entry.money.toLocaleString('en-US')}  |  CITY ${entry.propertyCount}  |  BLD ${entry.buildingCount}`;
         }
         const awardSummary = model.matchAwards();
@@ -1869,7 +1848,7 @@ ${fortuneEffectPreview(fortune)}`;
             const award = awardSummary.awards[index] as MatchAward | undefined;
             label.node.active = Boolean(award);
             if (!award) continue;
-            label.color = Color.fromHEX(new Color(), award.color);
+            label.color = animeTextColor(Color.fromHEX(new Color(), award.color));
             label.string = `${award.title}
 ${award.playerName.toUpperCase()}
 ${award.valueLabel}`;

@@ -1,3 +1,5 @@
+import { animeGeometry, initializeAnimeMaterial } from '../presentation/AnimeTheme';
+import { createAnimeFloor, createAnimeTile, createAnimePlayer, createAnimeProperty } from '../presentation/AnimeWorld';
 import {
     AnimationClip,
     Color,
@@ -50,6 +52,8 @@ type SurfaceFinish = 'MATTE' | 'GLOSS' | 'METAL' | 'GLOW';
 export interface BoardViewOptions {
     readonly host?: Node | null;
     readonly humanPrefab?: Prefab | null;
+    /** Disable only when supplying a finished anime character prefab. */
+    readonly useAnimeCharacters?: boolean;
     readonly humanAnimationClips?: readonly AnimationClip[];
     readonly humanPrefabScale?: number;
 }
@@ -93,7 +97,7 @@ export class BoardView {
     public spawnPlayers(players: readonly PlayerState[]): void {
         players.forEach((player, index) => {
             const rig = new Node(player.bot ? `PlayerRig-${player.name}` : 'PlayerRig-Alexia');
-            const humanPrefab = player.bot ? null : this.options.humanPrefab;
+            const humanPrefab = this.options.useAnimeCharacters === false && !player.bot ? this.options.humanPrefab : null;
             const visual = humanPrefab
                 ? instantiate(humanPrefab)
                 : this.createPlayerPiece(
@@ -1940,137 +1944,7 @@ export class BoardView {
     }
 
     private createVideoReferenceFloorV105(): void {
-        const table = this.primitive(
-            'VideoReferenceWoodTableV105',
-            primitives.box({ width: 37.2, height: 1.05, length: 35.2 }),
-            new Color(74, 52, 37),
-            'MATTE',
-        );
-        table.setPosition(0, -1.20, 0);
-        this.root.addChild(table);
-
-        const tableInset = this.primitive(
-            'VideoReferenceWoodInsetV105',
-            primitives.box({ width: 34.8, height: 0.12, length: 32.8 }),
-            new Color(48, 35, 29),
-            'GLOSS',
-        );
-        tableInset.setPosition(0, -0.62, 0);
-        this.root.addChild(tableInset);
-
-        const boardShadow = this.primitive(
-            'VideoReferenceBoardShadowV105',
-            primitives.box({ width: 28.7, height: 0.42, length: 28.7 }),
-            new Color(32, 28, 27),
-            'MATTE',
-        );
-        boardShadow.setPosition(0, -0.30, 0);
-        this.root.addChild(boardShadow);
-
-        const goldFrame = this.primitive(
-            'VideoReferenceGoldFrameV105',
-            primitives.box({ width: 28.15, height: 0.22, length: 28.15 }),
-            new Color(175, 132, 52),
-            'METAL',
-        );
-        goldFrame.setPosition(0, -0.03, 0);
-        this.root.addChild(goldFrame);
-
-        const ivoryTrackBase = this.primitive(
-            'VideoReferenceIvoryTrackBaseV105',
-            primitives.box({ width: 27.65, height: 0.22, length: 27.65 }),
-            new Color(226, 222, 199),
-            'GLOSS',
-        );
-        ivoryTrackBase.setPosition(0, 0.18, 0);
-        this.root.addChild(ivoryTrackBase);
-
-        const centerFrame = this.primitive(
-            'VideoReferenceCenterFrameV105',
-            primitives.box({ width: 17.35, height: 0.18, length: 17.35 }),
-            new Color(91, 68, 43),
-            'METAL',
-        );
-        centerFrame.setPosition(0, 0.48, 0);
-        this.root.addChild(centerFrame);
-
-        const centerArena = this.primitive(
-            'VideoReferenceDiceArenaV105',
-            primitives.box({ width: 16.85, height: 0.18, length: 16.85 }),
-            new Color(84, 84, 82),
-            'MATTE',
-        );
-        centerArena.setPosition(0, 0.62, 0);
-        this.root.addChild(centerArena);
-
-        const centerInset = this.primitive(
-            'VideoReferenceDiceArenaInsetV105',
-            primitives.box({ width: 15.6, height: 0.035, length: 15.6 }),
-            new Color(92, 92, 89),
-            'GLOSS',
-        );
-        centerInset.setPosition(0, 0.73, 0);
-        this.root.addChild(centerInset);
-
-        const emblemRing = this.primitive(
-            'ComePlayersArenaEmblemRingV105',
-            primitives.torus(2.15, 0.12, { radialSegments: 40, tubularSegments: 10 }),
-            new Color(132, 132, 126),
-            'METAL',
-        );
-        emblemRing.setPosition(0, 0.80, 0);
-        emblemRing.setRotationFromEuler(new Vec3(90, 0, 0));
-        this.root.addChild(emblemRing);
-
-        const emblemCore = this.primitive(
-            'ComePlayersArenaEmblemCoreV105',
-            primitives.cylinder(1.18, 1.18, 0.06, { radialSegments: 32 }),
-            new Color(103, 103, 99),
-            'GLOSS',
-        );
-        emblemCore.setPosition(0, 0.82, 0);
-        this.root.addChild(emblemCore);
-
-        const deckPositions = [new Vec3(-4.4, 0.92, 0), new Vec3(4.4, 0.92, 0)];
-        deckPositions.forEach((position, deckIndex) => {
-            for (let layer = 0; layer < 5; layer++) {
-                const card = this.primitive(
-                    `VideoReferenceCardDeckV105-${deckIndex}-${layer}`,
-                    primitives.box({ width: 1.70, height: 0.07, length: 2.25 }),
-                    deckIndex === 0 ? new Color(218, 188, 103) : new Color(208, 211, 208),
-                    layer === 4 ? 'METAL' : 'MATTE',
-                );
-                card.setPosition(position.clone().add3f(0, layer * 0.075, 0));
-                card.setRotationFromEuler(new Vec3(0, deckIndex === 0 ? -8 : 8, 0));
-                this.root.addChild(card);
-            }
-        });
-
-        const cashStacks = [
-            new Vec3(-12.7, 0.22, -8.2), new Vec3(12.7, 0.22, -8.2),
-            new Vec3(12.7, 0.22, 8.2), new Vec3(-12.7, 0.22, 8.2),
-        ];
-        cashStacks.forEach((position, index) => this.createVideoReferenceCashStackV105(position, index));
-
-        const lampColors = [
-            new Color(55, 190, 235), new Color(249, 196, 56),
-            new Color(230, 91, 171), new Color(92, 203, 124),
-        ];
-        const lampPositions = [
-            new Vec3(-5.5, 0.91, -5.5), new Vec3(5.5, 0.91, -5.5),
-            new Vec3(5.5, 0.91, 5.5), new Vec3(-5.5, 0.91, 5.5),
-        ];
-        lampPositions.forEach((position, index) => {
-            const lamp = this.primitive(
-                `VideoReferenceTurnLampV105-${index}`,
-                primitives.sphere(0.16, { segments: 10 }),
-                lampColors[index] ?? new Color(255, 215, 85),
-                'GLOW',
-            );
-            lamp.setPosition(position);
-            this.root.addChild(lamp);
-            this.centerTurnLamps.push(lamp);
-        });
+        createAnimeFloor(this.root, this.primitive.bind(this), this.centerTurnLamps);
     }
 
     private createVideoReferenceCashStackV105(position: Vec3, stackIndex: number): void {
@@ -2101,221 +1975,30 @@ export class BoardView {
     }
 
     private createVideoReferenceTileV105(tile: BoardTileData): void {
-        const cityGroup = Number.parseInt(tile.colorGroup.replace('group-', ''), 10);
-        const districtColor = tile.tileType === TileType.City
-            ? (CITY_GROUP_COLORS[Number.isFinite(cityGroup) ? cityGroup % CITY_GROUP_COLORS.length : 0] ?? SPECIAL_COLORS[TileType.City])
-            : tile.tileType === TileType.Tourist
-                ? new Color(72, 180, 218)
-                : SPECIAL_COLORS[tile.tileType];
-        const side = Math.floor(tile.index / 8);
-        const horizontal = side === 0 || side === 2;
-        const cornerSpecial = tile.index % 8 === 0;
-        const tangential = cornerSpecial ? 3.40 : 2.30;
-        const radial = cornerSpecial ? 3.40 : 3.28;
-        const width = horizontal ? tangential : radial;
-        const length = horizontal ? radial : tangential;
-        const isProperty = tile.tileType === TileType.City || tile.tileType === TileType.Tourist;
-
-        const shadow = this.primitive(
-            `VideoReferenceTileShadowV105-${tile.index}`,
-            primitives.box({ width: width + 0.18, height: 0.18, length: length + 0.18 }),
-            new Color(64, 51, 42),
-            'MATTE',
-        );
-        shadow.setPosition(tile.worldPosition.clone().add3f(0, 0.26, 0));
-        this.root.addChild(shadow);
-
-        const frame = this.primitive(
-            `VideoReferenceTileFrameV105-${tile.index}`,
-            primitives.box({ width, height: 0.30, length }),
-            new Color(213, 211, 195),
-            'GLOSS',
-        );
-        frame.setPosition(tile.worldPosition.clone().add3f(0, 0.45, 0));
-        this.root.addChild(frame);
-
-        const faceColor = isProperty
-            ? new Color(241, 240, 225)
-            : this.mixColor(new Color(235, 232, 214), districtColor, 0.28);
-        const face = this.primitive(
-            `VideoReferenceTileFaceV105-${tile.index}-${tile.displayName}`,
-            primitives.box({ width: width - 0.16, height: 0.10, length: length - 0.16 }),
-            faceColor,
-            'GLOSS',
-        );
-        face.setPosition(tile.worldPosition.clone().add3f(0, 0.66, 0));
-        this.root.addChild(face);
-
-        const outerOffset = side === 0
-            ? new Vec3(0, 0.75, -0.93)
-            : side === 1
-                ? new Vec3(0.93, 0.75, 0)
-                : side === 2
-                    ? new Vec3(0, 0.75, 0.93)
-                    : new Vec3(-0.93, 0.75, 0);
-        const bandWidth = horizontal ? width - 0.20 : 0.72;
-        const bandLength = horizontal ? 0.72 : length - 0.20;
-        const band = this.primitive(
-            `VideoReferenceDistrictBandV105-${tile.index}`,
-            primitives.box({ width: bandWidth, height: 0.10, length: bandLength }),
-            districtColor,
-            tile.tileType === TileType.City ? 'GLOSS' : 'GLOW',
-        );
-        band.setPosition(tile.worldPosition.clone().add(outerOffset));
-        this.root.addChild(band);
-
-        const pipCount = cornerSpecial ? 3 : Math.max(1, Math.min(3, Math.ceil(tile.purchasePrice / 120000)));
-        for (let index = 0; index < pipCount; index++) {
-            const across = (index - (pipCount - 1) * 0.5) * 0.34;
-            const pipOffset = horizontal
-                ? new Vec3(across, 0.84, outerOffset.z)
-                : new Vec3(outerOffset.x, 0.84, across);
-            const pip = this.primitive(
-                `VideoReferencePricePipV105-${tile.index}-${index}`,
-                primitives.sphere(0.075, { segments: 8 }),
-                new Color(255, 242, 187),
-                'GLOW',
-            );
-            pip.setPosition(tile.worldPosition.clone().add(pipOffset));
-            this.root.addChild(pip);
-        }
-
-        const centerIcon = this.primitive(
-            `VideoReferenceTileIconV105-${tile.index}`,
-            tile.tileType === TileType.City
-                ? primitives.box({ width: 0.42, height: 0.10, length: 0.42 })
-                : primitives.cylinder(cornerSpecial ? 0.34 : 0.24, cornerSpecial ? 0.34 : 0.24, 0.12, { radialSegments: 16 }),
-            tile.tileType === TileType.City ? new Color(193, 195, 188) : districtColor,
-            tile.tileType === TileType.City ? 'METAL' : 'GLOW',
-        );
-        centerIcon.setPosition(tile.worldPosition.clone().add3f(0, 0.82, 0));
-        this.root.addChild(centerIcon);
-
-        if (tile.tileType === TileType.Tourist) {
-            this.createTouristLandmark(tile);
-        }
+        createAnimeTile(this.root, tile, this.primitive.bind(this));
     }
 
     private updateVideoReferencePropertyV105(tileIndex: number, colorHex: string, buildingLevel: number): void {
         this.markOwner(tileIndex, colorHex);
-        this.buildingMarkers.get(tileIndex)?.destroy();
+        const previous = this.buildingMarkers.get(tileIndex);
+        if (previous?.isValid) { Tween.stopAllByTarget(previous); previous.destroy(); }
         this.buildingMarkers.delete(tileIndex);
-        if (buildingLevel <= 0) return;
         const tile = this.board[tileIndex];
-        if (!tile) return;
+        if (!tile || buildingLevel <= 0) return;
         const side = Math.floor(tile.index / 8);
         const color = this.colorFromHex(colorHex);
-        const root = new Node(`VideoReferencePropertyV105-${tileIndex}-L${buildingLevel}`);
-        const inward = side === 0
-            ? new Vec3(0, 0.92, 0.38)
-            : side === 1
-                ? new Vec3(-0.38, 0.92, 0)
-                : side === 2
-                    ? new Vec3(0, 0.92, -0.38)
-                    : new Vec3(0.38, 0.92, 0);
+        const root = new Node(`AnimePropertyV108-${tileIndex}-L${buildingLevel}`);
+        const inward = side === 0 ? new Vec3(0, 0.92, 0.38)
+            : side === 1 ? new Vec3(-0.38, 0.92, 0)
+            : side === 2 ? new Vec3(0, 0.92, -0.38) : new Vec3(0.38, 0.92, 0);
         root.setPosition(tile.worldPosition.clone().add(inward));
         root.setRotationFromEuler(new Vec3(0, side * -90, 0));
         root.setScale(0.10, 0.10, 0.10);
         this.root.addChild(root);
+        createAnimeProperty(root, color, buildingLevel, this.primitive.bind(this));
         this.playConstructionBurst(tile.worldPosition, color, buildingLevel);
-
-        const foundation = this.primitive(
-            'VideoReferencePropertyFoundationV105',
-            primitives.box({ width: 1.45, height: 0.14, length: 1.15 }),
-            new Color(77, 70, 62),
-            'MATTE',
-        );
-        foundation.setPosition(0, 0.07, 0);
-        root.addChild(foundation);
-
-        if (buildingLevel === 1) {
-            [-0.34, 0.34].forEach((x, index) => {
-                const villa = this.primitive(
-                    `VideoReferenceVillaV105-${index}`,
-                    primitives.box({ width: 0.48, height: 0.72, length: 0.52 }),
-                    index === 0 ? color : new Color(235, 229, 208),
-                    'GLOSS',
-                );
-                villa.setPosition(x, 0.48, 0);
-                root.addChild(villa);
-                const roof = this.primitive(
-                    `VideoReferenceVillaRoofV105-${index}`,
-                    primitives.cylinder(0.34, 0.24, 0.18, { radialSegments: 4 }),
-                    index === 0 ? new Color(255, 210, 84) : color,
-                    'METAL',
-                );
-                roof.setPosition(x, 0.92, 0);
-                roof.setRotationFromEuler(new Vec3(0, 45, 0));
-                root.addChild(roof);
-            });
-        } else if (buildingLevel === 2) {
-            [-0.40, 0, 0.40].forEach((x, index) => {
-                const height = 1.05 + index * 0.18;
-                const building = this.primitive(
-                    `VideoReferenceBuildingV105-${index}`,
-                    primitives.box({ width: 0.38, height, length: 0.46 }),
-                    index === 1 ? new Color(232, 229, 214) : color,
-                    'GLOSS',
-                );
-                building.setPosition(x, 0.14 + height * 0.5, 0);
-                root.addChild(building);
-            });
-        } else if (buildingLevel === 3) {
-            const hotel = this.primitive(
-                'VideoReferenceHotelV105',
-                primitives.box({ width: 0.98, height: 1.85, length: 0.78 }),
-                new Color(234, 228, 207),
-                'GLOSS',
-            );
-            hotel.setPosition(0, 1.02, 0);
-            root.addChild(hotel);
-            const facade = this.primitive(
-                'VideoReferenceHotelFacadeV105',
-                primitives.box({ width: 0.58, height: 1.26, length: 0.05 }),
-                color,
-                'GLOW',
-            );
-            facade.setPosition(0, 1.04, 0.42);
-            root.addChild(facade);
-            const roof = this.primitive(
-                'VideoReferenceHotelRoofV105',
-                primitives.cylinder(0.65, 0.48, 0.24, { radialSegments: 12 }),
-                new Color(228, 179, 62),
-                'METAL',
-            );
-            roof.setPosition(0, 2.06, 0);
-            root.addChild(roof);
-        } else {
-            const landmark = this.primitive(
-                'VideoReferenceLandmarkV105',
-                primitives.box({ width: 0.82, height: 2.55, length: 0.72 }),
-                new Color(225, 226, 216),
-                'GLOSS',
-            );
-            landmark.setPosition(0, 1.38, 0);
-            root.addChild(landmark);
-            const core = this.primitive(
-                'VideoReferenceLandmarkCoreV105',
-                primitives.box({ width: 0.42, height: 2.16, length: 0.76 }),
-                color,
-                'GLOW',
-            );
-            core.setPosition(0, 1.40, 0.02);
-            root.addChild(core);
-            const crown = this.primitive(
-                'VideoReferenceLandmarkCrownV105',
-                primitives.cylinder(0.52, 0.34, 0.26, { radialSegments: 12 }),
-                new Color(242, 199, 70),
-                'METAL',
-            );
-            crown.setPosition(0, 2.82, 0);
-            root.addChild(crown);
-        }
-
-        tween(root)
-            .to(0.34, { scale: new Vec3(1.08, 1.08, 1.08) }, { easing: 'backOut' })
-            .to(0.12, { scale: new Vec3(1, 1, 1) }, { easing: 'quadInOut' })
-            .start();
+        tween(root).to(0.34, { scale: new Vec3(1.08, 1.08, 1.08) }, { easing: 'backOut' })
+            .to(0.12, { scale: new Vec3(1, 1, 1) }, { easing: 'quadInOut' }).start();
         this.buildingMarkers.set(tileIndex, root);
     }
 
@@ -3353,137 +3036,25 @@ export class BoardView {
     }
 
     private playConstructionBurst(position: Readonly<Vec3>, color: Color, level: number): void {
-        const root = new Node(`ClassicConstructionSequenceV79-L${level}`);
+        const root = new Node(`AnimeConstructionV108-L${level}`);
         root.setPosition(position.clone().add3f(0, 0.78, 0));
         this.root.addChild(root);
-        const ring = this.primitive(
-            'ConstructionRing',
-            primitives.cylinder(0.92, 0.92, 0.05, { radialSegments: 26 }),
-            new Color(255, 220, 112),
-            'GLOW',
-        );
-        ring.setScale(0.25, 0.25, 0.25);
-        root.addChild(ring);
-        tween(ring)
-            .to(0.28, { scale: new Vec3(1.35, 1.35, 1.35) }, { easing: 'quadOut' })
-            .to(0.22, { scale: new Vec3(1.7, 0.25, 1.7) }, { easing: 'quadIn' })
-            .start();
-
         for (let index = 0; index < 6; index++) {
             const angle = Math.PI * 2 * index / 6;
-            const beam = this.primitive(
-                `ConstructionBeam-${index}`,
-                primitives.box({ width: 0.08, height: 2.3 + level * 0.18, length: 0.08 }),
-                index % 2 === 0 ? color : new Color(255, 220, 112),
-                'GLOW',
-            );
-            beam.setPosition(Math.cos(angle) * 0.62, 1.15, Math.sin(angle) * 0.62);
-            beam.setScale(1, 0.05, 1);
-            root.addChild(beam);
-            tween(beam)
-                .delay(index * 0.035)
-                .to(0.24, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' })
-                .to(0.22, { scale: new Vec3(0.35, 0.04, 0.35) }, { easing: 'quadIn' })
-                .start();
+            const puff = this.primitive('AnimeConstructionPuff', primitives.sphere(0.11, { segments: 8 }),
+                index % 2 === 0 ? color : new Color(255, 231, 165), 'GLOW');
+            puff.setPosition(Math.cos(angle) * 0.45, 0.15, Math.sin(angle) * 0.45);
+            root.addChild(puff);
+            tween(puff).to(0.26, {
+                position: new Vec3(Math.cos(angle) * 0.92, 0.75, Math.sin(angle) * 0.92),
+                scale: new Vec3(1.4, 1.4, 1.4),
+            }, { easing: 'quadOut' }).to(0.20, { scale: Vec3.ZERO }).start();
         }
-        setTimeout(() => {
-            if (root.isValid) root.destroy();
-        }, 620);
+        tween(root).delay(0.5).call(() => { if (root.isValid) root.destroy(); }).start();
     }
 
     private createPlayerPiece(name: string, color: Color, bot: boolean): Node {
-        const root = new Node(name);
-        const shadow = this.primitive(
-            'PieceShadow',
-            primitives.cylinder(0.48, 0.58, 0.06),
-            new Color(5, 12, 20),
-            'MATTE',
-        );
-        shadow.setPosition(0, 0.04, 0);
-        root.addChild(shadow);
-
-        const legColor = bot ? new Color(36, 50, 66) : new Color(12, 18, 28);
-        [-0.16, 0.16].forEach((x, index) => {
-            const leg = this.primitive(
-                `Leg-${index}`,
-                primitives.box({ width: 0.2, height: 0.55, length: 0.23 }),
-                legColor,
-                'GLOSS',
-            );
-            leg.setPosition(x, 0.36, 0);
-            root.addChild(leg);
-            const shoe = this.primitive(
-                `Shoe-${index}`,
-                primitives.box({ width: 0.25, height: 0.14, length: 0.38 }),
-                new Color(10, 15, 23),
-                'GLOSS',
-            );
-            shoe.setPosition(x, 0.11, 0.08);
-            root.addChild(shoe);
-        });
-
-        const body = this.primitive(
-            'Body',
-            primitives.capsule(0.36, 1.05),
-            bot ? color : new Color(18, 22, 29),
-            'GLOSS',
-        );
-        body.setPosition(0, 0.88, 0);
-        root.addChild(body);
-        const jacket = this.primitive(
-            'JacketAccent',
-            primitives.box({ width: 0.62, height: 0.32, length: 0.48 }),
-            color,
-            'GLOW',
-        );
-        jacket.setPosition(0, 0.95, 0.04);
-        root.addChild(jacket);
-        [-0.43, 0.43].forEach((x, index) => {
-            const arm = this.primitive(
-                `Arm-${index}`,
-                primitives.capsule(0.11, 0.52),
-                bot ? color : new Color(20, 26, 36),
-                'GLOSS',
-            );
-            arm.setPosition(x, 0.91, 0);
-            arm.setRotationFromEuler(new Vec3(0, 0, index === 0 ? -10 : 10));
-            root.addChild(arm);
-        });
-        const head = this.primitive(
-            'Head',
-            primitives.sphere(0.29, { segments: 16 }),
-            bot ? new Color(222, 228, 234) : new Color(238, 196, 164),
-            'GLOSS',
-        );
-        head.setPosition(0, 1.72, 0);
-        root.addChild(head);
-        const cap = this.primitive(
-            'Cap',
-            primitives.box({ width: 0.64, height: 0.14, length: 0.52 }),
-            bot ? color : new Color(16, 18, 24),
-            'GLOSS',
-        );
-        cap.setPosition(0, 2.01, 0);
-        root.addChild(cap);
-
-        const visor = this.primitive(
-            'Visor',
-            primitives.box({ width: 0.36, height: 0.08, length: 0.06 }),
-            bot ? new Color(75, 226, 255) : new Color(245, 195, 35),
-            'GLOW',
-        );
-        visor.setPosition(0, 1.76, 0.285);
-        root.addChild(visor);
-
-        const backpack = this.primitive(
-            'TravelPack',
-            primitives.box({ width: 0.42, height: 0.54, length: 0.24 }),
-            bot ? new Color(29, 50, 68) : color,
-            'GLOSS',
-        );
-        backpack.setPosition(0, 1.02, -0.31);
-        root.addChild(backpack);
-        return root;
+        return createAnimePlayer(name, color, bot, this.primitive.bind(this));
     }
 
     private createTileAccent(tile: BoardTileData, color: Color): void {
@@ -3756,7 +3327,7 @@ export class BoardView {
     ): Node {
         const node = new Node(name);
         const renderer = node.addComponent(MeshRenderer);
-        renderer.mesh = utils.createMesh(geometry);
+        renderer.mesh = utils.createMesh(animeGeometry(geometry, finish === 'GLOW'));
         renderer.material = this.material(color, finish);
         if (finish !== 'GLOW') {
             renderer.shadowCastingMode = 1;
@@ -3766,30 +3337,11 @@ export class BoardView {
     }
 
     private material(color: Color, finish: SurfaceFinish): Material {
-        const key = `${finish}:${color.toHEX('#rrggbbaa')}`;
+        const key = `anime:${finish}:${color.toHEX('#rrggbbaa')}`;
         const cached = this.materialCache.get(key);
         if (cached) return cached;
-
         const material = new Material();
-        if (finish === 'GLOW') {
-            material.initialize({ effectName: 'builtin-unlit', defines: { USE_COLOR: true } });
-            material.setProperty('mainColor', color);
-        } else {
-            const pbrTemplate = resources.get<Material>('materials/V67Standard', Material);
-            if (pbrTemplate?.effectAsset) {
-                material.initialize({ effectAsset: pbrTemplate.effectAsset });
-                material.setProperty('mainColor', color);
-                material.setProperty('roughness', finish === 'MATTE' ? 0.78 : finish === 'GLOSS' ? 0.22 : 0.32);
-                material.setProperty('metallic', finish === 'METAL' ? 0.82 : 0.05);
-                material.setProperty('specularIntensity', finish === 'MATTE' ? 0.28 : 0.72);
-            } else {
-                // A fast click can beat the tiny lobby preload on slow devices.
-                // Keep the 3D geometry playable with the guaranteed built-in
-                // unlit effect instead of constructing a material with no pass.
-                material.initialize({ effectName: 'builtin-unlit', defines: { USE_COLOR: true } });
-                material.setProperty('mainColor', color);
-            }
-        }
+        initializeAnimeMaterial(material, color);
         this.materialCache.set(key, material);
         return material;
     }

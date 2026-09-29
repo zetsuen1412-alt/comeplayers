@@ -1,3 +1,4 @@
+import { ANIME, animeTextColor, animeSurfaceColor, drawAnimePanel, drawAnimeRoll } from '../presentation/AnimeTheme';
 import {
     BlockInputEvents,
     Button,
@@ -2631,20 +2632,10 @@ This is a local in-game currency purchase only.`,
         highlighted = false,
     ): void {
         const fill = !interactable ? BUTTON_DISABLED : highlighted ? GOLD : BLUE;
-        const textColor = !interactable ? BUTTON_DISABLED_TEXT : highlighted ? INK : Color.WHITE;
-        const graphics = button.node.getComponent(Graphics);
         const transform = button.node.getComponent(UITransform);
-        if (graphics && transform) {
-            const { width, height } = transform.contentSize;
-            graphics.clear();
-            graphics.fillColor = fill;
-            graphics.strokeColor = fill;
-            graphics.lineWidth = 3;
-            graphics.roundRect(-width / 2, -height / 2, width, height, 14);
-            graphics.fill();
-            graphics.stroke();
-        }
-        label.color = textColor;
+        if (transform) drawAnimePanel(button.node, transform.contentSize.width,
+            transform.contentSize.height, fill, fill, true);
+        label.color = animeTextColor(!interactable ? BUTTON_DISABLED_TEXT : INK);
         button.interactable = interactable;
     }
 
@@ -2712,7 +2703,7 @@ This is a local in-game currency purchase only.`,
             if (!room) continue;
             const selected = index === this.selectedLobbyRoomIndex;
             const status = classicLobbyRoomStatus(room);
-            label.color = selected ? GOLD : Color.WHITE;
+            label.color = animeTextColor(selected ? GOLD : Color.WHITE);
             label.string = `${String(room.number).padStart(3, '0')}   ${room.title}
       HOST ${room.host}                    ${room.map}        ${room.mode}      ${room.players}/${room.capacity}  ${status}`;
         }
@@ -2793,15 +2784,15 @@ ${selected.map}  •  ${selected.mode}  •  HOST ${selected.host}`
             const teamBand = this.roomTeamBands[index];
             if (!label || !stamp || !teamBand) return;
             teamBand.string = slot.team;
-            teamBand.color = slot.team === 'TEAM GOLD' ? GOLD : slot.team === 'TEAM BLUE' ? new Color(151, 226, 255) : SILVER;
+            teamBand.color = animeTextColor(slot.team === 'TEAM GOLD' ? GOLD : slot.team === 'TEAM BLUE' ? new Color(151, 226, 255) : SILVER);
             label.string = slot.occupied
                 ? `${slot.name}\n${index === 0 ? slot.role : `${this.roomSettings.botDifficulty} AI`}\n${slot.team}  •  ${slot.ready ? 'READY' : 'WAITING'}`
                 : `OPEN SLOT\nBOT DISABLED\nIncrease player count`;
-            label.color = slot.occupied ? Color.WHITE : SILVER;
+            label.color = animeTextColor(slot.occupied ? Color.WHITE : SILVER);
             stamp.string = slot.occupied
                 ? index === 0 ? 'ROOM MASTER' : slot.ready ? 'AUTO READY' : 'WAITING'
                 : 'SLOT AVAILABLE';
-            stamp.color = slot.occupied && index === 0 ? GOLD : SILVER;
+            stamp.color = animeTextColor(slot.occupied && index === 0 ? GOLD : SILVER);
         });
         this.roomDecreasePlayers.interactable = !this.starting
             && this.roomSettings.matchMode === 'SOLO'
@@ -2982,7 +2973,7 @@ ${selected.map}  •  ${selected.mode}  •  HOST ${selected.host}`
         label.string = text;
         label.fontSize = size;
         label.lineHeight = size + 7;
-        label.color = color;
+        label.color = animeTextColor(color);
         label.horizontalAlign = alignment;
         label.verticalAlign = Label.VerticalAlign.CENTER;
         label.overflow = Label.Overflow.SHRINK;
@@ -3030,23 +3021,7 @@ ${selected.map}  •  ${selected.mode}  •  HOST ${selected.host}`
     }
 
     private drawPanel(node: Node, width: number, height: number, fill: Color, stroke: Color): void {
-        const graphics = node.addComponent(Graphics);
-        graphics.fillColor = new Color(0, 0, 0, 92);
-        graphics.roundRect(-width / 2 + 7, -height / 2 - 8, width, height, 12);
-        graphics.fill();
-        graphics.fillColor = fill;
-        graphics.strokeColor = stroke;
-        graphics.lineWidth = 3;
-        graphics.roundRect(-width / 2, -height / 2, width, height, 12);
-        graphics.fill();
-        graphics.stroke();
-        graphics.strokeColor = new Color(255, 255, 255, 86);
-        graphics.lineWidth = 2;
-        graphics.roundRect(-width / 2 + 7, -height / 2 + 7, width - 14, height - 14, 8);
-        graphics.stroke();
-        graphics.fillColor = new Color(255, 255, 255, 24);
-        graphics.roundRect(-width / 2 + 10, height / 2 - 19, width - 20, 10, 5);
-        graphics.fill();
+        drawAnimePanel(node, width, height, fill, stroke, /Button$/.test(node.name));
     }
 }
 
