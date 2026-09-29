@@ -9,6 +9,7 @@ namespace ComePlayers.CrazyRich
 {
     public sealed class CrwtSupabaseClient
     {
+        private Task<bool> refreshInFlight;
         private static string Idem(string prefix) => prefix + "-" + Guid.NewGuid().ToString("N");
 
         public async Task<CrwtAuthSession> SignInAsync(string email, string password)
@@ -29,7 +30,14 @@ namespace ComePlayers.CrazyRich
             return session;
         }
 
-        public async Task<bool> RefreshSessionAsync()
+        public Task<bool> RefreshSessionAsync()
+        {
+            // Polling and action requests share one refresh, avoiding token rotation races.
+            if (refreshInFlight == null || refreshInFlight.IsCompleted) refreshInFlight = RefreshSessionCoreAsync();
+            return refreshInFlight;
+        }
+
+        private async Task<bool> RefreshSessionCoreAsync()
         {
             if (string.IsNullOrEmpty(CrwtSession.RefreshToken)) return false;
             try

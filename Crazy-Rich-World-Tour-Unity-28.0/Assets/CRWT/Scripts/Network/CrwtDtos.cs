@@ -148,6 +148,12 @@ namespace ComePlayers.CrazyRich
         public int debt;
         public int high_bid;
         public int high_bidder_seat;
+        // Auction fields are named by the existing v15 server contract.
+        public int min_bid;
+        public int current_bid;
+        public int? high_seat;
+        public int[] eligible;
+        public int[] passed;
     }
 
     [Serializable] public sealed class CrwtLastRoll

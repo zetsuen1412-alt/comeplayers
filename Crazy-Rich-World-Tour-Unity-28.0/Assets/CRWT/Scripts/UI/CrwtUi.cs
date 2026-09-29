@@ -52,6 +52,8 @@ namespace ComePlayers.CrazyRich
             text.color = color ?? Color.white;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.supportRichText = false;
+            text.raycastTarget = false;
             return text;
         }
 
@@ -61,6 +63,7 @@ namespace ComePlayers.CrazyRich
             go.transform.SetParent(parent, false);
             go.GetComponent<Image>().color = color ?? Gold;
             go.GetComponent<LayoutElement>().preferredHeight = height;
+            go.GetComponent<LayoutElement>().flexibleWidth = 1;
             var btn = go.GetComponent<Button>();
             if (clicked != null) btn.onClick.AddListener(() => clicked());
             var tx = Text(go.transform, label, 25, TextAnchor.MiddleCenter, Color.black);
@@ -117,7 +120,20 @@ namespace ComePlayers.CrazyRich
 
         public static void Clear(Transform t)
         {
-            for (var i = t.childCount - 1; i >= 0; i--) UnityEngine.Object.Destroy(t.GetChild(i).gameObject);
+            for (var i = t.childCount - 1; i >= 0; i--)
+            {
+                var child = t.GetChild(i).gameObject;
+                child.SetActive(false);
+                UnityEngine.Object.Destroy(child);
+            }
+        }
+
+        public static RectTransform SafeRoot(Transform canvas)
+        {
+            var rt = Panel(canvas, "Safe area", Color.clear, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            rt.GetComponent<Image>().raycastTarget = false;
+            rt.gameObject.AddComponent<CrwtSafeArea>();
+            return rt;
         }
     }
 }

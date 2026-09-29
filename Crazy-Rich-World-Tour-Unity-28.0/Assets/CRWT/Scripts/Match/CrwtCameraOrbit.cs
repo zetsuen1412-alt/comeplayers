@@ -30,6 +30,7 @@ namespace ComePlayers.CrazyRich
             else if (Input.touchCount >= 2)
             {
                 var a = Input.GetTouch(0); var b = Input.GetTouch(1);
+                if (EventSystem.current != null && (EventSystem.current.IsPointerOverGameObject(a.fingerId) || EventSystem.current.IsPointerOverGameObject(b.fingerId))) return;
                 var prevA = a.position - a.deltaPosition; var prevB = b.position - b.deltaPosition;
                 var prev = Vector2.Distance(prevA, prevB); var now = Vector2.Distance(a.position, b.position);
                 distance = Mathf.Clamp(distance - (now - prev) * .012f * zoomSpeed, 10f, 28f);

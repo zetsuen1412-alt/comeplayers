@@ -13,6 +13,7 @@ namespace ComePlayers.CrazyRich
         public bool IsBusy => State != CrwtDiceAnimationState.Idle;
         public bool IsPresenting => result != null;
         public event Action<CrwtLastRoll> ZeroReact;
+        public event Action<CrwtLastRoll> Revealed;
         private RectTransform tray;
         private CanvasGroup visibility;
         private readonly RectTransform[] dieRoots = new RectTransform[2];
@@ -25,7 +26,7 @@ namespace ComePlayers.CrazyRich
 
         public void Initialize(Transform canvas)
         {
-            tray = CrwtUi.Panel(canvas, "Starwheel Dice", new Color(.05f,.03f,.13f,.94f), new Vector2(.32f,.32f), new Vector2(.82f,.75f), Vector2.zero, Vector2.zero);
+            tray = CrwtUi.Panel(canvas, "Starwheel Dice", new Color(.05f,.03f,.13f,.94f), new Vector2(.25f,.30f), new Vector2(.75f,.75f), Vector2.zero, Vector2.zero);
             tray.GetComponent<Image>().raycastTarget = false;
             visibility = tray.gameObject.AddComponent<CanvasGroup>();
             visibility.blocksRaycasts = false; visibility.interactable = false; visibility.alpha = 0;
@@ -59,6 +60,7 @@ namespace ComePlayers.CrazyRich
         {
             if (IsBusy) return;
             result = null; visibility.alpha = 1;
+            tray.SetAsLastSibling();
             caption.text = "STARWHEEL • MENUNGGU HASIL";
             for (int i = 0; i < 2; i++) { dice[i].SetFace(-1); faces[i].text = "?"; }
             sequence = StartCoroutine(Animate());
@@ -81,14 +83,15 @@ namespace ComePlayers.CrazyRich
 
         private IEnumerator Animate()
         {
+            bool reduced = PlayerPrefs.GetInt("CRWT_ReducedMotion", 0) == 1;
             State = CrwtDiceAnimationState.Throw;
             for (float t = 0; t < .28f; t += Time.unscaledDeltaTime)
             {
                 float progress = Mathf.Clamp01(t / .28f);
                 for (int i = 0; i < 2; i++)
                 {
-                    dieRoots[i].anchoredPosition = new Vector2(0, Mathf.Lerp(-100, 0, progress));
-                    dieRoots[i].localScale = Vector3.one * Mathf.Lerp(.35f, 1f, progress);
+                    dieRoots[i].anchoredPosition = reduced ? Vector2.zero : new Vector2(0, Mathf.Lerp(-100, 0, progress));
+                    dieRoots[i].localScale = Vector3.one * (reduced ? 1 : Mathf.Lerp(.35f, 1f, progress));
                 }
                 yield return null;
             }
@@ -100,7 +103,7 @@ namespace ComePlayers.CrazyRich
                 for (int i = 0; i < 2; i++)
                 {
                     dieRoots[i].anchoredPosition = Vector2.zero;
-                    dieRoots[i].localRotation = Quaternion.Euler(0, 0, spin * (i == 0 ? 520 : -470));
+                    dieRoots[i].localRotation = reduced ? Quaternion.identity : Quaternion.Euler(0, 0, spin * (i == 0 ? 520 : -470));
                     dieRoots[i].localScale = Vector3.one;
                 }
                 yield return null;
@@ -111,7 +114,7 @@ namespace ComePlayers.CrazyRich
                 for (int i = 0; i < 2; i++)
                 {
                     dieRoots[i].localRotation = Quaternion.identity;
-                    dieRoots[i].anchoredPosition = new Vector2(0, Mathf.Abs(Mathf.Sin(t / .25f * Mathf.PI * 2)) * 18 * (1 - t / .25f));
+                    dieRoots[i].anchoredPosition = reduced ? Vector2.zero : new Vector2(0, Mathf.Abs(Mathf.Sin(t / .25f * Mathf.PI * 2)) * 18 * (1 - t / .25f));
                 }
                 yield return null;
             }
@@ -125,10 +128,11 @@ namespace ComePlayers.CrazyRich
             State = result.zero_roll ? CrwtDiceAnimationState.ZeroReveal : CrwtDiceAnimationState.Reveal;
             caption.text = CrwtDiceRules.Caption(result.d1, result.d2, result.total, result.zero_roll);
             if (result.zero_roll) ZeroReact?.Invoke(result);
+            Revealed?.Invoke(result);
             float duration = result.zero_roll ? 1.35f : .8f;
             for (float t = 0; t < duration; t += Time.unscaledDeltaTime)
             {
-                for (int i = 0; i < 2; i++) dice[i].SetPulse(.5f + .5f * Mathf.Sin(t * 9));
+                for (int i = 0; i < 2; i++) dice[i].SetPulse(reduced ? .5f : .5f + .5f * Mathf.Sin(t * 9));
                 yield return null;
             }
             var callback = complete;

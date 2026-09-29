@@ -1,0 +1,25 @@
+<linker>
+  <!-- Newtonsoft constructs these wire DTOs via reflection in IL2CPP builds. -->
+  <assembly fullname="Assembly-CSharp">
+    <type fullname="ComePlayers.CrazyRich.CrwtAuthUser" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtAuthSession" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtRoomCreateResponse" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtRoomEnvelope" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtRoom" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtRoomMember" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtStartMatchResponse" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtActiveMatchResponse" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtResumeRoomResponse" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtMatchSnapshot" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtMatchState" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtPlayer" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtPropertyState" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtPending" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtLastRoll" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtReward" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtRankedResult" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtResultPlayer" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtMatchResult" preserve="all" />
+    <type fullname="ComePlayers.CrazyRich.CrwtRematchStatus" preserve="all" />
+  </assembly>
+</linker>

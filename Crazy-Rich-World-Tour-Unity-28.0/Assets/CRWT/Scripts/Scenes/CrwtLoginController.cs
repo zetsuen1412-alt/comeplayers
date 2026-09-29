@@ -15,9 +15,10 @@ namespace ComePlayers.CrazyRich
         private void Start()
         {
             var canvas = CrwtUi.CreateCanvas("LoginUI");
-            var bg = CrwtUi.Panel(canvas.transform, "Background", CrwtUi.Bg, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            var left = CrwtUi.Panel(bg, "Hero", new Color(0.03f, .05f, .10f, 1), new Vector2(0, 0), new Vector2(.58f, 1), Vector2.zero, Vector2.zero);
-            var lt = CrwtUi.Text(left, "CRAZY\nRICH\nWORLD TOUR\n\n29.0 • ZERO DICE SYSTEM", 62, TextAnchor.MiddleCenter, Color.white);
+            var bg = CrwtUi.Panel(CrwtUi.SafeRoot(canvas.transform), "Background", CrwtUi.Bg, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            CrwtHudArt.Backdrop(bg);
+            var left = CrwtUi.Panel(bg, "Hero", new Color(0.03f, .05f, .10f, .30f), new Vector2(0, 0), new Vector2(.58f, 1), Vector2.zero, Vector2.zero);
+            var lt = CrwtUi.Text(left, "CRAZY RICH\nWORLD TOUR\n\n30.0 • CHIBI WORLD", 58, TextAnchor.UpperLeft, Color.white);
             CrwtUi.Fill(lt.rectTransform, 70);
 
             var card = CrwtUi.Panel(bg, "LoginCard", CrwtUi.Card, new Vector2(.62f, .14f), new Vector2(.94f, .86f), Vector2.zero, Vector2.zero);
@@ -30,20 +31,22 @@ namespace ComePlayers.CrazyRich
             CrwtUi.Button(card, "MASUK ONLINE", Login, CrwtUi.Gold);
             CrwtUi.Button(card, "DAFTAR", Register, CrwtUi.Cyan);
             CrwtUi.Button(card, "DEMO OFFLINE 3D", Guest, new Color(.65f, .68f, .76f));
-            status = CrwtUi.Text(card, "Supabase + server-authoritative gameplay", 19, TextAnchor.MiddleCenter, new Color(1, 1, 1, .65f));
+            status = CrwtUi.Text(card, "Bangun kotamu. Jadilah pemain terakhir!", 19, TextAnchor.MiddleCenter, new Color(1, 1, 1, .65f));
             status.gameObject.AddComponent<LayoutElement>().preferredHeight = 60;
         }
 
         private async void Login()
         {
             if (busy) return;
-            busy = true; SetStatus("Menghubungkan ke Supabase...");
+            busy = true; SetStatus("Menghubungkan akun...");
             try
             {
                 CrwtSession.DisplayName = string.IsNullOrWhiteSpace(displayName.text) ? "Player" : displayName.text.Trim();
                 PlayerPrefs.SetString("crwt_display_name", CrwtSession.DisplayName);
                 await CrwtAppRoot.Instance.Api.SignInAsync(email.text.Trim(), password.text);
+                if (!this) return;
                 await CrwtAppRoot.Instance.Api.BootstrapProgressionAsync();
+                if (!this) return;
                 CrwtAppRoot.Instance.LoadLobby();
             }
             catch (Exception ex) { SetStatus("Gagal: " + ex.Message); }
@@ -58,10 +61,12 @@ namespace ComePlayers.CrazyRich
             {
                 CrwtSession.DisplayName = string.IsNullOrWhiteSpace(displayName.text) ? "Player" : displayName.text.Trim();
                 var session = await CrwtAppRoot.Instance.Api.SignUpAsync(email.text.Trim(), password.text);
+                if (!this) return;
                 if (string.IsNullOrEmpty(session?.access_token)) SetStatus("Pendaftaran berhasil. Cek email jika verifikasi diwajibkan, lalu MASUK ONLINE.");
                 else
                 {
                     await CrwtAppRoot.Instance.Api.BootstrapProgressionAsync();
+                    if (!this) return;
                     CrwtAppRoot.Instance.LoadLobby();
                 }
             }
@@ -71,6 +76,7 @@ namespace ComePlayers.CrazyRich
 
         private void Guest()
         {
+            if (busy) return;
             CrwtSession.ClearAuth();
             CrwtSession.IsGuest = true;
             CrwtSession.DisplayName = string.IsNullOrWhiteSpace(displayName.text) ? "Mabar" : displayName.text.Trim();

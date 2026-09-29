@@ -1,4 +1,4 @@
-# CRWT Unity Runtime 29.0 — Zero Dice System
+# CRWT Unity Runtime 30.0 — Chibi World
 
 Folder inti client Unity 6 Crazy Rich: World Tour. Scene dibuat otomatis oleh `CrwtProjectSetup` saat project pertama kali dikompilasi.
 

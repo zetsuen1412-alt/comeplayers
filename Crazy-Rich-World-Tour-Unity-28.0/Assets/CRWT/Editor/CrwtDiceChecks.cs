@@ -8,7 +8,7 @@ namespace ComePlayers.CrazyRich.Editor
 {
     public static class CrwtDiceChecks
     {
-        [MenuItem("Crazy Rich/29.0/Check Dice Protocol")]
+        [MenuItem("Crazy Rich/30.0/Check Dice Protocol")]
         public static void Run()
         {
             for (int a = 0; a <= 6; a++) for (int b = 0; b <= 6; b++)
@@ -27,7 +27,7 @@ namespace ComePlayers.CrazyRich.Editor
             Check(!cursor.Accept(5,"zero-a",false), "Repeated snapshot animates again");
             Check(cursor.Accept(6,"zero-b",false), "Consecutive zero hidden");
             Check(!cursor.Accept(2,"stale",false), "Out of order snapshot accepted");
-            Debug.Log("[CRWT 29] Dice protocol checks passed. Device animation QA is separate.");
+            Debug.Log("[CRWT 30] Dice protocol checks passed. Device animation QA is separate.");
         }
         private static void Check(bool condition, string message)
         {

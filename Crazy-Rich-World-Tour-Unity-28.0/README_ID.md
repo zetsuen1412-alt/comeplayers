@@ -1,6 +1,22 @@
-# Crazy Rich: World Tour 29.0 — Zero Dice System
+# Crazy Rich: World Tour 30.0 — Chibi World
 
-Dikembangkan dari source Unity 28.0, memakai backend Supabase yang sama (`uyehruetoxedmookyfcd`). Nama folder tetap `Crazy-Rich-World-Tour-Unity-28.0` agar path proyek tidak berubah; versi aplikasi sekarang **29.0**. Source asli 28.0 tersimpan pada commit `ac93c986`.
+Dikembangkan dari source Unity 28.0 dan Zero Dice 29.0, memakai backend Supabase yang sama (`uyehruetoxedmookyfcd`). Nama folder tetap `Crazy-Rich-World-Tour-Unity-28.0` agar path proyek tidak berubah; versi aplikasi sekarang **30.0**. Source asli 28.0 tersimpan pada commit `ac93c986`, source 29.0 pada `54fc69b9`.
+
+**Status: pembaruan source, belum build perangkat terverifikasi.** Unity Editor belum tersedia pada mesin ini. Tes SQL, kontrak C#, geometri, aset GLB, dan sintaks lulus; compile Unity, shader, Play Mode, APK/EXE, dan visual di perangkat masih perlu dijalankan. Lihat [QA 30.0](QA_30_ID.md).
+
+## Pembaruan 30.0 dan perbaikan 29.1
+
+- Papan 32 tile unik, tanpa tile sudut bertumpuk. Nama kota, simbol tile khusus, warna distrik, ring pemilik/giliran/Festival; katalog tampilan mencakup lima map / 160 tile.
+- House, Tower, Hotel, dan Landmark memiliki bentuk berbeda; upgrade memakai animasi singkat. World Tour mempunyai plaza globe dan miniatur menara.
+- Enam GLB yang sudah ada dimuat melalui Unity glTFast 6.14.1; Idle/Walk/Jump/Skill/Win/Lose terhubung ke presentasi. Model ini masih prototipe sederhana; fallback chibi dipakai jika pemuatan gagal. ZERO hanya memiringkan visual karakter di tempat.
+- Portrait Alexia/Rindi, ilustrasi login/lobby, HUD giliran ringkas, drawer pemain, dan lembar pilihan yang bisa di-scroll. Ketuk tile untuk melihat detail, geser untuk memutar, cubit/scroll untuk zoom.
+- World Travel memilih kota/resort; Festival memilih seluruh distrik map; lelang mengikuti `eligible`, `passed`, `min_bid`, `current_bid`, dan `high_seat` server. Peserta lelang tidak dibatasi ke pemilik giliran.
+- Pilih aset likuidasi, konfirmasi penjualan/bangkrut, serta kartu dan targetnya. Tidak ada keputusan ekonomi yang dihitung oleh animasi.
+- Suara original untuk throw/reveal/zero, langkah, transaksi, pembangunan, kemenangan. Opsi mute, reduced motion, dan target 30/60 FPS.
+- Safe area untuk layar berponi; refresh sesi bersama; pemulihan koneksi/fokus; permintaan bot, timeout, hasil, dan rematch tidak berjalan berulang bersamaan.
+- Setup Editor mempertahankan scene yang belum disimpan; build menghasilkan laporan gagal/lulus yang eksplisit. Shader karakter runtime disertakan dan dependency dipin.
+
+Perbaikan fondasi yang direncanakan sebagai 29.1 digabung dalam source 30.0 ini. Backend tidak diubah pada pembaruan ini. [Aset dan prompt gambar](ART_ASSETS_30.md) mendokumentasikan hasil `image_gen` yang benar-benar dipakai UI.
 
 ## Dadu 29.0
 - Dua dadu: masing-masing **0–6**, total **0–12**. Hasil hanya berasal dari RPC Supabase `crwt_v18_roll` → `crwt_v18_roll_core`.
@@ -28,11 +44,11 @@ Last Player Standing, properti House/Tower/Hotel/Landmark, auction, takeover, li
 ## Cara membuka
 1. Install Unity Hub dan Unity 6, dengan modul Windows Build Support dan/atau Android Build Support.
 2. `Add project from disk` lalu pilih folder ini.
-3. Tunggu Package Manager selesai memasang `uGUI` dan `Newtonsoft JSON`.
+3. Tunggu Package Manager selesai memasang `uGUI`, `Newtonsoft JSON`, dan `glTFast`.
 4. Script `CrwtProjectSetup` otomatis membuat empat scene: `CRWT_Bootstrap`, `CRWT_Login`, `CRWT_Lobby`, `CRWT_Match`.
 5. Buka `Assets/CRWT/Scenes/CRWT_Bootstrap.unity` lalu tekan Play.
 
-Jika scene belum dibuat otomatis, pilih menu **Crazy Rich > 29.0 > Setup Project**. Pemeriksaan protokol tersedia di **Crazy Rich > 29.0 > Check Dice Protocol**.
+Jika scene belum dibuat otomatis, pilih menu **Crazy Rich > 30.0 > Setup Project**. Jalankan **Crazy Rich > 30.0 > Verify Project** sebelum build. Instruksi CLI ada di [panduan Unity](OPEN_IN_UNITY_ID.md).
 
 ## Yang sudah dipindahkan
 - Supabase email/password auth + signup.
@@ -48,7 +64,7 @@ Jika scene belum dibuat otomatis, pilih menu **Crazy Rich > 29.0 > Setup Project
 Unity client **tidak menghitung RNG, cash, rent, ownership, bankruptcy, atau winner** saat online. Semua keputusan gameplay tetap berasal dari RPC server. Demo offline hanya untuk melihat renderer/UI.
 
 ## Asset
-Model GLB karakter v23 disimpan di `Assets/StreamingAssets/Characters`. Unity project ini belum memuat GLB tersebut ke rig final; 28.0 memakai pawn procedural sebagai fallback yang langsung dapat dijalankan. Tahap berikutnya mengganti pawn dengan FBX/GLTF runtime/import pipeline final.
+Model GLB karakter v23 disimpan di `Assets/StreamingAssets/Characters` dan sekarang dimuat oleh `CrwtCharacterView`. File GLB dan animasinya lulus pemeriksaan struktur; tampilan runtime belum dirender di Unity. PNG UI berada di `Assets/Resources/CRWT/Art`. Profil landmark JSON warisan masih berupa referensi, bukan 55 model landmark final.
 
 ## Legacy Web
 Folder `LegacyWeb27` mempertahankan client 27.0 sebagai referensi/fallback QA selama migrasi Unity berlangsung.

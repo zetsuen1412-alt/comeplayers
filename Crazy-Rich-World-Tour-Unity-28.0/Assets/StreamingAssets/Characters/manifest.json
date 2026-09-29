@@ -1,11 +1,11 @@
 {
-  "version": 1,
-  "pipeline": "CRWT23",
+  "version": 2,
+  "pipeline": "CRWT30",
   "format": "glTF 2.0 / GLB",
   "characters": {
     "alexia": {
       "name": "Alexia",
-      "file": "glb/alexia.glb",
+      "file": "alexia.glb",
       "scale": 0.38,
       "groundOffset": 0.06,
       "clips": {
@@ -19,11 +19,12 @@
       "vertices": 384,
       "indices": 576,
       "bytes": 35852,
-      "fallback": "procedural"
+      "fallback": "procedural",
+      "displayHeight": 1.15
     },
     "rindi": {
       "name": "Rindi",
-      "file": "glb/rindi.glb",
+      "file": "rindi.glb",
       "scale": 0.38,
       "groundOffset": 0.06,
       "clips": {
@@ -37,11 +38,12 @@
       "vertices": 360,
       "indices": 540,
       "bytes": 34336,
-      "fallback": "procedural"
+      "fallback": "procedural",
+      "displayHeight": 1.15
     },
     "kairo": {
       "name": "Kairo",
-      "file": "glb/kairo.glb",
+      "file": "kairo.glb",
       "scale": 0.38,
       "groundOffset": 0.06,
       "clips": {
@@ -55,11 +57,12 @@
       "vertices": 360,
       "indices": 540,
       "bytes": 34336,
-      "fallback": "procedural"
+      "fallback": "procedural",
+      "displayHeight": 1.15
     },
     "luna": {
       "name": "Luna",
-      "file": "glb/luna.glb",
+      "file": "luna.glb",
       "scale": 0.38,
       "groundOffset": 0.06,
       "clips": {
@@ -73,11 +76,12 @@
       "vertices": 360,
       "indices": 540,
       "bytes": 34332,
-      "fallback": "procedural"
+      "fallback": "procedural",
+      "displayHeight": 1.15
     },
     "nox": {
       "name": "Nox",
-      "file": "glb/nox.glb",
+      "file": "nox.glb",
       "scale": 0.38,
       "groundOffset": 0.06,
       "clips": {
@@ -91,11 +95,12 @@
       "vertices": 384,
       "indices": 576,
       "bytes": 35844,
-      "fallback": "procedural"
+      "fallback": "procedural",
+      "displayHeight": 1.15
     },
     "atlas": {
       "name": "Atlas",
-      "file": "glb/atlas.glb",
+      "file": "atlas.glb",
       "scale": 0.38,
       "groundOffset": 0.06,
       "clips": {
@@ -109,7 +114,10 @@
       "vertices": 360,
       "indices": 540,
       "bytes": 34336,
-      "fallback": "procedural"
+      "fallback": "procedural",
+      "displayHeight": 1.15
     }
-  }
+  },
+  "runtimeImporter": "com.unity.cloud.gltfast@6.14.1",
+  "animationSystem": "Legacy; presentation only, no root motion"
 }

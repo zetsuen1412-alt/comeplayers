@@ -1,4 +1,4 @@
-name: Crazy Rich Zero Dice
+name: Crazy Rich Unity Source Checks
 on:
   push:
     paths:
@@ -27,3 +27,6 @@ jobs:
       - run: npm test
       - run: node tools/verify-release.mjs
       - run: pwsh -NoProfile -File tests/check-client.ps1
+      - run: pwsh -NoProfile -File tests/check-actions.ps1
+      - run: pwsh -NoProfile -File tests/check-board.ps1
+      - run: pwsh -NoProfile -File tests/check-csharp-syntax.ps1

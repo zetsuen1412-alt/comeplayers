@@ -1,0 +1,17 @@
+# Art assets — Chibi World 30.0
+
+Generated with the built-in `image_gen` tool on 29 September 2026. These are original UI illustration assets, not screenshots of Unity rendering or replacements for rigged 3D models. The existing six GLBs remain the animated character prototypes. No external sample libraries are used for audio; `CrwtAudio` synthesizes the short musical cues.
+
+## Files and integration
+
+- `Assets/Resources/CRWT/Art/portraits-alexia-rindi.png`: one two-panel atlas; Alexia uses UV x=0–0.5 and Rindi x=0.5–1. Loaded by `CrwtHudArt` for the active player's HUD. Other characters do not borrow these portraits.
+- `Assets/Resources/CRWT/Art/world-tour-lobby.png`: login and lobby background loaded by `CrwtHudArt.Backdrop`.
+- Build setup configures these as compressed, non-readable UI textures with mipmaps disabled. No generated image is required from an external path at runtime.
+
+## Final prompt — portrait atlas
+
+Use case: stylized-concept. Asset type: a production UI portrait atlas texture for the original anime/chibi board game Crazy Rich: World Tour, landscape 2:1 composition split into exactly two equal square panels, no gutter. Left square: Alexia, original cheerful young-adult chibi business adventurer, large expressive cyan eyes, silky silver-white bob with navy ribbon, navy and ivory travel blazer with small gold star lapel pin, head and shoulders, facing slightly toward center. Right square: Rindi, original upbeat young-adult chibi traveler, rosy pink twin-tail hair, expressive teal eyes, white/pink jacket with mint accents, small gold star hair clip, head and shoulders, facing slightly toward center. Consistent premium hand-painted cel-shaded anime mobile game art, clean silhouette, rounded shapes, attractive expressive faces, matching soft warm highlights and cool shadows. Each face centered safely inside its square with generous border, readable as a tiny avatar. Left background deep midnight-blue with subtle golden starlight; right background muted deep plum with subtle mint starlight. No frames, no letters, no logos, no text, no watermark, no dice, no weapons. This is one atlas image with two portraits; do not draw any additional characters.
+
+## Final prompt — lobby background
+
+Use case: stylized-concept. Asset type: landscape 16:9 login and lobby background illustration for original anime/chibi property board game Crazy Rich: World Tour. A charming luxurious miniature world-tour island diorama floating above midnight-blue clouds: original stylized Paris-inspired gold-lit iron tower, Tokyo-inspired cherry-pink city gate and compact futuristic skyline, tropical turquoise waterfront with palms, cheerful colorful miniature houses and a small curved railway. A winding board-game route subtly connects the city districts, without printed dice, numbers or words. Premium hand-painted 3D anime mobile game key art, rounded toy-like architecture, crisp readable silhouettes, jewel tones of navy, teal, warm cream and gold, restrained rose accents, soft sunset rim light transitioning to starry twilight. Main diorama on left two-thirds; right third quieter dark-blue sky gradient for an overlaid login panel. Plenty of clean breathing room, cinematic depth with a few tiny stars. No people, no existing game characters, no logos, no title, no typography, no UI, no watermark. Actual finished background art, not a screenshot or device mockup.
