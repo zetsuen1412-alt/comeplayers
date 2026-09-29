@@ -2,7 +2,7 @@
 
 Dikembangkan dari source Unity 28.0 dan Zero Dice 29.0, memakai backend Supabase yang sama (`uyehruetoxedmookyfcd`). Nama folder tetap `Crazy-Rich-World-Tour-Unity-28.0` agar path proyek tidak berubah; versi aplikasi sekarang **30.0**. Source asli 28.0 tersimpan pada commit `ac93c986`, source 29.0 pada `54fc69b9`.
 
-**Status: pembaruan source, belum build perangkat terverifikasi.** Unity Hub 3.21.3, Editor 6000.0.84f1, dan Android Build Support beserta JDK/SDK/NDK sudah terpasang; proyek terdaftar di Hub. Percobaan Verify mencapai Editor tetapi berhenti dengan exit 198, `No valid Unity Editor license found`; percobaan berikutnya terhenti pada koneksi layanan lisensi. Tes SQL, kontrak C#, geometri, aset GLB, sintaks, dan pemeriksaan API runtime/Editor melalui compiler mandiri lulus; compile melalui Editor, shader, Play Mode, APK/EXE, dan visual di perangkat masih menunggu aktivasi lisensi dan pengujian. Lihat [QA 30.0](QA_30_ID.md).
+**Status: kompilasi Editor, Play Mode, build Windows, dan APK Android ARM64/IL2CPP sudah lulus pada Unity 6000.0.84f1.** Pengujian runtime di AMD Radeon 780M memuat enam GLB, menjalankan enam state dadu, memastikan ZERO tidak bergerak, mengembalikan ROLL, dan memeriksa 0+5 tepat lima langkah tanpa replay snapshot duplikat. Paket ini untuk pengujian; gameplay multiplayer end-to-end dan perangkat Android fisik belum diverifikasi. Lihat [QA 30.0](QA_30_ID.md).
 
 ## Pembaruan 30.0 dan perbaikan 29.1
 
@@ -45,7 +45,7 @@ Last Player Standing, properti House/Tower/Hotel/Landmark, auction, takeover, li
 1. Install Unity Hub dan Unity **6000.0.84f1**, lalu aktifkan lisensi yang sesuai. Windows Mono tersedia bersama Editor; Android memerlukan Android Build Support, SDK/NDK, dan OpenJDK.
 2. `Add project from disk` lalu pilih folder ini.
 3. Tunggu Package Manager selesai memasang `uGUI`, `Newtonsoft JSON`, dan `glTFast`.
-4. Script `CrwtProjectSetup` otomatis membuat empat scene: `CRWT_Bootstrap`, `CRWT_Login`, `CRWT_Lobby`, `CRWT_Match`.
+4. Empat scene sudah disertakan: `CRWT_Bootstrap`, `CRWT_Login`, `CRWT_Lobby`, `CRWT_Match`. Script `CrwtProjectSetup` memvalidasi dan memulihkan scene yang hilang.
 5. Buka `Assets/CRWT/Scenes/CRWT_Bootstrap.unity` lalu tekan Play.
 
 Jika scene belum dibuat otomatis, pilih menu **Crazy Rich > 30.0 > Setup Project**. Jalankan **Crazy Rich > 30.0 > Verify Project** sebelum build. Instruksi CLI ada di [panduan Unity](OPEN_IN_UNITY_ID.md).
@@ -64,7 +64,7 @@ Jika scene belum dibuat otomatis, pilih menu **Crazy Rich > 30.0 > Setup Project
 Unity client **tidak menghitung RNG, cash, rent, ownership, bankruptcy, atau winner** saat online. Semua keputusan gameplay tetap berasal dari RPC server. Demo offline hanya untuk melihat renderer/UI.
 
 ## Asset
-Model GLB karakter v23 disimpan di `Assets/StreamingAssets/Characters` dan sekarang dimuat oleh `CrwtCharacterView`. File GLB dan animasinya lulus pemeriksaan struktur; tampilan runtime belum dirender di Unity. PNG UI berada di `Assets/Resources/CRWT/Art`. Profil landmark JSON warisan masih berupa referensi, bukan 55 model landmark final.
+Model GLB karakter v23 disimpan di `Assets/StreamingAssets/Characters` dan dimuat oleh `CrwtCharacterView`. Enam GLB beserta animasinya lulus pemeriksaan struktur dan Play Mode pada Unity; tangkapan render papan ada dalam hasil QA. Model tetap prototipe sederhana. PNG UI berada di `Assets/Resources/CRWT/Art`. Profil landmark JSON warisan masih berupa referensi, bukan 55 model landmark final.
 
 ## Legacy Web
 Folder `LegacyWeb27` mempertahankan client 27.0 sebagai referensi/fallback QA selama migrasi Unity berlangsung.

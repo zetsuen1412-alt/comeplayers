@@ -66,10 +66,10 @@ namespace ComePlayers.CrazyRich
             var color = TileColor(info);
             art.Shape(tile.transform, "Enamel Tile", PrimitiveType.Cube, Vector3.zero, new Vector3(1.55f, .22f, 1.55f), art.Cream);
             art.Shape(tile.transform, "Tile Band", PrimitiveType.Cube, new Vector3(0, .12f, .58f), new Vector3(1.4f, .035f, .22f), color);
-            art.Label(tile.transform, "City Name", WrapName(info.Name), new Vector3(0, .135f, -.49f), .075f, art.Ink);
-            art.Label(tile.transform, "Tile Number", index.ToString("00"), new Vector3(-.56f, .14f, .30f), .06f, art.Ink);
+            art.Label(tile.transform, "City Name", WrapName(info.Name), new Vector3(0, .135f, -.51f), .075f, art.Ink, 1.32f, .32f);
+            art.Label(tile.transform, "Tile Number", index.ToString("00"), new Vector3(-.56f, .14f, .30f), .06f, art.Ink, .24f, .16f);
             var symbol = TileSymbol(info.Kind);
-            if (!string.IsNullOrEmpty(symbol)) art.Label(tile.transform, "Special Icon", symbol, new Vector3(0, .145f, .16f), .23f, color);
+            if (!string.IsNullOrEmpty(symbol)) art.Label(tile.transform, "Special Icon", symbol, new Vector3(0, .145f, .16f), .23f, color, .55f, .42f);
             var festival = art.Ring(tile.transform, "Festival Highlight", new Vector3(0, .155f, 0), 1.06f, art.Gold, true);
             festival.SetActive(false); festivalRings[index] = festival;
         }
@@ -106,7 +106,7 @@ namespace ComePlayers.CrazyRich
                 var root = new GameObject("Pawn_Seat_" + player.seat); root.transform.SetParent(transform, false);
                 var character = root.AddComponent<CrwtCharacterView>(); character.Initialize(player.character_id);
                 var ring = art.Ring(root.transform, "Active Player Ring", new Vector3(0, .006f, 0), .37f, SeatColor(player.seat));
-                art.Label(root.transform, "Seat Number", player.seat.ToString(), new Vector3(.3f, .01f, -.27f), .065f, art.Cream);
+                art.Label(root.transform, "Seat Number", player.seat.ToString(), new Vector3(.3f, .01f, -.27f), .065f, art.Cream, .16f, .16f);
                 pawn = new Pawn { root = root, tile = destination, character = character, turnRing = ring };
                 pawns.Add(player.seat, pawn); root.transform.localPosition = TileWithSeatOffset(destination, player.seat);
             }
@@ -262,8 +262,8 @@ namespace ComePlayers.CrazyRich
                     AddMiniTower(root.transform, new Vector3(1.1f, .1f, 0), 1.2f, art.Gold);
                 }
             }
-            art.Label(root.transform, "Board Title", "CRAZY RICH", new Vector3(0, .03f, -3.35f), .36f, art.Cream);
-            art.Label(root.transform, "Map Title", MapTitle(map), new Vector3(0, .03f, -3.95f), .17f, accent);
+            art.Label(root.transform, "Board Title", "CRAZY RICH", new Vector3(0, .03f, -3.35f), .36f, art.Cream, 8.8f, .65f);
+            art.Label(root.transform, "Map Title", MapTitle(map), new Vector3(0, .03f, -3.95f), .17f, accent, 8.8f, .32f);
         }
         private void AddMiniTower(Transform parent, Vector3 origin, float height, Color color)
         {

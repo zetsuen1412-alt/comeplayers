@@ -126,9 +126,9 @@ namespace ComePlayers.CrazyRich
 
         private Material MakeMaterial(Color color)
         {
-            var shader = Shader.Find("Standard") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Unlit/Color");
-            var material = new Material(shader) { color = color };
-            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", .28f);
+            var material = CrwtBoardArt.CreateStandardMaterial("CRWT Chibi Fallback");
+            material.color = color;
+            material.SetFloat("_Glossiness", .28f);
             materials.Add(material);
             return material;
         }

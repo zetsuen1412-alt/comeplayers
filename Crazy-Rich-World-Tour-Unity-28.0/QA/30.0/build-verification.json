@@ -1,0 +1,178 @@
+{
+  "version": "30.0",
+  "verifiedAt": "2026-09-29T18:54:04.0597932+00:00",
+  "unityVersion": "6000.0.84f1",
+  "sourceBaselineCommit": "b8db58eb0d5004504f964e194260170e57b9727b",
+  "sourceIncludesChangesInThisCommit": true,
+  "tasks": [
+    {
+      "task": "Verify",
+      "runId": "e70536b923e3411cb58843b83e2836bc",
+      "success": true,
+      "unityVersion": "6000.0.84f1"
+    },
+    {
+      "task": "PlayMode",
+      "runId": "16d548e4787a49f39a42894c6e6da19a",
+      "success": true,
+      "unityVersion": "6000.0.84f1"
+    },
+    {
+      "task": "Windows",
+      "runId": "6a51d2c912d2439e9f189ed469cff2e2",
+      "success": true,
+      "unityVersion": "6000.0.84f1"
+    },
+    {
+      "task": "Android",
+      "runId": "edce6d88bb0a4dcd8d23b4558bb52af7",
+      "success": true,
+      "unityVersion": "6000.0.84f1"
+    }
+  ],
+  "playModeReport": "unity-playmode-smoke.json",
+  "boardRender": "unity-playmode-board.png",
+  "windows": {
+    "success": true,
+    "file": "Crazy-Rich-World-Tour-30.0-Windows.zip",
+    "bytes": 41722961,
+    "sha256": "564668604327ACE2D512383D0BA2553C6E74C8823D77A564D56824B63ACE3410",
+    "architecture": "x86_64 (0x8664)",
+    "entries": 227,
+    "everyPackagedFileRehashed": true,
+    "characterGlbHashesMatchSource": 6,
+    "standardMaterialPackaged": true,
+    "startup": {
+      "success": true,
+      "observedSeconds": 687,
+      "markers": {
+        "engineVersion": true,
+        "assembliesLoaded": true,
+        "inputInitialized": true,
+        "direct3D11": true,
+        "rendererPresent": true
+      },
+      "errors": [],
+      "automatedAccountOrGameplayActions": false,
+      "scope": "Existing final Windows player is alive for at least 30 seconds with engine, assembly, graphics and input initialization and no logged startup errors. No visual or multiplayer assertions."
+    }
+  },
+  "android": {
+    "success": true,
+    "file": "Crazy-Rich-World-Tour-30.0-Android.apk",
+    "bytes": 41592760,
+    "sha256": "322F0C2C669780C9C5C9A5C22B60B87AA762AE97D5DD631A27E111E0D3196CBD",
+    "entries": 499,
+    "identity": {
+      "applicationId": "com.ComePlayers.CrazyRichWorldTour",
+      "versionName": "30.0",
+      "versionCode": "1",
+      "minSdk": "23",
+      "targetSdk": "36",
+      "compileSdk": "36",
+      "nativeCode": "'arm64-v8a'",
+      "launcher": "com.unity3d.player.UnityPlayerGameActivity",
+      "internetPermission": true
+    },
+    "signing": {
+      "verified": true,
+      "v1": true,
+      "v2": true,
+      "debugCertificate": true,
+      "certificateSha256": "4489f18752cf444bdc81265852325facf134d645d0dbb6de26bcd7dcddd617a1",
+      "intendedDistribution": "Testing/sideload; debug-signed APK",
+      "jarMetadataWarningCount": 35
+    },
+    "zipAlignment16KiB": true,
+    "nativeLibraries": [
+      {
+        "path": "lib/arm64-v8a/lib_burst_generated.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      },
+      {
+        "path": "lib/arm64-v8a/libc++_shared.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      },
+      {
+        "path": "lib/arm64-v8a/libgame.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      },
+      {
+        "path": "lib/arm64-v8a/libil2cpp.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      },
+      {
+        "path": "lib/arm64-v8a/libmain.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      },
+      {
+        "path": "lib/arm64-v8a/libswappywrapper.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      },
+      {
+        "path": "lib/arm64-v8a/libunity.so",
+        "elfMachine": "AArch64",
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "satisfies16KiB": true
+      }
+    ],
+    "il2cppMetadataPresent": true,
+    "characterGlbHashesMatchSource": 6,
+    "standardMaterialPackaged": true,
+    "installedOnDevice": false,
+    "deviceRuntimeTested": false
+  },
+  "artifactDirectory": "Builds/Distributions (local, excluded from Git)",
+  "limitations": [
+    "Snapshot smoke test uses deterministic local fixtures without an RPC client.",
+    "Windows startup verified via process/log; interactive multiplayer UI flow not verified.",
+    "Android signature/package/native alignment verified statically; physical device rendering, touch, resume and performance remain untested.",
+    "APK uses Android Debug certificate and is intended for testing, not store release.",
+    "No production backend changes in this update."
+  ]
+}

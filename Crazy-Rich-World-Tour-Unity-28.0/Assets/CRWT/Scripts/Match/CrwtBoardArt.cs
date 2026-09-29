@@ -9,17 +9,20 @@ namespace ComePlayers.CrazyRich
     internal sealed class CrwtBoardArt : System.IDisposable
     {
         private readonly Dictionary<Color32, Material> materials = new Dictionary<Color32, Material>();
-        private readonly Shader shader;
+        private static Material standardTemplate;
         private Mesh ring, squareRing, roof;
         internal readonly Color Cream = new Color(.96f, .93f, .83f);
         internal readonly Color Gold = new Color(1f, .75f, .26f);
         internal readonly Color Ink = new Color(.08f, .13f, .23f);
 
-        public CrwtBoardArt()
+        internal static Material CreateStandardMaterial(string name)
         {
-            shader = GraphicsSettings.currentRenderPipeline != null
-                ? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard")
-                : Shader.Find("Standard");
+            // The serialized dependency retains the opaque Standard variants
+            // used here without including every possible Standard feature.
+            if (!standardTemplate) standardTemplate = Resources.Load<Material>("Materials/CRWT_Standard");
+            if (!standardTemplate || !standardTemplate.shader || standardTemplate.shader.name != "Standard")
+                throw new System.InvalidOperationException("Missing CRWT Standard material. Run Crazy Rich/30.0/Setup Project, then rebuild the player.");
+            return new Material(standardTemplate) { name = name };
         }
 
         internal Material Material(Color color)
@@ -27,10 +30,9 @@ namespace ComePlayers.CrazyRich
             Color32 key = color;
             if (!materials.TryGetValue(key, out var value))
             {
-                value = new Material(shader) { name = "CRWT Shared " + key, enableInstancing = true };
+                value = CreateStandardMaterial("CRWT Shared " + key);
                 value.color = color;
-                if (value.HasProperty("_BaseColor")) value.SetColor("_BaseColor", color);
-                if (value.HasProperty("_Smoothness")) value.SetFloat("_Smoothness", .3f);
+                value.SetFloat("_Glossiness", .5f);
                 materials.Add(key, value);
             }
             return value;
@@ -91,7 +93,8 @@ namespace ComePlayers.CrazyRich
             return item;
         }
 
-        internal TextMesh Label(Transform parent, string name, string text, Vector3 position, float size, Color color)
+        internal TextMesh Label(Transform parent, string name, string text, Vector3 position, float size, Color color,
+            float maxWidth = 0f, float maxHeight = 0f)
         {
             var item = new GameObject(name, typeof(TextMesh));
             item.transform.SetParent(parent, false); item.transform.localPosition = position;
@@ -102,6 +105,13 @@ namespace ComePlayers.CrazyRich
             label.color = color; label.richText = false;
             var renderer = item.GetComponent<Renderer>();
             renderer.shadowCastingMode = ShadowCastingMode.Off; renderer.receiveShadows = false;
+            // Fit in the text's own XY plane, before the board-edge rotation.
+            // Keep the raster font size high and preserve each glyph's proportions.
+            var measured = renderer.localBounds.size;
+            var fit = 1f;
+            if (maxWidth > 0f && measured.x > 0f) fit = Mathf.Min(fit, maxWidth / measured.x);
+            if (maxHeight > 0f && measured.y > 0f) fit = Mathf.Min(fit, maxHeight / measured.y);
+            item.transform.localScale = Vector3.one * fit;
             return label;
         }
 

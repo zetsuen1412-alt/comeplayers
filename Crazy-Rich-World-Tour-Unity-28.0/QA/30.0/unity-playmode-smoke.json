@@ -1,0 +1,26 @@
+{
+    "success": true,
+    "unityVersion": "6000.0.84f1",
+    "error": "",
+    "renderedBoard": "Logs/unity-playmode-board.png",
+    "device": "AMD Radeon 780M Graphics",
+    "checks": [
+        "Actual match UI initialized without Auth/RPC; both dice, fonts, safe area and art loaded.",
+        "Six real GLBs imported with Idle/Walk/Jump/Skill/Win/Lose; board shaders and 32 unique tiles valid.",
+        "Before response: unknown faces. ZERO ROLL: stationary on START, no walking steps, one reveal, ROLL button restored.",
+        "Confirmed 0+5 played Walk and exactly five steps; repeated snapshot did not replay.",
+        "Skill, temporary action sheet and cancelled dice lifecycle passed; board rendered to PNG.",
+        "Board rebuild and destruction during character import completed without runtime errors."
+    ],
+    "runtimeErrors": [],
+    "warnings": [],
+    "diceStates": [
+        "Bounce",
+        "Idle",
+        "Reveal",
+        "Spin",
+        "Throw",
+        "ZeroReveal"
+    ],
+    "gameplayRpcClientCreated": false
+}

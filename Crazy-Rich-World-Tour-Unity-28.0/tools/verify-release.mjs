@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const ignored = new Set(['node_modules','.git','.temp','Library','Temp','Obj','Logs','UserSettings','Build','Builds']);
+const ignored = new Set(['node_modules','.git','.temp','.utmp','Library','Temp','Obj','Logs','UserSettings','Build','Builds']);
 function walk(path) {
   return readdirSync(path,{withFileTypes:true}).flatMap(e=>ignored.has(e.name)?[]:e.isDirectory()?walk(join(path,e.name)):[join(path,e.name)]);
 }
