@@ -8,15 +8,16 @@ import Renderer, { act } from 'react-test-renderer';
 import ts from 'typescript';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-function load(file, dependencies, globals = {}) {
+function loadExports(file, dependencies = {}, globals = {}) {
   const mod = { exports: {} };
   const source = readFileSync(new URL('../../website/' + file, import.meta.url), 'utf8');
   const { outputText } = ts.transpileModule(source, { fileName: file, compilerOptions: {
     target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } });
   runInNewContext(outputText, { module: mod, exports: mod.exports, console, Error, URL, URLSearchParams,
-    requestAnimationFrame: () => 1, setTimeout: () => 1,
+    requestAnimationFrame: () => 1, setTimeout: () => 1, clearTimeout() {},
     window: { setInterval: () => 1, clearInterval() {} }, document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },
+    navigator: { onLine: true },
     require(name) {
       if (name === 'react') return React;
       if (name === 'react/jsx-runtime') return JsxRuntime;
@@ -25,7 +26,12 @@ function load(file, dependencies, globals = {}) {
       return dependencies[name];
     }, ...globals,
   }, { filename: file, timeout: 2000 });
-  return mod.exports.default;
+  return mod.exports;
+}
+const load = (file, dependencies, globals) => loadExports(file, dependencies, globals).default;
+function fakeRealtime() {
+  const channel = { on() { return this; }, subscribe() { return this; }, send: async () => {} };
+  return { channel: () => channel, removeChannel: async () => {} };
 }
 const flush = async () => { for (let i = 0; i < 25; i++) await Promise.resolve(); };
 async function render(t, Component, props) {
@@ -38,8 +44,9 @@ const room = { id: 'friend', buyer_id: 'me', seller_id: 'peer', other: { id: 'pe
 const makeMessenger = extra => ({ messages: async () => [], sync: async () => {}, saveRoom: async () => {}, markRead: async () => {}, securityCode: async () => '1111-2222', ...extra });
 function conversation(api) {
   return load('components/messages/SecureConversationView.tsx', {
-    '@/lib/authenticatedFetch': { authenticatedFetchJson: api }, './SecureDirectCall': 'Calls',
+    '@/lib/authenticatedFetch': { authenticatedFetchJson: api }, './AccountDirectCall': 'Calls',
     './BrowserPasswordBackupSettings': 'OptionalBackupSettings',
+    '@/lib/supabase': { supabase: fakeRealtime() },
   });
 }
 const button = (view, label) => view.root.findAllByType('button').find(node => node.props['aria-label'] === label || node.children.includes(label));
@@ -97,7 +104,10 @@ test('sidebar keeps order and product context while withholding server message p
     'next/link': 'a', 'next/dynamic': () => 'Conversation',
     '@/components/messages/SecureIncomingCallAlert': 'IncomingCalls', '@/components/auth/AuthModal': 'Auth',
     '@/lib/authenticatedFetch': { authenticatedFetchJson: async () => ({ rooms: allRooms }) },
-    '@/lib/supabase': { supabase: { auth: { getUser: async () => ({ data: { user: { id: 'me' } } }), onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }) } } },
+    '@/lib/chatInboxPresentation': loadExports('lib/chatInboxPresentation.ts'),
+    '@/lib/chatRoomScope': loadExports('lib/chatRoomScope.ts'),
+    '@/lib/live/refresh-queue': loadExports('lib/live/refresh-queue.ts'),
+    '@/lib/supabase': { supabase: { ...fakeRealtime(), auth: { getUser: async () => ({ data: { user: { id: 'me' } } }), onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }) } } },
     './chat.module.css': new Proxy({}, { get: (_target, key) => String(key) }),
   }, { window: { location: { search: '?room=order', href: 'https://example.invalid/chat?room=order' }, matchMedia: () => ({ matches: false }), history: { replaceState() {} }, setInterval: () => 1, clearInterval() {} } });
   const view = await render(t, Chat, {});
@@ -105,7 +115,7 @@ test('sidebar keeps order and product context while withholding server message p
   assert.doesNotMatch(JSON.stringify(sidebar.toJSON?.() || sidebar.findAllByType('span').flatMap(n => n.children.filter(c => typeof c === 'string'))), /PRIVATE_SERVER_SENTINEL/);
   assert.equal(view.root.findByType('Conversation').props.room.id, 'order');
   const rows = sidebar.findAllByType('button').filter(node => typeof node.props['aria-pressed'] === 'boolean');
-  assert.equal(rows.length, 2);
+  assert.equal(rows.length, 1);
   await act(async () => view.root.findByType('input').props.onChange({ target: { value: '#1402' } }));
   assert.equal(sidebar.findAllByType('button').filter(node => typeof node.props['aria-pressed'] === 'boolean').length, 1);
   assert.match(JSON.stringify(view.toJSON()), /Pesanan #1402 · Headset/);
