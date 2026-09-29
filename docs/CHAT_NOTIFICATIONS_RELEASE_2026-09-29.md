@@ -1,6 +1,6 @@
 # Keyboard chat dan notifikasi — 29 September 2026
 
-Cabang sumber: `codex/chat-keyboard-notifications`. Kandidat Android **0.16.3** (runtime **0.16.3**) dan Windows **1.0.1.0**. Laporan ini mencatat pemeriksaan yang selesai; ID deployment, build EAS, dan hasil pengajuan Google Play masih menunggu pencatatan oleh pengelola rilis.
+Cabang sumber: `codex/chat-keyboard-notifications`. Kandidat Android **0.16.3** (runtime **0.16.3**) dan Windows **1.0.1.0**. Source perbaikan tersimpan pada commit `5cd550491557c97e0e57ca301c74c1538b2cb327` dan PR #31. Laporan ini membedakan hasil build, penerapan website, dan ketersediaan di Store.
 
 ## Perubahan yang diperiksa
 
@@ -45,8 +45,10 @@ MSIX ini belum ditandatangani, khusus pengajuan Partner Center; bukan installer 
 
 | Tujuan | Status pada laporan ini |
 | --- | --- |
-| Vercel website | Build/deployment berjalan; ID, alias, dan verifikasi produksi menunggu pencatatan pengelola rilis. |
-| Android 0.16.3 | Build EAS berjalan; ID build, versionCode hasil server, AAB, dan hasil Google Play menunggu pencatatan pengelola rilis. |
-| Microsoft Store 1.0.1.0 | MSIX lokal terverifikasi; belum diajukan. Pengajuan 1.0.0 tetap dipertahankan. |
+| Vercel website | Aktif: `dpl_FKFBJVjwkU4GqmKfhA2eVjVjPsej` (`evo-gaming-p4jor8we2-ilham-evogaming-s-projects.vercel.app`). Dipromosikan 29 September 2026; lookup `www.comeplayers.com` mengembalikan ID tersebut. `/notifications` HTTP 200, API tanpa login 401/no-store, login akun dan daftar notifikasi berhasil, console browser tanpa error/warning. |
+| Android 0.16.3 | EAS `4fe14e90-9e7a-4805-9bf4-d24683c3dfc4`, versionCode **31**, masih dalam antrean. Arsip 133 file/4,25 MB terverifikasi berisi Firebase klien dan kedua WAV tanpa private key. EAS dibuat dari working tree sebelum commit; metadata commit EAS menunjukkan base `c2819d71`, sementara arsip memuat source perubahan yang kemudian dicommit sebagai `5cd5504`. Draf internal release5 berisi catatan 0.16.3; Play aktif masih 0.16.2/build 29 sampai AAB baru selesai diunggah dan diterbitkan. |
+| Microsoft Store 1.0.1.0 | MSIX lokal terverifikasi; belum diajukan. Sesi Partner Center meminta login kembali. Pengguna memilih fokus Android/website dahulu; pengajuan 1.0.0 tidak disentuh. |
 
 Jangan menyamakan perubahan source, build selesai, atau upload dengan rilis yang sudah tersedia di Store.
+
+Kendala antrean: halaman resmi https://expo.dev/eas-build-status pada pemeriksaan sekitar 30 September 2026 pukul 00.00 WIB menampilkan antrean Android Free tier sekitar 76,4 menit (2.208 build antre). Ini statistik layanan, bukan ETA build tertentu. Build 31 tetap IN_QUEUE tanpa error saat pemeriksaan terakhir. Tidak ada upgrade paket berbayar yang dilakukan.
