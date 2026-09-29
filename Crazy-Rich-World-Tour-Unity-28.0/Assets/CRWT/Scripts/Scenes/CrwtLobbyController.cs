@@ -28,7 +28,7 @@ namespace ComePlayers.CrazyRich
             var bg = CrwtUi.Panel(CrwtUi.SafeRoot(canvas.transform), "Background", CrwtUi.Bg, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             CrwtHudArt.Backdrop(bg);
             var header = CrwtUi.Panel(bg, "Header", new Color(.04f, .055f, .10f, 1), new Vector2(0, .88f), Vector2.one, Vector2.zero, Vector2.zero);
-            var headerText = CrwtUi.Text(header, "CRAZY RICH: WORLD TOUR  •  30.0 CHIBI WORLD", 30, TextAnchor.MiddleLeft, CrwtUi.Gold);
+            var headerText = CrwtUi.Text(header, "CRAZY RICH: WORLD TOUR  •  30.0 ANIME WORLD", 30, TextAnchor.MiddleLeft, CrwtUi.Gold);
             CrwtUi.Fill(headerText.rectTransform, 0); headerText.rectTransform.offsetMin = new Vector2(38, 0); headerText.rectTransform.offsetMax = new Vector2(-38, 0);
 
             var menu = CrwtUi.Panel(bg, "Menu", CrwtUi.Card, new Vector2(.04f, .10f), new Vector2(.38f, .84f), Vector2.zero, Vector2.zero);
@@ -236,7 +236,7 @@ namespace ComePlayers.CrazyRich
         {
             var go = new GameObject("MapDropdown", typeof(RectTransform), typeof(Image), typeof(Dropdown), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = new Color(.12f, .14f, .20f, 1);
+            CrwtUi.StyleImage(go.GetComponent<Image>(), new Color(.14f, .17f, .31f, 1));
             go.GetComponent<LayoutElement>().preferredHeight = 64;
             var dd = go.GetComponent<Dropdown>();
             var label = CrwtUi.Text(go.transform, options[0], 23, TextAnchor.MiddleLeft, Color.white);
@@ -252,7 +252,7 @@ namespace ComePlayers.CrazyRich
             content.pivot = new Vector2(.5f,1);
             var scroll = template.gameObject.AddComponent<ScrollRect>(); scroll.viewport = viewport; scroll.content = content; scroll.horizontal = false; scroll.movementType = ScrollRect.MovementType.Clamped;
             var item = new GameObject("Item", typeof(RectTransform), typeof(Image), typeof(Toggle)); item.transform.SetParent(content, false);
-            item.GetComponent<Image>().color = new Color(.12f,.16f,.24f,1);
+            CrwtUi.StyleImage(item.GetComponent<Image>(), new Color(.16f,.20f,.34f,1));
             item.GetComponent<Toggle>().targetGraphic = item.GetComponent<Image>();
             var itemText = CrwtUi.Text(item.transform, "Option", 22, TextAnchor.MiddleLeft, Color.white); CrwtUi.Fill(itemText.rectTransform, 12);
             var itemRt = item.GetComponent<RectTransform>(); itemRt.anchorMin = new Vector2(0,1); itemRt.anchorMax = Vector2.one; itemRt.pivot = new Vector2(.5f,1); itemRt.sizeDelta = new Vector2(0, 52);

@@ -48,8 +48,10 @@ namespace ComePlayers.CrazyRich
             CrwtUi.Clear(transform);
             pawns.Clear(); properties.Clear(); preparedRoll = null; propertiesInitialized = false;
             art?.Dispose(); art = new CrwtBoardArt(); currentMap = mapId ?? "world_tour";
-            art.Shape(transform, "BoardTable", PrimitiveType.Cube, new Vector3(0, -.35f, 0), new Vector3(15.6f, .5f, 15.6f), MapBase(currentMap));
-            art.Shape(transform, "BoardInlay", PrimitiveType.Cube, new Vector3(0, -.055f, 0), new Vector3(11.7f, .05f, 11.7f), Color.Lerp(MapBase(currentMap), MapAccent(currentMap), .16f));
+            var mapBase = MapBase(currentMap); var mapAccent = MapAccent(currentMap);
+            art.Shape(transform, "BoardTable", PrimitiveType.Cube, new Vector3(0, -.42f, 0), new Vector3(15.9f, .62f, 15.9f), Color.Lerp(mapBase, art.Ink, .12f));
+            art.Shape(transform, "BoardCandyRim", PrimitiveType.Cube, new Vector3(0, -.095f, 0), new Vector3(15.25f, .09f, 15.25f), Color.Lerp(mapAccent, art.Cream, .18f));
+            art.Shape(transform, "BoardInlay", PrimitiveType.Cube, new Vector3(0, -.025f, 0), new Vector3(11.7f, .055f, 11.7f), Color.Lerp(art.Cream, mapAccent, .16f));
             for (int i = 0; i < CrwtBoardLayout.TileCount; i++)
             {
                 var point = CrwtBoardLayout.Position(i); tiles[i] = new Vector3(point.X, 0, point.Z); BuildTile(i);
@@ -64,12 +66,16 @@ namespace ComePlayers.CrazyRich
             var tile = new GameObject("Tile_" + index + "_" + info.Name);
             tile.transform.SetParent(transform, false); tile.transform.localPosition = tiles[index]; tile.transform.localRotation = TileRotation(index);
             var color = TileColor(info);
-            art.Shape(tile.transform, "Enamel Tile", PrimitiveType.Cube, Vector3.zero, new Vector3(1.55f, .22f, 1.55f), art.Cream);
-            art.Shape(tile.transform, "Tile Band", PrimitiveType.Cube, new Vector3(0, .12f, .58f), new Vector3(1.4f, .035f, .22f), color);
-            art.Label(tile.transform, "City Name", WrapName(info.Name), new Vector3(0, .135f, -.51f), .075f, art.Ink, 1.32f, .32f);
-            art.Label(tile.transform, "Tile Number", index.ToString("00"), new Vector3(-.56f, .14f, .30f), .06f, art.Ink, .24f, .16f);
+            art.Shape(tile.transform, "Toy Tile Border", PrimitiveType.Cube, new Vector3(0, -.015f, 0), new Vector3(1.62f, .20f, 1.62f), Color.Lerp(color, art.Ink, .24f));
+            art.Shape(tile.transform, "Toy Tile Face", PrimitiveType.Cube, new Vector3(0, .075f, 0), new Vector3(1.50f, .16f, 1.50f), Color.Lerp(art.Cream, color, .055f));
+            art.Ring(tile.transform, "District Candy Rim", new Vector3(0, .165f, 0), .96f, color, true);
+            art.Shape(tile.transform, "Tile Band", PrimitiveType.Cube, new Vector3(0, .19f, .58f), new Vector3(1.33f, .055f, .20f), color);
+            foreach (var corner in new[] { new Vector3(-.57f,.19f,-.57f), new Vector3(.57f,.19f,-.57f), new Vector3(-.57f,.19f,.57f), new Vector3(.57f,.19f,.57f) })
+                art.Shape(tile.transform, "Candy Corner", PrimitiveType.Sphere, corner, Vector3.one * .075f, Color.Lerp(color, art.Cream, .16f));
+            art.Label(tile.transform, "City Name", WrapName(info.Name), new Vector3(0, .205f, -.48f), .075f, art.Ink, 1.27f, .32f);
+            art.Label(tile.transform, "Tile Number", index.ToString("00"), new Vector3(-.54f, .21f, .29f), .06f, art.Ink, .24f, .16f);
             var symbol = TileSymbol(info.Kind);
-            if (!string.IsNullOrEmpty(symbol)) art.Label(tile.transform, "Special Icon", symbol, new Vector3(0, .145f, .16f), .23f, color, .55f, .42f);
+            if (!string.IsNullOrEmpty(symbol)) art.Label(tile.transform, "Special Icon", symbol, new Vector3(0, .215f, .14f), .23f, color, .55f, .42f);
             var festival = art.Ring(tile.transform, "Festival Highlight", new Vector3(0, .155f, 0), 1.06f, art.Gold, true);
             festival.SetActive(false); festivalRings[index] = festival;
         }
@@ -227,7 +233,7 @@ namespace ComePlayers.CrazyRich
         private void AddCenterLandmark(string map)
         {
             var root = new GameObject("World Tour Miniature Plaza"); root.transform.SetParent(transform, false); var accent = MapAccent(map);
-            art.Shape(root.transform, "Plaza", PrimitiveType.Cylinder, Vector3.zero, new Vector3(5.4f, .10f, 5.4f), art.Ink);
+            art.Shape(root.transform, "Plaza", PrimitiveType.Cylinder, Vector3.zero, new Vector3(5.4f, .10f, 5.4f), Color.Lerp(art.Cream, accent, .15f));
             art.Ring(root.transform, "Golden Route", new Vector3(0, .11f, 0), 2.3f, art.Gold);
             if (map == "world_tour")
             {
@@ -262,7 +268,7 @@ namespace ComePlayers.CrazyRich
                     AddMiniTower(root.transform, new Vector3(1.1f, .1f, 0), 1.2f, art.Gold);
                 }
             }
-            art.Label(root.transform, "Board Title", "CRAZY RICH", new Vector3(0, .03f, -3.35f), .36f, art.Cream, 8.8f, .65f);
+            art.Label(root.transform, "Board Title", "CRAZY RICH", new Vector3(0, .03f, -3.35f), .36f, art.Ink, 8.8f, .65f);
             art.Label(root.transform, "Map Title", MapTitle(map), new Vector3(0, .03f, -3.95f), .17f, accent, 8.8f, .32f);
         }
         private void AddMiniTower(Transform parent, Vector3 origin, float height, Color color)
@@ -285,7 +291,7 @@ namespace ComePlayers.CrazyRich
         };
         private Color TileColor(CrwtTileInfo info)
         {
-            if (info.Group >= 0) return Color.HSVToRGB((info.Group * .083f + .02f) % 1f, .53f, .85f);
+            if (info.Group >= 0) return Color.HSVToRGB((info.Group * .083f + .02f) % 1f, .68f, .96f);
             return info.Kind switch
             {
                 "start" => new Color(.13f,.66f,.48f), "chance" => new Color(.65f,.35f,.9f),
@@ -300,8 +306,8 @@ namespace ComePlayers.CrazyRich
         };
         private static Color MapBase(string id) => id switch
         {
-            "tokyo_rush" => new Color(.18f,.08f,.16f), "tropical_paradise" => new Color(.04f,.20f,.19f),
-            "candy_world" => new Color(.24f,.10f,.22f), "fantasy_kingdom" => new Color(.08f,.08f,.20f), _ => new Color(.035f,.11f,.19f)
+            "tokyo_rush" => new Color(.44f,.14f,.36f), "tropical_paradise" => new Color(.08f,.43f,.36f),
+            "candy_world" => new Color(.53f,.18f,.43f), "fantasy_kingdom" => new Color(.25f,.18f,.49f), _ => new Color(.10f,.38f,.58f)
         };
         private static Color MapAccent(string id) => id switch
         {

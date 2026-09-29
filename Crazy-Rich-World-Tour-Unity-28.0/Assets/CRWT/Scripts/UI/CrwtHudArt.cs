@@ -28,7 +28,7 @@ namespace ComePlayers.CrazyRich
             var go = new GameObject("World Tour illustration", typeof(RectTransform), typeof(RawImage));
             go.transform.SetParent(parent, false);
             var image = go.GetComponent<RawImage>(); image.texture = texture; image.raycastTarget = false;
-            image.color = new Color(.75f,.79f,.90f,1);
+            image.color = new Color(.96f,.98f,1f,1);
             CrwtUi.Fill((RectTransform)go.transform);
         }
     }

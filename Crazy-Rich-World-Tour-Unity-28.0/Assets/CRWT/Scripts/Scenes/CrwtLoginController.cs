@@ -18,7 +18,7 @@ namespace ComePlayers.CrazyRich
             var bg = CrwtUi.Panel(CrwtUi.SafeRoot(canvas.transform), "Background", CrwtUi.Bg, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             CrwtHudArt.Backdrop(bg);
             var left = CrwtUi.Panel(bg, "Hero", new Color(0.03f, .05f, .10f, .30f), new Vector2(0, 0), new Vector2(.58f, 1), Vector2.zero, Vector2.zero);
-            var lt = CrwtUi.Text(left, "CRAZY RICH\nWORLD TOUR\n\n30.0 • CHIBI WORLD", 58, TextAnchor.UpperLeft, Color.white);
+            var lt = CrwtUi.Text(left, "CRAZY RICH\nWORLD TOUR\n\n30.0 • ANIME WORLD", 58, TextAnchor.UpperLeft, Color.white);
             CrwtUi.Fill(lt.rectTransform, 70);
 
             var card = CrwtUi.Panel(bg, "LoginCard", CrwtUi.Card, new Vector2(.62f, .14f), new Vector2(.94f, .86f), Vector2.zero, Vector2.zero);

@@ -11,9 +11,13 @@ namespace ComePlayers.CrazyRich
         private readonly Dictionary<Color32, Material> materials = new Dictionary<Color32, Material>();
         private static Material standardTemplate;
         private Mesh ring, squareRing, roof;
-        internal readonly Color Cream = new Color(.96f, .93f, .83f);
-        internal readonly Color Gold = new Color(1f, .75f, .26f);
-        internal readonly Color Ink = new Color(.08f, .13f, .23f);
+        internal readonly Color Cream = new Color(.99f, .96f, .87f);
+        internal readonly Color Gold = new Color(1f, .78f, .27f);
+        internal readonly Color Ink = new Color(.07f, .09f, .18f);
+        internal readonly Color Sky = new Color(.34f, .76f, .97f);
+        internal readonly Color Mint = new Color(.32f, .88f, .63f);
+        internal readonly Color Rose = new Color(1f, .46f, .64f);
+        internal readonly Color Lavender = new Color(.65f, .53f, 1f);
 
         internal static Material CreateStandardMaterial(string name)
         {
@@ -32,7 +36,7 @@ namespace ComePlayers.CrazyRich
             {
                 value = CreateStandardMaterial("CRWT Shared " + key);
                 value.color = color;
-                value.SetFloat("_Glossiness", .5f);
+                value.SetFloat("_Glossiness", .18f);
                 materials.Add(key, value);
             }
             return value;
