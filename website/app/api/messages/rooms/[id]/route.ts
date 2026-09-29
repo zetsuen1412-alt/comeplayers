@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
+import { callActivityPreview } from "@/lib/callRoomActivity";
 import {
   chatErrorStatus,
   isGroupRoom,
@@ -239,6 +240,7 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({
       room: {
         ...room,
+        last_message: callActivityPreview(room.last_message) || room.last_message,
         blocked_by_me: Boolean(blockResult.data?.some(b => b.blocker_id === user.id)),
         contact_unavailable: Boolean(blockResult.data?.length),
         role,

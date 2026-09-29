@@ -13,4 +13,5 @@ test("an encrypted message moves its chat above older chats without exposing a p
   assert.equal(chatRoomPreview(rooms[1]), "Pesan baru");
   assert.equal(chatRoomPreview(rooms[2]), "Belum ada pesan");
   assert.equal(chatRoomPreview(rooms[0]), "Halo");
+  assert.equal(chatRoomPreview({ id: "call", last_message: null, last_message_at: "2026-09-29T10:03:00Z", activity_kind: "call", activity_preview: "Panggilan video berakhir" }), "Panggilan video berakhir");
 });

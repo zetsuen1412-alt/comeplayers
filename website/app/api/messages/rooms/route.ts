@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { chatRoomListFilter } from "@/lib/chatRoomListFilter";
+import { callActivityPreview } from "@/lib/callRoomActivity";
 import {
   chatErrorStatus,
   isGroupRoom,
@@ -286,10 +287,13 @@ export async function GET(request: Request) {
           ? groupUnreadMap.get(String(room.id)) || 0
           : legacyGroupUnread;
         const group = isGroupRoom(room);
+        const callPreview = group ? null : callActivityPreview(room.last_message);
         return {
           ...room,
           last_message: group ? room.last_message : null,
           last_message_sender_id: group ? room.last_message_sender_id : null,
+          activity_kind: callPreview ? "call" : room.last_message_at ? "message" : null,
+          activity_preview: callPreview,
           other: isGroupRoom(room) ? null : profileMap.get(otherId) || null,
           stream_host: room.stream_host_id
             ? profileMap.get(String(room.stream_host_id)) || null
@@ -361,7 +365,7 @@ export async function POST(request: Request) {
       supabaseAdmin,
     });
 
-    return NextResponse.json({ ok: true, room: access.room });
+    return NextResponse.json({ ok: true, room: { ...access.room, last_message: callActivityPreview(access.room.last_message) || access.room.last_message } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected room creation error.";
     return NextResponse.json({ error: message }, { status: chatErrorStatus(error) });

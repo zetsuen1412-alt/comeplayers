@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { callActivityPreview } from "@/lib/callRoomActivity";
 import { createSupabaseAdmin, requireAuthenticatedUser } from "@/lib/serverSupabase";
 
 export const runtime = "nodejs";
@@ -172,7 +173,7 @@ export async function GET(request: Request) {
         lastSeenAt: presence.lastSeenAt,
         roomId: room ? String(room.id) : null,
         unreadCount: room ? unreadMap.get(String(room.id)) || 0 : 0,
-        lastMessage: room?.last_message || null,
+        lastMessage: callActivityPreview(room?.last_message) || room?.last_message || null,
         lastMessageAt: room?.last_message_at || null,
       };
     });
@@ -211,7 +212,7 @@ export async function GET(request: Request) {
         presenceStatus: presence.status,
         lastSeenAt: presence.lastSeenAt,
         unreadCount: unreadMap.get(String(room.id)) || 0,
-        lastMessage: room.last_message || null,
+        lastMessage: callActivityPreview(room.last_message) || room.last_message || null,
         lastMessageAt: room.last_message_at || null,
       };
     });

@@ -7,7 +7,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaArrowLeft, FaComments, FaSearch, FaShoppingBag, FaUsers } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { sortInboxRooms } from "@/lib/chatInboxPresentation";
 import { isTransactionChatRoom } from "@/lib/chatRoomScope";
+import { createRefreshQueue } from "@/lib/live/refresh-queue";
 import { supabase } from "@/lib/supabase";
 import styles from "./chat.module.css";
 
@@ -44,6 +46,8 @@ type Room = {
   last_message?: string | null;
   last_message_at?: string | null;
   last_message_sender_id?: string | null;
+  activity_kind?: string | null;
+  activity_preview?: string | null;
   created_at?: string | null;
   unread_count: number;
   other: Profile | null;
@@ -118,10 +122,10 @@ export default function ChatClient() {
     if (!silent) setLoadingRooms(true);
     try {
       const result = await authenticatedFetchJson<RoomsResponse>("/api/messages/rooms?limit=100&scope=transaction");
-      const next = (result.rooms || []).filter(isTransactionChatRoom);
+      const next = sortInboxRooms((result.rooms || []).filter(isTransactionChatRoom));
       setRooms(current => {
         const retained = preferredRoomId && current.find(room => room.id === preferredRoomId && isTransactionChatRoom(room) && !next.some(item => item.id === room.id));
-        return retained ? [retained, ...next] : next;
+        return retained ? sortInboxRooms([retained, ...next]) : next;
       });
       setSelectedRoomId((current) => {
         const requested = preferredRoomId || current;
@@ -186,6 +190,19 @@ export default function ChatClient() {
     if (!userId) return;
     const timer = window.setInterval(() => void loadRooms(selectedRoomId, true), 18_000);
     return () => window.clearInterval(timer);
+  }, [loadRooms, selectedRoomId, userId]);
+  useEffect(() => {
+    if (!userId) return;
+    const queue = createRefreshQueue(
+      async () => { await loadRooms(selectedRoomId, true); },
+      () => document.visibilityState === "visible" && navigator.onLine,
+      150,
+    );
+    const channel = supabase.channel(`transaction-inbox:${userId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `buyer_id=eq.${userId}` }, () => queue.request())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `seller_id=eq.${userId}` }, () => queue.request())
+      .subscribe();
+    return () => { queue.dispose(); void supabase.removeChannel(channel); };
   }, [loadRooms, selectedRoomId, userId]);
   useEffect(() => {
     if (!selectedRoomId) return;
@@ -258,7 +275,7 @@ export default function ChatClient() {
                   <span className={styles.roomCopy}>
                     <span className={styles.roomTopline}><strong>{profileName(room.other)}</strong><time>{formatListDate(room.last_message_at || room.created_at)}</time></span>
                     {room.order_id || title ? <span className={styles.roomOrder}>{room.order_id ? `Pesanan #${room.order_id}${title ? ` · ${title}` : ""}` : title}</span> : null}
-                    <span className={styles.roomPreview}>Ketuk untuk membuka chat</span>
+                    <span className={styles.roomPreview}>{room.activity_kind === "call" && room.activity_preview ? room.activity_preview : "Ketuk untuk membuka chat"}</span>
                   </span>
                   {room.unread_count > 0 ? <span aria-label={`${room.unread_count} pesan belum dibaca`} className={styles.unreadBadge}>{room.unread_count > 99 ? "99+" : room.unread_count}</span> : null}
                 </button>

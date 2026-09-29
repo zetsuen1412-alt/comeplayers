@@ -76,6 +76,7 @@ import {
 } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { sortInboxRooms } from "@/lib/chatInboxPresentation";
 import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
@@ -263,6 +264,8 @@ type Room = {
   last_message?: string | null;
   last_message_at?: string | null;
   last_message_sender_id?: string | null;
+  activity_kind?: string | null;
+  activity_preview?: string | null;
   stream_status?: string | null;
   stream_host_id?: string | null;
   stream_title?: string | null;
@@ -2653,6 +2656,7 @@ export default function MessagesPage() {
         roomTitle(room),
         displayName(room.other),
         room.last_message || "",
+        room.activity_preview || "",
         room.product?.title || "",
         room.order?.product_title || "",
         String(room.order_id || ""),
@@ -2686,7 +2690,7 @@ export default function MessagesPage() {
     const data = await authenticatedFetchJson<{ rooms: Room[] }>(
       "/api/messages/rooms?scope=social&limit=60",
     );
-    const socialRooms = (data.rooms || []).filter((room) => !isTradeRoom(room));
+    const socialRooms = sortInboxRooms((data.rooms || []).filter((room) => !isTradeRoom(room)));
     roomsRef.current = socialRooms;
     setRooms(socialRooms);
     const nextId =
@@ -3566,6 +3570,22 @@ export default function MessagesPage() {
     return () => { active = false; window.clearInterval(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const queue = createRefreshQueue(
+      async () => { await loadRooms(undefined, false); },
+      () => document.visibilityState === "visible" && navigator.onLine,
+      150,
+    );
+    const channel = supabase.channel(`messages-inbox:${userId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `buyer_id=eq.${userId}` }, () => queue.request())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `seller_id=eq.${userId}` }, () => queue.request())
+      .subscribe();
+    return () => { queue.dispose(); void supabase.removeChannel(channel); };
+    // Inbox events refresh only room order; they never change selectedRoomId.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   useEffect(() => {
     if (!selectedRoomId || !userId) return;
@@ -6015,7 +6035,8 @@ export default function MessagesPage() {
                           </span>
                         </div>
                         <p className="mt-1 truncate text-xs text-gray-500">
-                          {room.last_message ||
+                          {(room.activity_kind === "call" ? room.activity_preview : null) ||
+                            room.last_message ||
                             (!group && room.last_message_at ? "Pesan baru" : null) ||
                             room.description ||
                             "Conversation created"}

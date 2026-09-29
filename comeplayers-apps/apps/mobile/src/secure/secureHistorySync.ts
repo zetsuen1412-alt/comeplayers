@@ -20,7 +20,7 @@ type PullResponse = {
   events: { sequence: number | string; event: HistoryEnvelope; blob_id: string | null; server_created_at: string }[];
   next: number; hasMore: boolean;
 };
-export type DecryptedHistory<T = unknown> = { sequence: number; event: HistoryEnvelope; payload: T; queued?: boolean };
+export type DecryptedHistory<T = unknown> = { sequence: number; event: HistoryEnvelope; payload: T; queued?: boolean; serverCreatedAt?: string };
 type PendingHistory<T = unknown> = { event: HistoryEnvelope; payload: T; notify?: boolean };
 export type SecureCallKey = { v: 2; kind: "secure-call-key"; media: "audio" | "video"; key: string };
 type RoomContext = {
@@ -242,7 +242,7 @@ export class SecureHistorySync {
         if (!Number.isSafeInteger(sequence) || sequence <= cursor || item.blob_id !== item.event.blobId) throw new Error("Invalid encrypted-history ordering.");
         const context = this.contexts.get(item.event.roomId), epoch = context?.epochs.find(value => value.id === item.event.epochId), key = context?.keys.get(item.event.epochId);
         if (!epoch || !key) throw new Error("Recover the missing conversation key before syncing more history.");
-        const payload = decryptHistory(item.event, epoch, key), entry = { sequence, event: item.event, payload };
+        const payload = decryptHistory(item.event, epoch, key), entry = { sequence, event: item.event, payload, serverCreatedAt: item.server_created_at };
         await this.vault.put("history-event-v2", item.event.id, entry, item.event.roomId, String(sequence).padStart(20, "0"));
         await this.vault.remove("history-outbox-v2", item.event.id);
         await this.vault.remove("history-pending-v2", item.event.id);

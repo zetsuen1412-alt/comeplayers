@@ -3,6 +3,8 @@ type InboxRoom = {
   last_message?: string | null;
   last_message_at?: string | null;
   created_at?: string | null;
+  activity_kind?: string | null;
+  activity_preview?: string | null;
 };
 
 function roomTime(room: InboxRoom) {
@@ -15,5 +17,6 @@ export function sortInboxRooms<T extends InboxRoom>(rooms: readonly T[]): T[] {
 }
 
 export function chatRoomPreview(room: InboxRoom) {
+  if (room.activity_kind === "call" && room.activity_preview) return room.activity_preview;
   return room.last_message?.trim() || (room.last_message_at ? "Pesan baru" : "Belum ada pesan");
 }

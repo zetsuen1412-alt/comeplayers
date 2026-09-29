@@ -7,10 +7,12 @@ import { authenticatedFetchJson as api } from "@/lib/authenticatedFetch";
 import { chatRoomPreview, sortInboxRooms } from "@/lib/chatInboxPresentation";
 import { isSocialChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
+import { createRefreshQueue } from "@/lib/live/refresh-queue";
+import { supabase } from "@/lib/supabase";
 import styles from "./ContactsWorkspace.module.css";
 
 type Profile = { id: string; username?: string | null; full_name?: string | null; avatar_url?: string | null };
-type Room = { id: string; title?: string; room_type?: string; product_id?: number | null; order_id?: number | null; product?: unknown; order?: unknown; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string | null; last_message_at?: string | null; created_at?: string | null; blocked_by_me?: boolean; contact_unavailable?: boolean };
+type Room = { id: string; title?: string; room_type?: string; product_id?: number | null; order_id?: number | null; product?: unknown; order?: unknown; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string | null; last_message_at?: string | null; created_at?: string | null; activity_kind?: string | null; activity_preview?: string | null; blocked_by_me?: boolean; contact_unavailable?: boolean };
 type Message = { id: string; sender_id: string; message: string; created_at: string; deleted_at?: string; is_read?: boolean; sender?: Profile; attachment?: { file_name: string } };
 type Props = { userId: string; active: boolean; friendMenuOpen: boolean; privateMessagesOpen: boolean; onCloseFriendMenu: () => void; onClosePrivateMessages: () => void; onOpenPrivateRoom: (roomId: string) => void; onUnreadChange?: (count: number) => void };
 const name = (p?: Profile) => p?.username || p?.full_name || "Pengguna ComePlayers";
@@ -82,6 +84,15 @@ export default function ContactsWorkspace(props: Props) {
     const timer = setInterval(() => void refresh(), 15000);
     return () => { live = false; clearInterval(timer); };
   }, [active, userId, loadRooms, visible]);
+  useEffect(() => {
+    if (!active || !userId || !visible) return;
+    const queue = createRefreshQueue(async () => { await loadRooms(); }, () => document.visibilityState === "visible" && navigator.onLine, 150);
+    const channel = supabase.channel(`contacts-inbox:${userId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `buyer_id=eq.${userId}` }, () => queue.request())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `seller_id=eq.${userId}` }, () => queue.request())
+      .subscribe();
+    return () => { queue.dispose(); void supabase.removeChannel(channel); };
+  }, [active, userId, visible, loadRooms]);
 
   useEffect(() => {
     if (!visible) return;
@@ -162,7 +173,7 @@ export default function ContactsWorkspace(props: Props) {
     });
   };
   const close = () => { props.onCloseFriendMenu(); props.onClosePrivateMessages(); };
-  const filtered = rooms.filter(r => (filter !== "unread" || !!r.unread_count) && (filter !== "groups" || r.room_type === "group") && `${roomName(r)} ${r.last_message || ""}`.toLowerCase().includes(query.toLowerCase()));
+  const filtered = rooms.filter(r => (filter !== "unread" || !!r.unread_count) && (filter !== "groups" || r.room_type === "group") && `${roomName(r)} ${chatRoomPreview(r)}`.toLowerCase().includes(query.toLowerCase()));
   if (!visible || !active) return null;
   return createPortal(<div className={styles.backdrop} onMouseDown={e => { if (e.target === e.currentTarget) close(); }}>
     <div ref={panel} className={styles.panel} role="dialog" aria-modal="true" aria-label={selected ? roomName(selected) : "Pesan dan kontak"} tabIndex={-1}>

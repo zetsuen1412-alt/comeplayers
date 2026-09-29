@@ -6,11 +6,12 @@ import { SecureHistorySync, type DecryptedHistory } from "./secureHistorySync";
 import type { Vault, VaultRow } from "./vault";
 import { loadCalls, type CallRecord } from "../messagingApi";
 import { chatClient } from "../runtime";
-import { compareRoomActivity } from "../inboxOrdering";
+import { callInboxPreview, compareRoomActivity, isCallActivity } from "../inboxOrdering";
 import { mergeRestoredValue } from "./restoreMerge";
 
 export type SecurePrivateMessage = ChatMessage & {
   localMedia?: LocalMedia; secureAttachment?: SecureAttachment; secureEventId?: string;
+  server_created_at?: string;
   delivery?: "queued" | "sent" | "received" | "read"; starred?: boolean; local_updated_at?: string; legacy?: boolean;
 };
 type Reply = { id: string; text: string; senderId: string };
@@ -87,13 +88,21 @@ export class SecureMessengerV2 {
         const unread = initialized ? storedUnread ?? local?.unread_count ?? 0 : (storedUnread || 0) + (room.unread_count || 0);
         const serverTime = Date.parse(room.last_message_at || "") || 0;
         const localTime = Date.parse(latest?.created_at || "") || 0;
-        // Server activity can be newer than a signed message's timestamp (for
-        // example, after an offline send). Keep its ordering time but display
-        // decrypted text as soon as this device has the message.
+        const latestReceivedTime = Date.parse(latest?.server_created_at || "") || 0;
+        // A call supersedes an older message. For messages, the server receive
+        // time can be newer than the signed timestamp after an offline send, so
+        // compare received timestamps when available. Older vault rows without
+        // that field retain their decrypted preview until replay updates them.
+        const showCall = isCallActivity(room) && serverTime >= localTime;
+        const waitingForMessage = !isCallActivity(room) && !!room.last_message_at && (!latest || (!!latestReceivedTime && serverTime > latestReceivedTime));
         const lastMessageAt = latest && localTime > serverTime ? latest.created_at : room.last_message_at;
-        const merged = latest
-          ? { ...room, last_message: latest.deleted_at ? "Message deleted" : latest.message || latest.localMedia?.name || latest.secureAttachment?.name || "Attachment", last_message_at: lastMessageAt, last_message_sender_id: latest.sender_id, unread_count: unread }
-          : { ...room, last_message: room.last_message || (room.last_message_at ? "Pesan baru" : null), unread_count: unread };
+        const merged = showCall
+          ? { ...room, last_message: callInboxPreview(room), unread_count: unread }
+          : waitingForMessage
+            ? { ...room, activity_kind: "message" as const, activity_preview: null, last_message: "Pesan baru", unread_count: unread }
+          : latest
+            ? { ...room, activity_kind: "message" as const, activity_preview: null, last_message: latest.deleted_at ? "Message deleted" : latest.message || latest.localMedia?.name || latest.secureAttachment?.name || "Attachment", last_message_at: lastMessageAt, last_message_sender_id: latest.sender_id, unread_count: unread }
+            : { ...room, last_message: room.last_message || (room.last_message_at ? "Pesan baru" : null), unread_count: unread };
         const writes: VaultRow[] = [];
         if (storedUnread !== unread) writes.push(this.vault.encode("room-unread-v2", room.id, unread));
         if (!initialized) writes.push(this.vault.encode("room-unread-initialized-v2", room.id, true));
@@ -123,14 +132,15 @@ export class SecureMessengerV2 {
         id: entry.event.id, room_id: entry.event.roomId, sender_id: entry.event.senderId,
         receiver_id: room ? this.receiver(room, entry.event.senderId) : entry.event.senderId === this.userId ? "" : this.userId,
         message: payload.text, created_at: entry.event.createdAt, delivery: entry.queued ? "queued" : entry.event.senderId === this.userId ? "sent" : "received",
+        server_created_at: entry.serverCreatedAt || existing?.server_created_at,
         is_read: entry.event.senderId === this.userId, secureAttachment: payload.attachment, secureEventId: entry.event.id,
         localMedia: existing?.localMedia,
         reply_to: payload.reply ? { id: payload.reply.id, message: payload.reply.text, sender_id: payload.reply.senderId } : null,
       };
       // History replay after restore must preserve local edits, deletions,
       // stars and monotonic read receipts already present on this device.
-      const merged = existing ? mergeRestoredValue("message-v2", existing, message) : message;
-      writes.push(this.vault.encode("message-v2", message.id, merged, message.room_id, message.created_at));
+      const merged = existing ? mergeRestoredValue("message-v2", existing, message) as SecurePrivateMessage : message;
+      writes.push(this.vault.encode("message-v2", message.id, entry.serverCreatedAt ? { ...merged, server_created_at: entry.serverCreatedAt } : merged, message.room_id, message.created_at));
       if (incoming) writes.push(this.vault.encode("room-unread-v2", message.room_id, unread));
       if (room) writes.push(this.vault.encode("room", room.id, mergeRestoredValue("room", room, { ...room, last_message: message.message || payload.attachment?.name || "Attachment", last_message_at: message.created_at, last_message_sender_id: message.sender_id, unread_count: unread }), "", room.last_message_at && room.last_message_at > message.created_at ? room.last_message_at : message.created_at));
     } else if (value.kind === "receipt") {

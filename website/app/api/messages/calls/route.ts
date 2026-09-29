@@ -7,6 +7,7 @@ import { createDirectCallToken, createLiveKitRoomServiceClient, getLiveKitServer
 import { limitedBody, privateActor, privateRoom, uuid } from "@/lib/privateMessaging";
 import { secureActor } from "@/lib/secureHistoryProtocol";
 import { activeCallFilter, decideCallAction, visibleCallStatus } from "@/lib/callPresence";
+import { recordCallRoomActivity, type CallActivityStatus } from "@/lib/callRoomActivity";
 
 export async function GET(request: Request) {
   try {
@@ -52,6 +53,13 @@ export async function POST(request: Request) {
     getLiveKitServerUrl();
     const result = await db.rpc("cp_start_call", { p_actor: user.id, p_target: target, p_room: room.id, p_media: body.media === "video" ? "video" : "audio", p_scheduled: scheduled });
     if (result.error) throw inputError(/already in a call|limit|blocked|accepting|scheduled|verification/i.test(result.error.message) ? result.error.message : "The call could not be started.", 409);
+    await recordCallRoomActivity(db, {
+      roomId: room.id,
+      actorId: user.id,
+      occurredAt: result.data.created_at,
+      media: result.data.media === "video" ? "video" : "audio",
+      status: result.data.status === "scheduled" ? "scheduled" : "ringing",
+    }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
     return NextResponse.json({ call: result.data }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }
@@ -90,6 +98,13 @@ export async function PATCH(request: Request) {
       const updated = await db.from("cp_calls").update({ status: decision.status, ...(decision.status === "accepted" ? { answered_at: now } : { ended_at: now }) }).eq("id", call.id).eq("status", call.status).select("id").maybeSingle();
       if (updated.error) throw updated.error;
       if (updated.data) {
+        await recordCallRoomActivity(db, {
+          roomId: call.room_id,
+          actorId: user.id,
+          occurredAt: now,
+          media: call.media === "video" ? "video" : "audio",
+          status: decision.status as CallActivityStatus,
+        }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
         if (call.status === "accepted" && decision.status === "ended") await createLiveKitRoomServiceClient().deleteRoom(roomName).catch(() => undefined);
         return NextResponse.json({ ok: true, status: decision.status });
       }
