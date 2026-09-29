@@ -1,0 +1,9 @@
+{
+  "map_id": "tropical_paradise",
+  "city": "Sentosa",
+  "style": "marina",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tropical_paradise/sentosa.glb",
+  "fallback": true
+}

@@ -1,0 +1,9 @@
+{
+  "map_id": "candy_world",
+  "city": "Candy Cane City",
+  "style": "candycane",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/candy_world/candy_cane_city.glb",
+  "fallback": true
+}

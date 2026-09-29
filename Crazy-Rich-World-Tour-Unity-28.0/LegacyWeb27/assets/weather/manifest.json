@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "pipeline": "CRWT26_WEATHER_VFX",
+  "presentation_only": true,
+  "effects": [
+    "rain",
+    "storm",
+    "lightning",
+    "snow",
+    "sugar_snow",
+    "fog",
+    "sakura",
+    "sparkle",
+    "firefly",
+    "breeze",
+    "festival_fireworks",
+    "night_city_lights",
+    "water_reflection",
+    "landmark_glow"
+  ],
+  "maps": {
+    "world_tour": [
+      "clear",
+      "rain",
+      "clear",
+      "storm"
+    ],
+    "tokyo_rush": [
+      "sakura",
+      "clear",
+      "rain",
+      "sakura"
+    ],
+    "tropical_paradise": [
+      "breeze",
+      "clear",
+      "rain",
+      "storm",
+      "breeze"
+    ],
+    "candy_world": [
+      "sparkle",
+      "sugar_snow",
+      "clear",
+      "sparkle"
+    ],
+    "fantasy_kingdom": [
+      "firefly",
+      "fog",
+      "storm",
+      "firefly",
+      "snow"
+    ]
+  },
+  "reduced_motion": "lower particle density and intensity",
+  "low_power": "automatic density reduction",
+  "authority": "visual_only_server_state_unchanged"
+}

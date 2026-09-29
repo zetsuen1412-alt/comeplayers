@@ -1,0 +1,9 @@
+{
+  "map_id": "tropical_paradise",
+  "city": "Bora Bora",
+  "style": "overwater",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tropical_paradise/bora_bora.glb",
+  "fallback": true
+}

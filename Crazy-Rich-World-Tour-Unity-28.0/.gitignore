@@ -1,0 +1,23 @@
+# Unity-generated state and build outputs; keep Assets and all .meta files.
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Bb]uild/
+/[Bb]uilds/
+/MemoryCaptures/
+/Recordings/
+/.vs/
+/.idea/
+/.vscode/
+/*.csproj
+/*.sln
+/*.slnx
+/*.user
+/*.pidb
+/*.booproj
+/*.unityproj
+/*.opendb
+/*.VC.db
+/sysinfo.txt

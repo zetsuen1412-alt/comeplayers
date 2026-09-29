@@ -1,0 +1,9 @@
+{
+  "map_id": "candy_world",
+  "city": "Sugar Crystal",
+  "style": "crystal",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/candy_world/sugar_crystal.glb",
+  "fallback": true
+}

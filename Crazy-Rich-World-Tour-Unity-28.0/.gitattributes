@@ -1,0 +1,6 @@
+# Preserve the supplied package's text hashes across Windows/Linux checkouts.
+* text=auto eol=lf
+*.glb binary
+*.png binary
+*.jpg binary
+*.jpeg binary

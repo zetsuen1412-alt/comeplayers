@@ -1,0 +1,9 @@
+{
+  "map_id": "candy_world",
+  "city": "Star Candy",
+  "style": "star",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/candy_world/star_candy.glb",
+  "fallback": true
+}

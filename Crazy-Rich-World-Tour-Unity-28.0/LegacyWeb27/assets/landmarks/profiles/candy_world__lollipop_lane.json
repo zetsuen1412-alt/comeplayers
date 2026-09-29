@@ -1,0 +1,9 @@
+{
+  "map_id": "candy_world",
+  "city": "Lollipop Lane",
+  "style": "lollipop",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/candy_world/lollipop_lane.glb",
+  "fallback": true
+}

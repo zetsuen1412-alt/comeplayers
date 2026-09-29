@@ -1,0 +1,9 @@
+{
+  "map_id": "fantasy_kingdom",
+  "city": "Suncrest",
+  "style": "solar",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/fantasy_kingdom/suncrest.glb",
+  "fallback": true
+}

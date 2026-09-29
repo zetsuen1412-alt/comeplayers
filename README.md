@@ -15,6 +15,7 @@ Pembaruan 14 September: [integrasi payroll final v0.15.5](docs/PAYROLL_FINAL_INT
 | `comeplayers-apps/apps/desktop/` | Aplikasi Windows Tauri |
 | `comeplayers-apps/packages/chat-core/` | Tipe dan kode chat bersama |
 | `ComePlayersMarble/` | Sumber dan aset authoring game Cocos Creator |
+| `Crazy-Rich-World-Tour-Unity-28.0/` | [Crazy Rich: World Tour Unity 28.0](Crazy-Rich-World-Tour-Unity-28.0/README_ID.md), source client Unity 6 dan aset, dengan referensi Legacy Web 27 |
 | `game-services/` | Layanan game terkait |
 | `docs/verification/2026-09-13/` | Bukti verifikasi rilis dan pengujian terpilih |
 
