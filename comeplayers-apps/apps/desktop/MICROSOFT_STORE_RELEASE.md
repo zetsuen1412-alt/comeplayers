@@ -7,6 +7,10 @@ Draft untuk paket MSIX desktop. Teks berikut menggambarkan fitur yang ada pada a
 | Field Partner Center | Isian yang disiapkan |
 | --- | --- |
 | Nama produk | ComePlayers |
+| Store ID | `9MTZ5VZDPWGS` |
+| Package/Identity/Name | `ComePlayers.ComePlayers` |
+| Package/Identity/Publisher | `CN=37E5A202-77EB-4589-94DE-D5717558F0BD` |
+| Package/Properties/PublisherDisplayName | `ComePlayers` |
 | Versi paket | 1.0.0 (samakan dengan MSIX final) |
 | Kategori utama | Social |
 | Kategori sekunder | Shopping, jika Partner Center menawarkannya |
@@ -16,6 +20,16 @@ Draft untuk paket MSIX desktop. Teks berikut menggambarkan fitur yang ada pada a
 | Dukungan | admin@comeplayers.com; halaman bantuan https://www.comeplayers.com/help-center |
 | Harga aplikasi | Gratis untuk memasang; penawaran dalam marketplace dapat berbayar |
 | Perangkat | PC Windows; jangan pilih Xbox tanpa pengujian dan aset Xbox |
+
+Jalankan dari akar repositori untuk membangun paket dengan identitas yang direservasi:
+
+```powershell
+& '.\comeplayers-apps\apps\desktop\scripts\build-msix-store.ps1' `
+  -IdentityName 'ComePlayers.ComePlayers' `
+  -PublisherId 'CN=37E5A202-77EB-4589-94DE-D5717558F0BD'
+```
+
+Hasilnya adalah `comeplayers-apps/apps/desktop/store-package/output/ComePlayers_1.0.0_x64.msix`. Paket ini belum ditandatangani; unggah melalui Partner Center untuk sertifikasi dan penandatanganan Microsoft, bukan dibagikan sebagai installer langsung.
 
 Kategori **Social** paling sesuai untuk chat dan komunitas; **Shopping** mencerminkan marketplace. Microsoft menggolongkan komunikasi teks, suara, dan video sebagai Social serta pembelian online sebagai Shopping. Jangan menggolongkan paket sebagai game hanya karena komunitasnya bertema game.
 

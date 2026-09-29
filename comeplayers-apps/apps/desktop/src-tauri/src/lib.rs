@@ -4,6 +4,9 @@ use std::sync::Mutex;
 use tauri::{Manager, State};
 use tauri_plugin_deep_link::DeepLinkExt;
 
+#[cfg(target_os = "windows")]
+mod webview2_runtime;
+
 #[derive(Default)]
 struct PendingDeepLinks(Mutex<Vec<String>>);
 
@@ -207,6 +210,11 @@ fn open_google_oauth(url: String) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg(target_os = "windows")]
+    if !webview2_runtime::ensure_installed() {
+        return;
+    }
+
     let mut builder = tauri::Builder::default().manage(PendingDeepLinks::default());
 
     #[cfg(desktop)]

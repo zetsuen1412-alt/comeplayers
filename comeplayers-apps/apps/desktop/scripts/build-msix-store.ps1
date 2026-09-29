@@ -1,7 +1,7 @@
 param(
   [string]$IdentityName = $env:COMEPLAYERS_STORE_IDENTITY_NAME,
   [string]$PublisherId = $env:COMEPLAYERS_STORE_PUBLISHER_ID,
-  [string]$PublisherDisplayName = "PT COME PLAYERS DIGITAL"
+  [string]$PublisherDisplayName = "ComePlayers"
 )
 
 $ErrorActionPreference = "Stop"
@@ -115,9 +115,15 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 $previousDistribution = $env:VITE_COMEPLAYERS_DISTRIBUTION
 try {
   $env:VITE_COMEPLAYERS_DISTRIBUTION = "store"
-  & $tauriCommand build --ci --no-bundle
-  if ($LASTEXITCODE -ne 0) {
-    throw "Tauri Store build failed with exit code $LASTEXITCODE."
+  Push-Location -LiteralPath $desktopRoot
+  try {
+    & $tauriCommand build --ci --no-bundle
+    if ($LASTEXITCODE -ne 0) {
+      throw "Tauri Store build failed with exit code $LASTEXITCODE."
+    }
+  }
+  finally {
+    Pop-Location
   }
 }
 finally {
