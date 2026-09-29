@@ -17,7 +17,7 @@ namespace ComePlayers.CrazyRich
             var canvas = CrwtUi.CreateCanvas("LoginUI");
             var bg = CrwtUi.Panel(canvas.transform, "Background", CrwtUi.Bg, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             var left = CrwtUi.Panel(bg, "Hero", new Color(0.03f, .05f, .10f, 1), new Vector2(0, 0), new Vector2(.58f, 1), Vector2.zero, Vector2.zero);
-            var lt = CrwtUi.Text(left, "CRAZY\nRICH\nWORLD TOUR\n\nUNITY 6 • PRODUCTION CLIENT 28.0", 62, TextAnchor.MiddleCenter, Color.white);
+            var lt = CrwtUi.Text(left, "CRAZY\nRICH\nWORLD TOUR\n\n29.0 • ZERO DICE SYSTEM", 62, TextAnchor.MiddleCenter, Color.white);
             CrwtUi.Fill(lt.rectTransform, 70);
 
             var card = CrwtUi.Panel(bg, "LoginCard", CrwtUi.Card, new Vector2(.62f, .14f), new Vector2(.94f, .86f), Vector2.zero, Vector2.zero);

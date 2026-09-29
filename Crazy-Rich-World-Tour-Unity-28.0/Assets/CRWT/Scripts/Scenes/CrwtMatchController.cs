@@ -17,8 +17,13 @@ namespace ComePlayers.CrazyRich
         private bool polling;
         private bool actionBusy;
         private CrwtMatchSnapshot snap;
-        private int demoTile;
+        private CrwtDicePresenter dice;
+        private readonly CrwtRollCursor rollCursor = new CrwtRollCursor();
+        private CrwtMatchSnapshot queuedSnapshot;
+        private bool queuedFull;
+        private bool choosingFocus;
         private bool resultLoading;
+        private bool resultActionsBuilt;
         private bool rematchVoted;
         private float nextRematchPoll;
 
@@ -38,7 +43,7 @@ namespace ComePlayers.CrazyRich
                 nextRematchPoll = Time.unscaledTime + 1f;
                 PollRematch();
             }
-            if (Time.unscaledTime >= nextPoll && !polling)
+            if (Time.unscaledTime >= nextPoll && !polling && !dice.IsPresenting)
             {
                 nextPoll = Time.unscaledTime + CrwtRuntimeConfig.MatchPollSeconds;
                 RefreshNow();
@@ -48,6 +53,7 @@ namespace ComePlayers.CrazyRich
         private void SetupWorld()
         {
             var boardGo = new GameObject("CRWT_Board"); board = boardGo.AddComponent<CrwtBoardView>(); board.Build(CrwtSession.SelectedMapId);
+            board.MovementFinished += Render;
             var lightGo = new GameObject("KeyLight", typeof(Light)); var light = lightGo.GetComponent<Light>(); light.type = LightType.Directional; light.intensity = 1.25f; lightGo.transform.rotation = Quaternion.Euler(50, -35, 0);
             RenderSettings.ambientLight = new Color(.34f,.39f,.50f);
             var camGo = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener), typeof(CrwtCameraOrbit)); camGo.tag = "MainCamera";
@@ -58,6 +64,9 @@ namespace ComePlayers.CrazyRich
         private void SetupHud()
         {
             var canvas = CrwtUi.CreateCanvas("MatchUI");
+            dice = gameObject.AddComponent<CrwtDicePresenter>();
+            dice.Initialize(canvas.transform);
+            dice.ZeroReact += roll => board.ReactToZero(roll.seat);
             var top = CrwtUi.Panel(canvas.transform, "Top", new Color(.02f,.03f,.06f,.90f), new Vector2(0,.88f), Vector2.one, Vector2.zero, Vector2.zero);
             header = CrwtUi.Text(top, "CRAZY RICH • CONNECTING", 27, TextAnchor.MiddleLeft, CrwtUi.Gold);
             header.rectTransform.anchorMin = new Vector2(0,0); header.rectTransform.anchorMax = new Vector2(.62f,1); header.rectTransform.offsetMin = new Vector2(28,0); header.rectTransform.offsetMax = Vector2.zero;
@@ -98,7 +107,7 @@ namespace ComePlayers.CrazyRich
         private async void RefreshNow()
         {
             if (polling) return; polling = true;
-            try { snap = await CrwtAppRoot.Instance.Api.SnapshotAsync(CrwtSession.MatchId); Render(); }
+            try { AcceptSnapshot(await CrwtAppRoot.Instance.Api.SnapshotAsync(CrwtSession.MatchId), true); }
             catch (Exception ex) { if (message) message.text = "SYNC ERROR • " + ex.Message; }
             finally { polling = false; }
         }
@@ -106,6 +115,7 @@ namespace ComePlayers.CrazyRich
         private void Render()
         {
             if (snap?.state == null) return;
+            if (dice.IsBusy) { RebuildActions(); return; }
             if (CrwtSession.SelectedMapId != snap.state.map_id && !string.IsNullOrEmpty(snap.state.map_id))
             {
                 CrwtSession.SelectedMapId = snap.state.map_id; board.Build(snap.state.map_id);
@@ -117,20 +127,30 @@ namespace ComePlayers.CrazyRich
             foreach (var p in snap.state.players ?? Array.Empty<CrwtPlayer>()) sb.AppendLine((p.seat == snap.turn_seat ? "▶ " : "  ") + "S" + p.seat + "  " + p.name + "\n     " + p.cash + "K • Tile " + p.position + (p.bankrupt ? " • BANKRUPT" : ""));
             players.text = sb.ToString();
             RebuildActions();
-            if (!CrwtSession.IsGuest && snap.current_is_bot && snap.is_host && snap.status == "active" && snap.state.phase == "await_roll" && !actionBusy) BotStep();
+            if (!CrwtSession.IsGuest && snap.current_is_bot && snap.is_host && snap.status == "active" && snap.state.phase == "await_roll" && !actionBusy && !board.IsMoving && queuedSnapshot == null) BotStep();
             if (snap.status == "finished" || snap.state.phase == "finished") ShowResultActions();
         }
 
         private void RebuildActions()
         {
+            if (snap?.state != null && (snap.status == "finished" || snap.state.phase == "finished") && (resultLoading || resultActionsBuilt)) return;
             CrwtUi.Clear(actions);
             if (snap == null) return;
-            if (CrwtSession.IsGuest) { CrwtUi.Button(actions, "🎲 ROLL DEMO", DemoRoll, CrwtUi.Gold); return; }
+            if (CrwtSession.IsGuest) { LabelAction("DEMO VISUAL • Login untuk ROLL"); return; }
+            if (actionBusy || dice.IsBusy) { LabelAction("Dadu sedang bergulir..."); return; }
+            if (board.IsMoving) { LabelAction("Pemain bergerak..."); return; }
             if (snap.status == "finished" || snap.state.phase == "finished") return;
             if (snap.turn_seat != snap.your_seat) { LabelAction("Menunggu pemain lain..."); return; }
             if (snap.state.phase == "await_roll")
             {
-                CrwtUi.Button(actions, "🎲 ROLL", () => RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId)), CrwtUi.Gold);
+                if (choosingFocus)
+                {
+                    CrwtUi.Button(actions, "GANJIL", () => ApplyFocus("odd"), CrwtUi.Cyan);
+                    CrwtUi.Button(actions, "GENAP", () => ApplyFocus("even"), CrwtUi.Gold);
+                    CrwtUi.Button(actions, "BATAL", () => { choosingFocus = false; RebuildActions(); }, Color.gray);
+                    return;
+                }
+                CrwtUi.Button(actions, "🎲 ROLL", () => RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold);
                 CrwtUi.Button(actions, "⭐ SKILL", UseSkill, CrwtUi.Cyan);
                 return;
             }
@@ -179,61 +199,112 @@ namespace ComePlayers.CrazyRich
         private void UseSkill()
         {
             var me = snap?.state?.players?.FirstOrDefault(x => x.seat == snap.your_seat);
-            if (me?.character_id == "kairo") RunAction(() => CrwtAppRoot.Instance.Api.UseSkillAsync(CrwtSession.MatchId, "odd"));
+            if (me?.character_id == "kairo") { choosingFocus = true; RebuildActions(); }
             else RunAction(() => CrwtAppRoot.Instance.Api.UseSkillAsync(CrwtSession.MatchId));
         }
 
-        private async void RunAction(Func<System.Threading.Tasks.Task<CrwtMatchSnapshot>> action)
+        private void ApplyFocus(string mode)
         {
-            if (actionBusy) return; actionBusy = true;
-            try { MergeAction(await action()); Render(); }
-            catch (Exception ex) { message.text = "ACTION ERROR • " + ex.Message; }
-            finally { actionBusy = false; }
+            choosingFocus = false;
+            RunAction(() => CrwtAppRoot.Instance.Api.UseSkillAsync(CrwtSession.MatchId, mode));
         }
 
-        private void MergeAction(CrwtMatchSnapshot incoming)
+        private async void RunAction(Func<System.Threading.Tasks.Task<CrwtMatchSnapshot>> action, bool isRoll = false)
         {
-            if (incoming == null) return;
-            if (snap == null) { snap = incoming; return; }
-            if (incoming.state != null) snap.state = incoming.state;
-            if (incoming.version > 0) snap.version = incoming.version;
-            if (incoming.round > 0) snap.round = incoming.round;
-            if (incoming.turn_seat > 0) snap.turn_seat = incoming.turn_seat;
-            if (incoming.your_seat > 0) snap.your_seat = incoming.your_seat;
-            if (!string.IsNullOrEmpty(incoming.status)) snap.status = incoming.status;
-            if (!string.IsNullOrEmpty(incoming.deadline_at)) snap.deadline_at = incoming.deadline_at;
-            if (!string.IsNullOrEmpty(incoming.match_id)) snap.match_id = incoming.match_id;
-            if (!string.IsNullOrEmpty(incoming.room_id)) snap.room_id = incoming.room_id;
+            if (actionBusy || dice.IsBusy || board.IsMoving) return; actionBusy = true;
+            if (isRoll) dice.BeginThrow();
+            RebuildActions();
+            try
+            {
+                var response = await action();
+                if (!this) return;
+                if (isRoll && response?.state?.last_roll == null) throw new CrwtApiException("Server belum memberi hasil dadu.");
+                AcceptSnapshot(response, false);
+                if (isRoll && !dice.IsPresenting) { dice.CancelWaiting(); Render(); }
+            }
+            catch (Exception ex) { if (this) { dice.CancelWaiting(); message.text = "ACTION ERROR • " + ex.Message; nextPoll = 0; } }
+            finally { actionBusy = false; if (this) RebuildActions(); }
+        }
+
+        private void AcceptSnapshot(CrwtMatchSnapshot incoming, bool full)
+        {
+            if (!this || incoming?.state == null || (snap != null && incoming.version < snap.version)) return;
+            if (dice.IsPresenting)
+            {
+                if (queuedSnapshot == null || incoming.version >= queuedSnapshot.version)
+                { queuedSnapshot = incoming; queuedFull = full; }
+                return;
+            }
+            if (!full && snap != null)
+            {
+                incoming.your_seat = snap.your_seat; incoming.is_host = snap.is_host;
+                incoming.ranked = snap.ranked; incoming.spectator = snap.spectator;
+                incoming.room_id = incoming.room_id ?? snap.room_id;
+                incoming.status = incoming.state.phase == "finished" ? "finished" : snap.status;
+            }
+            if (!full) incoming.current_is_bot = incoming.state.players?.Any(p => p.seat == incoming.turn_seat && !string.IsNullOrEmpty(p.bot_key)) ?? false;
+            var roll = incoming.state.last_roll;
+            if (roll != null && !CrwtDiceRules.IsValid(roll.d1, roll.d2, roll.total, roll.doubles, roll.zero_roll, roll.from, roll.to))
+                throw new CrwtApiException("Hasil dadu server tidak valid. Sinkronisasi ulang diperlukan.");
+            // Older history has no roll_id; use its content only for reconnect compatibility.
+            string identity = roll == null ? null : roll.roll_id ?? (roll.seat + ":" + roll.d1 + ":" + roll.d2 + ":" + roll.from + ":" + roll.to + ":" + roll.@event);
+            bool reveal = rollCursor.Accept(incoming.version, identity, dice.IsBusy);
+            snap = incoming;
+            if (snap.turn_seat != snap.your_seat || snap.state.phase != "await_roll") choosingFocus = false;
+            if (reveal)
+            {
+                board.PrepareRoll(roll);
+                dice.RevealServerRoll(roll, FinishDicePresentation);
+                RebuildActions();
+            }
+            else Render();
+        }
+
+        private void FinishDicePresentation()
+        {
+            // Apply server positions only after Reveal/ZeroReveal. A zero never
+            // dispatches a landing action; pending decisions are server fields.
+            Render();
+            if (queuedSnapshot != null)
+            {
+                var pendingSnapshot = queuedSnapshot; bool full = queuedFull;
+                queuedSnapshot = null; AcceptSnapshot(pendingSnapshot, full);
+            }
+            nextPoll = 0;
         }
 
         private async void BotStep()
         {
-            if (actionBusy) return; actionBusy = true;
-            try { MergeAction(await CrwtAppRoot.Instance.Api.BotStepAsync(CrwtSession.MatchId)); Render(); }
-            catch (Exception ex) { message.text = "BOT • " + ex.Message; }
-            finally { actionBusy = false; }
-        }
-
-        private void DemoRoll()
-        {
-            demoTile = (demoTile + UnityEngine.Random.Range(2, 13)) % 32;
-            snap.state.players[0].position = demoTile;
-            snap.state.message = "DEMO • Alexia bergerak ke tile " + demoTile;
-            board.Apply(snap); Render();
+            if (actionBusy || dice.IsBusy) return; actionBusy = true;
+            dice.BeginThrow(); RebuildActions();
+            try
+            {
+                var response = await CrwtAppRoot.Instance.Api.BotStepAsync(CrwtSession.MatchId);
+                if (!this) return;
+                if (response?.state?.last_roll == null) throw new CrwtApiException("Server belum memberi hasil dadu bot.");
+                AcceptSnapshot(response, false);
+                if (!dice.IsPresenting) { dice.CancelWaiting(); Render(); }
+            }
+            catch (Exception ex) { if (this) { dice.CancelWaiting(); message.text = "BOT • " + ex.Message; } }
+            finally { actionBusy = false; if (this) RebuildActions(); }
         }
 
         private async void ShowResultActions()
         {
-            if (actions.childCount > 0 || resultLoading) return;
+            if (resultActionsBuilt || resultLoading || dice.IsBusy || board.IsMoving || actionBusy) return;
             resultLoading = true;
+            CrwtUi.Clear(actions);
             try
             {
                 var result = await CrwtAppRoot.Instance.Api.MatchResultAsync(CrwtSession.MatchId);
+                if (!this) return;
                 message.text = (result.won ? "🏆 WINNER" : "MATCH SELESAI") + " • +" + (result.reward?.gold_reward ?? 0) + " Gold • +" + (result.reward?.xp_reward ?? 0) + " XP";
             }
             catch { }
+            if (!this) return;
             CrwtUi.Button(actions, "🔁 REMATCH", VoteRematch, CrwtUi.Gold);
             CrwtUi.Button(actions, "LOBBY", ExitMatch, new Color(.70f,.72f,.78f));
+            resultActionsBuilt = true;
             resultLoading = false;
         }
 

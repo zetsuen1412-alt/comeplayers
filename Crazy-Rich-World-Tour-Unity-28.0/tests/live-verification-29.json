@@ -1,0 +1,51 @@
+{
+  "project": "uyehruetoxedmookyfcd",
+  "core": {
+    "zero_guard": true,
+    "roll_identity": true,
+    "rng_expressions": 2,
+    "start_movement_guard": true,
+    "focus_retry_cap_removed": true
+  },
+  "migration": {
+    "name": "crwt_zero_dice_v29",
+    "version": "20260929144722"
+  },
+  "permissions": [
+    {
+      "anon": false,
+      "function": "crwt_v18_bot_step",
+      "authenticated": true
+    },
+    {
+      "anon": false,
+      "function": "crwt_v18_roll",
+      "authenticated": true
+    },
+    {
+      "anon": false,
+      "function": "crwt_v18_roll_core",
+      "authenticated": false
+    },
+    {
+      "anon": false,
+      "function": "crwt_v18_timeout_apply",
+      "authenticated": false
+    },
+    {
+      "anon": false,
+      "function": "crwt_v18_timeout_tick",
+      "authenticated": true
+    }
+  ],
+  "server_functions_compared": 136,
+  "server_functions_changed": [
+    "crwt_v18_roll_core"
+  ],
+  "new_scoped_security_advisor_findings": 0,
+  "local_sql_tests": 10,
+  "local_anti_farming_cases": 1140,
+  "local_rng_pairs": 100000,
+  "csharp_assertions": 66,
+  "unity_editor_available": false
+}

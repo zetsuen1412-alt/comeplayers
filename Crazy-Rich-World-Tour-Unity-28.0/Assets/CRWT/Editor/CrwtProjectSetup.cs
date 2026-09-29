@@ -12,14 +12,14 @@ namespace ComePlayers.CrazyRich.Editor
     public static class CrwtProjectSetup
     {
         private const string SceneDir = "Assets/CRWT/Scenes";
-        private const string Marker = "Assets/CRWT/.setup28";
+        private const string Marker = "Assets/CRWT/.setup29";
 
         static CrwtProjectSetup()
         {
             EditorApplication.delayCall += Ensure;
         }
 
-        [MenuItem("Crazy Rich/28.0/Setup Project")]
+        [MenuItem("Crazy Rich/29.0/Setup Project")]
         public static void Ensure()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
@@ -38,12 +38,13 @@ namespace ComePlayers.CrazyRich.Editor
             };
             PlayerSettings.companyName = "ComePlayers";
             PlayerSettings.productName = "Crazy Rich World Tour";
+            PlayerSettings.bundleVersion = "29.0";
             PlayerSettings.defaultScreenWidth = 1920;
             PlayerSettings.defaultScreenHeight = 1080;
             PlayerSettings.runInBackground = true;
-            File.WriteAllText(Marker, "CRWT Unity production client 28.0 setup complete.\n");
+            File.WriteAllText(Marker, "CRWT Unity 29.0 Zero Dice System setup complete.\n");
             AssetDatabase.Refresh();
-            Debug.Log("[CRWT 28] Scene + Build Settings siap. Buka CRWT_Bootstrap lalu Play.");
+            Debug.Log("[CRWT 29] Scene + Build Settings siap. Buka CRWT_Bootstrap lalu Play.");
         }
 
         private static void CreateScene(string name, System.Type controller)

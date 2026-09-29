@@ -6,6 +6,11 @@ namespace ComePlayers.CrazyRich
 {
     public sealed class CrwtBoardView : MonoBehaviour
     {
+        public event System.Action MovementFinished;
+        public bool IsMoving
+        {
+            get { foreach (var pawn in pawns.Values) if (pawn.move != null) return true; return false; }
+        }
         private readonly Vector3[] tiles = new Vector3[32];
         private readonly Dictionary<int, Pawn> pawns = new Dictionary<int, Pawn>();
         private readonly Dictionary<int, GameObject> buildings = new Dictionary<int, GameObject>();
@@ -22,6 +27,7 @@ namespace ComePlayers.CrazyRich
 
         public void Build(string mapId)
         {
+            StopAllCoroutines();
             CrwtUi.Clear(transform);
             pawns.Clear(); buildings.Clear(); buildingState.Clear();
             var table = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -47,6 +53,16 @@ namespace ComePlayers.CrazyRich
             ApplyProperties(snap.state.properties);
         }
 
+        public void PrepareRoll(CrwtLastRoll roll)
+        {
+            // Reconcile a skipped snapshot to the server's starting tile before
+            // the cinematic. Never turn a ZERO ROLL into catch-up movement.
+            if (!pawns.TryGetValue(roll.seat, out var pawn) || !pawn.root) return;
+            if (pawn.move != null) { StopCoroutine(pawn.move); pawn.move = null; }
+            pawn.tile = roll.from;
+            pawn.root.transform.localPosition = TileWithSeatOffset(roll.from, roll.seat);
+        }
+
         private void EnsurePawn(CrwtPlayer p, bool active)
         {
             if (!pawns.TryGetValue(p.seat, out var pawn))
@@ -70,7 +86,7 @@ namespace ComePlayers.CrazyRich
         private IEnumerator MovePawn(Pawn pawn, int from, int to, int seat)
         {
             var steps = ((to - from) + 32) % 32;
-            if (steps == 0) steps = 1;
+            if (steps == 0) yield break;
             for (var s = 1; s <= steps; s++)
             {
                 var tile = (from + s) % 32;
@@ -85,6 +101,26 @@ namespace ComePlayers.CrazyRich
                 }
                 pawn.root.transform.localPosition = b;
             }
+            pawn.move = null;
+            MovementFinished?.Invoke();
+        }
+
+        public void ReactToZero(int seat)
+        {
+            if (pawns.TryGetValue(seat, out var pawn) && pawn.root && pawn.move == null)
+                StartCoroutine(ZeroReaction(pawn));
+        }
+
+        private IEnumerator ZeroReaction(Pawn pawn)
+        {
+            // Only tilt the character; its position and tile remain unchanged.
+            for (float t = 0; t < .65f; t += Time.unscaledDeltaTime)
+            {
+                if (!pawn.root) yield break;
+                pawn.root.transform.localRotation = Quaternion.Euler(0, 0, Mathf.Sin(t * 16) * 9 * (1 - t / .65f));
+                yield return null;
+            }
+            if (pawn.root) pawn.root.transform.localRotation = Quaternion.identity;
         }
 
         private void ApplyProperties(Dictionary<string, CrwtPropertyState> properties)

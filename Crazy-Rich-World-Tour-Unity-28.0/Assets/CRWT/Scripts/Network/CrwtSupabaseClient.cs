@@ -95,7 +95,7 @@ namespace ComePlayers.CrazyRich
         public Task<string> TouchPresenceAsync(string roomId) => RpcRawAsync("crwt_touch_presence", new { p_room_id = roomId });
 
         public Task<CrwtMatchSnapshot> SnapshotAsync(string matchId) => RpcAsync<CrwtMatchSnapshot>("crwt_v16_snapshot", new { p_match_id = matchId });
-        public Task<CrwtMatchSnapshot> RollAsync(string matchId) => RpcAsync<CrwtMatchSnapshot>("crwt_v18_roll", new { p_match_id = matchId, p_idempotency_key = Idem("roll28") });
+        public Task<CrwtMatchSnapshot> RollAsync(string matchId) => RpcAsync<CrwtMatchSnapshot>("crwt_v18_roll", new { p_match_id = matchId, p_idempotency_key = Idem("roll29") });
         public Task<CrwtMatchSnapshot> BuyAsync(string matchId) => ActionAsync("crwt_v15_buy_property", matchId, "buy28");
         public Task<CrwtMatchSnapshot> UpgradeAsync(string matchId) => ActionAsync("crwt_v15_upgrade_property", matchId, "upgrade28");
         public Task<CrwtMatchSnapshot> TakeoverAsync(string matchId) => ActionAsync("crwt_v15_takeover", matchId, "takeover28");
@@ -123,10 +123,10 @@ namespace ComePlayers.CrazyRich
             RpcAsync<CrwtMatchSnapshot>("crwt_use_card_v17", new { p_match_id = matchId, p_card = card, p_target_seat = targetSeat, p_idempotency_key = Idem("card28") });
 
         public Task<CrwtMatchSnapshot> TimeoutTickAsync(string matchId) =>
-            RpcAsync<CrwtMatchSnapshot>("crwt_v18_timeout_tick", new { p_match_id = matchId, p_idempotency_key = Idem("timeout28") });
+            RpcAsync<CrwtMatchSnapshot>("crwt_v18_timeout_tick", new { p_match_id = matchId, p_idempotency_key = Idem("timeout29") });
 
         public Task<CrwtMatchSnapshot> BotStepAsync(string matchId) =>
-            RpcAsync<CrwtMatchSnapshot>("crwt_v18_bot_step", new { p_match_id = matchId, p_idempotency_key = Idem("bot28") });
+            RpcAsync<CrwtMatchSnapshot>("crwt_v18_bot_step", new { p_match_id = matchId, p_idempotency_key = Idem("bot29") });
 
         public Task<CrwtMatchResult> MatchResultAsync(string matchId) => RpcAsync<CrwtMatchResult>("crwt_match_result_v27", new { p_match_id = matchId });
         public Task<CrwtRematchStatus> RematchStatusAsync(string matchId) => RpcAsync<CrwtRematchStatus>("crwt_rematch_status_v27", new { p_match_id = matchId });
@@ -139,6 +139,7 @@ namespace ComePlayers.CrazyRich
         {
             var url = CrwtRuntimeConfig.SupabaseUrl.TrimEnd('/') + path;
             using var request = new UnityWebRequest(url, method);
+            request.timeout = 20;
             request.downloadHandler = new DownloadHandlerBuffer();
             request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body ?? "{}"));
             request.SetRequestHeader("Content-Type", "application/json");

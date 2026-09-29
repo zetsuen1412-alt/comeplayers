@@ -1,0 +1,1527 @@
+{
+  "maps": [
+    {
+      "id": "world_tour",
+      "rules": {
+        "tax": 150,
+        "bonus": 200,
+        "rent_mult": 1,
+        "island_skip": 1,
+        "start_bonus": 350,
+        "festival_mult": 2,
+        "chance_bad_cash": 150,
+        "festival_rounds": 3,
+        "chance_good_cash": 250,
+        "chance_good_prob": 0.58
+      },
+      "enabled": true
+    },
+    {
+      "id": "tokyo_rush",
+      "rules": {
+        "tax": 130,
+        "bonus": 180,
+        "rent_mult": 1.1,
+        "island_skip": 1,
+        "start_bonus": 400,
+        "festival_mult": 2,
+        "chance_bad_cash": 120,
+        "festival_rounds": 2,
+        "chance_good_cash": 220,
+        "chance_good_prob": 0.62
+      },
+      "enabled": true
+    },
+    {
+      "id": "tropical_paradise",
+      "rules": {
+        "tax": 100,
+        "bonus": 260,
+        "rent_mult": 0.95,
+        "island_skip": 1,
+        "start_bonus": 350,
+        "festival_mult": 2,
+        "chance_bad_cash": 100,
+        "festival_rounds": 3,
+        "chance_good_cash": 260,
+        "chance_good_prob": 0.68,
+        "resort_rent_mult": 1.35
+      },
+      "enabled": true
+    },
+    {
+      "id": "candy_world",
+      "rules": {
+        "tax": 90,
+        "bonus": 300,
+        "rent_mult": 0.9,
+        "island_skip": 1,
+        "start_bonus": 380,
+        "festival_mult": 2.25,
+        "chance_bad_cash": 90,
+        "festival_rounds": 2,
+        "chance_good_cash": 300,
+        "chance_good_prob": 0.72
+      },
+      "enabled": true
+    },
+    {
+      "id": "fantasy_kingdom",
+      "rules": {
+        "tax": 180,
+        "bonus": 240,
+        "rent_mult": 1.2,
+        "island_skip": 2,
+        "start_bonus": 420,
+        "festival_mult": 2.25,
+        "chance_bad_cash": 180,
+        "festival_rounds": 3,
+        "chance_good_cash": 320,
+        "chance_good_prob": 0.55
+      },
+      "enabled": true
+    }
+  ],
+  "tiles": [
+    {
+      "kind": "start",
+      "name": "START",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 0,
+      "group_id": null,
+      "visual_key": "start"
+    },
+    {
+      "kind": "city",
+      "name": "Bandung",
+      "price": 130,
+      "map_id": "world_tour",
+      "tile_id": 1,
+      "group_id": 0,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Jakarta",
+      "price": 130,
+      "map_id": "world_tour",
+      "tile_id": 2,
+      "group_id": 0,
+      "visual_key": "city"
+    },
+    {
+      "kind": "chance",
+      "name": "KEJUTAN",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 3,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Bali",
+      "price": 158,
+      "map_id": "world_tour",
+      "tile_id": 4,
+      "group_id": 1,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Surabaya",
+      "price": 158,
+      "map_id": "world_tour",
+      "tile_id": 5,
+      "group_id": 1,
+      "visual_key": "city"
+    },
+    {
+      "kind": "resort",
+      "name": "Lagoon Bay",
+      "price": 230,
+      "map_id": "world_tour",
+      "tile_id": 6,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Singapura",
+      "price": 158,
+      "map_id": "world_tour",
+      "tile_id": 7,
+      "group_id": 2,
+      "visual_key": "city"
+    },
+    {
+      "kind": "island",
+      "name": "PULAU",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 8,
+      "group_id": null,
+      "visual_key": "island"
+    },
+    {
+      "kind": "city",
+      "name": "Kuala Lumpur",
+      "price": 186,
+      "map_id": "world_tour",
+      "tile_id": 9,
+      "group_id": 2,
+      "visual_key": "city"
+    },
+    {
+      "kind": "chance",
+      "name": "KEJUTAN",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 10,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Tokyo",
+      "price": 186,
+      "map_id": "world_tour",
+      "tile_id": 11,
+      "group_id": 3,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Seoul",
+      "price": 214,
+      "map_id": "world_tour",
+      "tile_id": 12,
+      "group_id": 3,
+      "visual_key": "city"
+    },
+    {
+      "kind": "tax",
+      "name": "PAJAK",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 13,
+      "group_id": null,
+      "visual_key": "tax"
+    },
+    {
+      "kind": "city",
+      "name": "Kyoto",
+      "price": 214,
+      "map_id": "world_tour",
+      "tile_id": 14,
+      "group_id": 4,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Osaka",
+      "price": 214,
+      "map_id": "world_tour",
+      "tile_id": 15,
+      "group_id": 4,
+      "visual_key": "city"
+    },
+    {
+      "kind": "festival",
+      "name": "FESTIVAL",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 16,
+      "group_id": null,
+      "visual_key": "festival"
+    },
+    {
+      "kind": "city",
+      "name": "Dubai",
+      "price": 242,
+      "map_id": "world_tour",
+      "tile_id": 17,
+      "group_id": 5,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Doha",
+      "price": 242,
+      "map_id": "world_tour",
+      "tile_id": 18,
+      "group_id": 5,
+      "visual_key": "city"
+    },
+    {
+      "kind": "chance",
+      "name": "KEJUTAN",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 19,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Paris",
+      "price": 270,
+      "map_id": "world_tour",
+      "tile_id": 20,
+      "group_id": 6,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "London",
+      "price": 270,
+      "map_id": "world_tour",
+      "tile_id": 21,
+      "group_id": 6,
+      "visual_key": "city"
+    },
+    {
+      "kind": "resort",
+      "name": "Coral Coast",
+      "price": 230,
+      "map_id": "world_tour",
+      "tile_id": 22,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Roma",
+      "price": 270,
+      "map_id": "world_tour",
+      "tile_id": 23,
+      "group_id": 7,
+      "visual_key": "city"
+    },
+    {
+      "kind": "travel",
+      "name": "TERBANG",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 24,
+      "group_id": null,
+      "visual_key": "travel"
+    },
+    {
+      "kind": "city",
+      "name": "Venesia",
+      "price": 298,
+      "map_id": "world_tour",
+      "tile_id": 25,
+      "group_id": 7,
+      "visual_key": "city"
+    },
+    {
+      "kind": "bonus",
+      "name": "BONUS",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 26,
+      "group_id": null,
+      "visual_key": "bonus"
+    },
+    {
+      "kind": "city",
+      "name": "Sydney",
+      "price": 298,
+      "map_id": "world_tour",
+      "tile_id": 27,
+      "group_id": 8,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Melbourne",
+      "price": 326,
+      "map_id": "world_tour",
+      "tile_id": 28,
+      "group_id": 8,
+      "visual_key": "city"
+    },
+    {
+      "kind": "chance",
+      "name": "KEJUTAN",
+      "price": 0,
+      "map_id": "world_tour",
+      "tile_id": 29,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "New York",
+      "price": 326,
+      "map_id": "world_tour",
+      "tile_id": 30,
+      "group_id": 9,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Los Angeles",
+      "price": 326,
+      "map_id": "world_tour",
+      "tile_id": 31,
+      "group_id": 9,
+      "visual_key": "city"
+    },
+    {
+      "kind": "start",
+      "name": "TOKYO START",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 0,
+      "group_id": null,
+      "visual_key": "start"
+    },
+    {
+      "kind": "city",
+      "name": "Shibuya",
+      "price": 135,
+      "map_id": "tokyo_rush",
+      "tile_id": 1,
+      "group_id": 0,
+      "visual_key": "neon"
+    },
+    {
+      "kind": "city",
+      "name": "Shinjuku",
+      "price": 135,
+      "map_id": "tokyo_rush",
+      "tile_id": 2,
+      "group_id": 0,
+      "visual_key": "neon"
+    },
+    {
+      "kind": "chance",
+      "name": "LUCKY",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 3,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Ginza",
+      "price": 160,
+      "map_id": "tokyo_rush",
+      "tile_id": 4,
+      "group_id": 1,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Akihabara",
+      "price": 160,
+      "map_id": "tokyo_rush",
+      "tile_id": 5,
+      "group_id": 1,
+      "visual_key": "neon"
+    },
+    {
+      "kind": "resort",
+      "name": "Odaiba Bay",
+      "price": 240,
+      "map_id": "tokyo_rush",
+      "tile_id": 6,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Asakusa",
+      "price": 165,
+      "map_id": "tokyo_rush",
+      "tile_id": 7,
+      "group_id": 2,
+      "visual_key": "temple"
+    },
+    {
+      "kind": "island",
+      "name": "RUSH HOUR",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 8,
+      "group_id": null,
+      "visual_key": "island"
+    },
+    {
+      "kind": "city",
+      "name": "Ueno",
+      "price": 190,
+      "map_id": "tokyo_rush",
+      "tile_id": 9,
+      "group_id": 2,
+      "visual_key": "park"
+    },
+    {
+      "kind": "chance",
+      "name": "LUCKY",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 10,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Harajuku",
+      "price": 195,
+      "map_id": "tokyo_rush",
+      "tile_id": 11,
+      "group_id": 3,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Roppongi",
+      "price": 220,
+      "map_id": "tokyo_rush",
+      "tile_id": 12,
+      "group_id": 3,
+      "visual_key": "neon"
+    },
+    {
+      "kind": "tax",
+      "name": "CITY TAX",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 13,
+      "group_id": null,
+      "visual_key": "tax"
+    },
+    {
+      "kind": "city",
+      "name": "Ikebukuro",
+      "price": 220,
+      "map_id": "tokyo_rush",
+      "tile_id": 14,
+      "group_id": 4,
+      "visual_key": "city"
+    },
+    {
+      "kind": "city",
+      "name": "Tokyo Station",
+      "price": 220,
+      "map_id": "tokyo_rush",
+      "tile_id": 15,
+      "group_id": 4,
+      "visual_key": "city"
+    },
+    {
+      "kind": "festival",
+      "name": "SAKURA FEST",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 16,
+      "group_id": null,
+      "visual_key": "festival"
+    },
+    {
+      "kind": "city",
+      "name": "Yokohama",
+      "price": 250,
+      "map_id": "tokyo_rush",
+      "tile_id": 17,
+      "group_id": 5,
+      "visual_key": "port"
+    },
+    {
+      "kind": "city",
+      "name": "Kawasaki",
+      "price": 250,
+      "map_id": "tokyo_rush",
+      "tile_id": 18,
+      "group_id": 5,
+      "visual_key": "city"
+    },
+    {
+      "kind": "chance",
+      "name": "LUCKY",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 19,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Kamakura",
+      "price": 275,
+      "map_id": "tokyo_rush",
+      "tile_id": 20,
+      "group_id": 6,
+      "visual_key": "temple"
+    },
+    {
+      "kind": "city",
+      "name": "Chiba",
+      "price": 275,
+      "map_id": "tokyo_rush",
+      "tile_id": 21,
+      "group_id": 6,
+      "visual_key": "city"
+    },
+    {
+      "kind": "resort",
+      "name": "Tokyo Disney Bay",
+      "price": 255,
+      "map_id": "tokyo_rush",
+      "tile_id": 22,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Nakano",
+      "price": 285,
+      "map_id": "tokyo_rush",
+      "tile_id": 23,
+      "group_id": 7,
+      "visual_key": "city"
+    },
+    {
+      "kind": "travel",
+      "name": "SHINKANSEN",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 24,
+      "group_id": null,
+      "visual_key": "travel"
+    },
+    {
+      "kind": "city",
+      "name": "Kichijoji",
+      "price": 305,
+      "map_id": "tokyo_rush",
+      "tile_id": 25,
+      "group_id": 7,
+      "visual_key": "park"
+    },
+    {
+      "kind": "bonus",
+      "name": "BONUS",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 26,
+      "group_id": null,
+      "visual_key": "bonus"
+    },
+    {
+      "kind": "city",
+      "name": "Yokohama Bay",
+      "price": 310,
+      "map_id": "tokyo_rush",
+      "tile_id": 27,
+      "group_id": 8,
+      "visual_key": "port"
+    },
+    {
+      "kind": "city",
+      "name": "Shibuya Sky",
+      "price": 335,
+      "map_id": "tokyo_rush",
+      "tile_id": 28,
+      "group_id": 8,
+      "visual_key": "tower"
+    },
+    {
+      "kind": "chance",
+      "name": "LUCKY",
+      "price": 0,
+      "map_id": "tokyo_rush",
+      "tile_id": 29,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Minato",
+      "price": 340,
+      "map_id": "tokyo_rush",
+      "tile_id": 30,
+      "group_id": 9,
+      "visual_key": "tower"
+    },
+    {
+      "kind": "city",
+      "name": "Otemachi",
+      "price": 340,
+      "map_id": "tokyo_rush",
+      "tile_id": 31,
+      "group_id": 9,
+      "visual_key": "tower"
+    },
+    {
+      "kind": "start",
+      "name": "ISLAND START",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 0,
+      "group_id": null,
+      "visual_key": "start"
+    },
+    {
+      "kind": "city",
+      "name": "Bali",
+      "price": 125,
+      "map_id": "tropical_paradise",
+      "tile_id": 1,
+      "group_id": 0,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "city",
+      "name": "Lombok",
+      "price": 125,
+      "map_id": "tropical_paradise",
+      "tile_id": 2,
+      "group_id": 0,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "chance",
+      "name": "TREASURE",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 3,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Phuket",
+      "price": 150,
+      "map_id": "tropical_paradise",
+      "tile_id": 4,
+      "group_id": 1,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "city",
+      "name": "Krabi",
+      "price": 150,
+      "map_id": "tropical_paradise",
+      "tile_id": 5,
+      "group_id": 1,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "resort",
+      "name": "Maldives Resort",
+      "price": 250,
+      "map_id": "tropical_paradise",
+      "tile_id": 6,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Langkawi",
+      "price": 155,
+      "map_id": "tropical_paradise",
+      "tile_id": 7,
+      "group_id": 2,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "island",
+      "name": "CASTAWAY",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 8,
+      "group_id": null,
+      "visual_key": "island"
+    },
+    {
+      "kind": "city",
+      "name": "Sentosa",
+      "price": 180,
+      "map_id": "tropical_paradise",
+      "tile_id": 9,
+      "group_id": 2,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "chance",
+      "name": "TREASURE",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 10,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Boracay",
+      "price": 185,
+      "map_id": "tropical_paradise",
+      "tile_id": 11,
+      "group_id": 3,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "city",
+      "name": "Palawan",
+      "price": 210,
+      "map_id": "tropical_paradise",
+      "tile_id": 12,
+      "group_id": 3,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "tax",
+      "name": "HARBOR TAX",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 13,
+      "group_id": null,
+      "visual_key": "tax"
+    },
+    {
+      "kind": "city",
+      "name": "Cebu",
+      "price": 210,
+      "map_id": "tropical_paradise",
+      "tile_id": 14,
+      "group_id": 4,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "city",
+      "name": "Fiji",
+      "price": 210,
+      "map_id": "tropical_paradise",
+      "tile_id": 15,
+      "group_id": 4,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "festival",
+      "name": "BEACH FEST",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 16,
+      "group_id": null,
+      "visual_key": "festival"
+    },
+    {
+      "kind": "city",
+      "name": "Tahiti",
+      "price": 235,
+      "map_id": "tropical_paradise",
+      "tile_id": 17,
+      "group_id": 5,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "city",
+      "name": "Maui",
+      "price": 235,
+      "map_id": "tropical_paradise",
+      "tile_id": 18,
+      "group_id": 5,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "chance",
+      "name": "TREASURE",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 19,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Bora Bora",
+      "price": 260,
+      "map_id": "tropical_paradise",
+      "tile_id": 20,
+      "group_id": 6,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Seychelles",
+      "price": 260,
+      "map_id": "tropical_paradise",
+      "tile_id": 21,
+      "group_id": 6,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "resort",
+      "name": "Pearl Lagoon",
+      "price": 270,
+      "map_id": "tropical_paradise",
+      "tile_id": 22,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Okinawa",
+      "price": 270,
+      "map_id": "tropical_paradise",
+      "tile_id": 23,
+      "group_id": 7,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "travel",
+      "name": "ISLAND HOP",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 24,
+      "group_id": null,
+      "visual_key": "travel"
+    },
+    {
+      "kind": "city",
+      "name": "Jeju",
+      "price": 290,
+      "map_id": "tropical_paradise",
+      "tile_id": 25,
+      "group_id": 7,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "bonus",
+      "name": "COCONUT BONUS",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 26,
+      "group_id": null,
+      "visual_key": "bonus"
+    },
+    {
+      "kind": "city",
+      "name": "Gold Coast",
+      "price": 295,
+      "map_id": "tropical_paradise",
+      "tile_id": 27,
+      "group_id": 8,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "city",
+      "name": "Cairns",
+      "price": 320,
+      "map_id": "tropical_paradise",
+      "tile_id": 28,
+      "group_id": 8,
+      "visual_key": "beach"
+    },
+    {
+      "kind": "chance",
+      "name": "TREASURE",
+      "price": 0,
+      "map_id": "tropical_paradise",
+      "tile_id": 29,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Santorini",
+      "price": 325,
+      "map_id": "tropical_paradise",
+      "tile_id": 30,
+      "group_id": 9,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Amalfi",
+      "price": 325,
+      "map_id": "tropical_paradise",
+      "tile_id": 31,
+      "group_id": 9,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "start",
+      "name": "SWEET START",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 0,
+      "group_id": null,
+      "visual_key": "start"
+    },
+    {
+      "kind": "city",
+      "name": "Peppermint Plaza",
+      "price": 120,
+      "map_id": "candy_world",
+      "tile_id": 1,
+      "group_id": 0,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Caramel Corner",
+      "price": 120,
+      "map_id": "candy_world",
+      "tile_id": 2,
+      "group_id": 0,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "chance",
+      "name": "MYSTERY SWEET",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 3,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Jellybean Town",
+      "price": 145,
+      "map_id": "candy_world",
+      "tile_id": 4,
+      "group_id": 1,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Cookie Village",
+      "price": 145,
+      "map_id": "candy_world",
+      "tile_id": 5,
+      "group_id": 1,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "resort",
+      "name": "Chocolate Castle",
+      "price": 235,
+      "map_id": "candy_world",
+      "tile_id": 6,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Lollipop Lane",
+      "price": 150,
+      "map_id": "candy_world",
+      "tile_id": 7,
+      "group_id": 2,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "island",
+      "name": "SUGAR CRASH",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 8,
+      "group_id": null,
+      "visual_key": "island"
+    },
+    {
+      "kind": "city",
+      "name": "Marshmallow Park",
+      "price": 175,
+      "map_id": "candy_world",
+      "tile_id": 9,
+      "group_id": 2,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "chance",
+      "name": "MYSTERY SWEET",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 10,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Gummy Garden",
+      "price": 180,
+      "map_id": "candy_world",
+      "tile_id": 11,
+      "group_id": 3,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Donut District",
+      "price": 205,
+      "map_id": "candy_world",
+      "tile_id": 12,
+      "group_id": 3,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "tax",
+      "name": "CANDY TAX",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 13,
+      "group_id": null,
+      "visual_key": "tax"
+    },
+    {
+      "kind": "city",
+      "name": "Pudding Port",
+      "price": 205,
+      "map_id": "candy_world",
+      "tile_id": 14,
+      "group_id": 4,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Waffle Way",
+      "price": 205,
+      "map_id": "candy_world",
+      "tile_id": 15,
+      "group_id": 4,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "festival",
+      "name": "CANDY FEST",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 16,
+      "group_id": null,
+      "visual_key": "festival"
+    },
+    {
+      "kind": "city",
+      "name": "Macaron Market",
+      "price": 230,
+      "map_id": "candy_world",
+      "tile_id": 17,
+      "group_id": 5,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Cupcake City",
+      "price": 230,
+      "map_id": "candy_world",
+      "tile_id": 18,
+      "group_id": 5,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "chance",
+      "name": "MYSTERY SWEET",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 19,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Honey Hills",
+      "price": 255,
+      "map_id": "candy_world",
+      "tile_id": 20,
+      "group_id": 6,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Ice Cream Bay",
+      "price": 255,
+      "map_id": "candy_world",
+      "tile_id": 21,
+      "group_id": 6,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "resort",
+      "name": "Rainbow Resort",
+      "price": 255,
+      "map_id": "candy_world",
+      "tile_id": 22,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Candy Cane City",
+      "price": 265,
+      "map_id": "candy_world",
+      "tile_id": 23,
+      "group_id": 7,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "travel",
+      "name": "MAGIC PORTAL",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 24,
+      "group_id": null,
+      "visual_key": "travel"
+    },
+    {
+      "kind": "city",
+      "name": "Choco River",
+      "price": 285,
+      "map_id": "candy_world",
+      "tile_id": 25,
+      "group_id": 7,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "bonus",
+      "name": "SWEET BONUS",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 26,
+      "group_id": null,
+      "visual_key": "bonus"
+    },
+    {
+      "kind": "city",
+      "name": "Sugar Crystal",
+      "price": 290,
+      "map_id": "candy_world",
+      "tile_id": 27,
+      "group_id": 8,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Star Candy",
+      "price": 315,
+      "map_id": "candy_world",
+      "tile_id": 28,
+      "group_id": 8,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "chance",
+      "name": "MYSTERY SWEET",
+      "price": 0,
+      "map_id": "candy_world",
+      "tile_id": 29,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Royal Truffle",
+      "price": 320,
+      "map_id": "candy_world",
+      "tile_id": 30,
+      "group_id": 9,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "city",
+      "name": "Golden Candy",
+      "price": 320,
+      "map_id": "candy_world",
+      "tile_id": 31,
+      "group_id": 9,
+      "visual_key": "candy"
+    },
+    {
+      "kind": "start",
+      "name": "ROYAL START",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 0,
+      "group_id": null,
+      "visual_key": "start"
+    },
+    {
+      "kind": "city",
+      "name": "Crownspire",
+      "price": 140,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 1,
+      "group_id": 0,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "city",
+      "name": "Moonvale",
+      "price": 140,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 2,
+      "group_id": 0,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "chance",
+      "name": "MAGIC CARD",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 3,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Ember Keep",
+      "price": 170,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 4,
+      "group_id": 1,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "city",
+      "name": "Silverwood",
+      "price": 170,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 5,
+      "group_id": 1,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "resort",
+      "name": "Crystal Harbor",
+      "price": 255,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 6,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Dragon Gate",
+      "price": 175,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 7,
+      "group_id": 2,
+      "visual_key": "dragon"
+    },
+    {
+      "kind": "island",
+      "name": "DUNGEON",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 8,
+      "group_id": null,
+      "visual_key": "island"
+    },
+    {
+      "kind": "city",
+      "name": "Frostholm",
+      "price": 205,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 9,
+      "group_id": 2,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "chance",
+      "name": "MAGIC CARD",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 10,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Suncrest",
+      "price": 210,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 11,
+      "group_id": 3,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "city",
+      "name": "Stormwatch",
+      "price": 240,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 12,
+      "group_id": 3,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "tax",
+      "name": "ROYAL TAX",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 13,
+      "group_id": null,
+      "visual_key": "tax"
+    },
+    {
+      "kind": "city",
+      "name": "Mystic Forest",
+      "price": 240,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 14,
+      "group_id": 4,
+      "visual_key": "forest"
+    },
+    {
+      "kind": "city",
+      "name": "Iron Citadel",
+      "price": 240,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 15,
+      "group_id": 4,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "festival",
+      "name": "MANA FEST",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 16,
+      "group_id": null,
+      "visual_key": "festival"
+    },
+    {
+      "kind": "city",
+      "name": "Aurora Keep",
+      "price": 270,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 17,
+      "group_id": 5,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "city",
+      "name": "Phoenix Nest",
+      "price": 270,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 18,
+      "group_id": 5,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "chance",
+      "name": "MAGIC CARD",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 19,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Skyreach",
+      "price": 300,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 20,
+      "group_id": 6,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "city",
+      "name": "Rune Valley",
+      "price": 300,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 21,
+      "group_id": 6,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "resort",
+      "name": "Dragon Resort",
+      "price": 285,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 22,
+      "group_id": null,
+      "visual_key": "resort"
+    },
+    {
+      "kind": "city",
+      "name": "Celestia",
+      "price": 310,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 23,
+      "group_id": 7,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "travel",
+      "name": "PORTAL",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 24,
+      "group_id": null,
+      "visual_key": "travel"
+    },
+    {
+      "kind": "city",
+      "name": "Starfall",
+      "price": 335,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 25,
+      "group_id": 7,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "bonus",
+      "name": "TREASURE",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 26,
+      "group_id": null,
+      "visual_key": "bonus"
+    },
+    {
+      "kind": "city",
+      "name": "Golden Throne",
+      "price": 340,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 27,
+      "group_id": 8,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "city",
+      "name": "Ancient Spire",
+      "price": 370,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 28,
+      "group_id": 8,
+      "visual_key": "fantasy"
+    },
+    {
+      "kind": "chance",
+      "name": "MAGIC CARD",
+      "price": 0,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 29,
+      "group_id": null,
+      "visual_key": "chance"
+    },
+    {
+      "kind": "city",
+      "name": "Eternal Palace",
+      "price": 380,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 30,
+      "group_id": 9,
+      "visual_key": "castle"
+    },
+    {
+      "kind": "city",
+      "name": "World Tree",
+      "price": 380,
+      "map_id": "fantasy_kingdom",
+      "tile_id": 31,
+      "group_id": 9,
+      "visual_key": "forest"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+name: Crazy Rich Zero Dice
+on:
+  push:
+    paths:
+      - 'Crazy-Rich-World-Tour-Unity-28.0/**'
+      - '.github/workflows/crazy-rich-zero-dice.yml'
+  pull_request:
+    paths:
+      - 'Crazy-Rich-World-Tour-Unity-28.0/**'
+      - '.github/workflows/crazy-rich-zero-dice.yml'
+permissions:
+  contents: read
+jobs:
+  postgres-regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Crazy-Rich-World-Tour-Unity-28.0/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - run: node tools/verify-release.mjs
+      - run: pwsh -NoProfile -File tests/check-client.ps1

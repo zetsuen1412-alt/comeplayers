@@ -106,17 +106,18 @@ namespace ComePlayers.CrazyRich
         public string map_theme;
         public string message;
         public string win_condition;
-        public int winner_seat;
+        public int? winner_seat;
         public CrwtPending pending;
         public CrwtPlayer[] players;
         public CrwtLastRoll last_roll;
         public Dictionary<string, CrwtPropertyState> properties;
-        public int festival_group;
+        public int? festival_group;
         public int festival_until_round;
     }
 
     [Serializable] public sealed class CrwtPlayer
     {
+        public string bot_key;
         public int cash;
         public string name;
         public int seat;
@@ -151,8 +152,13 @@ namespace ComePlayers.CrazyRich
 
     [Serializable] public sealed class CrwtLastRoll
     {
+        public string roll_id;
+        public bool zero_roll;
+        [JsonProperty(Required = Required.Always)]
         public int d1;
+        [JsonProperty(Required = Required.Always)]
         public int d2;
+        [JsonProperty(Required = Required.Always)]
         public int total;
         public int from;
         public int to;

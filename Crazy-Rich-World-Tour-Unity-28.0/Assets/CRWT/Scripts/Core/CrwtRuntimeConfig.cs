@@ -4,7 +4,7 @@ namespace ComePlayers.CrazyRich
 {
     public static class CrwtRuntimeConfig
     {
-        public const string ClientVersion = "28.0";
+        public const string ClientVersion = "29.0";
         public const string SupabaseUrl = "https://uyehruetoxedmookyfcd.supabase.co";
         public const string SupabasePublishableKey = "sb_publishable_JPf7KbUQ04dOFrpxYjxKJA_MWu1X6Sk";
         public const string ProductName = "Crazy Rich: World Tour";
