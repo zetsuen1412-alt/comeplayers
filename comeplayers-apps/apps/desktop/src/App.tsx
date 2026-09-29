@@ -25,14 +25,62 @@ function createAppUrl(): string {
       optional(import.meta.env.VITE_COMEPLAYERS_API_URL) ||
       "https://www.comeplayers.com";
 
-  if (!import.meta.env.DEV && !baseUrl.startsWith("https://")) {
-    throw new Error("The production desktop app requires a secure HTTPS URL.");
-  }
-
   const url = new URL(baseUrl.includes("://") ? baseUrl : `https://${baseUrl}`);
+  if (
+    !import.meta.env.DEV &&
+    (url.protocol !== "https:" ||
+      url.hostname !== "www.comeplayers.com" ||
+      url.port !== "" ||
+      url.username !== "" ||
+      url.password !== "" ||
+      url.pathname !== "/" ||
+      url.search !== "" ||
+      url.hash !== "")
+  ) {
+    throw new Error("Alamat aplikasi produksi ComePlayers tidak valid.");
+  }
   url.searchParams.set("source", "desktop-app");
   url.searchParams.set("shell", "tauri");
   return url.toString();
+}
+
+async function waitForWebsite(url: string): Promise<void> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8_000);
+  try {
+    // A no-CORS request only checks connectivity. The website remains responsible
+    // for authentication and its own content; no response body is read here.
+    await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+async function resolveLaunchUrl(defaultUrl: string): Promise<string> {
+  if (!("__TAURI_INTERNALS__" in window)) return defaultUrl;
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    const pendingUrl = await invoke<string | null>("take_pending_navigation_url");
+    if (!pendingUrl) return defaultUrl;
+    const parsed = new URL(pendingUrl);
+    if (
+      parsed.protocol === "https:" &&
+      parsed.hostname === "www.comeplayers.com" &&
+      parsed.port === "" &&
+      parsed.username === "" &&
+      parsed.password === ""
+    ) {
+      return parsed.toString();
+    }
+  } catch (reason) {
+    console.warn("[ComePlayers] Could not read the opening link", reason);
+  }
+  return defaultUrl;
 }
 
 async function runAutomaticDesktopUpdate(
@@ -120,7 +168,16 @@ async function runAutomaticDesktopUpdate(
 }
 
 export default function App() {
-  const targetUrl = useMemo(createAppUrl, []);
+  const target = useMemo(() => {
+    try {
+      return { url: createAppUrl(), error: null };
+    } catch (reason) {
+      return {
+        url: null,
+        error: reason instanceof Error ? reason.message : "Konfigurasi aplikasi tidak valid.",
+      };
+    }
+  }, []);
   const usesStoreUpdates = import.meta.env.VITE_COMEPLAYERS_DISTRIBUTION === "store";
   const [state, setState] = useState<LaunchState>("checking");
   const [message, setMessage] = useState(
@@ -131,22 +188,28 @@ export default function App() {
   const [progress, setProgress] = useState<number | null>(null);
   const [navigationFailed, setNavigationFailed] = useState(false);
 
-  const openComePlayers = useCallback(() => {
+  const openComePlayers = useCallback(async () => {
+    if (!target.url) {
+      setState("error");
+      setMessage(target.error || "Konfigurasi aplikasi tidak valid.");
+      setNavigationFailed(false);
+      return;
+    }
     setNavigationFailed(false);
     setState("opening");
-    setMessage("Opening the latest ComePlayers experience...");
+    setMessage("Menghubungkan ke ComePlayers...");
     setProgress(null);
-    window.setTimeout(() => {
-      try {
-        window.location.replace(targetUrl);
-      } catch (reason) {
-        console.error("[ComePlayers] Website navigation failed", reason);
-        setState("error");
-        setMessage("ComePlayers could not open the website experience.");
-        setNavigationFailed(true);
-      }
-    }, 180);
-  }, [targetUrl]);
+    try {
+      await waitForWebsite(target.url);
+      const launchUrl = await resolveLaunchUrl(target.url);
+      window.location.replace(launchUrl);
+    } catch (reason) {
+      console.warn("[ComePlayers] Website is unavailable", reason);
+      setState("error");
+      setMessage("Belum dapat terhubung. Periksa internet Anda lalu coba lagi.");
+      setNavigationFailed(true);
+    }
+  }, [target]);
 
   useEffect(() => {
     let cancelled = false;
@@ -210,7 +273,7 @@ export default function App() {
 
         {navigationFailed ? (
           <button type="button" onClick={openComePlayers}>
-            Try Again
+            Coba lagi
           </button>
         ) : null}
 

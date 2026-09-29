@@ -1,43 +1,74 @@
-# ComePlayers Microsoft Store release
+# Materi pengajuan Microsoft Store — ComePlayers untuk Windows
 
-Microsoft Store is the preferred Windows distribution channel when ComePlayers does not own a public Code Signing certificate. Microsoft signs accepted MSIX packages and delivers trusted automatic updates.
+Draft untuk paket MSIX desktop. Teks berikut menggambarkan fitur yang ada pada aplikasi dan website saat ini; ambil screenshot dari paket Windows yang akan diajukan, bukan dari desain konsep.
 
-## Legal publisher
+## Identitas dan properti
 
-- Publisher display name: `PT COME PLAYERS DIGITAL`
-- Product name: `ComePlayers`
-- Website: `https://www.comeplayers.com`
-- Contact email: `admin@comeplayers.com`
-- Business Identification Number (NIB): `2407260058305`
-- Registered office: `Bumi Parahyangan Kencana, Jl. Beo Blok B3 No. 5, RT 001/RW 014, Nagrak, Cangkuang, Kabupaten Bandung, Jawa Barat 40238, Indonesia`
-- AHU approval: `AHU-A106377.AH.01.30.Tahun 2026`, dated `21 July 2026`
-- NIB issued: `24 July 2026`
+| Field Partner Center | Isian yang disiapkan |
+| --- | --- |
+| Nama produk | ComePlayers |
+| Versi paket | 1.0.0 (samakan dengan MSIX final) |
+| Kategori utama | Social |
+| Kategori sekunder | Shopping, jika Partner Center menawarkannya |
+| Bahasa listing pertama | Indonesia (Indonesia) |
+| Website | https://www.comeplayers.com |
+| Kebijakan privasi | https://www.comeplayers.com/privacy |
+| Dukungan | admin@comeplayers.com; halaman bantuan https://www.comeplayers.com/help-center |
+| Harga aplikasi | Gratis untuk memasang; penawaran dalam marketplace dapat berbayar |
+| Perangkat | PC Windows; jangan pilih Xbox tanpa pengujian dan aset Xbox |
 
-These values were cross-checked against the company establishment statement, Ministry of Law approval, and OSS NIB supplied by the company. The phone number and authorized representative entered in Partner Center must still exactly match current Indonesian government records.
+Kategori **Social** paling sesuai untuk chat dan komunitas; **Shopping** mencerminkan marketplace. Microsoft menggolongkan komunikasi teks, suara, dan video sebagai Social serta pembelian online sebagai Shopping. Jangan menggolongkan paket sebagai game hanya karena komunitasnya bertema game.
 
-## One-time owner verification
+## Teks listing Indonesia
 
-1. Open `https://storedeveloper.microsoft.com` and create a **Company** developer account.
-2. Complete Microsoft identity verification as an authorized representative of PT COME PLAYERS DIGITAL.
-3. Reserve the product name `ComePlayers`.
-4. Open the product identity page and copy its **Package/Identity/Name** and **Publisher** values.
+**Deskripsi singkat**
 
-Microsoft requires the account owner to complete login, identity verification, agreements, and any requested legal documentation. These steps cannot be automated or completed by another party using invented identity information.
+Komunitas, pesan, dan marketplace game ComePlayers dalam satu aplikasi Windows. Temukan teman bermain, ikuti obrolan grup, dan lihat penawaran dari desktop.
 
-## Build the Store package
+**Deskripsi**
 
-Install the Windows 10/11 SDK so `makeappx.exe` is available, then set the exact values copied from Partner Center:
+ComePlayers menyatukan komunitas pemain, pesan pribadi, dan marketplace produk serta layanan game di Windows.
 
-```powershell
-$env:COMEPLAYERS_STORE_IDENTITY_NAME = "value-from-partner-center"
-$env:COMEPLAYERS_STORE_PUBLISHER_ID = "CN=value-from-partner-center"
-npm run store:build --workspace @comeplayers/desktop
-```
+Bergabunglah dengan grup dan ruang obrolan, ikuti percakapan terbaru, cari produk game, dan kelola aktivitas akun Anda. Tautan pembayaran dan pesanan tetap terhubung ke akun ComePlayers. Pilihan produk, harga, dan ketersediaannya mengikuti masing-masing penawaran.
 
-Output:
+Aplikasi memerlukan koneksi internet. Masuk akun diperlukan untuk mengirim pesan, berpartisipasi dalam komunitas, atau menggunakan fitur akun dan transaksi. Beberapa produk atau layanan di marketplace berbayar.
 
-```text
-apps/desktop/store-package/output/ComePlayers_VERSION_x64.msix
-```
+**Fitur** (masukkan sebagai item terpisah, tanpa karakter bullet)
 
-The Store build disables ComePlayers' direct installer updater because Microsoft Store manages application updates. The generated MSIX is intentionally for Partner Center submission only and must not be distributed directly before Microsoft signs it.
+1. Komunitas dan ruang obrolan grup
+2. Pesan pribadi dengan percakapan terbaru di atas
+3. Jelajahi penawaran produk dan layanan game
+4. Kelola akun dan pesanan dari desktop
+
+**Catatan sertifikasi**
+
+Paket memuat antarmuka ComePlayers dari `www.comeplayers.com`, sehingga koneksi internet diperlukan. Fitur login Google membuka browser sistem dan kembali ke aplikasi melalui protokol `comeplayers://`; sesi tidak dikirim di tautan tersebut. Akun uji untuk peninjau hanya diberikan lewat kolom catatan sertifikasi Partner Center, bukan di listing publik atau repositori.
+
+## Screenshot yang perlu diambil dari MSIX final
+
+Microsoft mewajibkan sekurangnya **satu** screenshot dan menganjurkan **empat atau lebih** untuk jenis perangkat yang didukung. Untuk PC, siapkan PNG landscape sekurangnya **1366 × 768 piksel**, masing-masing paling besar **50 MB**. Gunakan data akun uji dan pastikan tidak ada informasi pribadi, saldo, atau pesanan sungguhan.
+
+1. Beranda komunitas: daftar grup di kiri dan ruang obrolan yang aktif.
+2. Percakapan pribadi: daftar chat dan pesan terbaru, tanpa identitas pengguna nyata.
+3. Marketplace: jelajah kategori dan kartu penawaran.
+4. Halaman detail produk: informasi produk, harga, dan penjual yang terbaca.
+5. Opsional: profil/pengaturan akun jika tampil rapi dan benar-benar dapat digunakan.
+
+Gunakan logo ComePlayers resmi yang sudah ada pada paket sebagai ikon. Gambar promosi tambahan bersifat opsional untuk MSIX PC; jangan menampilkan UI atau fitur yang belum tersedia.
+
+## Periksa saat mengisi Partner Center
+
+- Nama `ComePlayers` sudah direservasi dan publisher/identitas paket MSIX cocok dengan data Partner Center.
+- Kebijakan privasi dan tautan bantuan terbuka untuk pengunjung tanpa login; alamat dukungan menerima pesan.
+- Kuesioner rating usia, wilayah ketersediaan, harga, dan ketentuan lisensi diisi sesuai produk yang diajukan.
+- MSIX final terpasang serta dijalankan di Windows bersih; login email/Google, deep link, navigasi komunitas, dan pembayaran diuji dari paket yang sama.
+- Screenshot diambil setelah pengujian paket final. Publikasi dilakukan setelah sertifikasi Microsoft, bukan saat file MSIX selesai dibuat.
+
+## Rujukan Microsoft
+
+- [Listing MSIX: deskripsi dan screenshot minimum](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/add-and-edit-store-listing-info)
+- [Ukuran screenshot MSIX](https://learn.microsoft.com/id-id/windows/apps/publish/publish-your-app/msix/screenshots-and-images)
+- [Kategori MSIX](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/categories-and-subcategories)
+- [Privasi dan dukungan MSIX](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/support-info)
+- [Alur pengajuan aplikasi Windows](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/publish-first-app)
+- [Kebijakan representasi produk Microsoft Store](https://learn.microsoft.com/en-us/windows/apps/publish/store-policies-and-code-of-conduct)

@@ -23,6 +23,14 @@ import {
   setRememberMePreference,
 } from "@/lib/auth/sessionStorage";
 import { buildAuthCallbackUrl } from "@/lib/auth/redirect";
+import {
+  clearPendingDesktopOAuth,
+  createDesktopOAuthState,
+  getDesktopOAuthClient,
+  isDesktopNativeShell,
+  openDesktopGoogleOAuth,
+  savePendingDesktopOAuth,
+} from "@/lib/auth/desktopOAuth";
 import { supabase } from "@/lib/supabase";
 import ComePlayersLogo from "@/components/brand/ComePlayersLogo";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
@@ -474,6 +482,35 @@ export default function AuthModal({
     setRememberMePreference(rememberMe);
     setLoading(true);
     setNotice(null);
+
+    if (isDesktopNativeShell()) {
+      try {
+        const state = createDesktopOAuthState();
+        savePendingDesktopOAuth(window.sessionStorage, state, getAuthReturnPath());
+        const redirectTo = new URL("/auth/desktop", window.location.origin);
+        redirectTo.searchParams.set("state", state);
+        const { data, error } = await getDesktopOAuthClient().auth.signInWithOAuth({
+          provider,
+          options: { redirectTo: redirectTo.toString(), skipBrowserRedirect: true },
+        });
+        if (error) throw error;
+        if (!data.url) throw new Error("Google sign-in could not be started.");
+        await openDesktopGoogleOAuth(data.url);
+        setNotice({
+          type: "info",
+          message: "Selesaikan login Google di browser. Setelah itu ComePlayers akan terbuka kembali.",
+        });
+      } catch (reason) {
+        clearPendingDesktopOAuth(window.sessionStorage);
+        setNotice({
+          type: "error",
+          message: reason instanceof Error ? reason.message : "Google sign-in could not be started.",
+        });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     const oauthReturnUrl = buildAuthCallbackUrl(
       window.location.origin,
