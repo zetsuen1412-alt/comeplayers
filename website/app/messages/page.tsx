@@ -6016,6 +6016,7 @@ export default function MessagesPage() {
                         </div>
                         <p className="mt-1 truncate text-xs text-gray-500">
                           {room.last_message ||
+                            (!group && room.last_message_at ? "Pesan baru" : null) ||
                             room.description ||
                             "Conversation created"}
                         </p>

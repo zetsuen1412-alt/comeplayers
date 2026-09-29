@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaArrowLeft, FaBan, FaCommentDots, FaPaperPlane, FaPlus, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { authenticatedFetchJson as api } from "@/lib/authenticatedFetch";
+import { chatRoomPreview, sortInboxRooms } from "@/lib/chatInboxPresentation";
 import { isSocialChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import styles from "./ContactsWorkspace.module.css";
 
 type Profile = { id: string; username?: string | null; full_name?: string | null; avatar_url?: string | null };
-type Room = { id: string; title?: string; room_type?: string; product_id?: number | null; order_id?: number | null; product?: unknown; order?: unknown; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string; last_message_at?: string; blocked_by_me?: boolean; contact_unavailable?: boolean };
+type Room = { id: string; title?: string; room_type?: string; product_id?: number | null; order_id?: number | null; product?: unknown; order?: unknown; other?: Profile; server?: { icon_url?: string | null } | null; unread_count?: number; last_message?: string | null; last_message_at?: string | null; created_at?: string | null; blocked_by_me?: boolean; contact_unavailable?: boolean };
 type Message = { id: string; sender_id: string; message: string; created_at: string; deleted_at?: string; is_read?: boolean; sender?: Profile; attachment?: { file_name: string } };
 type Props = { userId: string; active: boolean; friendMenuOpen: boolean; privateMessagesOpen: boolean; onCloseFriendMenu: () => void; onClosePrivateMessages: () => void; onOpenPrivateRoom: (roomId: string) => void; onUnreadChange?: (count: number) => void };
 const name = (p?: Profile) => p?.username || p?.full_name || "Pengguna ComePlayers";
@@ -63,7 +64,7 @@ export default function ContactsWorkspace(props: Props) {
 
   const loadRooms = useCallback(async () => {
     const result = await api<{ rooms: Room[] }>("/api/messages/rooms?scope=social&limit=100");
-    const socialRooms = (result.rooms || []).filter(isSocialChatRoom);
+    const socialRooms = sortInboxRooms((result.rooms || []).filter(isSocialChatRoom));
     setRooms(socialRooms);
     callbacks.current.onUnreadChange?.(socialRooms.reduce((sum, r) => sum + (r.room_type === "group" ? 0 : r.unread_count || 0), 0));
   }, []);
@@ -182,7 +183,7 @@ export default function ContactsWorkspace(props: Props) {
         {mode === "chats" ? <div className={styles.tabs}>{([['all','Semua'],['unread','Belum dibaca'],['groups','Grup']] as const).map(([value,label]) => <button key={value} aria-pressed={filter===value} onClick={()=>setFilter(value)}>{label}</button>)}</div> : null}
         <div className={styles.list}>
           {(mode !== "chats" || query.length >= 2) ? <><p className={styles.label}>{mode === "blocked" ? "Kontak diblokir" : query ? "Orang" : "Kontak terbaru"}</p>{loading ? <p className={styles.empty}>Memuat kontak…</p> : users.map(user => <button className={styles.row} key={user.id} disabled={busy} onClick={()=>choose(user)}><Avatar profile={user} /><span className={styles.copy}><strong>{name(user)}</strong><small>@{user.username || "player"}</small></span><span className={styles.accent}>{mode === "blocked" ? "Buka blokir" : mode === "group" ? members.some(p=>p.id===user.id) ? "Dipilih" : "Pilih" : "Chat"}</span></button>)}{!loading && !users.length ? <p className={styles.empty}>{mode === "blocked" ? "Belum ada kontak diblokir." : "Cari nama pengguna atau nomor telepon lengkap dengan kode negara. Anda bisa langsung mengobrol tanpa permintaan teman."}</p> : null}</> : null}
-          {mode === "chats" ? <><p className={styles.label}>Chat</p>{filtered.map(room => <button className={styles.row} key={room.id} onClick={()=>openConversation(room)}>{room.room_type === "group" ? <GroupAvatar iconUrl={room.server?.icon_url} title={roomName(room)} /> : <Avatar profile={room.other} title={roomName(room)} />}<span className={styles.copy}><strong>{roomName(room)}</strong><small>{room.last_message || "Belum ada pesan"}</small></span><span className={styles.meta}>{room.last_message_at ? new Date(room.last_message_at).toLocaleDateString("id-ID",{month:"short",day:"numeric"}) : ""}{room.unread_count ? <b>{room.unread_count}</b> : null}</span></button>)}{!filtered.length ? <p className={styles.empty}>Belum ada chat. Buka Kontak untuk memulai.</p> : null}</> : null}
+          {mode === "chats" ? <><p className={styles.label}>Chat</p>{filtered.map(room => <button className={styles.row} key={room.id} onClick={()=>openConversation(room)}>{room.room_type === "group" ? <GroupAvatar iconUrl={room.server?.icon_url} title={roomName(room)} /> : <Avatar profile={room.other} title={roomName(room)} />}<span className={styles.copy}><strong>{roomName(room)}</strong><small>{chatRoomPreview(room)}</small></span><span className={styles.meta}>{room.last_message_at ? new Date(room.last_message_at).toLocaleDateString("id-ID",{month:"short",day:"numeric"}) : ""}{room.unread_count ? <b>{room.unread_count}</b> : null}</span></button>)}{!filtered.length ? <p className={styles.empty}>Belum ada chat. Buka Kontak untuk memulai.</p> : null}</> : null}
         </div>
       </> : <>
         {selected.room_type === "group" ? <form className={styles.invite} onSubmit={e=>{e.preventDefault(); void action(async()=>{await api(`/api/messages/rooms/${selected.id}/members`,json("POST",{identifier:invite.trim()}));setInvite("");setNotice("Group invitation sent.");});}}><input aria-label="Invite by username or phone" placeholder="Invite by username or phone" value={invite} onChange={e=>setInvite(e.target.value)} /><button disabled={busy || !invite.trim()}><FaPlus /> Invite</button></form> : null}

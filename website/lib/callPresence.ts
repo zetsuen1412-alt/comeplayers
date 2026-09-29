@@ -41,3 +41,24 @@ export function selectCurrentAccountCall<T extends CallState>(calls: T[], roomId
   const active = calls.filter(call => call.room_id === roomId && ACTIVE.has(call.status) && !call.secure_event_id && !call.encryption_envelope);
   return active.find(call => call.id === currentId) || active[0] || null;
 }
+
+type CallAction = "accept" | "decline" | "end";
+type CallDecision = { kind: "write" | "done"; status: string } | { kind: "conflict" };
+const TERMINAL = new Set(["declined", "cancelled", "missed", "ended"]);
+
+export function decideCallAction(action: CallAction, status: string, own: boolean, createdAt: string, now = Date.now()): CallDecision {
+  if (action === "accept" && !own) {
+    if (status === "accepted") return { kind: "done", status };
+    if (status === "ringing" && Date.parse(createdAt) > now - 60_000) return { kind: "write", status: "accepted" };
+  }
+  if (action === "decline" && !own) {
+    if (status === "declined") return { kind: "done", status };
+    if (status === "ringing" || status === "scheduled") return { kind: "write", status: "declined" };
+  }
+  if (action === "end") {
+    if (TERMINAL.has(status)) return { kind: "done", status };
+    if (status === "accepted") return { kind: "write", status: "ended" };
+    if (status === "ringing" || status === "scheduled") return { kind: "write", status: own ? "cancelled" : "declined" };
+  }
+  return { kind: "conflict" };
+}

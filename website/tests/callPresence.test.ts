@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { activeCallFilter, selectCurrentAccountCall, visibleCallStatus } from "../lib/callPresence";
+import { activeCallFilter, decideCallAction, selectCurrentAccountCall, visibleCallStatus } from "../lib/callPresence";
 
 const user = "11111111-1111-4111-8111-111111111111";
 const current = "22222222-2222-4222-8222-222222222222";
@@ -34,4 +34,26 @@ test("conversation call selection ignores terminal and retired encrypted calls",
   assert.deepEqual(selectCurrentAccountCall([legacy, ended, active], "room", current), active);
   assert.equal(selectCurrentAccountCall([legacy, ended], "room", current), null);
   assert.equal(selectCurrentAccountCall([active], "another-room"), null);
+});
+
+test("a hang-up after the other device has ended the call succeeds without changing its final status", () => {
+  const createdAt = new Date(now - 10_000).toISOString();
+  for (const status of ["declined", "cancelled", "missed", "ended"]) {
+    assert.deepEqual(decideCallAction("end", status, true, createdAt, now), { kind: "done", status });
+    assert.deepEqual(decideCallAction("end", status, false, createdAt, now), { kind: "done", status });
+  }
+  assert.deepEqual(decideCallAction("end", "accepted", true, createdAt, now), { kind: "write", status: "ended" });
+  assert.deepEqual(decideCallAction("end", "ringing", true, createdAt, now), { kind: "write", status: "cancelled" });
+  assert.deepEqual(decideCallAction("end", "ringing", false, createdAt, now), { kind: "write", status: "declined" });
+});
+
+test("answer retries are idempotent for the callee while stale or unauthorized actions still conflict", () => {
+  const recent = new Date(now - 10_000).toISOString();
+  const expired = new Date(now - 61_000).toISOString();
+  assert.deepEqual(decideCallAction("accept", "ringing", false, recent, now), { kind: "write", status: "accepted" });
+  assert.deepEqual(decideCallAction("accept", "accepted", false, recent, now), { kind: "done", status: "accepted" });
+  assert.deepEqual(decideCallAction("accept", "ringing", false, expired, now), { kind: "conflict" });
+  assert.deepEqual(decideCallAction("accept", "ringing", true, recent, now), { kind: "conflict" });
+  assert.deepEqual(decideCallAction("accept", "ended", false, recent, now), { kind: "conflict" });
+  assert.deepEqual(decideCallAction("decline", "declined", false, recent, now), { kind: "done", status: "declined" });
 });

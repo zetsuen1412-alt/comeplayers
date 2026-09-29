@@ -6,6 +6,7 @@ import { SecureHistorySync, type DecryptedHistory } from "./secureHistorySync";
 import type { Vault, VaultRow } from "./vault";
 import { loadCalls, type CallRecord } from "../messagingApi";
 import { chatClient } from "../runtime";
+import { compareRoomActivity } from "../inboxOrdering";
 import { mergeRestoredValue } from "./restoreMerge";
 
 export type SecurePrivateMessage = ChatMessage & {
@@ -79,19 +80,28 @@ export class SecureMessengerV2 {
     return this.write(async () => {
       const result: ChatRoom[] = [];
       for (const room of rooms) {
-        const local = await this.vault.get<ChatRoom>("room", room.id), latest = (await this.messages(room.id))[0];
+        const local = await this.vault.get<ChatRoom>("room", room.id);
+        const latest = (await this.vault.list<SecurePrivateMessage>("message-v2", room.id, 1))[0];
         const storedUnread = await this.vault.get<number>("room-unread-v2", room.id);
         const initialized = await this.vault.get<boolean>("room-unread-initialized-v2", room.id);
         const unread = initialized ? storedUnread ?? local?.unread_count ?? 0 : (storedUnread || 0) + (room.unread_count || 0);
-        const merged = latest ? { ...room, last_message: latest.deleted_at ? "Message deleted" : latest.message || latest.localMedia?.name || latest.secureAttachment?.name || "Attachment", last_message_at: latest.created_at, last_message_sender_id: latest.sender_id, unread_count: unread } : { ...room, unread_count: unread };
-        await this.vault.putRows([
-          this.vault.encode("room-unread-v2", room.id, unread),
-          this.vault.encode("room-unread-initialized-v2", room.id, true),
-          this.vault.encode("room", room.id, merged, "", merged.last_message_at || merged.created_at || ""),
-        ]);
+        const serverTime = Date.parse(room.last_message_at || "") || 0;
+        const localTime = Date.parse(latest?.created_at || "") || 0;
+        // Server activity can be newer than a signed message's timestamp (for
+        // example, after an offline send). Keep its ordering time but display
+        // decrypted text as soon as this device has the message.
+        const lastMessageAt = latest && localTime > serverTime ? latest.created_at : room.last_message_at;
+        const merged = latest
+          ? { ...room, last_message: latest.deleted_at ? "Message deleted" : latest.message || latest.localMedia?.name || latest.secureAttachment?.name || "Attachment", last_message_at: lastMessageAt, last_message_sender_id: latest.sender_id, unread_count: unread }
+          : { ...room, last_message: room.last_message || (room.last_message_at ? "Pesan baru" : null), unread_count: unread };
+        const writes: VaultRow[] = [];
+        if (storedUnread !== unread) writes.push(this.vault.encode("room-unread-v2", room.id, unread));
+        if (!initialized) writes.push(this.vault.encode("room-unread-initialized-v2", room.id, true));
+        if (JSON.stringify(local) !== JSON.stringify(merged)) writes.push(this.vault.encode("room", room.id, merged, "", merged.last_message_at || merged.created_at || ""));
+        if (writes.length) await this.vault.putRows(writes);
         result.push(merged);
       }
-      return result.sort((left, right) => Date.parse(right.last_message_at || right.created_at || "") - Date.parse(left.last_message_at || left.created_at || ""));
+      return result.sort(compareRoomActivity);
     });
   }
   private receiver(room: ChatRoom, sender: string) { return room.buyer_id === sender ? room.seller_id : room.buyer_id; }

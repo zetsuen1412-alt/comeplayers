@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { AudioSession, LiveKitRoom, useTracks, VideoTrack, isTrackReference } from "@livekit/react-native";
+import { AudioSession, RoomContext, useTracks, VideoTrack, isTrackReference } from "@livekit/react-native";
 import { Room, RoomEvent, Track, createLocalAudioTrack, createLocalVideoTrack, type LocalAudioTrack, type LocalVideoTrack } from "livekit-client";
 import { Avatar } from "../components";
 import type { VoiceToken } from "../types";
@@ -47,7 +47,8 @@ export function DirectCallScreen({ connection, call, peerId, sharedKey, onLeave,
   const control = async (work: () => Promise<void>) => { try { await work(); } catch (e) { setError(e instanceof Error ? e.message : "Call control failed."); } };
   return <Modal visible animationType="slide" onRequestClose={onLeave}><View style={s.page}>
     <Text style={s.secure}>{sharedKey ? "End-to-end encrypted private call" : "Private call · ComePlayers account"}</Text>
-    {room ? <LiveKitRoom room={room} serverUrl={connection.serverUrl} token={connection.participantToken} connect={false}><PrivateVideoTiles /></LiveKitRoom> : error ? null : <ActivityIndicator color={colors.yellow} />}
+    {/* The room is already connected above. LiveKitRoom with connect={false} disconnects it. */}
+    {room ? <RoomContext.Provider value={room}><PrivateVideoTiles /></RoomContext.Provider> : error ? null : <ActivityIndicator color={colors.yellow} />}
     <View style={s.contact}><Avatar name={call.other?.username || "Contact"} uri={call.other?.avatar_url} size={90} /><Text style={s.name}>{call.other?.username || call.other?.full_name || "ComePlayers contact"}</Text><Text style={s.note}>{error || (room ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Connecting call…")}</Text></View>
     {error ? <Pressable accessibilityRole="button" onPress={onRetry} style={s.retry}><Text style={s.retryText}>Retry connection</Text></Pressable> : null}
     <View style={s.controls}><Control icon={mic ? "mic" : "mic-off"} label={mic ? "Mute" : "Unmute"} onPress={() => void control(async () => { if (!audioTrack.current) return; if (mic) await audioTrack.current.mute(); else await audioTrack.current.unmute(); setMic(!mic); })} />{call.media === "video" ? <><Control icon={video ? "videocam" : "videocam-off"} label="Camera" onPress={() => void control(async () => { if (!videoTrack.current) return; if (video) await videoTrack.current.mute(); else await videoTrack.current.unmute(); setVideo(!video); })} /><Control icon="camera-reverse" label="Flip" onPress={() => void control(async () => { const track = videoTrack.current; if (track) await track.restartTrack({ facingMode: track.mediaStreamTrack.getSettings().facingMode === "user" ? "environment" : "user" }); })} /></> : null}<Control icon={speaker ? "volume-high" : "ear"} label="Speaker" onPress={() => void control(async () => { await AudioSession.selectAudioOutput(speaker ? "earpiece" : "speaker"); setSpeaker(!speaker); })} /><Control icon="call" label="End" danger onPress={onLeave} /></View>

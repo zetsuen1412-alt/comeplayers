@@ -50,11 +50,13 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   const [microphone, setMicrophone] = useState(true);
   const [camera, setCamera] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [connectionError, setConnectionError] = useState("");
   const mounted = useRef(false);
   const joining = useRef(false);
   const polling = useRef(false);
   const callRef = useRef<CallRecord | null>(null);
   const failedCalls = useRef(new Set<string>());
+  const endedCalls = useRef(new Set<string>());
   const liveRoom = useRef<LiveKitRoom | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const pendingMedia = useRef<HTMLElement[]>([]);
@@ -96,6 +98,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     if (!mounted.current || joining.current || liveRoom.current || failedCalls.current.has(target.id) || target.status !== "accepted") return;
     joining.current = true;
     setBusy(true);
+    setConnectionError("");
     try {
       const livekit = await import("livekit-client");
       if (!mounted.current) return;
@@ -128,7 +131,12 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         .on(livekit.RoomEvent.AudioPlaybackStatusChanged, () => {
           if (liveRoom.current === room) setAudioBlocked(!room.canPlaybackAudio);
         })
-        .on(livekit.RoomEvent.Disconnected, () => { if (liveRoom.current === room) disconnectMedia(); });
+        .on(livekit.RoomEvent.Disconnected, () => {
+          if (liveRoom.current !== room) return;
+          failedCalls.current.add(target.id);
+          disconnectMedia();
+          setConnectionError("Call disconnected. Retry connection.");
+        });
       const token = await callApi<TokenResponse>("/api/messages/calls", "PATCH", { id: target.id, action: "token" });
       if (!mounted.current || liveRoom.current !== room) return;
       await room.connect(token.serverUrl, token.participantToken, { autoSubscribe: true });
@@ -148,14 +156,12 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
       if (!mounted.current) return;
       failedCalls.current.add(target.id);
       disconnectMedia();
-      updateCall(null);
-      void callApi("/api/messages/calls", "PATCH", { id: target.id, action: "end" }).catch(() => undefined);
-      onError(cause instanceof Error ? cause.message : "The call could not connect.");
+      setConnectionError(cause instanceof Error ? cause.message : "The call could not connect.");
     } finally {
       joining.current = false;
       if (mounted.current) setBusy(false);
     }
-  }, [disconnectMedia, onError, updateCall]);
+  }, [disconnectMedia]);
 
   const poll = useCallback(async () => {
     if (!mounted.current || polling.current) return;
@@ -165,10 +171,10 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         `/api/messages/calls?active=1${callRef.current ? `&id=${encodeURIComponent(callRef.current.id)}` : ""}`,
       );
       if (!mounted.current) return;
-      const current = selectCurrentAccountCall(result.calls, roomId, callRef.current?.id);
+      const current = selectCurrentAccountCall(result.calls.filter(item => !endedCalls.current.has(item.id)), roomId, callRef.current?.id);
       updateCall(current);
       if (current?.status === "accepted") void join(current);
-      if (!current) disconnectMedia();
+      if (!current) { disconnectMedia(); setConnectionError(""); }
     } catch {
       // A short poll failure must not tear down a live media session.
     } finally { polling.current = false; }
@@ -187,6 +193,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     if (busy || call) return;
     setBusy(true);
     onError("");
+    setConnectionError("");
     try {
       const result = await callApi<{ call: CallRecord }>("/api/messages/calls", "POST", {
         roomId,
@@ -220,11 +227,16 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     const current = call;
     disconnectMedia();
     updateCall(null);
+    setConnectionError("");
     if (!current) return;
     failedCalls.current.add(current.id);
+    endedCalls.current.add(current.id);
     try {
       await callApi("/api/messages/calls", "PATCH", { id: current.id, action });
     } catch (cause) {
+      endedCalls.current.delete(current.id);
+      failedCalls.current.delete(current.id);
+      if (mounted.current) updateCall(current);
       onError(cause instanceof Error ? cause.message : "The call state could not be updated.");
     }
   }
@@ -266,6 +278,13 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     }
   }
 
+  function retryConnection() {
+    const current = callRef.current;
+    if (!current || current.status !== "accepted" || busy) return;
+    failedCalls.current.delete(current.id);
+    void join(current);
+  }
+
   const incoming = call?.caller_id !== userId && call?.status === "ringing";
   if (!call) {
     return (
@@ -287,6 +306,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         <div ref={stage} className="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden py-5">
           {!connected ? <div className="flex h-28 w-28 animate-pulse items-center justify-center rounded-full bg-emerald-400/15 text-4xl text-emerald-300">{call.media === "video" ? <FaVideo /> : <FaPhone />}</div> : null}
         </div>
+        {connectionError ? <div role="alert" className="mb-3 text-sm text-red-200"><p>{connectionError}</p><button type="button" disabled={busy} onClick={retryConnection} className="mt-3 min-h-11 rounded-xl bg-yellow-400 px-5 font-bold text-black disabled:opacity-50">Retry connection</button></div> : null}
         {audioBlocked ? <button type="button" onClick={() => void enableAudio()} className="mb-3 min-h-11 rounded-xl bg-yellow-400 px-5 font-bold text-black">Enable sound</button> : null}
         <div className="flex items-center justify-center gap-3">
           {incoming ? (

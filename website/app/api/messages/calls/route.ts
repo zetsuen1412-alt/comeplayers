@@ -6,7 +6,7 @@ import { assertContactAllowed } from "@/lib/chatContacts";
 import { createDirectCallToken, createLiveKitRoomServiceClient, getLiveKitServerUrl } from "@/lib/livekitServer";
 import { limitedBody, privateActor, privateRoom, uuid } from "@/lib/privateMessaging";
 import { secureActor } from "@/lib/secureHistoryProtocol";
-import { activeCallFilter, visibleCallStatus } from "@/lib/callPresence";
+import { activeCallFilter, decideCallAction, visibleCallStatus } from "@/lib/callPresence";
 
 export async function GET(request: Request) {
   try {
@@ -65,7 +65,7 @@ export async function PATCH(request: Request) {
     if (!body || typeof body !== "object" || Array.isArray(body)) throw inputError("Invalid call request.");
     const found = await db.from("cp_calls").select("*").eq("id", String(body.id || "")).or(`caller_id.eq.${user.id},callee_id.eq.${user.id}`).maybeSingle();
     if (found.error) throw found.error;
-    const call = found.data;
+    let call = found.data;
     if (!call) throw inputError("Call not found.", 404);
     if (call.secure_event_id) await secureActor(request, bodyText);
     else if (call.encryption_envelope) await privateActor(request, bodyText);
@@ -80,18 +80,26 @@ export async function PATCH(request: Request) {
       if (profile.error) throw profile.error;
       return NextResponse.json({ serverUrl: getLiveKitServerUrl(), participantToken: await createDirectCallToken({ userId: user.id, name: profile.data.username || profile.data.full_name || "ComePlayers", roomName, video: call.media === "video" }), roomName, channel: { id: call.id, name: "ComePlayers call" }, permissions: { canPublishVideo: call.media === "video", canShareScreen: false, canModerateVoice: false } });
     }
-    let status: string;
-    if (body.action === "accept" && !own && call.status === "ringing" && Date.parse(call.created_at) > Date.now() - 60000) {
-      await assertContactAllowed(db, user.id, target);
-      status = "accepted";
-    } else if (body.action === "decline" && !own && ["ringing", "scheduled"].includes(call.status)) status = "declined";
-    else if (body.action === "end" && ["ringing", "accepted", "scheduled"].includes(call.status)) status = call.status === "accepted" ? "ended" : own ? "cancelled" : "declined";
-    else throw inputError("The call state has changed. Refresh and try again.", 409);
-    const now = new Date().toISOString();
-    const updated = await db.from("cp_calls").update({ status, ...(status === "accepted" ? { answered_at: now } : { ended_at: now }) }).eq("id", call.id).eq("status", call.status).select("id").maybeSingle();
-    if (updated.error) throw updated.error;
-    if (!updated.data) throw inputError("The call state has changed.", 409);
-    if (call.status === "accepted" && status === "ended") await createLiveKitRoomServiceClient().deleteRoom(roomName).catch(() => undefined);
-    return NextResponse.json({ ok: true, status });
+    if (body.action !== "accept" && body.action !== "decline" && body.action !== "end") throw inputError("Invalid call action.");
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const decision = decideCallAction(body.action, call.status, own, call.created_at);
+      if (decision.kind === "conflict") throw inputError("The call state has changed. Refresh and try again.", 409);
+      if (decision.kind === "done") return NextResponse.json({ ok: true, status: decision.status });
+      if (body.action === "accept") await assertContactAllowed(db, user.id, target);
+      const now = new Date().toISOString();
+      const updated = await db.from("cp_calls").update({ status: decision.status, ...(decision.status === "accepted" ? { answered_at: now } : { ended_at: now }) }).eq("id", call.id).eq("status", call.status).select("id").maybeSingle();
+      if (updated.error) throw updated.error;
+      if (updated.data) {
+        if (call.status === "accepted" && decision.status === "ended") await createLiveKitRoomServiceClient().deleteRoom(roomName).catch(() => undefined);
+        return NextResponse.json({ ok: true, status: decision.status });
+      }
+      // An accept/end from the other participant can win the update race.
+      // Re-read once so a late hang-up remains safe and can end an accepted call.
+      const latest = await db.from("cp_calls").select("*").eq("id", call.id).maybeSingle();
+      if (latest.error) throw latest.error;
+      if (!latest.data) throw inputError("Call not found.", 404);
+      call = latest.data;
+    }
+    throw inputError("The call state has changed. Refresh and try again.", 409);
   } catch (error) { return accountApiError(error); }
 }
