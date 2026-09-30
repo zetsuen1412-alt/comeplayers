@@ -1,0 +1,37 @@
+name: Crazy Rich Web v30 Checks
+
+on:
+  push:
+    branches:
+      - codex/crazy-rich-web-v30
+    paths:
+      - "website/app/games/crazy-rich-world-tour/**"
+      - "website/public/crazy-rich-world-tour/**"
+      - "website/public/games/crazy-rich-world-tour/**"
+      - "website/tests/crazy-rich-web-v30.test.ts"
+      - ".github/workflows/crazy-rich-web-v30.yml"
+  pull_request:
+    paths:
+      - "website/app/games/crazy-rich-world-tour/**"
+      - "website/public/crazy-rich-world-tour/**"
+      - "website/public/games/crazy-rich-world-tour/**"
+      - "website/tests/crazy-rich-web-v30.test.ts"
+      - ".github/workflows/crazy-rich-web-v30.yml"
+
+jobs:
+  browser-client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx tsx --test tests/crazy-rich-web-v30.test.ts
+      - run: npm run typecheck
+      - run: npm run build
