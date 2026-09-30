@@ -59,10 +59,10 @@ function staticDependencyGraph(entry: string) {
   return visited;
 }
 
-test("opening Messages does not statically load any of the six arcade game engines or the voice panel", () => {
+test("Messages keeps removed game engines out of its imports and loads the voice panel only on demand", () => {
   const graph = staticDependencyGraph("app/messages/page.tsx");
   for (const game of ["ComePlayersChessGame", "ComePlayersMonopolyV21ArcadeGame", "ComePlayersSnakeGame", "ComePlayersStrikeArcadeGame", "CPFrontlineGame", "EmpiresAlliesGame"]) {
-    assert.equal(graph.has(path.resolve("components/arcade/" + game + ".tsx")), false, game + " must load only when selected");
+    assert.equal(graph.has(path.resolve("components/arcade/" + game + ".tsx")), false, game + " was removed from ComePlayers");
   }
   assert.equal(graph.has(path.resolve("components/messages/CommunityVoicePanel.tsx")), false);
 });

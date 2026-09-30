@@ -43,6 +43,7 @@
     "playwright.config.ts",
     "load-tests",
     "backup-*",
-    "_*"
+    "_*",
+    "patch"
   ]
 }

@@ -55,7 +55,7 @@ test("messages header and community navigation avoid dead single-slug routes", (
   ]) {
     assert.equal(page.includes(`href=\"${route}\"`), false, route);
   }
-  assert.match(page, /showPlayMenu/);
+  assert.doesNotMatch(page, /showPlayMenu/);
   assert.match(page, /showCreateMenu/);
   assert.match(page, /router\.push\("\/tournaments"\)/);
   assert.equal(page.includes("Sign in to view server leaderboards."), false);

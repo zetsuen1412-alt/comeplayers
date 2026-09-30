@@ -81,10 +81,6 @@ import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
 import ChatMessagesLoginGate from "@/components/messages/ChatMessagesLoginGate";
-import ArcadeWindow, {
-  ARCADE_WINDOW_GAMES,
-  type ArcadeGameId,
-} from "@/components/arcade/ArcadeWindow";
 import CommunityChannelSidebar, {
   type CommunityChannel,
   type CommunityBundle,
@@ -2208,10 +2204,6 @@ export default function MessagesPage() {
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<
     "header" | "sidebar" | null
   >(null);
-  const [showPlayMenu, setShowPlayMenu] = useState(false);
-  const [arcadeWindowOpen, setArcadeWindowOpen] = useState(false);
-  const [arcadeGameId, setArcadeGameId] = useState<ArcadeGameId | null>(null);
-  const [arcadeWindowKey, setArcadeWindowKey] = useState(0);
   const [showFriendsMenu, setShowFriendsMenu] = useState(false);
   const [showPrivateMessages, setShowPrivateMessages] = useState(false);
   useEffect(() => {
@@ -2303,19 +2295,6 @@ export default function MessagesPage() {
       document.body.style.overflow = previousOverflow;
     };
   }, [showRenameServerModal]);
-
-  useEffect(() => {
-    const requestedGame = new URLSearchParams(window.location.search).get("game");
-    const requestedArcadeGame =
-      ARCADE_WINDOW_GAMES.find((game) => game.id === requestedGame)?.id || null;
-    if (!requestedArcadeGame) return;
-    const frame = window.requestAnimationFrame(() => {
-      setArcadeGameId(requestedArcadeGame);
-      setArcadeWindowKey((current) => current + 1);
-      setArcadeWindowOpen(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
   const [showVoicePanel, setShowVoicePanel] = useState(false);
   const [showLiveLobbyPicker, setShowLiveLobbyPicker] = useState(false);
   const [selectedLiveLobbyId, setSelectedLiveLobbyId] = useState("");
@@ -2595,7 +2574,6 @@ export default function MessagesPage() {
       if (event.key === "Escape") {
         setCommunityOverlay(null);
         setProfileMenuAnchor(null);
-        setShowPlayMenu(false);
         setShowFriendsMenu(false);
         setShowPrivateMessages(false);
         setShowCreateMenu(false);
@@ -3794,7 +3772,6 @@ export default function MessagesPage() {
   async function openCommunityOverlay(view: Exclude<CommunityOverlay, null>) {
     if (view === "discover" && !SQUAD_DISCOVERY_ENABLED) return;
     setCommunityOverlay(view);
-    setShowPlayMenu(false);
     setShowCreateMenu(false);
     setShowCommunityMenu(false);
     setProfileMenuAnchor(null);
@@ -4571,12 +4548,7 @@ export default function MessagesPage() {
         }
       `}</style>
 
-      {arcadeWindowOpen ? <ArcadeWindow
-        key={arcadeWindowKey}
-        open={arcadeWindowOpen}
-        initialGameId={arcadeGameId}
-        onClose={() => setArcadeWindowOpen(false)}
-      /> : null}
+
 
       <header
         className={`${styles.topHeader} relative z-20 flex h-[92px] items-center gap-5 px-6 text-white lg:px-10`}
@@ -4599,76 +4571,7 @@ export default function MessagesPage() {
           </span>
         </Link>
         <nav className="hidden items-center gap-8 text-base font-bold text-gray-200 xl:flex">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setShowPlayMenu((current) => !current);
-                setShowFriendsMenu(false);
-                setShowPrivateMessages(false);
-                setShowCreateMenu(false);
-                setShowNotifications(false);
-                setProfileMenuAnchor(null);
-              }}
-              className="inline-flex items-center gap-2 transition hover:text-cyan-300"
-              aria-expanded={showPlayMenu}
-            >
-              Game
-              <FaChevronDown
-                className={`text-[10px] text-cyan-300 transition ${showPlayMenu ? "rotate-180" : ""}`}
-              />
-            </button>
-            {showPlayMenu ? (
-              <div className="absolute left-0 top-9 z-[75] w-[560px] max-w-[calc(100vw-2rem)] rounded-2xl border border-cyan-400/25 bg-[#061421]/98 p-3 text-sm shadow-[0_22px_65px_rgba(0,0,0,0.65)] backdrop-blur-xl">
-                <div className="mb-2 flex items-center justify-between border-b border-white/10 px-2 pb-3">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-cyan-300">
-                      ComePlayers Arcade
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Play instantly without downloading
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setArcadeGameId(null);
-                      setArcadeWindowKey((current) => current + 1);
-                      setArcadeWindowOpen(true);
-                      setShowPlayMenu(false);
-                    }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-yellow-400/25 bg-yellow-400/10 px-3 py-2 text-xs font-black text-yellow-200 transition hover:bg-yellow-400/20"
-                  >
-                    Lihat semua <FaArrowRight className="text-[9px]" />
-                  </button>
-                </div>
 
-                <div className="grid max-h-[60vh] grid-cols-1 gap-1 overflow-y-auto pr-1 sm:grid-cols-2">
-                  {ARCADE_WINDOW_GAMES.map((game) => (
-                    <button
-                      key={game.id}
-                      type="button"
-                      onClick={() => {
-                        setArcadeGameId(game.id);
-                        setArcadeWindowKey((current) => current + 1);
-                        setArcadeWindowOpen(true);
-                        setShowPlayMenu(false);
-                      }}
-                      className="group flex items-center justify-between rounded-xl px-3.5 py-3 text-left text-gray-300 transition hover:bg-cyan-400/10 hover:text-cyan-100"
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate font-bold">{game.title}</span>
-                        <span className="mt-0.5 block truncate text-[10px] font-bold uppercase tracking-wider text-slate-600 transition group-hover:text-cyan-500">
-                          {game.category}
-                        </span>
-                      </span>
-                      <FaArrowRight className="ml-3 shrink-0 text-[9px] text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
           <div className="relative">
             <button
               type="button"
@@ -4676,7 +4579,6 @@ export default function MessagesPage() {
                 if (!requireLogin("Masuk untuk membuka kontak.")) return;
                 setShowFriendsMenu((current) => !current);
                 setShowPrivateMessages(false);
-                setShowPlayMenu(false);
                 setShowCreateMenu(false);
                 setShowNotifications(false);
                 setProfileMenuAnchor(null);
@@ -4730,7 +4632,6 @@ export default function MessagesPage() {
             onClick={() => {
                 if (!requireLogin("Masuk untuk membuat komunitas.")) return;
               setShowCreateMenu((current) => !current);
-              setShowPlayMenu(false);
               setShowFriendsMenu(false);
               setShowPrivateMessages(false);
               setShowNotifications(false);
@@ -4797,7 +4698,6 @@ export default function MessagesPage() {
             setShowFriendsMenu(false);
             setShowNotifications(false);
             setProfileMenuAnchor(null);
-            setShowPlayMenu(false);
             setShowCreateMenu(false);
           }}
           className={`relative flex h-11 w-11 items-center justify-center rounded-full border bg-[#07131f]/72 text-cyan-200 shadow-[inset_0_0_16px_rgba(255,255,255,0.03)] ${showPrivateMessages ? "border-cyan-300" : "border-cyan-400/35"}`}
@@ -4819,7 +4719,6 @@ export default function MessagesPage() {
             setShowFriendsMenu(false);
             setShowPrivateMessages(false);
             setProfileMenuAnchor(null);
-            setShowPlayMenu(false);
             setShowCreateMenu(false);
           }}
           className={`${styles.mobileHeaderSecondary} relative flex h-11 w-11 items-center justify-center rounded-full border bg-[#07131f]/72 text-gray-200 shadow-[inset_0_0_16px_rgba(255,255,255,0.03)] ${showNotifications ? "border-cyan-300 text-cyan-200" : "border-white/10"}`}
