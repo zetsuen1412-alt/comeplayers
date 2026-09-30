@@ -34,6 +34,7 @@ namespace ComePlayers.CrazyRich
         private Button rollButton;
         private RectTransform turnBanner;
         private Text turnBannerLabel;
+        private RawImage turnPortrait;
         private RectTransform turnTimerFill;
         private string lastTurnCueKey;
         private float nextPoll;
@@ -135,9 +136,11 @@ namespace ComePlayers.CrazyRich
 
             turnBanner = CrwtUi.Panel(safe, "Your Turn Banner", new Color(.12f,.14f,.28f,.96f),
                 new Vector2(.36f,.735f), new Vector2(.64f,.805f), Vector2.zero, Vector2.zero);
-            turnBannerLabel = CrwtUi.Text(turnBanner, "GILIRANMU", 24, TextAnchor.MiddleCenter, CrwtUi.Gold);
-            turnBannerLabel.resizeTextForBestFit = true; turnBannerLabel.resizeTextMinSize = 15; turnBannerLabel.resizeTextMaxSize = 24;
-            Place(turnBannerLabel.rectTransform, new Vector2(.04f,.34f), new Vector2(.96f,.96f));
+            turnPortrait = CrwtHudArt.Portrait(turnBanner, "alexia");
+            Place((RectTransform)turnPortrait.transform, new Vector2(.025f,.18f), new Vector2(.18f,.92f));
+            turnBannerLabel = CrwtUi.Text(turnBanner, "GILIRANMU", 24, TextAnchor.MiddleLeft, CrwtUi.Gold);
+            turnBannerLabel.resizeTextForBestFit = true; turnBannerLabel.resizeTextMinSize = 14; turnBannerLabel.resizeTextMaxSize = 24;
+            Place(turnBannerLabel.rectTransform, new Vector2(.21f,.34f), new Vector2(.96f,.96f));
             var timerTrack = CrwtUi.Panel(turnBanner, "Turn Timer Track", new Color(.07f,.08f,.16f,.92f),
                 new Vector2(.08f,.10f), new Vector2(.92f,.28f), Vector2.zero, Vector2.zero);
             turnTimerFill = CrwtUi.Panel(timerTrack, "Turn Timer Fill", CrwtUi.Gold,
@@ -216,7 +219,8 @@ namespace ComePlayers.CrazyRich
                 && snap.turn_seat == snap.your_seat && snap.state.phase == "await_roll";
             if (localRollTurn)
             {
-                var cueKey = snap.turn_seat + ":" + snap.deadline_at + ":" + snap.version;
+                var cueKey = snap.turn_seat + ":" + snap.deadline_at;
+                CrwtHudArt.SetPortrait(turnPortrait, current?.character_id);
                 if (lastTurnCueKey != cueKey)
                 {
                     lastTurnCueKey = cueKey;
@@ -501,7 +505,9 @@ namespace ComePlayers.CrazyRich
             if (localRollTurn && turnBanner && rollButton)
             {
                 var remaining = Mathf.Clamp((float)seconds, 0f, 10f);
-                turnBannerLabel.text = "GILIRANMU  •  AUTO ROLL " + Mathf.CeilToInt(remaining) + "s";
+                var me = snap.state.players?.FirstOrDefault(x => x.seat == snap.your_seat);
+                var speaker = CrwtHudArt.CharacterDisplayName(me?.character_id);
+                turnBannerLabel.text = "GILIRANMU  •  " + speaker + ": AYO ROLL!  •  AUTO " + Mathf.CeilToInt(remaining) + "s";
                 turnBannerLabel.color = remaining <= 3f ? CrwtUi.Danger : CrwtUi.Gold;
                 turnTimerFill.anchorMin = Vector2.zero;
                 turnTimerFill.anchorMax = new Vector2(remaining / 10f, 1f);
