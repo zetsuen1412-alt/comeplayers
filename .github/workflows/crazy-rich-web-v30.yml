@@ -30,7 +30,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: website/package-lock.json
+          cache-dependency-path: |
+            website/package-lock.json
+            comeplayers-apps/package-lock.json
+      - name: Install shared app workspace dependencies
+        working-directory: comeplayers-apps
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npx tsx --test tests/crazy-rich-web-v30.test.ts
       - run: npm run typecheck
