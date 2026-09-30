@@ -189,12 +189,14 @@ namespace ComePlayers.CrazyRich
             header.text = CrwtRuntimeConfig.MapName(snap.state.map_id).ToUpperInvariant() + " • " + snap.round;
             header.color = MapAccentUi(snap.state.map_id);
             var current = snap.state.players?.FirstOrDefault(p => p.seat == snap.turn_seat);
-            activePlayer.text = current == null ? "MENUNGGU PEMAIN" : (snap.turn_seat == snap.your_seat ? "GILIRANMU" : "GILIRAN " + current.name) + "\n" + current.cash + " K  •  " + current.character_id;
+            activePlayer.text = current == null ? "MENUNGGU PEMAIN" : (snap.turn_seat == snap.your_seat ? "GILIRANMU" : "GILIRAN " + current.name) + "\n" + current.cash + " K  •  " + CrwtHudArt.CharacterDisplayName(current.character_id);
             activePlayer.color = snap.turn_seat == snap.your_seat ? CrwtUi.Gold : Color.white;
             CrwtHudArt.SetPortrait(portrait, current?.character_id);
             if (!resultActionsBuilt && !rematchVoted) message.text = snap.state.message ?? snap.state.last_roll?.@event ?? "ONLINE";
             var sb = new StringBuilder();
-            foreach (var p in snap.state.players ?? Array.Empty<CrwtPlayer>()) sb.AppendLine((p.seat == snap.turn_seat ? "▶ " : "  ") + "S" + p.seat + "  " + p.name + "\n     " + p.cash + "K • Tile " + p.position + (p.bankrupt ? " • BANKRUPT" : ""));
+            foreach (var p in snap.state.players ?? Array.Empty<CrwtPlayer>())
+                sb.AppendLine((p.seat == snap.turn_seat ? "★ " : "  ") + "S" + p.seat + "  " + p.name + "  •  " + CrwtHudArt.CharacterDisplayName(p.character_id)
+                    + "\n     " + p.cash + "K • Tile " + p.position + (p.bankrupt ? " • BANKRUPT" : ""));
             players.text = sb.ToString();
             ValidateSheet();
             RebuildActions();

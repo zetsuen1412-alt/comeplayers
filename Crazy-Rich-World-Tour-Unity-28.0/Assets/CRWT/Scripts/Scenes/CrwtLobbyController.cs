@@ -195,7 +195,8 @@ namespace ComePlayers.CrazyRich
             {
                 var mine = m.user_id == CrwtSession.UserId;
                 if (mine) { selfReady = m.ready; selfHost = m.is_host; }
-                sb.AppendLine("Seat " + m.seat + " • " + m.display_name + " • " + (m.ready ? "READY" : "WAIT") + (m.is_host ? " • HOST" : "") + (!string.IsNullOrEmpty(m.bot_key) ? " • BOT" : ""));
+                sb.AppendLine("Seat " + m.seat + " • " + m.display_name + " • " + CrwtHudArt.CharacterDisplayName(m.character_id)
+                    + " • " + (m.ready ? "READY" : "WAIT") + (m.is_host ? " • HOST" : "") + (!string.IsNullOrEmpty(m.bot_key) ? " • BOT" : ""));
             }
             roomInfo.text = sb.ToString();
             readyButton.gameObject.SetActive(true);
