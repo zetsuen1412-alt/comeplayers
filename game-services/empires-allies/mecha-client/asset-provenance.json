@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "stage": "visual-prototype",
+  "workingTitle": "CP Mecha Frontier",
+  "sourceFile": "index.html",
+  "artMethod": "Newly authored procedural SVG and Canvas drawing code for this change; no imported third-party artwork in the preview.",
+  "mecha": ["kestrel", "basalt", "vesper", "neris", "cirrus", "lyra"],
+  "pilots": ["kaia", "ren", "mika"],
+  "regions": ["aster", "solara", "luma"],
+  "buildings": ["command", "assembly", "habitat", "reactor", "farm", "hangar", "port", "relay"],
+  "audio": "Not included; original sound design remains future work.",
+  "fonts": "System font stack only; no font binaries distributed.",
+  "usesHistoricalGameAssets": false,
+  "connectsToLegacyGameplay": false,
+  "writesPlayerSaves": false,
+  "completeAssetReplacement": false,
+  "notes": [
+    "All names and designs are working concepts, not trademark clearance.",
+    "This provenance applies only to this preview, not the rest of the repository.",
+    "Existing repository licenses and third-party notices are unchanged.",
+    "Procedural concepts are not finished production sprite sheets or rigged models."
+  ]
+}
