@@ -61,11 +61,19 @@ export function InboxProvider({ userId, enabled, children }: { userId: string; e
       setState({ rooms: [], preferences: [], loading: enabled, error: "" });
     }
     void reload();
+    let disposed = false, realtimeConnected = false, fallbackTicks = 0;
     let scheduled: ReturnType<typeof setTimeout> | undefined;
-    const changed = () => { if (!scheduled && enabled && AppState.currentState === "active") scheduled = setTimeout(() => { scheduled = undefined; void reload(true); }, 400); };
+    const changed = () => { if (!disposed && !scheduled && enabled && AppState.currentState === "active") scheduled = setTimeout(() => { scheduled = undefined; void reload(true); }, 400); };
     const channel = enabled ? supabase.channel(`inbox:${userId}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `buyer_id=eq.${userId}` }, changed)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `seller_id=eq.${userId}` }, changed).subscribe() : null;
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: "seller_id=eq." + userId }, changed)
+      .subscribe(status => {
+        if (disposed) return;
+        const connected = status === "SUBSCRIBED";
+        if (realtimeConnected === connected) return;
+        realtimeConnected = connected; fallbackTicks = 0;
+        void reload(true);
+      }) : null;
     let localScheduled: ReturnType<typeof setTimeout> | undefined;
     const unsubscribe = messenger?.subscribe(() => {
       // A decrypted message/read receipt/media preview is already persisted.
@@ -75,9 +83,10 @@ export function InboxProvider({ userId, enabled, children }: { userId: string; e
         void refreshLocal().catch(() => undefined);
       }, 50);
     });
-    const timer = setInterval(() => void reload(true), 20000);
-    const subscription = AppState.addEventListener("change", next => { if (next === "active") void reload(true); });
-    return () => { generation.current++; clearInterval(timer); clearTimeout(scheduled); clearTimeout(localScheduled); subscription.remove(); unsubscribe?.(); if (channel) void supabase.removeChannel(channel); };
+    // Keep a one-minute safety refresh while room events are healthy.
+    const timer = setInterval(() => { if (!realtimeConnected || ++fallbackTicks >= 3) { fallbackTicks = 0; void reload(true); } }, 20000);
+    const subscription = AppState.addEventListener("change", next => { if (next === "active") { fallbackTicks = 0; void reload(true); } });
+    return () => { disposed = true; generation.current++; clearInterval(timer); clearTimeout(scheduled); clearTimeout(localScheduled); subscription.remove(); unsubscribe?.(); if (channel) void supabase.removeChannel(channel); };
   }, [reload, refreshLocal, enabled, messenger, userId]);
   const value = useMemo(() => ({ ...state, reload }), [state, reload]);
   return <Context.Provider value={value}>{children}</Context.Provider>;

@@ -67,6 +67,18 @@ export async function GET(request: Request, context: RouteContext) {
       allowAdmin: false,
     });
     const { searchParams } = new URL(request.url);
+    // Incoming calls only need a verified routing target. Do not load message
+    // history, attachments, reactions or the member directory before answering.
+    if (searchParams.get("summary") === "1") {
+      return NextResponse.json({
+        room: {
+          id: room.id,
+          room_type: room.room_type,
+          product_id: room.product_id,
+          order_id: room.order_id,
+        },
+      }, { headers: { "Cache-Control": "private, no-store" } });
+    }
     const limit = clampPositiveInteger(searchParams.get("limit"), 80, 20, 120);
     const before = String(searchParams.get("before") || "").trim();
     const requestedChannelId = String(searchParams.get("channel") || "").trim();

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { ACCOUNT_ALERT_PREFERENCES_CHANGED } from "./notificationPreferencesReader";
 
 const SESSION_TIMEOUT_MS = 8_000;
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -72,6 +73,11 @@ export async function authenticatedFetch(
       ), { status: response.status });
     }
 
+    const preferenceWrite = init.method && !["GET", "HEAD"].includes(init.method.toUpperCase()) &&
+      ["/api/account/preferences", "/api/messages/preferences"].includes(input.split("?")[0]);
+    if (preferenceWrite && typeof window !== "undefined") {
+      window.dispatchEvent(new Event(ACCOUNT_ALERT_PREFERENCES_CHANGED));
+    }
     return response;
   } catch (fetchError) {
     if (controller.signal.aborted && !parentSignal?.aborted) {

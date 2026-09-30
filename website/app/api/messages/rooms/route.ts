@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { chatRoomListFilter } from "@/lib/chatRoomListFilter";
 import { callActivityPreview } from "@/lib/callRoomActivity";
+import { publicChannelUnreadByRoom } from "@/lib/publicChannelUnread";
 import {
   chatErrorStatus,
   isGroupRoom,
@@ -187,7 +188,7 @@ export async function GET(request: Request) {
       memberCountMap.set(roomId, (memberCountMap.get(roomId) || 0) + 1);
     }
 
-    const groupUnreadMap = new Map<string, number>();
+    let groupUnreadMap = new Map<string, number>();
     const serverByRoom = new Map<string, Record<string, unknown>>();
     let channelUnreadAvailable = false;
     if (groupRoomIds.length) {
@@ -218,51 +219,15 @@ export async function GET(request: Request) {
 
         if (!channelsResult.error) {
           const channels = channelsResult.data || [];
-          const channelIds = channels.map((channel) => String(channel.id));
-          const roomByChannel = new Map(
-            channels.map((channel) => [
-              String(channel.id),
-              roomByCommunity.get(String(channel.community_id)) || "",
-            ]),
+          const counts = await publicChannelUnreadByRoom(supabaseAdmin, user.id,
+            channels.map(channel => ({
+              id: String(channel.id),
+              roomId: roomByCommunity.get(String(channel.community_id)) || "",
+            })),
           );
-          const [readStatesResult, groupMessagesResult] = await Promise.all([
-            channelIds.length
-              ? supabaseAdmin
-                  .from("chat_channel_read_states")
-                  .select("channel_id,last_read_at")
-                  .eq("user_id", user.id)
-                  .in("channel_id", channelIds)
-              : Promise.resolve({ data: [], error: null }),
-            channelIds.length
-              ? supabaseAdmin
-                  .from("chat_messages")
-                  .select("room_id,channel_id,sender_id,created_at")
-                  .in("channel_id", channelIds)
-                  .neq("sender_id", user.id)
-                  .is("deleted_at", null)
-                  .order("created_at", { ascending: false })
-                  .range(0, 4999)
-              : Promise.resolve({ data: [], error: null }),
-          ]);
-
-          if (!readStatesResult.error && !groupMessagesResult.error) {
+          if (counts) {
             channelUnreadAvailable = true;
-            const readAtByChannel = new Map(
-              (readStatesResult.data || []).map((state) => [
-                String(state.channel_id),
-                new Date(String(state.last_read_at || 0)).getTime(),
-              ]),
-            );
-            for (const message of groupMessagesResult.data || []) {
-              const channelId = String(message.channel_id || "");
-              const roomId = roomByChannel.get(channelId) || String(message.room_id || "");
-              if (!roomId) continue;
-              const createdAt = new Date(String(message.created_at || 0)).getTime();
-              const readAt = readAtByChannel.get(channelId) || 0;
-              if (createdAt > readAt) {
-                groupUnreadMap.set(roomId, (groupUnreadMap.get(roomId) || 0) + 1);
-              }
-            }
+            groupUnreadMap = counts;
           }
         }
       } else if (!/does not exist|schema cache/i.test(communitiesResult.error.message)) {

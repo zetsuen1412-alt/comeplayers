@@ -1,7 +1,7 @@
 type Subscriber<T> = (value: T) => void;
 
 /** One non-overlapping reader shared by every call surface in this browser. */
-export function createCallMonitor<T>(read: (signal: AbortSignal) => Promise<T>, interval = 3000) {
+export function createCallMonitor<T>(read: (signal: AbortSignal) => Promise<T>, interval: number | ((snapshot: T | undefined) => number) = 3000) {
   const subscribers = new Set<Subscriber<T>>();
   let timer: ReturnType<typeof setTimeout> | undefined;
   let controller: AbortController | undefined;
@@ -33,7 +33,7 @@ export function createCallMonitor<T>(read: (signal: AbortSignal) => Promise<T>, 
     finally {
       if (controller === current) controller = undefined;
       if (subscribers.size && !current.signal.aborted) {
-        timer = setTimeout(() => void refresh(), refreshPending ? 0 : interval);
+        timer = setTimeout(() => void refresh(), refreshPending ? 0 : typeof interval === "function" ? interval(snapshot) : interval);
       }
     }
   }
@@ -52,5 +52,10 @@ export function createCallMonitor<T>(read: (signal: AbortSignal) => Promise<T>, 
       };
     },
     refresh: () => refresh(true),
+    reschedule() {
+      if (!subscribers.size || controller) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => void refresh(), typeof interval === "function" ? interval(snapshot) : interval);
+    },
   };
 }

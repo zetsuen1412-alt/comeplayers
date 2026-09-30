@@ -9,6 +9,7 @@ import { secureActor } from "@/lib/secureHistoryProtocol";
 import { activeCallFilter, decideCallAction, visibleCallStatus } from "@/lib/callPresence";
 import { recordCallRoomActivity, type CallActivityStatus } from "@/lib/callRoomActivity";
 import { sendCallPushNotifications } from "@/lib/pushNotifications";
+import { callRevisionEventsEnabled } from "@/lib/callRevisionEvents";
 
 export async function GET(request: Request) {
   try {
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
     const ids = [...new Set(calls.data.flatMap(c => [c.caller_id, c.callee_id]))];
     const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url,cp_number").in("id", ids) : { data: [], error: null };
     if (people.error) throw people.error;
-    return NextResponse.json({ calls: calls.data.map(c => ({ ...visibleCallStatus(c, now), other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ callEventsReady: callRevisionEventsEnabled(), calls: calls.data.map(c => ({ ...visibleCallStatus(c, now), other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }
 export async function POST(request: Request) {

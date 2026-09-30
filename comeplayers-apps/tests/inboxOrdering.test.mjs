@@ -302,3 +302,42 @@ test('late local inbox reads cannot overwrite newer authenticated room metadata'
   assert.equal(snapshot.rooms[0].title, 'New contact metadata');
   await act(async () => view.unmount());
 });
+
+test('healthy inbox realtime cuts idle full-list polling but preserves immediate updates and fast fallback', async () => {
+  let snapshot, change, status, tick, resume, networkRequests = 0;
+  const timers = new Map(); let timerId = 0;
+  const appState = { currentState: 'active', addEventListener: (_, listener) => { resume = listener; return { remove() {} }; } };
+  const channel = { on(_, filter, callback) { change = callback; return this; }, subscribe(callback) { status = callback; return this; } };
+  const { InboxProvider, useInbox } = load('InboxProvider.tsx', {
+    react: React, 'react/jsx-runtime': JsxRuntime, 'react-native': { AppState: appState },
+    './runtime': { chatClient: { listDirectRooms: async () => { networkRequests++; return []; } }, supabase: { channel: () => channel, removeChannel: async () => {} } },
+    './messagingApi': { loadChatPreferences: async () => ({ preferences: [] }) },
+    './inboxOrdering': ordering, './secure/PrivateProvider': { usePrivateMessenger: () => ({ messenger: null }) },
+  }, {
+    setTimeout(callback) { const id = ++timerId; timers.set(id, callback); return id; }, clearTimeout: id => timers.delete(id),
+    setInterval(callback) { tick = callback; return 1; }, clearInterval() {},
+  });
+  const flush = async () => { for (let n = 0; n < 20; n++) await Promise.resolve(); };
+  function Child() { snapshot = useInbox(); return null; }
+  let view;
+  await act(async () => { view = Renderer.create(React.createElement(InboxProvider, { userId: 'me', enabled: true }, React.createElement(Child))); await flush(); });
+  await act(async () => { status('SUBSCRIBED'); await flush(); });
+  const baseline = networkRequests;
+  await act(async () => { tick(); await flush(); tick(); await flush(); });
+  assert.equal(networkRequests, baseline, 'healthy subscription avoids 20s and 40s full-list fetches');
+  await act(async () => { tick(); await flush(); });
+  assert.equal(networkRequests, baseline + 1, 'one-minute safety reconciliation remains');
+  await act(async () => { change(); for (const [id, callback] of timers) { timers.delete(id); callback(); } await flush(); });
+  assert.equal(networkRequests, baseline + 2, 'room events do not wait for fallback');
+  await act(async () => { status('CHANNEL_ERROR'); await flush(); });
+  assert.equal(networkRequests, baseline + 3, 'lost channel immediately reconciles');
+  await act(async () => { tick(); await flush(); });
+  assert.equal(networkRequests, baseline + 4, 'lost channel keeps 20s fallback');
+  await act(async () => { appState.currentState = 'background'; tick(); await flush(); });
+  assert.equal(networkRequests, baseline + 4);
+  await act(async () => { appState.currentState = 'active'; resume('active'); await flush(); });
+  assert.equal(networkRequests, baseline + 5, 'foreground immediately refreshes');
+  assert.equal(snapshot.loading, false);
+  await act(async () => { view.unmount(); status('CLOSED'); change(); await flush(); });
+  assert.equal(networkRequests, baseline + 5, 'late cleanup callbacks cannot reload a retired account');
+});

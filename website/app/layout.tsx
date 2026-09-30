@@ -8,7 +8,6 @@ import {
   normalizeLocale,
   resolveRequestPreferences,
 } from "@/lib/localization";
-import MainHeader from "./components/MainHeader";
 import ConditionalChrome from "./components/ConditionalChrome";
 import DeploymentAutoRefresh from "./components/DeploymentAutoRefresh";
 import "./globals.css";
@@ -182,7 +181,6 @@ export default async function RootLayout({
           currency={currency}
         >
           <ConditionalChrome
-            header={<MainHeader />}
             footer={<SiteFooter />}
           >
             {children}

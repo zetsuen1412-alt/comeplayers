@@ -82,6 +82,7 @@ function fixture(options: Options = {}) {
     "@/lib/callPresence": callPresence,
     "@/lib/callRoomActivity": { recordCallRoomActivity: async (_db: unknown, input: Record<string, unknown>) => { activities.push(input); } },
     "@/lib/pushNotifications": { sendCallPushNotifications: async () => { push++; } },
+    "@/lib/callRevisionEvents": { callRevisionEventsEnabled: () => false },
   };
   const { outputText } = ts.transpileModule(readFileSync("app/api/messages/calls/route.ts", "utf8"), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } });
   const exports: Record<string, (request: Request) => Promise<Response>> = {};

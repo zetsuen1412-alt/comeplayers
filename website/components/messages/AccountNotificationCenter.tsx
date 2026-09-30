@@ -5,7 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { notificationHref } from "@/lib/notificationInbox";
-import { claimAlert, playMessageSound, showSystemAlert, unlockAlertAudio } from "@/lib/clientAlerts";
+import { ALERT_PREFERENCES_CHANGED, claimAlert, playMessageSound, showSystemAlert, unlockAlertAudio } from "@/lib/clientAlerts";
+import { ACCOUNT_ALERT_PREFERENCES_CHANGED, createNotificationPreferencesReader } from "@/lib/notificationPreferencesReader";
 import { callsAllowedBySettings, shouldAlertNotification, type AccountAlertSettings, type NotificationRow } from "@/lib/notificationPresentation";
 import SecureIncomingCallAlert from "./SecureIncomingCallAlert";
 
@@ -43,29 +44,42 @@ export default function AccountNotificationCenter() {
     const seen = new Set<number>();
     const closeAlerts = new Set<() => void>();
     const isCurrent = () => active && activeUser.current === userId;
+    const preferenceReader = createNotificationPreferencesReader(() =>
+      authenticatedFetchJson<{ settings: AccountAlertSettings; mutedRoomIds: string[] }>("/api/messages/alert-preferences"),
+    );
+    let preferencesSignature = "";
 
     async function loadPreferences() {
       try {
-        const result = await authenticatedFetchJson<{ settings: AccountAlertSettings; mutedRoomIds: string[] }>("/api/messages/alert-preferences");
+        const result = await preferenceReader.load();
         if (!isCurrent()) return;
         accountSettings = result.settings;
         mutedRoomIds = new Set(result.mutedRoomIds);
         preferencesReady = true;
-        setSettings({ userId: userId!, value: accountSettings });
+        const signature = JSON.stringify(result.settings);
+        if (signature !== preferencesSignature) {
+          preferencesSignature = signature;
+          setSettings({ userId: userId!, value: accountSettings });
+        }
       } catch {
-        if (isCurrent()) { preferencesReady = false; setSettings(null); }
+        if (isCurrent()) { preferencesReady = false; preferencesSignature = ""; setSettings(null); }
       }
+    }
+
+    function canAlert(row: NotificationRow) {
+      if (!isCurrent() || !preferencesReady) return false;
+      const roomElement = document.querySelector<HTMLElement>("[data-active-chat-room]");
+      const activeRoomId = roomElement?.getClientRects().length ? roomElement.dataset.activeChatRoom : null;
+      const activeChannelId = activeRoomId ? roomElement?.dataset.activeChatChannel : null;
+      return shouldAlertNotification({ row, userId: userId!, startedAt, settings: accountSettings, mutedRoomIds, activeRoomId, activeChannelId, visible: !document.hidden });
     }
 
     async function receive(row: NotificationRow) {
       if (!isCurrent() || !preferencesReady || seen.has(row.id)) return;
       seen.add(row.id);
       if (seen.size > 300) seen.delete(seen.values().next().value!);
-      const roomElement = document.querySelector<HTMLElement>("[data-active-chat-room]");
-      const activeRoomId = roomElement?.getClientRects().length ? roomElement.dataset.activeChatRoom : null;
-      const activeChannelId = activeRoomId ? roomElement?.dataset.activeChatChannel : null;
-      if (!shouldAlertNotification({ row, userId: userId!, startedAt, settings: accountSettings, mutedRoomIds, activeRoomId, activeChannelId, visible: !document.hidden })) return;
-      if (!await claimAlert(userId!, `notification:${row.id}`) || !isCurrent()) return;
+      if (!canAlert(row)) return;
+      if (!await claimAlert(userId!, `notification:${row.id}`) || !canAlert(row)) return;
       playMessageSound();
       setToast(row);
       clearTimeout(toastTimer.current);
@@ -97,17 +111,28 @@ export default function AccountNotificationCenter() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive(payload.new as NotificationRow); })
       .subscribe(status => { if (status === "SUBSCRIBED") void poll(); });
     const timer = setInterval(() => { void poll(); }, 15_000);
-    const focus = () => { closeAlerts.forEach(close => close()); closeAlerts.clear(); void poll(); };
+    const invalidatePreferences = () => {
+      preferencesReady = false;
+      preferencesSignature = "";
+      setSettings(null);
+      preferenceReader.invalidate();
+    };
+    const focus = () => { closeAlerts.forEach(close => close()); closeAlerts.clear(); invalidatePreferences(); void poll(); };
+    const preferencesChanged = () => { invalidatePreferences(); void loadPreferences(); };
     window.addEventListener("focus", focus); window.addEventListener("online", focus);
+    window.addEventListener(ALERT_PREFERENCES_CHANGED, preferencesChanged);
+    window.addEventListener(ACCOUNT_ALERT_PREFERENCES_CHANGED, preferencesChanged);
     return () => {
       active = false; clearInterval(timer); clearTimeout(toastTimer.current);
       closeAlerts.forEach(close => close()); void supabase.removeChannel(channel);
       window.removeEventListener("focus", focus); window.removeEventListener("online", focus);
+      window.removeEventListener(ALERT_PREFERENCES_CHANGED, preferencesChanged);
+      window.removeEventListener(ACCOUNT_ALERT_PREFERENCES_CHANGED, preferencesChanged);
     };
   }, [userId]);
 
   const openCallRoom = useCallback(async (roomId: string) => {
-    const result = await authenticatedFetchJson<{ room: { room_type?: string; product_id?: number | null; order_id?: number | null } }>(`/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`);
+    const result = await authenticatedFetchJson<{ room: { room_type?: string; product_id?: number | null; order_id?: number | null } }>(`/api/messages/rooms/${encodeURIComponent(roomId)}?summary=1`);
     // These conversation pages resolve query targets on mount. A user click
     // deliberately opens that target even when already on the same route.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- Remount is required to resolve a different conversation on the same page.

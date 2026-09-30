@@ -57,7 +57,19 @@ export class Vault {
     await this.putRows([this.encode(kind, id, value, room, sort)]);
   }
   async putRows(rows: Iterable<VaultRow>): Promise<void> {
-    await this.transaction(async tx => { for (const r of rows) await tx.runAsync("INSERT INTO records(kind,id,room,sort,value) VALUES (?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET room=excluded.room,sort=excluded.sort,value=excluded.value", r.kind, r.id, r.room, r.sort, r.value); });
+    await this.mutateRows(rows);
+  }
+  // A history page, its outbox acknowledgments and durable cursor commit
+  // together. Only encrypted row values are accepted by this write boundary.
+  async mutateRows(rows: Iterable<VaultRow>, removals: Iterable<Pick<VaultRow, "kind" | "id">> = []): Promise<void> {
+    await this.transaction(async tx => {
+      for (const r of rows) await tx.runAsync("INSERT INTO records(kind,id,room,sort,value) VALUES (?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET room=excluded.room,sort=excluded.sort,value=excluded.value", r.kind, r.id, r.room, r.sort, r.value);
+      for (const r of removals) await tx.runAsync("DELETE FROM records WHERE kind=? AND id=?", r.kind, r.id);
+    });
+  }
+  async oldest<T>(kind: string, limit = 50): Promise<T[]> {
+    const rows = await this.db.getAllAsync<VaultRow>("SELECT * FROM records WHERE kind=? ORDER BY sort,id LIMIT ?", kind, Math.min(limit, 1000));
+    return rows.map(row => this.decode<T>(row));
   }
   // Expo opens a separate connection for each exclusive transaction. Its busy
   // timeout is connection-local, so all writers must share one queue on Android.

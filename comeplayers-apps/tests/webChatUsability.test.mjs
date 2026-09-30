@@ -46,6 +46,7 @@ function conversation(api) {
   return load('components/messages/SecureConversationView.tsx', {
     '@/lib/authenticatedFetch': { authenticatedFetchJson: api }, './AccountDirectCall': 'Calls',
     './BrowserPasswordBackupSettings': 'OptionalBackupSettings',
+    '@/lib/chatClientPerformance': loadExports('lib/chatClientPerformance.ts'),
     '@/lib/supabase': { supabase: fakeRealtime() },
   });
 }

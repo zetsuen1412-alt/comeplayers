@@ -203,11 +203,14 @@ export class SecureMessengerV2 {
       try {
         let deliveryError: unknown, migrationError: unknown;
         await this.history.flushOutbox().catch(error => { deliveryError = error; return 0; });
-        const entries = await this.history.sync();
-        for (const entry of entries) await this.apply(entry);
+        await this.history.sync(undefined, async entries => {
+          for (const entry of entries) await this.apply(entry);
+          // Each verified page becomes visible before the next network fetch.
+          this.changed();
+        });
         for (let page = 0; page < 3; page++) if (!(await this.migrateLegacyPage().catch(error => { migrationError = error; return false; }))) break;
         this.error = deliveryError instanceof Error ? deliveryError.message : migrationError instanceof Error ? `Old history import: ${migrationError.message}` : "";
-        if (entries.length || deliveryError || migrationError) this.changed();
+        if (deliveryError || migrationError) this.changed();
       } catch (error) { this.error = error instanceof Error ? error.message : "Encrypted history could not synchronize."; this.changed(); throw error; }
     });
     let tracked: Promise<void>;

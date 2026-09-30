@@ -4,7 +4,7 @@ import {
   proveDeviceRequest, rosterHash, verifyEpoch, verifyRoster, verifyRosterChain,
   type AccountRoster, type ConversationEpoch, type ConversationKey, type DeviceSecrets, type HistoryEnvelope,
 } from "./multiDevice";
-import type { Vault } from "./vault";
+import type { Vault, VaultRow } from "./vault";
 import { readExactBytes } from "./boundedDownload";
 import { decryptSecureAttachment, encryptSecureAttachment, verifySecureAttachment, type SecureAttachment } from "./secureAttachment";
 
@@ -36,6 +36,7 @@ function sameRoot(a: PublicIdentity, b: PublicIdentity) { return fingerprint(a) 
  */
 export class SecureHistorySync {
   private contexts = new Map<string, RoomContext>();
+  private syncing: Promise<unknown> = Promise.resolve();
   constructor(readonly vault: Vault, readonly transport: SecureTransport, readonly binaryTransport?: SecureBinaryTransport) {}
 
   private async session(): Promise<{ device: DeviceSecrets; roster: AccountRoster }> {
@@ -226,33 +227,75 @@ export class SecureHistorySync {
     return entry.payload.key;
   }
 
-  async sync(recoveryIdentity?: Identity): Promise<DecryptedHistory[]> {
+  private async applyPending(onPage: (entries: DecryptedHistory[]) => Promise<void>): Promise<boolean> {
+    // Keep projection work bounded after a restart. An interrupted page stays
+    // encrypted in the journal until its idempotent message updates all finish.
+    for (let page = 0; page < 10; page++) {
+      const entries = await this.vault.oldest<DecryptedHistory>("history-apply-v2", 50);
+      if (!entries.length) return true;
+      await onPage(entries);
+      await this.vault.mutateRows([], entries.map(entry => ({ kind: "history-apply-v2", id: entry.event.id })));
+      if (entries.length < 50) return true;
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+    }
+    return !(await this.vault.oldest<DecryptedHistory>("history-apply-v2", 1)).length;
+  }
+
+  sync(recoveryIdentity?: Identity, onPage?: (entries: DecryptedHistory[]) => Promise<void>): Promise<DecryptedHistory[]> {
+    // Call-key recovery and message catch-up share this cursor and apply journal.
+    const operation = this.syncing.then(() => this.syncPages(recoveryIdentity, onPage));
+    this.syncing = operation.catch(() => undefined);
+    return operation;
+  }
+
+  private async syncPages(recoveryIdentity?: Identity, onPage?: (entries: DecryptedHistory[]) => Promise<void>): Promise<DecryptedHistory[]> {
     const imported: DecryptedHistory[] = [];
+    if (onPage && !(await this.applyPending(onPage))) return imported;
     let after = await this.vault.get<number>("meta", "secure-history-cursor") || 0;
     for (let page = 0; page < 10; page++) {
-      const result = await this.api<PullResponse>(`/api/messages/secure/history?after=${after}`);
+      const result = await this.api<PullResponse>("/api/messages/secure/history?after=" + after);
+      if (!Array.isArray(result.events) || result.events.length > 50 || !Number.isSafeInteger(result.next) || typeof result.hasMore !== "boolean") throw new Error("Invalid encrypted-history page.");
       const rooms = [...new Set(result.events.map(item => item.event.roomId))];
       for (const room of rooms) {
         const cached = this.contexts.get(room), required = result.events.filter(item => item.event.roomId === room).map(item => item.event.epochId);
         if (!cached || required.some(id => !cached.epochs.some(epoch => epoch.id === id))) await this.context(room, recoveryIdentity, true);
       }
       let cursor = after;
+      const entries: DecryptedHistory[] = [];
+      const ids = new Set<string>();
       for (const item of result.events) {
         const sequence = Number(item.sequence);
-        if (!Number.isSafeInteger(sequence) || sequence <= cursor || item.blob_id !== item.event.blobId) throw new Error("Invalid encrypted-history ordering.");
+        if (!Number.isSafeInteger(sequence) || sequence <= cursor || item.blob_id !== item.event.blobId || ids.has(item.event.id)) throw new Error("Invalid encrypted-history ordering.");
+        ids.add(item.event.id);
         const context = this.contexts.get(item.event.roomId), epoch = context?.epochs.find(value => value.id === item.event.epochId), key = context?.keys.get(item.event.epochId);
         if (!epoch || !key) throw new Error("Recover the missing conversation key before syncing more history.");
-        const payload = decryptHistory(item.event, epoch, key), entry = { sequence, event: item.event, payload, serverCreatedAt: item.server_created_at };
-        await this.vault.put("history-event-v2", item.event.id, entry, item.event.roomId, String(sequence).padStart(20, "0"));
-        await this.vault.remove("history-outbox-v2", item.event.id);
-        await this.vault.remove("history-pending-v2", item.event.id);
-        imported.push(entry); cursor = sequence;
+        const payload = decryptHistory(item.event, epoch, key);
+        entries.push({ sequence, event: item.event, payload, serverCreatedAt: item.server_created_at });
+        cursor = sequence;
       }
-      if (result.events.length && result.next !== Number(result.events.at(-1)!.sequence)) throw new Error("Encrypted-history cursor mismatch.");
+      if (result.events.length && result.next !== cursor) throw new Error("Encrypted-history cursor mismatch.");
       if (!result.events.length && result.next !== after) throw new Error("Encrypted-history cursor skipped unavailable events.");
       if (result.next < after || (result.hasMore && result.next === after)) throw new Error("Encrypted-history cursor moved backwards.");
-      await this.vault.put("meta", "secure-history-cursor", result.next); after = result.next;
+      // Verify the complete page before changing history or acknowledging sends.
+      // The encrypted apply journal prevents a crash after cursor advancement
+      // from hiding messages that have not reached the local conversation yet.
+      if (entries.length) {
+        const writes: VaultRow[] = [];
+        const removals: Pick<VaultRow, "kind" | "id">[] = [];
+        for (const entry of entries) {
+          const order = String(entry.sequence).padStart(20, "0");
+          writes.push(this.vault.encode("history-event-v2", entry.event.id, entry, entry.event.roomId, order));
+          writes.push(this.vault.encode("history-apply-v2", entry.event.id, entry, entry.event.roomId, order));
+          removals.push({ kind: "history-outbox-v2", id: entry.event.id }, { kind: "history-pending-v2", id: entry.event.id });
+        }
+        writes.push(this.vault.encode("meta", "secure-history-cursor", result.next));
+        await this.vault.mutateRows(writes, removals);
+        imported.push(...entries);
+        if (onPage && !(await this.applyPending(onPage))) return imported;
+      }
+      after = result.next;
       if (!result.hasMore) break;
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
     }
     return imported;
   }

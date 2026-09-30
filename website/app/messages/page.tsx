@@ -12,6 +12,7 @@ import {
   type ChangeEvent,
   type CSSProperties,
   type ReactNode,
+  memo,
   useEffect,
   useMemo,
   useRef,
@@ -2121,6 +2122,65 @@ function GroupLiveStreamPanel({
     </div>
   );
 }
+
+// Draft changes must not rebuild every text/media bubble in a community channel.
+// Message actions stay outside this memo so they always use the current room state.
+const GroupMessageContent = memo(function GroupMessageContent({ message, sender }: {
+  message: Message;
+  sender: Profile | null;
+}) {
+  const visualAttachment = isImageAttachment(message.attachment) || isVideoAttachment(message.attachment);
+  const showMessageText = Boolean(message.message && !(visualAttachment && isGenericAttachmentMessage(message.message)));
+  const imageOnly = visualAttachment && !showMessageText;
+  return (
+    <>
+      <div className="flex flex-wrap items-baseline gap-2">
+        <p className="truncate text-sm font-black text-white">
+          {displayName(sender)}
+        </p>
+        <span className="text-[11px] text-gray-500">
+          {formatMessageTime(message.created_at)}
+        </span>
+        {message.optimistic ? <span className="text-[11px] text-cyan-300">Mengirim…</span> : null}
+        {message.moderation_status ===
+        "reported" ? (
+          <span className="text-[11px] text-red-300">
+            Reported
+          </span>
+        ) : null}
+      </div>
+      <MessageReplyPreview
+        reply={message.reply_to}
+      />
+      {showMessageText || message.attachment ? (
+        <div
+          className={`${styles.groupMessageBubble} mt-1 max-w-[880px] ${
+            imageOnly
+              ? ""
+              : "rounded-2xl border border-cyan-400/10 bg-[#081b2b]/72 px-4 py-3 text-white shadow-[inset_0_0_24px_rgba(6,182,212,0.03)] backdrop-blur-sm"
+          }`}
+        >
+          {showMessageText ? (
+            <p className="whitespace-pre-wrap text-sm leading-6">
+              {message.message}
+            </p>
+          ) : null}
+          {message.attachment ? (
+            <div
+              className={
+                showMessageText ? "mt-3" : ""
+              }
+            >
+              <AttachmentViewer
+                attachment={message.attachment}
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+});
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -6574,7 +6634,7 @@ export default function MessagesPage() {
                       </div>
                     ) : null}
 
-                    {selectedIsGroup ? (
+                    {selectedIsGroup && (selectedChannelIsVoice || showVoicePanel || voiceDockState.connected) ? (
                       <div
                         className={`${styles.voicePanelHost} ${showVoicePanel ? styles.voicePanelOpen : ""}`}
                       >
@@ -6686,50 +6746,7 @@ export default function MessagesPage() {
                                       className={mine ? "ring-cyan-400/40" : ""}
                                     />
                                     <div className="min-w-0 flex-1">
-                                      <div className="flex flex-wrap items-baseline gap-2">
-                                        <p className="truncate text-sm font-black text-white">
-                                          {displayName(sender)}
-                                        </p>
-                                        <span className="text-[11px] text-gray-500">
-                                          {formatMessageTime(message.created_at)}
-                                        </span>
-                                        {message.optimistic ? <span className="text-[11px] text-cyan-300">Mengirim…</span> : null}
-                                        {message.moderation_status ===
-                                        "reported" ? (
-                                          <span className="text-[11px] text-red-300">
-                                            Reported
-                                          </span>
-                                        ) : null}
-                                      </div>
-                                      <MessageReplyPreview
-                                        reply={message.reply_to}
-                                      />
-                                      {showMessageText || message.attachment ? (
-                                        <div
-                                          className={`${styles.groupMessageBubble} mt-1 max-w-[880px] ${
-                                            imageOnly
-                                              ? ""
-                                              : "rounded-2xl border border-cyan-400/10 bg-[#081b2b]/72 px-4 py-3 text-white shadow-[inset_0_0_24px_rgba(6,182,212,0.03)] backdrop-blur-sm"
-                                          }`}
-                                        >
-                                          {showMessageText ? (
-                                            <p className="whitespace-pre-wrap text-sm leading-6">
-                                              {message.message}
-                                            </p>
-                                          ) : null}
-                                          {message.attachment ? (
-                                            <div
-                                              className={
-                                                showMessageText ? "mt-3" : ""
-                                              }
-                                            >
-                                              <AttachmentViewer
-                                                attachment={message.attachment}
-                                              />
-                                            </div>
-                                          ) : null}
-                                        </div>
-                                      ) : null}
+                                      <GroupMessageContent message={message} sender={sender} />
                                       {!message.optimistic ? <MessageInteractions
                                         message={message}
                                         mine={mine}

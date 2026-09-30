@@ -7,6 +7,7 @@ import {
 } from "@/lib/serverSupabase";
 import type { ChatMemberRow, ChatRoomRow } from "@/lib/chatServer";
 import { getUnreadCache, setUnreadCache } from "@/lib/upstashRedis";
+import { publicChannelUnreadByRoom } from "@/lib/publicChannelUnread";
 
 export async function GET(request: Request) {
   try {
@@ -29,14 +30,14 @@ export async function GET(request: Request) {
         .is("chat_rooms.order_id", null)
         .or("room_type.is.null,room_type.not.in.(product,order,group)", { referencedTable: "chat_rooms" });
     }
-    const { count, error } = await directUnreadQuery;
+    const [{ count, error }, { data: memberships, error: membershipError }] = await Promise.all([
+      directUnreadQuery,
+      supabaseAdmin.from("chat_room_members")
+        .select("room_id,user_id,member_role,status,last_read_at")
+        .eq("user_id", user.id)
+        .eq("status", "active"),
+    ]);
     if (error) throw new Error(error.message);
-
-    const { data: memberships, error: membershipError } = await supabaseAdmin
-      .from("chat_room_members")
-      .select("room_id,user_id,member_role,status,last_read_at")
-      .eq("user_id", user.id)
-      .eq("status", "active");
 
     if (membershipError && !/does not exist|schema cache/i.test(membershipError.message)) {
       throw new Error(membershipError.message);
@@ -67,44 +68,16 @@ export async function GET(request: Request) {
           : { data: [], error: null };
 
         if (!channelsResult.error) {
-          const channelIds = (channelsResult.data || []).map((channel) => String(channel.id));
-          const [readStatesResult, messagesResult] = await Promise.all([
-            channelIds.length
-              ? supabaseAdmin
-                  .from("chat_channel_read_states")
-                  .select("channel_id,last_read_at")
-                  .eq("user_id", user.id)
-                  .in("channel_id", channelIds)
-              : Promise.resolve({ data: [], error: null }),
-            channelIds.length
-              ? supabaseAdmin
-                  .from("chat_messages")
-                  .select("channel_id,created_at")
-                  .in("channel_id", channelIds)
-                  .neq("sender_id", user.id)
-                  .is("deleted_at", null)
-                  .order("created_at", { ascending: false })
-                  .range(0, 4999)
-              : Promise.resolve({ data: [], error: null }),
-          ]);
-
-          if (!readStatesResult.error && !messagesResult.error) {
+          const roomByCommunity = new Map(communities.map(community => [String(community.id), String(community.room_id)]));
+          const counts = await publicChannelUnreadByRoom(supabaseAdmin, user.id,
+            (channelsResult.data || []).map(channel => ({
+              id: String(channel.id),
+              roomId: roomByCommunity.get(String(channel.community_id)) || "",
+            })),
+          );
+          if (counts) {
             usedChannelReadState = true;
-            const readAtByChannel = new Map(
-              (readStatesResult.data || []).map((state) => [
-                String(state.channel_id),
-                new Date(String(state.last_read_at || 0)).getTime(),
-              ]),
-            );
-            for (const message of messagesResult.data || []) {
-              const channelId = String(message.channel_id || "");
-              if (
-                new Date(String(message.created_at || 0)).getTime() >
-                (readAtByChannel.get(channelId) || 0)
-              ) {
-                groupUnread += 1;
-              }
-            }
+            groupUnread = [...counts.values()].reduce((sum, count) => sum + count, 0);
           }
         }
       } else if (!/does not exist|schema cache/i.test(communitiesResult.error.message)) {

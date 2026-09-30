@@ -9,6 +9,8 @@ import { colors } from "./theme";
 import type { VoiceToken } from "./types";
 import { useIncomingRingtone } from "./notificationSounds";
 import { useNotifications } from "./NotificationProvider";
+import { supabase } from "./runtime";
+import { createMobileCallMonitor } from "./mobileCallMonitor";
 
 const Context = createContext<{ startCall: (roomId: string, media: "audio" | "video") => Promise<void>; callActive: boolean }>({ startCall: async () => undefined, callActive: false });
 export const useCalls = () => useContext(Context);
@@ -19,6 +21,7 @@ export function CallProvider({ session, account, children }: { session: Session 
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const activeRef = useRef(active); activeRef.current = active;
+  const refreshCalls = useRef<() => void>(() => undefined);
   const { incomingCallSignal, setCallActive: reportCallActive } = useNotifications();
   const incoming = active?.callee_id === session?.user.id;
   useIncomingRingtone(!!active && incoming && active.status === "ringing" && !busy && account?.settings.call_notifications !== false);
@@ -29,13 +32,12 @@ export function CallProvider({ session, account, children }: { session: Session 
   }, []);
   useEffect(() => {
     if (!session || (account?.phoneRequired && !account.phoneVerified)) { setActive(null); setConnection(null); return; }
-    let alive = true; let loading = false;
-    const poll = async () => {
-      if (loading || AppState.currentState !== "active") return;
-      loading = true;
-      try {
-        const { calls } = await loadCalls(true, activeRef.current?.id);
-        if (!alive) return;
+    const monitor = createMobileCallMonitor<{ calls: CallRecord[]; callEventsReady?: boolean }>({
+      read: (signal) => loadCalls(true, activeRef.current?.id, signal),
+      isForeground: () => AppState.currentState === "active",
+      hasActiveCall: () => !!activeRef.current,
+      onValue: ({ calls, callEventsReady }) => {
+        monitor.setEventCapability(callEventsReady === true);
         const current = activeRef.current;
         if (current) {
           const updated = calls.find(c => c.id === current.id);
@@ -49,13 +51,22 @@ export function CallProvider({ session, account, children }: { session: Session 
           const incoming = calls.find(c => c.callee_id === session.user.id && c.status === "ringing");
           if (incoming) setActive(incoming);
         }
-      } catch (e) { if (alive && activeRef.current) setError(e instanceof Error ? e.message : "Sambungan panggilan terputus."); }
-      finally { loading = false; }
-    };
-    void poll(); const timer = setInterval(() => void poll(), 2000);
-    const listener = AppState.addEventListener("change", state => { if (state === "active") void poll(); });
-    return () => { alive = false; clearInterval(timer); listener.remove(); };
-  }, [session?.user.id, account?.phoneRequired, account?.phoneVerified, account?.settings.call_notifications, incomingCallSignal]);
+      },
+      onError: e => { if (activeRef.current) setError(e instanceof Error ? e.message : "Sambungan panggilan terputus."); },
+    });
+    refreshCalls.current = monitor.refresh;
+    // Atomic participant revisions contain no call contents. The API still
+    // authorizes the call; old servers keep the two-second fallback.
+    const channel = supabase.channel("mobile-call-activity:" + session.user.id)
+      .on("postgres_changes", { event: "*", schema: "public", table: "cp_live_revisions", filter: "scope=eq.calls:" + session.user.id }, () => monitor.refresh())
+      .subscribe(status => monitor.setRealtimeConnected(status === "SUBSCRIBED"));
+    monitor.refresh();
+    const listener = AppState.addEventListener("change", () => monitor.foregroundChanged());
+    return () => { refreshCalls.current = () => undefined; monitor.dispose(); listener.remove(); void supabase.removeChannel(channel); };
+  }, [session?.user.id, account?.phoneRequired, account?.phoneVerified, account?.settings.call_notifications]);
+  // Push and local transitions bypass the idle fallback. An older in-flight
+  // read cannot undo a just-accepted call.
+  useEffect(() => { refreshCalls.current(); }, [incomingCallSignal, active?.id, active?.status]);
   useEffect(() => {
     if (!active || active.status !== "accepted" || connection || busy) return;
     let alive = true;
