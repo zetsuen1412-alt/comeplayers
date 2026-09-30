@@ -40,7 +40,7 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Verify project folder matches website publish mirror
-        working-directory: ..
+        working-directory: .
         run: node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/publish.mjs --check
       - run: npx tsx --test tests/crazy-rich-web-v30.test.ts
       - run: npm run typecheck
