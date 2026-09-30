@@ -25,4 +25,13 @@ An independently open game tab can still use the same computer's CPU/GPU/memory.
 - App `.mjs` suite: 140 passed, zero failures. Desktop, mobile and shared TypeScript checks passed.
 - Final website TypeScript passed with `--incremental false` (avoiding an unrelated workspace cache-file permission error).
 
-Final affected test results and deployment identifiers are recorded here after release. Request counts above describe eliminated scheduled work, not measured FPS, battery savings or physical-device call quality.
+- Changed website files pass ESLint with zero errors (the large community page still reports 25 warnings). Git diff whitespace checks passed.
+- Vercel production build and build-time TypeScript passed. The candidate unauthenticated calls endpoint returned 401 with `Cache-Control: no-store`.
+- Source commit: `38509bca442f11f31a831496a54438f4df7e78a1`.
+- Website `dpl_6fJnFi1gu9psbSdHMBw1LpuqmU5P` was checked then promoted. `https://www.comeplayers.com/api/app-version` returned that exact release ID with HTTP 200 and no-store headers.
+- Android production OTA group `7d62f650-74c1-4d16-b7b9-772af8ef03a6`, update `01a0f3d2-06c1-7535-80db-dc93947036b8`, runtime `0.16.4`, published and independently confirmed by `eas update:view`. This updates compatible installed applications; it is not a new Google Play binary or public Store rollout.
+- The initial deployment-scoped Vercel log query found no 5xx entries. This is a short observation window, not an availability guarantee.
+- Production browser verification loaded authenticated community content and the composer, switched communities, opened the board, retained its selection through background refreshes and reopened chat successfully. Current-room member/online totals stayed visible. Captured browser error logs were empty. No test messages, reactions or calls were sent.
+- Website rollback: `dpl_68LpmQZEUtJJcBaN2i7b2bhucViK`. Android rollback OTA group: `429173f3-fa71-4b34-a508-0cd9b8ae808c`. No database/schema or game-service change needs rollback in this follow-up.
+
+Request counts above describe eliminated scheduled work, not measured FPS, battery savings or physical-device call quality. Physical-device responsiveness and two-device calls remain unverified in this review.
