@@ -1,0 +1,9 @@
+{
+  "map_id": "world_tour",
+  "city": "New York",
+  "style": "liberty",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/world_tour/new_york.glb",
+  "fallback": true
+}

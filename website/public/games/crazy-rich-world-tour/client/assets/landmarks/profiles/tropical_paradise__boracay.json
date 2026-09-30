@@ -1,0 +1,9 @@
+{
+  "map_id": "tropical_paradise",
+  "city": "Boracay",
+  "style": "bungalow",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tropical_paradise/boracay.glb",
+  "fallback": true
+}

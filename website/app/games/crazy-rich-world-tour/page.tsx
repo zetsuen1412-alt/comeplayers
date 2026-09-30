@@ -18,7 +18,7 @@ export default function CrazyRichWorldTourPage() {
       <Script src="/crazy-rich-world-tour/install.js" strategy="afterInteractive" />
       <iframe
         title="Crazy Rich: World Tour"
-        src="/crazy-rich-world-tour/PLAY-Crazy-Rich-World-Tour-Launcher.html"
+        src="/games/crazy-rich-world-tour/client/PLAY-Crazy-Rich-World-Tour-Launcher.html"
         allow="autoplay; fullscreen; gamepad"
         style={{ width: "100%", height: "100%", border: 0, display: "block" }}
       />
