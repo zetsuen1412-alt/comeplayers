@@ -89,7 +89,7 @@ Gunakan logo ComePlayers resmi yang sudah ada pada paket sebagai ikon. Gambar pr
 
 ## Pembaruan Windows 1.0.1 — 30 September 2026
 
-Paket siap unggah: `store-package/output/ComePlayers_1.0.1_x64.msix` (versi manifest `1.0.1.0`, x64).
+Paket yang diajukan: `store-package/output/ComePlayers_1.0.1_x64.msix` (versi manifest `1.0.1.0`, x64).
 SHA256: `08006EF0A528345CF72B35F6CFB51DF6E57FE9B8DE69928E0C4408BDBD161757`.
 
 Identitas dan isi paket diperiksa ulang; tidak ada perubahan source desktop sesudah build terverifikasi pada commit `5cd55049`. Fitur nomor CP dari website production terbaru dimuat dari domain resmi; tidak memerlukan perubahan atau build native baru.
@@ -109,6 +109,16 @@ Nomor CP adalah identitas publik akun dalam ComePlayers, bukan alokasi nomor tel
 
 ### Status pengajuan
 
-Pengguna meminta melanjutkan Microsoft Store setelah Android 0.16.4/build32 diterbitkan ke internal testers. Pada 30 September 2026 sesi Partner Center meminta login ulang; paket Windows1.0.1 **belum diunggah atau diajukan**. Status terakhir yang diketahui untuk versi1.0.0 adalah In certification pada pengajuan terdahulu; status terkini belum dapat diverifikasi tanpa login. Pertahankan pengajuan yang sudah ada sampai status terbaru terlihat.
+Pada 30 September 2026 sekitar 16:17 UTC (23:17 WIB/UTC+7), Windows **1.0.1.0 x64** berhasil diunggah, divalidasi, dan diajukan melalui Partner Center. Pengajuan 2 (`1152921505702012662`) menampilkan **Update in certification**, dengan Submission selesai dan Pre-processing berjalan. Publikasi diatur otomatis segera setelah sertifikasi lulus; versi baru belum tersedia sampai proses Microsoft selesai.
+
+Versi sebelumnya, 1.0.0.0 pada Submission 1, sudah berstatus **In Microsoft Store** dan tetap tersedia selama pembaruan ditinjau. Store ID: `9MTZ5VZDPWGS`; tautan produk: https://apps.microsoft.com/detail/9MTZ5VZDPWGS.
+
+- Paket: `ComePlayers_1.0.1_x64.msix`, 7.023.077 byte, SHA256 sama dengan artefak terverifikasi di atas.
+- Identitas: `ComePlayers.ComePlayers`; publisher `CN=37E5A202-77EB-4589-94DE-D5717558F0BD`.
+- Catatan versi tersimpan pada listing Indonesia dan Inggris; kedua screenshot listing yang sudah ada dipertahankan.
+- Penjelasan runFullTrust diperbarui untuk proses Win32/Tauri, WebView2, callback login, dan notifikasi Windows. Kapabilitas tersebut tetap tunduk pada pemeriksaan Microsoft.
+- Bukti lokal: `C:/Comeplayers-new/output/windows-store-20260930/windows-101-certification.png`.
+- Dashboard Microsoft menyatakan sertifikasi biasanya beberapa jam, dalam kasus tertentu hingga tiga hari kerja; ini bukan jaminan waktu persetujuan.
+- Build/unit test dan validasi paket lulus. Toast/nada dering pada MSIX terpasang dan panggilan dua perangkat belum diverifikasi. Aplikasi harus tetap berjalan untuk menerima notifikasi.
 
 Rujukan alur pembaruan: https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/publish-update-to-your-app-on-store

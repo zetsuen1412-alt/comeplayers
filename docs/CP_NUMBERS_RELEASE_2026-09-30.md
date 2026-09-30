@@ -44,7 +44,7 @@ Pengguna akan menentukan akun admin penerima kemudian. Pekerjaan ini tidak mengu
 - Peringatan nonblocking Google Play: belum ada file deobfuscation R8/ProGuard untuk diagnostik crash; tidak ada error penghalang rilis. Bukti lokal: `C:/Comeplayers-new/output/cp-numbers-20260930/play-build32-live.png`.
 - AAB lokal: `C:/Comeplayers-new/output/cp-numbers-20260930/ComePlayers-0.16.4-32.aab`; SHA256 `F21BDE6A4576CC835AAB8E6963A9719475EB27D8054594975B26686A46E73714`. Arsip memuat JS bundle, manifest, Clipboard provider, dan kedua suara notifikasi/panggilan.
 - Build31 (0.16.3) sudah selesai tetapi digantikan kandidat32 untuk menyertakan CP. Belum diunggah.
-- Windows1.0.1 tetap ditunda sesuai pilihan pengguna; web di dalam aplikasi dapat menerima perubahan website. Batas verifikasi perangkat/notifikasi terdokumentasi di CHAT_NOTIFICATIONS_RELEASE_2026-09-29.md.
+- Windows1.0.1.0 x64 diunggah dan diajukan pada 30 September 2026 sekitar 16:17 UTC setelah pengguna meminta dilanjutkan. Partner Center menampilkan Update in certification untuk Submission 2 (1152921505702012662), dengan publikasi otomatis setelah disetujui. Versi1.0.0.0 sudah In Microsoft Store. Detail dan bukti: comeplayers-apps/apps/desktop/MICROSOFT_STORE_RELEASE.md. Batas verifikasi perangkat/notifikasi tetap terdokumentasi di CHAT_NOTIFICATIONS_RELEASE_2026-09-29.md.
 
 ## Cakupan identitas
 Nomor CP adalah identitas akun ComePlayers yang dapat digunakan pengguna dari berbagai negara. Ini bukan alokasi nomor telepon internasional E.164 atau pengakuan resmi regulator/ITU. [ITU E.164](https://www.itu.int/rec/T-REC-E.164).
