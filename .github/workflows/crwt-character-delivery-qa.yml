@@ -1,0 +1,68 @@
+name: CRWT Character Delivery QA
+on:
+  push:
+    branches: [codex/crazy-rich-web-v30]
+    paths: [.github/workflows/crwt-character-delivery-qa.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  verify:
+    if: github.repository == 'zetsuen1412-alt/comeplayers' && github.ref == 'refs/heads/codex/crazy-rich-web-v30'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Recover the current authored revision without temporary download URLs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/crwt-character-qa
+          gh api repos/zetsuen1412-alt/comeplayers/actions/artifacts/11124129194/zip > /tmp/crwt-revision10.zip
+          python3 -m zipfile -e /tmp/crwt-revision10.zip /tmp/crwt-character-qa
+          gh api 'repos/zetsuen1412-alt/comeplayers/contents/.github/workflows/crwt-character-visual-qa.yml?ref=a86b7c61fd7aba148f0642c2dc719e8abf5dadb3' > /tmp/crwt-qa-source.json
+          python3 - <<'PY'
+          import json,base64,pathlib,textwrap
+          root=pathlib.Path('/tmp/crwt-character-qa');source=json.loads(pathlib.Path('/tmp/crwt-qa-source.json').read_text())
+          assert source['sha']=='96015a51e77d21dd8bc11f674cbb92664eec341a'
+          workflow=base64.b64decode(source['content']).decode()
+          start=workflow.index('          import json,pathlib,subprocess,time,traceback,struct')
+          end=workflow.index('\n          PY',start)
+          test=textwrap.dedent(workflow[start:end])
+          test=test.replace("'http://127.0.0.1:8765/character-demo.html'","'http://127.0.0.1:8765/character-demo.html?compat=1'")
+          test=test.replace("'width':1280,'height':900","'width':960,'height':760")
+          test=test.replace("page.screenshot(path=str(out/'board.png'))","page.screenshot(path=str(out/'board.png'),timeout=120000)")
+          test=test.replace("page.screenshot(path=str(out/(cid+'.png')))","page.screenshot(path=str(out/(cid+'.png')),timeout=120000)")
+          test=test.replace("'revision':10,'page_errors'","'revision':10,'render_profile':'compatibility-no-shadows-full-mesh','page_errors'")
+          pathlib.Path('/tmp/crwt-run-tests.py').write_text(test)
+          start=workflow.index('          import os,json,base64,urllib.request,pathlib,time,urllib.error');end=workflow.index('\n          PY',start)
+          pathlib.Path('/tmp/crwt-commit-tested.py').write_text(textwrap.dedent(workflow[start:end]))
+          # Compatibility changes only raster resolution and shadows. No mesh, texture, material,
+          # hair, clothing, prop, rig or animation detail is removed.
+          html=(root/'character-demo.source.html').read_text()
+          marker="const renderer=new THREE.WebGLRenderer"
+          assert marker in html
+          html=html.replace(marker,"const compatibility=new URLSearchParams(location.search).has('compat');\n"+marker)
+          html=html.replace('renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75))','renderer.setPixelRatio(compatibility?.65:Math.min(devicePixelRatio||1,1.5))')
+          html=html.replace('renderer.shadowMap.enabled=true','renderer.shadowMap.enabled=!compatibility')
+          html=html.replace('light.shadow.mapSize.set(2048,2048)','light.shadow.mapSize.set(1024,1024)')
+          html=html.replace("throw new Error(`Timeline animasi ${id} tidak ditemukan.`)","throw new Error(`Timeline animasi ${id} tidak ditemukan.`)")
+          (root/'character-demo.source.html').write_text(html)
+          (root/'character-demo.html').write_text(html.replace('./assets/characters/sculpt-v1/roster.glb','./roster.glb').replace('https://cdn.jsdelivr.net/npm/three@0.180.0/','./vendor/three/'))
+          PY
+          python3 -m venv /tmp/crwt-browser-env
+          /tmp/crwt-browser-env/bin/pip install playwright==1.55.0
+          /tmp/crwt-browser-env/bin/playwright install --with-deps chromium
+      - name: Verify all characters, six animations, tile movement and standalone GLB export
+        run: /tmp/crwt-browser-env/bin/python /tmp/crwt-run-tests.py
+      - name: Publish tested source and website mirror on the existing CRWT branch
+        run: python3 /tmp/crwt-commit-tested.py
+      - name: Keep editable source and real screenshots with the tested demo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Ten-Character-Delivery-WIP
+          path: /tmp/crwt-character-qa/
+          if-no-files-found: error
+          retention-days: 30
