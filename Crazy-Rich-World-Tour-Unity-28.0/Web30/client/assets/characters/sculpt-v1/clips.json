@@ -1,7 +1,7 @@
 {
   "project": "Crazy Rich: World Tour",
   "version": "sculpt-v1-wip",
-  "revision": 9,
+  "revision": 10,
   "visual_final_approved": false,
   "online_game_replaced": false,
   "fps": 30,
@@ -57,5 +57,5 @@
     "zeno": 16.733333333333334
   },
   "source_actions": 60,
-  "glb_sha256": "98cdf94d53609c91e2bb077b00aa964881f26dc3f81ca4d276365b0aebdeb4a4"
+  "glb_sha256": "0b7137eb87016f73c0338cc143ac9332239c62fd5ced809e28ea2b6affcd36f5"
 }

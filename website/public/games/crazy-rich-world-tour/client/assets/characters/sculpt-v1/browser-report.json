@@ -1,0 +1,596 @@
+{
+  "visual_final_approved": false,
+  "online_game_replaced": false,
+  "revision": 10,
+  "render_profile": "compatibility-no-shadows-full-mesh",
+  "page_errors": [],
+  "console_errors": [],
+  "tests": [
+    {
+      "character": "alexia",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "rindi",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "kairo",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "luna",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "nox",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "atlas",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "zeno",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "yuna",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "mochi",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    },
+    {
+      "character": "pip",
+      "selector": "passed",
+      "six_animation_controls": "passed"
+    }
+  ],
+  "initial": {
+    "ready": true,
+    "characters": [
+      {
+        "id": "alexia",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -2,
+          0.17219999432563782,
+          3.0450000762939453
+        ],
+        "visible": true
+      },
+      {
+        "id": "rindi",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          0,
+          0.17219999432563782,
+          3.0450000762939453
+        ],
+        "visible": true
+      },
+      {
+        "id": "kairo",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          2,
+          0.17219999432563782,
+          3.0450000762939453
+        ],
+        "visible": true
+      },
+      {
+        "id": "luna",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -3,
+          0.17219999432563782,
+          1.0449999570846558
+        ],
+        "visible": true
+      },
+      {
+        "id": "nox",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          3,
+          0.17219999432563782,
+          1.0449999570846558
+        ],
+        "visible": true
+      },
+      {
+        "id": "atlas",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -3,
+          0.17219999432563782,
+          -0.9549999833106995
+        ],
+        "visible": true
+      },
+      {
+        "id": "zeno",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          3,
+          0.17219999432563782,
+          -0.9549999833106995
+        ],
+        "visible": true
+      },
+      {
+        "id": "yuna",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -2,
+          0.17219999432563782,
+          -2.9549999237060547
+        ],
+        "visible": true
+      },
+      {
+        "id": "mochi",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          0,
+          0.1786399930715561,
+          -2.9549999237060547
+        ],
+        "visible": true
+      },
+      {
+        "id": "pip",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          2,
+          0.17714400589466095,
+          -2.9549999237060547
+        ],
+        "visible": true
+      }
+    ],
+    "triangles": 482778,
+    "drawCalls": 152,
+    "errors": [],
+    "visualFinalApproved": false,
+    "onlineGameReplaced": false
+  },
+  "step_test": {
+    "before": [
+      -2,
+      0.17219999432563782,
+      3.0450000762939453
+    ],
+    "after": [
+      -1,
+      0.17219999432563782,
+      3
+    ],
+    "passed": true
+  },
+  "individual_models": [
+    {
+      "id": "alexia",
+      "bytes": 1949556,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 11,
+      "textures": 1
+    },
+    {
+      "id": "rindi",
+      "bytes": 2191248,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 11,
+      "textures": 1
+    },
+    {
+      "id": "kairo",
+      "bytes": 2050280,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 14,
+      "textures": 1
+    },
+    {
+      "id": "luna",
+      "bytes": 2013044,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 14,
+      "textures": 1
+    },
+    {
+      "id": "nox",
+      "bytes": 2229676,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 13,
+      "textures": 1
+    },
+    {
+      "id": "atlas",
+      "bytes": 1854920,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 16,
+      "textures": 1
+    },
+    {
+      "id": "zeno",
+      "bytes": 2091604,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 16,
+      "textures": 1
+    },
+    {
+      "id": "yuna",
+      "bytes": 1892836,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 20,
+      "textures": 1
+    },
+    {
+      "id": "mochi",
+      "bytes": 1488384,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 11,
+      "textures": 1
+    },
+    {
+      "id": "pip",
+      "bytes": 2545008,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "skins": 13,
+      "textures": 1
+    }
+  ],
+  "final": {
+    "ready": true,
+    "characters": [
+      {
+        "id": "alexia",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -1,
+          0.17219999432563782,
+          3
+        ],
+        "visible": true
+      },
+      {
+        "id": "rindi",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          0,
+          0.17219999432563782,
+          3.0450000762939453
+        ],
+        "visible": true
+      },
+      {
+        "id": "kairo",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          2,
+          0.17219999432563782,
+          3.0450000762939453
+        ],
+        "visible": true
+      },
+      {
+        "id": "luna",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -3,
+          0.17219999432563782,
+          1.0449999570846558
+        ],
+        "visible": true
+      },
+      {
+        "id": "nox",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          3,
+          0.17219999432563782,
+          1.0449999570846558
+        ],
+        "visible": true
+      },
+      {
+        "id": "atlas",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -3,
+          0.17219999432563782,
+          -0.9549999833106995
+        ],
+        "visible": true
+      },
+      {
+        "id": "zeno",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          3,
+          0.17219999432563782,
+          -0.9549999833106995
+        ],
+        "visible": true
+      },
+      {
+        "id": "yuna",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          -2,
+          0.17219999432563782,
+          -2.9549999237060547
+        ],
+        "visible": true
+      },
+      {
+        "id": "mochi",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          0,
+          0.1786399930715561,
+          -2.9549999237060547
+        ],
+        "visible": true
+      },
+      {
+        "id": "pip",
+        "clips": [
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "current": "Idle",
+        "position": [
+          2,
+          0.17714400589466095,
+          -2.9549999237060547
+        ],
+        "visible": true
+      }
+    ],
+    "triangles": 482778,
+    "drawCalls": 152,
+    "errors": [],
+    "visualFinalApproved": false,
+    "onlineGameReplaced": false
+  },
+  "status": "browser_functional_tests_passed_visual_art_approval_pending"
+}
