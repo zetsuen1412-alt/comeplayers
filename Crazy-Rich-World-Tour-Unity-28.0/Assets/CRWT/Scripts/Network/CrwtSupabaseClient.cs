@@ -95,6 +95,11 @@ namespace ComePlayers.CrazyRich
             RpcAsync<CrwtProgressionSnapshot>("crwt_set_loadout_v17",
                 new { p_character_id = characterId, p_dice_id = diceId, p_deck = deck ?? Array.Empty<string>() });
 
+        public Task<CrwtEventSnapshot> EventSnapshotAsync() =>
+            RpcAsync<CrwtEventSnapshot>("crwt_event_snapshot_v30");
+        public Task<CrwtMissionClaimResponse> ClaimMissionAsync(string missionId) =>
+            RpcAsync<CrwtMissionClaimResponse>("crwt_claim_mission_v30", new { p_mission_id = missionId });
+
         public Task<CrwtRoomCreateResponse> CreateRoomAsync(string name, string mode, string mapId, int maxPlayers, string visibility, bool botFill) =>
             RpcAsync<CrwtRoomCreateResponse>("crwt_create_room_v18", new { p_name = name, p_mode = mode, p_map_id = mapId, p_max_players = maxPlayers, p_visibility = visibility, p_bot_fill = botFill });
 

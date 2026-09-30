@@ -18,7 +18,11 @@ namespace ComePlayers.CrazyRich
         private Button startButton;
         private CrwtActionSheet hubSheet;
         private CrwtProgressionSnapshot progression;
+        private CrwtEventSnapshot events;
+        private RectTransform eventBanner;
+        private Text eventBannerText;
         private bool progressionBusy;
+        private bool eventBusy;
         private string hubSection = "collection";
         private float nextPoll;
         private bool polling;
@@ -37,7 +41,18 @@ namespace ComePlayers.CrazyRich
             var headerText = CrwtUi.Text(header, "CRAZY RICH: WORLD TOUR  •  30.0 ANIME WORLD", 30, TextAnchor.MiddleLeft, CrwtUi.Gold);
             CrwtUi.Fill(headerText.rectTransform, 0); headerText.rectTransform.offsetMin = new Vector2(38, 0); headerText.rectTransform.offsetMax = new Vector2(-38, 0);
 
-            var menu = CrwtUi.Panel(bg, "Menu", CrwtUi.Card, new Vector2(.04f, .10f), new Vector2(.38f, .84f), Vector2.zero, Vector2.zero);
+            eventBanner = CrwtUi.Panel(bg, "Event Banner", new Color(.18f,.15f,.30f,.96f),
+                new Vector2(.04f,.842f), new Vector2(.96f,.875f), Vector2.zero, Vector2.zero);
+            eventBannerText = CrwtUi.Text(eventBanner, "EVENT & MISSIONS", 18, TextAnchor.MiddleLeft, Color.white);
+            eventBannerText.resizeTextForBestFit = true; eventBannerText.resizeTextMinSize = 12; eventBannerText.resizeTextMaxSize = 18;
+            eventBannerText.rectTransform.anchorMin = new Vector2(.02f,0); eventBannerText.rectTransform.anchorMax = new Vector2(.84f,1);
+            eventBannerText.rectTransform.offsetMin = eventBannerText.rectTransform.offsetMax = Vector2.zero;
+            var eventOpen = CrwtUi.Button(eventBanner, "BUKA", () => ShowHub("event"), CrwtUi.Gold, 42);
+            var eventOpenRt = (RectTransform)eventOpen.transform;
+            eventOpenRt.anchorMin = new Vector2(.86f,.10f); eventOpenRt.anchorMax = new Vector2(.985f,.90f);
+            eventOpenRt.offsetMin = eventOpenRt.offsetMax = Vector2.zero;
+
+            var menu = CrwtUi.Panel(bg, "Menu", CrwtUi.Card, new Vector2(.04f, .10f), new Vector2(.38f, .835f), Vector2.zero, Vector2.zero);
             CrwtUi.Vertical(menu, 14, new RectOffset(28, 28, 28, 28));
             CrwtUi.Text(menu, CrwtSession.IsGuest ? "DEMO OFFLINE" : (CrwtSession.DisplayName + " • ONLINE"), 29, TextAnchor.MiddleCenter, Color.white).gameObject.AddComponent<LayoutElement>().preferredHeight = 60;
             map = Dropdown(menu, CrwtRuntimeConfig.MapNames);
@@ -65,7 +80,7 @@ namespace ComePlayers.CrazyRich
             status.resizeTextForBestFit = true; status.resizeTextMinSize = 13; status.resizeTextMaxSize = 18;
             UpdateMapStatus();
 
-            var room = CrwtUi.Panel(bg, "Room", new Color(.045f, .065f, .12f, .96f), new Vector2(.42f, .10f), new Vector2(.96f, .84f), Vector2.zero, Vector2.zero);
+            var room = CrwtUi.Panel(bg, "Room", new Color(.045f, .065f, .12f, .96f), new Vector2(.42f, .10f), new Vector2(.96f, .835f), Vector2.zero, Vector2.zero);
             CrwtUi.Vertical(room, 14, new RectOffset(28, 28, 28, 28));
             roomInfo = CrwtUi.Text(room, CrwtSession.IsGuest ? "Pilih map lalu MAIN DEMO 3D." : "Belum berada di room.", 24, TextAnchor.UpperLeft, Color.white);
             roomInfo.gameObject.AddComponent<LayoutElement>().preferredHeight = 112;
@@ -97,7 +112,8 @@ namespace ComePlayers.CrazyRich
 
             hubSheet = gameObject.AddComponent<CrwtActionSheet>();
             hubSheet.Initialize(bg);
-            if (!CrwtSession.IsGuest) { LoadProgression(); ResumeRoom(); }
+            RenderEventBanner();
+            if (!CrwtSession.IsGuest) { LoadProgression(); LoadEvents(); ResumeRoom(); }
         }
 
         private void Update()
@@ -342,12 +358,178 @@ namespace ComePlayers.CrazyRich
                     ShowShop();
                     break;
                 default:
-                    hubSheet.Show("EVENT • WORLD TOUR", "lobby-event");
-                    hubSheet.Note("Festival board tetap aktif dan server-authoritative.");
-                    hubSheet.Note("Event lobby global belum memiliki endpoint khusus di backend yang aktif, jadi panel Event tetap read-only.");
-                    hubSheet.Note("Map aktif: " + CrwtRuntimeConfig.MapName(CrwtSession.SelectedMapId) + " • " + MapDescription(CrwtSession.SelectedMapId));
+                    ShowEvents();
                     break;
             }
+        }
+
+        private async void LoadEvents()
+        {
+            await RefreshEvents();
+        }
+
+        private async System.Threading.Tasks.Task<bool> RefreshEvents()
+        {
+            if (CrwtSession.IsGuest) { RenderEventBanner(); return false; }
+            try
+            {
+                events = await CrwtAppRoot.Instance.Api.EventSnapshotAsync();
+                if (!this) return false;
+                RenderEventBanner();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (this)
+                {
+                    eventBannerText.text = "EVENT • sinkronisasi gagal";
+                    SetStatus("Event gagal dimuat • " + ex.Message);
+                }
+                return false;
+            }
+        }
+
+        private void RenderEventBanner()
+        {
+            if (!eventBanner || !eventBannerText) return;
+            if (CrwtSession.IsGuest)
+            {
+                eventBanner.GetComponent<Image>().color = Color.Lerp(CrwtUi.Card, CrwtUi.Gold, .12f);
+                eventBannerText.text = "DAILY & WEEKLY MISSIONS • LOGIN UNTUK REWARD";
+                return;
+            }
+            var active = events?.events?.FirstOrDefault();
+            var title = active?.title ?? "DAILY & WEEKLY MISSIONS";
+            var claim = events?.claimable ?? 0;
+            eventBanner.GetComponent<Image>().color = Color.Lerp(CrwtUi.Card, EventColor(active?.accent), .16f);
+            eventBannerText.text = title + (claim > 0 ? "  •  " + claim + " REWARD SIAP DIAMBIL" : "  •  MISI AKTIF");
+            eventBannerText.color = claim > 0 ? CrwtUi.Gold : Color.white;
+        }
+
+        private void ShowEvents()
+        {
+            hubSection = "event";
+            hubSheet.Show("EVENT • DAILY & WEEKLY", "lobby-event");
+            if (CrwtSession.IsGuest)
+            {
+                hubSheet.Note("Login untuk memuat progress mission dan mengambil reward.");
+                return;
+            }
+            if (events == null)
+            {
+                hubSheet.Note("Event sedang disinkronkan dari server.");
+                CrwtUi.Button(hubSheet.Content, "MUAT ULANG", LoadEvents, CrwtUi.Cyan);
+                return;
+            }
+
+            var active = events.events?.FirstOrDefault();
+            if (active != null)
+            {
+                hubSheet.Note(active.title + "\n" + active.subtitle + "\n" + active.description);
+                hubSheet.Note("BERAKHIR • " + TimeLabel(active.ends_at));
+            }
+            hubSheet.Note("REWARD SIAP • " + events.claimable
+                + "\nRESET DAILY • " + TimeLabel(events.daily_reset_at)
+                + "\nRESET WEEKLY • " + TimeLabel(events.weekly_reset_at));
+
+            foreach (var cadence in new[] { "daily", "weekly" })
+            {
+                hubSheet.Note(cadence == "daily" ? "DAILY MISSIONS" : "WEEKLY MISSIONS");
+                foreach (var mission in (events.missions ?? Array.Empty<CrwtMission>()).Where(x => x != null && x.cadence == cadence))
+                {
+                    var id = mission.id;
+                    var state = mission.claimed ? "DIAMBIL"
+                        : mission.completed ? "CLAIM"
+                        : mission.progress + "/" + mission.target;
+                    CrwtUi.Button(hubSheet.Content,
+                        mission.title + " • " + state + " • " + RewardLabel(mission),
+                        () => ShowMission(id),
+                        mission.completed && !mission.claimed ? CrwtUi.Gold
+                            : cadence == "daily" ? CrwtUi.Cyan : CrwtUi.Lavender,
+                        72);
+                }
+            }
+        }
+
+        private void ShowMission(string id)
+        {
+            var mission = events?.missions?.FirstOrDefault(x => x != null && x.id == id);
+            if (mission == null) { ShowEvents(); return; }
+            hubSheet.Show(mission.title + " • " + mission.cadence.ToUpperInvariant(), "lobby-mission");
+            hubSheet.Note(mission.description);
+            hubSheet.Note("PROGRESS • " + mission.progress + "/" + mission.target
+                + "\nREWARD • " + RewardLabel(mission)
+                + "\nRESET • " + TimeLabel(mission.reset_at));
+            if (mission.claimed) hubSheet.Note("STATUS • REWARD SUDAH DIAMBIL");
+            else if (mission.completed)
+                CrwtUi.Button(hubSheet.Content, "CLAIM REWARD", () => ClaimMission(id), CrwtUi.Gold);
+            else hubSheet.Note("Selesaikan mission untuk membuka tombol CLAIM.");
+            CrwtUi.Button(hubSheet.Content, "KEMBALI KE EVENT", ShowEvents, CrwtUi.Cyan);
+        }
+
+        private async void ClaimMission(string id)
+        {
+            if (eventBusy || CrwtSession.IsGuest) return;
+            eventBusy = true;
+            try
+            {
+                var result = await CrwtAppRoot.Instance.Api.ClaimMissionAsync(id);
+                if (!this) return;
+                events = result.events;
+                progression = result.progression;
+                RenderEventBanner();
+                SetStatus("Reward mission diterima • +" + result.reward_gold + " GOLD"
+                    + (result.reward_diamonds > 0 ? " • +" + result.reward_diamonds + " DIAMOND" : ""));
+                ShowEvents();
+            }
+            catch (Exception ex)
+            {
+                if (this)
+                {
+                    ShowMission(id);
+                    hubSheet.Note("CLAIM GAGAL • " + FriendlyMissionError(ex.Message));
+                }
+            }
+            finally { eventBusy = false; }
+        }
+
+        private static string RewardLabel(CrwtMission mission)
+        {
+            if (mission == null) return "-";
+            var reward = mission.reward_gold + " GOLD";
+            if (mission.reward_diamonds > 0) reward += " + " + mission.reward_diamonds + " DIAMOND";
+            return reward;
+        }
+
+        private static string TimeLabel(string value)
+        {
+            if (!DateTimeOffset.TryParse(value, out var at)) return "-";
+            var remaining = at - DateTimeOffset.UtcNow;
+            if (remaining.TotalSeconds <= 0) return "SEKARANG";
+            if (remaining.TotalDays >= 1) return Mathf.CeilToInt((float)remaining.TotalDays) + " HARI";
+            if (remaining.TotalHours >= 1) return Mathf.CeilToInt((float)remaining.TotalHours) + " JAM";
+            return Mathf.Max(1, Mathf.CeilToInt((float)remaining.TotalMinutes)) + " MENIT";
+        }
+
+        private static Color EventColor(string accent)
+        {
+            switch ((accent ?? "").ToLowerInvariant())
+            {
+                case "rose": return CrwtUi.Rose;
+                case "cyan": return CrwtUi.Cyan;
+                case "mint": return CrwtUi.Mint;
+                case "lavender": return CrwtUi.Lavender;
+                default: return CrwtUi.Gold;
+            }
+        }
+
+        private static string FriendlyMissionError(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return "Server belum mengonfirmasi reward.";
+            return message
+                .Replace("mission_not_complete", "Mission belum selesai")
+                .Replace("mission_already_claimed", "Reward sudah diambil")
+                .Replace("mission_not_found", "Mission sudah tidak aktif");
         }
 
         private void ShowItemList(string type, string title, string intro)
