@@ -1,6 +1,6 @@
 using System;
 using System.Text;
-using Newtonsoft.Json.Linq;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +17,9 @@ namespace ComePlayers.CrazyRich
         private Button addBotButton;
         private Button startButton;
         private CrwtActionSheet hubSheet;
-        private string progressionRaw;
+        private CrwtProgressionSnapshot progression;
+        private bool progressionBusy;
+        private string hubSection = "collection";
         private float nextPoll;
         private bool polling;
         private bool selfReady;
@@ -295,136 +297,398 @@ namespace ComePlayers.CrazyRich
 
         private async void LoadProgression()
         {
+            await RefreshProgression();
+        }
+
+        private async System.Threading.Tasks.Task<bool> RefreshProgression()
+        {
+            if (CrwtSession.IsGuest) return false;
             try
             {
-                progressionRaw = await CrwtAppRoot.Instance.Api.ProgressionSnapshotAsync();
-                if (!this) return;
-                SetStatus(ProgressionSummary(progressionRaw));
+                progression = await CrwtAppRoot.Instance.Api.ProgressionSnapshotTypedAsync();
+                if (!this) return false;
+                SetStatus(ProgressionSummary());
+                return progression?.profile != null;
             }
-            catch
+            catch (Exception ex)
             {
-                if (this) SetStatus("Progression online belum dapat dimuat. Matchmaking tetap tersedia.");
+                if (this) SetStatus("Progression gagal dimuat • " + ex.Message);
+                return false;
             }
         }
 
         private void ShowHub(string section)
         {
             if (!hubSheet) return;
+            hubSection = section;
             switch (section)
             {
                 case "character":
-                    hubSheet.Show("KARAKTER • Anime Travelers", "lobby-character");
-                    hubSheet.Note("Enam karakter sudah tersedia di client. Pemilihan permanen tetap mengikuti progression/server; panel ini hanya preview.");
-                    foreach (var id in new[] { "alexia", "rindi", "kairo", "luna", "nox", "atlas" })
-                    {
-                        var characterId = id;
-                        CrwtUi.Button(hubSheet.Content, CrwtHudArt.CharacterDisplayName(id) + " • LIHAT PROFIL",
-                            () => ShowCharacterProfile(characterId), CharacterColor(id), 64);
-                    }
+                    ShowItemList("character", "KARAKTER • Anime Travelers",
+                        "Pilih traveler, buka karakter baru, tingkatkan level, atau pakai karakter untuk match berikutnya.");
                     break;
                 case "dice":
-                    hubSheet.Show("DADU • STARWHEEL", "lobby-dice");
-                    hubSheet.Note("Starwheel adalah dadu fantasi tujuh hasil: 0–6. Hasil online tetap berasal dari server, bukan dari Unity.");
-                    hubSheet.Note(ProgressionLine("dice"));
-                    hubSheet.Note("ZERO + ZERO tetap berada di tempat. Focus GANJIL/GENAP dan extra roll mengikuti kontrak server.");
+                    ShowItemList("dice", "DADU • STARWHEEL COLLECTION",
+                        "Koleksi Starwheel tetap memakai hasil server 0–6. Skin/level tidak membuat Unity menentukan RNG.");
                     break;
                 case "cards":
-                    hubSheet.Show("KARTU • COLLECTION", "lobby-cards");
-                    hubSheet.Note("Kartu digunakan saat pertandingan ketika server memberikan kartu ke tangan pemain.");
-                    hubSheet.Note(ProgressionLine("cards"));
-                    hubSheet.Note("Target, validasi, dan efek kartu tetap diputuskan server. Lobby tidak membuat kartu baru.");
+                    ShowItemList("card", "KARTU • DECK 1–3",
+                        "Susun 1–3 kartu unik. Efek kartu tetap diputuskan server saat pertandingan.");
                     break;
                 case "collection":
-                    hubSheet.Show("KOLEKSI • WORLD TOUR", "lobby-collection");
-                    hubSheet.Note("6 karakter 3D • 5 map • 160 tile katalog • House / Tower / Hotel / Landmark.");
-                    hubSheet.Note(ProgressionLine("collection"));
-                    foreach (var id in CrwtRuntimeConfig.MapIds)
-                        hubSheet.Note(CrwtRuntimeConfig.MapName(id) + " • " + MapDescription(id));
+                    ShowCollection();
                     break;
                 case "shop":
-                    hubSheet.Show("TOKO • FOUNDATION", "lobby-shop");
-                    hubSheet.Note("Tampilan toko siap menjadi bagian Main Lobby, tetapi Unity client belum memiliki RPC pembelian toko yang eksplisit.");
-                    hubSheet.Note("Tidak ada transaksi lokal atau tombol beli palsu. Purchase akan diaktifkan setelah kontrak server resmi tersedia.");
+                    ShowShop();
                     break;
                 default:
                     hubSheet.Show("EVENT • WORLD TOUR", "lobby-event");
-                    hubSheet.Note("Panel Event sudah berada di Main Lobby. Sistem pertandingan Festival tetap aktif di board.");
-                    hubSheet.Note("Event lobby global belum memiliki endpoint khusus di Unity client, jadi panel ini read-only sampai backend event resmi ditambahkan.");
+                    hubSheet.Note("Festival board tetap aktif dan server-authoritative.");
+                    hubSheet.Note("Event lobby global belum memiliki endpoint khusus di backend yang aktif, jadi panel Event tetap read-only.");
+                    hubSheet.Note("Map aktif: " + CrwtRuntimeConfig.MapName(CrwtSession.SelectedMapId) + " • " + MapDescription(CrwtSession.SelectedMapId));
                     break;
             }
         }
 
-        private void ShowCharacterProfile(string id)
+        private void ShowItemList(string type, string title, string intro)
         {
-            hubSheet.Show(CrwtHudArt.CharacterDisplayName(id) + " • CHARACTER", "lobby-character");
-            var portrait = CrwtHudArt.Portrait(hubSheet.Content, id);
-            portrait.gameObject.AddComponent<LayoutElement>().preferredHeight = 180;
-            hubSheet.Note(CharacterDescription(id));
-            hubSheet.Note("Model 3D: Idle / Walk / Jump / Skill / Win / Lose tersedia dalam paket Unity.");
-            CrwtUi.Button(hubSheet.Content, "KEMBALI KE KARAKTER", () => ShowHub("character"), CrwtUi.Cyan);
+            hubSheet.Show(title, "lobby-" + type);
+            hubSheet.Note(intro);
+            hubSheet.Note(ProgressionSummary());
+            var items = ItemsFor(type);
+            if (items.Length == 0)
+            {
+                hubSheet.Note(CrwtSession.IsGuest
+                    ? "Login untuk memuat koleksi akun."
+                    : "Koleksi sedang disinkronkan. Tutup panel lalu buka kembali setelah progression termuat.");
+                return;
+            }
+
+            foreach (var item in items)
+            {
+                if (item == null) continue;
+                var id = item.id;
+                var equipped = IsEquipped(type, id);
+                var state = equipped ? "DIPAKAI"
+                    : item.owned ? "DIMILIKI • LV " + item.level + "/" + item.max_level
+                    : "TERKUNCI • " + UnlockLabel(item);
+                CrwtUi.Button(hubSheet.Content,
+                    item.name.ToUpperInvariant() + " • " + item.rarity + " • " + state,
+                    () => ShowProgressionItem(type, id),
+                    type == "character" ? CharacterColor(id) : type == "dice" ? CrwtUi.Lavender : CrwtUi.Cyan,
+                    72);
+            }
         }
 
-        private void UpdateMapStatus()
+        private void ShowCollection()
         {
-            if (!status) return;
-            status.text = CrwtRuntimeConfig.MapName(CrwtSession.SelectedMapId) + "\n" + MapDescription(CrwtSession.SelectedMapId);
-            status.color = MapColor(CrwtSession.SelectedMapId);
+            hubSheet.Show("KOLEKSI • WORLD TOUR", "lobby-collection");
+            if (progression?.profile == null)
+            {
+                hubSheet.Note(ProgressionLine());
+                return;
+            }
+            hubSheet.Note(ProgressionSummary());
+            hubSheet.Note("LOADOUT • " + CrwtHudArt.CharacterDisplayName(progression.profile.character_id)
+                + " • " + DiceName(progression.profile.dice_id)
+                + "\nDECK • " + string.Join(" / ", progression.profile.deck ?? Array.Empty<string>()));
+            hubSheet.Note("KARAKTER " + OwnedCount(progression.characters) + "/" + (progression.characters?.Length ?? 0)
+                + "  •  DADU " + OwnedCount(progression.dice) + "/" + (progression.dice?.Length ?? 0)
+                + "  •  KARTU " + OwnedCount(progression.cards) + "/" + (progression.cards?.Length ?? 0));
+            foreach (var id in CrwtRuntimeConfig.MapIds)
+                hubSheet.Note(CrwtRuntimeConfig.MapName(id) + " • " + MapDescription(id));
         }
 
-        private string ProgressionLine(string section)
+        private void ShowShop()
         {
-            if (CrwtSession.IsGuest) return "DEMO OFFLINE • progression akun tidak dimuat.";
-            if (string.IsNullOrWhiteSpace(progressionRaw)) return "Progression: menyinkronkan data akun...";
-            var summary = ProgressionSummary(progressionRaw);
-            return string.IsNullOrEmpty(summary) ? "Progression akun terhubung." : summary;
+            hubSheet.Show("TOKO • COLLECTION UNLOCK", "lobby-shop");
+            hubSheet.Note("Unlock memakai Gold/Diamond akun melalui RPC server. Tidak ada saldo yang dipotong lokal.");
+            hubSheet.Note(ProgressionSummary());
+            var locked = ItemsFor("character").Where(x => x != null && !x.owned)
+                .Select(x => new { type = "character", item = x })
+                .Concat(ItemsFor("dice").Where(x => x != null && !x.owned).Select(x => new { type = "dice", item = x }))
+                .Concat(ItemsFor("card").Where(x => x != null && !x.owned).Select(x => new { type = "card", item = x }))
+                .ToArray();
+            if (locked.Length == 0)
+            {
+                hubSheet.Note(progression == null ? "Progression belum termuat." : "Semua item catalog saat ini sudah dimiliki.");
+                return;
+            }
+            foreach (var entry in locked)
+            {
+                var type = entry.type; var id = entry.item.id;
+                CrwtUi.Button(hubSheet.Content,
+                    TypeLabel(type) + " • " + entry.item.name.ToUpperInvariant() + " • " + UnlockLabel(entry.item),
+                    () => ShowProgressionItem(type, id), CrwtUi.Gold, 68);
+            }
         }
 
-        private static string ProgressionSummary(string json)
+        private void ShowProgressionItem(string type, string id)
         {
-            if (string.IsNullOrWhiteSpace(json)) return null;
+            var item = FindItem(type, id);
+            if (item == null)
+            {
+                ShowHub(hubSection);
+                return;
+            }
+            hubSheet.Show(item.name.ToUpperInvariant() + " • " + TypeLabel(type), "lobby-item");
+            if (type == "character")
+            {
+                var portrait = CrwtHudArt.Portrait(hubSheet.Content, id);
+                portrait.gameObject.AddComponent<LayoutElement>().preferredHeight = 170;
+            }
+            hubSheet.Note(item.rarity + " • " + (item.owned ? "LV " + item.level + "/" + item.max_level : "TERKUNCI")
+                + "\n" + (string.IsNullOrEmpty(item.description) ? CharacterDescription(id) : item.description));
+            if (!string.IsNullOrEmpty(item.skill_name))
+                hubSheet.Note("SKILL • " + item.skill_name);
+            if (!string.IsNullOrEmpty(item.effect_type))
+                hubSheet.Note("EFEK • " + item.effect_type.Replace('_', ' ').ToUpperInvariant());
+
+            if (!item.owned)
+            {
+                hubSheet.Note("HARGA UNLOCK • " + UnlockLabel(item));
+                if (!CrwtSession.IsGuest)
+                    CrwtUi.Button(hubSheet.Content, "BUKA ITEM", () => ConfirmUnlock(type, id), CrwtUi.Gold);
+            }
+            else
+            {
+                if (type == "character" || type == "dice")
+                {
+                    if (IsEquipped(type, id)) hubSheet.Note("STATUS • DIPAKAI UNTUK MATCH BERIKUTNYA");
+                    else CrwtUi.Button(hubSheet.Content, "PAKAI", () => EquipItem(type, id), CrwtUi.Mint);
+                }
+                else ShowDeckAction(item);
+
+                if (item.level < item.max_level)
+                {
+                    var cost = UpgradeCost(type, item.level);
+                    CrwtUi.Button(hubSheet.Content, "UPGRADE KE LV " + (item.level + 1) + " • " + cost + " GOLD",
+                        () => ConfirmUpgrade(type, id), CrwtUi.Gold);
+                }
+                else hubSheet.Note("LEVEL MAXIMUM TERCAPAI.");
+            }
+
+            CrwtUi.Button(hubSheet.Content, "KEMBALI", () => ShowHub(type == "card" ? "cards" : type), CrwtUi.Cyan);
+        }
+
+        private void ShowDeckAction(CrwtProgressionItem item)
+        {
+            var deck = progression?.profile?.deck ?? Array.Empty<string>();
+            var inDeck = deck.Contains(item.id);
+            hubSheet.Note("DECK AKTIF • " + string.Join(" / ", deck));
+            if (inDeck)
+            {
+                if (deck.Length <= 1) hubSheet.Note("Deck minimal harus berisi 1 kartu.");
+                else CrwtUi.Button(hubSheet.Content, "LEPAS DARI DECK", () => ToggleDeckCard(item.id, false), CrwtUi.Rose);
+            }
+            else
+            {
+                if (deck.Length >= 3) hubSheet.Note("Deck sudah penuh (maksimum 3 kartu).");
+                else CrwtUi.Button(hubSheet.Content, "TAMBAHKAN KE DECK", () => ToggleDeckCard(item.id, true), CrwtUi.Mint);
+            }
+        }
+
+        private void ConfirmUnlock(string type, string id)
+        {
+            var item = FindItem(type, id);
+            if (item == null || item.owned) return;
+            hubSheet.Show("KONFIRMASI UNLOCK", "lobby-confirm");
+            hubSheet.Note(item.name + "\nHarga: " + UnlockLabel(item) + "\nSaldo: " + BalanceLine());
+            CrwtUi.Button(hubSheet.Content, "YA, BUKA", () => UnlockItem(type, id), CrwtUi.Gold);
+            CrwtUi.Button(hubSheet.Content, "BATAL", () => ShowProgressionItem(type, id), CrwtUi.Cyan);
+        }
+
+        private async void UnlockItem(string type, string id)
+        {
+            if (progressionBusy) return;
+            progressionBusy = true;
             try
             {
-                var root = JToken.Parse(json);
-                var parts = new System.Collections.Generic.List<string>();
-                AddProgression(parts, root, "level", "LV");
-                AddProgression(parts, root, "xp", "XP");
-                AddProgression(parts, root, "gold", "GOLD");
-                AddProgression(parts, root, "rating", "RATING");
-                AddProgression(parts, root, "tier", "TIER");
-                return parts.Count == 0 ? "Progression akun tersinkron." : string.Join("  •  ", parts);
+                await CrwtAppRoot.Instance.Api.UnlockProgressionItemAsync(type, id);
+                await RefreshProgression();
+                if (!this) return;
+                SetStatus("Unlock berhasil • " + (FindItem(type, id)?.name ?? id));
+                ShowProgressionItem(type, id);
             }
-            catch { return "Progression akun tersinkron."; }
+            catch (Exception ex)
+            {
+                if (this) { ShowProgressionItem(type, id); hubSheet.Note("UNLOCK GAGAL • " + FriendlyProgressionError(ex.Message)); }
+            }
+            finally { progressionBusy = false; }
         }
 
-        private static void AddProgression(System.Collections.Generic.List<string> output, JToken root, string key, string label)
+        private void ConfirmUpgrade(string type, string id)
         {
-            var value = FindValue(root, key);
-            if (value == null || value.Type == JTokenType.Null || value.Type == JTokenType.Object || value.Type == JTokenType.Array) return;
-            var text = value.ToString();
-            if (!string.IsNullOrWhiteSpace(text) && !output.Exists(x => x.StartsWith(label + " ")))
-                output.Add(label + " " + text);
+            var item = FindItem(type, id);
+            if (item == null || !item.owned || item.level >= item.max_level) return;
+            var cost = UpgradeCost(type, item.level);
+            hubSheet.Show("KONFIRMASI UPGRADE", "lobby-confirm");
+            hubSheet.Note(item.name + " • LV " + item.level + " → " + (item.level + 1)
+                + "\nBiaya: " + cost + " GOLD\nSaldo: " + BalanceLine());
+            CrwtUi.Button(hubSheet.Content, "UPGRADE", () => UpgradeItem(type, id), CrwtUi.Gold);
+            CrwtUi.Button(hubSheet.Content, "BATAL", () => ShowProgressionItem(type, id), CrwtUi.Cyan);
         }
 
-        private static JToken FindValue(JToken token, string name)
+        private async void UpgradeItem(string type, string id)
         {
-            if (token is JObject obj)
+            if (progressionBusy) return;
+            progressionBusy = true;
+            try
             {
-                foreach (var property in obj.Properties())
-                {
-                    if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase)) return property.Value;
-                    var nested = FindValue(property.Value, name);
-                    if (nested != null) return nested;
-                }
+                await CrwtAppRoot.Instance.Api.UpgradeProgressionItemAsync(type, id);
+                await RefreshProgression();
+                if (!this) return;
+                SetStatus("Upgrade berhasil • " + (FindItem(type, id)?.name ?? id));
+                ShowProgressionItem(type, id);
             }
-            else if (token is JArray array)
+            catch (Exception ex)
             {
-                foreach (var child in array)
-                {
-                    var nested = FindValue(child, name);
-                    if (nested != null) return nested;
-                }
+                if (this) { ShowProgressionItem(type, id); hubSheet.Note("UPGRADE GAGAL • " + FriendlyProgressionError(ex.Message)); }
             }
-            return null;
+            finally { progressionBusy = false; }
+        }
+
+        private async void EquipItem(string type, string id)
+        {
+            if (progressionBusy || progression?.profile == null) return;
+            if (!string.IsNullOrEmpty(CrwtSession.RoomId))
+            {
+                hubSheet.Note("Keluar dari room terlebih dahulu untuk mengganti loadout match berikutnya.");
+                return;
+            }
+            var character = type == "character" ? id : progression.profile.character_id;
+            var dice = type == "dice" ? id : progression.profile.dice_id;
+            await SaveLoadout(character, dice, progression.profile.deck, type, id);
+        }
+
+        private async void ToggleDeckCard(string id, bool add)
+        {
+            if (progressionBusy || progression?.profile == null) return;
+            if (!string.IsNullOrEmpty(CrwtSession.RoomId))
+            {
+                hubSheet.Note("Keluar dari room terlebih dahulu untuk mengganti deck match berikutnya.");
+                return;
+            }
+            var deck = (progression.profile.deck ?? Array.Empty<string>()).ToList();
+            if (add)
+            {
+                if (deck.Count >= 3 || deck.Contains(id)) return;
+                deck.Add(id);
+            }
+            else
+            {
+                if (deck.Count <= 1) return;
+                deck.Remove(id);
+            }
+            await SaveLoadout(progression.profile.character_id, progression.profile.dice_id, deck.ToArray(), "card", id);
+        }
+
+        private async System.Threading.Tasks.Task SaveLoadout(string character, string dice, string[] deck, string returnType, string returnId)
+        {
+            if (progressionBusy) return;
+            progressionBusy = true;
+            try
+            {
+                progression = await CrwtAppRoot.Instance.Api.SetLoadoutAsync(character, dice, deck);
+                if (!this) return;
+                SetStatus("Loadout tersimpan • " + ProgressionSummary());
+                ShowProgressionItem(returnType, returnId);
+            }
+            catch (Exception ex)
+            {
+                if (this) { ShowProgressionItem(returnType, returnId); hubSheet.Note("LOADOUT GAGAL • " + FriendlyProgressionError(ex.Message)); }
+            }
+            finally { progressionBusy = false; }
+        }
+
+        private CrwtProgressionItem[] ItemsFor(string type)
+        {
+            if (progression == null) return Array.Empty<CrwtProgressionItem>();
+            return type == "character" ? progression.characters ?? Array.Empty<CrwtProgressionItem>()
+                : type == "dice" ? progression.dice ?? Array.Empty<CrwtProgressionItem>()
+                : progression.cards ?? Array.Empty<CrwtProgressionItem>();
+        }
+
+        private CrwtProgressionItem FindItem(string type, string id)
+        {
+            return ItemsFor(type).FirstOrDefault(x => x != null && x.id == id);
+        }
+
+        private bool IsEquipped(string type, string id)
+        {
+            var p = progression?.profile;
+            if (p == null) return false;
+            if (type == "character") return p.character_id == id;
+            if (type == "dice") return p.dice_id == id;
+            return (p.deck ?? Array.Empty<string>()).Contains(id);
+        }
+
+        private string ProgressionLine()
+        {
+            if (CrwtSession.IsGuest) return "DEMO OFFLINE • progression akun tidak dimuat.";
+            return progression?.profile == null ? "Progression: menyinkronkan data akun..." : ProgressionSummary();
+        }
+
+        private string ProgressionSummary()
+        {
+            var p = progression?.profile;
+            if (p == null) return ProgressionLineFallback();
+            return "LV " + p.level + "  •  XP " + p.xp + "  •  GOLD " + p.gold + "  •  DIAMOND " + p.diamonds;
+        }
+
+        private string ProgressionLineFallback()
+        {
+            return CrwtSession.IsGuest ? "DEMO OFFLINE" : "Progression akun belum termuat.";
+        }
+
+        private string BalanceLine()
+        {
+            var p = progression?.profile;
+            return p == null ? "belum termuat" : p.gold + " GOLD • " + p.diamonds + " DIAMOND";
+        }
+
+        private string DiceName(string id)
+        {
+            return progression?.dice?.FirstOrDefault(x => x != null && x.id == id)?.name ?? id ?? "Travel Dice";
+        }
+
+        private static int OwnedCount(CrwtProgressionItem[] items)
+        {
+            return items?.Count(x => x != null && x.owned) ?? 0;
+        }
+
+        private static string UnlockLabel(CrwtProgressionItem item)
+        {
+            if (item == null) return "-";
+            if (item.unlock_currency == "free" || item.unlock_cost <= 0) return "GRATIS";
+            return item.unlock_cost + " " + (item.unlock_currency ?? "gold").ToUpperInvariant();
+        }
+
+        private static int UpgradeCost(string type, int level)
+        {
+            var n = Mathf.Max(1, level);
+            if (type == "character") return 800 * n + 100 * (n - 1) * (n - 1);
+            if (type == "dice") return 600 * n + 75 * (n - 1) * (n - 1);
+            return 350 * n + 50 * (n - 1) * (n - 1);
+        }
+
+        private static string TypeLabel(string type)
+        {
+            return type == "character" ? "KARAKTER" : type == "dice" ? "DADU" : "KARTU";
+        }
+
+        private static string FriendlyProgressionError(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return "Server belum mengonfirmasi aksi.";
+            return message
+                .Replace("insufficient_gold", "Gold tidak cukup")
+                .Replace("insufficient_diamonds", "Diamond tidak cukup")
+                .Replace("item_not_owned", "Item belum dimiliki")
+                .Replace("character_not_owned", "Karakter belum dimiliki")
+                .Replace("dice_not_owned", "Dadu belum dimiliki")
+                .Replace("deck_size_1_to_3", "Deck harus 1–3 kartu")
+                .Replace("deck_duplicates_not_allowed", "Deck tidak boleh memiliki kartu duplikat")
+                .Replace("max_level_reached", "Level maksimum sudah tercapai");
         }
 
         private static Color CharacterColor(string id) => CrwtCharacterView.NormalizeCharacterId(id) switch
@@ -440,7 +704,7 @@ namespace ComePlayers.CrazyRich
         private static string CharacterDescription(string id) => CrwtCharacterView.NormalizeCharacterId(id) switch
         {
             "rindi" => "Traveler ceria dengan rambut pink twin-tail dan aksen teal.",
-            "kairo" => "Strategist futuristik dengan identitas biru-cyan dan Dice Focus.",
+            "kairo" => "Strategist futuristik dengan identitas biru-cyan. Skill server: Dice Focus.",
             "luna" => "Traveler bertema moonlight dengan palet lavender dan gold.",
             "nox" => "Karakter misterius dengan palet midnight violet dan silver streak.",
             "atlas" => "Explorer dunia dengan topi perjalanan, mint accent, dan travel bag.",
