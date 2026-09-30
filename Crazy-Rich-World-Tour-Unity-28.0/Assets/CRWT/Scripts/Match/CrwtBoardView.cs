@@ -58,6 +58,7 @@ namespace ComePlayers.CrazyRich
             }
             var center = new GameObject("CameraTarget"); center.transform.SetParent(transform, false); CameraTarget = center.transform;
             AddCenterLandmark(currentMap);
+            AddMapDecorations(currentMap);
         }
 
         private void BuildTile(int index)
@@ -271,6 +272,64 @@ namespace ComePlayers.CrazyRich
             art.Label(root.transform, "Board Title", "CRAZY RICH", new Vector3(0, .03f, -3.35f), .36f, art.Ink, 8.8f, .65f);
             art.Label(root.transform, "Map Title", MapTitle(map), new Vector3(0, .03f, -3.95f), .17f, accent, 8.8f, .32f);
         }
+        private void AddMapDecorations(string map)
+        {
+            var root = new GameObject("Anime Map Decorations");
+            root.transform.SetParent(transform, false);
+            var accent = MapAccent(map);
+            var corners = new[]
+            {
+                new Vector3(-7.15f,0,-7.15f), new Vector3(7.15f,0,-7.15f),
+                new Vector3(7.15f,0,7.15f), new Vector3(-7.15f,0,7.15f)
+            };
+            foreach (var point in corners)
+            {
+                if (map == "tokyo_rush") AddToyTree(root.transform, point, new Color(1f,.58f,.76f), accent);
+                else if (map == "tropical_paradise") AddPalm(root.transform, point, accent);
+                else if (map == "candy_world") AddCandy(root.transform, point, accent);
+                else if (map == "fantasy_kingdom") AddCrystal(root.transform, point, accent);
+                else AddCloud(root.transform, point, accent);
+            }
+        }
+
+        private void AddToyTree(Transform parent, Vector3 point, Color blossom, Color accent)
+        {
+            art.Shape(parent, "Sakura Trunk", PrimitiveType.Cylinder, point + new Vector3(0,.30f,0), new Vector3(.10f,.30f,.10f), Color.Lerp(art.Gold, art.Ink, .35f));
+            art.Shape(parent, "Sakura Crown", PrimitiveType.Sphere, point + new Vector3(0,.78f,0), new Vector3(.62f,.48f,.62f), blossom);
+            art.Shape(parent, "Sakura Spark", PrimitiveType.Sphere, point + new Vector3(.25f,1.02f,.06f), Vector3.one * .13f, accent);
+        }
+
+        private void AddPalm(Transform parent, Vector3 point, Color accent)
+        {
+            art.Shape(parent, "Palm Trunk", PrimitiveType.Cylinder, point + new Vector3(0,.38f,0), new Vector3(.10f,.38f,.10f), art.Gold);
+            for (var i = 0; i < 4; i++)
+            {
+                var leaf = art.Shape(parent, "Palm Leaf", PrimitiveType.Sphere, point + new Vector3(0,.83f,0), new Vector3(.62f,.09f,.19f), accent);
+                leaf.transform.localRotation = Quaternion.Euler(0, i * 45, 0);
+            }
+        }
+
+        private void AddCandy(Transform parent, Vector3 point, Color accent)
+        {
+            art.Shape(parent, "Lollipop Stem", PrimitiveType.Cylinder, point + new Vector3(0,.35f,0), new Vector3(.07f,.35f,.07f), art.Cream);
+            art.Shape(parent, "Lollipop", PrimitiveType.Sphere, point + new Vector3(0,.86f,0), Vector3.one * .44f, accent);
+            art.Ring(parent, "Candy Swirl", point + new Vector3(0,.86f,-.36f), .27f, art.Cream).transform.localRotation = Quaternion.Euler(90,0,0);
+        }
+
+        private void AddCrystal(Transform parent, Vector3 point, Color accent)
+        {
+            var crystal = art.Shape(parent, "Fantasy Crystal", PrimitiveType.Cylinder, point + new Vector3(0,.48f,0), new Vector3(.24f,.48f,.24f), accent);
+            crystal.transform.localRotation = Quaternion.Euler(0,45,0);
+            art.Shape(parent, "Crystal Light", PrimitiveType.Sphere, point + new Vector3(0,.92f,0), Vector3.one * .16f, art.Gold);
+        }
+
+        private void AddCloud(Transform parent, Vector3 point, Color accent)
+        {
+            art.Shape(parent, "Cloud Puff", PrimitiveType.Sphere, point + new Vector3(0,.32f,0), new Vector3(.62f,.24f,.40f), art.Cream);
+            art.Shape(parent, "Cloud Puff", PrimitiveType.Sphere, point + new Vector3(.35f,.36f,.02f), new Vector3(.38f,.20f,.30f), Color.Lerp(art.Cream, accent, .12f));
+            art.Shape(parent, "Cloud Star", PrimitiveType.Sphere, point + new Vector3(-.33f,.55f,0), Vector3.one * .12f, art.Gold);
+        }
+
         private void AddMiniTower(Transform parent, Vector3 origin, float height, Color color)
         {
             art.Shape(parent, "Miniature Tower", PrimitiveType.Cube, origin + Vector3.up * height * .5f, new Vector3(.5f, height, .5f), color);

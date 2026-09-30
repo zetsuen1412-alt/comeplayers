@@ -19,6 +19,7 @@ namespace ComePlayers.CrazyRich
         private CrwtActionSheet sheet;
         private CrwtAudio sound;
         private CrwtCameraOrbit orbit;
+        private Camera sceneCamera;
         private bool syncFailed;
         private bool timeoutBusy;
         private float nextTimeoutCheck;
@@ -69,13 +70,15 @@ namespace ComePlayers.CrazyRich
         {
             var boardGo = new GameObject("CRWT_Board"); board = boardGo.AddComponent<CrwtBoardView>(); board.Build(CrwtSession.SelectedMapId);
             board.MovementFinished += Render;
-            var lightGo = new GameObject("KeyLight", typeof(Light)); var light = lightGo.GetComponent<Light>(); light.type = LightType.Directional; light.intensity = 1.25f; lightGo.transform.rotation = Quaternion.Euler(50, -35, 0);
-            RenderSettings.ambientLight = new Color(.34f,.39f,.50f);
+            var lightGo = new GameObject("KeyLight", typeof(Light)); var light = lightGo.GetComponent<Light>();
+            light.type = LightType.Directional; light.intensity = 1.18f; light.color = new Color(1f,.94f,.84f); lightGo.transform.rotation = Quaternion.Euler(50, -35, 0);
+            RenderSettings.ambientLight = new Color(.52f,.59f,.73f);
             var camGo = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener), typeof(CrwtCameraOrbit)); camGo.tag = "MainCamera";
             orbit = camGo.GetComponent<CrwtCameraOrbit>(); orbit.target = board.CameraTarget; orbit.distance = 21f; orbit.yaw = 0; orbit.pitch = 53f;
-            camGo.GetComponent<Camera>().fieldOfView = 44f;
-            camGo.GetComponent<Camera>().backgroundColor = new Color(.025f,.045f,.09f);
-            camGo.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
+            sceneCamera = camGo.GetComponent<Camera>();
+            sceneCamera.fieldOfView = 44f;
+            sceneCamera.backgroundColor = MapBackground(CrwtSession.SelectedMapId);
+            sceneCamera.clearFlags = CameraClearFlags.SolidColor;
             Application.targetFrameRate = PlayerPrefs.GetInt("CRWT_LowPower", 0) == 1 ? 30 : 60;
             sound = gameObject.AddComponent<CrwtAudio>();
             board.StepFinished += () => sound.Play("step");
@@ -91,7 +94,7 @@ namespace ComePlayers.CrazyRich
             dice.Initialize(safe);
             dice.ZeroReact += roll => board.ReactToZero(roll.seat);
             dice.Revealed += roll => sound.Play(roll.zero_roll ? "zero" : "reveal");
-            var top = CrwtUi.Panel(safe, "Turn bar", new Color(.02f,.035f,.07f,.96f), new Vector2(.015f,.875f), new Vector2(.985f,.985f), Vector2.zero, Vector2.zero);
+            var top = CrwtUi.Panel(safe, "Turn bar", new Color(.10f,.12f,.24f,.96f), new Vector2(.015f,.875f), new Vector2(.985f,.985f), Vector2.zero, Vector2.zero);
             portrait = CrwtHudArt.Portrait(top, "alexia");
             Place((RectTransform)portrait.transform, new Vector2(.01f,.08f), new Vector2(.07f,.92f));
             activePlayer = CrwtUi.Text(top, "MENGHUBUNGKAN...", 23, TextAnchor.MiddleLeft, Color.white);
@@ -102,20 +105,20 @@ namespace ComePlayers.CrazyRich
             Place(header.rectTransform, new Vector2(.35f,.38f), new Vector2(.64f,.98f));
             clockLabel = CrwtUi.Text(top, "", 20, TextAnchor.MiddleCenter, Color.white);
             Place(clockLabel.rectTransform, new Vector2(.35f,.04f), new Vector2(.64f,.42f));
-            var roster = CrwtUi.Button(top, "PEMAIN", () => playerPanel.gameObject.SetActive(!playerPanel.gameObject.activeSelf), new Color(.72f,.84f,.92f));
+            var roster = CrwtUi.Button(top, "PEMAIN", () => playerPanel.gameObject.SetActive(!playerPanel.gameObject.activeSelf), CrwtUi.Cyan);
             Place((RectTransform)roster.transform, new Vector2(.66f,.22f), new Vector2(.76f,.78f));
-            var settings = CrwtUi.Button(top, "OPSI", ShowSettings, new Color(.72f,.84f,.92f));
+            var settings = CrwtUi.Button(top, "OPSI", ShowSettings, CrwtUi.Lavender);
             Place((RectTransform)settings.transform, new Vector2(.78f,.22f), new Vector2(.86f,.78f));
-            var exit = CrwtUi.Button(top, "LOBBY", ExitMatch, new Color(.72f,.84f,.92f));
+            var exit = CrwtUi.Button(top, "LOBBY", ExitMatch, new Color(.72f,.79f,.93f));
             Place((RectTransform)exit.transform, new Vector2(.88f,.22f), new Vector2(.985f,.78f));
-            playerPanel = CrwtUi.Panel(safe, "Players drawer", new Color(.02f,.03f,.06f,.95f), new Vector2(.015f,.21f), new Vector2(.28f,.855f), Vector2.zero, Vector2.zero);
+            playerPanel = CrwtUi.Panel(safe, "Players drawer", new Color(.11f,.13f,.25f,.96f), new Vector2(.015f,.21f), new Vector2(.28f,.855f), Vector2.zero, Vector2.zero);
             players = CrwtUi.Text(playerPanel, "", 21, TextAnchor.UpperLeft, Color.white); CrwtUi.Fill(players.rectTransform, 20);
             players.resizeTextForBestFit = true; players.resizeTextMinSize = 14; players.resizeTextMaxSize = 21;
             playerPanel.gameObject.SetActive(false);
-            var status = CrwtUi.Panel(safe, "Event caption", new Color(.02f,.03f,.06f,.86f), new Vector2(.22f,.155f), new Vector2(.78f,.22f), Vector2.zero, Vector2.zero);
+            var status = CrwtUi.Panel(safe, "Event caption", new Color(.13f,.15f,.28f,.90f), new Vector2(.22f,.155f), new Vector2(.78f,.22f), Vector2.zero, Vector2.zero);
             message = CrwtUi.Text(status, "Menyiapkan papan...", 23, TextAnchor.MiddleCenter, Color.white); CrwtUi.Fill(message.rectTransform, 9);
             message.resizeTextForBestFit = true; message.resizeTextMinSize = 16; message.resizeTextMaxSize = 23;
-            actions = CrwtUi.Panel(safe, "Actions", new Color(.02f,.03f,.06f,.92f), new Vector2(.23f,.03f), new Vector2(.77f,.14f), Vector2.zero, Vector2.zero);
+            actions = CrwtUi.Panel(safe, "Actions", new Color(.11f,.13f,.25f,.94f), new Vector2(.22f,.025f), new Vector2(.78f,.145f), Vector2.zero, Vector2.zero);
             CrwtUi.Horizontal(actions, 10);
             sheet = gameObject.AddComponent<CrwtActionSheet>(); sheet.Initialize(safe);
         }
@@ -164,6 +167,7 @@ namespace ComePlayers.CrazyRich
             if (CrwtSession.SelectedMapId != snap.state.map_id && !string.IsNullOrEmpty(snap.state.map_id))
             {
                 CrwtSession.SelectedMapId = snap.state.map_id; board.Build(snap.state.map_id); orbit.target = board.CameraTarget;
+                if (sceneCamera) sceneCamera.backgroundColor = MapBackground(snap.state.map_id);
             }
             board.Apply(snap);
             header.text = CrwtRuntimeConfig.MapName(snap.state.map_id).ToUpperInvariant() + " • " + snap.round;
@@ -212,10 +216,10 @@ namespace ComePlayers.CrazyRich
                     CrwtUi.Button(actions, "BATAL", () => { choosingFocus = false; RebuildActions(); }, Color.gray);
                     return;
                 }
-                CrwtUi.Button(actions, "ROLL", () => RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold);
-                CrwtUi.Button(actions, "SKILL", UseSkill, CrwtUi.Cyan);
+                CrwtUi.Button(actions, "ROLL", () => RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold, 86);
+                CrwtUi.Button(actions, "SKILL", UseSkill, CrwtUi.Lavender, 76);
                 if ((snap.state.players?.FirstOrDefault(x => x.seat == snap.your_seat)?.cards?.Length ?? 0) > 0)
-                    CrwtUi.Button(actions, "KARTU", ShowCards, new Color(.90f,.68f,.86f));
+                    CrwtUi.Button(actions, "KARTU", ShowCards, CrwtUi.Rose, 76);
                 return;
             }
             var p = snap.state.pending;
@@ -247,6 +251,15 @@ namespace ComePlayers.CrazyRich
             }
             LabelAction("Sinkronisasi server...");
         }
+
+        private static Color MapBackground(string map) => map switch
+        {
+            "tokyo_rush" => new Color(.20f,.10f,.25f),
+            "tropical_paradise" => new Color(.10f,.38f,.45f),
+            "candy_world" => new Color(.32f,.15f,.38f),
+            "fantasy_kingdom" => new Color(.15f,.12f,.34f),
+            _ => new Color(.18f,.42f,.62f)
+        };
 
         private void UseSkill()
         {

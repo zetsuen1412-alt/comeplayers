@@ -26,7 +26,12 @@ namespace ComePlayers.CrazyRich
 
         public void Initialize(Transform canvas)
         {
-            tray = CrwtUi.Panel(canvas, "Starwheel Dice", new Color(.05f,.03f,.13f,.94f), new Vector2(.25f,.30f), new Vector2(.75f,.75f), Vector2.zero, Vector2.zero);
+            tray = CrwtUi.Panel(canvas, "Starwheel Dice", Color.Lerp(CrwtUi.Card, CrwtUi.Lavender, .18f), new Vector2(.25f,.29f), new Vector2(.75f,.76f), Vector2.zero, Vector2.zero);
+            var ribbon = CrwtUi.Panel(tray, "Magic roll ribbon", new Color(.22f,.18f,.42f,.96f),
+                new Vector2(.06f,.84f), new Vector2(.94f,.96f), Vector2.zero, Vector2.zero);
+            ribbon.GetComponent<Image>().raycastTarget = false;
+            var ribbonText = CrwtUi.Text(ribbon, "STARWHEEL", 20, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            CrwtUi.Fill(ribbonText.rectTransform);
             tray.GetComponent<Image>().raycastTarget = false;
             visibility = tray.gameObject.AddComponent<CanvasGroup>();
             visibility.blocksRaycasts = false; visibility.interactable = false; visibility.alpha = 0;
@@ -39,17 +44,17 @@ namespace ComePlayers.CrazyRich
                 rt.anchorMax = new Vector2(i == 0 ? .44f : .90f, .93f);
                 rt.offsetMin = rt.offsetMax = Vector2.zero;
                 dice[i] = go.GetComponent<CrwtStarDieGraphic>(); dice[i].raycastTarget = false;
-                dice[i].color = i == 0 ? new Color(.53f,.34f,.93f) : new Color(.95f,.40f,.66f);
+                dice[i].color = i == 0 ? new Color(.58f,.48f,1f) : new Color(1f,.43f,.67f);
                 faces[i] = CrwtUi.Text(rt, "?", 76, TextAnchor.MiddleCenter, Color.white);
                 faces[i].raycastTarget = false; faces[i].resizeTextForBestFit = true;
                 faces[i].resizeTextMinSize = 28; faces[i].resizeTextMaxSize = 76;
                 CrwtUi.Fill(faces[i].rectTransform);
             }
-            var plus = CrwtUi.Text(tray, "+", 34, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            var plus = CrwtUi.Text(tray, "+", 44, TextAnchor.MiddleCenter, CrwtUi.Gold);
             plus.raycastTarget = false;
             plus.rectTransform.anchorMin = new Vector2(.45f,.50f); plus.rectTransform.anchorMax = new Vector2(.55f,.70f);
             plus.rectTransform.offsetMin = plus.rectTransform.offsetMax = Vector2.zero;
-            caption = CrwtUi.Text(tray, "", 30, TextAnchor.MiddleCenter, Color.white);
+            caption = CrwtUi.Text(tray, "", 30, TextAnchor.MiddleCenter, new Color(1f,.96f,.86f));
             caption.raycastTarget = false; caption.resizeTextForBestFit = true;
             caption.resizeTextMinSize = 16; caption.resizeTextMaxSize = 30;
             caption.rectTransform.anchorMin = new Vector2(.03f,.02f); caption.rectTransform.anchorMax = new Vector2(.97f,.28f);
@@ -61,7 +66,7 @@ namespace ComePlayers.CrazyRich
             if (IsBusy) return;
             result = null; visibility.alpha = 1;
             tray.SetAsLastSibling();
-            caption.text = "STARWHEEL • MENUNGGU HASIL";
+            caption.text = "MAGIC ROLL • MENUNGGU HASIL";
             for (int i = 0; i < 2; i++) { dice[i].SetFace(-1); faces[i].text = "?"; }
             sequence = StartCoroutine(Animate());
         }
@@ -104,7 +109,8 @@ namespace ComePlayers.CrazyRich
                 {
                     dieRoots[i].anchoredPosition = Vector2.zero;
                     dieRoots[i].localRotation = reduced ? Quaternion.identity : Quaternion.Euler(0, 0, spin * (i == 0 ? 520 : -470));
-                    dieRoots[i].localScale = Vector3.one;
+                    var breathe = reduced ? 1f : 1f + Mathf.Sin(spin * 8f + i) * .035f;
+                    dieRoots[i].localScale = Vector3.one * breathe;
                 }
                 yield return null;
             }

@@ -123,6 +123,18 @@ namespace ComePlayers.CrazyRich
             go.GetComponent<LayoutElement>().preferredHeight = height;
             go.GetComponent<LayoutElement>().flexibleWidth = 1;
             var btn = go.GetComponent<Button>();
+            btn.targetGraphic = go.GetComponent<Image>();
+            btn.transition = Selectable.Transition.ColorTint;
+            btn.colors = new ColorBlock
+            {
+                normalColor = Color.white,
+                highlightedColor = Color.Lerp(Color.white, buttonColor, .12f),
+                pressedColor = Color.Lerp(Color.white, Ink, .22f),
+                selectedColor = Color.white,
+                disabledColor = new Color(.58f, .61f, .70f, .52f),
+                colorMultiplier = 1f,
+                fadeDuration = .08f
+            };
             if (clicked != null) btn.onClick.AddListener(() => clicked());
             var tx = Text(go.transform, label, 25, TextAnchor.MiddleCenter, TextColor(buttonColor));
             Fill(tx.rectTransform, 8);
