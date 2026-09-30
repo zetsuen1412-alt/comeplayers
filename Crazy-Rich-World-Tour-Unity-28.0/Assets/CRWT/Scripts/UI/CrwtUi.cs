@@ -182,6 +182,31 @@ namespace ComePlayers.CrazyRich
             return h;
         }
 
+        public static RectTransform Badge(Transform parent, string label, Color color,
+            Vector2 anchorMin, Vector2 anchorMax, int fontSize = 15)
+        {
+            var badge = Panel(parent, "Badge_" + label, color, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
+            var text = Text(badge, label, fontSize, TextAnchor.MiddleCenter, TextColor(color));
+            Fill(text.rectTransform, 3);
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = Mathf.Max(10, fontSize - 4);
+            text.resizeTextMaxSize = fontSize;
+            return badge;
+        }
+
+        public static RectTransform ProgressBar(Transform parent, float value, Color color, float height = 12f)
+        {
+            var bar = Panel(parent, "Progress", new Color(.08f,.10f,.18f,.90f),
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            var layout = bar.gameObject.AddComponent<LayoutElement>();
+            layout.preferredHeight = height;
+            layout.flexibleWidth = 1;
+            var fill = Panel(bar, "Fill", color, Vector2.zero,
+                new Vector2(Mathf.Clamp01(value), 1f), Vector2.zero, Vector2.zero);
+            fill.GetComponent<Image>().raycastTarget = false;
+            return bar;
+        }
+
         public static void Fill(RectTransform rt, float pad = 0)
         {
             rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;

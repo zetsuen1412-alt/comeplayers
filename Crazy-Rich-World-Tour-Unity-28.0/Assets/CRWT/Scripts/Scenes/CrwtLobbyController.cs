@@ -119,6 +119,13 @@ namespace ComePlayers.CrazyRich
         private void Update()
         {
             if (leaving) return;
+            if (eventBanner)
+            {
+                var reduced = PlayerPrefs.GetInt("CRWT_ReducedMotion", 0) == 1;
+                var claimable = (events?.claimable ?? 0) > 0;
+                var pulse = !reduced && claimable ? 1f + Mathf.Sin(Time.unscaledTime * 4f) * .008f : 1f;
+                eventBanner.localScale = Vector3.one * pulse;
+            }
             if (!CrwtSession.IsOnline || string.IsNullOrEmpty(CrwtSession.RoomId)) return;
             if (Time.unscaledTime >= nextPoll && !polling && !roomActionBusy)
             {
@@ -438,15 +445,7 @@ namespace ComePlayers.CrazyRich
                 foreach (var mission in (events.missions ?? Array.Empty<CrwtMission>()).Where(x => x != null && x.cadence == cadence))
                 {
                     var id = mission.id;
-                    var state = mission.claimed ? "DIAMBIL"
-                        : mission.completed ? "CLAIM"
-                        : mission.progress + "/" + mission.target;
-                    CrwtUi.Button(hubSheet.Content,
-                        mission.title + " • " + state + " • " + RewardLabel(mission),
-                        () => ShowMission(id),
-                        mission.completed && !mission.claimed ? CrwtUi.Gold
-                            : cadence == "daily" ? CrwtUi.Cyan : CrwtUi.Lavender,
-                        72);
+                    MissionCard(mission, () => ShowMission(id));
                 }
             }
         }
@@ -550,16 +549,180 @@ namespace ComePlayers.CrazyRich
             {
                 if (item == null) continue;
                 var id = item.id;
-                var equipped = IsEquipped(type, id);
-                var state = equipped ? "DIPAKAI"
-                    : item.owned ? "DIMILIKI • LV " + item.level + "/" + item.max_level
-                    : "TERKUNCI • " + UnlockLabel(item);
-                CrwtUi.Button(hubSheet.Content,
-                    item.name.ToUpperInvariant() + " • " + item.rarity + " • " + state,
-                    () => ShowProgressionItem(type, id),
-                    type == "character" ? CharacterColor(id) : type == "dice" ? CrwtUi.Lavender : CrwtUi.Cyan,
-                    72);
+                ProgressionCard(type, item, IsEquipped(type, id), () => ShowProgressionItem(type, id));
             }
+        }
+
+        private void ProgressionCard(string type, CrwtProgressionItem item, bool equipped, Action clicked, bool shop = false)
+        {
+            var rarity = RarityColor(item.rarity);
+            var card = CrwtUi.Panel(hubSheet.Content, "CollectionCard_" + item.id,
+                Color.Lerp(CrwtUi.Card, rarity, item.owned ? .10f : .05f),
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            card.gameObject.AddComponent<LayoutElement>().preferredHeight = 112;
+            var button = card.gameObject.AddComponent<Button>();
+            button.targetGraphic = card.GetComponent<Image>();
+            button.transition = Selectable.Transition.ColorTint;
+            button.colors = ColorBlock.defaultColorBlock;
+            button.onClick.AddListener(() => clicked());
+
+            var icon = CrwtUi.Panel(card, "Icon", Color.Lerp(rarity, CrwtUi.Card, .18f),
+                new Vector2(.015f,.10f), new Vector2(.145f,.90f), Vector2.zero, Vector2.zero);
+            if (type == "character")
+            {
+                var portrait = CrwtHudArt.Portrait(icon, item.id);
+                CrwtUi.Fill((RectTransform)portrait.transform, 4);
+            }
+            else if (type == "dice")
+            {
+                var dieGo = new GameObject("StarwheelPreview", typeof(RectTransform), typeof(CanvasRenderer), typeof(CrwtStarDieGraphic));
+                dieGo.transform.SetParent(icon, false);
+                var die = dieGo.GetComponent<CrwtStarDieGraphic>();
+                die.color = rarity; die.SetFace(DicePreviewFace(item.id));
+                CrwtUi.Fill((RectTransform)dieGo.transform, 7);
+            }
+            else
+            {
+                var glyph = CrwtUi.Text(icon, CardGlyph(item.effect_type), 34, TextAnchor.MiddleCenter, CrwtUi.TextColor(rarity));
+                CrwtUi.Fill(glyph.rectTransform, 4);
+            }
+
+            var title = CrwtUi.Text(card, item.name.ToUpperInvariant(), 21, TextAnchor.MiddleLeft, Color.white);
+            title.rectTransform.anchorMin = new Vector2(.165f,.51f); title.rectTransform.anchorMax = new Vector2(.69f,.91f);
+            title.rectTransform.offsetMin = title.rectTransform.offsetMax = Vector2.zero;
+            title.resizeTextForBestFit = true; title.resizeTextMinSize = 14; title.resizeTextMaxSize = 21;
+
+            var details = item.owned
+                ? "LV " + item.level + "/" + item.max_level + "  •  MASTERY " + item.mastery_xp + ExtraItemStats(type, item)
+                : (shop ? "SHOP • " : "") + UnlockLabel(item);
+            var sub = CrwtUi.Text(card, details, 16, TextAnchor.MiddleLeft, new Color(1,1,1,.72f));
+            sub.rectTransform.anchorMin = new Vector2(.165f,.16f); sub.rectTransform.anchorMax = new Vector2(.69f,.52f);
+            sub.rectTransform.offsetMin = sub.rectTransform.offsetMax = Vector2.zero;
+            sub.resizeTextForBestFit = true; sub.resizeTextMinSize = 11; sub.resizeTextMaxSize = 16;
+
+            CrwtUi.Badge(card, (item.rarity ?? "COMMON").ToUpperInvariant(), rarity,
+                new Vector2(.71f,.56f), new Vector2(.86f,.86f), 13);
+            var stateColor = equipped ? CrwtUi.Mint : item.owned ? CrwtUi.Cyan : CrwtUi.Gold;
+            var stateLabel = equipped ? "DIPAKAI" : item.owned ? "DIMILIKI" : "TERKUNCI";
+            CrwtUi.Badge(card, stateLabel, stateColor, new Vector2(.865f,.56f), new Vector2(.985f,.86f), 13);
+
+            if (item.owned)
+            {
+                var track = CrwtUi.Panel(card, "LevelTrack", new Color(.07f,.08f,.16f,.88f),
+                    new Vector2(.71f,.18f), new Vector2(.985f,.36f), Vector2.zero, Vector2.zero);
+                CrwtUi.Panel(track, "LevelFill", rarity, Vector2.zero,
+                    new Vector2(item.max_level <= 0 ? 0 : Mathf.Clamp01(item.level / (float)item.max_level), 1f),
+                    Vector2.zero, Vector2.zero);
+            }
+        }
+
+        private void ItemHero(string type, CrwtProgressionItem item)
+        {
+            var rarity = RarityColor(item.rarity);
+            var hero = CrwtUi.Panel(hubSheet.Content, "ItemHero_" + item.id,
+                Color.Lerp(CrwtUi.Card, rarity, .12f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            hero.gameObject.AddComponent<LayoutElement>().preferredHeight = 190;
+
+            var visual = CrwtUi.Panel(hero, "HeroVisual", Color.Lerp(rarity, CrwtUi.Ink, .20f),
+                new Vector2(.025f,.08f), new Vector2(.28f,.92f), Vector2.zero, Vector2.zero);
+            if (type == "character")
+            {
+                var portrait = CrwtHudArt.Portrait(visual, item.id);
+                CrwtUi.Fill((RectTransform)portrait.transform, 7);
+            }
+            else if (type == "dice")
+            {
+                var dieGo = new GameObject("HeroStarwheel", typeof(RectTransform), typeof(CanvasRenderer), typeof(CrwtStarDieGraphic));
+                dieGo.transform.SetParent(visual, false);
+                var die = dieGo.GetComponent<CrwtStarDieGraphic>(); die.color = rarity; die.SetFace(DicePreviewFace(item.id));
+                CrwtUi.Fill((RectTransform)dieGo.transform, 16);
+            }
+            else
+            {
+                var glyph = CrwtUi.Text(visual, CardGlyph(item.effect_type), 64, TextAnchor.MiddleCenter, CrwtUi.Gold);
+                CrwtUi.Fill(glyph.rectTransform, 8);
+            }
+
+            var title = CrwtUi.Text(hero, item.name.ToUpperInvariant(), 30, TextAnchor.MiddleLeft, Color.white);
+            title.rectTransform.anchorMin = new Vector2(.32f,.58f); title.rectTransform.anchorMax = new Vector2(.83f,.90f);
+            title.rectTransform.offsetMin = title.rectTransform.offsetMax = Vector2.zero;
+            title.resizeTextForBestFit = true; title.resizeTextMinSize = 18; title.resizeTextMaxSize = 30;
+
+            CrwtUi.Badge(hero, (item.rarity ?? "COMMON").ToUpperInvariant(), rarity,
+                new Vector2(.84f,.65f), new Vector2(.975f,.87f), 14);
+            var status = item.owned ? "LV " + item.level + "/" + item.max_level : UnlockLabel(item);
+            var stats = CrwtUi.Text(hero, status + "\nMASTERY " + item.mastery_xp + ExtraItemStats(type, item),
+                18, TextAnchor.MiddleLeft, new Color(1,1,1,.78f));
+            stats.rectTransform.anchorMin = new Vector2(.32f,.15f); stats.rectTransform.anchorMax = new Vector2(.96f,.58f);
+            stats.rectTransform.offsetMin = stats.rectTransform.offsetMax = Vector2.zero;
+        }
+
+        private void MissionCard(CrwtMission mission, Action clicked)
+        {
+            var accent = mission.claimed ? new Color(.48f,.52f,.64f)
+                : mission.completed ? CrwtUi.Gold
+                : mission.cadence == "daily" ? CrwtUi.Cyan : CrwtUi.Lavender;
+            var card = CrwtUi.Panel(hubSheet.Content, "Mission_" + mission.id,
+                Color.Lerp(CrwtUi.Card, accent, .10f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            card.gameObject.AddComponent<LayoutElement>().preferredHeight = 104;
+            var button = card.gameObject.AddComponent<Button>();
+            button.targetGraphic = card.GetComponent<Image>();
+            button.onClick.AddListener(() => clicked());
+
+            var title = CrwtUi.Text(card, mission.title, 20, TextAnchor.MiddleLeft, Color.white);
+            title.rectTransform.anchorMin = new Vector2(.025f,.53f); title.rectTransform.anchorMax = new Vector2(.62f,.91f);
+            title.rectTransform.offsetMin = title.rectTransform.offsetMax = Vector2.zero;
+            var desc = CrwtUi.Text(card, mission.description, 14, TextAnchor.MiddleLeft, new Color(1,1,1,.68f));
+            desc.rectTransform.anchorMin = new Vector2(.025f,.17f); desc.rectTransform.anchorMax = new Vector2(.62f,.55f);
+            desc.rectTransform.offsetMin = desc.rectTransform.offsetMax = Vector2.zero;
+            desc.resizeTextForBestFit = true; desc.resizeTextMinSize = 10; desc.resizeTextMaxSize = 14;
+
+            var state = mission.claimed ? "DIAMBIL" : mission.completed ? "CLAIM" : mission.progress + "/" + mission.target;
+            CrwtUi.Badge(card, state, accent, new Vector2(.65f,.58f), new Vector2(.78f,.86f), 13);
+            CrwtUi.Badge(card, RewardLabel(mission), mission.reward_diamonds > 0 ? CrwtUi.Lavender : CrwtUi.Gold,
+                new Vector2(.79f,.58f), new Vector2(.98f,.86f), 12);
+            var track = CrwtUi.Panel(card, "MissionTrack", new Color(.07f,.08f,.16f,.88f),
+                new Vector2(.65f,.20f), new Vector2(.98f,.39f), Vector2.zero, Vector2.zero);
+            CrwtUi.Panel(track, "MissionFill", accent, Vector2.zero,
+                new Vector2(mission.target <= 0 ? 0 : Mathf.Clamp01(mission.progress / (float)mission.target),1f),
+                Vector2.zero, Vector2.zero);
+        }
+
+        private static Color RarityColor(string rarity)
+        {
+            switch ((rarity ?? "").ToUpperInvariant())
+            {
+                case "LEGENDARY": return CrwtUi.Gold;
+                case "EPIC": return CrwtUi.Lavender;
+                case "RARE": return CrwtUi.Cyan;
+                default: return new Color(.68f,.74f,.84f);
+            }
+        }
+
+        private static int DicePreviewFace(string id)
+        {
+            return id == "fortune_dice" ? 6 : id == "star_dice" ? 4 : 2;
+        }
+
+        private static string CardGlyph(string effect)
+        {
+            switch ((effect ?? "").ToLowerInvariant())
+            {
+                case "shield": return "◆";
+                case "extra_roll": return "✦";
+                case "travel": return "➤";
+                case "cash_bonus": return "$";
+                case "freeze": return "❄";
+                case "swap": return "↔";
+                default: return "?";
+            }
+        }
+
+        private static string ExtraItemStats(string type, CrwtProgressionItem item)
+        {
+            if (type == "character") return "  •  MATCH " + item.matches_played + "  •  WIN " + item.wins;
+            if (type == "dice") return "  •  MATCH " + item.matches_played;
+            return "  •  USE " + item.uses;
         }
 
         private void ShowCollection()
@@ -599,9 +762,7 @@ namespace ComePlayers.CrazyRich
             foreach (var entry in locked)
             {
                 var type = entry.type; var id = entry.item.id;
-                CrwtUi.Button(hubSheet.Content,
-                    TypeLabel(type) + " • " + entry.item.name.ToUpperInvariant() + " • " + UnlockLabel(entry.item),
-                    () => ShowProgressionItem(type, id), CrwtUi.Gold, 68);
+                ProgressionCard(type, entry.item, false, () => ShowProgressionItem(type, id), true);
             }
         }
 
@@ -614,11 +775,7 @@ namespace ComePlayers.CrazyRich
                 return;
             }
             hubSheet.Show(item.name.ToUpperInvariant() + " • " + TypeLabel(type), "lobby-item");
-            if (type == "character")
-            {
-                var portrait = CrwtHudArt.Portrait(hubSheet.Content, id);
-                portrait.gameObject.AddComponent<LayoutElement>().preferredHeight = 170;
-            }
+            ItemHero(type, item);
             hubSheet.Note(item.rarity + " • " + (item.owned ? "LV " + item.level + "/" + item.max_level : "TERKUNCI")
                 + "\n" + (string.IsNullOrEmpty(item.description) ? CharacterDescription(id) : item.description));
             if (!string.IsNullOrEmpty(item.skill_name))
