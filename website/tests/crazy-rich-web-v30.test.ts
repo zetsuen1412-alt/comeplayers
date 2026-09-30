@@ -4,15 +4,19 @@ import fs from "node:fs";
 
 const read = (path: string) => fs.readFileSync(path, "utf8");
 const page = read("app/games/crazy-rich-world-tour/page.tsx");
+const shell = read("app/games/crazy-rich-world-tour/CrazyRichGameShell.tsx");
 const launcher = read("public/games/crazy-rich-world-tour/client/PLAY-Crazy-Rich-World-Tour-Launcher.html");
 const online = read("public/games/crazy-rich-world-tour/client/online-game.html");
 const manifest = JSON.parse(read("public/crazy-rich-world-tour/manifest.webmanifest"));
 const serviceWorker = read("public/games/crazy-rich-world-tour/sw.js");
 
 test("Crazy Rich route uses the PWA-scoped browser runtime", () => {
-  assert.match(page, /\/games\/crazy-rich-world-tour\/client\/PLAY-Crazy-Rich-World-Tour-Launcher\.html/);
+  assert.match(shell, /\/games\/crazy-rich-world-tour\/client\/PLAY-Crazy-Rich-World-Tour-Launcher\.html/);
   assert.match(page, /manifest\.webmanifest/);
   assert.match(page, /install\.js/);
+  assert.match(page, /CrazyRichGameShell/);
+  assert.match(shell, /beforeinstallprompt/);
+  assert.match(shell, /PASANG APP/);
   assert.match(launcher, /Web 30\.0 Anime World/);
   assert.match(launcher, /frame\.src='online-game\.html\?v=30'/);
   assert.match(launcher, /frame\.src='game\.html\?v=30'/);
