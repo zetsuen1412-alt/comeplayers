@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Verify original asset package and import only CRWT preview assets
+      - name: Verify and import only CRWT preview assets
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
@@ -25,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import base64, hashlib, io, json, os, pathlib, re, struct, time, urllib.request, urllib.parse, urllib.error, zipfile
+          import base64, hashlib, io, json, os, pathlib, posixpath, re, struct, time, urllib.request, urllib.parse, urllib.error, zipfile
           repo = os.environ['GH_REPOSITORY']
           assert repo == 'zetsuen1412-alt/comeplayers'
           api = 'https://api.github.com/repos/' + repo
@@ -37,16 +37,14 @@ jobs:
                   headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
                   'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json',
                   'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'CRWT-Asset-Importer'})
-              with urllib.request.urlopen(req, timeout=120) as r:
-                  return json.load(r)
+              with urllib.request.urlopen(req, timeout=120) as r: return json.load(r)
           item = request('/contents/' + root + '/production/sculpt-v1-import.json?ref=' + os.environ['INPUT_SHA'])
           config = json.loads(base64.b64decode(item['content']))
           url = urllib.parse.urlparse(config['package_url'])
           assert url.scheme == 'https' and url.hostname == 'd2ol7oe51mr4n9.cloudfront.net'
           assert url.path.startswith('/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/') and url.path.endswith('.zip')
           assert re.fullmatch(r'[0-9a-f]{64}', config['sha256'])
-          with urllib.request.urlopen(config['package_url'], timeout=120) as r:
-              package = r.read(100 * 1024 * 1024 + 1)
+          with urllib.request.urlopen(config['package_url'], timeout=120) as r: package = r.read(100 * 1024 * 1024 + 1)
           assert len(package) <= 100 * 1024 * 1024, 'Package exceeds import limit'
           assert hashlib.sha256(package).hexdigest() == config['sha256'], 'Package checksum mismatch'
           allowed = {'roster.glb', 'source.blend', 'preview.png', 'clips.json', 'README_ID.md'}
@@ -77,7 +75,7 @@ jobs:
               'images':len(doc['images']), 'animation_timelines':len(doc['animations']),
               'package_sha256':config['sha256'], 'glb_sha256':hashlib.sha256(glb).hexdigest()}
           (out/'qa-report.json').write_text(json.dumps(report, indent=2))
-          # The editable Blender source stays in the downloadable artifact, not the website bundle.
+          # Keep editable Blender source in the artifact rather than the website bundle.
           entries = []
           for name in ['roster.glb','preview.png','clips.json','README_ID.md']:
               blob = request('/git/blobs', {'content':base64.b64encode(files[name]).decode(),'encoding':'base64'})['sha']
@@ -90,16 +88,41 @@ jobs:
               commit = request('/git/commits', {'message':'feat(crwt): import ten textured rigged character sculpts (WIP)', 'tree':tree,'parents':[parent]})['sha']
               try:
                   request('/git/refs/heads/' + branch, {'sha':commit,'force':False}, 'PATCH')
-                  print('IMPORTED_COMMIT=' + commit)
-                  report['commit'] = commit
-                  (out/'qa-report.json').write_text(json.dumps(report, indent=2))
-                  break
+                  print('IMPORTED_COMMIT=' + commit); report['commit'] = commit
+                  (out/'qa-report.json').write_text(json.dumps(report, indent=2)); break
               except urllib.error.HTTPError as e:
                   if e.code not in (409,422) or attempt == 2: raise
                   time.sleep(2)
+          # Downloadable artifact also contains a self-hosted viewer. Never execute downloaded JS in this job.
+          viewer = request('/contents/' + root + '/client/character-demo.html?ref=' + os.environ['INPUT_SHA'])
+          html = base64.b64decode(viewer['content']).decode()
+          html = html.replace('./assets/characters/sculpt-v1/roster.glb','./roster.glb')
+          html = html.replace('https://cdn.jsdelivr.net/npm/three@0.180.0/','./vendor/three/')
+          (out/'character-demo.html').write_text(html)
+          # Fetch pinned dependencies recursively, only from the fixed package and normalized paths.
+          base_url = 'https://cdn.jsdelivr.net/npm/three@0.180.0/'
+          pending = ['build/three.module.js','examples/jsm/controls/OrbitControls.js',
+              'examples/jsm/loaders/GLTFLoader.js','examples/jsm/environments/RoomEnvironment.js',
+              'examples/jsm/exporters/GLTFExporter.js','examples/jsm/utils/SkeletonUtils.js','LICENSE']
+          fetched = set(); dependency_hashes = {}
+          while pending:
+              path = posixpath.normpath(pending.pop())
+              if path in fetched: continue
+              assert not path.startswith(('/', '..')) and len(fetched) < 60
+              with urllib.request.urlopen(base_url + path, timeout=60) as r: data = r.read(8*1024*1024+1)
+              assert len(data) <= 8*1024*1024
+              dest = out/'vendor'/'three'/path; dest.parent.mkdir(parents=True, exist_ok=True); dest.write_bytes(data)
+              dependency_hashes[path] = hashlib.sha256(data).hexdigest(); fetched.add(path)
+              if path.endswith('.js'):
+                  for dep in re.findall(r'(?:from\s*|import\s*)[\x27\x22]([^\x27\x22]+)[\x27\x22]', data.decode()):
+                      if dep.startswith('.'):
+                          pending.append(posixpath.normpath(posixpath.join(posixpath.dirname(path), dep)))
+          (out/'vendor'/'checksums.json').write_text(json.dumps(dependency_hashes,indent=2))
+          (out/'START-DEMO.bat').write_text('@echo off\ncd /d "%~dp0"\necho Open http://localhost:8765/character-demo.html\nstart "" http://localhost:8765/character-demo.html\npy -m http.server 8765 --bind 127.0.0.1\npause\n')
+          (out/'start-demo.sh').write_text('#!/bin/sh\ncd "$(dirname "$0")"\necho "Open http://localhost:8765/character-demo.html"\npython3 -m http.server 8765 --bind 127.0.0.1\n')
           print(json.dumps(report, indent=2))
           PY
-      - name: Retain editable source, real meshes and QA files
+      - name: Retain editable source, real meshes and offline demo
         if: always()
         uses: actions/upload-artifact@v4
         with:
