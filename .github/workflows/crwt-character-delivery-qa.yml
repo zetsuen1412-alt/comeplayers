@@ -7,6 +7,9 @@ on:
 permissions:
   contents: write
   actions: read
+concurrency:
+  group: crwt-character-delivery
+  cancel-in-progress: false
 jobs:
   verify:
     if: github.repository == 'zetsuen1412-alt/comeplayers' && github.ref == 'refs/heads/codex/crazy-rich-web-v30'
@@ -14,55 +17,159 @@ jobs:
     timeout-minutes: 15
     env:
       GH_TOKEN: ${{ github.token }}
+      INPUT_SHA: ${{ github.sha }}
     steps:
-      - name: Recover the current authored revision without temporary download URLs
+      - name: Recover authored revision and prepare normalized independent models
         run: |
           set -euo pipefail
-          mkdir -p /tmp/crwt-character-qa
-          gh api repos/zetsuen1412-alt/comeplayers/actions/artifacts/11124129194/zip > /tmp/crwt-revision10.zip
-          python3 -m zipfile -e /tmp/crwt-revision10.zip /tmp/crwt-character-qa
-          gh api 'repos/zetsuen1412-alt/comeplayers/contents/.github/workflows/crwt-character-visual-qa.yml?ref=a86b7c61fd7aba148f0642c2dc719e8abf5dadb3' > /tmp/crwt-qa-source.json
+          mkdir -p /tmp/crwt-delivery
+          gh api repos/zetsuen1412-alt/comeplayers/actions/artifacts/11125205496/zip > /tmp/crwt-source.zip
+          python3 -m zipfile -e /tmp/crwt-source.zip /tmp/crwt-delivery
           python3 - <<'PY'
-          import json,base64,pathlib,textwrap
-          root=pathlib.Path('/tmp/crwt-character-qa');source=json.loads(pathlib.Path('/tmp/crwt-qa-source.json').read_text())
-          assert source['sha']=='96015a51e77d21dd8bc11f674cbb92664eec341a'
-          workflow=base64.b64decode(source['content']).decode()
-          start=workflow.index('          import json,pathlib,subprocess,time,traceback,struct')
-          end=workflow.index('\n          PY',start)
-          test=textwrap.dedent(workflow[start:end])
-          test=test.replace("'http://127.0.0.1:8765/character-demo.html'","'http://127.0.0.1:8765/character-demo.html?compat=1'")
-          test=test.replace("'width':1280,'height':900","'width':960,'height':760")
-          test=test.replace("page.screenshot(path=str(out/'board.png'))","page.screenshot(path=str(out/'board.png'),timeout=120000)")
-          test=test.replace("page.screenshot(path=str(out/(cid+'.png')))","page.screenshot(path=str(out/(cid+'.png')),timeout=120000)")
-          test=test.replace("'revision':10,'page_errors'","'revision':10,'render_profile':'compatibility-no-shadows-full-mesh','page_errors'")
-          pathlib.Path('/tmp/crwt-run-tests.py').write_text(test)
-          start=workflow.index('          import os,json,base64,urllib.request,pathlib,time,urllib.error');end=workflow.index('\n          PY',start)
-          pathlib.Path('/tmp/crwt-commit-tested.py').write_text(textwrap.dedent(workflow[start:end]))
-          # Compatibility changes only raster resolution and shadows. No mesh, texture, material,
-          # hair, clothing, prop, rig or animation detail is removed.
-          html=(root/'character-demo.source.html').read_text()
-          marker="const renderer=new THREE.WebGLRenderer"
-          assert marker in html
-          html=html.replace(marker,"const compatibility=new URLSearchParams(location.search).has('compat');\n"+marker)
-          html=html.replace('renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75))','renderer.setPixelRatio(compatibility?.65:Math.min(devicePixelRatio||1,1.5))')
-          html=html.replace('renderer.shadowMap.enabled=true','renderer.shadowMap.enabled=!compatibility')
-          html=html.replace('light.shadow.mapSize.set(2048,2048)','light.shadow.mapSize.set(1024,1024)')
-          html=html.replace("throw new Error(`Timeline animasi ${id} tidak ditemukan.`)","throw new Error(`Timeline animasi ${id} tidak ditemukan.`)")
+          import os,json,base64,pathlib,urllib.request,re
+          root=pathlib.Path('/tmp/crwt-delivery');api='https://api.github.com/repos/zetsuen1412-alt/comeplayers'
+          prefix='Crazy-Rich-World-Tour-Unity-28.0/Web30'
+          def get(path):
+              req=urllib.request.Request(api+'/contents/'+path+'?ref='+os.environ['INPUT_SHA'],headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'User-Agent':'CRWT-QA','Accept':'application/vnd.github+json'})
+              with urllib.request.urlopen(req,timeout=60) as r:return base64.b64decode(json.load(r)['content'])
+          for name in ['extract_characters.py','build_character_demo.py']:
+              (root/name).write_bytes(get(prefix+'/production/'+name))
+          html=get(prefix+'/client/character-demo.html').decode()
+          old='function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(state.ready)setMode(state.mode);}'
+          new="function resize(){const w=innerWidth;const top=Math.ceil(document.querySelector('header').getBoundingClientRect().bottom+16);const bottom=Math.floor(document.querySelector('.panel').getBoundingClientRect().top-14);const h=Math.max(100,bottom-top);renderer.domElement.style.top=top+'px';renderer.domElement.style.bottom='auto';renderer.domElement.style.width=w+'px';renderer.domElement.style.height=h+'px';renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();if(state.ready)setMode(state.mode);}"
+          assert old in html or new in html
+          html=html.replace(old,new).replace('*(solo?1.55:1.18)','*(solo?1.12:1.08)')
+          html=html.replace('#view{position:fixed;inset:0;touch-action:none}','#view{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none}')
+          html=html.replace("function setStatus(message,detail='',error=false){","function setStatus(message,detail='',error=false){$('status').classList.remove('hide');")
+          html=html.replace("setMode('board');select('alexia',false);window.dispatchEvent", "setMode('board');select('alexia',false);$('status').classList.add('hide');window.dispatchEvent")
+          html=html.replace("new URLSearchParams(location.search).has('compat')", "new URLSearchParams(location.search).has('compat')")
+          assert 'renderer.domElement.style.height' in html
           (root/'character-demo.source.html').write_text(html)
           (root/'character-demo.html').write_text(html.replace('./assets/characters/sculpt-v1/roster.glb','./roster.glb').replace('https://cdn.jsdelivr.net/npm/three@0.180.0/','./vendor/three/'))
+          # Discard only stale QA results, not source models or reference assets.
+          for path in (root/'qa').glob('*'):
+              if path.is_file():path.unlink()
           PY
-          python3 -m venv /tmp/crwt-browser-env
-          /tmp/crwt-browser-env/bin/pip install playwright==1.55.0
-          /tmp/crwt-browser-env/bin/playwright install --with-deps chromium
-      - name: Verify all characters, six animations, tile movement and standalone GLB export
-        run: /tmp/crwt-browser-env/bin/python /tmp/crwt-run-tests.py
-      - name: Publish tested source and website mirror on the existing CRWT branch
-        run: python3 /tmp/crwt-commit-tested.py
-      - name: Keep editable source and real screenshots with the tested demo
+          python3 -m venv /tmp/crwt-env
+          /tmp/crwt-env/bin/pip install numpy==2.3.3 playwright==1.55.0
+          /tmp/crwt-env/bin/python /tmp/crwt-delivery/extract_characters.py /tmp/crwt-delivery/roster.glb /tmp/crwt-delivery/models
+          /tmp/crwt-env/bin/python /tmp/crwt-delivery/build_character_demo.py /tmp/crwt-delivery /tmp/crwt-delivery/BUKA-DEMO-3D.html
+          /tmp/crwt-env/bin/playwright install --with-deps chromium
+      - name: Verify framed viewport, all ten real models and fully offline demo
+        run: |
+          /tmp/crwt-env/bin/python - <<'PY'
+          import json,pathlib,subprocess,time,traceback
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path('/tmp/crwt-delivery');out=root/'qa';out.mkdir(exist_ok=True)
+          server=subprocess.Popen(['/tmp/crwt-env/bin/python','-m','http.server','8765','--bind','127.0.0.1','--directory',str(root)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+          time.sleep(1)
+          report={'visual_final_approved':False,'online_game_replaced':False,'source_revision':10,'render_profile':'compatibility-full-geometry-no-shadows','tests':[],'page_errors':[]}
+          ids=['alexia','rindi','kairo','luna','nox','atlas','zeno','yuna','mochi','pip']
+          try:
+              with sync_playwright() as p:
+                  browser=p.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+                  page=browser.new_page(viewport={'width':1200,'height':900},device_scale_factor=1)
+                  page.on('pageerror',lambda e:report['page_errors'].append(str(e)))
+                  page.goto('http://127.0.0.1:8765/character-demo.html?compat=1',wait_until='load',timeout=60000)
+                  page.wait_for_function('window.CRWT_CHARACTER_LAB?.ready === true',timeout=60000)
+                  metrics=page.evaluate('''()=>{const c=document.getElementById('view').getBoundingClientRect(),p=document.querySelector('.panel').getBoundingClientRect(),h=document.querySelector('header').getBoundingClientRect();return {canvas:[c.x,c.y,c.width,c.height],panelTop:p.top,headerBottom:h.bottom,screenWidth:innerWidth,statusHidden:document.getElementById('status').classList.contains('hide')}}''')
+                  assert abs(metrics['canvas'][2]-metrics['screenWidth'])<1
+                  assert metrics['canvas'][1]>metrics['headerBottom']
+                  assert metrics['canvas'][1]+metrics['canvas'][3]<metrics['panelTop']
+                  assert metrics['statusHidden'];report['viewport']=metrics
+                  page.screenshot(path=str(out/'board.png'),timeout=120000)
+                  page.click('#solo')
+                  for cid in ids:
+                      page.click('[data-id="'+cid+'"]');page.wait_for_timeout(200)
+                      snap=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
+                      assert [c['id'] for c in snap['characters'] if c['visible']]==[cid]
+                      page.screenshot(path=str(out/(cid+'.png')),timeout=120000)
+                      for clip in ['Idle','Walk','Jump','Skill','Win','Lose']:
+                          page.select_option('#animation',clip)
+                          assert page.evaluate('(id)=>window.CRWT_CHARACTER_LAB.characters.get(id).current',cid)==clip
+                      page.select_option('#animation','Idle');report['tests'].append({'id':cid,'selector':'passed','six_animation_controls':'passed'})
+                  page.click('#board');page.click('[data-id="alexia"]')
+                  before=page.evaluate("window.CRWT_CHARACTER_LAB.characters.get('alexia').root.position.toArray()")
+                  page.click('#step');page.wait_for_function('window.CRWT_CHARACTER_LAB.move===null',timeout=30000)
+                  after=page.evaluate("window.CRWT_CHARACTER_LAB.characters.get('alexia').root.position.toArray()")
+                  assert ((after[0]-before[0])**2+(after[2]-before[2])**2)**.5>.8
+                  report['step']={'before':before,'after':after,'passed':True}
+                  # A narrow mobile browser viewport checks layout, not real-device performance.
+                  page.set_viewport_size({'width':430,'height':900});page.click('#solo');page.click('[data-id="mochi"]')
+                  page.screenshot(path=str(out/'mobile-layout.png'),timeout=120000)
+                  page.set_viewport_size({'width':1200,'height':900})
+                  # Independently re-import native-normalized GLBs. Never reset bind matrices.
+                  install='''async(id)=>{
+                    const THREE=await import('three');const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js');
+                    const loaded=await new GLTFLoader().loadAsync('./models/'+id+'.glb');const state=window.CRWT_CHARACTER_LAB;
+                    const c=state.characters.get(id);c.mixer.stopAllAction();c.root.removeFromParent();state.gltf.scene.add(loaded.scene);
+                    const r=loaded.scene.getObjectByName(id);r.visible=true;c.root=r;c.clips=new Map(loaded.animations.map(a=>[a.name,a]));
+                    c.mixer=new THREE.AnimationMixer(r);c.action=c.mixer.clipAction(c.clips.get('Idle')).play();c.current='Idle';
+                    r.traverse(o=>{if(o.isMesh){o.frustumCulled=false;o.castShadow=true;}});
+                    const bounds=new THREE.Box3().setFromObject(r,true);return {id,clips:[...c.clips.keys()],bounds:[bounds.min.toArray(),bounds.max.toArray()]};
+                  }'''
+                  report['standalone_models']=[]
+                  for cid in ids:
+                      info=page.evaluate(install,cid);page.click('[data-id="'+cid+'"]');page.click('#solo');page.wait_for_timeout(150)
+                      assert len(info['clips'])==6 and abs(info['bounds'][0][1])<.02
+                      page.select_option('#animation','Jump');page.wait_for_timeout(100);page.select_option('#animation','Idle')
+                      page.screenshot(path=str(out/(cid+'-standalone.png')),timeout=120000)
+                      report['standalone_models'].append(info)
+                  page.close()
+                  # A local file is opened with network offline: embedded modules, textures and GLB must suffice.
+                  context=browser.new_context(viewport={'width':1200,'height':900},offline=True)
+                  offline=context.new_page();offline.on('pageerror',lambda e:report['page_errors'].append(str(e)))
+                  offline.goto((root/'BUKA-DEMO-3D.html').as_uri()+'?compat=1',wait_until='load',timeout=60000)
+                  offline.wait_for_function('window.CRWT_CHARACTER_LAB?.ready === true',timeout=60000)
+                  offline.click('#solo');offline.click('[data-id="pip"]');offline.select_option('#animation','Skill')
+                  offline.screenshot(path=str(out/'offline-demo.png'),timeout=120000)
+                  report['offline_file_no_network']='passed';report['offline_state']=offline.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
+                  context.close();browser.close()
+                  assert not report['page_errors'],report['page_errors']
+                  report['status']='functional_and_animation_preservation_checks_passed_art_fidelity_still_wip'
+          except Exception as e:
+              report['status']='failed';report['exception']=str(e);report['traceback']=traceback.format_exc();raise
+          finally:
+              (out/'browser-report.json').write_text(json.dumps(report,indent=2));server.terminate()
+          PY
+      - name: Save tested deliverables to the existing project and website mirror
+        run: |
+          python3 - <<'PY'
+          import os,json,base64,urllib.request,urllib.error,pathlib,time,zipfile,hashlib
+          root=pathlib.Path('/tmp/crwt-delivery');report=json.loads((root/'qa/browser-report.json').read_text())
+          assert report['status'].startswith('functional_and_animation_preservation_checks_passed')
+          api='https://api.github.com/repos/zetsuen1412-alt/comeplayers';branch='codex/crazy-rich-web-v30'
+          def req(path,data=None,method=None):
+              r=urllib.request.Request(api+path,data=None if data is None else json.dumps(data).encode(),method=method,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'CRWT-Delivery'})
+              with urllib.request.urlopen(r,timeout=120) as v:return json.load(v)
+          project='Crazy-Rich-World-Tour-Unity-28.0/Web30';prefixes=[project+'/client','website/public/games/crazy-rich-world-tour/client']
+          items={'character-demo.html':root/'character-demo.source.html','assets/characters/sculpt-v1/browser-report.json':root/'qa/browser-report.json','assets/characters/sculpt-v1/preview.png':root/'qa/board.png'}
+          for p in (root/'models').glob('*'):
+              if p.suffix in ('.glb','.json'):items['assets/characters/sculpt-v1/models/'+p.name]=p
+          entries=[]
+          for path,local in items.items():
+              blob=req('/git/blobs',{'content':base64.b64encode(local.read_bytes()).decode(),'encoding':'base64'})['sha']
+              for prefix in prefixes:entries.append({'path':prefix+'/'+path,'mode':'100644','type':'blob','sha':blob})
+          # Preserve editable source within CRWT only, not the deployed website bundle.
+          sourcezip=root/'CRWT-Editable-Source.zip'
+          with zipfile.ZipFile(sourcezip,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+              z.write(root/'source.blend','source.blend');z.write(root/'clips.json','clips.json')
+              for name in ['extract_characters.py','build_character_demo.py']:z.write(root/name,name)
+          blob=req('/git/blobs',{'content':base64.b64encode(sourcezip.read_bytes()).decode(),'encoding':'base64'})['sha']
+          entries.append({'path':project+'/production/CRWT-Editable-Source.zip','mode':'100644','type':'blob','sha':blob})
+          for attempt in range(3):
+              parent=req('/git/ref/heads/'+branch)['object']['sha'];base=req('/git/commits/'+parent)['tree']['sha'];tree=req('/git/trees',{'base_tree':base,'tree':entries})['sha'];commit=req('/git/commits',{'message':'fix(crwt): deliver framed character demo and pose-preserving standalone 3D models','tree':tree,'parents':[parent]})['sha']
+              try:req('/git/refs/heads/'+branch,{'sha':commit,'force':False},'PATCH');break
+              except urllib.error.HTTPError as e:
+                  if e.code not in (409,422) or attempt==2:raise
+                  time.sleep(2)
+          (root/'delivery-commit.json').write_text(json.dumps({'commit':commit,'visual_final_approved':False,'online_game_replaced':False},indent=2));print('DELIVERY_COMMIT='+commit)
+          PY
+      - name: Keep actual 3D models, screenshots, editable source and offline demo
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: CRWT-Ten-Character-Delivery-WIP
-          path: /tmp/crwt-character-qa/
-          if-no-files-found: error
+          name: CRWT-10-Real-3D-Characters-Verified-WIP
+          path: /tmp/crwt-delivery/
           retention-days: 30
+          if-no-files-found: error
