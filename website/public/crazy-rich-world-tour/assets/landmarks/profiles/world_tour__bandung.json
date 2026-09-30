@@ -1,0 +1,9 @@
+{
+  "map_id": "world_tour",
+  "city": "Bandung",
+  "style": "archipelago",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/world_tour/bandung.glb",
+  "fallback": true
+}

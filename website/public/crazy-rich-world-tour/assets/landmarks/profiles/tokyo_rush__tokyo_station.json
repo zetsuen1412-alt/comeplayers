@@ -1,0 +1,9 @@
+{
+  "map_id": "tokyo_rush",
+  "city": "Tokyo Station",
+  "style": "station",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tokyo_rush/tokyo_station.glb",
+  "fallback": true
+}
