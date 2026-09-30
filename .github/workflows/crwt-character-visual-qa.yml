@@ -1,0 +1,115 @@
+name: CRWT Character Visual QA
+on:
+  push:
+    branches: [codex/crazy-rich-web-v30]
+    paths: [.github/workflows/crwt-character-visual-qa.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  browser:
+    if: github.repository == 'zetsuen1412-alt/comeplayers'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Fetch the verified character artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/crwt-character-qa
+          gh api repos/zetsuen1412-alt/comeplayers/actions/artifacts/11123661648/zip > /tmp/crwt-models.zip
+          python3 -m zipfile -e /tmp/crwt-models.zip /tmp/crwt-character-qa
+          python3 -m venv /tmp/crwt-browser-env
+          /tmp/crwt-browser-env/bin/pip install playwright==1.55.0
+          /tmp/crwt-browser-env/bin/playwright install --with-deps chromium
+      - name: Test the board, character selector, animations and individual GLB export
+        run: |
+          /tmp/crwt-browser-env/bin/python - <<'PY'
+          import json, pathlib, subprocess, time, traceback, struct
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path('/tmp/crwt-character-qa'); out=root/'qa'; out.mkdir(exist_ok=True)
+          models=root/'models';models.mkdir(exist_ok=True)
+          server=subprocess.Popen(['/tmp/crwt-browser-env/bin/python','-m','http.server','8765','--bind','127.0.0.1','--directory',str(root)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+          time.sleep(1)
+          report={'visual_final_approved':False,'online_game_replaced':False,'page_errors':[],'console_errors':[],'tests':[]}
+          try:
+              with sync_playwright() as p:
+                  browser=p.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+                  page=browser.new_page(viewport={'width':1280,'height':900},device_scale_factor=1,accept_downloads=True)
+                  page.on('pageerror',lambda e:report['page_errors'].append(str(e)))
+                  page.on('console',lambda m:report['console_errors'].append(m.text) if m.type=='error' else None)
+                  page.goto('http://127.0.0.1:8765/character-demo.html',wait_until='load',timeout=60000)
+                  page.wait_for_function('window.CRWT_CHARACTER_LAB?.ready === true',timeout=60000)
+                  page.wait_for_timeout(2500)
+                  report['initial']=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
+                  assert len(report['initial']['characters'])==10
+                  page.screenshot(path=str(out/'board.png'))
+                  ids=['alexia','rindi','kairo','luna','nox','atlas','zeno','yuna','mochi','pip']
+                  page.click('#solo')
+                  for cid in ids:
+                      page.click('[data-id="'+cid+'"]')
+                      page.wait_for_timeout(1200)
+                      snap=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
+                      assert [c['id'] for c in snap['characters'] if c['visible']]==[cid]
+                      page.screenshot(path=str(out/(cid+'.png')))
+                      for clip in ['Idle','Walk','Jump','Skill','Win','Lose']:
+                          page.select_option('#animation',clip)
+                          page.wait_for_timeout(90)
+                          observed=page.evaluate('(id)=>window.CRWT_CHARACTER_LAB.characters.get(id).current',cid)
+                          assert observed==clip
+                      page.select_option('#animation','Idle')
+                      report['tests'].append({'character':cid,'selector':'passed','six_animation_controls':'passed'})
+                  page.click('#board');page.click('[data-id="alexia"]');page.wait_for_timeout(1200)
+                  before=page.evaluate("window.CRWT_CHARACTER_LAB.characters.get('alexia').root.position.toArray()")
+                  page.click('#step');page.wait_for_function('window.CRWT_CHARACTER_LAB.move===null',timeout=15000)
+                  after=page.evaluate("window.CRWT_CHARACTER_LAB.characters.get('alexia').root.position.toArray()")
+                  assert ((after[0]-before[0])**2+(after[2]-before[2])**2)**.5 > .8
+                  report['step_test']={'before':before,'after':after,'passed':True}
+                  # Each asset is exported independently with all materials, textures, skin, and six named clips.
+                  export_script='''async (id)=>{
+                    const THREE=await import('three');
+                    const {GLTFExporter}=await import('three/addons/exporters/GLTFExporter.js');
+                    const {clone}=await import('three/addons/utils/SkeletonUtils.js');
+                    const c=window.CRWT_CHARACTER_LAB.characters.get(id);
+                    c.mixer.stopAllAction();c.root.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.pose();});
+                    c.root.updateMatrixWorld(true);
+                    const root=clone(c.root);root.visible=true;root.position.set(0,0,0);root.quaternion.identity();
+                    const scale=Number(root.userData.board_preview_scale)||1;root.scale.divideScalar(scale);
+                    root.updateMatrixWorld(true);root.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.pose();});root.updateMatrixWorld(true);
+                    const box=new THREE.Box3().setFromObject(root,true);root.position.y-=box.min.y;root.updateMatrixWorld(true);
+                    root.userData.asset_status='REFERENCE_RECONSTRUCTION_WIP';root.userData.visual_final_approved=false;
+                    const animations=[...c.clips.values()].map(a=>a.clone());
+                    const buffer=await new GLTFExporter().parseAsync(root,{binary:true,animations,onlyVisible:false,trs:true,maxTextureSize:1024});
+                    const url=URL.createObjectURL(new Blob([buffer],{type:'model/gltf-binary'}));
+                    const a=document.createElement('a');a.href=url;a.download=id+'.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),15000);
+                    return {id,bytes:buffer.byteLength,clips:animations.map(a=>a.name)};
+                  }'''
+                  report['individual_models']=[]
+                  for cid in ids:
+                      with page.expect_download(timeout=60000) as download:
+                          info=page.evaluate(export_script,cid)
+                      download.value.save_as(str(models/(cid+'.glb')))
+                      data=(models/(cid+'.glb')).read_bytes();n=struct.unpack_from('<I',data,12)[0];g=json.loads(data[20:20+n])
+                      assert {a['name'] for a in g['animations']}=={'Idle','Walk','Jump','Skill','Win','Lose'}
+                      assert len(g.get('skins',[]))==1 and len(g.get('images',[]))>=1
+                      info.update({'skins':len(g['skins']),'textures':len(g['images'])});report['individual_models'].append(info)
+                  report['final']=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
+                  assert not report['page_errors'],report['page_errors']
+                  report['status']='browser_functional_tests_passed_visual_art_approval_pending'
+                  browser.close()
+          except Exception as e:
+              report['status']='failed';report['exception']=str(e);report['traceback']=traceback.format_exc();raise
+          finally:
+              (out/'browser-report.json').write_text(json.dumps(report,indent=2))
+              server.terminate()
+          PY
+      - name: Retain actual screenshots, ten individual meshes and playable model demo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Ten-Character-Demo-Tested-WIP
+          path: /tmp/crwt-character-qa/
+          retention-days: 30
+          if-no-files-found: error
