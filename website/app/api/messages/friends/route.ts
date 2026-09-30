@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { callActivityPreview } from "@/lib/callRoomActivity";
 import { createSupabaseAdmin, requireAuthenticatedUser } from "@/lib/serverSupabase";
+import { CONTACT_PROFILE_SELECT, limitContactSearch, resolveContact } from "@/lib/chatContacts";
+import { chatErrorStatus } from "@/lib/chatServer";
 
 export const runtime = "nodejs";
 
 type PresenceStatus = "online" | "away" | "invisible" | "offline";
 
-const PROFILE_SELECT = "id,username,full_name,avatar_url,role";
+const PROFILE_SELECT = CONTACT_PROFILE_SELECT;
 const ROOM_SELECT =
   "id,buyer_id,seller_id,product_id,order_id,room_type,last_message,last_message_at,last_message_sender_id,status,created_at";
 
@@ -17,7 +19,7 @@ function pairFor(left: string, right: string) {
 }
 
 function cleanIdentifier(value: unknown) {
-  return String(value || "").trim().replace(/^@/, "").slice(0, 160);
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function normalizeStatus(value: unknown): PresenceStatus {
@@ -273,30 +275,13 @@ export async function POST(request: Request) {
     const identifier = cleanIdentifier(body.identifier);
     if (identifier.length < 2) {
       return NextResponse.json(
-        { error: "Enter an exact username or email address." },
+        { error: "Enter an exact username or CP number." },
         { status: 400 },
       );
     }
 
-    let targetResult = await supabaseAdmin
-      .from("profiles")
-      .select(PROFILE_SELECT)
-      .ilike("username", identifier)
-      .limit(1)
-      .maybeSingle();
-    if (targetResult.error) throw new Error(targetResult.error.message);
-
-    if (!targetResult.data && identifier.includes("@")) {
-      targetResult = await supabaseAdmin
-        .from("profiles")
-        .select(PROFILE_SELECT)
-        .ilike("email", identifier)
-        .limit(1)
-        .maybeSingle();
-      if (targetResult.error) throw new Error(targetResult.error.message);
-    }
-
-    const target = targetResult.data;
+    await limitContactSearch(user.id);
+    const target = await resolveContact(supabaseAdmin, user.id, identifier);
     if (!target) {
       return NextResponse.json({ error: "Player was not found." }, { status: 404 });
     }
@@ -365,7 +350,7 @@ export async function POST(request: Request) {
     console.error("Friend action failed:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Friend action failed." },
-      { status: 500 },
+      { status: chatErrorStatus(error) },
     );
   }
 }

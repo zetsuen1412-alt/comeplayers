@@ -2,7 +2,7 @@
   "expo": {
     "name": "ComePlayers",
     "slug": "comeplayers",
-    "version": "0.16.3",
+    "version": "0.16.4",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "scheme": "comeplayers",
@@ -77,7 +77,7 @@
     "android": {
       "package": "com.comeplayers.app",
       "versionCode": 24,
-      "runtimeVersion": "0.16.3",
+      "runtimeVersion": "0.16.4",
       "allowBackup": false,
       "permissions": [
         "android.permission.CAMERA",

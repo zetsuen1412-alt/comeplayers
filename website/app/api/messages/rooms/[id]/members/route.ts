@@ -21,7 +21,7 @@ export const runtime = "nodejs";
 
 const memberSelect =
   "room_id,user_id,member_role,status,invited_by,last_read_at,joined_at,updated_at";
-const profileSelect = "id,email,username,full_name,avatar_url,role";
+const profileSelect = "id,username,full_name,avatar_url,role,cp_number";
 
 function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -67,7 +67,7 @@ export async function POST(request: Request, context: RouteContext) {
     }
     if (!identifier) {
       return NextResponse.json(
-        { error: "Username or verified phone number is required." },
+        { error: "Username or CP number is required." },
         { status: 400 },
       );
     }

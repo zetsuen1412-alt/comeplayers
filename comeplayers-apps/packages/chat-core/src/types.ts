@@ -1,5 +1,6 @@
 export type PublicProfile = {
   id: string;
+  cp_number?: string | null;
   username?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
@@ -175,6 +176,16 @@ export function profileName(profile?: PublicProfile | null): string {
   return profile?.username || profile?.full_name || "ComePlayers User";
 }
 
+export function profileCpNumber(profile?: Pick<PublicProfile, "cp_number"> | null): string | null {
+  const value = profile?.cp_number;
+  return typeof value === "string" && /^008\d{10}$/.test(value) ? value : null;
+}
+
+export function profileContactLabel(profile?: PublicProfile | null): string {
+  const cpNumber = profileCpNumber(profile);
+  return cpNumber ? `CP ${cpNumber}` : profile?.username ? `@${profile.username}` : "Kontak ComePlayers";
+}
+
 export function roomName(room?: ChatRoom | null): string {
   if (!room) return "Conversation";
   if (String(room.room_type || "").toLowerCase() === "group") {
@@ -288,6 +299,7 @@ export function filterRooms(
       room.title || "",
       room.description || "",
       profileName(room.other),
+      profileCpNumber(room.other) || "",
       room.product?.title || "",
       room.order?.product_title || "",
       String(room.order_id || ""),

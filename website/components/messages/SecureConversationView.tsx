@@ -154,7 +154,7 @@ export default function SecureConversationView({ userId, room, messenger }: { us
   return <div data-active-chat-room={room.id} className="flex min-h-0 flex-1 flex-col bg-[#07131f]">
     <header className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-[#091b2a] px-4 py-3">
       <div aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cyan-400/15 font-black text-cyan-200">{room.other?.avatar_url ? <img src={room.other.avatar_url} alt="" className="h-full w-full object-cover" /> : peer.slice(0, 1).toUpperCase()}</div>
-      <div className="min-w-0 flex-1"><h2 className="truncate text-lg font-bold">{peer}</h2><p className="text-sm text-slate-300">Chat pribadi</p></div>
+      <div className="min-w-0 flex-1"><h2 className="truncate text-lg font-bold">{peer}</h2><p className="select-all text-sm text-slate-300">{room.other?.cp_number ? `CP ${room.other.cp_number}` : "Chat pribadi"}</p></div>
       <AccountDirectCall roomId={room.id} userId={userId} peerName={peer} onError={callError} />
       <button type="button" onClick={() => setDetailsOpen(value => !value)} aria-expanded={detailsOpen} aria-controls="chat-details" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl p-3 text-slate-300 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-yellow-300" aria-label="Info percakapan"><FaEllipsisH /></button>
     </header>

@@ -213,7 +213,7 @@ export async function GET(request: Request, context: RouteContext) {
     const profilesResult = profileIds.length
       ? await supabaseAdmin
           .from("profiles")
-          .select("id,username,full_name,avatar_url,role")
+          .select("id,username,full_name,avatar_url,role,cp_number")
           .in("id", profileIds)
       : { data: [], error: null };
     if (profilesResult.error) throw new Error(profilesResult.error.message);

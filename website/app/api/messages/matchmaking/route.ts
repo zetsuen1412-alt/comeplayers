@@ -94,7 +94,7 @@ export async function GET(request: Request) {
       ownerIds.length
         ? supabaseAdmin
             .from("profiles")
-            .select("id,username,full_name,avatar_url,role")
+            .select("id,username,full_name,avatar_url,role,cp_number")
             .in("id", ownerIds)
         : Promise.resolve({ data: [], error: null }),
     ]);
@@ -190,7 +190,7 @@ export async function POST(request: Request) {
           .gt("expires_at", new Date().toISOString()),
         supabaseAdmin
           .from("profiles")
-          .select("id,username,full_name,avatar_url,role")
+          .select("id,username,full_name,avatar_url,role,cp_number")
           .neq("id", user.id)
           .limit(250),
       ]);

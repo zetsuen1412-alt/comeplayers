@@ -17,6 +17,7 @@ import type { CommerceLink } from "../commercePolicy";
 import { authenticationMessage } from "../authTransport";
 import { PrivateBackupSettings } from "./PrivateBackupSettings";
 import { unregisterDeviceNotifications } from "../NotificationProvider";
+import { CpNumberCard } from "../CpNumberCard";
 
 export function ProfileScreen({ session, onAccountUpdated, commerceLink, onCommerceLinkHandled }: { session: Session | null; onAccountUpdated?: () => void; commerceLink?: CommerceLink | null; onCommerceLinkHandled?: () => void }) {
   const [section, setSection] = useState<"account" | "settings" | "security" | null>(null);
@@ -129,17 +130,18 @@ export function ProfileScreen({ session, onAccountUpdated, commerceLink, onComme
   };
 
   if (session) {
-    const label = String(profile?.username || profile?.full_name || session.user.user_metadata?.username || session.user.user_metadata?.full_name || session.user.email || "ComePlayers User");
+    const label = String(profile?.username || profile?.full_name || session.user.user_metadata?.username || session.user.user_metadata?.full_name || profile?.cp_number || "Pengguna ComePlayers");
     const avatar = profile?.avatar_url || (typeof session.user.user_metadata?.avatar_url === "string" ? session.user.user_metadata.avatar_url : null);
     return <ScrollView contentContainerStyle={styles.page}>
       <View style={styles.profileHero}>
         <Avatar uri={avatar} name={label} size={64} accent="yellow" />
         <Pressable accessibilityRole="button" disabled={photoBusy} onPress={() => void choosePhoto()} style={styles.photoButton}><Text style={styles.photoButtonText}>{photoBusy ? "Menyimpan…" : "Ganti foto"}</Text></Pressable>
-        <Text style={styles.profileName}>{label}</Text><Text style={styles.profileEmail}>{session.user.email}</Text>
+        <Text style={styles.profileName}>{label}</Text>
       </View>
+      <CpNumberCard value={profile?.cp_number || account?.profile?.cp_number} onReload={refreshAccount} />
       {message ? <Text accessibilityLiveRegion="polite" style={styles.profileMessage}>{message}</Text> : null}
       <Panel style={styles.panel}>
-        {([["account", "Akun saya", "Nama, foto, dan nomor telepon"], ["settings", "Pengaturan", "Notifikasi dan privasi"], ["security", "Keamanan akun", "Sandi dan perangkat"]] as const).map(([id, title, detail]) => <Pressable key={id} accessibilityRole="button" style={styles.row} onPress={() => setSection(id)}><View style={{ flex: 1 }}><Text style={styles.rowValue}>{title}</Text><Text style={styles.rowLabel}>{detail}</Text></View><Text style={styles.rowValue}>›</Text></Pressable>)}
+        {([["account", "Akun saya", "Nomor CP, nama, dan foto"], ["settings", "Pengaturan", "Notifikasi dan privasi"], ["security", "Keamanan akun", "Sandi dan perangkat"]] as const).map(([id, title, detail]) => <Pressable key={id} accessibilityRole="button" style={styles.row} onPress={() => setSection(id)}><View style={{ flex: 1 }}><Text style={styles.rowValue}>{title}</Text><Text style={styles.rowLabel}>{detail}</Text></View><Text style={styles.rowValue}>›</Text></Pressable>)}
         <Pressable accessibilityRole="button" style={styles.row} onPress={() => setBackupOpen(true)}><View style={{ flex: 1 }}><Text style={styles.rowValue}>Chat & cadangan</Text><Text style={styles.rowLabel}>Pilihan untuk menyimpan riwayat chat</Text></View><Text style={styles.rowValue}>›</Text></Pressable>
       </Panel>
       <ProfileCommerce key={session.user.id} commerceLink={commerceLink} onLinkHandled={onCommerceLinkHandled} />

@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 const AVATAR_BUCKET = "profile-avatars-public";
 const MAX_AVATAR_BYTES = 400_000;
-const PROFILE_SELECT = "id,email,username,full_name,avatar_url,role";
+const PROFILE_SELECT = "id,email,username,full_name,avatar_url,role,cp_number";
 
 function withStatus(message: string, status: number) {
   return Object.assign(new Error(message), { status });
@@ -68,6 +68,7 @@ export async function GET(request: Request) {
         id: user.id,
         email: user.email || null,
         username: user.user_metadata?.username || null,
+        cp_number: null,
         full_name: user.user_metadata?.full_name || null,
         avatar_url: user.user_metadata?.avatar_url || null,
         role: null,

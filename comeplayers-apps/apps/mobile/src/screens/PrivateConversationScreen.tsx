@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { Session } from "@supabase/supabase-js";
-import { roomName, type ChatRoom } from "@comeplayers/chat-core";
+import { profileContactLabel, roomName, type ChatRoom } from "@comeplayers/chat-core";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import * as Sharing from "expo-sharing";
@@ -149,7 +149,7 @@ export function PrivateConversationScreen({ room, session, onBack, onRead, onNav
     {recording ? <VoiceRecorder onCancel={() => setRecording(false)} onReady={file => { setAttachment(file); setRecording(false); }} /> : <View style={s.composer}><Pressable accessibilityRole="button" accessibilityLabel="Tambah lampiran" style={s.iconButton} onPress={() => Alert.alert("Kirim lampiran", "Pilih yang ingin Anda kirim.", [{ text: "Foto atau video", onPress: () => void choose() }, { text: "Dokumen", onPress: () => void chooseDocument() }, { text: "Batal", style: "cancel" }])}><Ionicons name="attach" size={27} color={colors.textMuted} /></Pressable><TextInput accessibilityLabel="Ketik pesan" multiline maxLength={6000} value={draft} onChangeText={setDraft} placeholder={blocked ? "Kontak diblokir" : "Ketik pesan"} placeholderTextColor={colors.textMuted} style={s.input} editable={!blocked} /><Pressable accessibilityRole="button" accessibilityLabel="Ambil foto" style={s.iconButton} onPress={() => void choose(true)}><Ionicons name="camera-outline" size={27} color={colors.textMuted} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel={draft.trim() || attachment ? "Kirim pesan" : "Rekam pesan suara"} disabled={sending || blocked} style={s.send} onPress={() => draft.trim() || attachment ? void send() : setRecording(true)}>{sending ? <ActivityIndicator color={colors.background} /> : <Ionicons name={draft.trim() || attachment ? "send" : "mic"} size={23} color={colors.background} />}</Pressable></View>}
     </> : null}
     <Modal visible={menu} transparent animationType="fade" onRequestClose={() => setMenu(false)}><Pressable style={s.scrim} onPress={() => setMenu(false)}><ScrollView style={s.menu}>{[
-      ["Lihat kontak", () => Alert.alert(roomName(room), room.other?.username ? `@${room.other.username}` : "Kontak ComePlayers")],
+      ["Lihat kontak", () => Alert.alert(roomName(room), profileContactLabel(room.other))],
       ...(messenger ? [["Panggilan video", () => void perform(() => startCall(room.id, "video"))]] : []), ["Cari pesan", () => setSearching(v => !v)], ["Foto, video & dokumen", () => setFilter("media")], ["Pesan berbintang", () => setFilter("starred")],
       [pref?.pinned ? "Lepas sematan" : "Sematkan chat", () => void preference({ pinned: !pref?.pinned })],
       [pref?.muted ? "Aktifkan notifikasi" : "Bisukan notifikasi", () => void preference({ muted: !pref?.muted })],

@@ -250,6 +250,7 @@ export function toPublicChatProfile(
   return {
     id: String(profile.id || ""),
     username: typeof profile.username === "string" ? profile.username : null,
+    cp_number: typeof profile.cp_number === "string" ? profile.cp_number : null,
     full_name: typeof profile.full_name === "string" ? profile.full_name : null,
     avatar_url: typeof profile.avatar_url === "string" ? profile.avatar_url : null,
     role: typeof profile.role === "string" ? profile.role : null,

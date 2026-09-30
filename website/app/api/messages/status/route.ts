@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     if (statuses.error) throw statuses.error;
     const authors = [...new Set(statuses.data.map(s => s.author_id))];
     const [profiles, views] = await Promise.all([
-      authors.length ? db.from("profiles").select("id,username,full_name,avatar_url").in("id", authors) : Promise.resolve({ data: [], error: null }),
+      authors.length ? db.from("profiles").select("id,username,full_name,avatar_url,cp_number").in("id", authors) : Promise.resolve({ data: [], error: null }),
       statuses.data.length ? db.from("cp_status_views").select("status_id,viewer_id").in("status_id", statuses.data.map(s => s.id)) : Promise.resolve({ data: [], error: null }),
     ]);
     if (profiles.error) throw profiles.error;

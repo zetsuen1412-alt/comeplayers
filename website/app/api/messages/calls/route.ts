@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     const calls = await query.order("created_at", { ascending: false }).limit(activeOnly ? 4 : 100);
     if (calls.error) throw calls.error;
     const ids = [...new Set(calls.data.flatMap(c => [c.caller_id, c.callee_id]))];
-    const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url").in("id", ids) : { data: [], error: null };
+    const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url,cp_number").in("id", ids) : { data: [], error: null };
     if (people.error) throw people.error;
     return NextResponse.json({ calls: calls.data.map(c => ({ ...visibleCallStatus(c, now), other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }

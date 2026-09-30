@@ -4,7 +4,8 @@ import { normalizePhone, phoneCountries } from "../lib/phoneNumbers";
 import { confirmedPhone, phoneRequirementEnabled, requireVerifiedPhone } from "../lib/phoneVerification";
 import { phoneOtpChannels } from "../lib/phoneOtpLimits";
 import { GET as phoneOptions, POST as changePhone } from "../app/api/account/phone/route";
-import { GET as preferences } from "../app/api/account/preferences/route";
+import { GET as preferences, PATCH as updatePreferences } from "../app/api/account/preferences/route";
+import { GET as avatarProfile } from "../app/api/account/avatar/route";
 import type { User } from "@supabase/supabase-js";
 
 const userId = "11111111-1111-4111-8111-111111111111";
@@ -13,7 +14,7 @@ const user = { id: userId, email: "player@example.test", phone: "", factors: [],
 function request(body: Record<string, unknown>, token = "fixture-token") {
   return new Request("https://app.example.test/api/account/phone", { method: "POST", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(body) });
 }
-type Call = { path: string; method: string; body: Record<string, unknown> | null };
+type Call = { path: string; method: string; body: Record<string, unknown> | null; select: string | null };
 function fixture(t: TestContext, authUser = user, savedPhone: string | null = null, phoneRequired = false) {
   const env = { NEXT_PUBLIC_SUPABASE_URL: "https://auth.example.test", NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-test", SUPABASE_SERVICE_ROLE_KEY: "service-test", PHONE_OTP_ENABLED: "false" };
   const previous = Object.fromEntries(Object.keys(env).map(key => [key, process.env[key]]));
@@ -24,10 +25,10 @@ function fixture(t: TestContext, authUser = user, savedPhone: string | null = nu
     const path = new URL(String(input)).pathname;
     const method = init?.method || "GET";
     const body = init?.body ? JSON.parse(String(init.body)) : null;
-    calls.push({ path, method, body });
+    calls.push({ path, method, body, select: new URL(String(input)).searchParams.get("select") });
     if (path === "/auth/v1/user" && method === "GET") return Response.json(authUser);
     if (method === "POST" && ["/rest/v1/user_account_settings", "/rest/v1/cp_messaging_settings"].includes(path)) return new Response(null, { status: 201 });
-    if (path === "/rest/v1/profiles") return Response.json({ id: userId, username: "player", username_changes: 0 });
+    if (path === "/rest/v1/profiles") return Response.json({ id: userId, username: "player", username_changes: 0, cp_number: "0081234567890" });
     if (path === "/rest/v1/cp_messaging_settings") return Response.json({ phone_country: "ID" });
     if (path === "/rest/v1/user_account_settings") return Response.json({ phone_number: savedPhone });
     if (path === "/rest/v1/cp_platform_settings") return Response.json({ phone_required: phoneRequired });
@@ -90,6 +91,28 @@ test("Saved contact number remains unverified and optional in account preference
   assert.equal(data.verifiedPhone, null);
   assert.equal(await phoneRequirementEnabled(), false);
   await assert.doesNotReject(requireVerifiedPhone(user));
+});
+
+test("account preferences and avatar profile expose the permanent CP number as text", async t => {
+  const calls = fixture(t);
+  for (const handler of [preferences, avatarProfile]) {
+    const response = await handler(new Request("https://app.example.test/api/account/preferences", { headers: { Authorization: "Bearer fixture-token" } }));
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).profile.cp_number, "0081234567890");
+  }
+  assert.ok(calls.filter(c => c.path === "/rest/v1/profiles").every(c => c.select?.split(",").includes("cp_number")));
+});
+
+test("every preference action rejects attempts to change or clear a CP number without writing", async t => {
+  const calls = fixture(t);
+  for (const action of ["profile", "username", "settings"]) {
+    for (const change of [{ cp_number: "0081111111111" }, { cp_number: null }, { cpNumber: "0081111111111" }]) {
+      const response = await updatePreferences(request({ action, fullName: "Changed", username: "changed", ...change }));
+      assert.equal(response.status, 400);
+      assert.match((await response.json()).error, /CP number is permanent/);
+    }
+  }
+  assert.ok(calls.every(c => c.path === "/auth/v1/user" && c.method === "GET"));
 });
 
 test("A verified old number never verifies a different saved number", async t => {

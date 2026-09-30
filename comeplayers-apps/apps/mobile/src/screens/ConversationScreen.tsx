@@ -5,7 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import type { Session } from "@supabase/supabase-js";
-import { roomName, type ChatMessage, type ChatRoom } from "@comeplayers/chat-core";
+import { profileContactLabel, roomName, type ChatMessage, type ChatRoom } from "@comeplayers/chat-core";
 import { ContactsSheet } from "./ContactsSheet";
 import { ChatProblemNotice } from "./ChatProblemNotice";
 import { ChatKeyboardLayout, useChatScrollAnchor } from "./ChatKeyboardLayout";
@@ -209,7 +209,7 @@ export function ConversationScreen({ room, channelId, session, onBack, onRead, o
     <ContactsSheet allowGroups visible={newGroup} initialMode="group" onClose={() => setNewGroup(false)} onOpenRoom={() => { setNewGroup(false); onBack(); }} />
     <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}><Pressable style={styles.backdrop} onPress={() => setMenuOpen(false)}><ScrollView style={styles.menu} contentContainerStyle={{ paddingVertical: 8 }}>{[
       ["Buat pesanan", () => onNavigate("marketplace")],
-      [room.room_type === "group" ? "Info komunitas" : "Lihat kontak", () => Alert.alert(roomName(room), room.room_type === "group" ? `${details.members?.length || 0} anggota` : [details.other?.full_name, details.other?.username && `@${details.other.username}`].filter(Boolean).join("\n"))],
+      [room.room_type === "group" ? "Info komunitas" : "Lihat kontak", () => Alert.alert(roomName(room), room.room_type === "group" ? `${details.members?.length || 0} anggota` : [details.other?.full_name, profileContactLabel(details.other)].filter(Boolean).join("\n"))],
       ["Cari pesan", () => setSearchOpen(true)],
       [prefs?.pinned ? "Lepas sematan" : "Sematkan chat", () => void perform(() => preference({ pinned: !prefs?.pinned }))],
       ["Tambahkan ke daftar", () => { setListName(prefs?.list_name || ""); setListOpen(true); }],

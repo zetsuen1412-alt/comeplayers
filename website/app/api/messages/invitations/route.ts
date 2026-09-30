@@ -105,7 +105,7 @@ export async function GET(request: Request) {
       profileIds.length
         ? supabaseAdmin
             .from("profiles")
-            .select("id,username,full_name,avatar_url,role")
+            .select("id,username,full_name,avatar_url,role,cp_number")
             .in("id", profileIds)
         : Promise.resolve({ data: [], error: null }),
     ]);

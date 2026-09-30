@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const scheduled = await db.from("cp_calls").select("id,room_id,caller_id,callee_id,media,status,scheduled_at,created_at,answered_at,ended_at").or(`caller_id.eq.${user.id},callee_id.eq.${user.id}`).eq("status", "scheduled").order("scheduled_at").limit(100);
     if (scheduled.error) throw scheduled.error;
     const ids = [...new Set([...calls.data, ...scheduled.data].map(c => c.caller_id === user.id ? c.callee_id : c.caller_id))];
-    const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url").in("id", ids) : { data: [], error: null };
+    const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url,cp_number").in("id", ids) : { data: [], error: null };
     if (people.error) throw people.error;
     const decorate = (c: (typeof calls.data)[number]) => ({ ...c, other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) });
     return NextResponse.json({ calls: calls.data.map(decorate), scheduled: scheduled.data.map(decorate) }, { headers: { "Cache-Control": "no-store" } });

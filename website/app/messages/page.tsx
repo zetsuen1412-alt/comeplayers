@@ -132,6 +132,7 @@ function withMessagesTimeout<T>(
 
 type Profile = {
   id: string;
+  cp_number?: string | null;
   email?: string | null;
   username?: string | null;
   full_name?: string | null;
@@ -2654,6 +2655,7 @@ export default function MessagesPage() {
       return [
         roomTitle(room),
         displayName(room.other),
+        room.other?.cp_number || "",
         room.last_message || "",
         room.activity_preview || "",
         room.product?.title || "",
@@ -3368,7 +3370,7 @@ export default function MessagesPage() {
           supabase
             .from("profiles")
             .select(
-              "id,email,username,full_name,avatar_url,role,seller_status",
+              "id,email,username,full_name,avatar_url,role,seller_status,cp_number",
             )
             .eq("id", sessionUser.id)
             .maybeSingle(),
@@ -4973,11 +4975,11 @@ export default function MessagesPage() {
               <p className="truncate text-sm font-black">
                 {displayName(profile)}
               </p>
-              <p className="truncate text-[10px] text-emerald-300">Online</p>
+              <p className="select-all truncate text-xs text-emerald-300">{profile?.cp_number ? `CP ${profile.cp_number}` : "Online"}</p>
             </div>
           </div>
           {[
-            ["/account", "Account"],
+            ["/account", "Akun & nomor CP"],
             ["/account/security", "Security"],
             ["/account/connects", "Connects"],
             ["/my-orders", "My Orders"],
@@ -5836,9 +5838,9 @@ export default function MessagesPage() {
                               {displayName(candidate)}
                             </span>
                             <span className="block truncate text-xs text-gray-500">
-                              {candidate.username
-                                ? `@${candidate.username}`
-                                : "ComePlayers member"}
+                              {candidate.cp_number
+                                ? `CP ${candidate.cp_number}`
+                                : candidate.username ? `@${candidate.username}` : "ComePlayers member"}
                             </span>
                           </span>
                           <span
@@ -6063,7 +6065,7 @@ export default function MessagesPage() {
                   <p className="truncate text-xs font-black">
                     {displayName(profile)}
                   </p>
-                  <p className="text-[10px] text-emerald-300">Akun saya</p>
+                  <p className="truncate text-[11px] text-emerald-300">{profile?.cp_number ? `CP ${profile.cp_number}` : "Akun saya"}</p>
                 </div>
                 <FaCog className="text-gray-500" />
               </button>
@@ -7603,7 +7605,8 @@ export default function MessagesPage() {
                               onChange={(event) =>
                                 setInviteIdentifier(event.target.value)
                               }
-                              placeholder="Username or verified phone number"
+                              placeholder="Nomor CP atau nama pengguna"
+                              aria-label="Undang dengan nomor CP atau nama pengguna"
                               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs outline-none placeholder:text-gray-600 focus:border-cyan-400"
                             />
                             <button
@@ -7989,7 +7992,8 @@ export default function MessagesPage() {
                 <input
                   value={serverInviteSearch}
                   onChange={(event) => setServerInviteSearch(event.target.value)}
-                  placeholder="Username or phone number"
+                  placeholder="Nomor CP atau nama pengguna"
+                  aria-label="Cari kontak dengan nomor CP atau nama pengguna"
                   className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
                 />
               </div>
@@ -8015,7 +8019,7 @@ export default function MessagesPage() {
                           {displayName(candidate)}
                         </p>
                         <p className="truncate text-xs text-gray-500">
-                          {candidate.username ? `@${candidate.username}` : "ComePlayers player"}
+                          {candidate.cp_number ? `CP ${candidate.cp_number}` : candidate.username ? `@${candidate.username}` : "ComePlayers player"}
                         </p>
                       </div>
                       <button
