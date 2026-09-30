@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaBell, FaCheckDouble } from "react-icons/fa";
+import AuthModal from "@/components/auth/AuthModal";
+import NotificationControls from "@/components/messages/NotificationControls";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { supabase } from "@/lib/supabase";
 import {
@@ -34,6 +36,8 @@ export default function NotificationsPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const busyRef = useRef(false);
   const requestRef = useRef(0);
   const userIdRef = useRef<string | null>(null);
@@ -42,6 +46,17 @@ export default function NotificationsPage() {
     const request = ++requestRef.current;
     if (!background) setLoading(true);
     try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (request !== requestRef.current) return;
+      if (sessionError) throw sessionError;
+      if (!sessionData.session) {
+        userIdRef.current = null;
+        setNeedsLogin(true);
+        setNotifications([]);
+        setError(null);
+        return;
+      }
+      setNeedsLogin(false);
       const { data: userData, error: authError } = await supabase.auth.getUser();
       if (request !== requestRef.current) return;
       if (authError) throw new Error(authError.message);
@@ -60,6 +75,7 @@ export default function NotificationsPage() {
       if (request !== requestRef.current) return;
       if (loadError) throw new Error(loadError.message);
       setNotifications(data || []);
+      setError(null);
     } catch (cause) {
       if (request === requestRef.current) {
         console.error("Notification history load error:", cause);
@@ -114,12 +130,16 @@ export default function NotificationsPage() {
   }
 
   useEffect(() => {
+    // Loading is synchronized with the initial auth lookup and later auth events.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadNotifications();
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if ((session?.user.id || null) === userIdRef.current) return;
       // Invalidate requests and clear private data immediately on account changes.
       requestRef.current += 1;
       userIdRef.current = session?.user.id || null;
+      setNeedsLogin(!session);
+      setError(null);
       setNotifications([]);
       // Do not await Supabase queries inside the auth callback.
       window.setTimeout(() => { void loadNotifications(); }, 0);
@@ -156,6 +176,7 @@ export default function NotificationsPage() {
         <p className="mt-5 text-sm text-gray-400">
           {isIndonesian ? "Notifikasi yang dibaca hilang dari daftar aktif. Riwayat tetap tersimpan." : "Read notifications leave your active inbox. Your history is preserved."}
         </p>
+        <NotificationControls isIndonesian={isIndonesian} />
         <div className="mt-5 flex flex-wrap gap-2" aria-label={isIndonesian ? "Filter notifikasi" : "Notification filters"}>
           <button type="button" onClick={() => setShowHistory(false)} aria-pressed={!showHistory}
             className={`rounded-full border px-4 py-2 text-sm font-bold ${!showHistory ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/10 text-gray-400"}`}>
@@ -170,6 +191,14 @@ export default function NotificationsPage() {
         <div className="mt-6 overflow-hidden rounded-3xl border border-white/10 bg-[#0b1020]" aria-busy={busy || loading}>
           {loading ? (
             <div className="p-8 text-center text-gray-400">{isIndonesian ? "Memuat..." : "Loading..."}</div>
+          ) : needsLogin ? (
+            <div className="p-10 text-center">
+              <FaBell className="mx-auto text-5xl text-gray-600" aria-hidden="true" />
+              <p className="mt-4 text-gray-300">{isIndonesian ? "Masuk untuk melihat notifikasi Anda." : "Sign in to see your notifications."}</p>
+              <button type="button" onClick={() => setAuthOpen(true)} className="mt-5 min-h-11 rounded-xl bg-yellow-400 px-6 font-bold text-black">
+                {isIndonesian ? "Masuk" : "Sign in"}
+              </button>
+            </div>
           ) : visibleNotifications.length === 0 ? (
             <div className="p-10 text-center">
               <FaBell className="mx-auto text-5xl text-gray-600" aria-hidden="true" />
@@ -195,6 +224,7 @@ export default function NotificationsPage() {
           ))}
         </div>
       </section>
+      <AuthModal open={authOpen} initialMode="login" redirectPath="/notifications" onClose={() => setAuthOpen(false)} onAuthenticated={() => setAuthOpen(false)} />
     </main>
   );
 }

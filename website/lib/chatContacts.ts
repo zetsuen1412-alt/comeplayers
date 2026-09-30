@@ -1,17 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { consumeRedisRateLimit, isUpstashRedisConfigured } from "@/lib/upstashRedis";
-import { normalizePhone } from "./phoneNumbers";
+import { parseContactIdentifier } from "./cpNumbers";
 
-export const CONTACT_PROFILE_SELECT = "id,username,full_name,avatar_url,role";
+export const CONTACT_PROFILE_SELECT = "id,username,full_name,avatar_url,role,cp_number";
 const localSearchWindows = new Map<string, { until: number; count: number }>();
 export function contactError(message: string, status: number) {
   return Object.assign(new Error(message), { status });
-}
-export function normalizeContactPhone(value: string, country = "ID") {
-  try { return normalizePhone(value, country).e164.slice(1); } catch { return ""; }
-}
-export function cleanContactQuery(value: unknown) {
-  return String(value || "").trim().replace(/^@/, "").slice(0, 80);
 }
 export async function assertContactAllowed(db: SupabaseClient, actor: string, target: string) {
   const { data, error } = await db.from("chat_user_blocks").select("blocker_id")
@@ -33,32 +27,28 @@ export async function limitContactSearch(userId: string) {
   if (!result.allowed) throw contactError("Too many searches. Please try again in a minute.", 429);
 }
 export async function searchContacts(db: SupabaseClient, userId: string, raw: unknown, exact = false) {
-  const query = cleanContactQuery(raw);
+  const identifier = parseContactIdentifier(raw);
+  if (identifier.kind === "invalid") return [];
   const { data: blocks, error: blockError } = await db.from("chat_user_blocks").select("blocker_id,blocked_id")
     .or(`blocker_id.eq.${userId},blocked_id.eq.${userId}`);
   if (blockError) throw new Error(blockError.message);
   const excluded = new Set([userId, ...(blocks || []).map(b => b.blocker_id === userId ? b.blocked_id : b.blocker_id)]);
   let ids: string[] | null = null;
-  const settings = /^[+\d\s().-]+$/.test(query) ? await db.from("cp_messaging_settings").select("phone_country").eq("user_id", userId).maybeSingle() : null;
-  if (settings?.error) throw new Error(settings.error.message);
-  const phone = normalizeContactPhone(query, settings?.data?.phone_country || "ID");
-  if (!query) {
+  if (identifier.kind === "recent") {
     const { data, error } = await db.from("chat_rooms").select("buyer_id,seller_id")
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).neq("room_type", "group")
       .not("last_message", "is", null).order("last_message_at", { ascending: false }).limit(100);
     if (error) throw new Error(error.message);
     ids = Array.from(new Set((data || []).map(r => r.buyer_id === userId ? r.seller_id : r.buyer_id)));
-  } else if (phone) {
-    const { data, error } = await db.rpc("cp_find_contact_phone", { p_phone: phone });
-    if (error) throw new Error(error.message);
-    ids = (data || []).map((r: { user_id: string }) => r.user_id);
-  } else if (query.length < 2 || !/^[a-zA-Z0-9_.-]+$/.test(query)) {
-    return [];
   }
   if (ids && !ids.length) return [];
   let lookup = db.from("profiles").select(CONTACT_PROFILE_SELECT).is("anonymized_at", null).limit(30);
   if (ids) lookup = lookup.in("id", ids);
-  else lookup = lookup.ilike("username", exact ? query.replace(/_/g, "\\_") : `%${query.replace(/_/g, "\\_")}%`);
+  else if (identifier.kind === "cp_number") lookup = lookup.eq("cp_number", identifier.value);
+  else if (identifier.kind === "username") {
+    const query = identifier.value.replace(/_/g, "\\_");
+    lookup = lookup.ilike("username", exact ? query : `%${query}%`);
+  }
   const { data, error } = await lookup;
   if (error) throw new Error(error.message);
   const profiles = (data || []).filter(p => !excluded.has(p.id));
@@ -66,6 +56,7 @@ export async function searchContacts(db: SupabaseClient, userId: string, raw: un
 }
 
 export async function resolveContact(db: SupabaseClient, actor: string, identifier: string) {
+  if (!identifier.trim()) return null;
   if (/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(identifier)) {
     await assertContactAllowed(db, actor, identifier);
     const { data, error } = await db.from("profiles").select(CONTACT_PROFILE_SELECT).eq("id", identifier).is("anonymized_at", null).maybeSingle();

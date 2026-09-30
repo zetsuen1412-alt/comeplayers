@@ -3,9 +3,11 @@ import { useLiveQuery } from '@/lib/live/use-live-query';
 
 import { FormEvent, type ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AccountCommerce from "@/components/account/AccountCommerce";
 import GoogleDriveBackupSettings from "@/components/account/GoogleDriveBackupSettings";
 import AccountShell from "@/components/account/AccountShell";
+import CpNumberCard from "@/components/account/CpNumberCard";
 import { supabase } from "@/lib/supabase";
 import { accountRequest } from "@/lib/accountClient";
 
@@ -81,6 +83,7 @@ export default function AccountPageClient() {
 
   const [userId, setUserId] = useState("");
   const [authEmail, setAuthEmail] = useState("");
+  const [cpNumber, setCpNumber] = useState<string | null>(null);
   const [username, setUsername] = useState("");
   const [originalUsername, setOriginalUsername] = useState("");
   const [usernameChanges, setUsernameChanges] = useState(0);
@@ -111,7 +114,7 @@ export default function AccountPageClient() {
       ] = await Promise.all([
         supabase
           .from("profiles")
-          .select("username,username_changes")
+          .select("username,username_changes,cp_number")
           .eq("id", currentUserId)
           .maybeSingle(),
         supabase
@@ -130,6 +133,7 @@ export default function AccountPageClient() {
       setUsername(profileData?.username || getUsernameFromEmail(currentEmail));
       setOriginalUsername(profileData?.username || "");
       setUsernameChanges(Number(profileData?.username_changes || 0));
+      setCpNumber(profileData?.cp_number || null);
 
       if (accountData) {
         setAccount({
@@ -263,6 +267,7 @@ export default function AccountPageClient() {
 
   return (
     <AccountShell>
+      <CpNumberCard key={userId} cpNumber={cpNumber} />
       <AccountCommerce key={userId} />
       <GoogleDriveBackupSettings userId={userId} email={authEmail} />
       <form onSubmit={handleSave}>
@@ -322,7 +327,7 @@ export default function AccountPageClient() {
               }
             />
 
-            <div><p className="mb-3 text-sm font-bold text-slate-300">Mobile number (optional)</p><p className="text-sm text-slate-400">{account.phone_number || "Not set"}</p><a href="/account/verification" className="mt-2 inline-block text-sm text-amber-300">Manage phone number and verification status</a></div>
+            <div><p className="mb-3 text-sm font-bold text-slate-300">Private contact number (optional)</p><p className="text-sm text-slate-400">{account.phone_number || "Not set"}</p><Link href="/account/verification" className="mt-2 inline-block text-sm text-amber-300">Manage phone number and verification status</Link></div>
           </div>
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">

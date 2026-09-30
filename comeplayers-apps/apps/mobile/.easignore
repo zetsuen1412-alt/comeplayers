@@ -29,3 +29,6 @@ apps/mobile/ios/
 *.pem
 .DS_Store
 Thumbs.db
+# Firebase client configuration is intentionally omitted from Git but required in the native build.
+!google-services.json
+!apps/mobile/google-services.json

@@ -29,13 +29,47 @@ export class Vault {
     const row = await this.db.getFirstAsync<VaultRow>("SELECT * FROM records WHERE kind=? AND id=?", kind, id);
     return row ? this.decode<T>(row) : null;
   }
+  // Keep bridge/SQLite work bounded when refreshing an entire inbox. These
+  // queries still select only authenticated account-vault rows by opaque IDs.
+  async getMany<T>(kind: string, ids: string[]): Promise<Map<string, T>> {
+    const result = new Map<string, T>(), unique = [...new Set(ids)];
+    for (let offset = 0; offset < unique.length; offset += 200) {
+      const batch = unique.slice(offset, offset + 200);
+      const rows = await this.db.getAllAsync<VaultRow>(`SELECT * FROM records WHERE kind=? AND id IN (${batch.map(() => "?").join(",")})`, kind, ...batch);
+      for (const row of rows) result.set(row.id, this.decode<T>(row));
+    }
+    return result;
+  }
+  async latestByRoom<T>(kind: string, rooms: string[]): Promise<Map<string, T>> {
+    const result = new Map<string, T>(), unique = [...new Set(rooms)];
+    for (let offset = 0; offset < unique.length; offset += 200) {
+      const batch = unique.slice(offset, offset + 200);
+      // One index seek per requested room, rather than scanning/decrypting its
+      // entire history or issuing a JS/native round trip for every room.
+      const rows = await this.db.getAllAsync<VaultRow>(`WITH requested(room) AS (VALUES ${batch.map(() => "(?)").join(",")}) SELECT record.* FROM requested JOIN records AS record ON record.kind=? AND record.id=(SELECT newest.id FROM records AS newest WHERE newest.kind=? AND newest.room=requested.room ORDER BY newest.sort DESC,newest.id DESC LIMIT 1)`, ...batch, kind, kind);
+      for (const row of rows) result.set(row.room, this.decode<T>(row));
+    }
+    return result;
+  }
   async put(kind: string, id: string, value: unknown, room = "", sort = ""): Promise<void> {
     const old = await this.db.getFirstAsync<VaultRow>("SELECT * FROM records WHERE kind=? AND id=?", kind, id);
     if (old && old.room === room && old.sort === sort && JSON.stringify(this.decode(old)) === JSON.stringify(value)) return;
     await this.putRows([this.encode(kind, id, value, room, sort)]);
   }
   async putRows(rows: Iterable<VaultRow>): Promise<void> {
-    await this.transaction(async tx => { for (const r of rows) await tx.runAsync("INSERT INTO records(kind,id,room,sort,value) VALUES (?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET room=excluded.room,sort=excluded.sort,value=excluded.value", r.kind, r.id, r.room, r.sort, r.value); });
+    await this.mutateRows(rows);
+  }
+  // A history page, its outbox acknowledgments and durable cursor commit
+  // together. Only encrypted row values are accepted by this write boundary.
+  async mutateRows(rows: Iterable<VaultRow>, removals: Iterable<Pick<VaultRow, "kind" | "id">> = []): Promise<void> {
+    await this.transaction(async tx => {
+      for (const r of rows) await tx.runAsync("INSERT INTO records(kind,id,room,sort,value) VALUES (?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET room=excluded.room,sort=excluded.sort,value=excluded.value", r.kind, r.id, r.room, r.sort, r.value);
+      for (const r of removals) await tx.runAsync("DELETE FROM records WHERE kind=? AND id=?", r.kind, r.id);
+    });
+  }
+  async oldest<T>(kind: string, limit = 50): Promise<T[]> {
+    const rows = await this.db.getAllAsync<VaultRow>("SELECT * FROM records WHERE kind=? ORDER BY sort,id LIMIT ?", kind, Math.min(limit, 1000));
+    return rows.map(row => this.decode<T>(row));
   }
   // Expo opens a separate connection for each exclusive transaction. Its busy
   // timeout is connection-local, so all writers must share one queue on Android.

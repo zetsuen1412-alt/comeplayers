@@ -8,6 +8,7 @@
     "load-tests",
     "backup-*",
     "_*",
-    "tests"
+    "tests",
+    "patch"
   ]
 }

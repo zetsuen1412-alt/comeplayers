@@ -29,7 +29,7 @@ function load(file, dependencies = {}) {
   return mod.exports;
 }
 const transportModule = load('authTransport.ts');
-function fixture({ authError = null, googleError = null, googleCancelled = false, backendConfigured = true } = {}) {
+function fixture({ authError = null, googleError = null, googleCancelled = false, backendConfigured = true, preferences = {} } = {}) {
   const calls = [];
   const auth = Object.fromEntries(['signInWithPassword', 'signInWithIdToken', 'resetPasswordForEmail', 'signUp', 'signOut'].map(name => [name, async (...args) => {
     calls.push({ name, args }); return { data: { session: null }, error: authError };
@@ -50,16 +50,18 @@ function fixture({ authError = null, googleError = null, googleCancelled = false
     '../api': { loadAccountProfile: async () => { calls.push({ name: 'profile' }); return {}; }, uploadAvatar() { throw new Error('Unexpected profile mutation'); } },
     '../runtime': { apiUrl: 'https://www.comeplayers.com', backendConfigured, supabase: { auth } },
     '../theme': { colors: {}, radius: {} }, './AccountSettings': { AccountSettings: 'AccountSettings' },
-    '../messagingApi': { loadPreferences: async () => { calls.push({ name: 'preferences' }); return {}; } },
+    '../messagingApi': { loadPreferences: async () => { calls.push({ name: 'preferences' }); return preferences; } },
     './ProfileCommerce': { ProfileCommerce: 'ProfileCommerce' },
     '../authTransport': transportModule, './PrivateBackupSettings': { PrivateBackupSettings: 'PrivateBackupSettings' },
+    '../CpNumberCard': { CpNumberCard: 'CpNumberCard' },
+    '../NotificationProvider': { unregisterDeviceNotifications: async () => undefined },
   }).ProfileScreen;
   return { ProfileScreen, calls, clearError: () => { authError = null; } };
 }
 
-async function mount(t, f) {
+async function mount(t, f, props = {}) {
   let view;
-  await act(async () => { view = Renderer.create(React.createElement(f.ProfileScreen, { session: null })); await flush(); });
+  await act(async () => { view = Renderer.create(React.createElement(f.ProfileScreen, { session: null, ...props })); await flush(); });
   t.after(async () => { await act(async () => view.unmount()); });
   return view;
 }
@@ -82,6 +84,16 @@ test('the initial sign-in screen has a primary Google action, collapsed email fi
   assert.ok(button(view, 'Gunakan email')); assert.ok(link(view, 'Belum punya akun? Daftar'));
   assert.equal(view.root.findAllByType('PrivateBackupSettings').length, 0);
   assert.deepEqual(f.calls, []);
+});
+
+test('the main profile displays the server CP identity without showing recovery email or phone', async t => {
+  const cpNumber = '0081234567890';
+  const f = fixture({ preferences: { profile: { id: 'me', full_name: 'My name', cp_number: cpNumber }, phone: '+628111111111' } });
+  const view = await mount(t, f, { session: { user: { id: 'me', email: 'private@example.invalid', user_metadata: {} } } });
+  assert.equal(view.root.findByType('CpNumberCard').props.value, cpNumber);
+  assert.equal(text(view.root).includes('private@example.invalid'), false);
+  assert.equal(text(view.root).includes('+628111111111'), false);
+  assert.deepEqual(f.calls.map(call => call.name), ['preferences']);
 });
 
 test('Google sign-in runs only after a tap and passes its ID token to the existing account authentication', async t => {

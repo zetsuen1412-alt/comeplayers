@@ -1,18 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import AlexiaPet from "./AlexiaPet";
+// Keep marketplace chrome and the assistant out of focused community entry bundles.
+// Default SSR remains enabled on the routes where these components are visible.
+const MainHeader = dynamic(() => import("./MainHeader"));
+const AlexiaPet = dynamic(() => import("./AlexiaPet"));
 
 type ConditionalChromeProps = {
   children: ReactNode;
-  header: ReactNode;
   footer: ReactNode;
 };
 
 export default function ConditionalChrome({
   children,
-  header,
   footer,
 }: ConditionalChromeProps) {
   const pathname = usePathname();
@@ -24,9 +26,11 @@ export default function ConditionalChrome({
   const immersiveRoute =
     pathname === "/" || pathname.startsWith("/admin") || focusedPaymentRoute;
 
+  const communityOwnsChrome = focusedMessagesRoute || cpCommunityRoute;
+
   return (
     <>
-      {!immersiveRoute && header}
+      {!immersiveRoute && !communityOwnsChrome ? <MainHeader /> : null}
       {children}
       {!homeRoute && !pathname.startsWith("/admin") &&
       !focusedPaymentRoute &&
@@ -35,7 +39,7 @@ export default function ConditionalChrome({
       !cpCommunityRoute ? (
         <AlexiaPet />
       ) : null}
-      {!immersiveRoute && !focusedChatRoute && footer}
+      {!immersiveRoute && !focusedChatRoute && !communityOwnsChrome && footer}
     </>
   );
 }

@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 
 
 
@@ -13,6 +12,7 @@ import {
   type ChangeEvent,
   type CSSProperties,
   type ReactNode,
+  memo,
   useEffect,
   useMemo,
   useRef,
@@ -77,24 +77,22 @@ import {
 import AuthModal from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { sortInboxRooms } from "@/lib/chatInboxPresentation";
+import { ConversationReadTracker, expireTypingEntries } from "@/lib/chatClientPerformance";
 import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
 import ChatMessagesLoginGate from "@/components/messages/ChatMessagesLoginGate";
-import ArcadeWindow, {
-  ARCADE_WINDOW_GAMES,
-  type ArcadeGameId,
-} from "@/components/arcade/ArcadeWindow";
 import CommunityChannelSidebar, {
   type CommunityChannel,
   type CommunityBundle,
 } from "@/components/messages/CommunityChannelSidebar";
 import CommunityGroupRail from "@/components/messages/CommunityGroupRail";
-import CommunityVoicePanel, {
-  type CommunityVoiceCommand,
-  type CommunityVoiceDockState,
+import type {
+  CommunityVoiceCommand,
+  CommunityVoiceDockState,
 } from "@/components/messages/CommunityVoicePanel";
 import { useMessagesRedisRealtime } from "@/components/messages/useMessagesRedisRealtime";
+import { useMessagesPaneVisibility } from "@/components/messages/useMessagesPaneVisibility";
 import { createRefreshQueue } from "@/lib/live/refresh-queue";
 import {
   createStreamIceServers,
@@ -102,6 +100,11 @@ import {
 } from "@/lib/chatStream";
 import { supabase } from "@/lib/supabase";
 import styles from "./messages.module.css";
+
+const CommunityVoicePanel = dynamic(
+  () => import("@/components/messages/CommunityVoicePanel"),
+  { ssr: false },
+);
 
 const SecureDirectConversation = dynamic(
   () => import("@/components/messages/SecureDirectConversation"),
@@ -133,6 +136,7 @@ function withMessagesTimeout<T>(
 
 type Profile = {
   id: string;
+  cp_number?: string | null;
   email?: string | null;
   username?: string | null;
   full_name?: string | null;
@@ -2120,6 +2124,65 @@ function GroupLiveStreamPanel({
   );
 }
 
+// Draft changes must not rebuild every text/media bubble in a community channel.
+// Message actions stay outside this memo so they always use the current room state.
+const GroupMessageContent = memo(function GroupMessageContent({ message, sender }: {
+  message: Message;
+  sender: Profile | null;
+}) {
+  const visualAttachment = isImageAttachment(message.attachment) || isVideoAttachment(message.attachment);
+  const showMessageText = Boolean(message.message && !(visualAttachment && isGenericAttachmentMessage(message.message)));
+  const imageOnly = visualAttachment && !showMessageText;
+  return (
+    <>
+      <div className="flex flex-wrap items-baseline gap-2">
+        <p className="truncate text-sm font-black text-white">
+          {displayName(sender)}
+        </p>
+        <span className="text-[11px] text-gray-500">
+          {formatMessageTime(message.created_at)}
+        </span>
+        {message.optimistic ? <span className="text-[11px] text-cyan-300">Mengirim…</span> : null}
+        {message.moderation_status ===
+        "reported" ? (
+          <span className="text-[11px] text-red-300">
+            Reported
+          </span>
+        ) : null}
+      </div>
+      <MessageReplyPreview
+        reply={message.reply_to}
+      />
+      {showMessageText || message.attachment ? (
+        <div
+          className={`${styles.groupMessageBubble} mt-1 max-w-[880px] ${
+            imageOnly
+              ? ""
+              : "rounded-2xl border border-cyan-400/10 bg-[#081b2b]/72 px-4 py-3 text-white shadow-[inset_0_0_24px_rgba(6,182,212,0.03)] backdrop-blur-sm"
+          }`}
+        >
+          {showMessageText ? (
+            <p className="whitespace-pre-wrap text-sm leading-6">
+              {message.message}
+            </p>
+          ) : null}
+          {message.attachment ? (
+            <div
+              className={
+                showMessageText ? "mt-3" : ""
+              }
+            >
+              <AttachmentViewer
+                attachment={message.attachment}
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+});
+
 export default function MessagesPage() {
   const router = useRouter();
   const [userId, setUserId] = useState("");
@@ -2202,10 +2265,6 @@ export default function MessagesPage() {
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<
     "header" | "sidebar" | null
   >(null);
-  const [showPlayMenu, setShowPlayMenu] = useState(false);
-  const [arcadeWindowOpen, setArcadeWindowOpen] = useState(false);
-  const [arcadeGameId, setArcadeGameId] = useState<ArcadeGameId | null>(null);
-  const [arcadeWindowKey, setArcadeWindowKey] = useState(0);
   const [showFriendsMenu, setShowFriendsMenu] = useState(false);
   const [showPrivateMessages, setShowPrivateMessages] = useState(false);
   useEffect(() => {
@@ -2297,19 +2356,6 @@ export default function MessagesPage() {
       document.body.style.overflow = previousOverflow;
     };
   }, [showRenameServerModal]);
-
-  useEffect(() => {
-    const requestedGame = new URLSearchParams(window.location.search).get("game");
-    const requestedArcadeGame =
-      ARCADE_WINDOW_GAMES.find((game) => game.id === requestedGame)?.id || null;
-    if (!requestedArcadeGame) return;
-    const frame = window.requestAnimationFrame(() => {
-      setArcadeGameId(requestedArcadeGame);
-      setArcadeWindowKey((current) => current + 1);
-      setArcadeWindowOpen(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
   const [showVoicePanel, setShowVoicePanel] = useState(false);
   const [showLiveLobbyPicker, setShowLiveLobbyPicker] = useState(false);
   const [selectedLiveLobbyId, setSelectedLiveLobbyId] = useState("");
@@ -2334,11 +2380,10 @@ export default function MessagesPage() {
     null,
   );
   const typingStopTimerRef = useRef<number | null>(null);
+  const typingBroadcastRef = useRef({ scope: "", at: 0, active: false });
   const autoStoppingLiveRoomsRef = useRef<Set<string>>(new Set());
   const conversationRequestRef = useRef<AbortController | null>(null);
-  useEffect(() => () => {
-    conversationRequestRef.current?.abort();
-  }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
+  const conversationReads = useRef(new ConversationReadTracker());
 
   const selectedRoom = useMemo(
     () =>
@@ -2359,6 +2404,28 @@ export default function MessagesPage() {
     : "";
   const selectedChannelIsVoice =
     selectedCommunityChannel?.channel_type === "voice";
+  const conversationVisible = useMessagesPaneVisibility(
+    mobileInboxOpen, selectedIsGroup && serverViewMode === "home",
+  );
+  const conversationVisibleRef = useRef(false);
+  const conversationScopeRef = useRef({ userId: "", roomId: "", channelId: "" });
+  useEffect(() => {
+    conversationScopeRef.current = { userId, roomId: selectedRoomId, channelId: selectedChannelId };
+    return () => { conversationRequestRef.current?.abort(); };
+  }, [userId, selectedRoomId, selectedChannelId]);
+  const typingVisible = conversationVisible && !selectedChannelIsVoice;
+  const typingVisibleRef = useRef(false);
+  useEffect(() => {
+    conversationVisibleRef.current = conversationVisible;
+    typingVisibleRef.current = typingVisible;
+    if (!conversationVisible) conversationRequestRef.current?.abort();
+    if (!typingVisible) {
+      setTypingUsers(current => Object.keys(current).length ? {} : current);
+      signalTyping(false);
+    }
+    // signalTyping reads the currently selected room; the channel cleanup handles switches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationVisible, typingVisible]);
 
 
   useEffect(() => {
@@ -2458,17 +2525,24 @@ export default function MessagesPage() {
     signalTyping: signalRedisTyping,
   } = useMessagesRedisRealtime({
     userId,
-    roomId: selectedRoomId,
+    // Community presence is not used by the separate private-message view.
+    roomId: selectedIsGroup ? selectedRoomId : "",
     channelId: selectedChannelId,
+    typingEnabled: typingVisible,
   });
   const visibleTypingUsers = useMemo(
     () => ({ ...redisTypingUsers, ...typingUsers }),
     [redisTypingUsers, typingUsers],
   );
   const conversationMembers = useMemo(
-    () => conversation?.members || conversation?.room.members || [],
-    [conversation],
+    () => conversation?.room.id === selectedRoomId
+      ? conversation.members || conversation.room.members || []
+      : selectedRoom?.id === selectedRoomId ? selectedRoom.members || [] : [],
+    [conversation, selectedRoom, selectedRoomId],
   );
+  const conversationMemberCount = selectedRoom?.id === selectedRoomId
+    ? Number(selectedRoom.member_count ?? conversationMembers.length)
+    : conversationMembers.length;
   const onlineConversationMembers = useMemo(
     () =>
       conversationMembers.filter(
@@ -2586,7 +2660,6 @@ export default function MessagesPage() {
       if (event.key === "Escape") {
         setCommunityOverlay(null);
         setProfileMenuAnchor(null);
-        setShowPlayMenu(false);
         setShowFriendsMenu(false);
         setShowPrivateMessages(false);
         setShowCreateMenu(false);
@@ -2655,6 +2728,7 @@ export default function MessagesPage() {
       return [
         roomTitle(room),
         displayName(room.other),
+        room.other?.cp_number || "",
         room.last_message || "",
         room.activity_preview || "",
         room.product?.title || "",
@@ -2693,6 +2767,7 @@ export default function MessagesPage() {
     const socialRooms = sortInboxRooms((data.rooms || []).filter((room) => !isTradeRoom(room)));
     roomsRef.current = socialRooms;
     setRooms(socialRooms);
+    setPrivateUnreadCount(socialRooms.reduce((count, room) => count + (isGroupRoom(room) ? 0 : room.unread_count || 0), 0));
     const nextId =
       preferredRoomId || selectedRoomId || socialRooms[0]?.id || "";
     if (nextId && selectRoom) setSelectedRoomId(nextId);
@@ -2736,14 +2811,19 @@ export default function MessagesPage() {
     }
   }
 
+  function isCurrentConversation(roomId: string, channelId = "") {
+    const current = conversationScopeRef.current;
+    return conversationVisibleRef.current && document.visibilityState === "visible"
+      && current.userId === userId && current.roomId === roomId
+      && current.channelId === channelId;
+  }
+
   async function loadConversation(
     roomId: string,
     silent = false,
-    channelId = communityChannelSelection?.roomId === roomId
-      ? communityChannelSelection.channel.id
-      : "",
+    channelId = roomId === selectedRoomId ? selectedChannelId : "",
   ) {
-    if (!roomId) return;
+    if (!roomId || !isCurrentConversation(roomId, channelId)) return;
     // Background updates must not replace a pending load and swallow its retry state.
     if (silent && conversationRequestRef.current && !conversationRequestRef.current.signal.aborted) return;
     conversationRequestRef.current?.abort();
@@ -2770,28 +2850,35 @@ export default function MessagesPage() {
         `/api/messages/rooms/${roomId}?limit=80${channelQuery}`,
         { signal: controller.signal },
       );
-      if (controller.signal.aborted) return;
+      const responseChannelId = String(data.channel?.id || channelId);
+      if (controller.signal.aborted || !isCurrentConversation(roomId, channelId)
+        || (channelId && responseChannelId !== channelId)) return;
       setConversation(data);
       conversationReady = true;
       setConversationLoadError("");
       // The conversation is ready; marking it read must not keep messages hidden.
       setLoadingMessages(false);
-      await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
-        method: "POST",
-        body: JSON.stringify({
-          channelId: data.channel?.id || channelId || undefined,
-        }),
-        signal: controller.signal,
-      });
-      if (controller.signal.aborted) return;
-      window.dispatchEvent(new CustomEvent("cp-community-read", { detail: { roomId } }));
+      const readScope = JSON.stringify([userId, roomId]);
+      const readChannelId = data.channel?.id || channelId || "";
+      const lastMessageId = String(data.messages.at(-1)?.id || "");
+      if (!isCurrentConversation(roomId, readChannelId)) return;
+      if (conversationReads.current.needsRead(readScope, readChannelId, lastMessageId)) {
+        await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
+          method: "POST",
+          body: JSON.stringify({ channelId: readChannelId || undefined, lastReadMessageId: lastMessageId || undefined }),
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted || !isCurrentConversation(roomId, readChannelId)) return;
+        conversationReads.current.confirm(readScope, readChannelId, lastMessageId);
+        window.dispatchEvent(new CustomEvent("cp-community-read", { detail: { roomId, channelId: readChannelId } }));
+      }
       setRooms((current) =>
         current.map((room) =>
           room.id === roomId ? { ...room, unread_count: 0 } : room,
         ),
       );
     } catch (loadError) {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted || !isCurrentConversation(roomId, channelId)) return;
       const status = (loadError as { status?: number })?.status;
       if (status === 401 || status === 403 || status === 404) setConversation(null);
       if (!silent && !conversationReady) {
@@ -2885,10 +2972,7 @@ export default function MessagesPage() {
   }
 
   async function refreshSelectedRoom(roomId: string) {
-    const channelId =
-      communityChannelSelection?.roomId === roomId
-        ? communityChannelSelection.channel.id
-        : "";
+    const channelId = roomId === selectedRoomId ? selectedChannelId : "";
     await Promise.all([
       loadRooms(roomId),
       loadConversation(roomId, true, channelId),
@@ -3369,7 +3453,7 @@ export default function MessagesPage() {
           supabase
             .from("profiles")
             .select(
-              "id,email,username,full_name,avatar_url,role,seller_status",
+              "id,email,username,full_name,avatar_url,role,seller_status,cp_number",
             )
             .eq("id", sessionUser.id)
             .maybeSingle(),
@@ -3493,6 +3577,7 @@ export default function MessagesPage() {
       // Never hard-reload on SIGNED_IN. Supabase can emit auth events more than
       // once, and reloading from this listener caused a loading/refresh loop.
       if (event === "SIGNED_OUT") {
+        conversationReads.current = new ConversationReadTracker();
         setUserId("");
         setProfile(null);
         setRooms([]);
@@ -3527,21 +3612,20 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!profile?.id) return;
     void loadInvitations();
-    const timer = window.setInterval(() => void loadInvitations(true), 20000);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && navigator.onLine) void loadInvitations(true);
+    }, 60000);
     return () => window.clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
   useEffect(() => {
-    if (!selectedRoomId || loading) return;
-    const channelId =
-      communityChannelSelection?.roomId === selectedRoomId
-        ? communityChannelSelection.channel.id
-        : "";
+    if (!selectedRoomId || loading || !conversationVisible) return;
+    const channelId = selectedChannelId;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadConversation(selectedRoomId, false, channelId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRoomId, communityChannelSelection?.channel.id]);
+  }, [selectedRoomId, selectedChannelId, conversationVisible]);
 
   useEffect(() => {
     if (!userId) return;
@@ -3554,12 +3638,8 @@ export default function MessagesPage() {
         // A background refresh updates the inbox but must never choose a
         // conversation after the user has opened the room list or server home.
         await loadRooms(undefined, false);
-        if (active && selectedRoomId) {
-          const channelId =
-            communityChannelSelection?.roomId === selectedRoomId
-              ? communityChannelSelection.channel.id
-              : "";
-          await loadConversation(selectedRoomId, true, channelId);
+        if (active && selectedRoomId && conversationVisibleRef.current) {
+          await loadConversation(selectedRoomId, true, selectedChannelId);
         }
       } catch {
         // Polling is a quiet fallback for cross-tab updates.
@@ -3569,7 +3649,7 @@ export default function MessagesPage() {
     }, 15000);
     return () => { active = false; window.clearInterval(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
+  }, [userId, selectedRoomId, selectedChannelId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -3595,10 +3675,7 @@ export default function MessagesPage() {
       return;
     }
     const resetTypingTimer = window.setTimeout(() => setTypingUsers({}), 0);
-    const activeChannelId =
-      communityChannelSelection?.roomId === selectedRoomId
-        ? communityChannelSelection.channel.id
-        : "";
+    const activeChannelId = selectedChannelId;
     const queue = createRefreshQueue(async () => {
       // Keep the invalidation queued while a room switch or foreground load
       // is in flight; otherwise the newly arrived message can be missed.
@@ -3639,7 +3716,7 @@ export default function MessagesPage() {
           active?: boolean;
           channelId?: string;
         };
-        if (!payload.userId || payload.userId === userId) return;
+        if (!typingVisibleRef.current || !payload.userId || payload.userId === userId) return;
         if (String(payload.channelId || "") !== activeChannelId) return;
         setTypingUsers((current) => {
           const next = { ...current };
@@ -3662,13 +3739,7 @@ export default function MessagesPage() {
     typingChannelRef.current = channel;
 
     const staleTimer = window.setInterval(() => {
-      setTypingUsers((current) =>
-        Object.fromEntries(
-          Object.entries(current).filter(
-            ([, entry]) => Date.now() - entry.at < 4000,
-          ),
-        ),
-      );
+      setTypingUsers((current) => expireTypingEntries(current, Date.now()));
     }, 1200);
 
     return () => {
@@ -3679,20 +3750,31 @@ export default function MessagesPage() {
       window.clearInterval(staleTimer);
       if (typingStopTimerRef.current)
         window.clearTimeout(typingStopTimerRef.current);
+      const lastTyping = typingBroadcastRef.current;
+      if (lastTyping.active && lastTyping.scope === `${selectedRoomId}:${activeChannelId}`) {
+        typingBroadcastRef.current = { ...lastTyping, active: false };
+        void channel.send({ type: "broadcast", event: "typing", payload: { userId, active: false, channelId: activeChannelId } }).catch(() => undefined);
+      }
       typingChannelRef.current = null;
       void supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRoomId, userId, communityChannelSelection?.channel.id]);
+  }, [selectedRoomId, userId, selectedChannelId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation?.messages.length]);
 
   function signalTyping(active: boolean) {
+    if (active && !typingVisibleRef.current) return;
     void signalRedisTyping(active);
     const channel = typingChannelRef.current;
     if (!channel || !userId) return;
+    const scope = `${selectedRoomId}:${selectedChannelId}`;
+    const previous = typingBroadcastRef.current;
+    const now = Date.now();
+    if (previous.scope === scope && previous.active === active && (!active || now - previous.at < 900)) return;
+    typingBroadcastRef.current = { scope, at: now, active };
     void channel.send({
       type: "broadcast",
       event: "typing",
@@ -3777,7 +3859,6 @@ export default function MessagesPage() {
   async function openCommunityOverlay(view: Exclude<CommunityOverlay, null>) {
     if (view === "discover" && !SQUAD_DISCOVERY_ENABLED) return;
     setCommunityOverlay(view);
-    setShowPlayMenu(false);
     setShowCreateMenu(false);
     setShowCommunityMenu(false);
     setProfileMenuAnchor(null);
@@ -4546,23 +4627,6 @@ export default function MessagesPage() {
       data-messages-page="true"
       className={`${styles.page} ${styles.messageTypography} ${styles.simpleCommunity} relative overflow-hidden bg-[#02060d] text-white`}
     >
-      {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
-        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId, false);
-        let room = available.find(item => item.id === roomId) || null;
-        if (!room) {
-          const detail = await authenticatedFetchJson<ConversationResponse>(
-            `/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`,
-          );
-          room = detail.room;
-          if (room && !isTradeRoom(room)) {
-            roomsRef.current = [room, ...roomsRef.current];
-            setRooms(roomsRef.current);
-          }
-        }
-        if (!room) throw new Error("Conversation not found.");
-        setShowPrivateMessages(false); setShowFriendsMenu(false); setCommunityOverlay(null);
-        openRoom(room);
-      }} /> : null}
       <style>{`
         body.messages-shell > nav:first-of-type,
         body.messages-shell > header:first-of-type,
@@ -4571,12 +4635,7 @@ export default function MessagesPage() {
         }
       `}</style>
 
-      <ArcadeWindow
-        key={arcadeWindowKey}
-        open={arcadeWindowOpen}
-        initialGameId={arcadeGameId}
-        onClose={() => setArcadeWindowOpen(false)}
-      />
+
 
       <header
         className={`${styles.topHeader} relative z-20 flex h-[92px] items-center gap-5 px-6 text-white lg:px-10`}
@@ -4599,76 +4658,7 @@ export default function MessagesPage() {
           </span>
         </Link>
         <nav className="hidden items-center gap-8 text-base font-bold text-gray-200 xl:flex">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setShowPlayMenu((current) => !current);
-                setShowFriendsMenu(false);
-                setShowPrivateMessages(false);
-                setShowCreateMenu(false);
-                setShowNotifications(false);
-                setProfileMenuAnchor(null);
-              }}
-              className="inline-flex items-center gap-2 transition hover:text-cyan-300"
-              aria-expanded={showPlayMenu}
-            >
-              Game
-              <FaChevronDown
-                className={`text-[10px] text-cyan-300 transition ${showPlayMenu ? "rotate-180" : ""}`}
-              />
-            </button>
-            {showPlayMenu ? (
-              <div className="absolute left-0 top-9 z-[75] w-[560px] max-w-[calc(100vw-2rem)] rounded-2xl border border-cyan-400/25 bg-[#061421]/98 p-3 text-sm shadow-[0_22px_65px_rgba(0,0,0,0.65)] backdrop-blur-xl">
-                <div className="mb-2 flex items-center justify-between border-b border-white/10 px-2 pb-3">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-cyan-300">
-                      ComePlayers Arcade
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Play instantly without downloading
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setArcadeGameId(null);
-                      setArcadeWindowKey((current) => current + 1);
-                      setArcadeWindowOpen(true);
-                      setShowPlayMenu(false);
-                    }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-yellow-400/25 bg-yellow-400/10 px-3 py-2 text-xs font-black text-yellow-200 transition hover:bg-yellow-400/20"
-                  >
-                    Lihat semua <FaArrowRight className="text-[9px]" />
-                  </button>
-                </div>
 
-                <div className="grid max-h-[60vh] grid-cols-1 gap-1 overflow-y-auto pr-1 sm:grid-cols-2">
-                  {ARCADE_WINDOW_GAMES.map((game) => (
-                    <button
-                      key={game.id}
-                      type="button"
-                      onClick={() => {
-                        setArcadeGameId(game.id);
-                        setArcadeWindowKey((current) => current + 1);
-                        setArcadeWindowOpen(true);
-                        setShowPlayMenu(false);
-                      }}
-                      className="group flex items-center justify-between rounded-xl px-3.5 py-3 text-left text-gray-300 transition hover:bg-cyan-400/10 hover:text-cyan-100"
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate font-bold">{game.title}</span>
-                        <span className="mt-0.5 block truncate text-[10px] font-bold uppercase tracking-wider text-slate-600 transition group-hover:text-cyan-500">
-                          {game.category}
-                        </span>
-                      </span>
-                      <FaArrowRight className="ml-3 shrink-0 text-[9px] text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
           <div className="relative">
             <button
               type="button"
@@ -4676,7 +4666,6 @@ export default function MessagesPage() {
                 if (!requireLogin("Masuk untuk membuka kontak.")) return;
                 setShowFriendsMenu((current) => !current);
                 setShowPrivateMessages(false);
-                setShowPlayMenu(false);
                 setShowCreateMenu(false);
                 setShowNotifications(false);
                 setProfileMenuAnchor(null);
@@ -4730,7 +4719,6 @@ export default function MessagesPage() {
             onClick={() => {
                 if (!requireLogin("Masuk untuk membuat komunitas.")) return;
               setShowCreateMenu((current) => !current);
-              setShowPlayMenu(false);
               setShowFriendsMenu(false);
               setShowPrivateMessages(false);
               setShowNotifications(false);
@@ -4797,7 +4785,6 @@ export default function MessagesPage() {
             setShowFriendsMenu(false);
             setShowNotifications(false);
             setProfileMenuAnchor(null);
-            setShowPlayMenu(false);
             setShowCreateMenu(false);
           }}
           className={`relative flex h-11 w-11 items-center justify-center rounded-full border bg-[#07131f]/72 text-cyan-200 shadow-[inset_0_0_16px_rgba(255,255,255,0.03)] ${showPrivateMessages ? "border-cyan-300" : "border-cyan-400/35"}`}
@@ -4819,7 +4806,6 @@ export default function MessagesPage() {
             setShowFriendsMenu(false);
             setShowPrivateMessages(false);
             setProfileMenuAnchor(null);
-            setShowPlayMenu(false);
             setShowCreateMenu(false);
           }}
           className={`${styles.mobileHeaderSecondary} relative flex h-11 w-11 items-center justify-center rounded-full border bg-[#07131f]/72 text-gray-200 shadow-[inset_0_0_16px_rgba(255,255,255,0.03)] ${showNotifications ? "border-cyan-300 text-cyan-200" : "border-white/10"}`}
@@ -4991,11 +4977,11 @@ export default function MessagesPage() {
               <p className="truncate text-sm font-black">
                 {displayName(profile)}
               </p>
-              <p className="truncate text-[10px] text-emerald-300">Online</p>
+              <p className="select-all truncate text-xs text-emerald-300">{profile?.cp_number ? `CP ${profile.cp_number}` : "Online"}</p>
             </div>
           </div>
           {[
-            ["/account", "Account"],
+            ["/account", "Akun & nomor CP"],
             ["/account/security", "Security"],
             ["/account/connects", "Connects"],
             ["/my-orders", "My Orders"],
@@ -5044,7 +5030,7 @@ export default function MessagesPage() {
                   {communityOverlay === "discover"
                     ? "Live parties from ComePlayers matchmaking."
                     : communityOverlay === "members"
-                      ? `${conversationMembers.length} anggota komunitas.`
+                      ? `${conversationMemberCount} anggota komunitas.`
                       : communityOverlay === "rankings"
                         ? "Ranked by recent channel participation using live room data."
                         : "Published ComePlayers announcements and activities."}
@@ -5402,7 +5388,7 @@ export default function MessagesPage() {
                       <span>
                         {viewerMode === "guest"
                           ? guestServerPreview?.memberCount || 0
-                          : conversationMembers.length} anggota
+                          : conversationMemberCount} anggota
                       </span>
                       <span>
                         {viewerMode === "guest"
@@ -5854,9 +5840,9 @@ export default function MessagesPage() {
                               {displayName(candidate)}
                             </span>
                             <span className="block truncate text-xs text-gray-500">
-                              {candidate.username
-                                ? `@${candidate.username}`
-                                : "ComePlayers member"}
+                              {candidate.cp_number
+                                ? `CP ${candidate.cp_number}`
+                                : candidate.username ? `@${candidate.username}` : "ComePlayers member"}
                             </span>
                           </span>
                           <span
@@ -5903,7 +5889,7 @@ export default function MessagesPage() {
               </p>
               <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black text-gray-300">
                 {selectedIsGroup
-                  ? conversationMembers.length
+                  ? conversationMemberCount
                   : filteredRooms.length}
               </span>
             </div> : null}
@@ -6081,7 +6067,7 @@ export default function MessagesPage() {
                   <p className="truncate text-xs font-black">
                     {displayName(profile)}
                   </p>
-                  <p className="text-[10px] text-emerald-300">Akun saya</p>
+                  <p className="truncate text-[11px] text-emerald-300">{profile?.cp_number ? `CP ${profile.cp_number}` : "Akun saya"}</p>
                 </div>
                 <FaCog className="text-gray-500" />
               </button>
@@ -6200,8 +6186,8 @@ export default function MessagesPage() {
                     </div>
                   </div>
                   <div className={styles.commandStats}>
-                    <div><strong>{conversationMembers.length}</strong><span>Anggota</span></div>
-                    <div><strong>{redisEnabled ? onlineConversationMembers.length : "—"}</strong><span>Online</span></div>
+                    <div><strong>{conversationMemberCount}</strong><span>Anggota</span></div>
+                    <div><strong>{redisEnabled ? onlineUserIds.size : "—"}</strong><span>Online</span></div>
                     <div><strong>{serverVoiceChannels.length}</strong><span>Ruang suara</span></div>
                     <div><strong>{selectedServerBundle?.channels.filter((channel) => channel.channel_type !== "voice").length ?? "—"}</strong><span>Ruang chat</span></div>
                   </div>
@@ -6437,7 +6423,7 @@ export default function MessagesPage() {
                           <FaCircle className="text-[8px] text-emerald-400" />
                           {redisEnabled
                             ? `${onlineUserIds.size} anggota online`
-                            : `${conversationMembers.length} anggota`}
+                            : `${conversationMemberCount} anggota`}
                         </span>
                       ) : null}
                       {selectedRoom.party_game ? (
@@ -6640,6 +6626,8 @@ export default function MessagesPage() {
                 </div>
 
                 <div
+                  data-active-chat-room={selectedRoom.id}
+                  data-active-chat-channel={selectedIsGroup ? selectedChannelId || undefined : undefined}
                   className={`${styles.conversationGrid} min-h-0 flex-1 ${selectedIsGroup && showMemberPanel ? "grid xl:grid-cols-[minmax(0,1fr)_320px]" : "flex flex-col"}`}
                 >
                   <div
@@ -6673,7 +6661,7 @@ export default function MessagesPage() {
                       </div>
                     ) : null}
 
-                    {selectedIsGroup ? (
+                    {selectedIsGroup && (selectedChannelIsVoice || showVoicePanel || voiceDockState.connected) ? (
                       <div
                         className={`${styles.voicePanelHost} ${showVoicePanel ? styles.voicePanelOpen : ""}`}
                       >
@@ -6785,50 +6773,7 @@ export default function MessagesPage() {
                                       className={mine ? "ring-cyan-400/40" : ""}
                                     />
                                     <div className="min-w-0 flex-1">
-                                      <div className="flex flex-wrap items-baseline gap-2">
-                                        <p className="truncate text-sm font-black text-white">
-                                          {displayName(sender)}
-                                        </p>
-                                        <span className="text-[11px] text-gray-500">
-                                          {formatMessageTime(message.created_at)}
-                                        </span>
-                                        {message.optimistic ? <span className="text-[11px] text-cyan-300">Mengirim…</span> : null}
-                                        {message.moderation_status ===
-                                        "reported" ? (
-                                          <span className="text-[11px] text-red-300">
-                                            Reported
-                                          </span>
-                                        ) : null}
-                                      </div>
-                                      <MessageReplyPreview
-                                        reply={message.reply_to}
-                                      />
-                                      {showMessageText || message.attachment ? (
-                                        <div
-                                          className={`${styles.groupMessageBubble} mt-1 max-w-[880px] ${
-                                            imageOnly
-                                              ? ""
-                                              : "rounded-2xl border border-cyan-400/10 bg-[#081b2b]/72 px-4 py-3 text-white shadow-[inset_0_0_24px_rgba(6,182,212,0.03)] backdrop-blur-sm"
-                                          }`}
-                                        >
-                                          {showMessageText ? (
-                                            <p className="whitespace-pre-wrap text-sm leading-6">
-                                              {message.message}
-                                            </p>
-                                          ) : null}
-                                          {message.attachment ? (
-                                            <div
-                                              className={
-                                                showMessageText ? "mt-3" : ""
-                                              }
-                                            >
-                                              <AttachmentViewer
-                                                attachment={message.attachment}
-                                              />
-                                            </div>
-                                          ) : null}
-                                        </div>
-                                      ) : null}
+                                      <GroupMessageContent message={message} sender={sender} />
                                       {!message.optimistic ? <MessageInteractions
                                         message={message}
                                         mine={mine}
@@ -7619,7 +7564,8 @@ export default function MessagesPage() {
                               onChange={(event) =>
                                 setInviteIdentifier(event.target.value)
                               }
-                              placeholder="Username or verified phone number"
+                              placeholder="Nomor CP atau nama pengguna"
+                              aria-label="Undang dengan nomor CP atau nama pengguna"
                               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs outline-none placeholder:text-gray-600 focus:border-cyan-400"
                             />
                             <button
@@ -8005,7 +7951,8 @@ export default function MessagesPage() {
                 <input
                   value={serverInviteSearch}
                   onChange={(event) => setServerInviteSearch(event.target.value)}
-                  placeholder="Username or phone number"
+                  placeholder="Nomor CP atau nama pengguna"
+                  aria-label="Cari kontak dengan nomor CP atau nama pengguna"
                   className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
                 />
               </div>
@@ -8031,7 +7978,7 @@ export default function MessagesPage() {
                           {displayName(candidate)}
                         </p>
                         <p className="truncate text-xs text-gray-500">
-                          {candidate.username ? `@${candidate.username}` : "ComePlayers player"}
+                          {candidate.cp_number ? `CP ${candidate.cp_number}` : candidate.username ? `@${candidate.username}` : "ComePlayers player"}
                         </p>
                       </div>
                       <button
@@ -8380,8 +8327,6 @@ export default function MessagesPage() {
     </main>
   );
 }
-
-
 
 
 

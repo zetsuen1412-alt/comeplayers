@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, AppState, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import type { ChatRoom } from "@comeplayers/chat-core";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Avatar, PrimaryButton, StateBlock } from "../components";
@@ -9,9 +9,10 @@ import { callActivityAt, callActivityPreview, sortCallsByActivity } from "../cal
 import { chatClient } from "../runtime";
 import { colors } from "../theme";
 import { ContactsSheet } from "./ContactsSheet";
+import { createVisibleScreenRefresh } from "../visibleScreenRefresh";
 
 export function CallsScreen({ userId }: { userId: string }) {
-  const { startCall } = useCalls();
+  const { startCall, callActive } = useCalls();
   const [calls, setCalls] = useState<CallRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,23 +24,25 @@ export function CallsScreen({ userId }: { userId: string }) {
   const [scheduleRoom, setScheduleRoom] = useState<ChatRoom | null>(null);
   const [scheduleDate, setScheduleDate] = useState("");
   const [busy, setBusy] = useState(false);
-  const generation = useRef(0);
-  const reload = useCallback(async () => {
-    const current = generation.current;
-    try {
-      const result = await loadCalls();
-      if (current === generation.current) { setCalls(result.calls); setError(""); }
-    } catch (e) {
-      if (current === generation.current) setError(e instanceof Error ? e.message : "Could not load calls.");
-    } finally { if (current === generation.current) setLoading(false); }
-  }, []);
+  const activeCall = useRef(callActive); activeCall.current = callActive;
+  const refresher = useRef<ReturnType<typeof createVisibleScreenRefresh> | null>(null);
+  const reload = useCallback(() => refresher.current?.refresh() ?? Promise.resolve(), []);
   useEffect(() => {
-    generation.current++;
-    setCalls([]); setLoading(true);
-    void reload();
-    const timer = setInterval(() => void reload(), 10000);
-    return () => { generation.current++; clearInterval(timer); };
-  }, [userId, reload]);
+    setCalls([]); setLoading(true); setError("");
+    const current = createVisibleScreenRefresh({
+      read: signal => loadCalls(false, undefined, signal),
+      onValue: result => { setCalls(previous => JSON.stringify(previous) === JSON.stringify(result.calls) ? previous : result.calls); setError(""); setLoading(false); },
+      onError: reason => { setError(reason instanceof Error ? reason.message : "Could not load calls."); setLoading(false); },
+      isVisible: () => AppState.currentState === "active" && !activeCall.current,
+      intervalMs: 10000,
+    });
+    refresher.current = current;
+    const listener = AppState.addEventListener("change", () => current.visibilityChanged());
+    void current.refresh();
+    return () => { current.dispose(); listener.remove(); if (refresher.current === current) refresher.current = null; };
+  }, [userId]);
+  // CallProvider keeps this screen mounted beneath its live-call overlay.
+  useEffect(() => { refresher.current?.visibilityChanged(); }, [callActive]);
   const open = async (room: ChatRoom) => {
     setChoose(false);
     if (scheduleMode) { setScheduleRoom(room); return; }

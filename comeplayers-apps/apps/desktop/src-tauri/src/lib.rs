@@ -6,6 +6,10 @@ use tauri_plugin_deep_link::DeepLinkExt;
 
 #[cfg(target_os = "windows")]
 mod webview2_runtime;
+#[cfg(target_os = "windows")]
+mod notifications;
+#[cfg(target_os = "windows")]
+use notifications::{notification_permission, request_notification_permission, show_comeplayers_notification, close_comeplayers_notification};
 
 #[derive(Default)]
 struct PendingDeepLinks(Mutex<Vec<String>>);
@@ -216,6 +220,8 @@ pub fn run() {
     }
 
     let mut builder = tauri::Builder::default().manage(PendingDeepLinks::default());
+    #[cfg(target_os = "windows")]
+    { builder = builder.manage(notifications::ActiveNotifications::default()); }
 
     #[cfg(desktop)]
     {
@@ -276,7 +282,15 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             open_google_oauth,
-            take_pending_navigation_url
+            take_pending_navigation_url,
+            #[cfg(target_os = "windows")]
+            notification_permission,
+            #[cfg(target_os = "windows")]
+            request_notification_permission,
+            #[cfg(target_os = "windows")]
+            show_comeplayers_notification,
+            #[cfg(target_os = "windows")]
+            close_comeplayers_notification
         ])
         .run(tauri::generate_context!())
         .expect("error while running ComePlayers");

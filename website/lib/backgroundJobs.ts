@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sendChatPushNotifications } from "@/lib/pushNotifications";
+import { notificationRecipients, sendChatPushNotifications } from "@/lib/pushNotifications";
 import { isUpstashRedisConfigured, redisCommand } from "@/lib/upstashRedis";
 
 export const CHAT_PUSH_READY_QUEUE = "cp:v32:worker:chat-push:ready";
@@ -17,6 +17,7 @@ export type ChatPushJob = {
     senderName: string;
     roomId: string;
     preview: string;
+    channelId?: string;
   };
 };
 
@@ -31,6 +32,7 @@ export function createChatPushJob(input: {
   senderName: string;
   roomId: string;
   preview: string;
+  channelId?: string;
 }): ChatPushJob {
   return {
     version: 1,
@@ -46,6 +48,7 @@ export function createChatPushJob(input: {
       senderName: String(input.senderName || "ComePlayers").slice(0, 120),
       roomId: String(input.roomId || "").slice(0, 120),
       preview: String(input.preview || "Sent you a message.").slice(0, 500),
+      channelId: input.channelId,
     },
   };
 }
@@ -56,6 +59,7 @@ export async function dispatchChatPushNotifications(input: {
   senderName: string;
   roomId: string;
   preview: string;
+  channelId?: string;
 }) {
   const deliverDirectly = async (reason: string) => {
     await sendChatPushNotifications(input);
@@ -75,7 +79,9 @@ export async function dispatchChatPushNotifications(input: {
   }
 
   try {
-    const job = createChatPushJob(input);
+    const receiverIds = await notificationRecipients({ ...input, kind: "message" });
+    if (!receiverIds.length) return { queued: false, deliveredDirectly: false, reason: "muted" } as const;
+    const job = createChatPushJob({ ...input, receiverIds });
     await redisCommand<number>([
       "LPUSH",
       CHAT_PUSH_READY_QUEUE,

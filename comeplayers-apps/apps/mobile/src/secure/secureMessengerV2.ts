@@ -79,12 +79,19 @@ export class SecureMessengerV2 {
   async rooms() { return this.vault.list<ChatRoom>("room", undefined, 100); }
   async saveRooms(rooms: ChatRoom[]): Promise<ChatRoom[]> {
     return this.write(async () => {
-      const result: ChatRoom[] = [];
+      const result: ChatRoom[] = [], writes: VaultRow[] = [];
+      const ids = rooms.map(room => room.id);
+      const [localRooms, latestMessages, unreadCounts, initializedRooms] = await Promise.all([
+        this.vault.getMany<ChatRoom>("room", ids),
+        this.vault.latestByRoom<SecurePrivateMessage>("message-v2", ids),
+        this.vault.getMany<number>("room-unread-v2", ids),
+        this.vault.getMany<boolean>("room-unread-initialized-v2", ids),
+      ]);
       for (const room of rooms) {
-        const local = await this.vault.get<ChatRoom>("room", room.id);
-        const latest = (await this.vault.list<SecurePrivateMessage>("message-v2", room.id, 1))[0];
-        const storedUnread = await this.vault.get<number>("room-unread-v2", room.id);
-        const initialized = await this.vault.get<boolean>("room-unread-initialized-v2", room.id);
+        const local = localRooms.get(room.id) ?? null;
+        const latest = latestMessages.get(room.id);
+        const storedUnread = unreadCounts.get(room.id) ?? null;
+        const initialized = initializedRooms.get(room.id);
         const unread = initialized ? storedUnread ?? local?.unread_count ?? 0 : (storedUnread || 0) + (room.unread_count || 0);
         const serverTime = Date.parse(room.last_message_at || "") || 0;
         const localTime = Date.parse(latest?.created_at || "") || 0;
@@ -103,13 +110,12 @@ export class SecureMessengerV2 {
           : latest
             ? { ...room, activity_kind: "message" as const, activity_preview: null, last_message: latest.deleted_at ? "Message deleted" : latest.message || latest.localMedia?.name || latest.secureAttachment?.name || "Attachment", last_message_at: lastMessageAt, last_message_sender_id: latest.sender_id, unread_count: unread }
             : { ...room, last_message: room.last_message || (room.last_message_at ? "Pesan baru" : null), unread_count: unread };
-        const writes: VaultRow[] = [];
         if (storedUnread !== unread) writes.push(this.vault.encode("room-unread-v2", room.id, unread));
         if (!initialized) writes.push(this.vault.encode("room-unread-initialized-v2", room.id, true));
         if (JSON.stringify(local) !== JSON.stringify(merged)) writes.push(this.vault.encode("room", room.id, merged, "", merged.last_message_at || merged.created_at || ""));
-        if (writes.length) await this.vault.putRows(writes);
         result.push(merged);
       }
+      if (writes.length) await this.vault.putRows(writes);
       return result.sort(compareRoomActivity);
     });
   }
@@ -197,11 +203,14 @@ export class SecureMessengerV2 {
       try {
         let deliveryError: unknown, migrationError: unknown;
         await this.history.flushOutbox().catch(error => { deliveryError = error; return 0; });
-        const entries = await this.history.sync();
-        for (const entry of entries) await this.apply(entry);
+        await this.history.sync(undefined, async entries => {
+          for (const entry of entries) await this.apply(entry);
+          // Each verified page becomes visible before the next network fetch.
+          this.changed();
+        });
         for (let page = 0; page < 3; page++) if (!(await this.migrateLegacyPage().catch(error => { migrationError = error; return false; }))) break;
         this.error = deliveryError instanceof Error ? deliveryError.message : migrationError instanceof Error ? `Old history import: ${migrationError.message}` : "";
-        if (entries.length || deliveryError || migrationError) this.changed();
+        if (deliveryError || migrationError) this.changed();
       } catch (error) { this.error = error instanceof Error ? error.message : "Encrypted history could not synchronize."; this.changed(); throw error; }
     });
     let tracked: Promise<void>;

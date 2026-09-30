@@ -2,7 +2,7 @@
   "expo": {
     "name": "ComePlayers",
     "slug": "comeplayers",
-    "version": "0.16.2",
+    "version": "0.16.4",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "scheme": "comeplayers",
@@ -61,19 +61,32 @@
       "expo-video",
       "expo-secure-store",
       "expo-sharing",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "messages",
+          "color": "#ffd600",
+          "sounds": [
+            "./assets/sounds/comeplayers_message.wav",
+            "./assets/sounds/comeplayers_call.wav"
+          ]
+        }
+      ]
     ],
     "android": {
       "package": "com.comeplayers.app",
       "versionCode": 24,
-      "runtimeVersion": "0.16.2",
+      "runtimeVersion": "0.16.4",
       "allowBackup": false,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.BLUETOOTH",
-        "android.permission.BLUETOOTH_CONNECT"
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -83,7 +96,9 @@
         "android.permission.SYSTEM_ALERT_WINDOW",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION",
         "android.permission.FOREGROUND_SERVICE_CAMERA"
-      ]
+      ],
+      "softwareKeyboardLayoutMode": "resize",
+      "googleServicesFile": "./google-services.json"
     },
     "ios": {
       "bundleIdentifier": "com.comeplayers.app",

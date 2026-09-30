@@ -14,34 +14,6 @@ function workspaceFile(path: string) {
   return readFileSync(resolve(workspaceRoot, path), "utf8");
 }
 
-test("CP Empires & Allies is the public arcade name", () => {
-  const arcade = websiteFile("components/arcade/ArcadeWindow.tsx");
-  const game = websiteFile("components/arcade/EmpiresAlliesGame.tsx");
-  const playPage = workspaceFile(
-    "game-services/empires-allies/templates/comeplayers_play.html",
-  );
-
-  assert.match(arcade, /title: "CP Empires & Allies"/);
-  assert.match(game, /CP Empires &amp; Allies/);
-  assert.match(playPage, /<title>CP Empires &amp; Allies<\/title>/);
-  assert.match(playPage, /String\.fromCharCode\(122, 121, 110, 103, 97\)/);
-});
-
-test("removed arcade games are no longer shipped", () => {
-  const arcade = websiteFile("components/arcade/ArcadeWindow.tsx");
-
-  assert.doesNotMatch(arcade, /CP Strike: Neon Frontline/);
-  assert.doesNotMatch(arcade, /CP Realms: Shardfall|comeplayers-realms/);
-  assert.equal(
-    existsSync(resolve(websiteRoot, "components/arcade/ComePlayersStrikeGame.tsx")),
-    false,
-  );
-  assert.equal(
-    existsSync(resolve(websiteRoot, "components/arcade/ComePlayersRealmsGame.tsx")),
-    false,
-  );
-});
-
 test("loader shows Alexia with animated downloading progress", () => {
   const playPage = workspaceFile(
     "game-services/empires-allies/templates/comeplayers_play.html",
@@ -71,23 +43,6 @@ test("loader shows Alexia with animated downloading progress", () => {
   assert.equal(existsSync(alexia), true);
 });
 
-test("game stage and arcade shell fill the available viewport without cropping", () => {
-  const arcade = websiteFile("components/arcade/ArcadeWindow.tsx");
-  const game = websiteFile("components/arcade/EmpiresAlliesGame.tsx");
-  const playPage = workspaceFile(
-    "game-services/empires-allies/templates/comeplayers_play.html",
-  );
-
-  assert.match(arcade, /fullFrameGame \? "overflow-y-hidden"/);
-  assert.match(arcade, /"h-full min-h-0 max-w-none p-0"/);
-  assert.match(game, /flex h-full min-h-0 w-full flex-col/);
-  assert.match(game, /\[&:fullscreen\]:h-\[100dvh\]/);
-  assert.match(playPage, /width: min\(100vw,133\.333333vh\)/);
-  assert.match(playPage, /height: min\(100vh,75vw\)/);
-  assert.match(playPage, /#ruffle, ruffle-player \{ width: 100% !important; height: 100% !important/);
-  assert.doesNotMatch(playPage, /stage\.style\.transform/);
-});
-
 test("online game mutations force autosave and friend attacks notify ComePlayers", () => {
   const onlineServer = workspaceFile(
     "game-services/empires-allies/comeplayers_server.py",
@@ -101,8 +56,6 @@ test("online game mutations force autosave and friend attacks notify ComePlayers
   const ticketRoute = websiteFile(
     "app/api/games/empires-allies/ticket/route.ts",
   );
-  const game = websiteFile("components/arcade/EmpiresAlliesGame.tsx");
-  const messagesPage = websiteFile("app/messages/page.tsx");
 
   assert.match(onlineServer, /session\["comeplayers_last_autosave_at"\]/);
   assert.match(onlineServer, /session\.modified = True/);
@@ -116,12 +69,6 @@ test("online game mutations force autosave and friend attacks notify ComePlayers
   assert.match(eventRoute, /type: "game_attack"/);
   assert.match(eventRoute, /Your CP empire is under attack!/);
   assert.match(ticketRoute, /friendIds: friends\.map/);
-  assert.match(game, /acceptedFriendKey === launchedFriendKey/);
-  assert.match(game, /requestAnimationFrame\(\(\) => void requestLaunch\(\)\)/);
-  assert.match(messagesPage, /ARCADE_WINDOW_GAMES\.find/);
-  assert.match(messagesPage, /game\.id === requestedGame/);
-  assert.match(websiteFile("components/arcade/ArcadeWindow.tsx"), /id: "empires-allies"/);
-  assert.match(messagesPage, /setArcadeWindowOpen\(true\)/);
 });
 
 test("production launch requires shared PostgreSQL game storage", () => {

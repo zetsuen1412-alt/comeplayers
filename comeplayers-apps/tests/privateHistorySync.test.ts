@@ -17,6 +17,17 @@ class MemoryVault {
   get<T>(kind: string, id: string) { return Promise.resolve((this.rows.get(`${kind}:${id}`) as T | undefined) ?? null); }
   put(kind: string, id: string, value: unknown) { this.rows.set(`${kind}:${id}`, structuredClone(value)); return Promise.resolve(); }
   remove(kind: string, id: string) { this.rows.delete(`${kind}:${id}`); return Promise.resolve(); }
+  encode(kind: string, id: string, value: unknown) { return { kind, id, value: structuredClone(value) }; }
+  async mutateRows(rows: Iterable<{ kind: string; id: string; value: unknown }>, removals: Iterable<{ kind: string; id: string }> = []) {
+    const next = new Map(this.rows);
+    for (const row of rows) next.set(row.kind + ":" + row.id, structuredClone(row.value));
+    for (const row of removals) next.delete(row.kind + ":" + row.id);
+    this.rows.clear(); for (const [key, value] of next) this.rows.set(key, value);
+  }
+  async oldest<T>(kind: string, limit = 50) {
+    const values = await this.list<{ sequence: number }>(kind);
+    return values.sort((a, b) => a.sequence - b.sequence).slice(0, limit) as T[];
+  }
   list<T>(kind: string) { return Promise.resolve([...this.rows].filter(([key]) => key.startsWith(`${kind}:`)).map(([, value]) => structuredClone(value) as T)); }
 }
 type ServerEvent = { sequence: number; event: HistoryEnvelope; blob_id: string | null; server_created_at: string };
@@ -242,6 +253,8 @@ test("new PC recovers historical keys, rotates future keys, and revoked device c
   assert.deepEqual((await pcSync.sync()).map(item => item.payload), [{ kind: "message", text: "riwayat sebelum PC baru" }]);
   await pcSync.send(roomId, { kind: "message", text: "pesan dari PC baru" });
   await assert.rejects(old.send(roomId, { kind: "message", text: "perangkat dicabut" }));
+  await assert.rejects(old.sync());
+  assert.equal(await oldVault.get("meta", "secure-history-cursor"), null, "revoked-device pulls cannot advance history");
   const onBob = await b.sync();
   assert.ok(onBob.some(item => (item.payload as { text?: string }).text === "pesan dari PC baru"));
   const latest = server.epochs.get(roomId)!.at(-1)!;

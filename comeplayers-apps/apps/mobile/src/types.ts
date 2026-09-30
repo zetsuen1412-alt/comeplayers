@@ -68,6 +68,7 @@ export type PaymentResult = {
 
 export type PublicProfile = {
   id: string;
+  cp_number?: string | null;
   username?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;

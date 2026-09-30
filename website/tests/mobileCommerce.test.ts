@@ -109,6 +109,7 @@ test("group message acknowledgement does not wait for push delivery", async () =
     "@/lib/chatContacts": { assertContactAllowed: async () => {} },
     "@/lib/apiErrors": { safeApiErrorMessage: () => "Failed" },
     "@/lib/backgroundJobs": { dispatchChatPushNotifications: async () => { notifications++; throw Error("Provider down"); } },
+    "@/lib/pushNotifications": { notificationRecipients: async ({ receiverIds }: { receiverIds: string[] }) => receiverIds },
     "@/lib/communityServer": { requireCommunityChannel: async () => ({ channel: { id: "channel", type: "text" } }) },
     "@/lib/upstashRedis": { isUpstashRedisConfigured: () => false, invalidateUnreadCache: async () => {}, consumeRedisRateLimit: async () => {} },
     "@/lib/chatSafety": { analyzeChatMessage: () => ({ allowed: true, score: 0, level: "low", flags: [] }), chatMessagePreview: (value: string) => value },

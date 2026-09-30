@@ -16,7 +16,7 @@ export const loadPreferences = () => request<AccountPreferences>("/api/account/p
 export const updateAccount = (body: Record<string, unknown>) => request("/api/account/preferences", { method: "PATCH", body: JSON.stringify(body) }, true);
 export const loadChatPreferences = () => request<ChatPreferences>("/api/messages/preferences", {}, true);
 export const updateChatPreference = (roomId: string, body: Record<string, unknown>) => request("/api/messages/preferences", { method: "PATCH", body: JSON.stringify({ roomId, ...body }) }, true);
-export const loadCalls = (activeOnly = false, currentId?: string) => request<{ calls: CallRecord[] }>(`/api/messages/calls${activeOnly ? `?active=1${currentId ? `&id=${encodeURIComponent(currentId)}` : ""}` : ""}`, {}, true);
+export const loadCalls = (activeOnly = false, currentId?: string, signal?: AbortSignal) => request<{ calls: CallRecord[]; callEventsReady?: boolean }>(`/api/messages/calls${activeOnly ? `?active=1${currentId ? `&id=${encodeURIComponent(currentId)}` : ""}` : ""}`, { signal }, true);
 export const createCall = (roomId: string, media: "audio" | "video", scheduledAt?: string) => request<{ call: CallRecord }>("/api/messages/calls", { method: "POST", body: JSON.stringify({ roomId, media, scheduledAt }) }, true);
 export const changeCall = (id: string, action: "accept" | "decline" | "end") => request("/api/messages/calls", { method: "PATCH", body: JSON.stringify({ id, action }) }, true);
 export const loadStatuses = () => request<{ statuses: StatusPost[] }>("/api/messages/status", {}, true);

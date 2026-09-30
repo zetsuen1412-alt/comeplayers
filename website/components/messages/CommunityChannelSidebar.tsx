@@ -44,6 +44,8 @@ export default function CommunityChannelSidebar(props: Props) {
   const [syncedAt, setSyncedAt] = useState("");
   const current = useRef(props);
   const requestRef = useRef<AbortController | null>(null);
+  const refreshQueue = useRef<ReturnType<typeof createRefreshQueue> | null>(null);
+  const lastSnapshot = useRef("");
   const handledVoiceShortcut = useRef(0);
   const realtimeReady = useRef(false);
   useEffect(() => { current.current = props; });
@@ -57,11 +59,15 @@ export default function CommunityChannelSidebar(props: Props) {
         `/api/messages/communities/by-room/${roomId}`, { signal: controller.signal },
       );
       if (controller.signal.aborted) return;
-      setBundle(data);
+      const snapshot = JSON.stringify(data);
+      const latest = current.current;
+      if (snapshot !== lastSnapshot.current) {
+        lastSnapshot.current = snapshot;
+        setBundle(data);
+        latest.onBundleChange?.(data);
+      }
       setError("");
       setSyncedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-      const latest = current.current;
-      latest.onBundleChange?.(data);
       // Background updates may briefly omit a channel. Keep the user's
       // selection instead of silently jumping to another room on every sync.
       if (!latest.selectedChannelId) {
@@ -76,7 +82,7 @@ export default function CommunityChannelSidebar(props: Props) {
         setError(reason instanceof Error ? reason.message : "Unable to load channels.");
         // Remove cached channel metadata if authorization has been revoked.
         const status = (reason as { status?: number })?.status;
-        if (status === 401 || status === 403 || status === 404) setBundle(null);
+        if (status === 401 || status === 403 || status === 404) { lastSnapshot.current = ""; setBundle(null); }
       }
     } finally {
       if (!controller.signal.aborted) setLoading(false);
@@ -85,6 +91,7 @@ export default function CommunityChannelSidebar(props: Props) {
 
   useEffect(() => {
     const queue = createRefreshQueue(() => loadBundle(), () => document.visibilityState === "visible" && navigator.onLine);
+    refreshQueue.current = queue;
     const initialLoad = window.setTimeout(() => void loadBundle(), 0);
     const wake = () => {
       if (!navigator.onLine) setConnection("Offline");
@@ -92,7 +99,18 @@ export default function CommunityChannelSidebar(props: Props) {
     };
     const timer = window.setInterval(() => queue.request(), 30_000);
     const readChanged = (event: Event) => {
-      if ((event as CustomEvent<{ roomId?: string }>).detail?.roomId === roomId) queue.request();
+      const detail = (event as CustomEvent<{ roomId?: string; channelId?: string }>).detail;
+      if (detail?.roomId !== roomId) return;
+      if (!detail.channelId) { queue.request(); return; }
+      // A successful local receipt already tells us this channel is read.
+      // Fetching all roles/channels again here creates a message -> read ->
+      // navigation refresh cascade on every active conversation.
+      setBundle(previous => {
+        if (!previous || !previous.channels.some(channel => channel.id === detail.channelId && channel.unread_count)) return previous;
+        const next = { ...previous, channels: previous.channels.map(channel => channel.id === detail.channelId ? { ...channel, unread_count: 0 } : channel) };
+        lastSnapshot.current = JSON.stringify(next);
+        return next;
+      });
     };
     window.addEventListener("cp-community-read", readChanged);
     window.addEventListener("online", wake);
@@ -100,6 +118,7 @@ export default function CommunityChannelSidebar(props: Props) {
     document.addEventListener("visibilitychange", wake);
     return () => {
       queue.dispose();
+      if (refreshQueue.current === queue) refreshQueue.current = null;
       window.clearTimeout(initialLoad);
       requestRef.current?.abort();
       window.clearInterval(timer);
@@ -113,18 +132,18 @@ export default function CommunityChannelSidebar(props: Props) {
   const communityId = bundle?.community.id;
   useEffect(() => {
     if (!communityId) return;
-    const queue = createRefreshQueue(() => loadBundle(), () => document.visibilityState === "visible" && navigator.onLine);
+    const refresh = () => refreshQueue.current?.request();
     const channel = supabase.channel(`community-navigation:${roomId}:${communityId}`);
-    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `id=eq.${roomId}` }, () => queue.request());
-    channel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages", filter: `room_id=eq.${roomId}` }, () => queue.request());
+    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `id=eq.${roomId}` }, refresh);
+    channel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages", filter: `room_id=eq.${roomId}` }, refresh);
     let active = true;
     channel.subscribe((status) => {
       if (!active) return;
       realtimeReady.current = status === "SUBSCRIBED";
       setConnection(!navigator.onLine ? "Offline" : status === "SUBSCRIBED" ? "Tersambung" : "Menyegarkan");
-      if (status === "SUBSCRIBED") queue.request();
+      if (status === "SUBSCRIBED") refresh();
     });
-    return () => { active = false; realtimeReady.current = false; queue.dispose(); void supabase.removeChannel(channel); };
+    return () => { active = false; realtimeReady.current = false; void supabase.removeChannel(channel); };
   }, [communityId, roomId, loadBundle]);
 
   useEffect(() => {

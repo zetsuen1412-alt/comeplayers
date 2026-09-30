@@ -1,6 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { safeApiErrorMessage } from "@/lib/apiErrors";
 import { dispatchChatPushNotifications } from "@/lib/backgroundJobs";
+import { notificationRecipients } from "@/lib/pushNotifications";
 import { requireCommunityChannel } from "@/lib/communityServer";
 import {
   consumeRedisRateLimit,
@@ -342,20 +343,27 @@ export async function POST(request: Request, context: RouteContext) {
 
           notificationPreview = `${String(room.title || "Group chat")} #${String(selectedChannel?.name || "general")}: ${preview}`;
 
+          const alertReceiverIds = await notificationRecipients({
+            supabaseAdmin, receiverIds: notificationReceiverIds, roomId, kind: "message", channelId: selectedChannel?.id,
+          });
           await Promise.all(
-            notificationReceiverIds.map((memberId) =>
+            alertReceiverIds.map((memberId) =>
               createChatNotification({
                 supabaseAdmin,
                 receiverId: memberId,
                 senderName,
                 roomId,
                 preview: notificationPreview,
+                linkUrl: `/cpcommunity?room=${encodeURIComponent(roomId)}&channel=${encodeURIComponent(selectedChannel?.id || "")}`,
               })
             )
           );
         } else {
           notificationReceiverIds = receiverId ? [receiverId] : [];
-          await createChatNotification({
+          const alertReceiverIds = await notificationRecipients({
+            supabaseAdmin, receiverIds: notificationReceiverIds, roomId, kind: "message",
+          });
+          if (receiverId && alertReceiverIds.includes(receiverId)) await createChatNotification({
             supabaseAdmin,
             receiverId,
             senderName,
@@ -368,6 +376,7 @@ export async function POST(request: Request, context: RouteContext) {
         await dispatchChatPushNotifications({
           supabaseAdmin,
           receiverIds: notificationReceiverIds,
+          channelId: selectedChannel?.id,
           senderName,
           roomId,
           preview: notificationPreview,

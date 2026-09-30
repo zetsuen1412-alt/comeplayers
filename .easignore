@@ -1,0 +1,60 @@
+# EAS archives from the Git repository root, not apps/mobile.
+# Include only the native app workspace and its shared package.
+/*
+!/.easignore
+!/comeplayers-apps
+/comeplayers-apps/*
+!/comeplayers-apps/package.json
+!/comeplayers-apps/package-lock.json
+!/comeplayers-apps/.npmrc
+!/comeplayers-apps/apps
+/comeplayers-apps/apps/*
+!/comeplayers-apps/apps/mobile
+!/comeplayers-apps/apps/desktop
+/comeplayers-apps/apps/desktop/*
+# Preserve npm workspace lockfile consistency without uploading desktop sources.
+!/comeplayers-apps/apps/desktop/package.json
+!/comeplayers-apps/packages
+/comeplayers-apps/packages/*
+!/comeplayers-apps/packages/chat-core
+
+# Local dependencies, generated native code, QA output, and credentials.
+**/node_modules
+**/.git
+**/.expo
+**/.cache
+**/.gradle*
+**/.tools
+**/.tmp*
+**/dist
+**/build
+**/coverage
+**/qa
+**/release
+**/target
+/comeplayers-apps/apps/mobile/android
+/comeplayers-apps/apps/mobile/ios
+**/.env
+**/.env.*
+**/credentials.json
+**/credentials
+**/*service-account*.json
+**/*service_account*.json
+**/*firebase-adminsdk*.json
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.jks
+**/*.keystore
+**/*.apk
+**/*.aab
+**/*.msix
+**/*.msixbundle
+**/*.log
+**/*.tsbuildinfo
+**/Thumbs.db
+**/.DS_Store
+
+# This is public Firebase Android client config; do not include service-account keys.
+!/comeplayers-apps/apps/mobile/google-services.json

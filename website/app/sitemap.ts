@@ -54,18 +54,6 @@ function staticRoutes(): SitemapEntry[] {
       priority: 0.95,
     },
     {
-      url: absoluteUrl("/arcade"),
-      lastModified: NOW,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: absoluteUrl("/games/comeplayers-strike"),
-      lastModified: NOW,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
       url: absoluteUrl("/search"),
       lastModified: NOW,
       changeFrequency: "weekly",

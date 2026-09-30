@@ -8,13 +8,13 @@ import {
   normalizeLocale,
   resolveRequestPreferences,
 } from "@/lib/localization";
-import MainHeader from "./components/MainHeader";
 import ConditionalChrome from "./components/ConditionalChrome";
 import DeploymentAutoRefresh from "./components/DeploymentAutoRefresh";
 import "./globals.css";
 import MfaSessionGate from "@/components/account/MfaSessionGate";
 import AccountSessionGuard from "@/components/account/AccountSessionGuard";
 import LiveUpdates from "@/components/LiveUpdates";
+import AccountNotificationCenter from "@/components/messages/AccountNotificationCenter";
 
 
 
@@ -173,6 +173,7 @@ export default async function RootLayout({
         <MfaSessionGate />
         <AccountSessionGuard />
         <LiveUpdates />
+        <AccountNotificationCenter />
         <CurrencyProvider
           key={`${country}:${locale}:${currency}`}
           country={country}
@@ -180,7 +181,6 @@ export default async function RootLayout({
           currency={currency}
         >
           <ConditionalChrome
-            header={<MainHeader />}
             footer={<SiteFooter />}
           >
             {children}
