@@ -10,6 +10,7 @@ namespace ComePlayers.CrazyRich
         private Dropdown map;
         private InputField joinCode;
         private Text roomInfo;
+        private RectTransform roomMembers;
         private Text status;
         private Button readyButton;
         private Button addBotButton;
@@ -56,7 +57,18 @@ namespace ComePlayers.CrazyRich
             var room = CrwtUi.Panel(bg, "Room", new Color(.045f, .065f, .12f, .96f), new Vector2(.42f, .10f), new Vector2(.96f, .84f), Vector2.zero, Vector2.zero);
             CrwtUi.Vertical(room, 14, new RectOffset(28, 28, 28, 28));
             roomInfo = CrwtUi.Text(room, CrwtSession.IsGuest ? "Pilih map lalu MAIN DEMO 3D." : "Belum berada di room.", 24, TextAnchor.UpperLeft, Color.white);
-            roomInfo.gameObject.AddComponent<LayoutElement>().preferredHeight = 390;
+            roomInfo.gameObject.AddComponent<LayoutElement>().preferredHeight = 112;
+
+            roomMembers = CrwtUi.Panel(room, "Room members", new Color(.08f,.10f,.20f,.78f),
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            roomMembers.gameObject.AddComponent<LayoutElement>().preferredHeight = 360;
+            CrwtUi.Vertical(roomMembers, 6, new RectOffset(8,8,8,8));
+            if (CrwtSession.IsGuest)
+            {
+                var note = CrwtUi.Text(roomMembers, "DEMO PLAYER\nALEXIA • WORLD TOUR", 20, TextAnchor.MiddleCenter, Color.white);
+                note.gameObject.AddComponent<LayoutElement>().preferredHeight = 74;
+            }
+
             readyButton = CrwtUi.Button(room, "READY", ToggleReady, CrwtUi.Cyan);
             addBotButton = CrwtUi.Button(room, "+ BOT", AddBot, new Color(.65f, .82f, .60f));
             startButton = CrwtUi.Button(room, "START MATCH", StartMatch, CrwtUi.Gold);
@@ -189,16 +201,15 @@ namespace ComePlayers.CrazyRich
             var sb = new StringBuilder();
             sb.AppendLine(data.room.name + "   [" + data.room.code + "]");
             sb.AppendLine(CrwtRuntimeConfig.MapName(data.room.map_id) + " • " + data.room.mode.ToUpperInvariant() + " • LAST PLAYER STANDING");
-            sb.AppendLine();
             selfReady = false; selfHost = false;
-            foreach (var m in data.members ?? Array.Empty<CrwtRoomMember>())
+            var members = data.members ?? Array.Empty<CrwtRoomMember>();
+            foreach (var m in members)
             {
                 var mine = m.user_id == CrwtSession.UserId;
                 if (mine) { selfReady = m.ready; selfHost = m.is_host; }
-                sb.AppendLine("Seat " + m.seat + " • " + m.display_name + " • " + CrwtHudArt.CharacterDisplayName(m.character_id)
-                    + " • " + (m.ready ? "READY" : "WAIT") + (m.is_host ? " • HOST" : "") + (!string.IsNullOrEmpty(m.bot_key) ? " • BOT" : ""));
             }
             roomInfo.text = sb.ToString();
+            RenderRoomMembers(members);
             readyButton.gameObject.SetActive(true);
             addBotButton.gameObject.SetActive(selfHost);
             startButton.gameObject.SetActive(selfHost);
@@ -214,6 +225,48 @@ namespace ComePlayers.CrazyRich
                     CrwtSession.MatchId = active.match_id;
                     CrwtAppRoot.Instance.LoadMatch();
                 }
+            }
+        }
+
+        private void RenderRoomMembers(CrwtRoomMember[] members)
+        {
+            if (!roomMembers) return;
+            CrwtUi.Clear(roomMembers);
+            if (members == null || members.Length == 0)
+            {
+                var empty = CrwtUi.Text(roomMembers, "Menunggu pemain bergabung...", 19, TextAnchor.MiddleCenter, new Color(1,1,1,.68f));
+                empty.gameObject.AddComponent<LayoutElement>().preferredHeight = 48;
+                return;
+            }
+            foreach (var member in members)
+            {
+                if (member == null) continue;
+                var rowColor = member.ready
+                    ? Color.Lerp(new Color(.11f,.14f,.26f,.96f), CrwtUi.Mint, .12f)
+                    : new Color(.11f,.14f,.26f,.96f);
+                var row = CrwtUi.Panel(roomMembers, "Seat " + member.seat, rowColor, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                row.gameObject.AddComponent<LayoutElement>().preferredHeight = 40;
+
+                var avatar = CrwtHudArt.Portrait(row, member.character_id);
+                var avatarRt = (RectTransform)avatar.transform;
+                avatarRt.anchorMin = new Vector2(.012f,.08f); avatarRt.anchorMax = new Vector2(.080f,.92f);
+                avatarRt.offsetMin = avatarRt.offsetMax = Vector2.zero;
+
+                var name = CrwtUi.Text(row,
+                    (member.is_host ? "★ " : "") + "S" + member.seat + "  " + member.display_name
+                    + "  •  " + CrwtHudArt.CharacterDisplayName(member.character_id)
+                    + (!string.IsNullOrEmpty(member.bot_key) ? "  •  BOT" : ""),
+                    18, TextAnchor.MiddleLeft, Color.white);
+                name.resizeTextForBestFit = true; name.resizeTextMinSize = 12; name.resizeTextMaxSize = 18;
+                name.rectTransform.anchorMin = new Vector2(.095f,.05f); name.rectTransform.anchorMax = new Vector2(.78f,.95f);
+                name.rectTransform.offsetMin = name.rectTransform.offsetMax = Vector2.zero;
+
+                var badge = CrwtUi.Panel(row, member.ready ? "READY" : "WAIT",
+                    member.ready ? CrwtUi.Mint : new Color(.45f,.49f,.62f,1f),
+                    new Vector2(.80f,.16f), new Vector2(.975f,.84f), Vector2.zero, Vector2.zero);
+                var badgeText = CrwtUi.Text(badge, member.ready ? "READY" : "WAIT", 15, TextAnchor.MiddleCenter,
+                    CrwtUi.TextColor(member.ready ? CrwtUi.Mint : new Color(.45f,.49f,.62f,1f)));
+                CrwtUi.Fill(badgeText.rectTransform, 2);
             }
         }
 
