@@ -5,7 +5,7 @@ on:
     branches:
       - codex/crazy-rich-web-v30
     paths:
-      - "Crazy-Rich-World-Tour-Web-30.0/**"
+      - "Crazy-Rich-World-Tour-Unity-28.0/Web30/**"
       - "website/app/games/crazy-rich-world-tour/**"
       - "website/public/crazy-rich-world-tour/**"
       - "website/public/games/crazy-rich-world-tour/**"
@@ -13,7 +13,7 @@ on:
       - ".github/workflows/crazy-rich-web-v30.yml"
   pull_request:
     paths:
-      - "Crazy-Rich-World-Tour-Web-30.0/**"
+      - "Crazy-Rich-World-Tour-Unity-28.0/Web30/**"
       - "website/app/games/crazy-rich-world-tour/**"
       - "website/public/crazy-rich-world-tour/**"
       - "website/public/games/crazy-rich-world-tour/**"
@@ -41,7 +41,7 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Verify project folder matches website publish mirror
         working-directory: ..
-        run: node Crazy-Rich-World-Tour-Web-30.0/tools/publish.mjs --check
+        run: node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/publish.mjs --check
       - run: npx tsx --test tests/crazy-rich-web-v30.test.ts
       - run: npm run typecheck
       - name: Run full Next.js build

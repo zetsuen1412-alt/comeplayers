@@ -3,8 +3,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import process from "node:process";
 
-const root = path.resolve(import.meta.dirname, "..", "..");
-const project = path.join(root, "Crazy-Rich-World-Tour-Web-30.0");
+const root = path.resolve(import.meta.dirname, "..", "..", "..");
+const project = path.join(root, "Crazy-Rich-World-Tour-Unity-28.0", "Web30");
 const check = process.argv.includes("--check");
 
 const mappings = [

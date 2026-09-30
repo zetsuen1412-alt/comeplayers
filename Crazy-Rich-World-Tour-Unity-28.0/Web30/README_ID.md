@@ -1,5 +1,7 @@
 # Crazy Rich: World Tour — Web 30.0
 
+Lokasi proyek: `Crazy-Rich-World-Tour-Unity-28.0/Web30`. Folder ini berada di dalam folder proyek Crazy Rich yang sudah ada; tidak ada proyek root terpisah.
+
 Folder ini adalah **source of truth** Crazy Rich: World Tour untuk target:
 
 - Website browser
@@ -20,13 +22,13 @@ Backend gameplay tetap Supabase dan server-authoritative. Client Web/Android/PC 
 Dari root repository:
 
 ```bash
-node Crazy-Rich-World-Tour-Web-30.0/tools/publish.mjs
+node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/publish.mjs
 ```
 
 Untuk hanya mengecek apakah website masih sinkron:
 
 ```bash
-node Crazy-Rich-World-Tour-Web-30.0/tools/publish.mjs --check
+node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/publish.mjs --check
 ```
 
 Target publish:
