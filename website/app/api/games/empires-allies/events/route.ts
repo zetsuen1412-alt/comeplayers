@@ -93,7 +93,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const linkUrl = `/cpcommunity?game=empires-allies&attackEvent=${eventId}`;
+    const linkUrl = `/play/empires-allies?attackEvent=${eventId}`;
     const { data: existing, error: existingError } = await supabaseAdmin
       .from("notifications")
       .select("id")

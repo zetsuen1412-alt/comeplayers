@@ -409,7 +409,7 @@ export async function POST(request: Request) {
         type: "game_invite",
         title: "CP Empires & Allies invitation",
         message: `${senderProfile?.username || senderProfile?.full_name || "A friend"} invited you to play CP Empires & Allies.`,
-        link_url: "/cpcommunity?game=empires-allies",
+        link_url: "/play/empires-allies",
         is_read: false,
       });
 

@@ -92,6 +92,7 @@ import type {
   CommunityVoiceDockState,
 } from "@/components/messages/CommunityVoicePanel";
 import { useMessagesRedisRealtime } from "@/components/messages/useMessagesRedisRealtime";
+import { useMessagesPaneVisibility } from "@/components/messages/useMessagesPaneVisibility";
 import { createRefreshQueue } from "@/lib/live/refresh-queue";
 import {
   createStreamIceServers,
@@ -2383,9 +2384,6 @@ export default function MessagesPage() {
   const autoStoppingLiveRoomsRef = useRef<Set<string>>(new Set());
   const conversationRequestRef = useRef<AbortController | null>(null);
   const conversationReads = useRef(new ConversationReadTracker());
-  useEffect(() => () => {
-    conversationRequestRef.current?.abort();
-  }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
 
   const selectedRoom = useMemo(
     () =>
@@ -2406,6 +2404,28 @@ export default function MessagesPage() {
     : "";
   const selectedChannelIsVoice =
     selectedCommunityChannel?.channel_type === "voice";
+  const conversationVisible = useMessagesPaneVisibility(
+    mobileInboxOpen, selectedIsGroup && serverViewMode === "home",
+  );
+  const conversationVisibleRef = useRef(false);
+  const conversationScopeRef = useRef({ userId: "", roomId: "", channelId: "" });
+  useEffect(() => {
+    conversationScopeRef.current = { userId, roomId: selectedRoomId, channelId: selectedChannelId };
+    return () => { conversationRequestRef.current?.abort(); };
+  }, [userId, selectedRoomId, selectedChannelId]);
+  const typingVisible = conversationVisible && !selectedChannelIsVoice;
+  const typingVisibleRef = useRef(false);
+  useEffect(() => {
+    conversationVisibleRef.current = conversationVisible;
+    typingVisibleRef.current = typingVisible;
+    if (!conversationVisible) conversationRequestRef.current?.abort();
+    if (!typingVisible) {
+      setTypingUsers(current => Object.keys(current).length ? {} : current);
+      signalTyping(false);
+    }
+    // signalTyping reads the currently selected room; the channel cleanup handles switches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationVisible, typingVisible]);
 
 
   useEffect(() => {
@@ -2508,15 +2528,21 @@ export default function MessagesPage() {
     // Community presence is not used by the separate private-message view.
     roomId: selectedIsGroup ? selectedRoomId : "",
     channelId: selectedChannelId,
+    typingEnabled: typingVisible,
   });
   const visibleTypingUsers = useMemo(
     () => ({ ...redisTypingUsers, ...typingUsers }),
     [redisTypingUsers, typingUsers],
   );
   const conversationMembers = useMemo(
-    () => conversation?.members || conversation?.room.members || [],
-    [conversation],
+    () => conversation?.room.id === selectedRoomId
+      ? conversation.members || conversation.room.members || []
+      : selectedRoom?.id === selectedRoomId ? selectedRoom.members || [] : [],
+    [conversation, selectedRoom, selectedRoomId],
   );
+  const conversationMemberCount = selectedRoom?.id === selectedRoomId
+    ? Number(selectedRoom.member_count ?? conversationMembers.length)
+    : conversationMembers.length;
   const onlineConversationMembers = useMemo(
     () =>
       conversationMembers.filter(
@@ -2785,14 +2811,19 @@ export default function MessagesPage() {
     }
   }
 
+  function isCurrentConversation(roomId: string, channelId = "") {
+    const current = conversationScopeRef.current;
+    return conversationVisibleRef.current && document.visibilityState === "visible"
+      && current.userId === userId && current.roomId === roomId
+      && current.channelId === channelId;
+  }
+
   async function loadConversation(
     roomId: string,
     silent = false,
-    channelId = communityChannelSelection?.roomId === roomId
-      ? communityChannelSelection.channel.id
-      : "",
+    channelId = roomId === selectedRoomId ? selectedChannelId : "",
   ) {
-    if (!roomId) return;
+    if (!roomId || !isCurrentConversation(roomId, channelId)) return;
     // Background updates must not replace a pending load and swallow its retry state.
     if (silent && conversationRequestRef.current && !conversationRequestRef.current.signal.aborted) return;
     conversationRequestRef.current?.abort();
@@ -2819,7 +2850,9 @@ export default function MessagesPage() {
         `/api/messages/rooms/${roomId}?limit=80${channelQuery}`,
         { signal: controller.signal },
       );
-      if (controller.signal.aborted) return;
+      const responseChannelId = String(data.channel?.id || channelId);
+      if (controller.signal.aborted || !isCurrentConversation(roomId, channelId)
+        || (channelId && responseChannelId !== channelId)) return;
       setConversation(data);
       conversationReady = true;
       setConversationLoadError("");
@@ -2828,13 +2861,14 @@ export default function MessagesPage() {
       const readScope = JSON.stringify([userId, roomId]);
       const readChannelId = data.channel?.id || channelId || "";
       const lastMessageId = String(data.messages.at(-1)?.id || "");
+      if (!isCurrentConversation(roomId, readChannelId)) return;
       if (conversationReads.current.needsRead(readScope, readChannelId, lastMessageId)) {
         await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
           method: "POST",
           body: JSON.stringify({ channelId: readChannelId || undefined, lastReadMessageId: lastMessageId || undefined }),
           signal: controller.signal,
         });
-        if (controller.signal.aborted) return;
+        if (controller.signal.aborted || !isCurrentConversation(roomId, readChannelId)) return;
         conversationReads.current.confirm(readScope, readChannelId, lastMessageId);
         window.dispatchEvent(new CustomEvent("cp-community-read", { detail: { roomId, channelId: readChannelId } }));
       }
@@ -2844,7 +2878,7 @@ export default function MessagesPage() {
         ),
       );
     } catch (loadError) {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted || !isCurrentConversation(roomId, channelId)) return;
       const status = (loadError as { status?: number })?.status;
       if (status === 401 || status === 403 || status === 404) setConversation(null);
       if (!silent && !conversationReady) {
@@ -2938,10 +2972,7 @@ export default function MessagesPage() {
   }
 
   async function refreshSelectedRoom(roomId: string) {
-    const channelId =
-      communityChannelSelection?.roomId === roomId
-        ? communityChannelSelection.channel.id
-        : "";
+    const channelId = roomId === selectedRoomId ? selectedChannelId : "";
     await Promise.all([
       loadRooms(roomId),
       loadConversation(roomId, true, channelId),
@@ -3589,15 +3620,12 @@ export default function MessagesPage() {
   }, [profile?.id]);
 
   useEffect(() => {
-    if (!selectedRoomId || loading) return;
-    const channelId =
-      communityChannelSelection?.roomId === selectedRoomId
-        ? communityChannelSelection.channel.id
-        : "";
+    if (!selectedRoomId || loading || !conversationVisible) return;
+    const channelId = selectedChannelId;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadConversation(selectedRoomId, false, channelId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRoomId, communityChannelSelection?.channel.id]);
+  }, [selectedRoomId, selectedChannelId, conversationVisible]);
 
   useEffect(() => {
     if (!userId) return;
@@ -3610,12 +3638,8 @@ export default function MessagesPage() {
         // A background refresh updates the inbox but must never choose a
         // conversation after the user has opened the room list or server home.
         await loadRooms(undefined, false);
-        if (active && selectedRoomId) {
-          const channelId =
-            communityChannelSelection?.roomId === selectedRoomId
-              ? communityChannelSelection.channel.id
-              : "";
-          await loadConversation(selectedRoomId, true, channelId);
+        if (active && selectedRoomId && conversationVisibleRef.current) {
+          await loadConversation(selectedRoomId, true, selectedChannelId);
         }
       } catch {
         // Polling is a quiet fallback for cross-tab updates.
@@ -3625,7 +3649,7 @@ export default function MessagesPage() {
     }, 15000);
     return () => { active = false; window.clearInterval(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
+  }, [userId, selectedRoomId, selectedChannelId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -3651,10 +3675,7 @@ export default function MessagesPage() {
       return;
     }
     const resetTypingTimer = window.setTimeout(() => setTypingUsers({}), 0);
-    const activeChannelId =
-      communityChannelSelection?.roomId === selectedRoomId
-        ? communityChannelSelection.channel.id
-        : "";
+    const activeChannelId = selectedChannelId;
     const queue = createRefreshQueue(async () => {
       // Keep the invalidation queued while a room switch or foreground load
       // is in flight; otherwise the newly arrived message can be missed.
@@ -3695,7 +3716,7 @@ export default function MessagesPage() {
           active?: boolean;
           channelId?: string;
         };
-        if (!payload.userId || payload.userId === userId) return;
+        if (!typingVisibleRef.current || !payload.userId || payload.userId === userId) return;
         if (String(payload.channelId || "") !== activeChannelId) return;
         setTypingUsers((current) => {
           const next = { ...current };
@@ -3729,17 +3750,23 @@ export default function MessagesPage() {
       window.clearInterval(staleTimer);
       if (typingStopTimerRef.current)
         window.clearTimeout(typingStopTimerRef.current);
+      const lastTyping = typingBroadcastRef.current;
+      if (lastTyping.active && lastTyping.scope === `${selectedRoomId}:${activeChannelId}`) {
+        typingBroadcastRef.current = { ...lastTyping, active: false };
+        void channel.send({ type: "broadcast", event: "typing", payload: { userId, active: false, channelId: activeChannelId } }).catch(() => undefined);
+      }
       typingChannelRef.current = null;
       void supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRoomId, userId, communityChannelSelection?.channel.id]);
+  }, [selectedRoomId, userId, selectedChannelId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation?.messages.length]);
 
   function signalTyping(active: boolean) {
+    if (active && !typingVisibleRef.current) return;
     void signalRedisTyping(active);
     const channel = typingChannelRef.current;
     if (!channel || !userId) return;
@@ -5003,7 +5030,7 @@ export default function MessagesPage() {
                   {communityOverlay === "discover"
                     ? "Live parties from ComePlayers matchmaking."
                     : communityOverlay === "members"
-                      ? `${conversationMembers.length} anggota komunitas.`
+                      ? `${conversationMemberCount} anggota komunitas.`
                       : communityOverlay === "rankings"
                         ? "Ranked by recent channel participation using live room data."
                         : "Published ComePlayers announcements and activities."}
@@ -5361,7 +5388,7 @@ export default function MessagesPage() {
                       <span>
                         {viewerMode === "guest"
                           ? guestServerPreview?.memberCount || 0
-                          : conversationMembers.length} anggota
+                          : conversationMemberCount} anggota
                       </span>
                       <span>
                         {viewerMode === "guest"
@@ -5862,7 +5889,7 @@ export default function MessagesPage() {
               </p>
               <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black text-gray-300">
                 {selectedIsGroup
-                  ? conversationMembers.length
+                  ? conversationMemberCount
                   : filteredRooms.length}
               </span>
             </div> : null}
@@ -6159,8 +6186,8 @@ export default function MessagesPage() {
                     </div>
                   </div>
                   <div className={styles.commandStats}>
-                    <div><strong>{conversationMembers.length}</strong><span>Anggota</span></div>
-                    <div><strong>{redisEnabled ? onlineConversationMembers.length : "—"}</strong><span>Online</span></div>
+                    <div><strong>{conversationMemberCount}</strong><span>Anggota</span></div>
+                    <div><strong>{redisEnabled ? onlineUserIds.size : "—"}</strong><span>Online</span></div>
                     <div><strong>{serverVoiceChannels.length}</strong><span>Ruang suara</span></div>
                     <div><strong>{selectedServerBundle?.channels.filter((channel) => channel.channel_type !== "voice").length ?? "—"}</strong><span>Ruang chat</span></div>
                   </div>
@@ -6396,7 +6423,7 @@ export default function MessagesPage() {
                           <FaCircle className="text-[8px] text-emerald-400" />
                           {redisEnabled
                             ? `${onlineUserIds.size} anggota online`
-                            : `${conversationMembers.length} anggota`}
+                            : `${conversationMemberCount} anggota`}
                         </span>
                       ) : null}
                       {selectedRoom.party_game ? (

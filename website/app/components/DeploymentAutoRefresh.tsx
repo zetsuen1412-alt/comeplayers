@@ -4,6 +4,10 @@ import { useEffect } from "react";
 
 const CHECK_INTERVAL_MS = 2 * 60 * 1000;
 const DEFERRED_PATH_PREFIXES = [
+  "/cpcommunity",
+  "/messages",
+  "/chat",
+  "/comeplayers",
   "/checkout",
   "/payment",
   "/order/",
@@ -42,19 +46,25 @@ export default function DeploymentAutoRefresh() {
     let checking = false;
     let currentRelease = "";
     let pendingRelease = "";
+    let controller: AbortController | undefined;
 
     async function checkForDeployment() {
-      if (disposed || checking || !navigator.onLine) return;
+      if (disposed || checking || !navigator.onLine || document.visibilityState !== "visible") return;
       checking = true;
+      const request = new AbortController();
+      controller = request;
+      const timeout = setTimeout(() => request.abort(), 10_000);
 
       try {
         const response = await fetch("/api/app-version", {
           cache: "no-store",
           headers: { "x-comeplayers-update-check": "1" },
+          signal: request.signal,
         });
         if (!response.ok) return;
 
         const data = (await response.json()) as VersionResponse;
+        if (disposed || request.signal.aborted) return;
         const nextRelease = String(data.release || "").trim();
         if (!nextRelease) return;
 
@@ -75,6 +85,8 @@ export default function DeploymentAutoRefresh() {
       } catch {
         // A failed update check must never interrupt browsing or payments.
       } finally {
+        clearTimeout(timeout);
+        if (controller === request) controller = undefined;
         checking = false;
       }
     }
@@ -97,6 +109,7 @@ export default function DeploymentAutoRefresh() {
 
     return () => {
       disposed = true;
+      controller?.abort();
       window.clearInterval(interval);
       window.removeEventListener("focus", checkWhenActive);
       window.removeEventListener("online", checkWhenActive);
