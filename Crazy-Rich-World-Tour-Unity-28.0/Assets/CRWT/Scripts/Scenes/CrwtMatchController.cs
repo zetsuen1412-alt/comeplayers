@@ -507,7 +507,7 @@ namespace ComePlayers.CrazyRich
                 var remaining = Mathf.Clamp((float)seconds, 0f, 10f);
                 var me = snap.state.players?.FirstOrDefault(x => x.seat == snap.your_seat);
                 var speaker = CrwtHudArt.CharacterDisplayName(me?.character_id);
-                turnBannerLabel.text = "GILIRANMU  •  " + speaker + ": AYO ROLL!  •  AUTO " + Mathf.CeilToInt(remaining) + "s";
+                turnBannerLabel.text = "GILIRANMU  •  " + speaker + ": AYO ROLL!  •  AUTO ROLL " + Mathf.CeilToInt(remaining) + "s";
                 turnBannerLabel.color = remaining <= 3f ? CrwtUi.Danger : CrwtUi.Gold;
                 turnTimerFill.anchorMin = Vector2.zero;
                 turnTimerFill.anchorMax = new Vector2(remaining / 10f, 1f);
