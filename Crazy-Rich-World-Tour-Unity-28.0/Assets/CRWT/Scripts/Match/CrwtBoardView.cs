@@ -176,6 +176,12 @@ namespace ComePlayers.CrazyRich
         {
             if (pawns.TryGetValue(seat, out var pawn) && pawn.root && pawn.move == null) pawn.character.PlayReaction("Skill");
         }
+
+        public void PlayTurnCue(int seat)
+        {
+            if (pawns.TryGetValue(seat, out var pawn) && pawn.root && pawn.move == null)
+                pawn.character.PlayReaction("Jump");
+        }
         public void PlayResults(int winnerSeat)
         {
             foreach (var entry in pawns)

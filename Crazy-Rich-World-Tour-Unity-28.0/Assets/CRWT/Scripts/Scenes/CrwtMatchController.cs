@@ -31,6 +31,11 @@ namespace ComePlayers.CrazyRich
         private string actionSignature;
         private string pendingCue;
         private RectTransform actions;
+        private Button rollButton;
+        private RectTransform turnBanner;
+        private Text turnBannerLabel;
+        private RectTransform turnTimerFill;
+        private string lastTurnCueKey;
         private float nextPoll;
         private bool polling;
         private bool actionBusy;
@@ -124,6 +129,21 @@ namespace ComePlayers.CrazyRich
             actions = CrwtUi.Panel(safe, "Actions", new Color(.11f,.13f,.25f,.94f), new Vector2(.22f,.025f), new Vector2(.78f,.145f), Vector2.zero, Vector2.zero);
             CrwtUi.Horizontal(actions, 10);
 
+            rollButton = CrwtUi.CircleButton(safe, "ROLL", () =>
+                RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold, 154);
+            rollButton.gameObject.SetActive(false);
+
+            turnBanner = CrwtUi.Panel(safe, "Your Turn Banner", new Color(.12f,.14f,.28f,.96f),
+                new Vector2(.36f,.735f), new Vector2(.64f,.805f), Vector2.zero, Vector2.zero);
+            turnBannerLabel = CrwtUi.Text(turnBanner, "GILIRANMU", 24, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            turnBannerLabel.resizeTextForBestFit = true; turnBannerLabel.resizeTextMinSize = 15; turnBannerLabel.resizeTextMaxSize = 24;
+            Place(turnBannerLabel.rectTransform, new Vector2(.04f,.34f), new Vector2(.96f,.96f));
+            var timerTrack = CrwtUi.Panel(turnBanner, "Turn Timer Track", new Color(.07f,.08f,.16f,.92f),
+                new Vector2(.08f,.10f), new Vector2(.92f,.28f), Vector2.zero, Vector2.zero);
+            turnTimerFill = CrwtUi.Panel(timerTrack, "Turn Timer Fill", CrwtUi.Gold,
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            turnBanner.gameObject.SetActive(false);
+
             resultBanner = CrwtUi.Panel(safe, "Anime Result Banner", new Color(.14f,.12f,.28f,.98f),
                 new Vector2(.24f,.61f), new Vector2(.76f,.82f), Vector2.zero, Vector2.zero);
             var crown = CrwtUi.Text(resultBanner, "★", 46, TextAnchor.MiddleCenter, CrwtUi.Gold);
@@ -192,6 +212,17 @@ namespace ComePlayers.CrazyRich
             activePlayer.text = current == null ? "MENUNGGU PEMAIN" : (snap.turn_seat == snap.your_seat ? "GILIRANMU" : "GILIRAN " + current.name) + "\n" + current.cash + " K  •  " + CrwtHudArt.CharacterDisplayName(current.character_id);
             activePlayer.color = snap.turn_seat == snap.your_seat ? CrwtUi.Gold : Color.white;
             CrwtHudArt.SetPortrait(portrait, current?.character_id);
+            var localRollTurn = snap.status == "active" && !snap.spectator && snap.your_seat > 0
+                && snap.turn_seat == snap.your_seat && snap.state.phase == "await_roll";
+            if (localRollTurn)
+            {
+                var cueKey = snap.turn_seat + ":" + snap.deadline_at + ":" + snap.version;
+                if (lastTurnCueKey != cueKey)
+                {
+                    lastTurnCueKey = cueKey;
+                    board.PlayTurnCue(snap.your_seat);
+                }
+            }
             if (!resultActionsBuilt && !rematchVoted) message.text = snap.state.message ?? snap.state.last_roll?.@event ?? "ONLINE";
             var sb = new StringBuilder();
             foreach (var p in snap.state.players ?? Array.Empty<CrwtPlayer>())
@@ -212,6 +243,8 @@ namespace ComePlayers.CrazyRich
             if (signature == actionSignature) return;
             actionSignature = signature;
             CrwtUi.Clear(actions);
+            SetRollPresentation(false);
+            SetActionLayout(false);
             if (snap == null) return;
             if (CrwtSession.IsGuest) { LabelAction("DEMO VISUAL • Login untuk ROLL"); return; }
             if (syncFailed) { LabelAction("Menghubungkan kembali..."); return; }
@@ -233,13 +266,14 @@ namespace ComePlayers.CrazyRich
                 {
                     CrwtUi.Button(actions, "GANJIL", () => ApplyFocus("odd"), CrwtUi.Cyan);
                     CrwtUi.Button(actions, "GENAP", () => ApplyFocus("even"), CrwtUi.Gold);
-                    CrwtUi.Button(actions, "BATAL", () => { choosingFocus = false; RebuildActions(); }, Color.gray);
+                    CrwtUi.Button(actions, "BATAL", () => { choosingFocus = false; actionSignature = null; RebuildActions(); }, Color.gray);
                     return;
                 }
-                CrwtUi.Button(actions, "ROLL", () => RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold, 86);
-                CrwtUi.Button(actions, "SKILL", UseSkill, CrwtUi.Lavender, 76);
+                SetRollPresentation(true);
+                SetActionLayout(true);
+                CrwtUi.Button(actions, "SKILL", UseSkill, CrwtUi.Lavender, 72);
                 if ((snap.state.players?.FirstOrDefault(x => x.seat == snap.your_seat)?.cards?.Length ?? 0) > 0)
-                    CrwtUi.Button(actions, "KARTU", ShowCards, CrwtUi.Rose, 76);
+                    CrwtUi.Button(actions, "KARTU", ShowCards, CrwtUi.Rose, 72);
                 return;
             }
             var p = snap.state.pending;
@@ -270,6 +304,22 @@ namespace ComePlayers.CrazyRich
                 return;
             }
             LabelAction("Sinkronisasi server...");
+        }
+
+        private void SetRollPresentation(bool visible)
+        {
+            if (rollButton) rollButton.gameObject.SetActive(visible);
+            if (turnBanner) turnBanner.gameObject.SetActive(visible);
+        }
+
+        private void SetActionLayout(bool secondary)
+        {
+            if (!actions) return;
+            actions.anchorMin = secondary ? new Vector2(.61f,.035f) : new Vector2(.22f,.025f);
+            actions.anchorMax = secondary ? new Vector2(.82f,.135f) : new Vector2(.78f,.145f);
+            actions.offsetMin = actions.offsetMax = Vector2.zero;
+            var image = actions.GetComponent<Image>();
+            if (image) image.color = secondary ? new Color(.11f,.13f,.25f,.88f) : new Color(.11f,.13f,.25f,.94f);
         }
 
         private static Color MapBackground(string map) => map switch
@@ -444,6 +494,27 @@ namespace ComePlayers.CrazyRich
             double seconds = (deadline - DateTimeOffset.UtcNow).TotalSeconds;
             clockLabel.text = snap.status == "finished" ? "PERTANDINGAN SELESAI" : "WAKTU " + Math.Max(0, Math.Ceiling(seconds)) + "s";
             clockLabel.color = snap.status == "finished" ? CrwtUi.Gold : seconds <= 5 ? CrwtUi.Danger : Color.white;
+
+            var localRollTurn = snap.status == "active" && !snap.spectator && snap.your_seat > 0
+                && snap.turn_seat == snap.your_seat && snap.state.phase == "await_roll"
+                && !choosingFocus && !actionBusy && !dice.IsBusy && !board.IsMoving && !syncFailed;
+            if (localRollTurn && turnBanner && rollButton)
+            {
+                var remaining = Mathf.Clamp((float)seconds, 0f, 10f);
+                turnBannerLabel.text = "GILIRANMU  •  AUTO ROLL " + Mathf.CeilToInt(remaining) + "s";
+                turnBannerLabel.color = remaining <= 3f ? CrwtUi.Danger : CrwtUi.Gold;
+                turnTimerFill.anchorMin = Vector2.zero;
+                turnTimerFill.anchorMax = new Vector2(remaining / 10f, 1f);
+                turnTimerFill.offsetMin = turnTimerFill.offsetMax = Vector2.zero;
+                turnTimerFill.GetComponent<Image>().color = remaining <= 3f ? CrwtUi.Danger : CrwtUi.Gold;
+                var reduced = PlayerPrefs.GetInt(CrwtCharacterView.ReducedMotionPreference,0) != 0;
+                var pulse = reduced ? 1f : 1f + Mathf.Sin(Time.unscaledTime * 5f) * .035f;
+                ((RectTransform)rollButton.transform).localScale = Vector3.one * pulse;
+            }
+            else if (rollButton)
+            {
+                ((RectTransform)rollButton.transform).localScale = Vector3.one;
+            }
             if (seconds <= -1 && Time.unscaledTime >= nextTimeoutCheck && !syncFailed && !timeoutBusy && !actionBusy && !dice.IsBusy && !board.IsMoving && snap.status == "active" && snap.your_seat > 0 && !snap.spectator)
             { nextTimeoutCheck = Time.unscaledTime + 3; TickTimeout(); }
         }
@@ -564,6 +635,8 @@ namespace ComePlayers.CrazyRich
         {
             if (resultActionsBuilt || resultLoading || dice.IsBusy || board.IsMoving || actionBusy) return;
             resultLoading = true;
+            SetRollPresentation(false);
+            SetActionLayout(false);
             CrwtUi.Clear(actions);
             try
             {

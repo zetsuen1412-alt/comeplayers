@@ -17,6 +17,39 @@ namespace ComePlayers.CrazyRich
         public static readonly Color Lavender = new Color(.67f, .55f, 1f, 1f);
         public static readonly Color Ink = new Color(.065f, .08f, .16f, 1f);
         private static Sprite roundedSprite;
+        private static Sprite circleSprite;
+
+        private static Sprite CircleSprite
+        {
+            get
+            {
+                if (circleSprite) return circleSprite;
+                const int size = 64;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+                {
+                    name = "CRWT Anime Circle UI",
+                    wrapMode = TextureWrapMode.Clamp,
+                    filterMode = FilterMode.Bilinear,
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                var pixels = new Color32[size * size];
+                var center = (size - 1) * .5f;
+                var radius = center - 1f;
+                for (var y = 0; y < size; y++)
+                for (var x = 0; x < size; x++)
+                {
+                    var dx = x - center; var dy = y - center;
+                    var distance = Mathf.Sqrt(dx * dx + dy * dy);
+                    var alpha = (byte)Mathf.RoundToInt(Mathf.Clamp01(radius + .8f - distance) * 255f);
+                    pixels[y * size + x] = new Color32(255,255,255,alpha);
+                }
+                texture.SetPixels32(pixels); texture.Apply(false,true);
+                circleSprite = Sprite.Create(texture,new Rect(0,0,size,size),new Vector2(.5f,.5f),100f);
+                circleSprite.name = "CRWT Anime Circle UI";
+                circleSprite.hideFlags = HideFlags.HideAndDontSave;
+                return circleSprite;
+            }
+        }
 
         private static Sprite RoundedSprite
         {
@@ -138,6 +171,38 @@ namespace ComePlayers.CrazyRich
             if (clicked != null) btn.onClick.AddListener(() => clicked());
             var tx = Text(go.transform, label, 25, TextAnchor.MiddleCenter, TextColor(buttonColor));
             Fill(tx.rectTransform, 8);
+            return btn;
+        }
+
+        public static Button CircleButton(Transform parent, string label, Action clicked, Color color, float diameter = 150f)
+        {
+            var go = new GameObject("CircleButton_" + label, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(.5f,0);
+            rt.pivot = new Vector2(.5f,.5f);
+            rt.sizeDelta = new Vector2(diameter, diameter);
+            rt.anchoredPosition = new Vector2(0, diameter * .56f);
+            var image = go.GetComponent<Image>();
+            image.sprite = CircleSprite; image.type = Image.Type.Simple; image.color = color;
+            var edge = go.AddComponent<Outline>(); edge.effectColor = new Color(1f,1f,1f,.28f); edge.effectDistance = new Vector2(2,-2);
+            var btn = go.GetComponent<Button>();
+            btn.targetGraphic = image;
+            btn.transition = Selectable.Transition.ColorTint;
+            btn.colors = new ColorBlock
+            {
+                normalColor=Color.white,
+                highlightedColor=Color.Lerp(Color.white,color,.12f),
+                pressedColor=Color.Lerp(Color.white,Ink,.24f),
+                selectedColor=Color.white,
+                disabledColor=new Color(.58f,.61f,.70f,.52f),
+                colorMultiplier=1f,
+                fadeDuration=.08f
+            };
+            if (clicked != null) btn.onClick.AddListener(()=>clicked());
+            var text = Text(go.transform,label,28,TextAnchor.MiddleCenter,TextColor(color));
+            Fill(text.rectTransform,18);
+            text.fontStyle = FontStyle.Bold;
             return btn;
         }
 
