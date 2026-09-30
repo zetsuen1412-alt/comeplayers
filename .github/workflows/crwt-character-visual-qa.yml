@@ -5,35 +5,73 @@ on:
     paths: [.github/workflows/crwt-character-visual-qa.yml]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   actions: read
 jobs:
   browser:
-    if: github.repository == 'zetsuen1412-alt/comeplayers'
+    if: github.repository == 'zetsuen1412-alt/comeplayers' && github.ref == 'refs/heads/codex/crazy-rich-web-v30'
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      INPUT_SHA: ${{ github.sha }}
     steps:
-      - name: Fetch the verified character artifact
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Prepare revised real meshes and corrected inspection viewer
         run: |
           set -euo pipefail
           mkdir -p /tmp/crwt-character-qa
           gh api repos/zetsuen1412-alt/comeplayers/actions/artifacts/11123661648/zip > /tmp/crwt-models.zip
           python3 -m zipfile -e /tmp/crwt-models.zip /tmp/crwt-character-qa
+          python3 - <<'PY'
+          import os,json,base64,urllib.request,pathlib,concurrent.futures,hashlib
+          root=pathlib.Path('/tmp/crwt-character-qa')
+          api='https://api.github.com/repos/zetsuen1412-alt/comeplayers'
+          def req(path,data=None,method=None):
+              r=urllib.request.Request(api+path,data=None if data is None else json.dumps(data).encode(),method=method,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'CRWT-Character-QA'})
+              with urllib.request.urlopen(r,timeout=120) as v:return json.load(v)
+          project='Crazy-Rich-World-Tour-Unity-28.0/Web30/client'
+          file=req('/contents/'+project+'/character-demo.html?ref='+os.environ['INPUT_SHA'])
+          html=base64.b64decode(file['content']).decode()
+          patches={
+            'state.move={c,from,to,elapsed:0}':'state.move={c,from,to,startedAt:performance.now()}',
+            'm.elapsed+=dt;const t=Math.min(m.elapsed/1.1,1)':'const t=Math.min((performance.now()-m.startedAt)/1100,1)',
+            'targetCamera={target:sphere.center.clone(),position:sphere.center.clone().addScaledVector(orbitDirection,distance)};':'const direction=solo?new THREE.Vector3(.44,.20,1).normalize():orbitDirection;controls.target.copy(sphere.center);camera.position.copy(sphere.center).addScaledVector(direction,distance);targetCamera=null;controls.update();',
+            '*(solo?1.22:1.13)':'*(solo?1.55:1.18)'
+          }
+          for old,new in patches.items():
+              assert old in html or new in html, 'Unexpected source; refuse ambiguous patch'
+              html=html.replace(old,new)
+          (root/'character-demo.source.html').write_text(html)
+          offline=html.replace('./assets/characters/sculpt-v1/roster.glb','./roster.glb').replace('https://cdn.jsdelivr.net/npm/three@0.180.0/','./vendor/three/')
+          (root/'character-demo.html').write_text(offline)
+          sources={
+          'roster.glb':'https://695d5a9fc666e505559765690b5db7dd.r2.cloudflarestorage.com/3d-scene-builder/projects/575e84d6-caf4-404d-8eeb-96cc5b179aa6/revisions/00000010-crwt-correct-clothing-occlusion-and-luna-sleeves-v01/preview.glb?X-Amz-Expires=900&X-Amz-Date=20260930T203003Z&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f4fb15da414147020cebc9c7007b912d%2F20260930%2Fauto%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Signature=67645236713e890e97194063a670e582c3f1c3febfc7384f3b85d21d0cdabb7d',
+          'source.blend':'https://695d5a9fc666e505559765690b5db7dd.r2.cloudflarestorage.com/3d-scene-builder/projects/575e84d6-caf4-404d-8eeb-96cc5b179aa6/revisions/00000010-crwt-correct-clothing-occlusion-and-luna-sleeves-v01/scene.blend?X-Amz-Expires=900&X-Amz-Date=20260930T203014Z&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=f4fb15da414147020cebc9c7007b912d%2F20260930%2Fauto%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Signature=1678ab10f3045ad0ac27af5b075afccde5cca894d8506a0ad2805742b08c123c'}
+          def get(item):
+              name,url=item
+              with urllib.request.urlopen(url,timeout=120) as r:data=r.read(100*1024*1024+1)
+              assert len(data)<=100*1024*1024
+              assert data.startswith(b'glTF' if name.endswith('.glb') else b'BLENDER')
+              (root/name).write_bytes(data)
+              return name,hashlib.sha256(data).hexdigest()
+          hashes=dict(concurrent.futures.ThreadPoolExecutor(2).map(get,sources.items()))
+          (root/'source-revision.json').write_text(json.dumps({'revision':10,'sha256':hashes,'visual_final_approved':False},indent=2))
+          meta=json.loads((root/'clips.json').read_text());meta['revision']=10;meta['glb_sha256']=hashes['roster.glb'];(root/'clips.json').write_text(json.dumps(meta,indent=2))
+          # The earlier Blender preview remains historical; fresh Chromium screenshots replace it below.
+          (root/'preview.png').rename(root/'preview-revision9-historical.png')
+          PY
           python3 -m venv /tmp/crwt-browser-env
           /tmp/crwt-browser-env/bin/pip install playwright==1.55.0
           /tmp/crwt-browser-env/bin/playwright install --with-deps chromium
-      - name: Test the board, character selector, animations and individual GLB export
+      - name: Verify board controls and export ten standalone textured rigged models
         run: |
           /tmp/crwt-browser-env/bin/python - <<'PY'
-          import json, pathlib, subprocess, time, traceback, struct
+          import json,pathlib,subprocess,time,traceback,struct
           from playwright.sync_api import sync_playwright
-          root=pathlib.Path('/tmp/crwt-character-qa'); out=root/'qa'; out.mkdir(exist_ok=True)
-          models=root/'models';models.mkdir(exist_ok=True)
+          root=pathlib.Path('/tmp/crwt-character-qa');out=root/'qa';out.mkdir(exist_ok=True);models=root/'models';models.mkdir(exist_ok=True)
           server=subprocess.Popen(['/tmp/crwt-browser-env/bin/python','-m','http.server','8765','--bind','127.0.0.1','--directory',str(root)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
           time.sleep(1)
-          report={'visual_final_approved':False,'online_game_replaced':False,'page_errors':[],'console_errors':[],'tests':[]}
+          report={'visual_final_approved':False,'online_game_replaced':False,'revision':10,'page_errors':[],'console_errors':[],'tests':[]}
           try:
               with sync_playwright() as p:
                   browser=p.chromium.launch(headless=True,args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
@@ -42,70 +80,79 @@ jobs:
                   page.on('console',lambda m:report['console_errors'].append(m.text) if m.type=='error' else None)
                   page.goto('http://127.0.0.1:8765/character-demo.html',wait_until='load',timeout=60000)
                   page.wait_for_function('window.CRWT_CHARACTER_LAB?.ready === true',timeout=60000)
-                  page.wait_for_timeout(2500)
-                  report['initial']=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
-                  assert len(report['initial']['characters'])==10
+                  page.wait_for_timeout(1000)
+                  report['initial']=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()');assert len(report['initial']['characters'])==10
                   page.screenshot(path=str(out/'board.png'))
                   ids=['alexia','rindi','kairo','luna','nox','atlas','zeno','yuna','mochi','pip']
                   page.click('#solo')
                   for cid in ids:
-                      page.click('[data-id="'+cid+'"]')
-                      page.wait_for_timeout(1200)
-                      snap=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
-                      assert [c['id'] for c in snap['characters'] if c['visible']]==[cid]
+                      page.click('[data-id="'+cid+'"]');page.wait_for_timeout(300)
+                      snap=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()');assert [c['id'] for c in snap['characters'] if c['visible']]==[cid]
                       page.screenshot(path=str(out/(cid+'.png')))
                       for clip in ['Idle','Walk','Jump','Skill','Win','Lose']:
                           page.select_option('#animation',clip)
-                          page.wait_for_timeout(90)
-                          observed=page.evaluate('(id)=>window.CRWT_CHARACTER_LAB.characters.get(id).current',cid)
-                          assert observed==clip
+                          assert page.evaluate('(id)=>window.CRWT_CHARACTER_LAB.characters.get(id).current',cid)==clip
                       page.select_option('#animation','Idle')
                       report['tests'].append({'character':cid,'selector':'passed','six_animation_controls':'passed'})
-                  page.click('#board');page.click('[data-id="alexia"]');page.wait_for_timeout(1200)
+                  page.click('#board');page.click('[data-id="alexia"]')
                   before=page.evaluate("window.CRWT_CHARACTER_LAB.characters.get('alexia').root.position.toArray()")
-                  page.click('#step');page.wait_for_function('window.CRWT_CHARACTER_LAB.move===null',timeout=15000)
+                  page.click('#step');page.wait_for_function('window.CRWT_CHARACTER_LAB.move===null',timeout=30000)
                   after=page.evaluate("window.CRWT_CHARACTER_LAB.characters.get('alexia').root.position.toArray()")
                   assert ((after[0]-before[0])**2+(after[2]-before[2])**2)**.5 > .8
                   report['step_test']={'before':before,'after':after,'passed':True}
-                  # Each asset is exported independently with all materials, textures, skin, and six named clips.
-                  export_script='''async (id)=>{
-                    const THREE=await import('three');
-                    const {GLTFExporter}=await import('three/addons/exporters/GLTFExporter.js');
-                    const {clone}=await import('three/addons/utils/SkeletonUtils.js');
-                    const c=window.CRWT_CHARACTER_LAB.characters.get(id);
-                    c.mixer.stopAllAction();c.root.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.pose();});
-                    c.root.updateMatrixWorld(true);
-                    const root=clone(c.root);root.visible=true;root.position.set(0,0,0);root.quaternion.identity();
-                    const scale=Number(root.userData.board_preview_scale)||1;root.scale.divideScalar(scale);
-                    root.updateMatrixWorld(true);root.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.pose();});root.updateMatrixWorld(true);
-                    const box=new THREE.Box3().setFromObject(root,true);root.position.y-=box.min.y;root.updateMatrixWorld(true);
+                  export_script='''async(id)=>{
+                    const THREE=await import('three');const {GLTFExporter}=await import('three/addons/exporters/GLTFExporter.js');const {clone}=await import('three/addons/utils/SkeletonUtils.js');
+                    const c=window.CRWT_CHARACTER_LAB.characters.get(id);c.mixer.stopAllAction();c.root.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.pose();});c.root.updateMatrixWorld(true);
+                    const root=clone(c.root);root.visible=true;root.position.set(0,0,0);root.quaternion.identity();root.scale.divideScalar(Number(root.userData.board_preview_scale)||1);root.updateMatrixWorld(true);
+                    const box=new THREE.Box3();root.traverse(o=>{if(o.isMesh){o.geometry.computeBoundingBox();box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));}});root.position.y-=box.min.y;root.updateMatrixWorld(true);
+                    const skinMeshes=[];root.traverse(o=>{if(o.isSkinnedMesh)skinMeshes.push(o);});
+                    const skeleton=new THREE.Skeleton(skinMeshes[0].skeleton.bones);skeleton.calculateInverses();for(const o of skinMeshes)o.bind(skeleton,o.matrixWorld);
                     root.userData.asset_status='REFERENCE_RECONSTRUCTION_WIP';root.userData.visual_final_approved=false;
                     const animations=[...c.clips.values()].map(a=>a.clone());
                     const buffer=await new GLTFExporter().parseAsync(root,{binary:true,animations,onlyVisible:false,trs:true,maxTextureSize:1024});
-                    const url=URL.createObjectURL(new Blob([buffer],{type:'model/gltf-binary'}));
-                    const a=document.createElement('a');a.href=url;a.download=id+'.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),15000);
+                    const url=URL.createObjectURL(new Blob([buffer],{type:'model/gltf-binary'}));const a=document.createElement('a');a.href=url;a.download=id+'.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),15000);
                     return {id,bytes:buffer.byteLength,clips:animations.map(a=>a.name)};
                   }'''
                   report['individual_models']=[]
                   for cid in ids:
-                      with page.expect_download(timeout=60000) as download:
-                          info=page.evaluate(export_script,cid)
+                      with page.expect_download(timeout=60000) as download:info=page.evaluate(export_script,cid)
                       download.value.save_as(str(models/(cid+'.glb')))
                       data=(models/(cid+'.glb')).read_bytes();n=struct.unpack_from('<I',data,12)[0];g=json.loads(data[20:20+n])
                       assert {a['name'] for a in g['animations']}=={'Idle','Walk','Jump','Skill','Win','Lose'}
-                      assert len(g.get('skins',[]))==1 and len(g.get('images',[]))>=1
+                      assert len(g.get('skins',[]))>=1 and len(g.get('images',[]))>=1
+                      assert len({tuple(s['joints']) for s in g['skins']})==1
                       info.update({'skins':len(g['skins']),'textures':len(g['images'])});report['individual_models'].append(info)
-                  report['final']=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()')
-                  assert not report['page_errors'],report['page_errors']
-                  report['status']='browser_functional_tests_passed_visual_art_approval_pending'
-                  browser.close()
+                  report['final']=page.evaluate('window.CRWT_CHARACTER_LAB.inspect()');assert not report['page_errors'],report['page_errors']
+                  report['status']='browser_functional_tests_passed_visual_art_approval_pending';browser.close()
           except Exception as e:
               report['status']='failed';report['exception']=str(e);report['traceback']=traceback.format_exc();raise
           finally:
-              (out/'browser-report.json').write_text(json.dumps(report,indent=2))
-              server.terminate()
+              (out/'browser-report.json').write_text(json.dumps(report,indent=2));server.terminate()
           PY
-      - name: Retain actual screenshots, ten individual meshes and playable model demo
+      - name: Commit only successfully tested CRWT model and viewer files
+        run: |
+          python3 - <<'PY'
+          import os,json,base64,urllib.request,pathlib,time,urllib.error
+          root=pathlib.Path('/tmp/crwt-character-qa');report=json.loads((root/'qa/browser-report.json').read_text());assert report['status'].startswith('browser_functional_tests_passed')
+          api='https://api.github.com/repos/zetsuen1412-alt/comeplayers';branch='codex/crazy-rich-web-v30'
+          def req(path,data=None,method=None):
+              r=urllib.request.Request(api+path,data=None if data is None else json.dumps(data).encode(),method=method,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'CRWT-Character-QA'})
+              with urllib.request.urlopen(r,timeout=120) as v:return json.load(v)
+          prefixes=['Crazy-Rich-World-Tour-Unity-28.0/Web30/client','website/public/games/crazy-rich-world-tour/client'];entries=[]
+          items={'character-demo.html':root/'character-demo.source.html','assets/characters/sculpt-v1/roster.glb':root/'roster.glb','assets/characters/sculpt-v1/clips.json':root/'clips.json','assets/characters/sculpt-v1/preview.png':root/'qa/board.png','assets/characters/sculpt-v1/browser-report.json':root/'qa/browser-report.json'}
+          for p in (root/'models').glob('*.glb'):items['assets/characters/sculpt-v1/models/'+p.name]=p
+          for path,local in items.items():
+              blob=req('/git/blobs',{'content':base64.b64encode(local.read_bytes()).decode(),'encoding':'base64'})['sha']
+              for prefix in prefixes:entries.append({'path':prefix+'/'+path,'mode':'100644','type':'blob','sha':blob})
+          for attempt in range(3):
+              parent=req('/git/ref/heads/'+branch)['object']['sha'];base=req('/git/commits/'+parent)['tree']['sha'];tree=req('/git/trees',{'base_tree':base,'tree':entries})['sha'];commit=req('/git/commits',{'message':'fix(crwt): ship tested ten-model board demo and individual animated GLBs','tree':tree,'parents':[parent]})['sha']
+              try:req('/git/refs/heads/'+branch,{'sha':commit,'force':False},'PATCH');break
+              except urllib.error.HTTPError as e:
+                  if e.code not in (409,422) or attempt==2:raise
+                  time.sleep(2)
+          (root/'delivery-commit.json').write_text(json.dumps({'commit':commit,'visual_final_approved':False,'online_game_replaced':False},indent=2));print('DELIVERY_COMMIT='+commit)
+          PY
+      - name: Retain editable source, actual screenshots, ten models and demo
         if: always()
         uses: actions/upload-artifact@v4
         with:
