@@ -33,7 +33,7 @@ Published release identifiers are recorded below. Android changes are JavaScript
 
 Physical Android-to-browser call quality, device FPS, and real-world message latency have not been measured. No claim of Telegram-equivalent performance or zero network delay is made. No production messages or calls were sent during tests.
 
-Final source checks: website TypeScript passed; full website suite 835/835 passed; scoped lint and diff-check passed. Android TypeScript and 28/28 focused tests passed.
+Initial performance release checks: website TypeScript passed; full website suite 835/835 passed; scoped lint and diff-check passed. Android TypeScript and 28/28 focused tests passed.
 
 
 ## Published performance release
@@ -52,4 +52,8 @@ The community's six old selectable games (Empires & Allies, Frontline, Strike, S
 
 The initial broad deletion was rejected by automatic approval review over possible shared assets. After a new file/reference audit, removal was narrowed to exact Git-tracked runtime and asset files, preserving the shared avatar and separate service; this narrower action was approved.
 
-Retirement verification: 38,385,587 bytes of obsolete public assets removed, plus obsolete source/styles. Three direct graphics packages and 20 total lockfile packages removed; marketplace dependencies unchanged. TypeScript passes after excluding the pre-existing, non-deployed `website/patch` archive. Nineteen focused retirement/performance tests pass. The first full run passed 820/821: its only failure was a test requiring the removed Game menu; the updated navigation test then passed. A final full run follows before promotion. Primary Crazy Rich checkout remains clean at `cc6149dff025f37f3a46c47b3fb4475f71eacc97`.
+Retirement verification: 38,385,587 bytes of obsolete public assets removed, plus obsolete source/styles. Three direct graphics packages and 20 total lockfile packages removed; marketplace dependencies unchanged. TypeScript passes after excluding the pre-existing, non-deployed `website/patch` archive. Nineteen focused retirement/performance tests pass. The first full run passed 820/821: its only failure was a test requiring the removed Game menu; the updated navigation test then passed. The final full run passed all 821 tests before promotion. Primary Crazy Rich checkout remains clean at `cc6149dff025f37f3a46c47b3fb4475f71eacc97`.
+
+Final retirement validation: all 821/821 website tests pass, TypeScript passes, scoped lint has no errors (24 existing warnings), and production build succeeds. Source `6d3b1a3bd508bfc25264c8854293587906b8db23` deployed as `dpl_7LuYuR5KADKQCr2Y5ZZybtox8xSh` in `sin1` and was promoted to www.comeplayers.com on 30 September 2026 UTC (1 October in Asia/Bangkok). Candidate checks: community HTTP 200; actual `/api/messages/calls` HTTP 401/no-store without authentication; removed Strike play route, Frontline API and Strike artwork HTTP 404; shared Alexia avatar HTTP 200. The initial check used the nonexistent `/api/chat/calls` URL and returned 404; it was corrected to the source-defined route before promotion.
+
+Live verification after promotion: `/api/health` HTTP 200/ready and `sin1::sin1`; removed Strike play page HTTP 404. Reloading the existing authenticated community tab shows Contacts/Tournaments/Create/Shop with no Game selector, preserves the selected room and its local messages, and displays the composer and voice/video call controls. No test message or call was sent. The menu-only screenshot contains no private chat details: `C:/Comeplayers-new/output/chat-performance-20260930/community-menu-without-old-games.png`.
