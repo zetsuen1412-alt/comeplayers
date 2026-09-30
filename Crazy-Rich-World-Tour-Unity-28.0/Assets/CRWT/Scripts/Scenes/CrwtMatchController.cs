@@ -16,6 +16,9 @@ namespace ComePlayers.CrazyRich
         private Text clockLabel;
         private RawImage portrait;
         private RectTransform playerPanel;
+        private RectTransform resultBanner;
+        private Text resultTitle;
+        private Text resultSubtitle;
         private CrwtActionSheet sheet;
         private CrwtAudio sound;
         private CrwtCameraOrbit orbit;
@@ -120,6 +123,19 @@ namespace ComePlayers.CrazyRich
             message.resizeTextForBestFit = true; message.resizeTextMinSize = 16; message.resizeTextMaxSize = 23;
             actions = CrwtUi.Panel(safe, "Actions", new Color(.11f,.13f,.25f,.94f), new Vector2(.22f,.025f), new Vector2(.78f,.145f), Vector2.zero, Vector2.zero);
             CrwtUi.Horizontal(actions, 10);
+
+            resultBanner = CrwtUi.Panel(safe, "Anime Result Banner", new Color(.14f,.12f,.28f,.98f),
+                new Vector2(.24f,.61f), new Vector2(.76f,.82f), Vector2.zero, Vector2.zero);
+            var crown = CrwtUi.Text(resultBanner, "★", 46, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            Place(crown.rectTransform, new Vector2(.04f,.52f), new Vector2(.14f,.96f));
+            resultTitle = CrwtUi.Text(resultBanner, "", 38, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            resultTitle.resizeTextForBestFit = true; resultTitle.resizeTextMinSize = 24; resultTitle.resizeTextMaxSize = 38;
+            Place(resultTitle.rectTransform, new Vector2(.15f,.48f), new Vector2(.95f,.94f));
+            resultSubtitle = CrwtUi.Text(resultBanner, "", 22, TextAnchor.MiddleCenter, Color.white);
+            resultSubtitle.resizeTextForBestFit = true; resultSubtitle.resizeTextMinSize = 15; resultSubtitle.resizeTextMaxSize = 22;
+            Place(resultSubtitle.rectTransform, new Vector2(.08f,.08f), new Vector2(.92f,.50f));
+            resultBanner.gameObject.SetActive(false);
+
             sheet = gameObject.AddComponent<CrwtActionSheet>(); sheet.Initialize(safe);
         }
 
@@ -171,8 +187,10 @@ namespace ComePlayers.CrazyRich
             }
             board.Apply(snap);
             header.text = CrwtRuntimeConfig.MapName(snap.state.map_id).ToUpperInvariant() + " • " + snap.round;
+            header.color = MapAccentUi(snap.state.map_id);
             var current = snap.state.players?.FirstOrDefault(p => p.seat == snap.turn_seat);
             activePlayer.text = current == null ? "MENUNGGU PEMAIN" : (snap.turn_seat == snap.your_seat ? "GILIRANMU" : "GILIRAN " + current.name) + "\n" + current.cash + " K  •  " + current.character_id;
+            activePlayer.color = snap.turn_seat == snap.your_seat ? CrwtUi.Gold : Color.white;
             CrwtHudArt.SetPortrait(portrait, current?.character_id);
             if (!resultActionsBuilt && !rematchVoted) message.text = snap.state.message ?? snap.state.last_roll?.@event ?? "ONLINE";
             var sb = new StringBuilder();
@@ -259,6 +277,15 @@ namespace ComePlayers.CrazyRich
             "candy_world" => new Color(.32f,.15f,.38f),
             "fantasy_kingdom" => new Color(.15f,.12f,.34f),
             _ => new Color(.18f,.42f,.62f)
+        };
+
+        private static Color MapAccentUi(string map) => map switch
+        {
+            "tokyo_rush" => CrwtUi.Rose,
+            "tropical_paradise" => CrwtUi.Mint,
+            "candy_world" => new Color(1f,.65f,.34f),
+            "fantasy_kingdom" => CrwtUi.Lavender,
+            _ => CrwtUi.Cyan
         };
 
         private void UseSkill()
@@ -394,7 +421,7 @@ namespace ComePlayers.CrazyRich
                         int seat = candidate.seat;
                         CrwtUi.Button(sheet.Content, candidate.name, () => RunAction(() => CrwtAppRoot.Instance.Api.UseCardAsync(CrwtSession.MatchId, card, seat)), CrwtUi.Cyan);
                     }
-                }, new Color(.90f,.68f,.86f));
+                }, CrwtUi.Rose);
             }
         }
 
@@ -402,8 +429,8 @@ namespace ComePlayers.CrazyRich
         {
             sheet.Show("PENGATURAN", "settings");
             CrwtUi.Button(sheet.Content, "SUARA: " + (PlayerPrefs.GetInt("CRWT_Mute",0) == 0 ? "AKTIF" : "MATI"), () => { TogglePreference("CRWT_Mute"); ShowSettings(); }, CrwtUi.Cyan);
-            CrwtUi.Button(sheet.Content, "KURANGI GERAKAN: " + (PlayerPrefs.GetInt("CRWT_ReducedMotion",0) == 1 ? "YA" : "TIDAK"), () => { TogglePreference("CRWT_ReducedMotion"); ShowSettings(); }, CrwtUi.Cyan);
-            CrwtUi.Button(sheet.Content, "HEMAT DAYA: " + (PlayerPrefs.GetInt("CRWT_LowPower",0) == 1 ? "30 FPS" : "60 FPS"), () => { TogglePreference("CRWT_LowPower"); Application.targetFrameRate = PlayerPrefs.GetInt("CRWT_LowPower") == 1 ? 30 : 60; ShowSettings(); }, CrwtUi.Cyan);
+            CrwtUi.Button(sheet.Content, "KURANGI GERAKAN: " + (PlayerPrefs.GetInt("CRWT_ReducedMotion",0) == 1 ? "YA" : "TIDAK"), () => { TogglePreference("CRWT_ReducedMotion"); ShowSettings(); }, CrwtUi.Mint);
+            CrwtUi.Button(sheet.Content, "HEMAT DAYA: " + (PlayerPrefs.GetInt("CRWT_LowPower",0) == 1 ? "30 FPS" : "60 FPS"), () => { TogglePreference("CRWT_LowPower"); Application.targetFrameRate = PlayerPrefs.GetInt("CRWT_LowPower") == 1 ? 30 : 60; ShowSettings(); }, CrwtUi.Lavender);
             CrwtUi.Button(sheet.Content, "RESET KAMERA", () => { orbit.distance = 21; orbit.yaw = 0; orbit.pitch = 53; sheet.Close(); }, CrwtUi.Gold);
             sheet.Note("Geser papan untuk memutar kamera. Cubit dengan dua jari atau gunakan scroll untuk zoom.");
         }
@@ -414,6 +441,7 @@ namespace ComePlayers.CrazyRich
             if (snap?.state == null || !DateTimeOffset.TryParse(snap.deadline_at, out var deadline)) return;
             double seconds = (deadline - DateTimeOffset.UtcNow).TotalSeconds;
             clockLabel.text = snap.status == "finished" ? "PERTANDINGAN SELESAI" : "WAKTU " + Math.Max(0, Math.Ceiling(seconds)) + "s";
+            clockLabel.color = snap.status == "finished" ? CrwtUi.Gold : seconds <= 5 ? CrwtUi.Danger : Color.white;
             if (seconds <= -1 && Time.unscaledTime >= nextTimeoutCheck && !syncFailed && !timeoutBusy && !actionBusy && !dice.IsBusy && !board.IsMoving && snap.status == "active" && snap.your_seat > 0 && !snap.spectator)
             { nextTimeoutCheck = Time.unscaledTime + 3; TickTimeout(); }
         }
@@ -541,12 +569,23 @@ namespace ComePlayers.CrazyRich
                 if (!this) return;
                 board.PlayResults(result.winner_seat);
                 if (result.won) sound.Play("win");
-                message.text = (result.won ? "🏆 WINNER" : "MATCH SELESAI") + " • +" + (result.reward?.gold_reward ?? 0) + " Gold • +" + (result.reward?.xp_reward ?? 0) + " XP";
+                var goldReward = result.reward?.gold_reward ?? 0;
+                var xpReward = result.reward?.xp_reward ?? 0;
+                message.text = (result.won ? "🏆 WINNER" : "MATCH SELESAI") + " • +" + goldReward + " Gold • +" + xpReward + " XP";
+                resultTitle.text = result.won ? "KAMU MENANG!" : "WORLD TOUR SELESAI";
+                resultTitle.color = result.won ? CrwtUi.Gold : CrwtUi.Cyan;
+                resultSubtitle.text = result.won
+                    ? "BINTANG JUARA  •  +" + goldReward + " GOLD  •  +" + xpReward + " XP"
+                    : "HASIL TERSIMPAN  •  +" + goldReward + " GOLD  •  +" + xpReward + " XP";
+                resultBanner.GetComponent<Image>().color = result.won
+                    ? Color.Lerp(CrwtUi.Card, CrwtUi.Gold, .18f)
+                    : Color.Lerp(CrwtUi.Card, CrwtUi.Cyan, .12f);
+                resultBanner.gameObject.SetActive(true);
             }
             catch { }
             if (!this) return;
             if (snap.your_seat > 0 && !snap.spectator) CrwtUi.Button(actions, "REMATCH", VoteRematch, CrwtUi.Gold);
-            CrwtUi.Button(actions, "LOBBY", ExitMatch, new Color(.70f,.72f,.78f));
+            CrwtUi.Button(actions, "LOBBY", ExitMatch, CrwtUi.Cyan);
             resultActionsBuilt = true;
             resultLoading = false;
         }
