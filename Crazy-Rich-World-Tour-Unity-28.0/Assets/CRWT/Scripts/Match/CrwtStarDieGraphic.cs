@@ -27,9 +27,17 @@ namespace ComePlayers.CrazyRich
                     Star(vh, p, r * .08f, new Color(1f, .96f, .62f));
                 }
             }
-            Disc(vh, center + new Vector2(0, -r * .07f), r * 1.04f, 7, new Color(.12f, .10f, .25f));
-            Disc(vh, center, r, 7, new Color(1f, .80f, .36f));
-            Disc(vh, center, r * .92f, 7, color);
+            Disc(vh, center + new Vector2(0, -r * .09f), r * 1.08f, 7, new Color(.055f, .045f, .14f, .92f));
+            Ring(vh, center, r * 1.055f, r * .97f, 56, new Color(1f, .84f, .40f, 1f));
+            for (int i = 0; i < 7; i++)
+            {
+                float petalAngle = (90f + i * 360f / 7f) * Mathf.Deg2Rad;
+                var petal = center + new Vector2(Mathf.Cos(petalAngle), Mathf.Sin(petalAngle)) * r * .72f;
+                Disc(vh, petal, r * .27f, 20, Color.Lerp(color, Color.white, .12f));
+            }
+            Disc(vh, center, r * .96f, 7, new Color(1f, .82f, .38f));
+            Disc(vh, center, r * .88f, 7, color);
+            Disc(vh, center + new Vector2(-r * .20f, r * .23f), r * .16f, 20, new Color(1f,1f,1f,.16f));
             for (int i = 0; i < 7; i++)
             {
                 float angle = (90f + i * 360f / 7f) * Mathf.Deg2Rad;
@@ -37,8 +45,8 @@ namespace ComePlayers.CrazyRich
                 Disc(vh, p, r * (i == Face ? .13f : .09f), 7,
                     i == Face ? new Color(1f, .95f, .65f) : new Color(1, 1, 1, .45f));
             }
-            Disc(vh, center, r * .56f, 56, new Color(.10f, .09f, .23f));
-            Ring(vh, center, r * .56f, r * .52f, 56,
+            Disc(vh, center, r * .55f, 56, new Color(.075f, .07f, .18f));
+            Ring(vh, center, r * .55f, r * .50f, 56,
                 Face == 0 ? new Color(.65f, 1f, .96f) : new Color(1, 1, 1, .75f));
         }
 

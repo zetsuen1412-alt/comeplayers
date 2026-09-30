@@ -16,9 +16,13 @@ namespace ComePlayers.CrazyRich
         private Text clockLabel;
         private RawImage portrait;
         private RectTransform playerPanel;
+        private RectTransform resultBanner;
+        private Text resultTitle;
+        private Text resultSubtitle;
         private CrwtActionSheet sheet;
         private CrwtAudio sound;
         private CrwtCameraOrbit orbit;
+        private Camera sceneCamera;
         private bool syncFailed;
         private bool timeoutBusy;
         private float nextTimeoutCheck;
@@ -27,6 +31,12 @@ namespace ComePlayers.CrazyRich
         private string actionSignature;
         private string pendingCue;
         private RectTransform actions;
+        private Button rollButton;
+        private RectTransform turnBanner;
+        private Text turnBannerLabel;
+        private RawImage turnPortrait;
+        private RectTransform turnTimerFill;
+        private string lastTurnCueKey;
         private float nextPoll;
         private bool polling;
         private bool actionBusy;
@@ -69,13 +79,15 @@ namespace ComePlayers.CrazyRich
         {
             var boardGo = new GameObject("CRWT_Board"); board = boardGo.AddComponent<CrwtBoardView>(); board.Build(CrwtSession.SelectedMapId);
             board.MovementFinished += Render;
-            var lightGo = new GameObject("KeyLight", typeof(Light)); var light = lightGo.GetComponent<Light>(); light.type = LightType.Directional; light.intensity = 1.25f; lightGo.transform.rotation = Quaternion.Euler(50, -35, 0);
-            RenderSettings.ambientLight = new Color(.34f,.39f,.50f);
+            var lightGo = new GameObject("KeyLight", typeof(Light)); var light = lightGo.GetComponent<Light>();
+            light.type = LightType.Directional; light.intensity = 1.18f; light.color = new Color(1f,.94f,.84f); lightGo.transform.rotation = Quaternion.Euler(50, -35, 0);
+            RenderSettings.ambientLight = new Color(.52f,.59f,.73f);
             var camGo = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener), typeof(CrwtCameraOrbit)); camGo.tag = "MainCamera";
             orbit = camGo.GetComponent<CrwtCameraOrbit>(); orbit.target = board.CameraTarget; orbit.distance = 21f; orbit.yaw = 0; orbit.pitch = 53f;
-            camGo.GetComponent<Camera>().fieldOfView = 44f;
-            camGo.GetComponent<Camera>().backgroundColor = new Color(.025f,.045f,.09f);
-            camGo.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
+            sceneCamera = camGo.GetComponent<Camera>();
+            sceneCamera.fieldOfView = 44f;
+            sceneCamera.backgroundColor = MapBackground(CrwtSession.SelectedMapId);
+            sceneCamera.clearFlags = CameraClearFlags.SolidColor;
             Application.targetFrameRate = PlayerPrefs.GetInt("CRWT_LowPower", 0) == 1 ? 30 : 60;
             sound = gameObject.AddComponent<CrwtAudio>();
             board.StepFinished += () => sound.Play("step");
@@ -91,7 +103,7 @@ namespace ComePlayers.CrazyRich
             dice.Initialize(safe);
             dice.ZeroReact += roll => board.ReactToZero(roll.seat);
             dice.Revealed += roll => sound.Play(roll.zero_roll ? "zero" : "reveal");
-            var top = CrwtUi.Panel(safe, "Turn bar", new Color(.02f,.035f,.07f,.96f), new Vector2(.015f,.875f), new Vector2(.985f,.985f), Vector2.zero, Vector2.zero);
+            var top = CrwtUi.Panel(safe, "Turn bar", new Color(.10f,.12f,.24f,.96f), new Vector2(.015f,.875f), new Vector2(.985f,.985f), Vector2.zero, Vector2.zero);
             portrait = CrwtHudArt.Portrait(top, "alexia");
             Place((RectTransform)portrait.transform, new Vector2(.01f,.08f), new Vector2(.07f,.92f));
             activePlayer = CrwtUi.Text(top, "MENGHUBUNGKAN...", 23, TextAnchor.MiddleLeft, Color.white);
@@ -102,21 +114,51 @@ namespace ComePlayers.CrazyRich
             Place(header.rectTransform, new Vector2(.35f,.38f), new Vector2(.64f,.98f));
             clockLabel = CrwtUi.Text(top, "", 20, TextAnchor.MiddleCenter, Color.white);
             Place(clockLabel.rectTransform, new Vector2(.35f,.04f), new Vector2(.64f,.42f));
-            var roster = CrwtUi.Button(top, "PEMAIN", () => playerPanel.gameObject.SetActive(!playerPanel.gameObject.activeSelf), new Color(.72f,.84f,.92f));
+            var roster = CrwtUi.Button(top, "PEMAIN", () => playerPanel.gameObject.SetActive(!playerPanel.gameObject.activeSelf), CrwtUi.Cyan);
             Place((RectTransform)roster.transform, new Vector2(.66f,.22f), new Vector2(.76f,.78f));
-            var settings = CrwtUi.Button(top, "OPSI", ShowSettings, new Color(.72f,.84f,.92f));
+            var settings = CrwtUi.Button(top, "OPSI", ShowSettings, CrwtUi.Lavender);
             Place((RectTransform)settings.transform, new Vector2(.78f,.22f), new Vector2(.86f,.78f));
-            var exit = CrwtUi.Button(top, "LOBBY", ExitMatch, new Color(.72f,.84f,.92f));
+            var exit = CrwtUi.Button(top, "LOBBY", ExitMatch, new Color(.72f,.79f,.93f));
             Place((RectTransform)exit.transform, new Vector2(.88f,.22f), new Vector2(.985f,.78f));
-            playerPanel = CrwtUi.Panel(safe, "Players drawer", new Color(.02f,.03f,.06f,.95f), new Vector2(.015f,.21f), new Vector2(.28f,.855f), Vector2.zero, Vector2.zero);
+            playerPanel = CrwtUi.Panel(safe, "Players drawer", new Color(.11f,.13f,.25f,.96f), new Vector2(.015f,.21f), new Vector2(.28f,.855f), Vector2.zero, Vector2.zero);
             players = CrwtUi.Text(playerPanel, "", 21, TextAnchor.UpperLeft, Color.white); CrwtUi.Fill(players.rectTransform, 20);
             players.resizeTextForBestFit = true; players.resizeTextMinSize = 14; players.resizeTextMaxSize = 21;
             playerPanel.gameObject.SetActive(false);
-            var status = CrwtUi.Panel(safe, "Event caption", new Color(.02f,.03f,.06f,.86f), new Vector2(.22f,.155f), new Vector2(.78f,.22f), Vector2.zero, Vector2.zero);
+            var status = CrwtUi.Panel(safe, "Event caption", new Color(.13f,.15f,.28f,.90f), new Vector2(.22f,.155f), new Vector2(.78f,.22f), Vector2.zero, Vector2.zero);
             message = CrwtUi.Text(status, "Menyiapkan papan...", 23, TextAnchor.MiddleCenter, Color.white); CrwtUi.Fill(message.rectTransform, 9);
             message.resizeTextForBestFit = true; message.resizeTextMinSize = 16; message.resizeTextMaxSize = 23;
-            actions = CrwtUi.Panel(safe, "Actions", new Color(.02f,.03f,.06f,.92f), new Vector2(.23f,.03f), new Vector2(.77f,.14f), Vector2.zero, Vector2.zero);
+            actions = CrwtUi.Panel(safe, "Actions", new Color(.11f,.13f,.25f,.94f), new Vector2(.22f,.025f), new Vector2(.78f,.145f), Vector2.zero, Vector2.zero);
             CrwtUi.Horizontal(actions, 10);
+
+            rollButton = CrwtUi.CircleButton(safe, "ROLL", () =>
+                RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold, 154);
+            rollButton.gameObject.SetActive(false);
+
+            turnBanner = CrwtUi.Panel(safe, "Your Turn Banner", new Color(.12f,.14f,.28f,.96f),
+                new Vector2(.36f,.735f), new Vector2(.64f,.805f), Vector2.zero, Vector2.zero);
+            turnPortrait = CrwtHudArt.Portrait(turnBanner, "alexia");
+            Place((RectTransform)turnPortrait.transform, new Vector2(.025f,.18f), new Vector2(.18f,.92f));
+            turnBannerLabel = CrwtUi.Text(turnBanner, "GILIRANMU", 24, TextAnchor.MiddleLeft, CrwtUi.Gold);
+            turnBannerLabel.resizeTextForBestFit = true; turnBannerLabel.resizeTextMinSize = 14; turnBannerLabel.resizeTextMaxSize = 24;
+            Place(turnBannerLabel.rectTransform, new Vector2(.21f,.34f), new Vector2(.96f,.96f));
+            var timerTrack = CrwtUi.Panel(turnBanner, "Turn Timer Track", new Color(.07f,.08f,.16f,.92f),
+                new Vector2(.08f,.10f), new Vector2(.92f,.28f), Vector2.zero, Vector2.zero);
+            turnTimerFill = CrwtUi.Panel(timerTrack, "Turn Timer Fill", CrwtUi.Gold,
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            turnBanner.gameObject.SetActive(false);
+
+            resultBanner = CrwtUi.Panel(safe, "Anime Result Banner", new Color(.14f,.12f,.28f,.98f),
+                new Vector2(.24f,.61f), new Vector2(.76f,.82f), Vector2.zero, Vector2.zero);
+            var crown = CrwtUi.Text(resultBanner, "★", 46, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            Place(crown.rectTransform, new Vector2(.04f,.52f), new Vector2(.14f,.96f));
+            resultTitle = CrwtUi.Text(resultBanner, "", 38, TextAnchor.MiddleCenter, CrwtUi.Gold);
+            resultTitle.resizeTextForBestFit = true; resultTitle.resizeTextMinSize = 24; resultTitle.resizeTextMaxSize = 38;
+            Place(resultTitle.rectTransform, new Vector2(.15f,.48f), new Vector2(.95f,.94f));
+            resultSubtitle = CrwtUi.Text(resultBanner, "", 22, TextAnchor.MiddleCenter, Color.white);
+            resultSubtitle.resizeTextForBestFit = true; resultSubtitle.resizeTextMinSize = 15; resultSubtitle.resizeTextMaxSize = 22;
+            Place(resultSubtitle.rectTransform, new Vector2(.08f,.08f), new Vector2(.92f,.50f));
+            resultBanner.gameObject.SetActive(false);
+
             sheet = gameObject.AddComponent<CrwtActionSheet>(); sheet.Initialize(safe);
         }
 
@@ -164,15 +206,32 @@ namespace ComePlayers.CrazyRich
             if (CrwtSession.SelectedMapId != snap.state.map_id && !string.IsNullOrEmpty(snap.state.map_id))
             {
                 CrwtSession.SelectedMapId = snap.state.map_id; board.Build(snap.state.map_id); orbit.target = board.CameraTarget;
+                if (sceneCamera) sceneCamera.backgroundColor = MapBackground(snap.state.map_id);
             }
             board.Apply(snap);
             header.text = CrwtRuntimeConfig.MapName(snap.state.map_id).ToUpperInvariant() + " • " + snap.round;
+            header.color = MapAccentUi(snap.state.map_id);
             var current = snap.state.players?.FirstOrDefault(p => p.seat == snap.turn_seat);
-            activePlayer.text = current == null ? "MENUNGGU PEMAIN" : (snap.turn_seat == snap.your_seat ? "GILIRANMU" : "GILIRAN " + current.name) + "\n" + current.cash + " K  •  " + current.character_id;
+            activePlayer.text = current == null ? "MENUNGGU PEMAIN" : (snap.turn_seat == snap.your_seat ? "GILIRANMU" : "GILIRAN " + current.name) + "\n" + current.cash + " K  •  " + CrwtHudArt.CharacterDisplayName(current.character_id);
+            activePlayer.color = snap.turn_seat == snap.your_seat ? CrwtUi.Gold : Color.white;
             CrwtHudArt.SetPortrait(portrait, current?.character_id);
+            var localRollTurn = snap.status == "active" && !snap.spectator && snap.your_seat > 0
+                && snap.turn_seat == snap.your_seat && snap.state.phase == "await_roll";
+            if (localRollTurn)
+            {
+                var cueKey = snap.turn_seat + ":" + snap.deadline_at;
+                CrwtHudArt.SetPortrait(turnPortrait, current?.character_id);
+                if (lastTurnCueKey != cueKey)
+                {
+                    lastTurnCueKey = cueKey;
+                    board.PlayTurnCue(snap.your_seat);
+                }
+            }
             if (!resultActionsBuilt && !rematchVoted) message.text = snap.state.message ?? snap.state.last_roll?.@event ?? "ONLINE";
             var sb = new StringBuilder();
-            foreach (var p in snap.state.players ?? Array.Empty<CrwtPlayer>()) sb.AppendLine((p.seat == snap.turn_seat ? "▶ " : "  ") + "S" + p.seat + "  " + p.name + "\n     " + p.cash + "K • Tile " + p.position + (p.bankrupt ? " • BANKRUPT" : ""));
+            foreach (var p in snap.state.players ?? Array.Empty<CrwtPlayer>())
+                sb.AppendLine((p.seat == snap.turn_seat ? "★ " : "  ") + "S" + p.seat + "  " + p.name + "  •  " + CrwtHudArt.CharacterDisplayName(p.character_id)
+                    + "\n     " + p.cash + "K • Tile " + p.position + (p.bankrupt ? " • BANKRUPT" : ""));
             players.text = sb.ToString();
             ValidateSheet();
             RebuildActions();
@@ -188,6 +247,8 @@ namespace ComePlayers.CrazyRich
             if (signature == actionSignature) return;
             actionSignature = signature;
             CrwtUi.Clear(actions);
+            SetRollPresentation(false);
+            SetActionLayout(false);
             if (snap == null) return;
             if (CrwtSession.IsGuest) { LabelAction("DEMO VISUAL • Login untuk ROLL"); return; }
             if (syncFailed) { LabelAction("Menghubungkan kembali..."); return; }
@@ -209,13 +270,14 @@ namespace ComePlayers.CrazyRich
                 {
                     CrwtUi.Button(actions, "GANJIL", () => ApplyFocus("odd"), CrwtUi.Cyan);
                     CrwtUi.Button(actions, "GENAP", () => ApplyFocus("even"), CrwtUi.Gold);
-                    CrwtUi.Button(actions, "BATAL", () => { choosingFocus = false; RebuildActions(); }, Color.gray);
+                    CrwtUi.Button(actions, "BATAL", () => { choosingFocus = false; actionSignature = null; RebuildActions(); }, Color.gray);
                     return;
                 }
-                CrwtUi.Button(actions, "ROLL", () => RunAction(() => CrwtAppRoot.Instance.Api.RollAsync(CrwtSession.MatchId), true), CrwtUi.Gold);
-                CrwtUi.Button(actions, "SKILL", UseSkill, CrwtUi.Cyan);
+                SetRollPresentation(true);
+                SetActionLayout(true);
+                CrwtUi.Button(actions, "SKILL", UseSkill, CrwtUi.Lavender, 72);
                 if ((snap.state.players?.FirstOrDefault(x => x.seat == snap.your_seat)?.cards?.Length ?? 0) > 0)
-                    CrwtUi.Button(actions, "KARTU", ShowCards, new Color(.90f,.68f,.86f));
+                    CrwtUi.Button(actions, "KARTU", ShowCards, CrwtUi.Rose, 72);
                 return;
             }
             var p = snap.state.pending;
@@ -247,6 +309,40 @@ namespace ComePlayers.CrazyRich
             }
             LabelAction("Sinkronisasi server...");
         }
+
+        private void SetRollPresentation(bool visible)
+        {
+            if (rollButton) rollButton.gameObject.SetActive(visible);
+            if (turnBanner) turnBanner.gameObject.SetActive(visible);
+        }
+
+        private void SetActionLayout(bool secondary)
+        {
+            if (!actions) return;
+            actions.anchorMin = secondary ? new Vector2(.61f,.035f) : new Vector2(.22f,.025f);
+            actions.anchorMax = secondary ? new Vector2(.82f,.135f) : new Vector2(.78f,.145f);
+            actions.offsetMin = actions.offsetMax = Vector2.zero;
+            var image = actions.GetComponent<Image>();
+            if (image) image.color = secondary ? new Color(.11f,.13f,.25f,.88f) : new Color(.11f,.13f,.25f,.94f);
+        }
+
+        private static Color MapBackground(string map) => map switch
+        {
+            "tokyo_rush" => new Color(.20f,.10f,.25f),
+            "tropical_paradise" => new Color(.10f,.38f,.45f),
+            "candy_world" => new Color(.32f,.15f,.38f),
+            "fantasy_kingdom" => new Color(.15f,.12f,.34f),
+            _ => new Color(.18f,.42f,.62f)
+        };
+
+        private static Color MapAccentUi(string map) => map switch
+        {
+            "tokyo_rush" => CrwtUi.Rose,
+            "tropical_paradise" => CrwtUi.Mint,
+            "candy_world" => new Color(1f,.65f,.34f),
+            "fantasy_kingdom" => CrwtUi.Lavender,
+            _ => CrwtUi.Cyan
+        };
 
         private void UseSkill()
         {
@@ -381,7 +477,7 @@ namespace ComePlayers.CrazyRich
                         int seat = candidate.seat;
                         CrwtUi.Button(sheet.Content, candidate.name, () => RunAction(() => CrwtAppRoot.Instance.Api.UseCardAsync(CrwtSession.MatchId, card, seat)), CrwtUi.Cyan);
                     }
-                }, new Color(.90f,.68f,.86f));
+                }, CrwtUi.Rose);
             }
         }
 
@@ -389,8 +485,8 @@ namespace ComePlayers.CrazyRich
         {
             sheet.Show("PENGATURAN", "settings");
             CrwtUi.Button(sheet.Content, "SUARA: " + (PlayerPrefs.GetInt("CRWT_Mute",0) == 0 ? "AKTIF" : "MATI"), () => { TogglePreference("CRWT_Mute"); ShowSettings(); }, CrwtUi.Cyan);
-            CrwtUi.Button(sheet.Content, "KURANGI GERAKAN: " + (PlayerPrefs.GetInt("CRWT_ReducedMotion",0) == 1 ? "YA" : "TIDAK"), () => { TogglePreference("CRWT_ReducedMotion"); ShowSettings(); }, CrwtUi.Cyan);
-            CrwtUi.Button(sheet.Content, "HEMAT DAYA: " + (PlayerPrefs.GetInt("CRWT_LowPower",0) == 1 ? "30 FPS" : "60 FPS"), () => { TogglePreference("CRWT_LowPower"); Application.targetFrameRate = PlayerPrefs.GetInt("CRWT_LowPower") == 1 ? 30 : 60; ShowSettings(); }, CrwtUi.Cyan);
+            CrwtUi.Button(sheet.Content, "KURANGI GERAKAN: " + (PlayerPrefs.GetInt("CRWT_ReducedMotion",0) == 1 ? "YA" : "TIDAK"), () => { TogglePreference("CRWT_ReducedMotion"); ShowSettings(); }, CrwtUi.Mint);
+            CrwtUi.Button(sheet.Content, "HEMAT DAYA: " + (PlayerPrefs.GetInt("CRWT_LowPower",0) == 1 ? "30 FPS" : "60 FPS"), () => { TogglePreference("CRWT_LowPower"); Application.targetFrameRate = PlayerPrefs.GetInt("CRWT_LowPower") == 1 ? 30 : 60; ShowSettings(); }, CrwtUi.Lavender);
             CrwtUi.Button(sheet.Content, "RESET KAMERA", () => { orbit.distance = 21; orbit.yaw = 0; orbit.pitch = 53; sheet.Close(); }, CrwtUi.Gold);
             sheet.Note("Geser papan untuk memutar kamera. Cubit dengan dua jari atau gunakan scroll untuk zoom.");
         }
@@ -401,6 +497,30 @@ namespace ComePlayers.CrazyRich
             if (snap?.state == null || !DateTimeOffset.TryParse(snap.deadline_at, out var deadline)) return;
             double seconds = (deadline - DateTimeOffset.UtcNow).TotalSeconds;
             clockLabel.text = snap.status == "finished" ? "PERTANDINGAN SELESAI" : "WAKTU " + Math.Max(0, Math.Ceiling(seconds)) + "s";
+            clockLabel.color = snap.status == "finished" ? CrwtUi.Gold : seconds <= 5 ? CrwtUi.Danger : Color.white;
+
+            var localRollTurn = snap.status == "active" && !snap.spectator && snap.your_seat > 0
+                && snap.turn_seat == snap.your_seat && snap.state.phase == "await_roll"
+                && !choosingFocus && !actionBusy && !dice.IsBusy && !board.IsMoving && !syncFailed;
+            if (localRollTurn && turnBanner && rollButton)
+            {
+                var remaining = Mathf.Clamp((float)seconds, 0f, 10f);
+                var me = snap.state.players?.FirstOrDefault(x => x.seat == snap.your_seat);
+                var speaker = CrwtHudArt.CharacterDisplayName(me?.character_id);
+                turnBannerLabel.text = "GILIRANMU  •  " + speaker + ": AYO ROLL!  •  AUTO ROLL " + Mathf.CeilToInt(remaining) + "s";
+                turnBannerLabel.color = remaining <= 3f ? CrwtUi.Danger : CrwtUi.Gold;
+                turnTimerFill.anchorMin = Vector2.zero;
+                turnTimerFill.anchorMax = new Vector2(remaining / 10f, 1f);
+                turnTimerFill.offsetMin = turnTimerFill.offsetMax = Vector2.zero;
+                turnTimerFill.GetComponent<Image>().color = remaining <= 3f ? CrwtUi.Danger : CrwtUi.Gold;
+                var reduced = PlayerPrefs.GetInt(CrwtCharacterView.ReducedMotionPreference,0) != 0;
+                var pulse = reduced ? 1f : 1f + Mathf.Sin(Time.unscaledTime * 5f) * .035f;
+                ((RectTransform)rollButton.transform).localScale = Vector3.one * pulse;
+            }
+            else if (rollButton)
+            {
+                ((RectTransform)rollButton.transform).localScale = Vector3.one;
+            }
             if (seconds <= -1 && Time.unscaledTime >= nextTimeoutCheck && !syncFailed && !timeoutBusy && !actionBusy && !dice.IsBusy && !board.IsMoving && snap.status == "active" && snap.your_seat > 0 && !snap.spectator)
             { nextTimeoutCheck = Time.unscaledTime + 3; TickTimeout(); }
         }
@@ -521,6 +641,8 @@ namespace ComePlayers.CrazyRich
         {
             if (resultActionsBuilt || resultLoading || dice.IsBusy || board.IsMoving || actionBusy) return;
             resultLoading = true;
+            SetRollPresentation(false);
+            SetActionLayout(false);
             CrwtUi.Clear(actions);
             try
             {
@@ -528,12 +650,23 @@ namespace ComePlayers.CrazyRich
                 if (!this) return;
                 board.PlayResults(result.winner_seat);
                 if (result.won) sound.Play("win");
-                message.text = (result.won ? "🏆 WINNER" : "MATCH SELESAI") + " • +" + (result.reward?.gold_reward ?? 0) + " Gold • +" + (result.reward?.xp_reward ?? 0) + " XP";
+                var goldReward = result.reward?.gold_reward ?? 0;
+                var xpReward = result.reward?.xp_reward ?? 0;
+                message.text = (result.won ? "🏆 WINNER" : "MATCH SELESAI") + " • +" + goldReward + " Gold • +" + xpReward + " XP";
+                resultTitle.text = result.won ? "KAMU MENANG!" : "WORLD TOUR SELESAI";
+                resultTitle.color = result.won ? CrwtUi.Gold : CrwtUi.Cyan;
+                resultSubtitle.text = result.won
+                    ? "BINTANG JUARA  •  +" + goldReward + " GOLD  •  +" + xpReward + " XP"
+                    : "HASIL TERSIMPAN  •  +" + goldReward + " GOLD  •  +" + xpReward + " XP";
+                resultBanner.GetComponent<Image>().color = result.won
+                    ? Color.Lerp(CrwtUi.Card, CrwtUi.Gold, .18f)
+                    : Color.Lerp(CrwtUi.Card, CrwtUi.Cyan, .12f);
+                resultBanner.gameObject.SetActive(true);
             }
             catch { }
             if (!this) return;
             if (snap.your_seat > 0 && !snap.spectator) CrwtUi.Button(actions, "REMATCH", VoteRematch, CrwtUi.Gold);
-            CrwtUi.Button(actions, "LOBBY", ExitMatch, new Color(.70f,.72f,.78f));
+            CrwtUi.Button(actions, "LOBBY", ExitMatch, CrwtUi.Cyan);
             resultActionsBuilt = true;
             resultLoading = false;
         }

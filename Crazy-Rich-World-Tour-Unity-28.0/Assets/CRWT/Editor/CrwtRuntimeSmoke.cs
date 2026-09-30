@@ -37,7 +37,7 @@ namespace ComePlayers.CrazyRich.Editor
         private static CrwtMatchController controller;
         private static CrwtBoardView board;
         private static CrwtDicePresenter dice;
-        private static bool capturedSession, savedGuest, finishing, capturedBoard;
+        private static bool capturedSession, savedGuest, finishing, capturedBoard, capturedHud;
         private static string savedMatch, savedMap, savedName;
         private static double startedAt;
         private static int steps, reveals, lastFrame = -1;
@@ -98,7 +98,7 @@ namespace ComePlayers.CrazyRich.Editor
             PlayerPrefs.SetInt("CRWT_Mute",1);
             PlayerPrefs.SetInt("CRWT_LowPower",0);
             Application.logMessageReceived += CaptureLog;
-            steps = 0; reveals = 0; lastFrame = -1; capturedBoard = false;
+            steps = 0; reveals = 0; lastFrame = -1; capturedBoard = false; capturedHud = false;
             Work.Push(ExerciseRuntime());
         }
 
@@ -162,6 +162,11 @@ namespace ComePlayers.CrazyRich.Editor
             Checks.Add("Actual match UI initialized without Auth/RPC; both dice, fonts, safe area and art loaded.");
             Accept(Snapshot(100,null,0));
             yield return Until(() => !board.IsMoving,5,"Initial snapshot reconciliation");
+            InvokeController("UpdateDeadline");
+            Canvas.ForceUpdateCanvases();
+            ValidateTurnHudGeometry();
+            yield return CaptureHud();
+            Checks.Add("Turn HUD geometry passed: circular ROLL, server countdown banner, safe-area containment and no primary overlap.");
             yield return Until(() => board.GetComponentsInChildren<CrwtCharacterView>().Length == 6
                 && board.GetComponentsInChildren<CrwtCharacterView>().All(c => c.HasImportedModel),30,"All six packaged GLB characters must import; a fallback does not pass this test");
             foreach (var character in board.GetComponentsInChildren<CrwtCharacterView>())
@@ -251,6 +256,7 @@ namespace ComePlayers.CrazyRich.Editor
             return new CrwtMatchSnapshot
             {
                 status="active",version=version,round=1,turn_seat=1,your_seat=1,
+                deadline_at=DateTimeOffset.UtcNow.AddSeconds(10).ToString("O"),
                 state=new CrwtMatchState
                 {
                     phase="await_roll",map_id="world_tour",win_condition="bankruptcy",last_roll=roll,
@@ -263,6 +269,67 @@ namespace ComePlayers.CrazyRich.Editor
                     }
                 }
             };
+        }
+
+        private static void InvokeController(string methodName)
+        {
+            var method = typeof(CrwtMatchController).GetMethod(methodName,BindingFlags.Instance|BindingFlags.NonPublic);
+            Require(method != null,"Match presentation method changed: " + methodName);
+            method.Invoke(controller,null);
+        }
+
+        private static void ValidateTurnHudGeometry()
+        {
+            var safe = Object.FindFirstObjectByType<CrwtSafeArea>()?.GetComponent<RectTransform>();
+            var roll = GameObject.Find("CircleButton_ROLL")?.GetComponent<RectTransform>();
+            var banner = GameObject.Find("Your Turn Banner")?.GetComponent<RectTransform>();
+            var top = GameObject.Find("Turn bar")?.GetComponent<RectTransform>();
+            var actions = GameObject.Find("Actions")?.GetComponent<RectTransform>();
+            var status = GameObject.Find("Event caption")?.GetComponent<RectTransform>();
+            Require(safe && roll && banner && top && actions && status,"Turn HUD runtime objects are incomplete.");
+            Require(roll.gameObject.activeInHierarchy && banner.gameObject.activeInHierarchy,"ROLL or GILIRANMU banner is hidden on local await_roll.");
+            Require(Mathf.Abs(roll.rect.width-roll.rect.height) <= 1f && roll.rect.width >= 130f,"ROLL button is not a large square/circular control.");
+            Require(RectContains(safe,roll,2f),"ROLL button leaves the safe area.");
+            Require(RectContains(safe,banner,2f),"Turn banner leaves the safe area.");
+            Require(!RectOverlap(roll,actions,2f),"ROLL overlaps the SKILL/KARTU action panel.");
+            Require(!RectOverlap(roll,status,2f),"ROLL overlaps the status/event caption.");
+            Require(!RectOverlap(banner,top,2f),"GILIRANMU banner overlaps the top turn bar.");
+            var label = banner.GetComponentInChildren<Text>();
+            Require(label && label.text.Contains("GILIRANMU") && label.text.Contains("AUTO ROLL"),"Turn banner does not show server countdown semantics.");
+            Require(banner.GetComponentInChildren<RawImage>(),"Turn banner is missing the speaking character portrait.");
+        }
+
+        private static Rect WorldRect(RectTransform rect)
+        {
+            var corners = new Vector3[4]; rect.GetWorldCorners(corners);
+            var minX = corners.Min(v=>v.x); var maxX = corners.Max(v=>v.x);
+            var minY = corners.Min(v=>v.y); var maxY = corners.Max(v=>v.y);
+            return Rect.MinMaxRect(minX,minY,maxX,maxY);
+        }
+
+        private static bool RectOverlap(RectTransform a, RectTransform b, float pad)
+        {
+            var x = WorldRect(a); var y = WorldRect(b);
+            x.xMin += pad; x.xMax -= pad; x.yMin += pad; x.yMax -= pad;
+            y.xMin += pad; y.xMax -= pad; y.yMin += pad; y.yMax -= pad;
+            return x.Overlaps(y);
+        }
+
+        private static bool RectContains(RectTransform parent, RectTransform child, float tolerance)
+        {
+            var outer = WorldRect(parent); var inner = WorldRect(child);
+            return inner.xMin >= outer.xMin-tolerance && inner.xMax <= outer.xMax+tolerance
+                && inner.yMin >= outer.yMin-tolerance && inner.yMax <= outer.yMax+tolerance;
+        }
+
+        private static IEnumerator CaptureHud()
+        {
+            Directory.CreateDirectory("Logs");
+            var path = Path.GetFullPath("Logs/unity-playmode-hud.png");
+            if (File.Exists(path)) File.Delete(path);
+            ScreenCapture.CaptureScreenshot(path,1);
+            yield return Until(()=>File.Exists(path) && new FileInfo(path).Length > 1024,5,"HUD screenshot capture");
+            capturedHud = true;
         }
 
         private static bool HasRollButton() => Object.FindObjectsByType<Button>(FindObjectsSortMode.None)
@@ -339,7 +406,9 @@ namespace ComePlayers.CrazyRich.Editor
             {
                 success=success,unityVersion=Application.unityVersion,error=error,checks=Checks.ToArray(),
                 runtimeErrors=Errors.ToArray(),warnings=Warnings.ToArray(),diceStates=DiceStates.OrderBy(s=>s).ToArray(),
-                renderedBoard=capturedBoard?"Logs/unity-playmode-board.png":"",device=SystemInfo.graphicsDeviceName,
+                renderedBoard=capturedBoard?"Logs/unity-playmode-board.png":"",
+                renderedHud=capturedHud?"Logs/unity-playmode-hud.png":"",
+                device=SystemInfo.graphicsDeviceName,
                 gameplayRpcClientCreated=Object.FindFirstObjectByType<CrwtAppRoot>() != null
             },true));
             CrwtBuildMenu.WriteResult("PlayMode",success,error);
@@ -383,7 +452,7 @@ namespace ComePlayers.CrazyRich.Editor
         [Serializable] private sealed class SmokeResult
         {
             public bool success;
-            public string unityVersion,error,renderedBoard,device;
+            public string unityVersion,error,renderedBoard,renderedHud,device;
             public string[] checks,runtimeErrors,warnings,diceStates;
             public bool gameplayRpcClientCreated;
         }

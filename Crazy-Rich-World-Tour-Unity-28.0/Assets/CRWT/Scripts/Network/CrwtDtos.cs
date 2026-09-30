@@ -174,6 +174,102 @@ namespace ComePlayers.CrazyRich
         public string @event;
     }
 
+    [Serializable] public sealed class CrwtProgressionProfile
+    {
+        public string display_name;
+        public int level;
+        public int xp;
+        public long gold;
+        public int diamonds;
+        public string character_id;
+        public string dice_id;
+        public string[] deck;
+    }
+
+    [Serializable] public sealed class CrwtProgressionItem
+    {
+        public string id;
+        public string name;
+        public string rarity;
+        public string skill_name;
+        public string description;
+        public string effect_type;
+        public string unlock_currency;
+        public int unlock_cost;
+        public int max_level;
+        public bool owned;
+        public int level;
+        public int mastery_xp;
+        public int matches_played;
+        public int wins;
+        public int uses;
+    }
+
+    [Serializable] public sealed class CrwtProgressionSystem
+    {
+        public bool pendant_artifact;
+        public bool ranked_progression_normalized;
+    }
+
+    [Serializable] public sealed class CrwtProgressionSnapshot
+    {
+        public CrwtProgressionProfile profile;
+        public CrwtProgressionItem[] characters;
+        public CrwtProgressionItem[] dice;
+        public CrwtProgressionItem[] cards;
+        public CrwtProgressionSystem system;
+    }
+
+    [Serializable] public sealed class CrwtLobbyEvent
+    {
+        public string id;
+        public string title;
+        public string subtitle;
+        public string description;
+        public string starts_at;
+        public string ends_at;
+        public string accent;
+    }
+
+    [Serializable] public sealed class CrwtMission
+    {
+        public string id;
+        public string event_id;
+        public string cadence;
+        public string title;
+        public string description;
+        public string metric;
+        public int target;
+        public int progress;
+        public bool completed;
+        public bool claimed;
+        public long reward_gold;
+        public int reward_diamonds;
+        public string period_key;
+        public string reset_at;
+    }
+
+    [Serializable] public sealed class CrwtEventSnapshot
+    {
+        public string server_now;
+        public string daily_reset_at;
+        public string weekly_reset_at;
+        public int claimable;
+        public CrwtLobbyEvent[] events;
+        public CrwtMission[] missions;
+    }
+
+    [Serializable] public sealed class CrwtMissionClaimResponse
+    {
+        public bool ok;
+        public string mission_id;
+        public string period_key;
+        public long reward_gold;
+        public int reward_diamonds;
+        public CrwtEventSnapshot events;
+        public CrwtProgressionSnapshot progression;
+    }
+
     [Serializable] public sealed class CrwtReward { public int gold_reward; public int xp_reward; public int mastery_reward; }
     [Serializable] public sealed class CrwtRankedResult { public int placement; public int rating_before; public int rating_delta; public int rating_after; public string tier_after; }
     [Serializable] public sealed class CrwtResultPlayer { public int seat; public string name; public string character_id; public int cash; public bool bankrupt; public bool winner; }

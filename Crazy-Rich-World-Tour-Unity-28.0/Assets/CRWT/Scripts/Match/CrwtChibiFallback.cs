@@ -24,9 +24,10 @@ namespace ComePlayers.CrazyRich
             var ink = MakeMaterial(new Color(.075f, .06f, .12f));
             var white = MakeMaterial(new Color(1f, .98f, .94f));
             var gold = MakeMaterial(new Color(1f, .72f, .24f));
-            var rose = MakeMaterial(new Color(1f, .39f, .49f));
+            var rose = MakeMaterial(new Color(1f, .47f, .62f));
             var hair = MakeMaterial(HairColor(id));
             var outfit = MakeMaterial(OutfitColor(id));
+            var iris = MakeMaterial(EyeColor(id));
 
             Part("Coat", transform, new Vector3(0, .49f, 0), new Vector3(.34f, .40f, .25f), outfit);
             Part("Collar", transform, new Vector3(0, .65f, .045f), new Vector3(.29f, .075f, .25f), white);
@@ -53,24 +54,24 @@ namespace ComePlayers.CrazyRich
                 var bang = Part("Bangs", head, new Vector3(i * .075f, .105f - Mathf.Abs(i) * .012f, .177f), new Vector3(.145f, .18f, .10f), hair);
                 bang.localRotation = Quaternion.Euler(0, 0, i * -13);
             }
-            leftEye = Part("LeftEye", head, new Vector3(-.092f, -.055f, .218f), new Vector3(.063f, .095f, .025f), ink);
-            rightEye = Part("RightEye", head, new Vector3(.092f, -.055f, .218f), new Vector3(.063f, .095f, .025f), ink);
-            foreach (var x in new[] { -.092f, .092f })
-            {
-                Part("EyeSpark", head, new Vector3(x - .009f, -.032f, .235f), Vector3.one * .022f, white);
-                Part("Cheek", head, new Vector3(x * 1.46f, -.105f, .202f), new Vector3(.07f, .024f, .015f), rose);
-            }
+            leftEye = Eye(head, "LeftEye", -.105f, white, iris, ink);
+            rightEye = Eye(head, "RightEye", .105f, white, iris, ink);
+            foreach (var x in new[] { -.105f, .105f })
+                Part("Cheek", head, new Vector3(x * 1.42f, -.105f, .202f), new Vector3(.075f, .027f, .015f), rose);
             Part("Smile", head, new Vector3(0, -.123f, .225f), new Vector3(.05f, .018f, .015f), ink);
 
             switch (id)
             {
                 case "alexia":
-                    Part("LeftTwintail", head, new Vector3(-.27f, -.11f, -.065f), new Vector3(.17f, .40f, .20f), hair);
-                    Part("RightTwintail", head, new Vector3(.27f, -.11f, -.065f), new Vector3(.17f, .40f, .20f), hair);
-                    for (var i = -1; i <= 1; i++) Part("CrownPearl", head, new Vector3(i * .07f, .24f + (i == 0 ? .025f : 0), .02f), new Vector3(.065f, .10f, .065f), gold);
+                    Part("BobLockLeft", head, new Vector3(-.27f, -.10f, -.055f), new Vector3(.15f, .30f, .17f), hair);
+                    Part("BobLockRight", head, new Vector3(.27f, -.10f, -.055f), new Vector3(.15f, .30f, .17f), hair);
+                    var ribbon = Part("NavyRibbon", head, new Vector3(-.19f, .20f, .02f), new Vector3(.16f, .085f, .075f), outfit);
+                    ribbon.localRotation = Quaternion.Euler(0, 0, 24);
+                    Part("GoldStarPin", head, new Vector3(-.10f, .22f, .12f), Vector3.one * .065f, gold);
                     break;
                 case "rindi":
-                    Part("SidePonytail", head, new Vector3(.25f, -.035f, -.10f), new Vector3(.22f, .40f, .24f), hair);
+                    Part("LeftTwintail", head, new Vector3(-.27f, -.10f, -.075f), new Vector3(.18f, .38f, .20f), hair);
+                    Part("RightTwintail", head, new Vector3(.27f, -.10f, -.075f), new Vector3(.18f, .38f, .20f), hair);
                     var bow = Part("RibbonLeft", head, new Vector3(.15f, .23f, .01f), new Vector3(.15f, .095f, .085f), rose);
                     bow.localRotation = Quaternion.Euler(0, 0, -25);
                     Part("RibbonRight", head, new Vector3(.28f, .23f, .01f), new Vector3(.15f, .095f, .085f), rose).localRotation = Quaternion.Euler(0, 0, 25);
@@ -99,8 +100,8 @@ namespace ComePlayers.CrazyRich
         public void SetZeroExpression(bool value)
         {
             zeroExpression = value;
-            if (leftEye) leftEye.localScale = new Vector3(.063f, value ? .02f : .095f, .025f);
-            if (rightEye) rightEye.localScale = new Vector3(.063f, value ? .02f : .095f, .025f);
+            if (leftEye) leftEye.localScale = new Vector3(1f, value ? .18f : 1f, 1f);
+            if (rightEye) rightEye.localScale = new Vector3(1f, value ? .18f : 1f, 1f);
         }
 
         public void Animate(bool moving, bool reducedMotion, string reaction, float progress)
@@ -128,7 +129,7 @@ namespace ComePlayers.CrazyRich
         {
             var material = CrwtBoardArt.CreateStandardMaterial("CRWT Chibi Fallback");
             material.color = color;
-            material.SetFloat("_Glossiness", .28f);
+            material.SetFloat("_Glossiness", .12f);
             materials.Add(material);
             return material;
         }
@@ -155,16 +156,39 @@ namespace ComePlayers.CrazyRich
             return item.transform;
         }
 
+        private static Transform Eye(Transform parent, string name, float x, Material white, Material iris, Material ink)
+        {
+            var root = Joint(name, parent, new Vector3(x, -.052f, .214f));
+            Part("EyeWhite", root, Vector3.zero, new Vector3(.078f, .108f, .028f), white);
+            Part("Iris", root, new Vector3(0, -.004f, .024f), new Vector3(.052f, .078f, .027f), iris);
+            Part("Pupil", root, new Vector3(0, -.006f, .045f), new Vector3(.025f, .052f, .018f), ink);
+            Part("EyeSpark", root, new Vector3(-.018f, .030f, .061f), Vector3.one * .018f, white);
+            return root;
+        }
+
+        private static Color EyeColor(string id)
+        {
+            switch (id)
+            {
+                case "rindi": return new Color(.14f, .78f, .76f);
+                case "kairo": return new Color(.20f, .72f, 1f);
+                case "luna": return new Color(.70f, .52f, 1f);
+                case "nox": return new Color(.85f, .42f, 1f);
+                case "atlas": return new Color(.28f, .80f, .57f);
+                default: return new Color(.20f, .82f, 1f);
+            }
+        }
+
         private static Color HairColor(string id)
         {
             switch (id)
             {
-                case "rindi": return new Color(.78f, .20f, .22f);
+                case "rindi": return new Color(1f, .40f, .62f);
                 case "kairo": return new Color(.14f, .19f, .32f);
                 case "luna": return new Color(.68f, .62f, .92f);
                 case "nox": return new Color(.10f, .08f, .17f);
                 case "atlas": return new Color(.40f, .24f, .12f);
-                default: return new Color(.95f, .67f, .31f);
+                default: return new Color(.90f, .94f, 1f);
             }
         }
 
@@ -177,7 +201,7 @@ namespace ComePlayers.CrazyRich
                 case "luna": return new Color(.46f, .30f, .77f);
                 case "nox": return new Color(.24f, .15f, .34f);
                 case "atlas": return new Color(.17f, .56f, .41f);
-                default: return new Color(.26f, .70f, .69f);
+                default: return new Color(.16f, .29f, .55f);
             }
         }
 

@@ -7,11 +7,99 @@ namespace ComePlayers.CrazyRich
 {
     public static class CrwtUi
     {
-        public static readonly Color Bg = new Color(0.025f, 0.035f, 0.07f, 1f);
-        public static readonly Color Card = new Color(0.06f, 0.08f, 0.14f, 0.96f);
-        public static readonly Color Gold = new Color(1f, 0.76f, 0.18f, 1f);
-        public static readonly Color Cyan = new Color(0.12f, 0.78f, 0.95f, 1f);
-        public static readonly Color Danger = new Color(0.92f, 0.25f, 0.30f, 1f);
+        public static readonly Color Bg = new Color(.045f, .065f, .13f, 1f);
+        public static readonly Color Card = new Color(.105f, .12f, .24f, .97f);
+        public static readonly Color Gold = new Color(1f, .78f, .25f, 1f);
+        public static readonly Color Cyan = new Color(.24f, .82f, .96f, 1f);
+        public static readonly Color Danger = new Color(.97f, .36f, .43f, 1f);
+        public static readonly Color Rose = new Color(1f, .48f, .67f, 1f);
+        public static readonly Color Mint = new Color(.38f, .90f, .70f, 1f);
+        public static readonly Color Lavender = new Color(.67f, .55f, 1f, 1f);
+        public static readonly Color Ink = new Color(.065f, .08f, .16f, 1f);
+        private static Sprite roundedSprite;
+        private static Sprite circleSprite;
+
+        private static Sprite CircleSprite
+        {
+            get
+            {
+                if (circleSprite) return circleSprite;
+                const int size = 64;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+                {
+                    name = "CRWT Anime Circle UI",
+                    wrapMode = TextureWrapMode.Clamp,
+                    filterMode = FilterMode.Bilinear,
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                var pixels = new Color32[size * size];
+                var center = (size - 1) * .5f;
+                var radius = center - 1f;
+                for (var y = 0; y < size; y++)
+                for (var x = 0; x < size; x++)
+                {
+                    var dx = x - center; var dy = y - center;
+                    var distance = Mathf.Sqrt(dx * dx + dy * dy);
+                    var alpha = (byte)Mathf.RoundToInt(Mathf.Clamp01(radius + .8f - distance) * 255f);
+                    pixels[y * size + x] = new Color32(255,255,255,alpha);
+                }
+                texture.SetPixels32(pixels); texture.Apply(false,true);
+                circleSprite = Sprite.Create(texture,new Rect(0,0,size,size),new Vector2(.5f,.5f),100f);
+                circleSprite.name = "CRWT Anime Circle UI";
+                circleSprite.hideFlags = HideFlags.HideAndDontSave;
+                return circleSprite;
+            }
+        }
+
+        private static Sprite RoundedSprite
+        {
+            get
+            {
+                if (roundedSprite) return roundedSprite;
+                const int size = 48, radius = 13;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+                {
+                    name = "CRWT Anime Rounded UI",
+                    wrapMode = TextureWrapMode.Clamp,
+                    filterMode = FilterMode.Bilinear,
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                var pixels = new Color32[size * size];
+                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    var cx = Mathf.Clamp(x, radius, size - 1 - radius);
+                    var cy = Mathf.Clamp(y, radius, size - 1 - radius);
+                    var inside = (x - cx) * (x - cx) + (y - cy) * (y - cy) <= radius * radius;
+                    pixels[y * size + x] = new Color32(255, 255, 255, inside ? (byte)255 : (byte)0);
+                }
+                texture.SetPixels32(pixels); texture.Apply(false, true);
+                roundedSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(.5f, .5f), 100f, 0,
+                    SpriteMeshType.FullRect, new Vector4(14, 14, 14, 14));
+                roundedSprite.name = "CRWT Anime Rounded UI";
+                roundedSprite.hideFlags = HideFlags.HideAndDontSave;
+                return roundedSprite;
+            }
+        }
+
+        public static Color TextColor(Color background)
+        {
+            var luma = background.r * .299f + background.g * .587f + background.b * .114f;
+            return luma > .58f ? Ink : Color.white;
+        }
+
+        public static void StyleImage(Image image, Color color, bool outline = true)
+        {
+            if (!image) return;
+            image.sprite = RoundedSprite;
+            image.type = Image.Type.Sliced;
+            image.color = color;
+            if (!outline || color.a <= .01f) return;
+            var edge = image.GetComponent<Outline>() ?? image.gameObject.AddComponent<Outline>();
+            edge.effectColor = new Color(1f, 1f, 1f, .18f);
+            edge.effectDistance = new Vector2(1.5f, -1.5f);
+            edge.useGraphicAlpha = true;
+        }
 
         public static Canvas CreateCanvas(string name = "UI")
         {
@@ -36,7 +124,9 @@ namespace ComePlayers.CrazyRich
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = anchorMin; rt.anchorMax = anchorMax; rt.offsetMin = offsetMin; rt.offsetMax = offsetMax;
-            go.GetComponent<Image>().color = color;
+            var image = go.GetComponent<Image>();
+            if (name == "Background" || name == "Safe area") image.color = color;
+            else StyleImage(image, color);
             return rt;
         }
 
@@ -61,13 +151,58 @@ namespace ComePlayers.CrazyRich
         {
             var go = new GameObject("Button_" + label, typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = color ?? Gold;
+            var buttonColor = color ?? Gold;
+            StyleImage(go.GetComponent<Image>(), buttonColor);
             go.GetComponent<LayoutElement>().preferredHeight = height;
             go.GetComponent<LayoutElement>().flexibleWidth = 1;
             var btn = go.GetComponent<Button>();
+            btn.targetGraphic = go.GetComponent<Image>();
+            btn.transition = Selectable.Transition.ColorTint;
+            btn.colors = new ColorBlock
+            {
+                normalColor = Color.white,
+                highlightedColor = Color.Lerp(Color.white, buttonColor, .12f),
+                pressedColor = Color.Lerp(Color.white, Ink, .22f),
+                selectedColor = Color.white,
+                disabledColor = new Color(.58f, .61f, .70f, .52f),
+                colorMultiplier = 1f,
+                fadeDuration = .08f
+            };
             if (clicked != null) btn.onClick.AddListener(() => clicked());
-            var tx = Text(go.transform, label, 25, TextAnchor.MiddleCenter, Color.black);
+            var tx = Text(go.transform, label, 25, TextAnchor.MiddleCenter, TextColor(buttonColor));
             Fill(tx.rectTransform, 8);
+            return btn;
+        }
+
+        public static Button CircleButton(Transform parent, string label, Action clicked, Color color, float diameter = 150f)
+        {
+            var go = new GameObject("CircleButton_" + label, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(.5f,0);
+            rt.pivot = new Vector2(.5f,.5f);
+            rt.sizeDelta = new Vector2(diameter, diameter);
+            rt.anchoredPosition = new Vector2(0, diameter * .56f);
+            var image = go.GetComponent<Image>();
+            image.sprite = CircleSprite; image.type = Image.Type.Simple; image.color = color;
+            var edge = go.AddComponent<Outline>(); edge.effectColor = new Color(1f,1f,1f,.28f); edge.effectDistance = new Vector2(2,-2);
+            var btn = go.GetComponent<Button>();
+            btn.targetGraphic = image;
+            btn.transition = Selectable.Transition.ColorTint;
+            btn.colors = new ColorBlock
+            {
+                normalColor=Color.white,
+                highlightedColor=Color.Lerp(Color.white,color,.12f),
+                pressedColor=Color.Lerp(Color.white,Ink,.24f),
+                selectedColor=Color.white,
+                disabledColor=new Color(.58f,.61f,.70f,.52f),
+                colorMultiplier=1f,
+                fadeDuration=.08f
+            };
+            if (clicked != null) btn.onClick.AddListener(()=>clicked());
+            var text = Text(go.transform,label,28,TextAnchor.MiddleCenter,TextColor(color));
+            Fill(text.rectTransform,18);
+            text.fontStyle = FontStyle.Bold;
             return btn;
         }
 
@@ -75,7 +210,7 @@ namespace ComePlayers.CrazyRich
         {
             var go = new GameObject("Input_" + placeholder, typeof(RectTransform), typeof(Image), typeof(InputField), typeof(LayoutElement));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = new Color(0.12f, 0.14f, 0.20f, 1f);
+            StyleImage(go.GetComponent<Image>(), new Color(.12f, .15f, .29f, 1f));
             go.GetComponent<LayoutElement>().preferredHeight = 64f;
             var field = go.GetComponent<InputField>();
             var tx = Text(go.transform, "", 23, TextAnchor.MiddleLeft, Color.white);
@@ -110,6 +245,31 @@ namespace ComePlayers.CrazyRich
             h.childForceExpandHeight = false;
             h.childForceExpandWidth = true;
             return h;
+        }
+
+        public static RectTransform Badge(Transform parent, string label, Color color,
+            Vector2 anchorMin, Vector2 anchorMax, int fontSize = 15)
+        {
+            var badge = Panel(parent, "Badge_" + label, color, anchorMin, anchorMax, Vector2.zero, Vector2.zero);
+            var text = Text(badge, label, fontSize, TextAnchor.MiddleCenter, TextColor(color));
+            Fill(text.rectTransform, 3);
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = Mathf.Max(10, fontSize - 4);
+            text.resizeTextMaxSize = fontSize;
+            return badge;
+        }
+
+        public static RectTransform ProgressBar(Transform parent, float value, Color color, float height = 12f)
+        {
+            var bar = Panel(parent, "Progress", new Color(.08f,.10f,.18f,.90f),
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            var layout = bar.gameObject.AddComponent<LayoutElement>();
+            layout.preferredHeight = height;
+            layout.flexibleWidth = 1;
+            var fill = Panel(bar, "Fill", color, Vector2.zero,
+                new Vector2(Mathf.Clamp01(value), 1f), Vector2.zero, Vector2.zero);
+            fill.GetComponent<Image>().raycastTarget = false;
+            return bar;
         }
 
         public static void Fill(RectTransform rt, float pad = 0)

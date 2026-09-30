@@ -17,13 +17,15 @@ namespace ComePlayers.CrazyRich
             Close(); Context = context;
             var shade = CrwtUi.Panel(canvas, "Choice overlay", new Color(0,0,0,.68f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             overlay = shade.gameObject;
-            var panel = CrwtUi.Panel(shade, "Choice sheet", CrwtUi.Card, new Vector2(.20f,.17f), new Vector2(.80f,.84f), Vector2.zero, Vector2.zero);
+            var panel = CrwtUi.Panel(shade, "Choice sheet", Color.Lerp(CrwtUi.Card, CrwtUi.Lavender, .10f), new Vector2(.18f,.15f), new Vector2(.82f,.86f), Vector2.zero, Vector2.zero);
+            CrwtUi.Panel(panel, "Anime title ribbon", Color.Lerp(CrwtUi.Lavender, CrwtUi.Card, .38f),
+                new Vector2(.025f,.845f), new Vector2(.975f,.985f), Vector2.zero, Vector2.zero).GetComponent<Image>().raycastTarget = false;
             var heading = CrwtUi.Text(panel, title, 28, TextAnchor.MiddleLeft, CrwtUi.Gold);
             heading.rectTransform.anchorMin = new Vector2(.05f,.86f); heading.rectTransform.anchorMax = new Vector2(.80f,.99f);
             heading.rectTransform.offsetMin = heading.rectTransform.offsetMax = Vector2.zero;
-            var close = CrwtUi.Button(panel, "TUTUP", Close, new Color(.72f,.79f,.87f), 54);
+            var close = CrwtUi.Button(panel, "TUTUP", Close, CrwtUi.Rose, 54);
             var cr = (RectTransform)close.transform; cr.anchorMin = new Vector2(.82f,.89f); cr.anchorMax = new Vector2(.97f,.98f); cr.offsetMin = cr.offsetMax = Vector2.zero;
-            var view = CrwtUi.Panel(panel, "Viewport", new Color(1,1,1,.015f), new Vector2(.03f,.04f), new Vector2(.97f,.84f), Vector2.zero, Vector2.zero);
+            var view = CrwtUi.Panel(panel, "Viewport", new Color(.08f,.10f,.20f,.74f), new Vector2(.03f,.04f), new Vector2(.97f,.83f), Vector2.zero, Vector2.zero);
             view.gameObject.AddComponent<RectMask2D>();
             Content = CrwtUi.Panel(view, "Options", Color.clear, new Vector2(0,1), Vector2.one, Vector2.zero, Vector2.zero);
             Content.pivot = new Vector2(.5f,1);
@@ -35,8 +37,11 @@ namespace ComePlayers.CrazyRich
         }
         public Text Note(string text)
         {
-            var label = CrwtUi.Text(Content, text, 22, TextAnchor.MiddleLeft, Color.white);
-            label.gameObject.AddComponent<LayoutElement>().preferredHeight = 72;
+            var card = CrwtUi.Panel(Content, "Anime note", new Color(.13f,.16f,.29f,.94f),
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            card.gameObject.AddComponent<LayoutElement>().preferredHeight = 78;
+            var label = CrwtUi.Text(card, text, 22, TextAnchor.MiddleLeft, Color.white);
+            CrwtUi.Fill(label.rectTransform, 16);
             label.resizeTextForBestFit = true; label.resizeTextMinSize = 16; label.resizeTextMaxSize = 22;
             return label;
         }
