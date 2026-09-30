@@ -1,0 +1,67 @@
+{
+  "source_revision": 10,
+  "method": "CPU forward-kinematics comparison against authored roster",
+  "results": [
+    {
+      "character": "alexia",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "rindi",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "kairo",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "luna",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "nox",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "atlas",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.660010258101863e-07
+    },
+    {
+      "character": "zeno",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "yuna",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 360,
+      "max_matrix_error": 3.218690893198256e-07
+    },
+    {
+      "character": "mochi",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 240,
+      "max_matrix_error": 2.2808575597687773e-07
+    },
+    {
+      "character": "pip",
+      "six_clips_pose_preserved": true,
+      "joint_pose_comparisons": 216,
+      "max_matrix_error": 1.3741034406711261e-06
+    }
+  ],
+  "visual_final_approved": false
+}

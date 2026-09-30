@@ -1,0 +1,196 @@
+{
+  "source_revision": 10,
+  "characters": [
+    {
+      "id": "alexia",
+      "bytes": 1955096,
+      "sha256": "1f53e8bffe7b89fd6f5b7cf484947b0618fbe1a8e3d53f7a8f25a2e4308c2c1a",
+      "mesh_primitives": 11,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.9984014443252818e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "rindi",
+      "bytes": 2196416,
+      "sha256": "836fb376255c1b062f7a63132c588ab517c51bf771fa3f628a96a2df64d4c99a",
+      "mesh_primitives": 11,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.3869114190434573e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "kairo",
+      "bytes": 2049952,
+      "sha256": "76035333bbd03d1630306a10c6683482f9d945875bbbff582947cedec966b486",
+      "mesh_primitives": 14,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.582067810090848e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "luna",
+      "bytes": 2010496,
+      "sha256": "d40be4fb195a8ab1eeaee8999e91b9b57a183867dd1d2a74cc40950fb9a3c2db",
+      "mesh_primitives": 14,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 2.3226228925237705e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "nox",
+      "bytes": 2229072,
+      "sha256": "849837d3c075084632298c6c9cb589409411af11e4a37363aaa785a47d8bafb8",
+      "mesh_primitives": 13,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.429412144204889e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "atlas",
+      "bytes": 1853896,
+      "sha256": "70db6abfcda406158c9d75d1708e0f0853424b5a8a4813e4b9920d196a9efcf7",
+      "mesh_primitives": 16,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.3877787807814457e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "zeno",
+      "bytes": 2090164,
+      "sha256": "5fec7efcacc1634a4d415d53ec454d60d9b4ba4c7eeeb75c9c0c74305ec58924",
+      "mesh_primitives": 16,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.4155343563970746e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "yuna",
+      "bytes": 1894524,
+      "sha256": "7d90f730bec9c3ea61e629b1c9e96697349166f8931983a444000ad409b04ec9",
+      "mesh_primitives": 20,
+      "skins": 1,
+      "joints": 15,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.3604024641679499e-15,
+      "visual_final_approved": false
+    },
+    {
+      "id": "mochi",
+      "bytes": 1486964,
+      "sha256": "12feeb2a41153d7aea5f331dfb248ae15ebcbd4edac5ef9d51eaa432f91973e3",
+      "mesh_primitives": 11,
+      "skins": 1,
+      "joints": 10,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 5.537581521862129e-16,
+      "visual_final_approved": false
+    },
+    {
+      "id": "pip",
+      "bytes": 2542668,
+      "sha256": "5bc6584acb877f17a6be41a1581bb8956f7280630836df507e8b9ab82caaa641",
+      "mesh_primitives": 13,
+      "skins": 1,
+      "joints": 9,
+      "images": 1,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Jump",
+        "Skill",
+        "Win",
+        "Lose"
+      ],
+      "coordinate_identity_max_error": 1.1657341758564144e-15,
+      "visual_final_approved": false
+    }
+  ],
+  "visual_final_approved": false
+}
