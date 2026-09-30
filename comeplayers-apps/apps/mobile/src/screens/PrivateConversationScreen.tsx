@@ -48,15 +48,19 @@ export function PrivateConversationScreen({ room, session, onBack, onRead, onNav
       : await messenger.vault.search<PrivateMessage>("message-v2", room.id, matches, limit + 1, () => refreshVersion.current !== version);
     if (refreshVersion.current !== version) return;
     const displayed = rows.slice(0, limit);
-    setMessages(displayed); setOlder(rows.length > limit); setLoading(false);
+    setMessages(previous => previous.length === displayed.length && previous.every((message, index) => message === displayed[index]) ? previous : displayed); setOlder(rows.length > limit); setLoading(false);
     if (displayed.some(m => m.sender_id !== session.user.id && !m.is_read && !m.legacy)) { await messenger.markRead(room.id, receiptPreference.current, displayed.map(m => m.id)); readCallback.current(); }
   }, [messenger, room.id, session.user.id, query, filter, pref?.cleared_before]);
   useEffect(() => { let alive = true; receiptPreference.current = false; void loadPreferences().then(p => { if (alive) receiptPreference.current = p.settings.read_receipts; }).catch(() => undefined); return () => { alive = false; }; }, [session.user.id]);
   useEffect(() => {
     let alive = true; loadedLimit.current = 40;
-    const update = () => { if (alive) void refresh().catch(e => setError(e.message)); };
-    const timer = setTimeout(update, query ? 200 : 0); const unsubscribe = messenger?.subscribe(update);
-    return () => { alive = false; refreshVersion.current++; clearTimeout(timer); unsubscribe?.(); };
+    let scheduled: ReturnType<typeof setTimeout> | undefined;
+    const update = () => { if (alive) void refresh().catch(e => { if (alive) setError(e.message); }); };
+    const timer = setTimeout(update, query ? 200 : 0);
+    const unsubscribe = messenger?.subscribe(() => {
+      if (!scheduled) scheduled = setTimeout(() => { scheduled = undefined; update(); }, 50);
+    });
+    return () => { alive = false; refreshVersion.current++; clearTimeout(timer); clearTimeout(scheduled); unsubscribe?.(); };
   }, [refresh, messenger]);
   useEffect(() => {
     if (!messenger) return;
@@ -71,11 +75,12 @@ export function PrivateConversationScreen({ room, session, onBack, onRead, onNav
   }, [messenger, room.id]);
   useEffect(() => {
     if (!messenger || filter !== "all" || query) return;
-    // Preview a few recent encrypted attachments automatically. The verified
-    // download still decrypts into the on-device vault; older files stay on tap.
+    // Photos appear directly. Do not fetch/decrypt videos until the user plays
+    // them: several mounted video bubbles can otherwise occupy the JS thread
+    // and compete with voice calls before a single video has been opened.
     const recent = messages.slice(0, 12).filter(message => !message.localMedia && !message.deleted_at &&
-      ((message.secureAttachment && /^(image|video)\//.test(message.secureAttachment.mime) && message.secureAttachment.size <= 4 * 1024 * 1024) ||
-       (message.legacy && message.attachment && /^(image|video)\//.test(message.attachment.mime_type) && message.attachment.size_bytes <= 4 * 1024 * 1024)))
+      ((message.secureAttachment && /^image\//.test(message.secureAttachment.mime) && message.secureAttachment.size <= 4 * 1024 * 1024) ||
+       (message.legacy && message.attachment && /^image\//.test(message.attachment.mime_type) && message.attachment.size_bytes <= 4 * 1024 * 1024)))
       .slice(0, 4);
     let active = true;
     void (async () => {
@@ -178,17 +183,15 @@ function RemoteLegacyMedia({ attachment, onDownload, preparing }: { attachment: 
 function PrivateMedia({ media, vault }: { media: LocalMedia; vault: Vault }) {
   const [uri, setUri] = useState(""), [error, setError] = useState("");
   const [preview, setPreview] = useState(false);
-  useEffect(() => { let alive = true; let cleanup: (() => void) | undefined; void materializeMedia(vault, media.id).then(file => { cleanup = () => { if (file.exists) file.delete(); }; if (alive) setUri(file.uri); else cleanup(); }).catch(e => { if (alive) setError(e.message); }); return () => { alive = false; cleanup?.(); }; }, [media.id, vault]);
+  const [requested, setRequested] = useState(media.mime.startsWith("image/"));
+  useEffect(() => { if (!requested) return; let alive = true; let cleanup: (() => void) | undefined; void materializeMedia(vault, media.id).then(file => { cleanup = () => { if (file.exists) file.delete(); }; if (alive) setUri(file.uri); else cleanup(); }).catch(e => { if (alive) setError(e.message); }); return () => { alive = false; cleanup?.(); }; }, [media.id, vault, requested]);
+  if (!requested) return <Pressable accessibilityRole="button" accessibilityLabel={media.mime.startsWith("video/") ? "Putar video" : media.mime.startsWith("audio/") ? "Putar pesan suara" : "Buka dokumen"} onPress={() => setRequested(true)} style={{ paddingVertical: 16, minWidth: 180 }}><Ionicons name={media.mime.startsWith("video/") ? "play-circle" : media.mime.startsWith("audio/") ? "mic" : "document-text-outline"} size={38} color={colors.yellow} /><Text style={s.text}>{media.mime.startsWith("video/") ? "Putar video" : media.mime.startsWith("audio/") ? "Pesan suara" : media.name}</Text><Text style={s.note}>{Math.ceil(media.size / 1024)} KB</Text></Pressable>;
   if (error) return <Text style={s.note}>{error}</Text>;
   if (!uri) return <ActivityIndicator color={colors.yellow} />;
   if (media.mime.startsWith("image/")) return <><Pressable accessibilityLabel="Lihat foto" onPress={() => setPreview(true)}><Image source={{ uri }} style={{ width: 220, height: 180, borderRadius: 12 }} resizeMode="cover" /></Pressable><Modal visible={preview} onRequestClose={() => setPreview(false)}><View style={{ flex: 1, backgroundColor: colors.background, padding: 20 }}><Pressable accessibilityLabel="Tutup foto" onPress={() => setPreview(false)}><Text style={s.text}>Tutup</Text></Pressable><Image source={{ uri }} style={{ flex: 1 }} resizeMode="contain" /><Pressable onPress={() => void Sharing.shareAsync(uri, { mimeType: media.mime }).catch(e => setError(e.message))}><Text style={s.text}>Simpan atau bagikan foto</Text></Pressable></View></Modal></>;
   if (media.mime.startsWith("audio/")) return <AudioPlayback url={uri} compact />;
-  if (media.mime.startsWith("video/")) return <PrivateVideo uri={uri} />;
+  if (media.mime.startsWith("video/")) return <PrivateVideoPlayer uri={uri} />;
   return <Pressable onPress={() => void Sharing.shareAsync(uri, { mimeType: media.mime })}><Text style={s.text}>📄 {media.name}</Text><Text style={s.note}>Buka atau simpan dokumen · {Math.ceil(media.size / 1024)} KB</Text></Pressable>;
-}
-function PrivateVideo({ uri }: { uri: string }) {
-  const [playing, setPlaying] = useState(false);
-  return playing ? <PrivateVideoPlayer uri={uri} /> : <Pressable accessibilityRole="button" accessibilityLabel="Putar video" onPress={() => setPlaying(true)} style={{ width: 230, height: 180, borderRadius: 12, backgroundColor: colors.panelStrong, alignItems: "center", justifyContent: "center", gap: 8 }}><Ionicons name="play-circle" size={52} color={colors.yellow} /><Text style={s.text}>Putar video</Text></Pressable>;
 }
 function PrivateVideoPlayer({ uri }: { uri: string }) { const player = useVideoPlayer(uri, player => { player.play(); }); return <VideoView player={player} style={{ width: 230, height: 180 }} nativeControls fullscreenOptions={{ enable: true }} />; }
 const s = StyleSheet.create({ page: { flex: 1, backgroundColor: colors.background }, header: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 8, paddingVertical: 12, borderBottomWidth: 1, borderColor: colors.border }, name: { color: colors.text, fontSize: 19, fontWeight: "700" }, note: { color: colors.textMuted, fontSize: 14, lineHeight: 21 }, text: { color: colors.text, fontSize: 17, lineHeight: 25 }, legacy: { color: colors.textDim, fontSize: 10, marginBottom: 5 }, security: { padding: 12, gap: 7, flexDirection: "row", justifyContent: "center" }, search: { margin: 12, padding: 13, borderRadius: 20, backgroundColor: colors.panel, color: colors.text }, messages: { padding: 12, flexGrow: 1 }, bubble: { borderRadius: 15, padding: 11, marginBottom: 8, maxWidth: "86%", minWidth: 90 }, own: { alignSelf: "flex-end", backgroundColor: "#273324" }, theirs: { alignSelf: "flex-start", backgroundColor: colors.panel }, time: { fontSize: 12, marginTop: 5, color: colors.textMuted, textAlign: "right" }, reply: { borderLeftWidth: 3, borderColor: colors.yellow, padding: 8, marginBottom: 6 }, empty: { flex: 1, alignItems: "center", justifyContent: "center", gap: 15, padding: 24, transform: [{ scaleY: -1 }] }, composer: { flexDirection: "row", alignItems: "center", gap: 3, padding: 8, borderTopWidth: 1, borderColor: colors.border }, input: { color: colors.text, fontSize: 17, flex: 1, maxHeight: 160, minHeight: 48, padding: 10, backgroundColor: colors.panel, borderRadius: 20 }, send: { backgroundColor: colors.yellow, borderRadius: 25, height: 48, width: 48, alignItems: "center", justifyContent: "center" }, context: { padding: 15, flexDirection: "row", backgroundColor: colors.panel }, error: { padding: 12 }, scrim: { flex: 1, backgroundColor: "#0008", justifyContent: "center", padding: 25 }, menu: { borderRadius: 18, backgroundColor: colors.panelStrong, maxHeight: "85%" }, menuItem: { padding: 17, minHeight: 52 }, iconButton: { minWidth: 44, minHeight: 48, justifyContent: "center", alignItems: "center" } });

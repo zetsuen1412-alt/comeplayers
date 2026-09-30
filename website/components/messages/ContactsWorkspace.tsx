@@ -72,6 +72,7 @@ export default function ContactsWorkspace(props: Props) {
   }, []);
   useEffect(() => {
     if (!active || !userId) { setRooms([]); setSelected(null); return; }
+    if (!visible) return;
     let live = true;
     let running = false;
     const refresh = async () => {

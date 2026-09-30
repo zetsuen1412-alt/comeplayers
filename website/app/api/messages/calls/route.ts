@@ -54,13 +54,13 @@ export async function POST(request: Request) {
     getLiveKitServerUrl();
     const result = await db.rpc("cp_start_call", { p_actor: user.id, p_target: target, p_room: room.id, p_media: body.media === "video" ? "video" : "audio", p_scheduled: scheduled });
     if (result.error) throw inputError(/already in a call|limit|blocked|accepting|scheduled|verification/i.test(result.error.message) ? result.error.message : "The call could not be started.", 409);
-    await recordCallRoomActivity(db, {
+    deferCallRoomActivity(db, {
       roomId: room.id,
       actorId: user.id,
       occurredAt: result.data.created_at,
       media: result.data.media === "video" ? "video" : "audio",
       status: result.data.status === "scheduled" ? "scheduled" : "ringing",
-    }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
+    });
     if (result.data.status === "ringing") {
       after(async () => {
         try {
@@ -90,10 +90,15 @@ export async function PATCH(request: Request) {
     const target = own ? call.callee_id : call.caller_id;
     const roomName = `cp-call-${call.id}`;
     if (body.action === "token") {
-      if (call.status !== "accepted" || !call.answered_at || Date.parse(call.answered_at) < Date.now() - 3600000) throw inputError("This call is no longer active.", 409);
-      await requireChatRoomAccess({ roomId: call.room_id, userId: user.id, supabaseAdmin: db, allowAdmin: false });
-      await assertContactAllowed(db, user.id, target);
-      const profile = await db.from("profiles").select("username,full_name").eq("id", user.id).single();
+      const answeredAt = Date.parse(call.answered_at || "");
+      if (call.status !== "accepted" || !Number.isFinite(answeredAt) || answeredAt < Date.now() - 3600000) throw inputError("This call is no longer active.", 409);
+      // These independent reads start together, but every authorization check
+      // must succeed before a LiveKit participant token can be created.
+      const [, , profile] = await Promise.all([
+        requireChatRoomAccess({ roomId: call.room_id, userId: user.id, supabaseAdmin: db, allowAdmin: false }),
+        assertContactAllowed(db, user.id, target),
+        db.from("profiles").select("username,full_name").eq("id", user.id).single(),
+      ]);
       if (profile.error) throw profile.error;
       return NextResponse.json({ serverUrl: getLiveKitServerUrl(), participantToken: await createDirectCallToken({ userId: user.id, name: profile.data.username || profile.data.full_name || "ComePlayers", roomName, video: call.media === "video" }), roomName, channel: { id: call.id, name: "ComePlayers call" }, permissions: { canPublishVideo: call.media === "video", canShareScreen: false, canModerateVoice: false } });
     }
@@ -107,13 +112,13 @@ export async function PATCH(request: Request) {
       const updated = await db.from("cp_calls").update({ status: decision.status, ...(decision.status === "accepted" ? { answered_at: now } : { ended_at: now }) }).eq("id", call.id).eq("status", call.status).select("id").maybeSingle();
       if (updated.error) throw updated.error;
       if (updated.data) {
-        await recordCallRoomActivity(db, {
+        deferCallRoomActivity(db, {
           roomId: call.room_id,
           actorId: user.id,
           occurredAt: now,
           media: call.media === "video" ? "video" : "audio",
           status: decision.status as CallActivityStatus,
-        }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
+        });
         if (call.status === "accepted" && decision.status === "ended") await createLiveKitRoomServiceClient().deleteRoom(roomName).catch(() => undefined);
         return NextResponse.json({ ok: true, status: decision.status });
       }
@@ -126,4 +131,14 @@ export async function PATCH(request: Request) {
     }
     throw inputError("The call state has changed. Refresh and try again.", 409);
   } catch (error) { return accountApiError(error); }
+}
+
+// Inbox ordering is independent of establishing/accepting a call. Keep it out
+// of the connection response while preserving the committed transition time.
+// Security-critical call termination and LiveKit room deletion stay awaited.
+function deferCallRoomActivity(...input: Parameters<typeof recordCallRoomActivity>) {
+  after(async () => {
+    try { await recordCallRoomActivity(...input); }
+    catch (error) { console.warn("Call inbox activity could not be recorded:", error); }
+  });
 }

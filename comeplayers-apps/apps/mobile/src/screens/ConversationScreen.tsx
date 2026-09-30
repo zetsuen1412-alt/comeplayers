@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, AppState, FlatList, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
@@ -87,7 +87,12 @@ export function ConversationScreen({ room, channelId, session, onBack, onRead, o
       setMessages(previous => {
         const ids = new Set(data.messages.map(message => message.id));
         const next = quiet ? [...previous.filter(message => !ids.has(message.id) && message.created_at < (data.messages[0]?.created_at || "")), ...data.messages] : data.messages;
-        return JSON.stringify(previous) === JSON.stringify(next) ? previous : next;
+        const existing = new Map(previous.map(message => [message.id, message]));
+        const reconciled = next.map(message => {
+          const saved = existing.get(message.id);
+          return saved && (saved === message || JSON.stringify(saved) === JSON.stringify(message)) ? saved : message;
+        });
+        return previous.length === reconciled.length && previous.every((message, index) => message === reconciled[index]) ? previous : reconciled;
       });
       if (!quiet) setHasOlder(data.messages.length === 40);
       setDetails(data.room); setChannelName(data.channel?.name || "");
@@ -105,6 +110,14 @@ export function ConversationScreen({ room, channelId, session, onBack, onRead, o
   }, [room.id, channelId, search, view, session.user.id, cacheKey]);
   reloadRef.current = reload;
   const displayMessages = useMemo(() => [...messages].reverse(), [messages]);
+  const starredIds = useMemo(() => new Set(stars), [stars]);
+  const reactToMessage = useCallback((messageId: string, emoji: string) => {
+    setError("");
+    void chatClient.toggleReaction(room.id, messageId, emoji).then(async () => {
+      mutations.current++;
+      await reloadRef.current(true);
+    }).catch(reason => setError(reason instanceof Error ? reason.message : "Belum berhasil. Coba lagi."));
+  }, [room.id]);
 
   useEffect(() => {
     generation.current++; inFlight.current = null; refreshPending.current = false;
@@ -148,7 +161,7 @@ export function ConversationScreen({ room, channelId, session, onBack, onRead, o
       if (asset.type === "video") {
         if (asset.fileSize && asset.fileSize > 100 * 1024 * 1024) throw new Error("Pilih video berukuran maksimal 100 MB.");
         setAttachment({ uri: asset.uri, name: asset.fileName || "video.mp4", type: asset.mimeType || "video/mp4", size: asset.fileSize });
-      } else { const image = await manipulateAsync(asset.uri, [{ resize: { width: 1400 } }], { compress: .7, format: SaveFormat.JPEG }); setAttachment({ uri: image.uri, name: `photo-${Date.now()}.jpg`, type: "image/jpeg" }); }
+      } else { const image = await manipulateAsync(asset.uri, asset.width > 1400 ? [{ resize: { width: 1400 } }] : [], { compress: .7, format: SaveFormat.JPEG }); setAttachment({ uri: image.uri, name: `photo-${Date.now()}.jpg`, type: "image/jpeg" }); }
       setEditing(null);
     } catch (e) { setError(e instanceof Error ? e.message : "Foto belum bisa dipilih."); }
   };
@@ -195,10 +208,7 @@ export function ConversationScreen({ room, channelId, session, onBack, onRead, o
     {searchOpen ? <View style={styles.searchRow}><TextInput autoFocus accessibilityLabel="Cari dalam chat" value={search} onChangeText={setSearch} placeholder="Cari dalam chat" placeholderTextColor={colors.textDim} style={styles.searchInput} /><Pressable onPress={() => { setSearch(""); setSearchOpen(false); }}><Text style={styles.action}>Tutup</Text></Pressable></View> : null}
     {view !== "chat" ? <Pressable style={styles.searchRow} onPress={() => setView("chat")}><Text style={styles.action}>‹ Kembali ke chat</Text></Pressable> : null}
     {room.order_id ? <View style={styles.safety}><Text style={styles.safetyIcon}>◆</Text><Text style={styles.safetyText}>Jaga keamanan transaksi. Jangan bagikan sandi, kode OTP, atau data kartu.</Text></View> : null}
-    {loading ? <View style={styles.center}><ActivityIndicator color={colors.yellow} /><Text style={styles.loadingText}>Memuat pesan…</Text></View> : <FlatList {...listProps} inverted initialNumToRender={12} maxToRenderPerBatch={8} windowSize={7} data={displayMessages} keyExtractor={(item) => item.id} contentContainerStyle={styles.messages} ListFooterComponent={hasOlder ? <Pressable style={styles.older} disabled={olderBusy} onPress={() => void loadOlder()}><Text style={styles.action}>{olderBusy ? "Memuat…" : "Lihat pesan sebelumnya"}</Text></Pressable> : null} ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyIcon}>✦</Text><Text style={styles.emptyTitle}>{search || view !== "chat" ? "Pesan tidak ditemukan" : "Mulai percakapan"}</Text><Text style={styles.emptyText}>{search || view !== "chat" ? "Coba kata lain atau kembali ke chat." : "Ketik pesan di bawah untuk menyapa."}</Text></View>} renderItem={({ item }) => {
-      const own = item.sender_id === session.user.id;
-      return <View style={[styles.messageRow, own && styles.messageRowOwn]}><Pressable accessibilityHint="Tekan lama untuk membalas atau mengatur pesan" onLongPress={() => setSelected(item)} style={[styles.bubble, own ? styles.bubbleOwn : styles.bubbleOther]}>{room.room_type === "group" && !own ? <Text style={styles.sender}>{item.sender?.username || item.sender?.full_name || roomName(room)}</Text> : null}{item.reply_to ? <View style={styles.quote}><Text style={styles.sender}>{item.reply_to.sender?.username || "Balas"}</Text><Text numberOfLines={2} style={styles.subtitle}>{item.reply_to.deleted_at ? "Pesan dihapus" : item.reply_to.message || "Lampiran"}</Text></View> : null}{item.attachment && !item.deleted_at ? <ChatMedia attachment={item.attachment} /> : null}{item.message || item.deleted_at ? <MessageText value={item.deleted_at ? "Pesan dihapus" : item.message || ""} /> : null}<View style={styles.receipt}><Text style={styles.messageTime}>{stars.includes(item.id) ? "★ " : ""}{item.edited_at ? "Diubah · " : ""}{new Date(item.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</Text>{own ? <Ionicons name={item.is_read ? "checkmark-done" : "checkmark"} size={16} color={item.is_read ? colors.blue : colors.textDim} /> : null}</View>{item.reactions?.length ? <View style={styles.reactions}>{item.reactions.map(r => <Pressable key={r.emoji} style={[styles.reaction, r.reacted_by_me && { borderColor: colors.yellow }]} onPress={() => void perform(() => chatClient.toggleReaction(room.id, item.id, r.emoji))}><Text style={styles.messageText}>{r.emoji} {r.count}</Text></Pressable>)}</View> : null}</Pressable></View>;
-    }} />}
+    {loading ? <View style={styles.center}><ActivityIndicator color={colors.yellow} /><Text style={styles.loadingText}>Memuat pesan…</Text></View> : <FlatList {...listProps} inverted initialNumToRender={12} maxToRenderPerBatch={8} windowSize={7} data={displayMessages} keyExtractor={(item) => item.id} contentContainerStyle={styles.messages} ListFooterComponent={hasOlder ? <Pressable style={styles.older} disabled={olderBusy} onPress={() => void loadOlder()}><Text style={styles.action}>{olderBusy ? "Memuat…" : "Lihat pesan sebelumnya"}</Text></Pressable> : null} ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyIcon}>✦</Text><Text style={styles.emptyTitle}>{search || view !== "chat" ? "Pesan tidak ditemukan" : "Mulai percakapan"}</Text><Text style={styles.emptyText}>{search || view !== "chat" ? "Coba kata lain atau kembali ke chat." : "Ketik pesan di bawah untuk menyapa."}</Text></View>} renderItem={({ item }) => <ConversationMessage item={item} own={item.sender_id === session.user.id} group={room.room_type === "group"} groupName={roomName(room)} starred={starredIds.has(item.id)} onSelect={setSelected} onReact={reactToMessage} />} />}
     {error ? <ChatProblemNotice title="Chat belum bisa diperbarui" error={error} onRetry={() => void reload()} /> : null}
     {blocked ? <Text style={styles.error}>{details.blocked_by_me ? "Kontak ini diblokir. Buka Pilihan chat untuk membuka blokir." : "Kontak ini belum bisa menerima pesan."}</Text> : null}
     {reply || editing ? <View style={styles.draftPreview}><View style={{ flex: 1 }}><Text style={styles.action}>{editing ? "Ubah pesan" : `Balas ${reply?.sender?.username || "pesan"}`}</Text><Text numberOfLines={2} style={styles.subtitle}>{(editing || reply)?.message || "Lampiran"}</Text></View><Pressable accessibilityLabel="Batalkan balasan atau perubahan" onPress={() => { setReply(null); if (editing) setDraft(""); setEditing(null); }}><Ionicons name="close" size={25} color={colors.text} /></Pressable></View> : null}
@@ -230,6 +240,15 @@ export function ConversationScreen({ room, channelId, session, onBack, onRead, o
     <Modal visible={listOpen} transparent onRequestClose={() => setListOpen(false)}><View style={styles.bottomBackdrop}><View style={styles.actionSheet}><Text style={styles.title}>Daftar chat</Text><TextInput accessibilityLabel="Nama daftar chat" value={listName} onChangeText={setListName} maxLength={40} placeholder="Keluarga, teman, pekerjaan…" placeholderTextColor={colors.textDim} style={styles.searchInput} /><Text style={styles.subtitle}>Kosongkan jika ingin mengeluarkan chat dari daftar.</Text><Pressable style={styles.menuItem} onPress={() => { setListOpen(false); void perform(() => preference({ listName })); }}><Text style={styles.action}>Simpan</Text></Pressable><Pressable style={styles.menuItem} onPress={() => setListOpen(false)}><Text style={styles.menuText}>Batal</Text></Pressable></View></View></Modal>
   </ChatKeyboardLayout>;
 }
+
+// Keep the message tree stable while typing or opening the composer menu.
+// Only a changed message, receipt, reaction or star needs to render again.
+const ConversationMessage = memo(function ConversationMessage({ item, own, group, groupName, starred, onSelect, onReact }: {
+  item: ChatMessage; own: boolean; group: boolean; groupName: string; starred: boolean;
+  onSelect: (message: ChatMessage) => void; onReact: (messageId: string, emoji: string) => void;
+}) {
+  return <View style={[styles.messageRow, own && styles.messageRowOwn]}><Pressable accessibilityHint="Tekan lama untuk membalas atau mengatur pesan" onLongPress={() => onSelect(item)} style={[styles.bubble, own ? styles.bubbleOwn : styles.bubbleOther]}>{group && !own ? <Text style={styles.sender}>{item.sender?.username || item.sender?.full_name || groupName}</Text> : null}{item.reply_to ? <View style={styles.quote}><Text style={styles.sender}>{item.reply_to.sender?.username || "Balas"}</Text><Text numberOfLines={2} style={styles.subtitle}>{item.reply_to.deleted_at ? "Pesan dihapus" : item.reply_to.message || "Lampiran"}</Text></View> : null}{item.attachment && !item.deleted_at ? <ChatMedia attachment={item.attachment} /> : null}{item.message || item.deleted_at ? <MessageText value={item.deleted_at ? "Pesan dihapus" : item.message || ""} /> : null}<View style={styles.receipt}><Text style={styles.messageTime}>{starred ? "★ " : ""}{item.edited_at ? "Diubah · " : ""}{new Date(item.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</Text>{own ? <Ionicons name={item.is_read ? "checkmark-done" : "checkmark"} size={16} color={item.is_read ? colors.blue : colors.textDim} /> : null}</View>{item.reactions?.length ? <View style={styles.reactions}>{item.reactions.map(r => <Pressable key={r.emoji} style={[styles.reaction, r.reacted_by_me && { borderColor: colors.yellow }]} onPress={() => onReact(item.id, r.emoji)}><Text style={styles.messageText}>{r.emoji} {r.count}</Text></Pressable>)}</View> : null}</Pressable></View>;
+});
 
 function MessageText({ value }: { value: string }) { return <Text style={styles.messageText}>{value.split(/(https?:\/\/[^\s]+)/g).map((part, index) => /^https?:\/\//.test(part) ? <Text key={index} style={{ color: colors.blue, textDecorationLine: "underline" }} onPress={() => Alert.alert("Buka tautan?", part, [{ text: "Batal", style: "cancel" }, { text: "Buka", onPress: () => void Linking.openURL(part).catch(() => Alert.alert("Tautan belum bisa dibuka")) }])}>{part}</Text> : part)}</Text>; }
 

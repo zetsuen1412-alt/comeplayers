@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+import { ConversationReadTracker } from "../lib/chatClientPerformance";
 
 // Execute the page's actual loader with controllable network requests; no UI copy snapshots.
 const filename = resolve("app/messages/page.tsx");
@@ -25,7 +26,7 @@ function deferred() {
 }
 
 function harness() {
-  const pending: Array<ReturnType<typeof deferred> & { url: string; signal: AbortSignal }> = [];
+  const pending: Array<ReturnType<typeof deferred> & { url: string; signal: AbortSignal; body?: string }> = [];
   const state = { conversation: { room: { id: "old-room" }, messages: [{ message: "old" }] } as unknown, loading: false, loadError: "", error: "", rooms: [] as unknown[] };
   const request = { current: null as AbortController | null };
   const context = vm.createContext({
@@ -34,7 +35,9 @@ function harness() {
     CustomEvent: class { constructor(public type: string, public options?: unknown) {} },
     window: { dispatchEvent() {} },
     communityChannelSelection: null,
+    userId: "test-user",
     conversationRequestRef: request,
+    conversationReads: { current: new ConversationReadTracker() },
     roomsRef: { current: [] },
     isGroupRoom: () => true,
     setConversation: (value: unknown) => { state.conversation = value; },
@@ -42,15 +45,15 @@ function harness() {
     setConversationLoadError: (value: string) => { state.loadError = value; },
     setError: (value: string) => { state.error = value; },
     setRooms: (update: (current: unknown[]) => unknown[]) => { state.rooms = update(state.rooms); },
-    authenticatedFetchJson: (url: string, options: { signal: AbortSignal }) => {
-      const task = { ...deferred(), url, signal: options.signal };
+    authenticatedFetchJson: (url: string, options: { signal: AbortSignal; body?: string }) => {
+      const task = { ...deferred(), url, signal: options.signal, body: options.body };
       pending.push(task);
       return task.promise;
     },
   });
   vm.runInContext(loaderCode, context);
   const load = vm.runInContext("loadConversation", context) as (roomId: string, silent?: boolean, channelId?: string) => Promise<void>;
-  return { state, request, pending, load };
+  return { state, request, pending, load, switchAccount: (userId: string) => { context.userId = userId; } };
 }
 
 test("background refresh cannot swallow a pending conversation's visible failure and retry", async () => {
@@ -96,4 +99,33 @@ test("finishing an aborted room load does not release the newer room's request g
   await newLoad;
   assert.equal(h.request.current, null);
   assert.ok(h.state.loadError);
+});
+
+
+test("unchanged community polls do not repeat read writes; new messages and channels still do", async () => {
+  const h = harness();
+  const loadSnapshot = async (channelId: string, messageId: string, expectReceipt: boolean, rejectReceipt = false) => {
+    const before = h.pending.length;
+    const running = h.load("group", true, channelId);
+    h.pending[before].resolve({ room: { id: "group" }, channel: { id: channelId }, messages: [{ id: messageId, message: "Synthetic test" }] });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(h.pending.length - before, expectReceipt ? 2 : 1);
+    if (expectReceipt) {
+      assert.equal(h.pending[before + 1].url, "/api/messages/rooms/group/read");
+      assert.deepEqual(JSON.parse(h.pending[before + 1].body || "{}"), { channelId, lastReadMessageId: messageId });
+      if (rejectReceipt) h.pending[before + 1].reject(new Error("Receipt temporarily unavailable"));
+      else h.pending[before + 1].resolve({ ok: true });
+    }
+    await running;
+  };
+  await loadSnapshot("general", "message-1", true);
+  for (let poll = 0; poll < 40; poll++) await loadSnapshot("general", "message-1", false);
+  await loadSnapshot("general", "message-2", true);
+  await loadSnapshot("other-channel", "message-2", true);
+  await loadSnapshot("general", "message-3", true, true);
+  await loadSnapshot("general", "message-3", true);
+  await loadSnapshot("general", "message-3", false);
+  h.switchAccount("different-user");
+  await loadSnapshot("general", "message-3", true);
+  assert.equal(h.pending.filter(request => request.url.endsWith("/read")).length, 6);
 });

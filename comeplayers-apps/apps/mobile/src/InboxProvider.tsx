@@ -18,6 +18,20 @@ export function InboxProvider({ userId, enabled, children }: { userId: string; e
   const scope = useRef("");
   const generation = useRef(0);
   const pending = useRef<Promise<void> | null>(null);
+  const serverRevision = useRef(0);
+  const localRevision = useRef(0);
+  const refreshLocal = useCallback(async () => {
+    if (!enabled || !messenger || AppState.currentState !== "active") return;
+    const version = generation.current, serverVersion = serverRevision.current, localVersion = ++localRevision.current;
+    const saved = new Map((await messenger.rooms()).map(room => [room.id, room]));
+    if (version !== generation.current || serverVersion !== serverRevision.current || localVersion !== localRevision.current) return;
+    setState(previous => {
+      // Never expose a stale/removed membership from the vault. The last
+      // authenticated server snapshot remains the allow-list for inbox rows.
+      const rooms = previous.rooms.map(room => saved.get(room.id) || room).sort(compareRoomActivity);
+      return JSON.stringify(previous.rooms) === JSON.stringify(rooms) ? previous : { ...previous, rooms };
+    });
+  }, [enabled, messenger]);
   const reload = useCallback((quiet = false): Promise<void> => {
     if (!enabled || AppState.currentState !== "active") return Promise.resolve();
     if (pending.current) return pending.current;
@@ -27,6 +41,7 @@ export function InboxProvider({ userId, enabled, children }: { userId: string; e
       .then(async ([serverRooms, prefs]) => {
         const rooms = messenger ? await messenger.saveRooms(serverRooms) : serverRooms.sort(compareRoomActivity);
         if (generation.current === version) {
+          serverRevision.current++;
           if (preferenceCache.current?.rows !== prefs.preferences) preferenceCache.current = { rows: prefs.preferences, at: Date.now() };
           setState(previous => JSON.stringify(previous.rooms) === JSON.stringify(rooms) && JSON.stringify(previous.preferences) === JSON.stringify(prefs.preferences) && !previous.loading && !previous.error ? previous : { rooms, preferences: prefs.preferences, loading: false, error: "" });
         }
@@ -51,11 +66,19 @@ export function InboxProvider({ userId, enabled, children }: { userId: string; e
     const channel = enabled ? supabase.channel(`inbox:${userId}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `buyer_id=eq.${userId}` }, changed)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `seller_id=eq.${userId}` }, changed).subscribe() : null;
-    const unsubscribe = messenger?.subscribe(changed);
+    let localScheduled: ReturnType<typeof setTimeout> | undefined;
+    const unsubscribe = messenger?.subscribe(() => {
+      // A decrypted message/read receipt/media preview is already persisted.
+      // Refresh that local snapshot without refetching all 100 rooms remotely.
+      if (!localScheduled && enabled && AppState.currentState === "active") localScheduled = setTimeout(() => {
+        localScheduled = undefined;
+        void refreshLocal().catch(() => undefined);
+      }, 50);
+    });
     const timer = setInterval(() => void reload(true), 20000);
     const subscription = AppState.addEventListener("change", next => { if (next === "active") void reload(true); });
-    return () => { generation.current++; clearInterval(timer); clearTimeout(scheduled); subscription.remove(); unsubscribe?.(); if (channel) void supabase.removeChannel(channel); };
-  }, [reload, enabled, messenger, userId]);
+    return () => { generation.current++; clearInterval(timer); clearTimeout(scheduled); clearTimeout(localScheduled); subscription.remove(); unsubscribe?.(); if (channel) void supabase.removeChannel(channel); };
+  }, [reload, refreshLocal, enabled, messenger, userId]);
   const value = useMemo(() => ({ ...state, reload }), [state, reload]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

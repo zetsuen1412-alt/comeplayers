@@ -1,5 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import {
   type ComponentType,
   useEffect,
@@ -22,12 +24,12 @@ import {
   FaXmark,
 } from "react-icons/fa6";
 import type { ArcadeGameProps } from "@/components/arcade/ArcadeGameTypes";
-import ComePlayersChessGame from "@/components/arcade/ComePlayersChessGame";
-import ComePlayersMonopolyV21ArcadeGame from "@/components/arcade/ComePlayersMonopolyV21ArcadeGame";
-import ComePlayersSnakeGame from "@/components/arcade/ComePlayersSnakeGame";
-import ComePlayersStrikeArcadeGame from "@/components/arcade/ComePlayersStrikeArcadeGame";
-import CPFrontlineGame from "@/components/arcade/CPFrontlineGame";
-import EmpiresAlliesGame from "@/components/arcade/EmpiresAlliesGame";
+const ComePlayersChessGame = dynamic<ArcadeGameProps>(() => import("@/components/arcade/ComePlayersChessGame"), { ssr: false });
+const ComePlayersMonopolyV21ArcadeGame = dynamic<ArcadeGameProps>(() => import("@/components/arcade/ComePlayersMonopolyV21ArcadeGame"), { ssr: false });
+const ComePlayersSnakeGame = dynamic<ArcadeGameProps>(() => import("@/components/arcade/ComePlayersSnakeGame"), { ssr: false });
+const ComePlayersStrikeArcadeGame = dynamic<ArcadeGameProps>(() => import("@/components/arcade/ComePlayersStrikeArcadeGame"), { ssr: false });
+const CPFrontlineGame = dynamic<ArcadeGameProps>(() => import("@/components/arcade/CPFrontlineGame"), { ssr: false });
+const EmpiresAlliesGame = dynamic<ArcadeGameProps>(() => import("@/components/arcade/EmpiresAlliesGame"), { ssr: false });
 
 export type ArcadeGameId =
   | "empires-allies"

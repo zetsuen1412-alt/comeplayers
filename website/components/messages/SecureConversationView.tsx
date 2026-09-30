@@ -1,19 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaCheck, FaCheckDouble, FaDownload, FaEdit, FaComments, FaEllipsisH, FaPaperPlane, FaPaperclip, FaReply, FaShieldAlt, FaStar, FaTrash } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { supabase } from "@/lib/supabase";
+import { recentAutomaticImages } from "@/lib/chatClientPerformance";
 import type { AccountSnapshot } from "@/lib/e2ee/account";
 import type { WebMessenger, SecurePrivateMessage, SecureRoom } from "@/lib/e2ee/webMessenger";
 import AccountDirectCall from "./AccountDirectCall";
 import BrowserPasswordBackupSettings from "./BrowserPasswordBackupSettings";
 
 type Preview = { url: string; name: string; mime: string };
+const messageTimeFormatter = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
+const messageTime = (value: string) => Number.isFinite(Date.parse(value)) ? messageTimeFormatter.format(new Date(value)) : "";
 export default function SecureConversationView({ userId, room, messenger }: { userId: string; room: SecureRoom; messenger: WebMessenger }) {
   const [messages, setMessages] = useState<SecurePrivateMessage[]>([]), [draft, setDraft] = useState("");
   const [reply, setReply] = useState<SecurePrivateMessage | null>(null), [editing, setEditing] = useState<SecurePrivateMessage | null>(null);
   const [file, setFile] = useState<File | null>(null), [media, setMedia] = useState<Record<string, Preview>>({});
+  const [previewQueueVersion, setPreviewQueueVersion] = useState(0);
   const [securityCode, setSecurityCode] = useState(""), [showSecurityCode, setShowSecurityCode] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false), [backupMethod, setBackupMethod] = useState<"passkey" | "password" | null>(null);
   const [securityBusy, setSecurityBusy] = useState(false), [securityError, setSecurityError] = useState("");
@@ -37,12 +41,13 @@ export default function SecureConversationView({ userId, room, messenger }: { us
       message.id, message.message, message.delivery, message.edited_at,
       message.deleted_at, message.starred, message.secureAttachment?.id,
     ]));
-    if (version === messageVersion.current) return;
+    if (version === messageVersion.current) return next.length;
     const viewport = scroller.current;
     const nearBottom = !viewport || viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 160;
     messageVersion.current = version;
     setMessages(next);
     if (nearBottom) requestAnimationFrame(() => bottom.current?.scrollIntoView({ block: "end" }));
+    return next.length;
   }, [messenger, roomId]);
   const callError = useCallback((message: string) => { if (alive.current) setCallErrorMessage(message); }, []);
   useEffect(() => { roomRef.current = room; }, [room]);
@@ -55,10 +60,16 @@ export default function SecureConversationView({ userId, room, messenger }: { us
       if (syncing) { pendingSync = true; return; }
       syncing = true;
       try {
-        if (first) await messenger.saveRoom(roomRef.current);
-        await messenger.sync(roomId);
+        if (first) {
+          await messenger.saveRoom(roomRef.current);
+          // Show verified local history before waiting for a network round trip.
+          const cachedCount = await refresh();
+          if (active && cachedCount) setBusy(false);
+        }
+        const changed = await messenger.sync(roomId);
         if (!active) return;
-        await refresh();
+        // An idle sync must not decrypt and rebuild up to 1,000 unchanged rows.
+        if (changed || first) await refresh();
         if (first) { await messenger.markRead(roomId, true); await refresh(); }
       } catch (reason) { if (active) setError(reason instanceof Error ? reason.message : "Pesan belum bisa diperbarui."); }
       finally {
@@ -82,13 +93,13 @@ export default function SecureConversationView({ userId, room, messenger }: { us
     document.addEventListener("visibilitychange", visible);
     return () => { active = false; alive.current = false; window.clearInterval(timer); clearTimeout(invalidationTimer); document.removeEventListener("visibilitychange", visible); if (messageChannel.current === channel) messageChannel.current = null; void supabase.removeChannel(channel); Object.values(previews.current).forEach(value => URL.revokeObjectURL(value.url)); previews.current = {}; };
   }, [messenger, roomId, refresh]);
-  async function mutate(action: () => Promise<unknown>) {
+  const mutate = useCallback(async (action: () => Promise<unknown>) => {
     if (writing.current) return;
     writing.current = true; setBusy(true); setError("");
     try { await action(); await refresh(); }
     catch (reason) { if (alive.current) setError(reason instanceof Error ? reason.message : "Belum berhasil. Silakan coba lagi."); }
     finally { writing.current = false; if (alive.current) setBusy(false); }
-  }
+  }, [refresh]);
   async function send() {
     if (busy || writing.current || (!draft.trim() && !file)) return;
     await mutate(async () => {
@@ -113,17 +124,21 @@ export default function SecureConversationView({ userId, room, messenger }: { us
       if (previews.current[message.id]) { URL.revokeObjectURL(preview.url); return; }
       previews.current = { ...previews.current, [message.id]: preview }; setMedia(previews.current);
     } catch (reason) { mediaFailed.current.add(message.id); if (alive.current) setError(reason instanceof Error ? reason.message : "Lampiran belum bisa dibuka."); }
-    finally { mediaInFlight.current.delete(message.id); }
+    finally {
+      mediaInFlight.current.delete(message.id);
+      if (alive.current) setPreviewQueueVersion(version => version + 1);
+    }
   }, [messenger]);
   useEffect(() => {
-    // Images appear in the conversation without asking the recipient to
-    // download them. Videos stay on demand to avoid fetching large files.
-    for (const message of messages) {
-      if (message.secureAttachment?.mime.startsWith("image/") && !message.deleted_at) {
-        void openMedia(message);
-      }
-    }
-  }, [messages, openMedia]);
+    // New photos open automatically, with two downloads at most. Opening a long
+    // history must not fetch hundreds of photos and compete with an active call.
+    // Older images and videos retain their explicit attachment button.
+    const availableSlots = Math.max(0, 2 - mediaInFlight.current.size);
+    const pending = recentAutomaticImages(messages).filter(message =>
+      !previews.current[message.id] && !mediaInFlight.current.has(message.id) && !mediaFailed.current.has(message.id),
+    ).slice(0, availableSlots);
+    for (const message of pending) void openMedia(message);
+  }, [messages, previewQueueVersion, openMedia]);
   useEffect(() => {
     if (!detailsOpen) return;
     let current = true;
@@ -150,7 +165,27 @@ export default function SecureConversationView({ userId, room, messenger }: { us
       const link = document.createElement("a"); link.href = url; link.download = `comeplayers-encrypted-account-${userId}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (reason) { if (alive.current) setError(reason instanceof Error ? reason.message : "Cadangan belum bisa diunduh."); }
   }
-  const time = (value: string) => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(new Date(value)) : "";
+  // Typing changes only the composer; keep the existing message tree intact.
+  const messageRows = useMemo(() => messages.map(message => {
+        const mine = message.sender_id === userId, preview = media[message.id];
+        return <article key={message.id} className={`group flex ${mine ? "justify-end" : "justify-start"}`}><div className={`max-w-[90%] rounded-2xl px-4 py-3 shadow ${mine ? "rounded-br-sm bg-emerald-900/80" : "rounded-bl-sm bg-[#122536]"}`}>
+          {message.reply_to ? <div className="mb-2 rounded-lg border-l-2 border-cyan-300 bg-black/20 px-3 py-2 text-sm text-slate-300">{message.reply_to.message || "Lampiran"}</div> : null}
+          {message.deleted_at ? <p className="italic text-slate-400">Pesan dihapus</p> : <p className="whitespace-pre-wrap break-words text-base leading-7">{message.message}</p>}
+          {message.secureAttachment && !message.deleted_at ? <div className="mt-2 rounded-xl border border-white/10 bg-black/20 p-2">
+            {preview?.mime.startsWith("image/") ? <img src={preview.url} alt={preview.name} className="max-h-72 rounded-lg object-contain" /> : null}
+            {preview?.mime.startsWith("video/") ? <video controls playsInline preload="metadata" src={preview.url} className="max-h-72 rounded-lg" /> : null}
+            {preview?.mime.startsWith("audio/") ? <audio controls src={preview.url} className="max-w-full" /> : null}
+            <button type="button" onClick={() => void openMedia(message, true)} className="mt-1 flex min-h-11 items-center gap-2 break-all text-left text-sm font-bold text-cyan-200">{preview ? <FaCheck aria-hidden="true" /> : <FaDownload aria-hidden="true" />}{preview ? message.secureAttachment.name : message.secureAttachment.mime.startsWith("video/") ? `Putar ${message.secureAttachment.name}` : message.secureAttachment.name} · {Math.ceil(message.secureAttachment.size / 1024)} KB</button>
+          </div> : null}
+          {message.attachment && !message.deleted_at ? <div className="mt-2 rounded-lg bg-black/20 p-2 text-sm text-slate-300"><FaPaperclip className="mr-1 inline" aria-hidden="true" />{message.attachment.file_name} · lampiran dari riwayat lama</div> : null}
+          <footer className="mt-1 flex flex-wrap items-center justify-end gap-2 text-xs text-slate-300">{message.legacy ? <span className="rounded bg-amber-300/10 px-2 py-1 text-amber-200">Riwayat lama</span> : null}{message.edited_at ? <span>diubah</span> : null}<span>{messageTime(message.created_at)}</span>{mine && !message.legacy ? message.delivery === "read" ? <FaCheckDouble aria-label="Sudah dibaca" className="text-cyan-300" /> : message.delivery === "queued" ? <span>Menunggu dikirim</span> : <FaCheck aria-label="Terkirim" /> : null}{!message.deleted_at ? <button type="button" aria-label="Pilihan pesan" aria-expanded={selectedMessageId === message.id} onClick={() => setSelectedMessageId(current => current === message.id ? null : message.id)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><FaEllipsisH /></button> : null}</footer>
+          {!message.deleted_at && selectedMessageId === message.id ? <div className="mt-1 flex flex-wrap items-center justify-end gap-1 border-t border-white/10 pt-2 text-sm text-slate-200">
+            <button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" onClick={() => { setReply(message); setEditing(null); setSelectedMessageId(null); }}><FaReply aria-hidden="true" />Balas</button>
+            <button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" disabled={busy} onClick={() => { setSelectedMessageId(null); void mutate(() => messenger.star(message)); }}><FaStar aria-hidden="true" className={message.starred ? "text-yellow-300" : ""} />{message.starred ? "Hapus bintang" : "Beri bintang"}</button>
+            {mine && !message.legacy ? <><button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" onClick={() => { setEditing(message); setReply(null); setFile(null); setDraft(message.message || ""); setSelectedMessageId(null); }}><FaEdit aria-hidden="true" />Ubah</button><button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" disabled={busy} onClick={() => { setSelectedMessageId(null); void mutate(() => messenger.edit(message)); }}><FaTrash aria-hidden="true" />Hapus</button></> : null}
+          </div> : null}
+        </div></article>;
+      }), [messages, userId, media, selectedMessageId, busy, openMedia, mutate, messenger]);
   return <div data-active-chat-room={room.id} className="flex min-h-0 flex-1 flex-col bg-[#07131f]">
     <header className="flex flex-wrap items-center gap-3 border-b border-white/10 bg-[#091b2a] px-4 py-3">
       <div aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cyan-400/15 font-black text-cyan-200">{room.other?.avatar_url ? <img src={room.other.avatar_url} alt="" className="h-full w-full object-cover" /> : peer.slice(0, 1).toUpperCase()}</div>
@@ -170,26 +205,7 @@ export default function SecureConversationView({ userId, room, messenger }: { us
     </section> : null}
     {error || messenger.error ? <div className="border-b border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-100"><p role="alert">Chat belum bisa diperbarui. Pesan yang belum terkirim tetap ada di kolom pesan.</p><button type="button" disabled={busy} onClick={() => void mutate(() => messenger.sync(room.id))} className="mt-2 min-h-11 rounded-xl bg-white/10 px-4 font-semibold disabled:opacity-50">Coba lagi</button><details className="mt-2"><summary className="flex min-h-11 cursor-pointer items-center">Lihat rincian</summary><p className="break-words">{error || messenger.error}</p></details></div> : null}
     <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto px-3 py-5 sm:px-6">
-      <div className="mx-auto flex max-w-3xl flex-col gap-3">{messages.map(message => {
-        const mine = message.sender_id === userId, preview = media[message.id];
-        return <article key={message.id} className={`group flex ${mine ? "justify-end" : "justify-start"}`}><div className={`max-w-[90%] rounded-2xl px-4 py-3 shadow ${mine ? "rounded-br-sm bg-emerald-900/80" : "rounded-bl-sm bg-[#122536]"}`}>
-          {message.reply_to ? <div className="mb-2 rounded-lg border-l-2 border-cyan-300 bg-black/20 px-3 py-2 text-sm text-slate-300">{message.reply_to.message || "Lampiran"}</div> : null}
-          {message.deleted_at ? <p className="italic text-slate-400">Pesan dihapus</p> : <p className="whitespace-pre-wrap break-words text-base leading-7">{message.message}</p>}
-          {message.secureAttachment && !message.deleted_at ? <div className="mt-2 rounded-xl border border-white/10 bg-black/20 p-2">
-            {preview?.mime.startsWith("image/") ? <img src={preview.url} alt={preview.name} className="max-h-72 rounded-lg object-contain" /> : null}
-            {preview?.mime.startsWith("video/") ? <video controls playsInline preload="metadata" src={preview.url} className="max-h-72 rounded-lg" /> : null}
-            {preview?.mime.startsWith("audio/") ? <audio controls src={preview.url} className="max-w-full" /> : null}
-            <button type="button" onClick={() => void openMedia(message, true)} className="mt-1 flex min-h-11 items-center gap-2 break-all text-left text-sm font-bold text-cyan-200">{preview ? <FaCheck aria-hidden="true" /> : <FaDownload aria-hidden="true" />}{preview ? message.secureAttachment.name : message.secureAttachment.mime.startsWith("video/") ? `Putar ${message.secureAttachment.name}` : message.secureAttachment.name} · {Math.ceil(message.secureAttachment.size / 1024)} KB</button>
-          </div> : null}
-          {message.attachment && !message.deleted_at ? <div className="mt-2 rounded-lg bg-black/20 p-2 text-sm text-slate-300"><FaPaperclip className="mr-1 inline" aria-hidden="true" />{message.attachment.file_name} · lampiran dari riwayat lama</div> : null}
-          <footer className="mt-1 flex flex-wrap items-center justify-end gap-2 text-xs text-slate-300">{message.legacy ? <span className="rounded bg-amber-300/10 px-2 py-1 text-amber-200">Riwayat lama</span> : null}{message.edited_at ? <span>diubah</span> : null}<span>{time(message.created_at)}</span>{mine && !message.legacy ? message.delivery === "read" ? <FaCheckDouble aria-label="Sudah dibaca" className="text-cyan-300" /> : message.delivery === "queued" ? <span>Menunggu dikirim</span> : <FaCheck aria-label="Terkirim" /> : null}{!message.deleted_at ? <button type="button" aria-label="Pilihan pesan" aria-expanded={selectedMessageId === message.id} onClick={() => setSelectedMessageId(current => current === message.id ? null : message.id)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-white/10"><FaEllipsisH /></button> : null}</footer>
-          {!message.deleted_at && selectedMessageId === message.id ? <div className="mt-1 flex flex-wrap items-center justify-end gap-1 border-t border-white/10 pt-2 text-sm text-slate-200">
-            <button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" onClick={() => { setReply(message); setEditing(null); setSelectedMessageId(null); }}><FaReply aria-hidden="true" />Balas</button>
-            <button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" disabled={busy} onClick={() => { setSelectedMessageId(null); void mutate(() => messenger.star(message)); }}><FaStar aria-hidden="true" className={message.starred ? "text-yellow-300" : ""} />{message.starred ? "Hapus bintang" : "Beri bintang"}</button>
-            {mine && !message.legacy ? <><button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" onClick={() => { setEditing(message); setReply(null); setFile(null); setDraft(message.message || ""); setSelectedMessageId(null); }}><FaEdit aria-hidden="true" />Ubah</button><button type="button" className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10" disabled={busy} onClick={() => { setSelectedMessageId(null); void mutate(() => messenger.edit(message)); }}><FaTrash aria-hidden="true" />Hapus</button></> : null}
-          </div> : null}
-        </div></article>;
-      })}{!messages.length ? <div role={busy ? "status" : undefined} className="py-16 text-center text-base leading-7 text-slate-300"><FaComments className="mx-auto mb-3 text-3xl text-emerald-300" aria-hidden="true" />{busy ? "Memuat pesan…" : <><p className="font-bold text-white">Mulai percakapan</p><p>Ketik pesan di bawah untuk menyapa.</p></>}</div> : null}<div ref={bottom} /></div>
+      <div className="mx-auto flex max-w-3xl flex-col gap-3">{messageRows}{!messages.length ? <div role={busy ? "status" : undefined} className="py-16 text-center text-base leading-7 text-slate-300"><FaComments className="mx-auto mb-3 text-3xl text-emerald-300" aria-hidden="true" />{busy ? "Memuat pesan…" : <><p className="font-bold text-white">Mulai percakapan</p><p>Ketik pesan di bawah untuk menyapa.</p></>}</div> : null}<div ref={bottom} /></div>
     </div>
     <div className="border-t border-white/10 bg-[#091b2a] p-3 sm:p-4">
       {reply || editing || file ? <div className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-2 rounded-xl bg-white/[0.06] px-3 py-2 text-sm text-slate-300"><span className="min-w-0 truncate">{editing ? "Mengubah pesan" : reply ? `Membalas: ${reply.message || "Lampiran"}` : file?.name}</span><button type="button" aria-label="Batalkan balasan, perubahan, atau lampiran" className="min-h-11 min-w-11 text-xl" onClick={() => { setReply(null); setEditing(null); setFile(null); setDraft(""); }}>×</button></div> : null}

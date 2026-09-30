@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { selectIncomingCall, type IncomingCall } from "@/lib/incomingCalls";
+import { subscribeAccountCalls, refreshAccountCalls } from "@/lib/accountCalls";
 import { ALERT_PREFERENCES_CHANGED, CALL_ALERT_HANDLED, claimAlert, showSystemAlert, silenceCallAlert, startCallRingtone, unlockAlertAudio } from "@/lib/clientAlerts";
 
 export default function SecureIncomingCallAlert({ userId, enabled = true, onOpenRoom }: {
@@ -17,25 +18,9 @@ export default function SecureIncomingCallAlert({ userId, enabled = true, onOpen
   useEffect(() => { openRef.current = onOpenRoom; }, [onOpenRoom]);
   useEffect(() => {
     if (!userId || !enabled) return;
-    let alive = true;
-    let polling = false;
-    let timer: ReturnType<typeof setTimeout>;
-    const controller = new AbortController();
-    async function poll() {
-      if (!alive || polling) return;
-      polling = true; clearTimeout(timer);
-      try {
-        const result = await authenticatedFetchJson<{ calls: IncomingCall[] }>("/api/messages/calls?active=1", { signal: controller.signal });
-        if (!alive) return;
-        const incoming = selectIncomingCall(result.calls, userId);
-        setCall(incoming);
-      } catch { /* Keep the last result only until its ringing deadline. */ }
-      finally { polling = false; if (alive) timer = setTimeout(() => void poll(), 3000); }
-    }
-    void poll();
-    const resume = () => { void poll(); };
-    window.addEventListener("online", resume); window.addEventListener("focus", resume);
-    return () => { alive = false; controller.abort(); clearTimeout(timer); window.removeEventListener("online", resume); window.removeEventListener("focus", resume); };
+    return subscribeAccountCalls(userId, calls => {
+      setCall(selectIncomingCall(calls, userId));
+    });
   }, [userId, enabled]);
   useEffect(() => {
     if (!call) return;
@@ -87,14 +72,14 @@ export default function SecureIncomingCallAlert({ userId, enabled = true, onOpen
       setDismissed(call.id);
     }
     catch { setError("Panggilan belum bisa dibuka. Coba lagi."); }
-    finally { setOpening(false); }
+    finally { refreshAccountCalls(userId); setOpening(false); }
   }
   async function decline() {
     if (!call || opening) return;
     setOpening(true); setError("");
     try { await authenticatedFetchJson("/api/messages/calls", { method: "PATCH", body: JSON.stringify({ id: call.id, action: "decline" }) }); silenceCallAlert(call.id); setDismissed(call.id); }
     catch { setError("Panggilan belum bisa ditolak. Coba lagi."); }
-    finally { setOpening(false); }
+    finally { refreshAccountCalls(userId); setOpening(false); }
   }
   return <aside role="status" aria-live="polite" className="fixed inset-x-4 top-4 z-[120] mx-auto max-w-md rounded-2xl border border-yellow-400/40 bg-[#101923] p-5 text-white shadow-2xl">
     <p className="text-xs font-bold uppercase tracking-wide text-yellow-300">Panggilan {call.media === "video" ? "video" : "suara"} masuk</p>

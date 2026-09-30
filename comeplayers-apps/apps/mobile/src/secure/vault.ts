@@ -29,6 +29,28 @@ export class Vault {
     const row = await this.db.getFirstAsync<VaultRow>("SELECT * FROM records WHERE kind=? AND id=?", kind, id);
     return row ? this.decode<T>(row) : null;
   }
+  // Keep bridge/SQLite work bounded when refreshing an entire inbox. These
+  // queries still select only authenticated account-vault rows by opaque IDs.
+  async getMany<T>(kind: string, ids: string[]): Promise<Map<string, T>> {
+    const result = new Map<string, T>(), unique = [...new Set(ids)];
+    for (let offset = 0; offset < unique.length; offset += 200) {
+      const batch = unique.slice(offset, offset + 200);
+      const rows = await this.db.getAllAsync<VaultRow>(`SELECT * FROM records WHERE kind=? AND id IN (${batch.map(() => "?").join(",")})`, kind, ...batch);
+      for (const row of rows) result.set(row.id, this.decode<T>(row));
+    }
+    return result;
+  }
+  async latestByRoom<T>(kind: string, rooms: string[]): Promise<Map<string, T>> {
+    const result = new Map<string, T>(), unique = [...new Set(rooms)];
+    for (let offset = 0; offset < unique.length; offset += 200) {
+      const batch = unique.slice(offset, offset + 200);
+      // One index seek per requested room, rather than scanning/decrypting its
+      // entire history or issuing a JS/native round trip for every room.
+      const rows = await this.db.getAllAsync<VaultRow>(`WITH requested(room) AS (VALUES ${batch.map(() => "(?)").join(",")}) SELECT record.* FROM requested JOIN records AS record ON record.kind=? AND record.id=(SELECT newest.id FROM records AS newest WHERE newest.kind=? AND newest.room=requested.room ORDER BY newest.sort DESC,newest.id DESC LIMIT 1)`, ...batch, kind, kind);
+      for (const row of rows) result.set(row.room, this.decode<T>(row));
+    }
+    return result;
+  }
   async put(kind: string, id: string, value: unknown, room = "", sort = ""): Promise<void> {
     const old = await this.db.getFirstAsync<VaultRow>("SELECT * FROM records WHERE kind=? AND id=?", kind, id);
     if (old && old.room === room && old.sort === sort && JSON.stringify(this.decode(old)) === JSON.stringify(value)) return;

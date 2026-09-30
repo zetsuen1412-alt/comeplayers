@@ -76,6 +76,7 @@ import {
 import AuthModal from "@/components/auth/AuthModal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 import { sortInboxRooms } from "@/lib/chatInboxPresentation";
+import { ConversationReadTracker, expireTypingEntries } from "@/lib/chatClientPerformance";
 import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
@@ -89,9 +90,9 @@ import CommunityChannelSidebar, {
   type CommunityBundle,
 } from "@/components/messages/CommunityChannelSidebar";
 import CommunityGroupRail from "@/components/messages/CommunityGroupRail";
-import CommunityVoicePanel, {
-  type CommunityVoiceCommand,
-  type CommunityVoiceDockState,
+import type {
+  CommunityVoiceCommand,
+  CommunityVoiceDockState,
 } from "@/components/messages/CommunityVoicePanel";
 import { useMessagesRedisRealtime } from "@/components/messages/useMessagesRedisRealtime";
 import { createRefreshQueue } from "@/lib/live/refresh-queue";
@@ -101,6 +102,11 @@ import {
 } from "@/lib/chatStream";
 import { supabase } from "@/lib/supabase";
 import styles from "./messages.module.css";
+
+const CommunityVoicePanel = dynamic(
+  () => import("@/components/messages/CommunityVoicePanel"),
+  { ssr: false },
+);
 
 const SecureDirectConversation = dynamic(
   () => import("@/components/messages/SecureDirectConversation"),
@@ -2334,8 +2340,10 @@ export default function MessagesPage() {
     null,
   );
   const typingStopTimerRef = useRef<number | null>(null);
+  const typingBroadcastRef = useRef({ scope: "", at: 0, active: false });
   const autoStoppingLiveRoomsRef = useRef<Set<string>>(new Set());
   const conversationRequestRef = useRef<AbortController | null>(null);
+  const conversationReads = useRef(new ConversationReadTracker());
   useEffect(() => () => {
     conversationRequestRef.current?.abort();
   }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
@@ -2458,7 +2466,8 @@ export default function MessagesPage() {
     signalTyping: signalRedisTyping,
   } = useMessagesRedisRealtime({
     userId,
-    roomId: selectedRoomId,
+    // Community presence is not used by the separate private-message view.
+    roomId: selectedIsGroup ? selectedRoomId : "",
     channelId: selectedChannelId,
   });
   const visibleTypingUsers = useMemo(
@@ -2694,6 +2703,7 @@ export default function MessagesPage() {
     const socialRooms = sortInboxRooms((data.rooms || []).filter((room) => !isTradeRoom(room)));
     roomsRef.current = socialRooms;
     setRooms(socialRooms);
+    setPrivateUnreadCount(socialRooms.reduce((count, room) => count + (isGroupRoom(room) ? 0 : room.unread_count || 0), 0));
     const nextId =
       preferredRoomId || selectedRoomId || socialRooms[0]?.id || "";
     if (nextId && selectRoom) setSelectedRoomId(nextId);
@@ -2777,15 +2787,19 @@ export default function MessagesPage() {
       setConversationLoadError("");
       // The conversation is ready; marking it read must not keep messages hidden.
       setLoadingMessages(false);
-      await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
-        method: "POST",
-        body: JSON.stringify({
-          channelId: data.channel?.id || channelId || undefined,
-        }),
-        signal: controller.signal,
-      });
-      if (controller.signal.aborted) return;
-      window.dispatchEvent(new CustomEvent("cp-community-read", { detail: { roomId } }));
+      const readScope = JSON.stringify([userId, roomId]);
+      const readChannelId = data.channel?.id || channelId || "";
+      const lastMessageId = String(data.messages.at(-1)?.id || "");
+      if (conversationReads.current.needsRead(readScope, readChannelId, lastMessageId)) {
+        await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
+          method: "POST",
+          body: JSON.stringify({ channelId: readChannelId || undefined, lastReadMessageId: lastMessageId || undefined }),
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) return;
+        conversationReads.current.confirm(readScope, readChannelId, lastMessageId);
+        window.dispatchEvent(new CustomEvent("cp-community-read", { detail: { roomId, channelId: readChannelId } }));
+      }
       setRooms((current) =>
         current.map((room) =>
           room.id === roomId ? { ...room, unread_count: 0 } : room,
@@ -3494,6 +3508,7 @@ export default function MessagesPage() {
       // Never hard-reload on SIGNED_IN. Supabase can emit auth events more than
       // once, and reloading from this listener caused a loading/refresh loop.
       if (event === "SIGNED_OUT") {
+        conversationReads.current = new ConversationReadTracker();
         setUserId("");
         setProfile(null);
         setRooms([]);
@@ -3528,7 +3543,9 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!profile?.id) return;
     void loadInvitations();
-    const timer = window.setInterval(() => void loadInvitations(true), 20000);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && navigator.onLine) void loadInvitations(true);
+    }, 60000);
     return () => window.clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
@@ -3663,13 +3680,7 @@ export default function MessagesPage() {
     typingChannelRef.current = channel;
 
     const staleTimer = window.setInterval(() => {
-      setTypingUsers((current) =>
-        Object.fromEntries(
-          Object.entries(current).filter(
-            ([, entry]) => Date.now() - entry.at < 4000,
-          ),
-        ),
-      );
+      setTypingUsers((current) => expireTypingEntries(current, Date.now()));
     }, 1200);
 
     return () => {
@@ -3694,6 +3705,11 @@ export default function MessagesPage() {
     void signalRedisTyping(active);
     const channel = typingChannelRef.current;
     if (!channel || !userId) return;
+    const scope = `${selectedRoomId}:${selectedChannelId}`;
+    const previous = typingBroadcastRef.current;
+    const now = Date.now();
+    if (previous.scope === scope && previous.active === active && (!active || now - previous.at < 900)) return;
+    typingBroadcastRef.current = { scope, at: now, active };
     void channel.send({
       type: "broadcast",
       event: "typing",
@@ -4555,12 +4571,12 @@ export default function MessagesPage() {
         }
       `}</style>
 
-      <ArcadeWindow
+      {arcadeWindowOpen ? <ArcadeWindow
         key={arcadeWindowKey}
         open={arcadeWindowOpen}
         initialGameId={arcadeGameId}
         onClose={() => setArcadeWindowOpen(false)}
-      />
+      /> : null}
 
       <header
         className={`${styles.topHeader} relative z-20 flex h-[92px] items-center gap-5 px-6 text-white lg:px-10`}

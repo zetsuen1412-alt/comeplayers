@@ -175,3 +175,57 @@ test('recent encrypted photos become inline previews without an extra tap', asyn
   await render(t, screen({ messenger: messenger({ vault: { list: async () => photos, search: async () => photos }, downloadMedia: async message => { downloaded.push(message.id); } }), setup: null, error: '', reopen() {} }), props);
   assert.deepEqual(downloaded, photos.slice(0, 4).map(photo => photo.id));
 });
+
+
+test('opening a private chat does not download or decrypt video/audio/documents before a tap', async t => {
+  const at = new Date().toISOString();
+  const files = [
+    { id: 'remote-video', secureAttachment: { name: 'video.mp4', mime: 'video/mp4', size: 1000 } },
+    { id: 'local-video', localMedia: { id: 'video', name: 'video.mp4', mime: 'video/mp4', size: 1000 } },
+    { id: 'local-audio', localMedia: { id: 'audio', name: 'voice.m4a', mime: 'audio/mp4', size: 1000 } },
+    { id: 'local-document', localMedia: { id: 'pdf', name: 'document.pdf', mime: 'application/pdf', size: 1000 } },
+  ].map(file => ({ ...file, message: '', created_at: at, sender_id: userId }));
+  const materialized = [], downloads = [];
+  let cleaned = 0;
+  const view = await render(t, screen({ messenger: messenger({ vault: { list: async () => files }, downloadMedia: async item => downloads.push(item.id) }), setup: null, error: '', reopen() {} }, {
+    '../secure/mediaStore': { materializeMedia: async (_vault, id) => { materialized.push(id); return { uri: `cache:${id}`, exists: true, delete() { cleaned++; } }; } },
+    'expo-video': { VideoView: 'Video', useVideoPlayer: uri => ({ uri }) },
+  }), props);
+  assert.equal(materialized.length, 0, 'mounted non-image bubbles must not read/decrypt full attachments');
+  assert.equal(downloads.length, 0, 'video download does not compete with chat or a call');
+  await act(async () => { view.root.findAllByType('Pressable').find(node => node.props.accessibilityLabel === 'Putar video').props.onPress(); await flush(); });
+  assert.deepEqual(materialized, ['video']);
+  assert.equal(view.root.findAllByType('Video').length, 1, 'video plays inline after the first tap');
+  await act(async () => view.unmount());
+  assert.equal(cleaned, 1, 'decrypted preview file is deleted when leaving chat');
+});
+
+test('typing does not rerender40 group media bubbles and a refresh renders only the changed message', async t => {
+  const group = { id: 'group-performance', room_type: 'group', server: { name: 'Keluarga' } };
+  let revision = 0, changed, rendered = 0;
+  const data = () => Array.from({ length: 40 }, (_, index) => ({
+    id: `message-${index}`, room_id: group.id, sender_id: userId,
+    message: index === 39 && revision ? 'Diperbarui' : `Pesan ${index}`,
+    created_at: new Date(1700000000000 + index * 1000).toISOString(),
+    attachment: { id: index + 1, mime_type: 'image/jpeg', file_name: 'foto.jpg', size_bytes: 1000 },
+  }));
+  function Media() { rendered++; return React.createElement('Media'); }
+  const { ConversationScreen } = load('screens/ConversationScreen.tsx', {
+    'react-native': native, '@expo/vector-icons/Ionicons': 'Icon', '@comeplayers/chat-core': { roomName: () => 'Keluarga' },
+    'expo-image-picker': {}, 'expo-document-picker': {}, 'expo-image-manipulator': {},
+    './ContactsSheet': { ContactsSheet: 'Contacts' }, './ChatProblemNotice': { ChatProblemNotice }, './ChatKeyboardLayout': chatKeyboardLayout,
+    '../components': { Avatar: 'Avatar', GroupAvatar: 'GroupAvatar' }, '../CallProvider': { useCalls: () => ({ startCall: async () => {} }) },
+    './ChatMedia': { AudioPlayback: 'Audio', VoiceRecorder: 'Recorder', ChatMedia: Media }, '../theme': { ...theme, radius: {} },
+    '../runtime': { chatClient: { getConversation: async () => ({ messages: data(), room: group }) },
+      supabase: { channel: () => ({ on(_type, _filter, callback) { changed = callback; return this; }, subscribe() { return this; } }), removeChannel: async () => {} } },
+    '../messagingApi': { loadChatPreferences: async () => ({ preferences: [], starred: [] }) }, '../chatAttachmentUpload': {},
+  });
+  const view = await render(t, ConversationScreen, { ...props, room: group });
+  assert.equal(rendered, 40);
+  for (let n = 1; n <= 10; n++) await act(async () => view.root.findByType('TextInput').props.onChangeText('a'.repeat(n)));
+  assert.equal(rendered, 40, 'ten composer edits do no extra work in40 existing message bubbles');
+  revision = 1;
+  await act(async () => { changed(); await new Promise(resolve => setTimeout(resolve, 300)); });
+  assert.equal(rendered, 41, 'a40-message server snapshot reuses39 unchanged rows');
+  assert.equal(view.root.findByType('TextInput').props.value, 'a'.repeat(10));
+});

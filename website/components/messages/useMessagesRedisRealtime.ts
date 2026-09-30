@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { sameTypingEntries, sameUserIds } from "@/lib/chatClientPerformance";
 
 type TypingEntry = { name: string; at: number };
 type PresenceResponse = { enabled: boolean; users: Array<{ userId: string; name: string; lastSeen: number }> };
@@ -15,9 +16,11 @@ export function useMessagesRedisRealtime({ userId, roomId, channelId }: {
   const scope = `${userId}:${roomId}:${channelId}`;
   const [state, setState] = useState({ scope: "", onlineUserIds: emptyOnline, typingUsers: emptyTyping, redisEnabled: false });
   const lastTypingWriteRef = useRef({ scope: "", at: 0 });
+  const availabilityRef = useRef<{ scope: string; enabled?: boolean }>({ scope: "" });
 
   const signalTyping = useCallback(async (active: boolean) => {
     if (!userId || !roomId || !navigator.onLine || (active && document.visibilityState !== "visible")) return;
+    if (availabilityRef.current.scope === scope && availabilityRef.current.enabled === false) return;
     const now = Date.now();
     if (active && lastTypingWriteRef.current.scope === scope && now - lastTypingWriteRef.current.at < 900) return;
     lastTypingWriteRef.current = { scope, at: now };
@@ -35,10 +38,13 @@ export function useMessagesRedisRealtime({ userId, roomId, channelId }: {
     let active = true;
     const commit = (update: Partial<typeof state>) => {
       if (!active) return;
-      setState(previous => ({
-        ...(previous.scope === scope ? previous : { scope, onlineUserIds: emptyOnline, typingUsers: emptyTyping, redisEnabled: false }),
-        ...update,
-      }));
+      if (update.redisEnabled !== undefined) availabilityRef.current = { scope, enabled: update.redisEnabled };
+      setState(previous => {
+        const next = { ...(previous.scope === scope ? previous : { scope, onlineUserIds: emptyOnline, typingUsers: emptyTyping, redisEnabled: false }), ...update };
+        if (previous.scope === scope && sameUserIds(previous.onlineUserIds, next.onlineUserIds)) next.onlineUserIds = previous.onlineUserIds;
+        if (previous.scope === scope && sameTypingEntries(previous.typingUsers, next.typingUsers)) next.typingUsers = previous.typingUsers;
+        return previous.scope === scope && previous.onlineUserIds === next.onlineUserIds && previous.typingUsers === next.typingUsers && previous.redisEnabled === next.redisEnabled ? previous : next;
+      });
     };
     const visible = () => document.visibilityState === "visible" && navigator.onLine;
     // Each task has at most one request in flight, even on a slow connection.
@@ -51,7 +57,13 @@ export function useMessagesRedisRealtime({ userId, roomId, channelId }: {
         running = true;
         try { if (visible()) await read(); }
         catch { /* Existing realtime transport remains available. */ }
-        finally { running = false; if (active) timer = setTimeout(() => void run(), interval); }
+        finally {
+          running = false;
+          // An optional Redis service can be disabled. Do not send 24 failed/empty
+          // typing reads per minute until the user leaves the conversation.
+          const disabled = availabilityRef.current.scope === scope && availabilityRef.current.enabled === false;
+          if (active) timer = setTimeout(() => void run(), disabled ? 60_000 : interval);
+        }
       };
       void run();
       return { run, stop: () => clearTimeout(timer) };
