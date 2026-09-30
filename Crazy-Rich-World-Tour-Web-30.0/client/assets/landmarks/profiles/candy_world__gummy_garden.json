@@ -1,0 +1,9 @@
+{
+  "map_id": "candy_world",
+  "city": "Gummy Garden",
+  "style": "gummy",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/candy_world/gummy_garden.glb",
+  "fallback": true
+}

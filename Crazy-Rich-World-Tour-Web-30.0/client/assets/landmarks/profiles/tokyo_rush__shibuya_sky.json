@@ -1,0 +1,9 @@
+{
+  "map_id": "tokyo_rush",
+  "city": "Shibuya Sky",
+  "style": "shibuya",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tokyo_rush/shibuya_sky.glb",
+  "fallback": true
+}

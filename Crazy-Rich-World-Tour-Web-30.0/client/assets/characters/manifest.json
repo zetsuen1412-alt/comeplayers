@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "pipeline": "CRWT23",
+  "format": "glTF 2.0 / GLB",
+  "characters": {
+    "alexia": {
+      "name": "Alexia",
+      "file": "glb/alexia.glb",
+      "scale": 0.38,
+      "groundOffset": 0.06,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "jump": "Jump",
+        "skill": "Skill",
+        "win": "Win",
+        "lose": "Lose"
+      },
+      "vertices": 384,
+      "indices": 576,
+      "bytes": 35852,
+      "fallback": "procedural"
+    },
+    "rindi": {
+      "name": "Rindi",
+      "file": "glb/rindi.glb",
+      "scale": 0.38,
+      "groundOffset": 0.06,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "jump": "Jump",
+        "skill": "Skill",
+        "win": "Win",
+        "lose": "Lose"
+      },
+      "vertices": 360,
+      "indices": 540,
+      "bytes": 34336,
+      "fallback": "procedural"
+    },
+    "kairo": {
+      "name": "Kairo",
+      "file": "glb/kairo.glb",
+      "scale": 0.38,
+      "groundOffset": 0.06,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "jump": "Jump",
+        "skill": "Skill",
+        "win": "Win",
+        "lose": "Lose"
+      },
+      "vertices": 360,
+      "indices": 540,
+      "bytes": 34336,
+      "fallback": "procedural"
+    },
+    "luna": {
+      "name": "Luna",
+      "file": "glb/luna.glb",
+      "scale": 0.38,
+      "groundOffset": 0.06,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "jump": "Jump",
+        "skill": "Skill",
+        "win": "Win",
+        "lose": "Lose"
+      },
+      "vertices": 360,
+      "indices": 540,
+      "bytes": 34332,
+      "fallback": "procedural"
+    },
+    "nox": {
+      "name": "Nox",
+      "file": "glb/nox.glb",
+      "scale": 0.38,
+      "groundOffset": 0.06,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "jump": "Jump",
+        "skill": "Skill",
+        "win": "Win",
+        "lose": "Lose"
+      },
+      "vertices": 384,
+      "indices": 576,
+      "bytes": 35844,
+      "fallback": "procedural"
+    },
+    "atlas": {
+      "name": "Atlas",
+      "file": "glb/atlas.glb",
+      "scale": 0.38,
+      "groundOffset": 0.06,
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "jump": "Jump",
+        "skill": "Skill",
+        "win": "Win",
+        "lose": "Lose"
+      },
+      "vertices": 360,
+      "indices": 540,
+      "bytes": 34336,
+      "fallback": "procedural"
+    }
+  }
+}
