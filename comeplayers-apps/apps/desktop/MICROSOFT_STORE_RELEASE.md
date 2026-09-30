@@ -11,7 +11,7 @@ Draft untuk paket MSIX desktop. Teks berikut menggambarkan fitur yang ada pada a
 | Package/Identity/Name | `ComePlayers.ComePlayers` |
 | Package/Identity/Publisher | `CN=37E5A202-77EB-4589-94DE-D5717558F0BD` |
 | Package/Properties/PublisherDisplayName | `ComePlayers` |
-| Versi paket | 1.0.0 (samakan dengan MSIX final) |
+| Versi paket | 1.0.1.0 (MSIX final) |
 | Kategori utama | Social |
 | Kategori sekunder | Shopping, jika Partner Center menawarkannya |
 | Bahasa listing pertama | Indonesia (Indonesia) |
@@ -29,7 +29,7 @@ Jalankan dari akar repositori untuk membangun paket dengan identitas yang direse
   -PublisherId 'CN=37E5A202-77EB-4589-94DE-D5717558F0BD'
 ```
 
-Hasilnya adalah `comeplayers-apps/apps/desktop/store-package/output/ComePlayers_1.0.0_x64.msix`. Paket ini belum ditandatangani; unggah melalui Partner Center untuk sertifikasi dan penandatanganan Microsoft, bukan dibagikan sebagai installer langsung.
+Hasilnya adalah `comeplayers-apps/apps/desktop/store-package/output/ComePlayers_1.0.1_x64.msix`. Paket ini belum ditandatangani; unggah melalui Partner Center untuk sertifikasi dan penandatanganan Microsoft, bukan dibagikan sebagai installer langsung.
 
 Kategori **Social** paling sesuai untuk chat dan komunitas; **Shopping** mencerminkan marketplace. Microsoft menggolongkan komunikasi teks, suara, dan video sebagai Social serta pembelian online sebagai Shopping. Jangan menggolongkan paket sebagai game hanya karena komunitasnya bertema game.
 
@@ -86,3 +86,29 @@ Gunakan logo ComePlayers resmi yang sudah ada pada paket sebagai ikon. Gambar pr
 - [Privasi dan dukungan MSIX](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/support-info)
 - [Alur pengajuan aplikasi Windows](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/publish-first-app)
 - [Kebijakan representasi produk Microsoft Store](https://learn.microsoft.com/en-us/windows/apps/publish/store-policies-and-code-of-conduct)
+
+## Pembaruan Windows 1.0.1 — 30 September 2026
+
+Paket siap unggah: `store-package/output/ComePlayers_1.0.1_x64.msix` (versi manifest `1.0.1.0`, x64).
+SHA256: `08006EF0A528345CF72B35F6CFB51DF6E57FE9B8DE69928E0C4408BDBD161757`.
+
+Identitas dan isi paket diperiksa ulang; tidak ada perubahan source desktop sesudah build terverifikasi pada commit `5cd55049`. Fitur nomor CP dari website production terbaru dimuat dari domain resmi; tidak memerlukan perubahan atau build native baru.
+
+### Catatan pembaruan untuk listing
+
+- Nomor CP permanen untuk identitas dan pencarian teman.
+- Tombol salin nomor CP dari profil.
+- Notifikasi pesan dan panggilan dengan suara saat aplikasi berjalan.
+- Perbaikan kestabilan pemberitahuan dan perpindahan kembali ke percakapan.
+
+### Catatan peninjau untuk pembaruan
+
+Aplikasi membutuhkan internet dan memuat antarmuka dari `https://www.comeplayers.com`. Login Google memakai browser sistem dengan callback terlindungi PKCE dan protokol `comeplayers://`. Notifikasi Windows memerlukan aplikasi tetap berjalan (termasuk diminimalkan), mengikuti izin serta pengaturan sistem. Jangan mengklaim ada push saat proses aplikasi ditutup.
+
+Nomor CP adalah identitas publik akun dalam ComePlayers, bukan alokasi nomor telepon internasional. Sepuluh nomor dengan digit akhir berulang dicadangkan untuk admin dan belum dipasangkan ke akun.
+
+### Status pengajuan
+
+Pengguna meminta melanjutkan Microsoft Store setelah Android 0.16.4/build32 diterbitkan ke internal testers. Pada 30 September 2026 sesi Partner Center meminta login ulang; paket Windows1.0.1 **belum diunggah atau diajukan**. Status terakhir yang diketahui untuk versi1.0.0 adalah In certification pada pengajuan terdahulu; status terkini belum dapat diverifikasi tanpa login. Pertahankan pengajuan yang sudah ada sampai status terbaru terlihat.
+
+Rujukan alur pembaruan: https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/publish-update-to-your-app-on-store
