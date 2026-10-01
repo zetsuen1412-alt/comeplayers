@@ -30,4 +30,4 @@ export function metaConfig() {
   if (!/^\d+$/.test(pageId) || !token || !/^v\d+\.\d+$/.test(version)) throw new LokerError('Koneksi Facebook Page belum dikonfigurasi.', 503);
   return { pageId, token, version };
 }
-export function automationEnabled(): boolean { return process.env.LOKER_AUTOMATION_ENABLED === 'true'; }
+export function automationEnabled(): boolean { return process.env.LOKER_AUTOMATION_ENABLED === 'true' || (process.env.VERCEL_ENV === 'production' && process.env.LOKER_AUTOMATION_ENABLED !== 'false'); }

@@ -51,7 +51,7 @@ export async function browserJob(db: DB) {
   const job = await claim(db, 'browser'); if (!job) return null;
   const current = await workspace(db);
   if (job.generation !== current.generation || current.state !== 'running') { await finish(db, job, 'cancelled'); return null; }
-  return { ...job, text: publicationText(w.config, job.kind === 'group_comment'), banner: job.kind === 'group_scan' ? null : await banner(db, w.config.bannerId), expiresAt: Date.now() + 140_000 };
+  return { ...job, text: job.kind.startsWith('group_') ? '' : publicationText(w.config, job.kind === 'group_comment'), banner: job.kind === 'group_scan' ? null : await banner(db, w.config.bannerId), expiresAt: Date.now() + 140_000 };
 }
 export async function browserResult(db: DB, body: Record<string, unknown>) {
   if (typeof body.id !== 'string' || typeof body.lease !== 'string') throw new LokerError('Tugas tidak valid.');
@@ -70,7 +70,7 @@ export async function browserResult(db: DB, body: Record<string, unknown>) {
   await finish(db, job, status, ref, note);
   if (job.kind === 'group_scan' && status === 'skipped' && w.state === 'running' && w.generation === job.generation && Array.isArray(body.discovered)) {
     const group = facebookTarget(job.target).group;
-    for (const u of body.discovered.slice(0,3)) {
+    for (const u of body.discovered.slice(0,8)) {
       if (typeof u !== 'string') continue;
       const post = facebookTarget(u, true);
       if (post.group !== group || !w.config.groups.includes(facebookTarget(job.target).url)) continue;
