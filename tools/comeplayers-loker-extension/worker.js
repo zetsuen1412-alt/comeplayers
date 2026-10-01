@@ -9,7 +9,7 @@ async function waitTab(id) {
 async function status() {
   const s = await chrome.storage.local.get(['facebookTab','active']);
   let attached = false; if (s.facebookTab) { try { attached = fb((await chrome.tabs.get(s.facebookTab)).url); } catch { /* Closed tab. */ } }
-  return { installed: true, attached, busy, interrupted: !busy && s.active ? s.active : null };
+  return { installed: true, version: chrome.runtime.getManifest().version, attached, busy, interrupted: !busy && s.active ? s.active : null };
 }
 async function stop() {
   const { facebookTab } = await chrome.storage.local.get('facebookTab');
