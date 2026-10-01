@@ -1,0 +1,44 @@
+[
+  {
+    "name": "scan chooses only job seekers",
+    "result": "skipped",
+    "dispatches": 1,
+    "passed": true
+  },
+  {
+    "name": "disabled dispatch cannot submit",
+    "result": "uncertain",
+    "dispatches": 1,
+    "passed": true
+  },
+  {
+    "name": "wrong Facebook route never clicks",
+    "result": "uncertain",
+    "dispatches": 0,
+    "passed": true
+  },
+  {
+    "name": "group post requests reload verification",
+    "result": "verify",
+    "dispatches": 1,
+    "passed": true
+  },
+  {
+    "name": "post verified from fresh DOM without sending",
+    "result": "sent",
+    "dispatches": 0,
+    "passed": true
+  },
+  {
+    "name": "comment sends to main post, not reply",
+    "result": "verify",
+    "dispatches": 1,
+    "passed": true
+  },
+  {
+    "name": "missing send button never fakes Enter success",
+    "result": "uncertain",
+    "dispatches": 0,
+    "passed": true
+  }
+]

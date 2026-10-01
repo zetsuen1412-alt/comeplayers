@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "ComePlayers — Lowongan Facebook",
+  "version": "1.0.0",
+  "description": "Penghubung admin ComePlayers dengan tab grup Facebook yang sudah login. Tidak membaca cookie atau membuat data pelamar.",
+  "minimum_chrome_version": "120",
+  "permissions": ["storage", "tabs", "scripting"],
+  "host_permissions": ["https://www.facebook.com/*", "https://web.facebook.com/*", "https://m.facebook.com/*"],
+  "background": { "service_worker": "worker.js" },
+  "action": { "default_popup": "popup.html" },
+  "content_scripts": [{
+    "matches": ["https://www.comeplayers.com/admin/lowongan*", "https://comeplayers.com/admin/lowongan*", "http://localhost:3000/admin/lowongan*"],
+    "js": ["bridge.js"], "run_at": "document_start"
+  }]
+}

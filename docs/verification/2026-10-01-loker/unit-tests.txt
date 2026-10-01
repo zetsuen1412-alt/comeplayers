@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: phone: Indonesia local number normalized
+ok 1 - phone: Indonesia local number normalized
+  ---
+  duration_ms: 34.863663
+  type: 'test'
+  ...
+# Subtest: phone: international format retained
+ok 2 - phone: international format retained
+  ---
+  duration_ms: 0.945102
+  type: 'test'
+  ...
+# Subtest: phone: placeholder, multiple plus, HTML and short number rejected
+ok 3 - phone: placeholder, multiple plus, HTML and short number rejected
+  ---
+  duration_ms: 3.111826
+  type: 'test'
+  ...
+# Subtest: WhatsApp deep link has encoded approved title, not a form
+ok 4 - WhatsApp deep link has encoded approved title, not a form
+  ---
+  duration_ms: 4.310061
+  type: 'test'
+  ...
+# Subtest: group URL canonicalizes host and tracking
+ok 5 - group URL canonicalizes host and tracking
+  ---
+  duration_ms: 0.853137
+  type: 'test'
+  ...
+# Subtest: group URLs: reject spoof, credentials, port, javascript, non-group and HTTP
+ok 6 - group URLs: reject spoof, credentials, port, javascript, non-group and HTTP
+  ---
+  duration_ms: 2.040223
+  type: 'test'
+  ...
+# Subtest: post links canonicalized and group-only inputs cannot be posts
+ok 7 - post links canonicalized and group-only inputs cannot be posts
+  ---
+  duration_ms: 0.814514
+  type: 'test'
+  ...
+# Subtest: empty campaign is draftable but cannot start
+ok 8 - empty campaign is draftable but cannot start
+  ---
+  duration_ms: 9.541539
+  type: 'test'
+  ...
+# Subtest: active config requires explicit group authorization
+ok 9 - active config requires explicit group authorization
+  ---
+  duration_ms: 7.106211
+  type: 'test'
+  ...
+# Subtest: config canonicalizes and deduplicates groups
+ok 10 - config canonicalizes and deduplicates groups
+  ---
+  duration_ms: 7.842906
+  type: 'test'
+  ...
+# Subtest: daily and scan bounds enforced
+ok 11 - daily and scan bounds enforced
+  ---
+  duration_ms: 1.266819
+  type: 'test'
+  ...
+# Subtest: config rejects wrong boolean and excessive text
+ok 12 - config rejects wrong boolean and excessive text
+  ---
+  duration_ms: 2.671709
+  type: 'test'
+  ...
+# Subtest: approved FAQ is used and WhatsApp always included
+ok 13 - approved FAQ is used and WhatsApp always included
+  ---
+  duration_ms: 14.966184
+  type: 'test'
+  ...
+# Subtest: FAQ uses word boundaries, not partial matches
+ok 14 - FAQ uses word boundaries, not partial matches
+  ---
+  duration_ms: 3.909692
+  type: 'test'
+  ...
+# Subtest: FAQ regex-like keyword is escaped
+ok 15 - FAQ regex-like keyword is escaped
+  ---
+  duration_ms: 2.985482
+  type: 'test'
+  ...
+# Subtest: unknown question does not invent salary
+ok 16 - unknown question does not invent salary
+  ---
+  duration_ms: 0.987933
+  type: 'test'
+  ...
+# Subtest: STOP never gets an automated reply
+ok 17 - STOP never gets an automated reply
+  ---
+  duration_ms: 1.104382
+  type: 'test'
+  ...
+# Subtest: human request points to WhatsApp
+ok 18 - human request points to WhatsApp
+  ---
+  duration_ms: 0.338028
+  type: 'test'
+  ...
+# Subtest: publication appends WhatsApp consistently
+ok 19 - publication appends WhatsApp consistently
+  ---
+  duration_ms: 2.581801
+  type: 'test'
+  ...
+# Subtest: seeker relevance excludes companies hiring and unrelated posts
+ok 20 - seeker relevance excludes companies hiring and unrelated posts
+  ---
+  duration_ms: 2.906673
+  type: 'test'
+  ...
+# Subtest: banner magic bytes and size limits enforced
+ok 21 - banner magic bytes and size limits enforced
+  ---
+  duration_ms: 7.311957
+  type: 'test'
+  ...
+# Subtest: request body limit enforced without trusting Content-Length
+ok 22 - request body limit enforced without trusting Content-Length
+  ---
+  duration_ms: 118.863415
+  type: 'test'
+  ...
+# Subtest: webhook signature missing, malformed or wrong is rejected
+ok 23 - webhook signature missing, malformed or wrong is rejected
+  ---
+  duration_ms: 5.211768
+  type: 'test'
+  ...
+# Subtest: empty secret is never accepted
+ok 24 - empty secret is never accepted
+  ---
+  duration_ms: 0.862941
+  type: 'test'
+  ...
+# Subtest: recipient encrypted; ciphertext tampering rejected
+ok 25 - recipient encrypted; ciphertext tampering rejected
+  ---
+  duration_ms: 10.621018
+  type: 'test'
+  ...
+# Subtest: Graph sends token only as Authorization and never retries lost sends
+ok 26 - Graph sends token only as Authorization and never retries lost sends
+  ---
+  duration_ms: 10.349763
+  type: 'test'
+  ...
+# Subtest: Graph rejects unexpected paths before networking
+ok 27 - Graph rejects unexpected paths before networking
+  ---
+  duration_ms: 3.804717
+  type: 'test'
+  ...
+# Subtest: migration limits privileges to service role, with RLS enabled
+ok 28 - migration limits privileges to service role, with RLS enabled
+  ---
+  duration_ms: 1.882576
+  type: 'test'
+  ...
+# Subtest: database dispatch uses leases, row locks and no blind retries
+ok 29 - database dispatch uses leases, row locks and no blind retries
+  ---
+  duration_ms: 0.932127
+  type: 'test'
+  ...
+# Subtest: module never references payroll or writes applicant/employee tables
+ok 30 - module never references payroll or writes applicant/employee tables
+  ---
+  duration_ms: 4.195323
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3035.992557
