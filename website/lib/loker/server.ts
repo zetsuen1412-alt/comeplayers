@@ -24,7 +24,7 @@ export async function enqueueDue(db: DB, w: Workspace, channel: 'browser' | 'met
   if (channel === 'meta' && c.publishPage) await enqueue(db, w, 'page_post', metaConfig().pageId, 'page_post');
   if (channel === 'browser') for (const group of c.groups) {
     if (c.publishGroups) await enqueue(db, w, 'group_post', group, `group_post:${group}`);
-    if (c.commentGroups) {
+    if (c.commentGroups && !c.manualReview) {
       const slot = Math.floor(Date.now() / (c.intervalMinutes * 60_000));
       await enqueue(db, w, 'group_scan', group, `group_scan:${group}:${slot}`);
     }
