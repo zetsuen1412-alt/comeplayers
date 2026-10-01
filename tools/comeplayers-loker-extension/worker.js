@@ -17,6 +17,37 @@ async function stop() {
   if (facebookTab) await chrome.tabs.sendMessage(facebookTab, { type: 'CP_LOKER_CANCEL' }).catch(() => undefined);
   return { stopped: true };
 }
+async function scan(groups) {
+  if (busy) throw new Error('Masih ada tugas browser yang berjalan.');
+  if (!Array.isArray(groups) || groups.length < 1 || groups.length > 30) throw new Error('Masukkan 1–30 link grup.');
+  const targets = [...new Set(groups.map(String))];
+  if (targets.some(url => !fb(url) || /\/(?:posts|permalink)\//.test(new URL(url).pathname))) throw new Error('Daftar scan hanya boleh berisi link halaman grup.');
+  const s = await chrome.storage.local.get(['facebookTab']);
+  if (!s.facebookTab || !fb((await chrome.tabs.get(s.facebookTab)).url)) throw new Error('Hubungkan tab Facebook terlebih dahulu.');
+  busy = true;
+  await chrome.storage.local.set({ cancelled: false });
+  const items = [];
+  const seen = new Set();
+  try {
+    for (const group of targets) {
+      const cancelled = (await chrome.storage.local.get('cancelled')).cancelled;
+      if (cancelled) break;
+      await chrome.tabs.update(s.facebookTab, { url: group, active: true });
+      await waitTab(s.facebookTab);
+      await chrome.scripting.executeScript({ target: { tabId: s.facebookTab }, files: ['facebook.js'] });
+      const result = await chrome.tabs.sendMessage(s.facebookTab, { type: 'CP_LOKER_SCAN_ALL', group });
+      if (result?.error) throw new Error(String(result.error));
+      for (const item of result?.items || []) {
+        if (!item?.url || seen.has(item.url)) continue;
+        seen.add(item.url);
+        items.push({ url: item.url, preview: String(item.preview || '').slice(0, 220), group });
+      }
+    }
+    return { items, groupsScanned: targets.length };
+  } finally {
+    busy = false;
+  }
+}
 async function run(job, controller) {
   if (busy) throw new Error('Masih ada tugas browser yang berjalan.');
   const s = await chrome.storage.local.get(['facebookTab','active']);
@@ -54,7 +85,7 @@ chrome.runtime.onMessage.addListener((m, sender, respond) => {
     return true;
   }
   if (m?.type === 'CP_LOKER' && sender.tab && cp(sender.url)) {
-    const operation = m.command === 'ping' ? status() : m.command === 'stop' ? stop() : m.command === 'run' ? run(m.data, sender.tab.id) : Promise.reject(new Error('Perintah tidak didukung.'));
+    const operation = m.command === 'ping' ? status() : m.command === 'stop' ? stop() : m.command === 'scan' ? scan(m.data?.groups) : m.command === 'run' ? run(m.data, sender.tab.id) : Promise.reject(new Error('Perintah tidak didukung.'));
     operation.then(respond).catch(e => respond({ error: e.message })); return true;
   }
   if (m?.type === 'CP_LOKER_POPUP' && !sender.tab && sender.url === chrome.runtime.getURL('popup.html')) {

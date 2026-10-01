@@ -92,6 +92,37 @@
     }) || null;
   }
 
+  function findExactPostArticle(job) {
+    const wanted = target(job.target);
+    return articles().find(a => postUrlFromArticle(a, wanted.group) === wanted.url) || null;
+  }
+
+  async function scanAllPosts(groupUrl) {
+    cancelled = false;
+    const wanted = target(groupUrl);
+    const here = target(location.href);
+    if (!wanted || wanted.post || !here || here.group !== wanted.group) throw new Error('Halaman grup tidak cocok untuk scan.');
+    if (/checkpoint|captcha|login/.test(location.pathname) || [...document.querySelectorAll('[role="alert"],[role="dialog"]')].some(e => /temporarily blocked|dibatasi sementara|confirm your identity|konfirmasi identitas|security check|pemeriksaan keamanan/i.test(e.textContent))) {
+      throw new Error('Facebook meminta pemeriksaan keamanan/pembatasan.');
+    }
+    const found = new Map();
+    let idleRounds = 0;
+    const deadline = Date.now() + 45000;
+    while (!cancelled && Date.now() < deadline && idleRounds < 5) {
+      const before = found.size;
+      for (const a of articles()) {
+        const ref = postUrlFromArticle(a, wanted.group);
+        if (!ref || found.has(ref)) continue;
+        const message = norm(story(a)?.textContent || a.textContent || '');
+        found.set(ref, { url: ref, preview: message.slice(0, 220) || 'Postingan tanpa teks' });
+      }
+      idleRounds = found.size === before ? idleRounds + 1 : 0;
+      window.scrollBy(0, innerHeight * .9);
+      await sleep(900);
+    }
+    return { items: [...found.values()] };
+  }
+
   async function run(job) {
     cancelled = false;
     check(job);
@@ -151,7 +182,7 @@
     }
 
     if (job.kind === 'group_comment') {
-      const article = await until(job, () => findJobPostArticle(job));
+      const article = await until(job, () => job.payload?.adminSelected === true ? findExactPostArticle(job) : findJobPostArticle(job));
       const editor = await until(job, () => {
         const editors = [...article.querySelectorAll('[contenteditable="true"][role="textbox"]')].filter(el => visible(el) && el.closest('[role="article"]') === article && /komentar|comment/i.test(label(el)) && !/balas|reply/i.test(label(el)));
         return editors.length === 1 ? editors[0] : null;
@@ -193,6 +224,10 @@
   chrome.runtime.onMessage.addListener((m, sender, respond) => {
     if (sender.id !== chrome.runtime.id) return;
     if (m?.type === 'CP_LOKER_CANCEL') { cancelled = true; respond({ stopped: true }); return; }
+    if (m?.type === 'CP_LOKER_SCAN_ALL') {
+      scanAllPosts(m.group).then(respond).catch(e => respond({ error: e.message, items: [] }));
+      return true;
+    }
     if (!['CP_LOKER_RUN','CP_LOKER_VERIFY'].includes(m?.type)) return;
     const job = m.job;
     const pulse = setInterval(() => {

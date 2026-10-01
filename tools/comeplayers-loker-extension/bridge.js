@@ -5,7 +5,7 @@ window.addEventListener('message', async event => {
   if (event.source !== window || event.origin !== location.origin || !event.data || event.data.source !== 'cp-loker-ui') return;
   const m = event.data;
   if (m.kind === 'preflight-result') { const done = pending.get(m.requestId); if (done) { pending.delete(m.requestId); done(m.allowed === true); } return; }
-  if (m.kind !== 'command' || typeof m.requestId !== 'string' || !['ping','run','stop'].includes(m.command)) return;
+  if (m.kind !== 'command' || typeof m.requestId !== 'string' || !['ping','run','scan','stop'].includes(m.command)) return;
   try {
     const result = await chrome.runtime.sendMessage({ type: 'CP_LOKER', command: m.command, data: m.data });
     window.postMessage({ source: 'cp-loker-extension', kind: 'result', requestId: m.requestId, result }, location.origin);

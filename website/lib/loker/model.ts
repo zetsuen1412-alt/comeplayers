@@ -5,13 +5,13 @@ export type Outcome = 'sent' | 'pending' | 'skipped' | 'failed' | 'uncertain' | 
 export type FAQ = { keywords: string[]; answer: string };
 export type Config = {
   title: string; text: string; comment: string; whatsapp: string; bannerId: string;
-  groups: string[]; publishPage: boolean; publishGroups: boolean; commentGroups: boolean;
+  groups: string[]; publishPage: boolean; publishGroups: boolean; commentGroups: boolean; manualReview: boolean;
   replyComments: boolean; replyMessenger: boolean; groupsAuthorized: boolean;
   intervalMinutes: number; dailyLimit: number; fallback: string; faqs: FAQ[];
 };
 export const EMPTY_CONFIG: Config = {
   title: '', text: '', comment: '', whatsapp: '', bannerId: '', groups: [],
-  publishPage: false, publishGroups: false, commentGroups: false,
+  publishPage: false, publishGroups: false, commentGroups: false, manualReview: false,
   replyComments: false, replyMessenger: false, groupsAuthorized: false,
   intervalMinutes: 60, dailyLimit: 10, fallback: '', faqs: [],
 };
@@ -48,7 +48,7 @@ export function validateConfig(input: unknown, active = false): Config {
   }
   if (c.whatsapp) c.whatsapp = normalizePhone(c.whatsapp);
   if (c.bannerId && !/^[0-9a-f-]{36}$/.test(c.bannerId)) throw new LokerError('Banner tidak valid.');
-  for (const key of ['publishPage', 'publishGroups', 'commentGroups', 'replyComments', 'replyMessenger', 'groupsAuthorized'] as const) {
+  for (const key of ['publishPage', 'publishGroups', 'commentGroups', 'manualReview', 'replyComments', 'replyMessenger', 'groupsAuthorized'] as const) {
     if (typeof v[key] !== 'boolean') throw new LokerError(`Pengaturan ${key} tidak valid.`);
     c[key] = v[key];
   }

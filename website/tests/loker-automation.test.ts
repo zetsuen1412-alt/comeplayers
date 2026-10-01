@@ -46,3 +46,18 @@ test('database dispatch uses leases, row locks and no blind retries', () => {con
 test('module never references payroll or writes applicant/employee tables', () => {for(const file of ['model.ts','security.ts','server.ts','webhook.ts']){const s=readFileSync(resolve(process.cwd(),'lib/loker',file),'utf8');assert.doesNotMatch(s, /from\(['"](?:cp_payroll|employees|applicants)|INSERT INTO.*(?:employees|applicants)/i);}});
 
 test('relevant comment implementation has no fixed eight-item slice', () => { const server=readFileSync(resolve(process.cwd(),'lib/loker/server.ts'),'utf8'); assert.doesNotMatch(server,/discovered\.slice\(0,\s*8\)/); });
+
+test('manual review mode is explicit and skips automatic group scan scheduling', () => {
+  const server=readFileSync(resolve(process.cwd(),'lib/loker/server.ts'),'utf8');
+  assert.match(server,/c\.commentGroups && !c\.manualReview/);
+});
+test('admin selected comments are tagged for explicit review', () => {
+  const route=readFileSync(resolve(process.cwd(),'app/api/admin/lowongan/route.ts'),'utf8');
+  assert.match(route,/adminSelected: true/);
+  assert.match(route,/selected_comment:/);
+});
+test('latest STOP migration cancels all queued or leased loker tasks', () => {
+  const s=readFileSync(resolve(process.cwd(),'supabase/migrations/20261001113000_loker_stop_all_queued.sql'),'utf8');
+  assert.match(s,/status IN \('queued','leased'\)/);
+  assert.match(s,/w\.state='stopped'/);
+});
