@@ -7,7 +7,7 @@ function failure(e: unknown) { const status = e instanceof LokerError ? e.status
 export async function POST(request: Request) {
   try {
     const { supabaseAdmin: db } = await requireAdmin(request);
-    const bytes = await readLimited(request, 2 * 1024 * 1024); const mime = request.headers.get('content-type') || '';
+    const bytes = await readLimited(request, 5 * 1024 * 1024); const mime = request.headers.get('content-type') || '';
     validateImage(bytes, mime);
     const { data, error } = await db.from('cp_loker_banners').insert({ mime, body: Buffer.from(bytes).toString('base64') }).select('id').single(); dbError(error);
     return Response.json(data, { headers: { 'Cache-Control': 'no-store' } });
