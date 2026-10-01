@@ -70,7 +70,7 @@ export async function browserResult(db: DB, body: Record<string, unknown>) {
   await finish(db, job, status, ref, note);
   if (job.kind === 'group_scan' && status === 'skipped' && w.state === 'running' && w.generation === job.generation && Array.isArray(body.discovered)) {
     const group = facebookTarget(job.target).group;
-    for (const u of body.discovered.slice(0,8)) {
+    for (const u of body.discovered) {
       if (typeof u !== 'string') continue;
       const post = facebookTarget(u, true);
       if (post.group !== group || !w.config.groups.includes(facebookTarget(job.target).url)) continue;
