@@ -97,6 +97,40 @@
     return articles().find(a => postUrlFromArticle(a, wanted.group) === wanted.url) || null;
   }
 
+  function findPostModal(job) {
+    const wanted = target(job.target);
+    const here = target(location.href);
+    if (!wanted?.post || !here || here.group !== wanted.group || here.post !== wanted.post) return null;
+    const dialogs = [...document.querySelectorAll('[role="dialog"]')].filter(dialog => {
+      if (!visible(dialog)) return false;
+      const text = norm(dialog.getAttribute('aria-label') || dialog.textContent || '');
+      if (/buat postingan|create post/i.test(text)) return false;
+      return [...dialog.querySelectorAll('[contenteditable="true"][role="textbox"]')]
+        .some(editor => visible(editor) && /komentar|comment/i.test(label(editor)) && !/balas|reply/i.test(label(editor)));
+    });
+    return dialogs.length === 1 ? dialogs[0] : dialogs[0] || null;
+  }
+
+  function findCommentContext(job) {
+    return findExactPostArticle(job) || findPostModal(job);
+  }
+
+  function commentEditor(root) {
+    const editors = [...root.querySelectorAll('[contenteditable="true"][role="textbox"]')]
+      .filter(editor => visible(editor) && /komentar|comment/i.test(label(editor)) && !/balas|reply/i.test(label(editor)));
+    return editors.length ? editors[editors.length - 1] : null;
+  }
+
+  function commentSendButton(root) {
+    const candidates = buttons(root).filter(button => {
+      const value = label(button);
+      if (/(foto|photo|gambar|image|camera|kamera|gif|stiker|sticker|emoji|balas|reply)/i.test(value)) return false;
+      return /^(kirim|send|kirim komentar|post comment|komentar|comment|komentari|posting|post)$/i.test(value)
+        || /^(kirim|send)\b/i.test(value);
+    });
+    return candidates.length ? candidates[candidates.length - 1] : null;
+  }
+
   async function scanAllPosts(groupUrl) {
     cancelled = false;
     const wanted = target(groupUrl);
@@ -182,30 +216,36 @@
     }
 
     if (job.kind === 'group_comment') {
-      const article = await until(job, () => job.payload?.adminSelected === true ? findExactPostArticle(job) : findJobPostArticle(job));
-      const editor = await until(job, () => {
-        const editors = [...article.querySelectorAll('[contenteditable="true"][role="textbox"]')].filter(el => visible(el) && el.closest('[role="article"]') === article && /komentar|comment/i.test(label(el)) && !/balas|reply/i.test(label(el)));
-        return editors.length === 1 ? editors[0] : null;
-      });
-      const beforeImages = new Set([...article.querySelectorAll('img')].map(i => i.src));
+      const context = await until(job, () => job.payload?.adminSelected === true ? findCommentContext(job) : findJobPostArticle(job), 20000);
+      const editor = await until(job, () => commentEditor(context), 12000);
+      const beforeImages = new Set([...context.querySelectorAll('img')].map(i => i.src));
+
       let scope = editor.parentElement;
       let chosen = null;
-      for (let i = 0; i < 7 && scope && scope !== article.parentElement; i++, scope = scope.parentElement) {
+      for (let i = 0; i < 9 && scope && scope !== context.parentElement; i++, scope = scope.parentElement) {
         const inputs = [...scope.querySelectorAll('input[type="file"]')].filter(e => !e.accept || /image/.test(e.accept));
-        const photoButtons = buttons(scope).filter(b => /(foto|photo|gambar|image|camera|kamera)/i.test(label(b)));
+        const photoButtons = buttons(scope).filter(b => /(foto|photo|gambar|image|camera|kamera|lampir|attach)/i.test(label(b)));
         if (inputs.length === 1 || photoButtons.length === 1) { chosen = scope; break; }
       }
-      chosen ||= article;
+      chosen ||= context;
+
       await attach(job, chosen);
+
       const send = await until(job, () => {
-        const bs = buttons(chosen).filter(b => /^(kirim|send|kirim komentar|post comment|comment|komentari)$/i.test(label(b)) && b.getAttribute('aria-disabled') !== 'true' && !b.disabled);
-        return bs.length === 1 ? bs[0] : null;
-      }, 8000);
+        const button = commentSendButton(chosen) || commentSendButton(context);
+        return button && button.getAttribute('aria-disabled') !== 'true' && !button.disabled ? button : null;
+      }, 12000);
+
       await dispatch(job);
       send.click();
       await sleep(2500);
-      await until(job, () => [...article.querySelectorAll('img')].some(i => !beforeImages.has(i.src) && visible(i) && (i.naturalWidth > 120 || i.width > 120)), 15000);
-      return { status: 'sent', ref: target(job.target).url, note: 'Foto lowongan terlihat pada komentar posting pencari kerja.' };
+
+      await until(job, () => {
+        const images = [...context.querySelectorAll('img')];
+        return images.some(i => !beforeImages.has(i.src) && visible(i) && (i.naturalWidth > 120 || i.width > 120));
+      }, 18000);
+
+      return { status: 'sent', ref: target(job.target).url, note: findPostModal(job) ? 'Foto lowongan terkirim dari modal postingan.' : 'Foto lowongan terkirim pada komentar postingan.' };
     }
 
     throw new Error('Jenis tugas tidak didukung.');
