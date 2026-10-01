@@ -7,7 +7,7 @@ import './lowongan.css';
 
 type Log = { id:string; kind:string; status:string; target:string; note:string; external_ref?:string; created_at:string };
 type Snapshot = { config:Config; state:RunState; revision:number; generation:string; jobs:Log[]; connection:{ enabled:boolean } };
-type BridgeStatus = { installed?:boolean; attached?:boolean; busy?:boolean; interrupted?:{ id:string; lease:string }; error?:string };
+type BridgeStatus = { installed?:boolean; version?:string; attached?:boolean; busy?:boolean; interrupted?:{ id:string; lease:string }; error?:string };
 type Task = { id:string; lease:string; kind:string; target:string };
 type ScanItem = { url:string; preview:string; group:string };
 
@@ -47,7 +47,7 @@ export default function LowonganPage(){
   const pumping=useRef(false);
   const mounted=useRef(true);
 
-  const bridge=useCallback((name:string,data?:unknown,timeout=3500)=>new Promise<Record<string,unknown>>((resolve,reject)=>{
+  const bridge=useCallback((name:string,data?:unknown,timeout=8000)=>new Promise<Record<string,unknown>>((resolve,reject)=>{
     const requestId=crypto.randomUUID();
     const timer=setTimeout(()=>{requests.current.delete(requestId);reject(new Error('Ekstensi tidak merespons.'));},timeout);
     requests.current.set(requestId,result=>{clearTimeout(timer);result?.error?reject(new Error(String(result.error))):resolve(result);});
@@ -182,12 +182,34 @@ export default function LowonganPage(){
     setScanning(true);setWorking(true);
     try{
       await stopRunning();
-      const result=await bridge('scan',{groups:groups()},240000) as {items?:ScanItem[];groupsScanned?:number};
-      const items=Array.isArray(result.items)?result.items:[];
+      const targetGroups=groups();
+      const found=new Map<string,ScanItem>();
+      const failures:string[]=[];
+      setScanned([]);setSelected(new Set());
+      for(let index=0;index<targetGroups.length;index++){
+        const group=targetGroups[index];
+        setNotice(`Memindai grup ${index+1}/${targetGroups.length}… hasil yang sudah ditemukan akan langsung disimpan di layar.`);
+        try{
+          const result=await bridge('scan',{groups:[group]},90000) as {items?:ScanItem[]};
+          for(const item of Array.isArray(result.items)?result.items:[]){
+            if(item?.url) found.set(item.url,item);
+          }
+          const items=[...found.values()];
+          setScanned(items);
+          setSelected(new Set(items.map(item=>item.url)));
+        }catch(e){
+          failures.push(`Grup ${index+1}: ${e instanceof Error?e.message:'gagal dipindai'}`);
+          if(e instanceof Error && /Ekstensi tidak merespons|Extension context invalidated|Receiving end does not exist/i.test(e.message)) throw e;
+        }
+      }
+      const items=[...found.values()];
       setScanned(items);
       setSelected(new Set(items.map(item=>item.url)));
-      setNotice(`${items.length} postingan/status ditemukan dan otomatis ditandai semua. Periksa daftar lalu tekan KIRIM KOMENTAR.`);
-    }catch(e){setError(e instanceof Error?e.message:'Scan Facebook gagal.');}
+      setNotice(`${items.length} postingan/status ditemukan dan otomatis ditandai semua.${failures.length?` ${failures.length} grup gagal dipindai.`:''} Periksa daftar lalu tekan KIRIM KOMENTAR.`);
+      if(failures.length) setError(failures.join(' · '));
+    }catch(e){
+      setError(e instanceof Error?`${e.message} Muat ulang halaman Admin dan ekstensi, lalu hubungkan kembali tab Facebook.`:'Scan Facebook gagal.');
+    }
     finally{setScanning(false);setWorking(false);}
   }
 
@@ -247,7 +269,7 @@ export default function LowonganPage(){
 
     <div className="lkr-health">
       <span className={snapshot?.connection.enabled?'ready':''}>Server: {snapshot?.connection.enabled?'aktif':'nonaktif'}</span>
-      <span className={bridgeStatus.attached?'ready':''}>Facebook: {bridgeStatus.attached?'terhubung':'belum terhubung'}</span>
+      <span className={bridgeStatus.attached?'ready':''}>Facebook: {bridgeStatus.attached?'terhubung':'belum terhubung'}{bridgeStatus.version?` · ekstensi v${bridgeStatus.version}`:''}</span>
       <span>{scanning?'Sedang scan…':dirty?'Ada perubahan':'Siap'}</span>
     </div>
 
