@@ -139,7 +139,7 @@ export default function LowonganPage() {
     if(!file)return;
     setWorking(true);setError('');setNotice('');
     try{
-      if(file.size>2*1024*1024)throw new Error('Foto maksimal 2 MB. Gunakan JPG/WebP atau kompres foto terlebih dahulu.');
+      if(file.size>5*1024*1024)throw new Error('Foto maksimal 5 MB.');
       const response=await authenticatedFetch(`${API}/banner`,{method:'POST',headers:{'Content-Type':file.type},body:file});
       const data=await response.json() as {id:string};
       setBannerId(data.id);changed();
@@ -225,7 +225,7 @@ export default function LowonganPage() {
             Pilih/ganti foto
             <input type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>void upload(e.target.files?.[0])}/>
           </label>
-          <p className="lkr-help">Yang dikirim ke Facebook hanya gambar ini. Maksimal 2 MB.</p>
+          <p className="lkr-help">Yang dikirim ke Facebook hanya gambar ini. Maksimal 5 MB.</p>
         </fieldset>
 
         <fieldset className="lkr-card" disabled={running||working}>
