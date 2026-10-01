@@ -23,7 +23,7 @@ async function run(job, controller) {
   if (s.active) throw new Error('Tugas sebelumnya terputus. Tandai perlu diperiksa sebelum menjalankan tugas lain.');
   if (!s.facebookTab || !fb((await chrome.tabs.get(s.facebookTab)).url)) throw new Error('Pilih tab Facebook melalui ikon ekstensi terlebih dahulu.');
   if (!job || !fb(job.target) || !['group_post','group_scan','group_comment'].includes(job.kind) || typeof job.text !== 'string' || job.text.length > 9000 || typeof job.id !== 'string' || typeof job.lease !== 'string' || job.expiresAt <= Date.now()) throw new Error('Tugas browser tidak valid/kedaluwarsa.');
-  if (job.banner && (!['image/png','image/jpeg','image/webp'].includes(job.banner.mime) || typeof job.banner.body !== 'string' || job.banner.body.length > 2796204)) throw new Error('Banner tidak valid.');
+  if (job.banner && (!['image/png','image/jpeg','image/webp'].includes(job.banner.mime) || typeof job.banner.body !== 'string' || job.banner.body.length > 6990508)) throw new Error('Banner tidak valid.');
   busy = true;
   await chrome.storage.local.set({ active: { id: job.id, lease: job.lease, tab: s.facebookTab, controller }, cancelled: false });
   try {

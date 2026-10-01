@@ -1,20 +1,24 @@
-# ComePlayers Lowongan — browser bridge v1
+# ComePlayers Lowongan — browser bridge v1.2
 
-Ekstensi ini memerlukan modul `/admin/lowongan` ComePlayers dan migrasi server. Bukan aplikasi mandiri. Tidak membaca cookie atau meminta password Facebook.
+Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia menggunakan tab Facebook yang sudah login dan tidak meminta password/cookie Facebook.
 
-1. Chrome/Edge → halaman Extensions → Developer mode → Load unpacked → pilih folder ini (manifest.json harus berada di folder yang dipilih).
-2. Login Facebook seperti biasa. Buka satu tab grup yang diizinkan untuk lowongan, lalu klik ikon ekstensi → Hubungkan tab Facebook ini.
-3. Buka ulang dashboard ComePlayers `/admin/lowongan`, isi banner/teks, tujuan dan WhatsApp. Simpan sebelum START. Pertahankan kedua tab terbuka.
-4. JEDA/STOP di ComePlayers menghentikan antrean server berikutnya. STOP di popup hanya menghentikan browser. Kiriman yang sudah diterima Facebook tidak ditarik otomatis.
+## Cara pakai
 
-Grup memakai selector DOM eksperimental. Belum diuji dengan akun Facebook nyata. Jangan menganggap hasil berhasil hanya karena teks masuk ke editor. Jika selector berubah, hasil ambigu atau pemeriksaan keamanan muncul, sistem berhenti dan meminta pemeriksaan, tanpa bypass atau retry buta.
+1. Chrome/Edge → Extensions → aktifkan Developer mode → Load unpacked → pilih folder ekstensi ini.
+2. Login Facebook seperti biasa dan buka salah satu grup yang mengizinkan lowongan.
+3. Klik ikon ComePlayers Lowongan → **Hubungkan tab Facebook ini**.
+4. Buka Admin Lowongan ComePlayers.
+5. Pilih foto lowongan, tempel daftar grup, aktifkan posting foto dan/atau komentar foto, lalu tekan **START**.
+6. Biarkan tab Admin dan tab Facebook tetap terbuka. Sistem berpindah grup otomatis.
+7. Tekan **STOP** di ComePlayers untuk menghentikan antrean berikutnya.
 
-Pemulihan worker terputus: periksa riwayat ComePlayers dan halaman Facebook dahulu. Setelah hasil diperiksa, popup dapat menghapus penanda tugas lokal terputus; ini tidak menghapus log server atau mengirim ulang tugas lama.
+## Perilaku komentar
 
-Uji DOM offline opsional (Python + Playwright + Chromium):
+- Tidak ada batas jumlah komentar tetap untuk posting yang terdeteksi relevan dengan pencarian kerja/loker.
+- Scan diulang selama START aktif.
+- Satu posting tidak dikomentari berulang oleh kampanye yang sama.
+- Posting acak/non-loker tetap tidak ditargetkan.
+- Jika Facebook menampilkan checkpoint, pembatasan, atau hasil pengiriman tidak dapat diverifikasi, sistem berhenti untuk pemeriksaan.
+- Tidak ada bypass CAPTCHA, anti-detection, atau retry buta.
 
-```sh
-CHROMIUM_PATH=/path/to/chromium python tests/browser-fixtures.py
-```
-
-Uji hanya menjalankan HTML sintetis pada about:blank. Tidak membuka Facebook, tidak membuktikan kompatibilitas Facebook nyata. Panduan server lengkap: `docs/LOKER_FACEBOOK_V1.md` di root repository.
+Foto lowongan dapat berukuran sampai 5 MB (PNG/JPG/WebP).
