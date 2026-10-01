@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ComePlayers — Lowongan Facebook",
-  "version": "1.2.0",
-  "description": "Penghubung sederhana ComePlayers: kirim foto lowongan ke grup dan posting pencari kerja dari tab Facebook yang sudah login.",
+  "version": "1.3.0",
+  "description": "Penghubung ComePlayers: scan postingan grup, review/tandai, lalu kirim foto lowongan melalui tab Facebook yang sudah login.",
   "minimum_chrome_version": "120",
   "permissions": ["storage", "tabs", "scripting"],
   "host_permissions": ["https://www.facebook.com/*", "https://web.facebook.com/*", "https://m.facebook.com/*"],
