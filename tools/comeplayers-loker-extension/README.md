@@ -1,24 +1,18 @@
-# ComePlayers Lowongan — browser bridge v1.2
+# ComePlayers Lowongan — browser bridge v1.3
 
-Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia menggunakan tab Facebook yang sudah login dan tidak meminta password/cookie Facebook.
+Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia memakai tab Facebook yang sudah login dan tidak meminta password atau cookie Facebook.
 
-## Cara pakai
+## Alur sederhana
 
-1. Chrome/Edge → Extensions → aktifkan Developer mode → Load unpacked → pilih folder ekstensi ini.
+1. Chrome/Edge → Extensions → Developer mode → Load unpacked → pilih folder ekstensi ini.
 2. Login Facebook seperti biasa dan buka salah satu grup yang mengizinkan lowongan.
 3. Klik ikon ComePlayers Lowongan → **Hubungkan tab Facebook ini**.
-4. Buka Admin Lowongan ComePlayers.
-5. Pilih foto lowongan, tempel daftar grup, aktifkan posting foto dan/atau komentar foto, lalu tekan **START**.
-6. Biarkan tab Admin dan tab Facebook tetap terbuka. Sistem berpindah grup otomatis.
-7. Tekan **STOP** di ComePlayers untuk menghentikan antrean berikutnya.
+4. Di Admin Lowongan, pilih banner dan tempel daftar grup.
+5. Klik **SCAN SEMUA POSTINGAN**. Ekstensi berpindah melalui daftar grup dan mengumpulkan posting/status yang ditemukan pada sesi scan.
+6. Hasil scan ditandai semua secara default. Admin dapat membatalkan tanda pada posting tertentu.
+7. Klik **KIRIM KOMENTAR**. Hanya posting yang masih ditandai yang masuk antrean.
+8. Tekan **STOP** kapan saja untuk membatalkan tugas yang belum dikirim.
 
-## Perilaku komentar
-
-- Tidak ada batas jumlah komentar tetap untuk posting yang terdeteksi relevan dengan pencarian kerja/loker.
-- Scan diulang selama START aktif.
-- Satu posting tidak dikomentari berulang oleh kampanye yang sama.
-- Posting acak/non-loker tetap tidak ditargetkan.
-- Jika Facebook menampilkan checkpoint, pembatasan, atau hasil pengiriman tidak dapat diverifikasi, sistem berhenti untuk pemeriksaan.
-- Tidak ada bypass CAPTCHA, anti-detection, atau retry buta.
+Scan bersifat read-only: tidak ada komentar yang dikirim sebelum admin menekan KIRIM KOMENTAR. Satu posting dideduplikasi dalam kampanye yang sama. Jika Facebook menampilkan checkpoint/pembatasan atau hasil pengiriman tidak dapat diverifikasi, sistem meminta pemeriksaan dan tidak melakukan retry buta.
 
 Foto lowongan dapat berukuran sampai 5 MB (PNG/JPG/WebP).
