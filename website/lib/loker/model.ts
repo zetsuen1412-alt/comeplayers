@@ -70,10 +70,14 @@ export function validateConfig(input: unknown, active = false): Config {
     return { keywords, answer };
   });
   if (active) {
-    if (!c.title || !c.text || !c.whatsapp) throw new LokerError('Isi judul, teks lowongan, dan nomor WhatsApp sebelum START.');
     if (![c.publishPage, c.publishGroups, c.commentGroups, c.replyComments, c.replyMessenger].some(Boolean)) throw new LokerError('Pilih sedikitnya satu aktivitas.');
-    if ((c.publishGroups || c.commentGroups) && (!c.groups.length || !c.groupsAuthorized)) throw new LokerError('Isi daftar grup dan konfirmasi izin publikasi lowongan.');
-    if (c.commentGroups && !c.comment) throw new LokerError('Isi teks komentar singkat.');
+    if (c.publishGroups || c.commentGroups) {
+      if (!c.bannerId) throw new LokerError('Pilih foto lowongan sebelum START.');
+      if (!c.groups.length || !c.groupsAuthorized) throw new LokerError('Isi daftar grup dan konfirmasi bahwa grup mengizinkan lowongan.');
+    }
+    if (c.publishPage || c.replyComments || c.replyMessenger) {
+      if (!c.title || !c.text || !c.whatsapp) throw new LokerError('Facebook Page memerlukan judul, teks lowongan, dan nomor WhatsApp.');
+    }
   }
   return c;
 }
