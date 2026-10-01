@@ -99,7 +99,7 @@ export function isJobSeekerPost(input: string): boolean {
     && !/\b(kami membuka|dibutuhkan|open recruitment|lowongan tersedia|sedang membuka|membuka lowongan)\b/i.test(input);
 }
 export function validateImage(bytes: Uint8Array, mime: string): void {
-  if (!bytes.length || bytes.length > 2 * 1024 * 1024) throw new LokerError('Banner maksimal 2 MB.', 413);
+  if (!bytes.length || bytes.length > 5 * 1024 * 1024) throw new LokerError('Foto maksimal 5 MB.', 413);
   const isPng = bytes.length >= 24 && [137,80,78,71,13,10,26,10].every((v,i) => bytes[i] === v);
   const isJpeg = bytes.length > 3 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
   const ascii = (a: number, b: number) => String.fromCharCode(...bytes.slice(a,b));
