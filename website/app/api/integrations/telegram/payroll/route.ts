@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { createSupabaseAdmin } from "@/lib/serverSupabase";
-import { flushPayrollTelegramOutbox, isTelegramAdmin, telegramAnswerCallback, telegramWebhookSecret } from "@/lib/payrollTelegram";
+import { flushPayrollTelegramOutbox, restorePayrollTelegramOrder, isTelegramAdmin, telegramAnswerCallback, telegramWebhookSecret } from "@/lib/payrollTelegram";
 import { parsePayrollTelegramUpdate, type PayrollTelegramUpdate } from "@/lib/payrollTelegramProtocol";
 
 export const runtime = "nodejs";
@@ -31,6 +31,12 @@ export async function POST(request: Request) {
     const event = parsePayrollTelegramUpdate(update);
     if (!event) return response({ ok: true });
     const supabase = createSupabaseAdmin();
+    if (event.action === "back" && update.callback_query) {
+      const restored = await restorePayrollTelegramOrder(supabase, String(event.orderId ?? ""), event.chatId);
+      try { await telegramAnswerCallback(update.callback_query.id, restored ? "Kembali ke order." : "Order tidak tersedia di percakapan ini.", !restored); }
+      catch { /* A navigation acknowledgement must not create a new chat message. */ }
+      return response({ ok: true });
+    }
     const { error, data } = await supabase.rpc("cp_telegram_process_update", {
       p_update_id: update.update_id, p_event: event, p_is_admin: isTelegramAdmin(event.userId),
     });

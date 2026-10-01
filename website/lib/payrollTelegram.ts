@@ -1,5 +1,6 @@
 import "server-only";
-import { payrollTelegramKeyboard, type TelegramNotice } from "./payrollTelegramProtocol";
+import type { TelegramNotice } from "./payrollTelegramProtocol";
+import { buildPayrollTelegramOrderNotice, deliverPayrollTelegramMessage, isTelegramMessageNotModified, type PayrollTelegramCardWorkflow } from "./payrollTelegramMessage";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Order } from "@/features/payroll/types/domain";
@@ -52,7 +53,8 @@ async function telegramApi<T>(method: string, payload: Record<string, unknown>):
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload), cache: "no-store", signal: AbortSignal.timeout(5000),
     });
-    const body = await response.json() as { ok?: boolean; result?: T };
+    const body = await response.json() as { ok?: boolean; result?: T; error_code?: number; description?: string };
+    if (isTelegramMessageNotModified(method, body)) return true as T;
     if (!response.ok || !body.ok) throw new Error("Telegram request failed");
     return body.result as T;
   } catch {
@@ -71,6 +73,20 @@ export async function telegramSendMessage(input: {
     text: input.text,
     ...(input.replyMarkup ? { reply_markup: input.replyMarkup } : {}),
     ...(input.replyToMessageId ? { reply_parameters: { message_id: input.replyToMessageId, allow_sending_without_reply: true } } : {}),
+  });
+}
+
+export async function telegramEditMessage(input: {
+  chatId: number | string;
+  messageId: number;
+  text: string;
+  replyMarkup?: TelegramReplyMarkup;
+}) {
+  return telegramApi<{ message_id: number } | boolean>("editMessageText", {
+    chat_id: input.chatId,
+    message_id: input.messageId,
+    text: input.text,
+    reply_markup: input.replyMarkup ?? { inline_keyboard: [] },
   });
 }
 
@@ -134,27 +150,89 @@ export async function payrollWorkspaceEmployees(supabaseAdmin: SupabaseClient) {
   }>;
 }
 
-/** Drains committed notices. Never retry an ambiguous Telegram send (no provider idempotency key). */
+/** Resolve only the order's currently authorized chat, never an arbitrary callback message. */
+async function payrollTelegramOrderCard(supabase: SupabaseClient, orderRef: string, chatId: number | string, notice?: TelegramNotice) {
+  const [{ data: workflow, error: workflowError }, { data: route, error: routeError }, order] = await Promise.all([
+    supabase.from("cp_payroll_telegram_orders")
+      .select("callback_id,order_type,state,division,target_quantity,delivered_quantity").eq("order_ref", orderRef).maybeSingle(),
+    supabase.from("cp_payroll_telegram_order_chats").select("message_id,division")
+      .eq("order_ref", orderRef).eq("chat_id", chatId).limit(1).maybeSingle(),
+    payrollWorkspaceOrder(supabase, orderRef),
+  ]);
+  if (workflowError || routeError) throw new Error("Pesan order belum dapat dimuat.");
+  if (!workflow || !route || !order) return null;
+  const { data: allowed, error: accessError } = await supabase.rpc("cp_telegram_route_allowed", {
+    p_ref: orderRef, p_division: route.division, p_chat: chatId,
+  });
+  if (accessError) throw new Error("Rute Telegram belum dapat diperiksa.");
+  if (!allowed) return null;
+
+  let screen = notice;
+  if (notice?.keyboard === "session" || notice?.rejected) {
+    let query = supabase.from("cp_payroll_telegram_sessions").select("id,kind,stage")
+      .eq("order_ref", orderRef).eq("chat_id", chatId).is("closed_at", null).gt("expires_at", new Date().toISOString());
+    if (notice.sessionId) query = query.eq("id", notice.sessionId);
+    const { data: session, error: sessionError } = await query.order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (sessionError) throw new Error("Sesi bukti belum dapat diperiksa.");
+    screen = session
+      ? { ...notice, keyboard: "session", sessionId: session.id }
+      : notice.keyboard === "session" ? { text: "Sesi bukti telah berakhir. Gunakan tombol order yang tersedia." } : notice;
+  }
+  return { messageId: route.message_id, notice: buildPayrollTelegramOrderNotice(order, workflow as PayrollTelegramCardWorkflow, screen) };
+}
+
+/** Read-only navigation. Work/assignment/evidence mutations still go through the database state machine. */
+export async function restorePayrollTelegramOrder(supabase: SupabaseClient, orderId: string, chatId: number) {
+  if (!/^\d+$/.test(orderId)) return false;
+  const { data: order, error } = await supabase.from("cp_payroll_telegram_orders")
+    .select("order_ref").eq("callback_id", orderId).maybeSingle();
+  if (error) throw new Error("Order Telegram belum dapat dimuat.");
+  if (!order) return false;
+  const card = await payrollTelegramOrderCard(supabase, order.order_ref, chatId);
+  if (!card) return false;
+  await deliverPayrollTelegramMessage({ chatId, notice: card.notice, messageId: card.messageId, orderNotice: true, initialDispatch: false },
+    { send: telegramSendMessage, edit: telegramEditMessage });
+  return true;
+}
+
+/** Drain notices by editing the canonical card; only the first dispatch may send an order message. */
 export async function flushPayrollTelegramOutbox(supabase: SupabaseClient) {
   if (!telegramEnabled() || (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production")) return { sent: 0 };
-  let sent = 0;
+  let sent = 0, processed = 0;
   const deadline = Date.now() + 12_000;
-  while (sent < 10 && Date.now() < deadline) {
+  while (processed < 10 && Date.now() < deadline) {
     const { data, error } = await supabase.rpc("cp_telegram_claim_outbox");
     if (error) throw new Error("Antrean Telegram belum dapat diakses.");
     const row = data?.[0];
     if (!row) break;
+    processed++;
     try {
-      const notice = row.payload as TelegramNotice;
-      const message = await telegramSendMessage({ chatId: row.chat_id, text: notice.text.slice(0, 4000), replyMarkup: payrollTelegramKeyboard(notice) });
+      const initialDispatch = String(row.event_key).startsWith("dispatch:");
+      const orderNotice = Boolean(row.order_ref);
+      const card = orderNotice
+        ? await payrollTelegramOrderCard(supabase, row.order_ref, row.chat_id, initialDispatch ? undefined : row.payload as TelegramNotice)
+        : null;
+      if (orderNotice && !card) {
+        // An archived/re-routed order must not leak updates into its former division.
+        const { error: cancelled } = await supabase.from("cp_payroll_telegram_outbox").update({ status: "cancelled" }).eq("id", row.id);
+        if (cancelled) throw new Error("Acknowledgement unavailable");
+        continue;
+      }
+      const message = await deliverPayrollTelegramMessage({ chatId: row.chat_id, notice: card?.notice ?? row.payload as TelegramNotice,
+        messageId: card?.messageId, orderNotice, initialDispatch }, { send: telegramSendMessage, edit: telegramEditMessage });
+      if (initialDispatch) {
+        // Save the canonical pointer before acknowledging dispatch; never replace it with a picker/session message.
+        const { error: linked } = await supabase.from("cp_payroll_telegram_order_chats").update({ message_id: message.message_id })
+          .eq("order_ref", row.order_ref).eq("chat_id", row.chat_id);
+        if (linked) throw new Error("Order message link unavailable");
+        const { error: marked } = await supabase.from("cp_payroll_telegram_orders").update({ dispatch_status: "sent" }).eq("order_ref", row.order_ref);
+        if (marked) throw new Error("Dispatch acknowledgement unavailable");
+      }
       const { error: saved } = await supabase.from("cp_payroll_telegram_outbox").update({ status: "sent", message_id: message.message_id }).eq("id", row.id);
       if (saved) throw new Error("Acknowledgement unavailable");
-      if (String(row.event_key).startsWith("dispatch:")) {
-        await supabase.from("cp_payroll_telegram_order_chats").update({ message_id: message.message_id }).eq("order_ref", row.order_ref).eq("chat_id", row.chat_id);
-        await supabase.from("cp_payroll_telegram_orders").update({ dispatch_status: "sent" }).eq("order_ref", row.order_ref);
-      }
       sent++;
     } catch {
+      // Never fall back from editMessageText to sendMessage (even after timeouts or deleted messages).
       await supabase.from("cp_payroll_telegram_outbox").update({ status: "uncertain" }).eq("id", row.id);
       break;
     }

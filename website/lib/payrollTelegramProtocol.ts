@@ -41,7 +41,7 @@ export function parsePayrollTelegramUpdate(update: PayrollTelegramUpdate): Teleg
   return text ? { ...base, action: "amount", quantity: quantity ? Number(quantity[1].replace(",", ".")) : null } : null;
 }
 
-export type TelegramNotice = { text: string; keyboard?: string; orderId?: number; sessionId?: string; page?: number; employees?: { id: number; name: string }[] };
+export type TelegramNotice = { text: string; rejected?: boolean; keyboard?: string; orderId?: number; sessionId?: string; page?: number; employees?: { id: number; name: string }[] };
 type Button = { text: string; callback_data: string };
 export function payrollTelegramKeyboard(notice: TelegramNotice): { inline_keyboard: Button[][] } | undefined {
   const button = (text: string, action: string, suffix: string | number = notice.orderId ?? ""): Button => ({ text, callback_data: `cp2:${action}:${suffix}` });
@@ -60,6 +60,7 @@ export function payrollTelegramKeyboard(notice: TelegramNotice): { inline_keyboa
         ...((notice.employees?.length ?? 0) > 8 ? [button("BERIKUTNYA ▶", gold ? "goldpicker" : "picker", `${notice.orderId}:${page + 1}`)] : []),
       ];
       if (navigation.length) rows.push(navigation);
+      rows.push([button("↩ KEMBALI KE ORDER", "back")]);
       return { inline_keyboard: rows };
     }
   }
