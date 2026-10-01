@@ -156,8 +156,8 @@ export default function LowonganPage() {
       publishGroups,
       commentGroups,
       groupsAuthorized:authorized,
-      intervalMinutes:60,
-      dailyLimit:20,
+      intervalMinutes:1,
+      dailyLimit:50,
     };
   }
 
@@ -240,7 +240,7 @@ export default function LowonganPage() {
           </label>
           <label className="lkr-toggle">
             <input type="checkbox" checked={commentGroups} onChange={e=>{setCommentGroups(e.target.checked);changed();}}/>
-            <span><strong>Komentari posting pencari kerja dengan foto</strong><small>Otomatis menanggapi posting yang terdeteksi sedang mencari kerja/menanyakan loker, bukan semua postingan acak.</small></span>
+            <span><strong>Komentari posting pencari kerja dengan foto</strong><small>Otomatis menanggapi semua posting yang terdeteksi sedang mencari kerja/menanyakan loker, tanpa batas jumlah komentar tetap.</small></span>
           </label>
           <label className="lkr-toggle">
             <input type="checkbox" checked={authorized} onChange={e=>{setAuthorized(e.target.checked);changed();}}/>
@@ -279,7 +279,7 @@ export default function LowonganPage() {
         <p><strong>3.</strong> Hubungkan tab Facebook dari ekstensi lalu tekan START.</p>
         <div className="lkr-direct">
           <strong>{bridgeStatus.attached?'✓ Tab Facebook sudah terhubung':'Tab Facebook belum terhubung'}</strong>
-          <p>Posting dan komentar dilakukan melalui tab Facebook yang sudah login.</p>
+          <p>Posting dan komentar dilakukan melalui tab Facebook yang sudah login. Komentar relevan terus diproses selama START aktif.</p>
         </div>
       </aside>
     </div>
