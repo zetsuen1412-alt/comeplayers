@@ -24,6 +24,7 @@ export const adminNavigation = [
     { href: "/admin/coupon-analytics", label: "Analisis kupon", icon: FaChartLine },
     { href: "/admin/flash-sales", label: "Promo kilat", icon: FaBolt },
     { href: "/admin/announcements", label: "Pengumuman", icon: FaBullhorn },
+    { href: "/admin/lowongan", label: "Lowongan Facebook", icon: FaBullhorn },
   ] },
   { label: "Bantuan & kendali", items: [
     { href: "/admin/support", label: "Tiket bantuan", icon: FaLifeRing },
