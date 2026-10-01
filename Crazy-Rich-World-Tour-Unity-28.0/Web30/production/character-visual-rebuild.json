@@ -1,0 +1,41 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "updated_at": "2026-10-01",
+  "status": "reference_reconstruction_blocked_before_mesh_generation",
+  "existing_sculpt_v1": {
+    "visual_status": "rejected_by_user",
+    "functional_tests_are_not_visual_approval": true,
+    "retain_as_backup_only": true,
+    "reason": "User rejected the simplified models as visually unlike the approved anime chibi character designs. Do not deliver them again as improved or final characters."
+  },
+  "approved_reference": {
+    "filename": "chibi_travel_adventurers_collectible_lineup.png",
+    "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "image_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/9791fc30-aaea-4b93-9504-65a6b7d1b49e.png",
+    "style": "Detailed anime chibi collectible-style 3D; not photorealistic human anatomy.",
+    "roster": ["alexia", "rindi", "kairo", "luna", "nox", "atlas", "zeno", "yuna", "mochi", "pip"]
+  },
+  "next_asset": "alexia",
+  "rebuild_requirements": [
+    "Use the approved image as the shape and appearance reference, not a generic parametric doll with recolored hair.",
+    "Match head/body proportions, facial silhouette, eye shape, expression, layered hair volume and outfit silhouette before fine detail.",
+    "Preserve characteristic clothing construction, trim, buckles, shoes, bags and props individually for all ten characters.",
+    "Render the actual model in the game renderer at comparable viewing angles beside the approved reference.",
+    "Inspect front, three-quarter, side and back; unseen surfaces remain inferred and require review.",
+    "Do not use generated still images, video frames, sprites or billboards as evidence of a completed real 3D model.",
+    "Do not mark visually approved based only on GLB validity, polygon counts, skeletons, animation names or browser functional tests.",
+    "Validate one reference-matched character before applying a reconstruction process to the other nine.",
+    "Do not replace online-game assets with rejected sculpts. Integrate accepted models only after materials, animation deformation and board-scale visibility are tested."
+  ],
+  "attempt": {
+    "method": "Direct image-conditioned reconstruction using the official Microsoft TRELLIS.2 Space",
+    "character": "alexia",
+    "completed": ["exact reference crop", "reference preprocessing"],
+    "result": "GPU quota error at image_to_3d; no new mesh produced",
+    "retry_policy": "Do not bypass quota or silently substitute the rejected procedural models. Resolve authorized compute access before retrying."
+  },
+  "new_models_produced": 0,
+  "visual_final_approved": false,
+  "game_assets_replaced": false,
+  "note": "This file records the rebuild decision and actual blocker. It is not a runtime deployment guard, a completed model, or a claim of improved visual fidelity."
+}
