@@ -5,5 +5,15 @@ async function act(action) {
   catch { el.textContent = 'Ekstensi belum siap. Muat ulang ekstensi.'; }
 }
 for (const name of ['attach','stop','clear']) document.getElementById(name).addEventListener('click',() => act(name));
-document.getElementById('open').addEventListener('click',() => chrome.tabs.create({ url: 'https://www.comeplayers.com/admin/lowongan' }));
+document.getElementById('open').addEventListener('click', async () => {
+  const target = 'https://www.comeplayers.com/admin/lowongan';
+  const tabs = await chrome.tabs.query({ url: ['https://www.comeplayers.com/*', 'https://comeplayers.com/*'] });
+  const existing = tabs.find(tab => tab.url?.startsWith('https://www.comeplayers.com/')) || tabs[0];
+  if (existing?.id) {
+    await chrome.tabs.update(existing.id, { url: target, active: true });
+    if (existing.windowId) await chrome.windows.update(existing.windowId, { focused: true });
+    return;
+  }
+  await chrome.tabs.create({ url: target });
+});
 act('status');
