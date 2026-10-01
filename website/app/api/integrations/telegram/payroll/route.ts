@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { createSupabaseAdmin } from "@/lib/serverSupabase";
-import { flushPayrollTelegramOutbox, restorePayrollTelegramOrder, isTelegramAdmin, telegramAnswerCallback, telegramWebhookSecret } from "@/lib/payrollTelegram";
+import { flushPayrollTelegramOutbox, restorePayrollTelegramOrder, isTelegramAdmin, telegramAnswerCallback, telegramDeleteMessage, telegramWebhookSecret } from "@/lib/payrollTelegram";
 import { parsePayrollTelegramUpdate, type PayrollTelegramUpdate } from "@/lib/payrollTelegramProtocol";
 
 export const runtime = "nodejs";

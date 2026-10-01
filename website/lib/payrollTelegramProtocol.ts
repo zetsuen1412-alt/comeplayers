@@ -41,7 +41,7 @@ export function parsePayrollTelegramUpdate(update: PayrollTelegramUpdate): Teleg
   return text ? { ...base, action: "amount", quantity: quantity ? Number(quantity[1].replace(",", ".")) : null } : null;
 }
 
-export type TelegramNotice = { text: string; rejected?: boolean; keyboard?: string; orderId?: number; sessionId?: string; page?: number; employees?: { id: number; name: string }[] };
+export type TelegramNotice = { text: string; rejected?: boolean; keyboard?: string; orderId?: number; sessionId?: string; page?: number; employees?: { id: number; name: string }[]; evidencePhotos?: number; evidenceVideos?: number };
 type Button = { text: string; callback_data: string };
 export function payrollTelegramKeyboard(notice: TelegramNotice): { inline_keyboard: Button[][] } | undefined {
   const button = (text: string, action: string, suffix: string | number = notice.orderId ?? ""): Button => ({ text, callback_data: `cp2:${action}:${suffix}` });

@@ -1,6 +1,6 @@
 import { requirePayrollAccess } from "@/lib/payrollAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
-import { telegramMessageLink } from "@/lib/payrollTelegram";
+
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   try {
     const { actor, supabaseAdmin } = await requirePayrollAccess(request);
     if (!actor.isAdmin) throw Object.assign(new Error("Hanya admin yang dapat membuka bukti Telegram."), { status: 403 });
-    const ref = new URL(request.url).searchParams.get("ref")?.trim();
+    const url = new URL(request.url);\n    const ref = url.searchParams.get("ref")?.trim();
     if (!ref) return Response.json({ error: "Kode order wajib diisi." }, { status: 400 });
 
     const [
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
         telegramMessageId: row.telegram_message_id,
         telegramUserId: row.telegram_user_id,
         createdAt: row.created_at,
-        link: telegramMessageLink(Number(row.telegram_chat_id), Number(row.telegram_message_id), row.telegram_chat_username),
+        link: `${url.origin}/api/admin/payroll/telegram/evidence/file?id=${encodeURIComponent(row.id)}`,
       })),
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {

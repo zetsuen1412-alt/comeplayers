@@ -90,7 +90,7 @@ export async function telegramEditMessage(input: {
   });
 }
 
-export async function telegramAnswerCallback(callbackQueryId: string, text?: string, showAlert = false) {
+export async function telegramDeleteMessage(chatId: number | string, messageId: number) {\n  return telegramApi<boolean>("deleteMessage", { chat_id: chatId, message_id: messageId });\n}\n\nexport async function telegramDownloadFile(fileId: string) {\n  const file = await telegramApi<{ file_path?: string }>("getFile", { file_id: fileId });\n  if (!file.file_path) throw new Error("File Telegram tidak tersedia.");\n  const token = botToken();\n  const response = await fetch(`${TELEGRAM_API}/file/bot${token}/${file.file_path}`, { cache: "no-store", signal: AbortSignal.timeout(15_000) });\n  if (!response.ok) throw new Error("Bukti Telegram belum dapat diunduh.");\n  return {\n    body: await response.arrayBuffer(),\n    contentType: response.headers.get("content-type") || "application/octet-stream",\n  };\n}\n\nexport async function telegramAnswerCallback(callbackQueryId: string, text?: string, showAlert = false) {
   return telegramApi<boolean>("answerCallbackQuery", {
     callback_query_id: callbackQueryId,
     ...(text ? { text } : {}),
@@ -152,7 +152,7 @@ export async function payrollWorkspaceEmployees(supabaseAdmin: SupabaseClient) {
 
 /** Resolve only the order's currently authorized chat, never an arbitrary callback message. */
 async function payrollTelegramOrderCard(supabase: SupabaseClient, orderRef: string, chatId: number | string, notice?: TelegramNotice) {
-  const [{ data: workflow, error: workflowError }, { data: route, error: routeError }, order] = await Promise.all([
+  const [{ data: workflow, error: workflowError }, { data: route, error: routeError }, order, { data: evidence, error: evidenceError }] = await Promise.all([
     supabase.from("cp_payroll_telegram_orders")
       .select("callback_id,order_type,state,division,target_quantity,delivered_quantity").eq("order_ref", orderRef).maybeSingle(),
     supabase.from("cp_payroll_telegram_order_chats").select("message_id,division")
@@ -178,7 +178,7 @@ async function payrollTelegramOrderCard(supabase: SupabaseClient, orderRef: stri
       ? { ...notice, keyboard: "session", sessionId: session.id }
       : notice.keyboard === "session" ? { text: "Sesi bukti telah berakhir. Gunakan tombol order yang tersedia." } : notice;
   }
-  return { messageId: route.message_id, notice: buildPayrollTelegramOrderNotice(order, workflow as PayrollTelegramCardWorkflow, screen) };
+  const evidencePhotos = (evidence || []).filter(row => row.media_type === "photo").length;\n  const evidenceVideos = (evidence || []).filter(row => row.media_type === "video").length;\n  screen = { ...(screen || { text: "" }), evidencePhotos, evidenceVideos };\n  return { messageId: route.message_id, notice: buildPayrollTelegramOrderNotice(order, workflow as PayrollTelegramCardWorkflow, screen) };
 }
 
 /** Read-only navigation. Work/assignment/evidence mutations still go through the database state machine. */
