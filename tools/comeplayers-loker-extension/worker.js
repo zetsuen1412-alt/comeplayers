@@ -36,6 +36,7 @@ async function scan(groups) {
       await waitTab(s.facebookTab);
       await chrome.scripting.executeScript({ target: { tabId: s.facebookTab }, files: ['facebook.js'] });
       const result = await chrome.tabs.sendMessage(s.facebookTab, { type: 'CP_LOKER_SCAN_ALL', group });
+      if (result?.error) throw new Error(String(result.error));
       for (const item of result?.items || []) {
         if (!item?.url || seen.has(item.url)) continue;
         seen.add(item.url);
