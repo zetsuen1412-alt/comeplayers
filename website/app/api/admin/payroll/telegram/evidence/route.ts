@@ -8,7 +8,8 @@ export async function GET(request: Request) {
   try {
     const { actor, supabaseAdmin } = await requirePayrollAccess(request);
     if (!actor.isAdmin) throw Object.assign(new Error("Hanya admin yang dapat membuka bukti Telegram."), { status: 403 });
-    const url = new URL(request.url);\n    const ref = url.searchParams.get("ref")?.trim();
+    const url = new URL(request.url);
+    const ref = url.searchParams.get("ref")?.trim();
     if (!ref) return Response.json({ error: "Kode order wajib diisi." }, { status: 400 });
 
     const [
