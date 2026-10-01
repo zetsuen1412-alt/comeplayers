@@ -230,7 +230,6 @@ async function geminiAnalyze(args: JsonObject): Promise<ToolResult> {
   parts.push({ text: prompt.slice(0, 16_000) });
 
   const payload = await callGemini(model, parts, {
-    temperature: 0.2,
     maxOutputTokens: 8192,
   });
   const text = extractText(payload) || "Gemini returned no text.";
