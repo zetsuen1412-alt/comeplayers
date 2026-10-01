@@ -69,11 +69,17 @@ export function buildPayrollTelegramOrderNotice(
   if (workflow.order_type === "gold") lines.push(`Terkirim : ${workflow.delivered_quantity} / ${workflow.target_quantity}`);
   lines.push(`TASK : ${telegramMessageText(order.task || "—", 1500)}`);
 
+  const evidencePhotos = Math.max(0, Number(notice?.evidencePhotos || 0));
+  const evidenceVideos = Math.max(0, Number(notice?.evidenceVideos || 0));
+  if (evidencePhotos + evidenceVideos > 0) {
+    lines.push("", "📎 BUKTI TERSIMPAN", `📷 Foto/SS: ${evidencePhotos}  ·  🎥 Video: ${evidenceVideos}`);
+  }
+
   const picker = notice?.keyboard === "picker" || notice?.keyboard === "goldpicker";
   if (!terminal && picker) {
     lines.push("", `👤 PILIH KARYAWAN — HALAMAN ${(notice.page ?? 0) + 1}`,
       notice.employees?.length ? "Pilih nama di bawah. Daftar tetap di pesan order ini." : "Tidak ada karyawan aktif pada halaman ini.");
-  } else if (!terminal && notice?.text) {
+  } else if (!terminal && notice?.text && !/^Bukti terkirim/i.test(notice.text)) {
     lines.push("", telegramMessageText(notice.text, 750));
   }
   if (terminal) lines.push("", workflow.state === "verified" ? "Order selesai. Semua aksi ditutup." : "Bukti diterima. Menunggu pemeriksaan admin; aksi pekerjaan ditutup.");

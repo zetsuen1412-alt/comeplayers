@@ -47,6 +47,10 @@ export async function POST(request: Request) {
       catch { /* Callback acknowledgement expiry cannot roll back the durable action. */ }
     }
     await flushPayrollTelegramOutbox(supabase);
+    if (event.action === "media" && !data?.rejected && !data?.ignored && Number.isSafeInteger(Number(event.messageId))) {
+      try { await telegramDeleteMessage(event.chatId, Number(event.messageId)); }
+      catch { /* Bot needs delete-message permission for a perfectly clean group. Evidence stays recorded either way. */ }
+    }
     return response({ ok: true, duplicate: Boolean(data?.duplicate) });
   } catch (error) {
     if (error instanceof SyntaxError || (error instanceof Error && /tidak valid/.test(error.message))) return response({ error: "Update Telegram tidak valid." }, 400);

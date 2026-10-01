@@ -158,8 +158,9 @@ async function payrollTelegramOrderCard(supabase: SupabaseClient, orderRef: stri
     supabase.from("cp_payroll_telegram_order_chats").select("message_id,division")
       .eq("order_ref", orderRef).eq("chat_id", chatId).limit(1).maybeSingle(),
     payrollWorkspaceOrder(supabase, orderRef),
+    supabase.from("cp_payroll_telegram_evidence").select("media_type").eq("order_ref", orderRef),
   ]);
-  if (workflowError || routeError) throw new Error("Pesan order belum dapat dimuat.");
+  if (workflowError || routeError || evidenceError) throw new Error("Pesan order belum dapat dimuat.");
   if (!workflow || !route || !order) return null;
   const { data: allowed, error: accessError } = await supabase.rpc("cp_telegram_route_allowed", {
     p_ref: orderRef, p_division: route.division, p_chat: chatId,
