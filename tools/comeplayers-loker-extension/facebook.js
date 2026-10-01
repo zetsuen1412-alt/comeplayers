@@ -99,21 +99,22 @@
     if (job.kind === 'group_scan') {
       await dispatch(job);
       const found = new Set();
-      for (let i = 0; i < 8 && found.size < 8; i++) {
+      const scanUntil = Math.min(job.expiresAt - 15000, Date.now() + 105000);
+      let idleRounds = 0;
+      while (Date.now() < scanUntil && idleRounds < 4) {
         check(job);
+        const before = found.size;
         for (const a of articles()) {
           const message = story(a);
           if (!message || !seeker(message.textContent || '')) continue;
           const ref = postUrlFromArticle(a, target(job.target).group);
           if (ref) found.add(ref);
-          if (found.size >= 8) break;
         }
-        if (found.size < 8) {
-          window.scrollBy(0, innerHeight * .85);
-          await sleep(1000);
-        }
+        idleRounds = found.size === before ? idleRounds + 1 : 0;
+        window.scrollBy(0, innerHeight * .85);
+        await sleep(1000);
       }
-      return { status: 'skipped', discovered: [...found].slice(0, 8), note: `${found.size} postingan pencari kerja relevan ditemukan; isi postingan tidak disimpan.` };
+      return { status: 'skipped', discovered: [...found], note: `${found.size} postingan pencari kerja relevan ditemukan; tidak ada batas jumlah komentar tetap.` };
     }
 
     if (job.kind === 'group_post') {
