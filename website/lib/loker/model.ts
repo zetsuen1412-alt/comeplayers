@@ -56,7 +56,7 @@ export function validateConfig(input: unknown, active = false): Config {
   c.groups = [...new Set(v.groups.map(g => facebookTarget(text(g, 500, 'Grup')).url))];
   for (const key of ['intervalMinutes', 'dailyLimit'] as const) {
     const n = v[key];
-    if (typeof n !== 'number' || !Number.isInteger(n) || n < (key === 'intervalMinutes' ? 30 : 1) || n > (key === 'intervalMinutes' ? 1440 : 50)) throw new LokerError('Jeda 30–1440 menit dan batas harian 1–50 tindakan. Batas ini bukan jaminan keamanan akun.');
+    if (typeof n !== 'number' || !Number.isInteger(n) || n < 1 || n > (key === 'intervalMinutes' ? 1440 : 50)) throw new LokerError('Jeda 1–1440 menit dan batas harian posting 1–50. Komentar relevan tidak memakai batas jumlah tetap.');
     c[key] = n;
   }
   if (!Array.isArray(v.faqs) || v.faqs.length > 20) throw new LokerError('Maksimal 20 jawaban FAQ.');
