@@ -3,7 +3,7 @@ import { hex, unhex, newId } from "./crypto";
 import type { Vault } from "./vault";
 
 const CHUNK_SIZE = 49152;
-export const MAX_PRIVATE_FILE = 4 * 1024 * 1024;
+export const MAX_PRIVATE_FILE = 8 * 1024 * 1024;
 const MAX_LOCAL_FILE = 100 * 1024 * 1024;
 let cacheCleaned = false;
 export function cleanPrivatePreviewCache(): void {
@@ -17,12 +17,15 @@ export function cleanPrivatePreviewCache(): void {
 }
 export type LocalMedia = { id: string; name: string; mime: string; size: number; chunks: number };
 export async function storeMedia(vault: Vault, bytes: Uint8Array, name: string, mime: string, id = newId()): Promise<LocalMedia> {
-  if (!bytes.length || bytes.length > MAX_PRIVATE_FILE) throw new Error("Choose a file under 4 MB.");
+  if (!bytes.length || bytes.length > MAX_PRIVATE_FILE) throw new Error("Choose a file under 8 MB.");
   const media = { id, name: name.slice(0, 180), mime, size: bytes.length, chunks: Math.ceil(bytes.length / CHUNK_SIZE) };
-  const rows = [];
-  for (let i = 0; i < media.chunks; i++) rows.push(vault.encode("media-chunk", `${id}:${i}`, hex(bytes.subarray(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE))));
-  rows.push(vault.encode("media", id, media));
-  await vault.putRows(rows);
+  // Encode one chunk at a time inside the transaction. Building every
+  // hex-encoded row up front can exhaust memory for a short video on Android.
+  function* rows() {
+    for (let i = 0; i < media.chunks; i++) yield vault.encode("media-chunk", `${id}:${i}`, hex(bytes.subarray(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)));
+    yield vault.encode("media", id, media);
+  }
+  await vault.putRows(rows());
   return media;
 }
 export async function readMedia(vault: Vault, id: string): Promise<{ bytes: Uint8Array; media: LocalMedia }> {

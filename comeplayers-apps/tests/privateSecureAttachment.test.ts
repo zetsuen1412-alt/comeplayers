@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newId } from "../apps/mobile/src/secure/crypto";
-import { decryptSecureAttachment, encryptSecureAttachment, verifySecureAttachment } from "../apps/mobile/src/secure/secureAttachment";
+import { MAX_SECURE_ATTACHMENT, decryptSecureAttachment, encryptSecureAttachment, verifySecureAttachment } from "../apps/mobile/src/secure/secureAttachment";
 
 test("v2 attachments encrypt bytes and bind their event, room, epoch and retained blob", () => {
   const details = { eventId: newId(), roomId: newId(), epochId: newId(), blobId: newId(), name: "bukti.png", mime: "image/png" };
@@ -14,4 +14,12 @@ test("v2 attachments encrypt bytes and bind their event, room, epoch and retaine
   }
   assert.throws(() => decryptSecureAttachment(Uint8Array.from(encrypted.ciphertext, (value, index) => index ? value : value ^ 1), encrypted.attachment, details));
   assert.throws(() => verifySecureAttachment({ ...encrypted.attachment, mime: "text/html" }));
+});
+
+test("short videos up to 8 MiB have bounded encrypted metadata", () => {
+  const details = { eventId: newId(), roomId: newId(), epochId: newId(), blobId: newId(), name: "clip.mp4", mime: "video/mp4" };
+  const encrypted = encryptSecureAttachment(new Uint8Array(16), details);
+  assert.equal(MAX_SECURE_ATTACHMENT, 8 * 1024 * 1024);
+  assert.doesNotThrow(() => verifySecureAttachment({ ...encrypted.attachment, size: MAX_SECURE_ATTACHMENT, encryptedSize: MAX_SECURE_ATTACHMENT + 40 }));
+  assert.throws(() => verifySecureAttachment({ ...encrypted.attachment, size: MAX_SECURE_ATTACHMENT + 1, encryptedSize: MAX_SECURE_ATTACHMENT + 41 }));
 });

@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { publishLiveChanges, setLiveConnection } from '@/lib/live/events';
 import { RevisionTracker, createRefreshQueue, type LiveRevision, type LiveTopic } from '@/lib/live/refresh-queue';
 import { useLiveRefresh } from '@/lib/live/use-live-refresh';
+import { shouldRefreshServerCatalog } from '@/lib/live/routeRefresh';
 
 /** One metadata subscription per tab. Business data still uses its authorized API. */
 export default function LiveUpdates() {
@@ -15,7 +16,7 @@ export default function LiveUpdates() {
   // keep their React state; client data loaders subscribe separately below.
   useLiveRefresh(() => router.refresh(), {
     topics: 'catalog,account',
-    enabled: !pathname.startsWith('/admin') && !pathname.startsWith('/messages') && !pathname.startsWith('/arcade'),
+    enabled: shouldRefreshServerCatalog(pathname),
   });
   useEffect(() => {
     let stopped = false, generation = 0, identity: string | null | undefined;

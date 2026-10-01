@@ -1,6 +1,8 @@
 # Rilis ComePlayers ke Google Play
 
-Persiapan akun organisasi, hasil pemeriksaan lokal, dan pekerjaan yang masih diperlukan per 24 September 2026 tersedia di [catatan kesiapan rilis](play-store/READINESS-2026-09-24.md). Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json). Aplikasi belum diunggah atau diterbitkan pada sesi persiapan tersebut.
+Android **0.15.0 (22) sudah diterbitkan ke internal testing Google Play**; daftar 14 tester sudah diaktifkan dan track berstatus `Active`. Tester perlu bergabung melalui [tautan opt-in internal](https://play.google.com/apps/internaltest/4701728206334114354) menggunakan akun Google yang terdaftar. Belum ada rilis production publik; pengujian internal tidak memulai persyaratan closed testing 14 hari. Website juga sudah dirilis. Lihat [hasil rilis 27 September 2026](play-store/RELEASE-2026-09-27.md) untuk identitas AAB, verifikasi, dan pekerjaan yang masih diperlukan. [Catatan kesiapan](play-store/READINESS-2026-09-27.md) menyimpan status sebelum persetujuan pemilik. Draf listing Indonesia tersedia di [listing-id-ID.json](play-store/listing-id-ID.json).
+
+Nama ComePlayers, ikon baru, dan gambar promosi sudah disimpan sebagai draft; review pertama masih memerlukan screenshot asli serta setup aplikasi. Tiga sertifikat Play sudah didaftarkan pada [konfigurasi Google Sign-In](play-store/GOOGLE-SIGN-IN-CONFIGURATION.md) setelah laporan `DEVELOPER_ERROR`; hasil login pada perangkat masih perlu diverifikasi.
 
 ## Identitas tetap
 
@@ -49,10 +51,11 @@ Profil production:
 ## 4. Upload ke internal testing
 
 ```powershell
-npm run android:submit -- -Latest
+cd apps/mobile
+npx eas-cli@24.5.0 submit --platform android --profile production --id <BUILD_ID_TERVERIFIKASI>
 ```
 
-Profil submit mengarah ke track `internal`. Uji setidaknya:
+Ganti placeholder dengan ID build final yang sudah diverifikasi. Jangan menggunakan `--latest`, karena dapat memilih AAB lama atau build dari pekerjaan lain. Profil submit mengarah ke track `internal`, bukan rilis publik production. Uji setidaknya:
 
 - login, logout, dan pemulihan sesi;
 - daftar room, membuka room, mengirim dan menerima pesan;

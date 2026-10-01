@@ -486,7 +486,7 @@ dependencies = [
 
 [[package]]
 name = "comeplayers-desktop"
-version = "0.5.4"
+version = "1.0.0"
 dependencies = [
  "serde_json",
  "tauri",
@@ -495,6 +495,8 @@ dependencies = [
  "tauri-plugin-process",
  "tauri-plugin-single-instance",
  "tauri-plugin-updater",
+ "windows-sys 0.59.0",
+ "winreg",
 ]
 
 [[package]]
@@ -3741,6 +3743,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tauri",
+ "tauri-plugin-deep-link",
  "thiserror 2.0.18",
  "tracing",
  "windows-sys 0.60.2",

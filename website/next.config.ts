@@ -82,11 +82,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/messages",
-        destination: "/chat",
-        permanent: true,
-      },
-      {
         source: "/messages/:path*",
         destination: "/cpcommunity/:path*",
         permanent: true,

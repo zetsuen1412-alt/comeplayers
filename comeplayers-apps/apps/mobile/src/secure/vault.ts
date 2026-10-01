@@ -34,7 +34,7 @@ export class Vault {
     if (old && old.room === room && old.sort === sort && JSON.stringify(this.decode(old)) === JSON.stringify(value)) return;
     await this.putRows([this.encode(kind, id, value, room, sort)]);
   }
-  async putRows(rows: VaultRow[]): Promise<void> {
+  async putRows(rows: Iterable<VaultRow>): Promise<void> {
     await this.transaction(async tx => { for (const r of rows) await tx.runAsync("INSERT INTO records(kind,id,room,sort,value) VALUES (?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET room=excluded.room,sort=excluded.sort,value=excluded.value", r.kind, r.id, r.room, r.sort, r.value); });
   }
   // Expo opens a separate connection for each exclusive transaction. Its busy

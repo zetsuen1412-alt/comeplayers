@@ -7,11 +7,29 @@
   "website": "https://www.comeplayers.com",
   "privacyPolicyUrl": "https://www.comeplayers.com/privacy",
   "accountDeletionUrl": "https://www.comeplayers.com/account/privacy",
-  "supportEmailCandidate": "admin@comeplayers.com",
+  "supportEmail": "admin@comeplayers.com",
+  "supportEmailConfirmedByOwner": true,
+  "category": "SOCIAL",
+  "visualAssets": {
+    "appIcon": {
+      "source": "assets/comeplayers-app-icon-2026.png",
+      "consoleDimensions": "512x512",
+      "status": "saved_as_draft"
+    },
+    "featureGraphic": {
+      "source": "assets/comeplayers-feature-source.png",
+      "consoleDimensions": "1024x500",
+      "status": "saved_as_draft"
+    },
+    "screenshots": "pending_real_device_captures"
+  },
   "reviewNotes": [
-    "Draf lokal; belum disimpan atau dikirim ke Play Console.",
-    "Email diambil dari kebijakan website; pastikan kotak masuk dipantau sebelum digunakan.",
+    "Deskripsi Indonesia sudah disimpan sebagai draf di Play Console; listing lengkap belum dikirim untuk review.",
+    "Pemilik mengonfirmasi admin@comeplayers.com sebagai email dukungan; email dan website resmi sudah dipublikasikan melalui Store settings.",
+    "Kategori Social sudah disimpan dan menunggu pengiriman untuk review.",
+    "Nama ComePlayers, feature graphic, dan ikon baru dari pemilik berukuran 512x512 sudah disimpan sebagai draft. Play Console menolak pengiriman listing untuk review karena minimal dua screenshot asli aplikasi masih diperlukan.",
+    "Nama sementara (unreviewed) mengikuti status review pertama Google Play; perubahan draft belum menerbitkan branding.",
     "Cocokkan semua klaim dengan AAB final dan hasil pengujian perangkat.",
-    "Kategori, negara distribusi, target usia, rating, deklarasi iklan, dan Data safety belum ditetapkan."
+    "Negara distribusi, target usia, rating, deklarasi iklan, dan Data safety belum ditetapkan."
   ]
 }

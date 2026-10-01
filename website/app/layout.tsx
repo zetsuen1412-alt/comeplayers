@@ -20,6 +20,7 @@ import LiveUpdates from "@/components/LiveUpdates";
 
 const SITE_URL = "https://www.comeplayers.com";
 const LOGO_URL = "/brand/comeplayers-cp-v6.png";
+const APP_ICON_URL = "/brand/comeplayers-app-icon-2026.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -65,17 +66,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: LOGO_URL,
+        url: APP_ICON_URL,
         type: "image/png",
-        sizes: "any",
+        sizes: "1254x1254",
       },
     ],
-    shortcut: LOGO_URL,
+    shortcut: APP_ICON_URL,
     apple: [
       {
-        url: LOGO_URL,
+        url: APP_ICON_URL,
         type: "image/png",
-        sizes: "180x180",
+        sizes: "1254x1254",
       },
     ],
   },

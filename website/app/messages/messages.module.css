@@ -5156,3 +5156,573 @@
     animation: none;
   }
 }
+
+/* Community chat: a readable two-column workspace with optional secondary tools.
+   Scope these rules so historic compact-layout rules cannot shrink channel controls. */
+.simpleCommunity {
+  background: #10161d !important;
+  font-size: 16px !important;
+}
+
+.simpleCommunity .topHeader,
+.simpleCommunity .leftCommunityPanel,
+.simpleCommunity .contentGrid,
+.simpleCommunity .channelHeader,
+.simpleCommunity .rightRail,
+.simpleCommunity .chatColumn,
+.simpleCommunity .composerDock {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 !important;
+  background: #151c24 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.simpleCommunity .serverRail {
+  display: none !important;
+}
+
+.simpleCommunity .leftCommunityPanel {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+  max-height: none !important;
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.simpleCommunity .leftCommunityPanel > div:first-child {
+  flex: none;
+  padding: 8px !important;
+}
+
+.simpleCommunity .communityCard {
+  min-height: 64px !important;
+  padding: 8px !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px !important;
+  background: #1c2632 !important;
+  box-shadow: none !important;
+}
+
+.simpleCommunity .communityCard p:first-child {
+  font-size: 18px !important;
+}
+
+.simpleCommunity .communityCard p,
+.simpleCommunity .communityCard span {
+  font-size: 14px;
+}
+
+.simpleCommunity .communityNav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px !important;
+  margin-top: 8px !important;
+}
+
+.simpleCommunity .communityNav > button,
+.simpleCommunity .communityNav > a {
+  min-height: 44px !important;
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 8px;
+  padding: 6px 2px !important;
+  font-size: 13px !important;
+  font-weight: 650;
+  color: #b9c7d6;
+  box-shadow: none !important;
+}
+
+.simpleCommunity .sidebarInviteButton,
+.simpleCommunity .leftSearch input,
+.simpleCommunity .leftSearch > button {
+  min-height: 44px !important;
+  font-size: 14px !important;
+  box-shadow: none !important;
+}
+
+.simpleCommunity .leftProfileCard {
+  grid-column: 2;
+  grid-row: 2;
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  min-width: 0;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  transform: none !important;
+  float: none !important;
+  z-index: auto;
+  display: block !important;
+  height: auto !important;
+  flex: none;
+  padding: 8px 12px !important;
+  border-radius: 0 !important;
+  background: #151c24 !important;
+  box-shadow: none !important;
+}
+
+.simpleCommunity .channelSidebarArea {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.simpleCommunity :global([data-community-sidebar]) {
+  height: auto !important;
+  min-height: 0;
+  flex: 1;
+  gap: 8px !important;
+  font-size: 16px !important;
+}
+
+.simpleCommunity :global([data-community-sidebar]) > div:first-child {
+  padding: 0 !important;
+}
+
+.simpleCommunity :global([data-community-sidebar]) section {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.simpleCommunity :global([data-community-sidebar]) > div:first-child button,
+.simpleCommunity :global([data-community-sidebar]) section > div:first-child button {
+  min-height: 44px !important;
+  font-size: 14px !important;
+}
+
+.simpleCommunity :global([data-community-channel]),
+.simpleCommunity :global([data-community-channel][data-voice-channel]) {
+  height: auto !important;
+  min-height: 48px !important;
+  gap: 10px !important;
+  padding: 10px !important;
+  font-size: 16px !important;
+}
+
+.simpleCommunity :global([data-community-channel]) :global(.text-base) {
+  font-size: 16px !important;
+  line-height: 1.5;
+}
+
+.simpleCommunity .otherChats {
+  max-height: 35%;
+  flex: none;
+  overflow-y: auto;
+}
+
+.simpleCommunity .otherChats summary {
+  min-height: 44px;
+}
+
+.simpleCommunity .membersToggle {
+  width: auto !important;
+  min-height: 44px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+}
+
+.simpleCommunity .channelHeader {
+  position: relative;
+  z-index: 20;
+  height: auto !important;
+  min-height: 80px !important;
+  flex: none;
+  padding: 14px 20px !important;
+}
+
+.simpleCommunity .channelHeader h2 {
+  font-size: 20px !important;
+}
+
+.simpleCommunity .channelHeaderMeta {
+  overflow: visible !important;
+}
+
+.simpleCommunity .channelHeaderMeta > button,
+.simpleCommunity .channelHeaderMeta > div > button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.simpleCommunity .messageViewport {
+  background: #10161d !important;
+}
+
+.simpleCommunity .messageViewport::before,
+.simpleCommunity .messageViewport::after {
+  display: none !important;
+}
+
+.simpleCommunity .composerBar {
+  min-height: 56px !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  background: #1c2632 !important;
+  box-shadow: none !important;
+}
+
+.simpleCommunity .composerBar textarea {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+}
+
+.simpleCommunity .composerBar > button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.simpleCommunity .conversationState {
+  display: flex;
+  min-height: 220px;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px;
+  color: #cbd5e1;
+  text-align: center;
+}
+
+.simpleCommunity .conversationState button {
+  min-height: 48px;
+  border-radius: 10px;
+  background: #67e8f9;
+  padding: 12px 24px;
+  color: #082f49;
+  font-weight: 700;
+}
+
+/* Discovery is paused: let community information fill the freed space. */
+.simpleCommunity .communityHomeFocused {
+  display: block;
+  overflow-y: auto;
+}
+
+.simpleCommunity .communityHomeFocused .commandGrid {
+  height: auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+  margin-top: 16px;
+}
+
+.simpleCommunity .communityNav > button[aria-pressed="true"] {
+  background: #173746;
+  color: #9aebf4;
+  box-shadow: inset 0 -2px #facc15 !important;
+}
+
+.simpleCommunity .communityNav > button:hover {
+  background: #21323f;
+  color: white;
+}
+
+.simpleCommunity .communityNav > button:focus-visible {
+  outline: 2px solid #facc15;
+  outline-offset: -2px;
+}
+
+.groupRailSlot {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.simpleCommunity .communityMenu {
+  top: 76px !important;
+  left: 8px !important;
+  right: 8px !important;
+  max-height: calc(100dvh - 220px);
+  overflow-y: auto;
+}
+
+.simpleCommunity .communityMenu button,
+.simpleCommunity .communityMenu a {
+  min-height: 44px;
+  font-size: 14px;
+}
+
+.simpleCommunity .mobileInboxHeading {
+  display: none !important;
+}
+
+.simpleCommunity .communityHomeFocused {
+  padding: 24px !important;
+  background: #101923;
+}
+
+.simpleCommunity .commandHero,
+.simpleCommunity .commandCard {
+  border: 1px solid #2c3a48;
+  border-radius: 16px;
+  background: #17232f;
+  box-shadow: none;
+}
+
+.simpleCommunity .commandHeroBackdrop {
+  display: none;
+}
+
+.simpleCommunity .commandHeroContent {
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 24px;
+}
+
+.simpleCommunity .commandEyebrow {
+  color: #facc15;
+  font-size: 12px !important;
+  letter-spacing: 0.08em;
+}
+
+.simpleCommunity .commandStats strong {
+  font-size: 22px !important;
+}
+
+.simpleCommunity .commandStats span {
+  font-size: 13px !important;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.simpleCommunity .commandCardHeader {
+  padding: 16px 20px;
+}
+
+.simpleCommunity .commandCardHeader p {
+  font-size: 18px !important;
+}
+
+.simpleCommunity .commandCardHeader span {
+  font-size: 14px !important;
+}
+
+.simpleCommunity .commandCardHeader button,
+.simpleCommunity .commandPrimaryButton,
+.simpleCommunity .commandSecondaryButton {
+  min-height: 44px;
+  font-size: 14px !important;
+}
+
+.simpleCommunity .commandBioBody {
+  padding: 0 20px 20px;
+}
+
+.simpleCommunity .commandBioText {
+  min-height: 0 !important;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 16px !important;
+  line-height: 1.6;
+}
+
+.simpleCommunity .commandEmpty {
+  padding: 20px;
+  color: #bdcbd8;
+  font-size: 15px;
+}
+
+.simpleCommunity .communityHomeFocused .commandGrid > .commandCard {
+  grid-column: 1;
+}
+
+.simpleCommunity .rightPanelTabs {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: none;
+}
+
+@media (min-width: 1024px) {
+  .simpleCommunity .topHeader {
+    height: 72px !important;
+    padding: 0 20px !important;
+  }
+
+  .simpleCommunity .workspace,
+  .simpleCommunity .workspaceWithPanel,
+  .simpleCommunity .workspaceNoPanel {
+    display: grid !important;
+    height: calc(100dvh - 72px) !important;
+    grid-template-columns: 344px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+
+  .simpleCommunity .leftRail {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: 80px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .simpleCommunity .contentGrid {
+    display: flex !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    height: 100%;
+    flex-direction: column;
+    border: 0 !important;
+  }
+
+  .simpleCommunity .conversationGrid {
+    display: flex !important;
+    flex: 1;
+    flex-direction: row;
+    gap: 0 !important;
+    overflow: hidden;
+  }
+
+  .simpleCommunity .chatColumn {
+    position: relative !important;
+    display: flex !important;
+    height: auto !important;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    border: 0 !important;
+  }
+
+  .simpleCommunity .messageViewport {
+    position: relative !important;
+    inset: auto !important;
+    flex: 1 !important;
+  }
+
+  .simpleCommunity .messageScroller {
+    height: 100% !important;
+    padding: 24px !important;
+  }
+
+  .simpleCommunity .composerDock {
+    position: relative !important;
+    inset: auto !important;
+    flex: none;
+    padding: 12px 20px !important;
+  }
+
+  .simpleCommunity .rightRail {
+    position: relative !important;
+    display: flex !important;
+    width: 280px;
+    max-width: 35%;
+    height: 100%;
+    flex: none;
+    flex-direction: column;
+    gap: 0 !important;
+    overflow: hidden;
+    border-width: 0 0 0 1px !important;
+    padding: 0 !important;
+  }
+
+  .simpleCommunity .rightPanelTabs {
+    min-height: 52px;
+    flex: none;
+  }
+
+  .simpleCommunity .rightPanelBody {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px !important;
+  }
+
+  .simpleCommunity .voicePanelOpen {
+    inset: 12px 12px 90px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .simpleCommunity .workspace[data-live-active="true"] .contentGrid {
+    padding-bottom: 88px;
+  }
+
+  .simpleCommunity .voiceDock,
+  .simpleCommunity .voiceDockExpanded {
+    left: 356px !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    height: 72px !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    background: #1c2632 !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .simpleCommunity .workspace {
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* One scroll surface keeps every room reachable when the header, filters,
+     account footer, or larger system text would otherwise consume the pane. */
+  .simpleCommunity .workspace[data-mobile-pane="list"] .leftRail {
+    display: grid !important;
+    grid-template-columns: 80px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .simpleCommunity .leftCommunityPanel {
+    display: block !important;
+    overflow-y: auto !important;
+  }
+
+  .simpleCommunity .leftCommunityPanel > div:last-child,
+  .simpleCommunity .channelSidebarArea,
+  .simpleCommunity :global([data-community-sidebar]) {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .simpleCommunity :global([data-channel-list]) {
+    min-height: auto !important;
+    flex: none !important;
+    overflow: visible !important;
+  }
+
+  .simpleCommunity .channelHeader {
+    padding: 12px !important;
+  }
+
+  .simpleCommunity .channelHeaderMeta {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .simpleCommunity .messageScroller {
+    padding: 16px !important;
+  }
+
+  .simpleCommunity .composerDock {
+    padding: 10px !important;
+  }
+
+  .simpleCommunity .communityHomeFocused {
+    padding: 12px !important;
+  }
+
+  .simpleCommunity .commandHeroContent {
+    padding: 16px;
+  }
+}

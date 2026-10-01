@@ -20,6 +20,7 @@ export const adminNavigation = [
     { href: "/admin/games", label: "Gim", icon: FaGamepad },
     { href: "/admin/categories", label: "Kategori", icon: FaTags },
     { href: "/admin/category-mapping", label: "Pemetaan kategori", icon: FaLayerGroup },
+    { href: "/admin/catalog/opportunities", label: "Ide penawaran", icon: FaCube },
     { href: "/admin/coupons", label: "Kupon", icon: FaTicketAlt },
     { href: "/admin/coupon-analytics", label: "Analisis kupon", icon: FaChartLine },
     { href: "/admin/flash-sales", label: "Promo kilat", icon: FaBolt },

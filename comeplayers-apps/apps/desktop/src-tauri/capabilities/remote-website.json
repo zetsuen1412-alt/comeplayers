@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "comeplayers-website",
+  "description": "Permit the official ComePlayers website to open a strictly validated Google sign-in URL in the system browser.",
+  "windows": ["main"],
+  "platforms": ["windows"],
+  "local": false,
+  "remote": {
+    "urls": ["https://www.comeplayers.com"]
+  },
+  "permissions": ["allow-open-google-oauth"]
+}

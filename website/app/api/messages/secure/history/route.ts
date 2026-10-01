@@ -7,6 +7,8 @@ import {
 import { inspectR2Object } from "@/lib/r2Server";
 import { dispatchChatPushNotifications } from "@/lib/backgroundJobs";
 import { createChatNotification, safeProfileLabel } from "@/lib/chatServer";
+import { isTransactionChatRoom } from "@/lib/chatRoomScope";
+import { recordSecureRoomActivity } from "@/lib/secureRoomActivity";
 
 const json = (value: unknown) => NextResponse.json(value, { headers: { "Cache-Control": "no-store" } });
 export async function GET(request: Request) {
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
     let body: { event?: unknown; notify?: unknown }; try { body = JSON.parse(text); } catch { throw inputError("Invalid encrypted-history request."); }
     if (body.notify !== undefined && typeof body.notify !== "boolean") throw inputError("Invalid encrypted notification request.");
     const roomId = uuid((body.event as { roomId?: unknown } | undefined)?.roomId);
-    await privateRoom(db, user.id, roomId);
+    const { room } = await privateRoom(db, user.id, roomId);
     const latest = await db.from("cp_secure_epochs").select("id,payload,epoch_hash").eq("room_id", roomId).order("epoch", { ascending: false }).limit(1).maybeSingle();
     if (latest.error) throw latest.error;
     if (!latest.data) throw inputError("Create the encrypted conversation key first.", 409);
@@ -43,6 +45,8 @@ export async function POST(request: Request) {
     const saved = await db.rpc("cp_secure_put_event", { p_actor: user.id, p_device: device.id, p_event: event, p_hash: secureHistoryHash(event), p_blob: event.blobId });
     if (saved.error) throw inputError(/current conversation key|rotate|inactive|absent/i.test(saved.error.message) ? "Device authorization changed. Rotate the conversation key before sending." : /rate limit/i.test(saved.error.message) ? "Too many messages. Try again shortly." : "The encrypted message could not be saved.", /rate limit/i.test(saved.error.message) ? 429 : 409);
     if (body.notify === true) {
+      // A message updates only public ordering metadata, never its contents.
+      await recordSecureRoomActivity(db, event.id, roomId, user.id);
       // Notification content is deliberately generic: this route cannot and
       // must not inspect the encrypted event payload.
       after(async () => {
@@ -52,7 +56,8 @@ export async function POST(request: Request) {
           const profile = await db.from("profiles").select("username,full_name,email").eq("id", user.id).maybeSingle();
           if (profile.error) throw profile.error;
           const senderName = safeProfileLabel(profile.data), preview = "New end-to-end encrypted message";
-          await createChatNotification({ supabaseAdmin: db, receiverId: String(claim.data), senderName, roomId, preview, linkUrl: `/chat?room=${encodeURIComponent(roomId)}` });
+          const inbox = isTransactionChatRoom(room) ? "/chat" : "/cpcommunity";
+          await createChatNotification({ supabaseAdmin: db, receiverId: String(claim.data), senderName, roomId, preview, linkUrl: `${inbox}?room=${encodeURIComponent(roomId)}` });
           await dispatchChatPushNotifications({ supabaseAdmin: db, receiverIds: [String(claim.data)], senderName, roomId, preview });
         } catch (error) { console.warn("Secure message notification failed:", error instanceof Error ? error.message : error); }
       });

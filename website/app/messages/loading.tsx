@@ -1,5 +1,11 @@
-import MessagesLoadingOperatorV15 from "@/components/messages/MessagesLoadingOperatorV15";
-
 export default function MessagesRouteLoading() {
-  return <MessagesLoadingOperatorV15 />;
+  return (
+    <main
+      className="flex min-h-dvh items-center justify-center bg-[#10161d] px-6 text-base text-slate-200"
+      role="status"
+      aria-live="polite"
+    >
+      Memuat komunitas…
+    </main>
+  );
 }

@@ -1,33 +1,39 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin, requireAuthenticatedUser } from "@/lib/serverSupabase";
 import { accountApiError, inputError } from "@/lib/accountApi";
-import { assertLegacyDirectMessagingAllowed, requireChatRoomAccess } from "@/lib/chatServer";
+import { requireChatRoomAccess } from "@/lib/chatServer";
 import { assertContactAllowed } from "@/lib/chatContacts";
 import { createDirectCallToken, createLiveKitRoomServiceClient, getLiveKitServerUrl } from "@/lib/livekitServer";
 import { limitedBody, privateActor, privateRoom, uuid } from "@/lib/privateMessaging";
 import { secureActor } from "@/lib/secureHistoryProtocol";
+import { activeCallFilter, decideCallAction, visibleCallStatus } from "@/lib/callPresence";
+import { recordCallRoomActivity, type CallActivityStatus } from "@/lib/callRoomActivity";
 
 export async function GET(request: Request) {
   try {
     const user = await requireAuthenticatedUser(request);
     const db = createSupabaseAdmin();
-    const scope = `caller_id.eq.${user.id},callee_id.eq.${user.id}`;
-    const expiry = await db.from("cp_calls").update({ status: "missed", ended_at: new Date().toISOString() }).eq("status", "ringing").lt("created_at", new Date(Date.now() - 60000).toISOString()).or(scope);
-    if (expiry.error) throw expiry.error;
-    const expiredActive = await db.from("cp_calls").update({ status: "ended", ended_at: new Date().toISOString() }).eq("status", "accepted").lt("answered_at", new Date(Date.now() - 3600000).toISOString()).or(scope).select("id");
-    if (expiredActive.error) throw expiredActive.error;
-    for (const call of expiredActive.data) await createLiveKitRoomServiceClient().deleteRoom(`cp-call-${call.id}`).catch(() => undefined);
     const params = new URL(request.url).searchParams;
     const activeOnly = params.get("active") === "1";
     const current = params.get("id");
-    let query = db.from("cp_calls").select("*").or(scope);
-    if (activeOnly) query = current && /^[0-9a-f-]{36}$/i.test(current) ? query.or(`status.in.(ringing,accepted),id.eq.${current}`) : query.in("status", ["ringing", "accepted"]);
+    const now = Date.now();
+    const scope = `caller_id.eq.${user.id},callee_id.eq.${user.id}`;
+    // The frequent active-call poll must stay read-only. Historical cleanup can
+    // run when the call history is opened or before a new call is created.
+    if (!activeOnly) {
+      const expiry = await db.from("cp_calls").update({ status: "missed", ended_at: new Date(now).toISOString() }).eq("status", "ringing").lt("created_at", new Date(now - 60000).toISOString()).or(scope);
+      if (expiry.error) throw expiry.error;
+      const expiredActive = await db.from("cp_calls").update({ status: "ended", ended_at: new Date(now).toISOString() }).eq("status", "accepted").lt("answered_at", new Date(now - 3600000).toISOString()).or(scope).select("id");
+      if (expiredActive.error) throw expiredActive.error;
+      for (const call of expiredActive.data || []) await createLiveKitRoomServiceClient().deleteRoom(`cp-call-${call.id}`).catch(() => undefined);
+    }
+    const query = db.from("cp_calls").select("*").or(activeOnly ? activeCallFilter(user.id, current, now) : scope);
     const calls = await query.order("created_at", { ascending: false }).limit(activeOnly ? 4 : 100);
     if (calls.error) throw calls.error;
     const ids = [...new Set(calls.data.flatMap(c => [c.caller_id, c.callee_id]))];
     const people = ids.length ? await db.from("profiles").select("id,username,full_name,avatar_url").in("id", ids) : { data: [], error: null };
     if (people.error) throw people.error;
-    return NextResponse.json({ calls: calls.data.map(c => ({ ...c, other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) });
+    return NextResponse.json({ calls: calls.data.map(c => ({ ...visibleCallStatus(c, now), other: people.data?.find(p => p.id === (c.caller_id === user.id ? c.callee_id : c.caller_id)) || null })) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }
 export async function POST(request: Request) {
@@ -40,12 +46,20 @@ export async function POST(request: Request) {
     if (body.secureEventId != null || request.headers.has("x-cp-device")) throw inputError("Update ComePlayers to use account-based calls.", 426);
     const roomId = uuid(body.roomId);
     const { room, target } = await privateRoom(db, user.id, roomId);
-    await assertLegacyDirectMessagingAllowed(db, room);
+    // Voice calls use a separate LiveKit room and do not access message keys or
+    // history. An enrolled private-message identity must not block account calls.
     const scheduled = body.scheduledAt ? String(body.scheduledAt) : null;
     if (scheduled && !Number.isFinite(Date.parse(scheduled))) throw inputError("Choose a valid call time.");
     getLiveKitServerUrl();
     const result = await db.rpc("cp_start_call", { p_actor: user.id, p_target: target, p_room: room.id, p_media: body.media === "video" ? "video" : "audio", p_scheduled: scheduled });
     if (result.error) throw inputError(/already in a call|limit|blocked|accepting|scheduled|verification/i.test(result.error.message) ? result.error.message : "The call could not be started.", 409);
+    await recordCallRoomActivity(db, {
+      roomId: room.id,
+      actorId: user.id,
+      occurredAt: result.data.created_at,
+      media: result.data.media === "video" ? "video" : "audio",
+      status: result.data.status === "scheduled" ? "scheduled" : "ringing",
+    }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
     return NextResponse.json({ call: result.data }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) { return accountApiError(error); }
 }
@@ -59,7 +73,7 @@ export async function PATCH(request: Request) {
     if (!body || typeof body !== "object" || Array.isArray(body)) throw inputError("Invalid call request.");
     const found = await db.from("cp_calls").select("*").eq("id", String(body.id || "")).or(`caller_id.eq.${user.id},callee_id.eq.${user.id}`).maybeSingle();
     if (found.error) throw found.error;
-    const call = found.data;
+    let call = found.data;
     if (!call) throw inputError("Call not found.", 404);
     if (call.secure_event_id) await secureActor(request, bodyText);
     else if (call.encryption_envelope) await privateActor(request, bodyText);
@@ -74,18 +88,33 @@ export async function PATCH(request: Request) {
       if (profile.error) throw profile.error;
       return NextResponse.json({ serverUrl: getLiveKitServerUrl(), participantToken: await createDirectCallToken({ userId: user.id, name: profile.data.username || profile.data.full_name || "ComePlayers", roomName, video: call.media === "video" }), roomName, channel: { id: call.id, name: "ComePlayers call" }, permissions: { canPublishVideo: call.media === "video", canShareScreen: false, canModerateVoice: false } });
     }
-    let status: string;
-    if (body.action === "accept" && !own && call.status === "ringing" && Date.parse(call.created_at) > Date.now() - 60000) {
-      await assertContactAllowed(db, user.id, target);
-      status = "accepted";
-    } else if (body.action === "decline" && !own && ["ringing", "scheduled"].includes(call.status)) status = "declined";
-    else if (body.action === "end" && ["ringing", "accepted", "scheduled"].includes(call.status)) status = call.status === "accepted" ? "ended" : own ? "cancelled" : "declined";
-    else throw inputError("The call state has changed. Refresh and try again.", 409);
-    const now = new Date().toISOString();
-    const updated = await db.from("cp_calls").update({ status, ...(status === "accepted" ? { answered_at: now } : { ended_at: now }) }).eq("id", call.id).eq("status", call.status).select("id").maybeSingle();
-    if (updated.error) throw updated.error;
-    if (!updated.data) throw inputError("The call state has changed.", 409);
-    if (call.status === "accepted" && status === "ended") await createLiveKitRoomServiceClient().deleteRoom(roomName).catch(() => undefined);
-    return NextResponse.json({ ok: true, status });
+    if (body.action !== "accept" && body.action !== "decline" && body.action !== "end") throw inputError("Invalid call action.");
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const decision = decideCallAction(body.action, call.status, own, call.created_at);
+      if (decision.kind === "conflict") throw inputError("The call state has changed. Refresh and try again.", 409);
+      if (decision.kind === "done") return NextResponse.json({ ok: true, status: decision.status });
+      if (body.action === "accept") await assertContactAllowed(db, user.id, target);
+      const now = new Date().toISOString();
+      const updated = await db.from("cp_calls").update({ status: decision.status, ...(decision.status === "accepted" ? { answered_at: now } : { ended_at: now }) }).eq("id", call.id).eq("status", call.status).select("id").maybeSingle();
+      if (updated.error) throw updated.error;
+      if (updated.data) {
+        await recordCallRoomActivity(db, {
+          roomId: call.room_id,
+          actorId: user.id,
+          occurredAt: now,
+          media: call.media === "video" ? "video" : "audio",
+          status: decision.status as CallActivityStatus,
+        }).catch(error => console.warn("Call inbox activity could not be recorded:", error));
+        if (call.status === "accepted" && decision.status === "ended") await createLiveKitRoomServiceClient().deleteRoom(roomName).catch(() => undefined);
+        return NextResponse.json({ ok: true, status: decision.status });
+      }
+      // An accept/end from the other participant can win the update race.
+      // Re-read once so a late hang-up remains safe and can end an accepted call.
+      const latest = await db.from("cp_calls").select("*").eq("id", call.id).maybeSingle();
+      if (latest.error) throw latest.error;
+      if (!latest.data) throw inputError("Call not found.", 404);
+      call = latest.data;
+    }
+    throw inputError("The call state has changed. Refresh and try again.", 409);
   } catch (error) { return accountApiError(error); }
 }

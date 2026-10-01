@@ -98,6 +98,23 @@ async function readMeta<T>(database: IDBDatabase, key: string): Promise<T | null
   return (item?.value as T | undefined) ?? null;
 }
 
+async function getOrCreateMasterKey(database: IDBDatabase): Promise<CryptoKey> {
+  const candidate = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  // Compare-and-set in one transaction: separate tabs must encrypt with the same key.
+  const transaction = database.transaction(META, "readwrite", { durability: "strict" });
+  const done = completed(transaction);
+  const store = transaction.objectStore(META);
+  const read = store.get(MASTER_KEY);
+  let selected = candidate;
+  read.onsuccess = () => {
+    if (read.result) selected = read.result.value as CryptoKey;
+    else store.put({ key: MASTER_KEY, value: candidate } satisfies StoredMeta);
+  };
+  await done;
+  if (selected.extractable || selected.algorithm.name !== "AES-GCM") throw new Error("The encrypted browser vault key is invalid.");
+  return selected;
+}
+
 function aad(userId: string, row: Pick<StoredRecord, "kind" | "id" | "room" | "sort" | "format">) {
   return encoder.encode(JSON.stringify([
     "cp-browser-vault-v2",
@@ -182,6 +199,32 @@ export class BrowserVault {
       transaction.objectStore(RECORDS).put(row);
       await completed(transaction);
     });
+  }
+
+  async activate(session: VerifiedSession, recoveryIdentity: Identity): Promise<void> {
+    const rows = await Promise.all([
+      this.encode("device-secret-v2", this.userId, session.device, "", "", "json"),
+      this.encode("account-roster", this.userId, session.roster, "", "", "json"),
+      this.encode("root-recovery-v2", this.userId, recoveryIdentity, "", "", "json"),
+    ]);
+    // The checkpoint and every key become durable together; an interrupted write
+    // leaves either the previous session or an unactivated vault, never half a session.
+    const transaction = this.database.transaction([META, RECORDS], "readwrite", { durability: "strict" });
+    const done = completed(transaction);
+    let conflict: Error | null = null;
+    const read = transaction.objectStore(META).get(CHECKPOINT);
+    read.onsuccess = () => {
+      const previous = read.result?.value as VaultCheckpoint | undefined;
+      if (previous && (previous.rootFingerprint !== this.checkpoint.rootFingerprint || previous.rosterRevision > this.checkpoint.rosterRevision || (previous.rosterRevision === this.checkpoint.rosterRevision && previous.rosterHash !== this.checkpoint.rosterHash))) {
+        conflict = new Error("The browser account changed. Local history was preserved.");
+        transaction.abort(); return;
+      }
+      try {
+        for (const row of rows) transaction.objectStore(RECORDS).put(row);
+        transaction.objectStore(META).put({ key: CHECKPOINT, value: this.checkpoint } satisfies StoredMeta);
+      } catch (error) { conflict = error instanceof Error ? error : new Error("Browser storage is unavailable."); transaction.abort(); }
+    };
+    try { await done; } catch (error) { throw conflict || error; }
   }
 
   async putBinary(kind: string, id: string, value: Uint8Array, room = "", sort = ""): Promise<void> {
@@ -312,7 +355,7 @@ export async function openBrowserVault(userId: string): Promise<BrowserVault | n
       readMeta<CryptoKey>(database, MASTER_KEY),
       readMeta<VaultCheckpoint>(database, CHECKPOINT),
     ]);
-    if (!masterKey && !checkpoint) {
+    if (!checkpoint && (!masterKey || (!masterKey.extractable && masterKey.algorithm.name === "AES-GCM"))) {
       database.close();
       return null;
     }
@@ -355,14 +398,7 @@ export function persistVerifiedBrowserSession(
     active.delete(session.root.userId);
     const database = await openDatabase(session.root.userId);
     try {
-      let masterKey = await readMeta<CryptoKey>(database, MASTER_KEY);
-      if (!masterKey) {
-        masterKey = await crypto.subtle.generateKey(
-          { name: "AES-GCM", length: 256 },
-          false,
-          ["encrypt", "decrypt"],
-        );
-      }
+      const masterKey = await getOrCreateMasterKey(database);
       const checkpoint: VaultCheckpoint = {
         version: 2,
         vaultId: newId(),
@@ -374,15 +410,8 @@ export function persistVerifiedBrowserSession(
         rosterHash: rosterHash(session.roster),
         createdAt: new Date().toISOString(),
       };
-      const transaction = database.transaction(META, "readwrite", { durability: "strict" });
-      const metadata = transaction.objectStore(META);
-      metadata.put({ key: MASTER_KEY, value: masterKey } satisfies StoredMeta);
-      metadata.put({ key: CHECKPOINT, value: checkpoint } satisfies StoredMeta);
-      await completed(transaction);
       const vault = new BrowserVault(session.root.userId, database, masterKey, checkpoint);
-      await vault.put("device-secret-v2", session.root.userId, session.device);
-      await vault.put("account-roster", session.root.userId, session.roster);
-      await vault.put("root-recovery-v2", session.root.userId, recoveryIdentity);
+      await vault.activate(session, recoveryIdentity);
       await vault.session();
       active.set(session.root.userId, vault);
     } catch (error) {

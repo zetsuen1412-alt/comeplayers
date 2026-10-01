@@ -1,0 +1,6 @@
+ComePlayers 0.16.2
+
+- Chat diurutkan berdasarkan pesan atau panggilan terbaru dari siapa pun.
+- Panggilan suara dan video lebih andal saat menyambungkan kembali.
+- Pratinjau panggilan tampil jelas di daftar percakapan.
+- Perbaikan kecepatan, navigasi, dan tampilan chat.

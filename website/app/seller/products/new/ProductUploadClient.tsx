@@ -6,7 +6,14 @@ import { useParams, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { formatDeliveryEta, SELLER_SLA_OPTIONS } from "@/lib/sellerServiceLevel";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
-import { marketplaceCategoryMatches } from "@/lib/marketplaceTaxonomy";
+import {
+  canonicalMarketplaceCategory,
+  marketplaceCategoryMatches,
+} from "@/lib/marketplaceTaxonomy";
+import {
+  buildCatalogOpportunity,
+  type CatalogOpportunityCategoryCode,
+} from "@/lib/catalogOpportunity";
 import { supabase } from "@/lib/supabase";
 import { CURRENCY_OPTIONS, type SupportedCurrency } from "@/lib/localization";
 
@@ -125,6 +132,7 @@ export default function ProductUploadClient() {
 
   const requestedGameSlug = searchParams.get("game") || "";
   const requestedCategoryValue = searchParams.get("category") || "";
+  const requestedOfferTemplate = searchParams.get("offerTemplate") === "evo-gaming";
 
   const rawEditingId = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const editingId = rawEditingId ? Number(rawEditingId) : null;
@@ -150,6 +158,13 @@ export default function ProductUploadClient() {
   const [stock, setStock] = useState("1");
   const [deliveryEtaMinutes, setDeliveryEtaMinutes] = useState("60");
   const [description, setDescription] = useState("");
+  const [usesCatalogTemplate, setUsesCatalogTemplate] = useState(false);
+  const [catalogTemplateSource, setCatalogTemplateSource] = useState<{
+    gameId: number;
+    categoryCode: CatalogOpportunityCategoryCode;
+    description: string;
+    title: string | null;
+  } | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [offerRegion, setOfferRegion] = useState("Global");
   const [offerPlatform, setOfferPlatform] = useState("Any");
@@ -169,6 +184,9 @@ export default function ProductUploadClient() {
   );
 
   const selectedGame = games.find((game) => String(game.id) === selectedGameId);
+  const selectedOpportunityCode = canonicalMarketplaceCategory(
+    selectedCategory?.slug || selectedCategory?.name
+  );
 
   
 
@@ -182,10 +200,39 @@ export default function ProductUploadClient() {
   }, [selectedCategory?.name, selectedCategory?.slug]);
 
   useEffect(() => {
-    if (isGameCoinCategoryV2 && selectedGame?.name) {
+    if (!isEditMode && !usesCatalogTemplate && isGameCoinCategoryV2 && selectedGame?.name) {
       setTitle(`${selectedGame.name} Coins`);
     }
-  }, [isGameCoinCategoryV2, selectedGame?.name]);
+  }, [isEditMode, isGameCoinCategoryV2, selectedGame?.name, usesCatalogTemplate]);
+
+  useEffect(() => {
+    if (!catalogTemplateSource || !selectedGame || !selectedOpportunityCode) return;
+    if (
+      catalogTemplateSource.gameId === selectedGame.id &&
+      catalogTemplateSource.categoryCode === selectedOpportunityCode
+    ) return;
+
+    const next = buildCatalogOpportunity({
+      gameId: selectedGame.id,
+      gameName: selectedGame.name,
+      gameSlug: selectedGame.slug,
+      categoryCode: selectedOpportunityCode,
+    });
+    setDescription((current) =>
+      current === catalogTemplateSource.description ? next.description : current
+    );
+    if (catalogTemplateSource.title) {
+      setTitle((current) =>
+        current === catalogTemplateSource.title ? next.title : current
+      );
+    }
+    setCatalogTemplateSource({
+      gameId: selectedGame.id,
+      categoryCode: selectedOpportunityCode,
+      description: next.description,
+      title: catalogTemplateSource.title ? next.title : null,
+    });
+  }, [catalogTemplateSource, selectedGame, selectedOpportunityCode]);
 const productSlug = useMemo(() => {
     if (isEditMode && existingProduct?.slug) {
       return existingProduct.slug;
@@ -291,7 +338,8 @@ const productSlug = useMemo(() => {
         return;
       }
 
-      if (profileData.seller_status !== "approved") {
+      const isAdmin = String(profileData.role || "").trim().toLowerCase() === "admin";
+      if (!isAdmin && profileData.seller_status !== "approved") {
         alert("Seller approval is required to manage products.");
         window.location.href = "/seller/apply";
         return;
@@ -412,6 +460,7 @@ const productSlug = useMemo(() => {
         return;
       }
 
+      let nextCategory: Category | undefined;
       if (activeCategories.length > 0) {
         const normalizedRequest = requestedCategoryValue.toLowerCase();
         const requestedCategory = activeCategories.find((category) => {
@@ -422,17 +471,50 @@ const productSlug = useMemo(() => {
           );
         });
 
-        setSelectedCategoryId(String((requestedCategory || activeCategories[0]).id));
+        nextCategory = requestedCategory || activeCategories[0];
+        setSelectedCategoryId(String(nextCategory.id));
       }
 
+      let nextGame: GameMaster | undefined;
       if (activeGames.length > 0) {
         const requestedGame = activeGames.find(
           (game) => game.slug.toLowerCase() === requestedGameSlug.toLowerCase()
         );
 
-        const nextGame = requestedGame || activeGames[0];
+        nextGame = requestedGame || activeGames[0];
         setSelectedGameId(String(nextGame.id));
         setGameQuery(nextGame.name);
+      }
+
+      const adminEmail = String(profileData.email || currentUser.email || "")
+        .trim()
+        .toLowerCase();
+      const useEvoTemplate =
+        isAdmin && (adminEmail === "admin@comeplayers.com" || requestedOfferTemplate);
+      const opportunityCategory = canonicalMarketplaceCategory(
+        nextCategory?.slug || nextCategory?.name
+      );
+      if (useEvoTemplate && nextGame && opportunityCategory) {
+        const opportunity = buildCatalogOpportunity({
+          gameId: nextGame.id,
+          gameName: nextGame.name,
+          gameSlug: nextGame.slug,
+          categoryCode: opportunityCategory,
+        });
+        setUsesCatalogTemplate(true);
+        setDescription(opportunity.description);
+        if (requestedOfferTemplate) {
+          setTitle(opportunity.title);
+        }
+        setCatalogTemplateSource({
+          gameId: nextGame.id,
+          categoryCode: opportunityCategory,
+          description: opportunity.description,
+          title: requestedOfferTemplate ? opportunity.title : null,
+        });
+        setPriceCurrency("IDR");
+        setStock("0");
+        setDeliveryEtaMinutes("");
       }
 
       setLoading(false);
@@ -728,7 +810,7 @@ const productSlug = useMemo(() => {
 
           <div className="mt-4 grid gap-4 sm:gap-5 md:grid-cols-2">
             {/* GAME_COIN_TITLE_FIELD_PATCH_V2 */}
-            {!isGameCoinCategoryV2 ? (
+            {(!isGameCoinCategoryV2 || usesCatalogTemplate) ? (
               <div>
               <label className="mb-2 block text-sm font-bold text-gray-300">
                 Product Title
@@ -745,7 +827,7 @@ const productSlug = useMemo(() => {
 
             <div
               /* GAME_COIN_PRICE_WIDTH_PATCH_V2 */
-              className={isGameCoinCategoryV2 ? "md:col-span-2" : ""}
+              className={isGameCoinCategoryV2 && !usesCatalogTemplate ? "md:col-span-2" : ""}
             >
               <label className="mb-2 block text-sm font-bold text-gray-300">
                 Price
@@ -801,6 +883,11 @@ const productSlug = useMemo(() => {
                 onChange={(event) => setDeliveryEtaMinutes(event.target.value)}
                 className="w-full rounded-2xl border border-white/10 bg-black px-4 py-3.5 text-white sm:px-5 sm:py-4 text-white outline-none focus:border-[#ffc400] focus:shadow-[0_0_0_1px_rgba(255,196,0,0.28)]"
               >
+                {usesCatalogTemplate ? (
+                  <option value="" disabled>
+                    Pilih waktu pengerjaan yang benar
+                  </option>
+                ) : null}
                 {SELLER_SLA_OPTIONS.map((minutes) => (
                   <option key={minutes} value={minutes}>
                     {formatDeliveryEta(minutes)}
@@ -877,6 +964,11 @@ const productSlug = useMemo(() => {
               rows={8}
               className="w-full resize-none rounded-2xl border border-white/10 bg-black px-4 py-3.5 text-white sm:px-5 sm:py-4 text-white outline-none placeholder:text-gray-500 focus:border-[#ffc400] focus:shadow-[0_0_0_1px_rgba(255,196,0,0.28)]"
             />
+            {usesCatalogTemplate ? (
+              <p className="mt-2 text-sm text-amber-200">
+                Deskripsi EVO GAMING sudah diisi. Periksa layanan, harga, stok, dan waktu pengerjaan sebelum menerbitkan penawaran.
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-6 rounded-2xl border border-[#ffc400]/22 bg-[linear-gradient(180deg,rgba(255,196,0,0.11),rgba(255,196,0,0.05))] p-4 shadow-[0_18px_36px_rgba(255,196,0,0.05)] sm:p-5">

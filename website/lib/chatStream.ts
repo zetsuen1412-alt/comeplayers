@@ -88,7 +88,7 @@ export function createPublicChatStreamState(
 ): PublicChatStreamState {
   const roomId = String(room.id || "");
   const isLive = String(room.stream_status || "").toLowerCase() === "live";
-  const path = `/messages?room=${encodeURIComponent(roomId)}&live=1`;
+  const path = `/cpcommunity?room=${encodeURIComponent(roomId)}&live=1`;
   const base = origin.replace(/\/$/, "");
   const url = base ? `${base}${path}` : path;
 

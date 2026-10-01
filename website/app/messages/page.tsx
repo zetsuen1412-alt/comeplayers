@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import MessagesLoadingOperatorV15 from "@/components/messages/MessagesLoadingOperatorV15";
 import SecureIncomingCallAlert from "@/components/messages/SecureIncomingCallAlert";
 
 
@@ -76,8 +75,10 @@ import {
   FaShoppingCart,
 } from "react-icons/fa";
 import AuthModal from "@/components/auth/AuthModal";
-import { useCurrency } from "@/components/CurrencyProvider";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { sortInboxRooms } from "@/lib/chatInboxPresentation";
+import { isTransactionChatRoom } from "@/lib/chatRoomScope";
+import { DEFAULT_COMMUNITY_GROUP_ICON } from "@/lib/communityAvatar";
 import FriendsWorkspace from "@/components/messages/ContactsWorkspace";
 import ChatMessagesLoginGate from "@/components/messages/ChatMessagesLoginGate";
 import ArcadeWindow, {
@@ -88,6 +89,7 @@ import CommunityChannelSidebar, {
   type CommunityChannel,
   type CommunityBundle,
 } from "@/components/messages/CommunityChannelSidebar";
+import CommunityGroupRail from "@/components/messages/CommunityGroupRail";
 import CommunityVoicePanel, {
   type CommunityVoiceCommand,
   type CommunityVoiceDockState,
@@ -262,6 +264,8 @@ type Room = {
   last_message?: string | null;
   last_message_at?: string | null;
   last_message_sender_id?: string | null;
+  activity_kind?: string | null;
+  activity_preview?: string | null;
   stream_status?: string | null;
   stream_host_id?: string | null;
   stream_title?: string | null;
@@ -334,6 +338,7 @@ type Message = {
   sender?: Profile | null;
   reply_to?: ReplyPreview | null;
   reactions?: ReactionSummary[];
+  optimistic?: boolean;
 };
 
 type ConversationResponse = {
@@ -407,7 +412,7 @@ type SignalPayload = {
   candidate?: RTCIceCandidateInit;
 };
 
-type RoomBucket = "all" | "live" | "group" | "trade" | "direct";
+type RoomBucket = "all" | "group" | "direct";
 
 const STREAM_ICE_SERVERS = createStreamIceServers({
   stunUrls: process.env.NEXT_PUBLIC_WEBRTC_STUN_URLS,
@@ -416,7 +421,16 @@ const STREAM_ICE_SERVERS = createStreamIceServers({
   turnCredential: process.env.NEXT_PUBLIC_WEBRTC_TURN_CREDENTIAL,
 });
 
-const REACTION_EMOJIS = ["ðŸ‘", "â¤ï¸", "ðŸ˜‚", "ðŸ”¥", "ðŸŽ®", "âœ…"] as const;
+// Temporarily focus communities on chat, voice, and events. Keep existing
+// groups and invitations intact so discovery can be restored independently.
+const SQUAD_DISCOVERY_ENABLED = false;
+// Community broadcasts are retired; realtime chat and LiveKit calls remain.
+const COMMUNITY_BROADCASTS_ENABLED = false;
+const COMMUNITY_PANEL_TABS: RightPanelTab[] = SQUAD_DISCOVERY_ENABLED
+  ? ["members", "squad", "events"]
+  : ["members", "events"];
+
+const REACTION_EMOJIS = ["👍", "❤️", "😂", "🔥", "🎮", "✅"] as const;
 
 const CLEAN_REACTION_EMOJIS = [
   "\u{1F44D}",
@@ -560,17 +574,23 @@ function ServerAvatar({
   name: string;
   className?: string;
 }) {
-  const safeIcon = safeServerIconUrl(iconUrl);
-  const style: CSSProperties | undefined = safeIcon
-    ? { backgroundImage: `url("${safeIcon.replace(/"/g, "%22")}")` }
-    : undefined;
+  const [failedCustomUrl, setFailedCustomUrl] = useState<string | null>(null);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
+  const customUrl = safeServerIconUrl(iconUrl);
+  const showCustomImage = Boolean(customUrl && customUrl !== failedCustomUrl);
+  const imageUrl = showCustomImage ? customUrl : DEFAULT_COMMUNITY_GROUP_ICON;
   return (
     <span
-      className={`flex shrink-0 items-center justify-center bg-[#10273a] bg-cover bg-center font-black text-cyan-200 ${className}`}
-      style={style}
+      className={`flex shrink-0 items-center justify-center overflow-hidden bg-[#10273a] font-black text-cyan-200 ${className}`}
       aria-label={`${name} server icon`}
     >
-      {safeIcon ? null : name.slice(0, 1).toUpperCase() || <FaServer />}
+      {fallbackFailed && !showCustomImage ? <FaServer aria-hidden="true" /> : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" onError={() => {
+          if (showCustomImage) setFailedCustomUrl(customUrl);
+          else setFallbackFailed(true);
+        }} />
+      )}
     </span>
   );
 }
@@ -682,26 +702,22 @@ function canAssignGroupLeaders(role?: string | null, profile?: Profile | null) {
   );
 }
 
-function isLiveRoom(room?: Room | null) {
-  return String(room?.stream_status || "").toLowerCase() === "live";
-}
-
 function isTradeRoom(room?: Room | null) {
-  return Boolean(
-    room?.product_id || room?.order_id || room?.product || room?.order,
-  );
+  return isTransactionChatRoom(room);
 }
 
 function bucketMatches(room: Room, bucket: RoomBucket) {
-  if (bucket === "live") return isLiveRoom(room);
   if (bucket === "group") return isGroupRoom(room);
-  if (bucket === "trade") return isTradeRoom(room);
   if (bucket === "direct") return !isGroupRoom(room) && !isTradeRoom(room);
   return true;
 }
 
 function isImageAttachment(attachment?: Attachment | null) {
   return String(attachment?.mime_type || "").startsWith("image/");
+}
+
+function isVideoAttachment(attachment?: Attachment | null) {
+  return String(attachment?.mime_type || "").startsWith("video/");
 }
 
 function isGenericAttachmentMessage(message?: string | null) {
@@ -716,11 +732,14 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const automaticRetry = useRef(0);
+  const previewElement = useRef<HTMLElement | null>(null);
   const isImage = isImageAttachment(attachment);
+  const isVideo = isVideoAttachment(attachment);
 
   async function reveal(silent = false) {
     setLoading(true);
-    if (!silent) setError("");
+    if (!silent) { setError(""); automaticRetry.current = 0; }
     try {
       const data = await authenticatedFetchJson<{ url: string }>(
         `/api/messages/attachments/${attachment.id}`,
@@ -738,17 +757,30 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
   }
 
   useEffect(() => {
-    if (!isImage) return;
+    if (!isImage && !isVideo) return;
+    automaticRetry.current = 0;
     setUrl("");
     setError("");
-    void reveal(true);
+    const element = previewElement.current;
+    if (!element || typeof IntersectionObserver === "undefined") {
+      void reveal(true);
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      void reveal(true);
+    }, { rootMargin: "400px" });
+    observer.observe(element);
+    return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attachment.id, isImage]);
+  }, [attachment.id, isImage, isVideo]);
 
   if (isImage) {
     if (url) {
       return (
         <a
+          ref={(node) => { previewElement.current = node; }}
           href={url}
           target="_blank"
           rel="noreferrer"
@@ -761,7 +793,8 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
             className="max-h-[430px] max-w-full rounded-2xl border border-white/10 object-contain shadow-2xl shadow-black/30"
             onError={() => {
               setUrl("");
-              void reveal(true);
+              if (automaticRetry.current++ === 0) void reveal(true);
+              else setError("Image preview is unavailable.");
             }}
           />
         </a>
@@ -769,7 +802,7 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
     }
 
     return (
-      <div className="inline-flex min-h-36 min-w-64 max-w-full items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-gray-400">
+      <div ref={(node) => { previewElement.current = node; }} className="inline-flex min-h-36 min-w-64 max-w-full items-center justify-center rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-gray-400">
         {loading ? "Loading image..." : "Image preview is unavailable."}
         {error ? (
           <button
@@ -779,6 +812,37 @@ function AttachmentViewer({ attachment }: { attachment: Attachment }) {
             Retry
           </button>
         ) : null}
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div ref={(node) => { previewElement.current = node; }} className="max-w-[min(100%,680px)] overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+        {url ? (
+          <video
+            key={url}
+            controls
+            playsInline
+            preload="metadata"
+            className="max-h-[430px] w-full bg-black object-contain"
+            aria-label={`Putar video ${attachment.file_name}`}
+            onError={() => setError("Video tidak bisa diputar di browser ini. Coba buka video atau muat ulang tautannya.")}
+          >
+            <source src={url} type={attachment.mime_type} />
+            Browser Anda tidak mendukung pemutaran video ini.
+          </video>
+        ) : (
+          <div role="status" className="flex min-h-40 min-w-64 items-center justify-center px-5 py-4 text-sm text-gray-300">
+            {loading ? "Menyiapkan video…" : "Video belum bisa diputar."}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs text-gray-300">
+          <span className="min-w-0 truncate">{attachment.file_name}</span>
+          {url ? <a href={url} target="_blank" rel="noreferrer" className="font-bold text-cyan-300">Buka video</a> : null}
+          {error ? <button type="button" onClick={() => void reveal()} className="font-bold text-cyan-300">Muat ulang</button> : null}
+        </div>
+        {error ? <p role="alert" className="px-3 pb-2 text-xs text-amber-200">{error}</p> : null}
       </div>
     );
   }
@@ -1624,7 +1688,7 @@ function GroupLiveStreamPanel({
           disabled={busy || (!hosting && !hostIsMe && !watching)}
           className="sr-only"
         >
-          Stop Live
+          Akhiri siaran
         </button>
         <button
           type="button"
@@ -1633,7 +1697,7 @@ function GroupLiveStreamPanel({
           disabled={busy || !streamReady || !live || hosting || hostIsMe}
           className="sr-only"
         >
-          Watch Live
+          Tonton siaran
         </button>
 
         {stageVisible ? (
@@ -1767,7 +1831,7 @@ function GroupLiveStreamPanel({
               disabled={busy}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-red-400/35 bg-red-500/15 text-sm font-black text-red-100 transition hover:bg-red-500 hover:text-white disabled:opacity-50"
             >
-              <FaStop /> Stop Live
+              <FaStop /> Akhiri siaran
             </button>
           ) : live ? (
             watching ? (
@@ -1806,7 +1870,7 @@ function GroupLiveStreamPanel({
                 }`}
                 title="Watch live. Right-click or Ctrl-click to open in a new tab."
               >
-                <FaVideo /> Watch Live
+                <FaVideo /> Tonton siaran
               </a>
             )
           ) : (
@@ -1817,7 +1881,7 @@ function GroupLiveStreamPanel({
               disabled={busy || !streamReady}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/15 text-sm font-black text-cyan-100 shadow-[0_0_26px_rgba(6,182,212,0.22)] transition hover:bg-cyan-400 hover:text-black disabled:opacity-50"
             >
-              <FaDesktop /> {busy ? "Starting..." : "Go Live"}
+              <FaDesktop /> {busy ? "Starting..." : "Mulai siaran"}
             </button>
           )}
         </div>
@@ -1981,7 +2045,7 @@ function GroupLiveStreamPanel({
                 disabled={busy || !streamReady}
                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-cyan-400 px-4 text-sm font-black text-black hover:bg-cyan-300 disabled:opacity-50"
               >
-                <FaDesktop /> {busy ? "Starting..." : "Go Live"}
+                <FaDesktop /> {busy ? "Starting..." : "Mulai siaran"}
               </button>
             )}
           </div>
@@ -2058,7 +2122,6 @@ function GroupLiveStreamPanel({
 
 export default function MessagesPage() {
   const router = useRouter();
-  const { formatPrice } = useCurrency();
   const [userId, setUserId] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -2072,6 +2135,7 @@ export default function MessagesPage() {
   const [conversation, setConversation] = useState<ConversationResponse | null>(
     null,
   );
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   const [search, setSearch] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
   const [roomBucket, setRoomBucket] = useState<RoomBucket>("all");
@@ -2082,9 +2146,6 @@ export default function MessagesPage() {
     Record<string, { name: string; at: number }>
   >({});
   const [loading, setLoading] = useState(true);
-  const [loaderDataReady, setLoaderDataReady] = useState(false);
-  const [loaderCanExit, setLoaderCanExit] = useState(false);
-  const loaderStartedAtRef = useRef(Date.now());
   const [viewerMode, setViewerMode] = useState<"guest" | "authenticated">(
     "guest",
   );
@@ -2092,6 +2153,7 @@ export default function MessagesPage() {
   const [guestServerPreview, setGuestServerPreview] =
     useState<GuestServerPreview | null>(null);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [conversationLoadError, setConversationLoadError] = useState("");
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -2112,7 +2174,8 @@ export default function MessagesPage() {
   >([]);
   const [matchmakingLoading, setMatchmakingLoading] = useState(false);
   const [matchmakingBusy, setMatchmakingBusy] = useState("");
-  const [createAsParty, setCreateAsParty] = useState(false);
+  const [createAsPartyRequested, setCreateAsParty] = useState(false);
+  const createAsParty = SQUAD_DISCOVERY_ENABLED && createAsPartyRequested;
   const [partyGame, setPartyGame] = useState("");
   const [partyMode, setPartyMode] = useState("Ranked");
   const [partyRank, setPartyRank] = useState("");
@@ -2128,9 +2191,12 @@ export default function MessagesPage() {
   const [invitationBusy, setInvitationBusy] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPinnedPanel, setShowPinnedPanel] = useState(false);
-  const [showMemberPanel, setShowMemberPanel] = useState(true);
-  const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>("members");
-  const [serverViewMode, setServerViewMode] = useState<ServerViewMode>("home");
+  const [showMemberPanel, setShowMemberPanel] = useState(false);
+  const [requestedRightPanelTab, setRightPanelTab] = useState<RightPanelTab>("members");
+  const rightPanelTab = !SQUAD_DISCOVERY_ENABLED && requestedRightPanelTab === "squad"
+    ? "members"
+    : requestedRightPanelTab;
+  const [serverViewMode, setServerViewMode] = useState<ServerViewMode>("chat");
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showInviteComposer, setShowInviteComposer] = useState(false);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<
@@ -2142,6 +2208,11 @@ export default function MessagesPage() {
   const [arcadeWindowKey, setArcadeWindowKey] = useState(0);
   const [showFriendsMenu, setShowFriendsMenu] = useState(false);
   const [showPrivateMessages, setShowPrivateMessages] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("inbox") === "1") {
+      setShowPrivateMessages(true);
+    }
+  }, []);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
@@ -2541,13 +2612,11 @@ export default function MessagesPage() {
       (sum, room) => sum + Number(room.unread_count || 0),
       0,
     );
-    const live = rooms.filter(isLiveRoom).length;
     const groups = rooms.filter(isGroupRoom).length;
-    const trades = rooms.filter(isTradeRoom).length;
     const direct = rooms.filter(
       (room) => !isGroupRoom(room) && !isTradeRoom(room),
     ).length;
-    return { unread, live, groups, trades, direct };
+    return { unread, groups, direct };
   }, [rooms]);
 
   const roomBuckets = useMemo(
@@ -2559,22 +2628,10 @@ export default function MessagesPage() {
         count: rooms.length,
       },
       {
-        id: "live" as const,
-        label: "Live",
-        icon: <FaBroadcastTower />,
-        count: roomStats.live,
-      },
-      {
         id: "group" as const,
         label: "Servers",
         icon: <FaUsers />,
         count: roomStats.groups,
-      },
-      {
-        id: "trade" as const,
-        label: "Trade",
-        icon: <FaShieldAlt />,
-        count: roomStats.trades,
       },
       {
         id: "direct" as const,
@@ -2587,8 +2644,6 @@ export default function MessagesPage() {
       rooms.length,
       roomStats.direct,
       roomStats.groups,
-      roomStats.live,
-      roomStats.trades,
     ],
   );
 
@@ -2601,12 +2656,25 @@ export default function MessagesPage() {
         roomTitle(room),
         displayName(room.other),
         room.last_message || "",
+        room.activity_preview || "",
         room.product?.title || "",
         room.order?.product_title || "",
         String(room.order_id || ""),
       ].some((value) => value.toLowerCase().includes(query));
     });
   }, [rooms, roomBucket, search]);
+
+  const renderedMessages = useMemo(() => {
+    const confirmed = conversation?.room.id === selectedRoomId &&
+      (!selectedChannelId || conversation.channel?.id === selectedChannelId)
+      ? conversation.messages
+      : [];
+    const pending = optimisticMessages.filter((message) =>
+      message.room_id === selectedRoomId &&
+      (!selectedChannelId || message.channel_id === selectedChannelId),
+    );
+    return [...confirmed, ...pending];
+  }, [conversation, optimisticMessages, selectedRoomId, selectedChannelId]);
 
   const filteredCandidates = useMemo(() => {
     const query = groupDescription.startsWith("@")
@@ -2618,16 +2686,17 @@ export default function MessagesPage() {
     );
   }, [candidateUsers, groupDescription]);
 
-  async function loadRooms(preferredRoomId?: string) {
+  async function loadRooms(preferredRoomId?: string, selectRoom = true) {
     const data = await authenticatedFetchJson<{ rooms: Room[] }>(
-      "/api/messages/rooms?limit=60",
+      "/api/messages/rooms?scope=social&limit=60",
     );
-    roomsRef.current = data.rooms || [];
-    setRooms(data.rooms || []);
+    const socialRooms = sortInboxRooms((data.rooms || []).filter((room) => !isTradeRoom(room)));
+    roomsRef.current = socialRooms;
+    setRooms(socialRooms);
     const nextId =
-      preferredRoomId || selectedRoomId || data.rooms?.[0]?.id || "";
-    if (nextId) setSelectedRoomId(nextId);
-    return data.rooms || [];
+      preferredRoomId || selectedRoomId || socialRooms[0]?.id || "";
+    if (nextId && selectRoom) setSelectedRoomId(nextId);
+    return socialRooms;
   }
 
   function openRoom(room: Room) {
@@ -2635,9 +2704,36 @@ export default function MessagesPage() {
       router.push(`/chat?room=${encodeURIComponent(room.id)}`);
       return;
     }
+    if (isGroupRoom(room)) {
+      selectServer(room.id);
+      return;
+    }
     setCommunityChannelSelection(null);
     setSelectedRoomId(room.id);
     setMobileInboxOpen(false);
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", `/cpcommunity?room=${encodeURIComponent(room.id)}`);
+    }
+  }
+
+  async function openPrivateRoomById(roomId: string) {
+    try {
+      let room = roomsRef.current.find((item) => item.id === roomId) || null;
+      if (!room) {
+        const detail = await authenticatedFetchJson<ConversationResponse>(
+          `/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`,
+        );
+        room = detail.room;
+        if (room && !isTradeRoom(room)) {
+          roomsRef.current = [room, ...roomsRef.current];
+          setRooms(roomsRef.current);
+        }
+      }
+      if (!room) throw new Error("Percakapan tidak ditemukan.");
+      openRoom(room);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Percakapan belum bisa dibuka.");
+    }
   }
 
   async function loadConversation(
@@ -2648,6 +2744,8 @@ export default function MessagesPage() {
       : "",
   ) {
     if (!roomId) return;
+    // Background updates must not replace a pending load and swallow its retry state.
+    if (silent && conversationRequestRef.current && !conversationRequestRef.current.signal.aborted) return;
     conversationRequestRef.current?.abort();
     const controller = new AbortController();
     conversationRequestRef.current = controller;
@@ -2655,9 +2753,15 @@ export default function MessagesPage() {
     if (knownRoom && !isGroupRoom(knownRoom)) {
       setConversation({ room: knownRoom, messages: [] });
       setLoadingMessages(false);
+      conversationRequestRef.current = null;
       return;
     }
-    if (!silent) setLoadingMessages(true);
+    if (!silent) {
+      setLoadingMessages(true);
+      setConversationLoadError("");
+      setError("");
+    }
+    let conversationReady = false;
     try {
       const channelQuery = channelId
         ? `&channel=${encodeURIComponent(channelId)}`
@@ -2668,6 +2772,10 @@ export default function MessagesPage() {
       );
       if (controller.signal.aborted) return;
       setConversation(data);
+      conversationReady = true;
+      setConversationLoadError("");
+      // The conversation is ready; marking it read must not keep messages hidden.
+      setLoadingMessages(false);
       await authenticatedFetchJson(`/api/messages/rooms/${roomId}/read`, {
         method: "POST",
         body: JSON.stringify({
@@ -2686,7 +2794,8 @@ export default function MessagesPage() {
       if (controller.signal.aborted) return;
       const status = (loadError as { status?: number })?.status;
       if (status === 401 || status === 403 || status === 404) setConversation(null);
-      if (!silent) {
+      if (!silent && !conversationReady) {
+        setConversationLoadError("Pesan belum dapat dimuat. Periksa koneksi lalu coba lagi.");
         setError(
           loadError instanceof Error
             ? loadError.message
@@ -2695,6 +2804,7 @@ export default function MessagesPage() {
       }
     } finally {
       if (!controller.signal.aborted) setLoadingMessages(false);
+      if (conversationRequestRef.current === controller) conversationRequestRef.current = null;
     }
   }
 
@@ -2804,6 +2914,7 @@ export default function MessagesPage() {
   }
 
   async function loadMatchmaking(silent = false) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!silent) setMatchmakingLoading(true);
     try {
       const data = await authenticatedFetchJson<{
@@ -2885,6 +2996,7 @@ export default function MessagesPage() {
   }
 
   async function autoInviteRandomPlayers(count: number) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!selectedRoomId) return;
     setMatchmakingBusy(`auto:${selectedRoomId}`);
     setError("");
@@ -2921,6 +3033,7 @@ export default function MessagesPage() {
   }
 
   async function joinParty(party: MatchmakingParty) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!party.id) return;
     if (party.joined) {
       setSelectedRoomId(party.id);
@@ -2990,6 +3103,7 @@ export default function MessagesPage() {
   }
 
   async function togglePartyDiscovery(open: boolean) {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     if (!selectedRoomId || !selectedRoom?.party_game) return;
     setMatchmakingBusy(`toggle:${selectedRoomId}`);
     setError("");
@@ -3068,6 +3182,7 @@ export default function MessagesPage() {
   }
 
   async function createGroup() {
+    const publishParty = SQUAD_DISCOVERY_ENABLED && createAsParty;
     setCreatingGroup(true);
     setError("");
     setNotice("");
@@ -3081,13 +3196,13 @@ export default function MessagesPage() {
           title: groupTitle,
           description: groupDescription.startsWith("@") ? "" : groupDescription,
           memberIds: selectedMemberIds,
-          openParty: createAsParty,
-          game: createAsParty ? partyGame : undefined,
-          mode: createAsParty ? partyMode : undefined,
-          rank: createAsParty ? partyRank : undefined,
-          platform: createAsParty ? partyPlatform : undefined,
-          region: createAsParty ? partyRegion : undefined,
-          partySize: createAsParty ? partySize : undefined,
+          openParty: publishParty,
+          game: publishParty ? partyGame : undefined,
+          mode: publishParty ? partyMode : undefined,
+          rank: publishParty ? partyRank : undefined,
+          platform: publishParty ? partyPlatform : undefined,
+          region: publishParty ? partyRegion : undefined,
+          partySize: publishParty ? partySize : undefined,
         }),
       });
       const roomId = String(data.room?.id || "");
@@ -3097,8 +3212,8 @@ export default function MessagesPage() {
       setShowCreateGroup(false);
       setNotice(
         data.invitationCount
-          ? `${createAsParty ? "Party" : "Server"} created. ${data.invitationCount} player invitation${data.invitationCount === 1 ? "" : "s"} waiting for acceptance.`
-          : createAsParty
+          ? `${publishParty ? "Party" : "Server"} created. ${data.invitationCount} player invitation${data.invitationCount === 1 ? "" : "s"} waiting for acceptance.`
+          : publishParty
             ? "Party published to Squad Finder."
             : "Server created.",
       );
@@ -3250,7 +3365,7 @@ export default function MessagesPage() {
         // request now has its own timeout.
         setLoading(false);
 
-        const { data: profileData } = await withMessagesTimeout(
+        void withMessagesTimeout(
           supabase
             .from("profiles")
             .select(
@@ -3260,9 +3375,12 @@ export default function MessagesPage() {
             .maybeSingle(),
           MESSAGES_AUTH_BOOT_TIMEOUT_MS,
           "Profile loading took too long.",
-        );
-        if (!active) return;
-        setProfile((profileData || null) as Profile | null);
+        ).then(({ data: profileData }) => {
+          if (active) setProfile((profileData || null) as Profile | null);
+        }).catch(() => {
+          // Profile details are supplemental; slow profile storage must not
+          // prevent the room list and conversation from opening.
+        });
 
         const incomingParams = new URLSearchParams(window.location.search);
         const incomingProductId = Number(incomingParams.get("product") || 0);
@@ -3290,10 +3408,23 @@ export default function MessagesPage() {
         deepLinkChannelIdRef.current = routeChannelId;
 
         const queryRoomId = await createRoomFromQuery();
-        const roomList = await loadRooms(queryRoomId);
-        const queryRoom = queryRoomId
+        let roomList = await loadRooms(queryRoomId, false);
+        let queryRoom = queryRoomId
           ? roomList.find((room) => room.id === queryRoomId) || null
           : null;
+        if (queryRoomId && !queryRoom) {
+          // A direct link may point to a marketplace room or to an older
+          // social conversation outside the first inbox page.
+          const detail = await authenticatedFetchJson<ConversationResponse>(
+            `/api/messages/rooms/${encodeURIComponent(queryRoomId)}?limit=1`,
+          ).catch(() => null);
+          queryRoom = detail?.room || null;
+          if (queryRoom && !isTradeRoom(queryRoom)) {
+            roomList = [queryRoom, ...roomList];
+            roomsRef.current = roomList;
+            setRooms(roomList);
+          }
+        }
         if (queryRoom && isTradeRoom(queryRoom)) {
           router.replace(`/chat?room=${encodeURIComponent(queryRoom.id)}`);
           return;
@@ -3304,7 +3435,7 @@ export default function MessagesPage() {
             )
           : null;
         const initialRoomId =
-          queryRoomId ||
+          queryRoom?.id ||
           deepLinkedRoom?.id ||
           roomList.find((room) => isGroupRoom(room))?.id ||
           roomList[0]?.id ||
@@ -3313,12 +3444,9 @@ export default function MessagesPage() {
           "(max-width: 1023px)",
         ).matches;
         const hasExplicitConversationTarget = Boolean(
-          queryRoomId || deepLinkedRoom || routeChannelId,
+          queryRoom || deepLinkedRoom || routeChannelId,
         );
-        if (
-          initialRoomId &&
-          (!compactMessagesLayout || hasExplicitConversationTarget)
-        ) {
+        if (initialRoomId) {
           const initialRoom =
             roomList.find((room) => room.id === initialRoomId) || null;
           if (initialRoom && isTradeRoom(initialRoom)) {
@@ -3331,14 +3459,11 @@ export default function MessagesPage() {
             }
             return;
           }
-          setServerViewMode(
-            initialRoom && isGroupRoom(initialRoom) && !routeChannelId
-              ? "home"
-              : "chat",
-          );
+          setServerViewMode("chat");
           setSelectedRoomId(initialRoomId);
-          setMobileInboxOpen(false);
-          await loadConversation(initialRoomId);
+          setMobileInboxOpen(compactMessagesLayout && !hasExplicitConversationTarget);
+          // The selected-room effect loads this once. Calling it here too
+          // aborted the first request and made the chat appear to load twice.
         } else if (compactMessagesLayout) {
           setSelectedRoomId("");
           setConversation(null);
@@ -3386,7 +3511,7 @@ export default function MessagesPage() {
   }, [profile?.id]);
 
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!SQUAD_DISCOVERY_ENABLED || !profile?.id) return;
     void loadMatchmaking();
     const timer = window.setInterval(() => void loadMatchmaking(true), 30000);
     return () => window.clearInterval(timer);
@@ -3426,7 +3551,9 @@ export default function MessagesPage() {
       if (refreshing || document.visibilityState !== "visible" || !navigator.onLine) return;
       refreshing = true;
       try {
-        await loadRooms(selectedRoomId);
+        // A background refresh updates the inbox but must never choose a
+        // conversation after the user has opened the room list or server home.
+        await loadRooms(undefined, false);
         if (active && selectedRoomId) {
           const channelId =
             communityChannelSelection?.roomId === selectedRoomId
@@ -3445,6 +3572,22 @@ export default function MessagesPage() {
   }, [userId, selectedRoomId, communityChannelSelection?.channel.id]);
 
   useEffect(() => {
+    if (!userId) return;
+    const queue = createRefreshQueue(
+      async () => { await loadRooms(undefined, false); },
+      () => document.visibilityState === "visible" && navigator.onLine,
+      150,
+    );
+    const channel = supabase.channel(`messages-inbox:${userId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `buyer_id=eq.${userId}` }, () => queue.request())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_rooms", filter: `seller_id=eq.${userId}` }, () => queue.request())
+      .subscribe();
+    return () => { queue.dispose(); void supabase.removeChannel(channel); };
+    // Inbox events refresh only room order; they never change selectedRoomId.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  useEffect(() => {
     if (!selectedRoomId || !userId) return;
     const selected = roomsRef.current.find((room) => room.id === selectedRoomId) || null;
     if (selected && !isGroupRoom(selected)) {
@@ -3457,8 +3600,11 @@ export default function MessagesPage() {
         ? communityChannelSelection.channel.id
         : "";
     const queue = createRefreshQueue(async () => {
-      await Promise.all([loadConversation(selectedRoomId, true, activeChannelId), loadRooms(selectedRoomId)]);
-    }, () => document.visibilityState === "visible" && navigator.onLine);
+      // Keep the invalidation queued while a room switch or foreground load
+      // is in flight; otherwise the newly arrived message can be missed.
+      if (conversationRequestRef.current && !conversationRequestRef.current.signal.aborted) return false;
+      await Promise.all([loadConversation(selectedRoomId, true, activeChannelId), loadRooms(undefined, false)]);
+    }, () => document.visibilityState === "visible" && navigator.onLine, 120);
     const refresh = () => queue.request();
     window.addEventListener("online", refresh);
     document.addEventListener("visibilitychange", refresh);
@@ -3507,6 +3653,10 @@ export default function MessagesPage() {
           }
           return next;
         });
+      })
+      .on("broadcast", { event: "message" }, (event) => {
+        const payload = event.payload as { roomId?: string; channelId?: string };
+        if (payload.roomId === selectedRoomId && String(payload.channelId || "") === activeChannelId) refresh();
       })
       .subscribe((status) => { if (status === "SUBSCRIBED") refresh(); });
     typingChannelRef.current = channel;
@@ -3625,6 +3775,7 @@ export default function MessagesPage() {
   }
 
   async function openCommunityOverlay(view: Exclude<CommunityOverlay, null>) {
+    if (view === "discover" && !SQUAD_DISCOVERY_ENABLED) return;
     setCommunityOverlay(view);
     setShowPlayMenu(false);
     setShowCreateMenu(false);
@@ -3666,15 +3817,35 @@ export default function MessagesPage() {
   }
 
   function selectServer(roomId: string) {
+    const compact = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+    if (roomId === selectedRoomId) {
+      if (compact) setMobileInboxOpen(true);
+      return;
+    }
+    conversationRequestRef.current?.abort();
+    conversationRequestRef.current = null;
     setSelectedServerBundle(null);
     setCommunityChannelSelection(null);
-    setServerViewMode("home");
+    setConversation(null);
+    setServerViewMode("chat");
     setSelectedRoomId(roomId);
-    setMobileInboxOpen(false);
+    setMobileInboxOpen(compact);
     setShowCommunityMenu(false);
     setCommunityOverlay(null);
     setShowSquadFinder(false);
+    setShowMoreMenu(false);
+    setShowPinnedPanel(false);
+    setShowMemberPanel(false);
+    setShowVoicePanel(false);
+    setSearch("");
+    setDraft("");
+    setReplyingTo(null);
+    setEditingMessage(null);
+    deepLinkServerIdRef.current = "";
     deepLinkChannelIdRef.current = "";
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", `/cpcommunity?room=${encodeURIComponent(roomId)}`);
+    }
   }
 
   function openMobileInbox() {
@@ -3936,6 +4107,7 @@ export default function MessagesPage() {
   }
 
   function openSquadCreator() {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     setCreateAsParty(true);
     setShowCreateGroup(false);
     setShowSquadFinder(true);
@@ -3945,6 +4117,7 @@ export default function MessagesPage() {
   }
 
   function openCommandSquadFinder() {
+    if (!SQUAD_DISCOVERY_ENABLED) return;
     setServerViewMode("chat");
     setRightPanelTab("squad");
     setShowMemberPanel(true);
@@ -3999,16 +4172,16 @@ export default function MessagesPage() {
       liveAction.click();
       return;
     }
-    setNotice("The Server Live panel is not ready yet. Wait a moment and try again.");
+    setNotice("Siaran sedang disiapkan. Tunggu sebentar lalu coba lagi.");
   }
 
   function openLiveLobbyPicker() {
     if (!selectedIsGroup || !selectedRoomId) {
-      setError("Choose a server before starting a live session.");
+      setError("Pilih komunitas sebelum memulai siaran.");
       return;
     }
     if (!serverVoiceChannels.length) {
-      setError("This server does not have a Voice Lobby yet.");
+      setError("Komunitas ini belum memiliki ruang suara.");
       return;
     }
 
@@ -4046,6 +4219,7 @@ export default function MessagesPage() {
   }
 
   function handleDockLiveAction() {
+    if (!COMMUNITY_BROADCASTS_ENABLED) return;
     const streamIsLive =
       String(selectedRoom?.stream_status || "").toLowerCase() === "live";
     if (streamIsLive) {
@@ -4071,7 +4245,7 @@ export default function MessagesPage() {
       if (attempts >= maxAttempts) {
         setAutoStartLiveAfterLobbyPick(false);
         setNotice(
-          "Voice Lobby is selected. Press Go Live again if the stream has not started.",
+          "Voice Lobby is selected. Press Mulai siaran again if the stream has not started.",
         );
         return;
       }
@@ -4081,7 +4255,7 @@ export default function MessagesPage() {
   }
 
   useEffect(() => {
-    if (!autoStartLiveAfterLobbyPick || !selectedIsGroup || !selectedChannelIsVoice)
+    if (!COMMUNITY_BROADCASTS_ENABLED || !autoStartLiveAfterLobbyPick || !selectedIsGroup || !selectedChannelIsVoice)
       return;
     beginAutoStartLiveFlow();
   }, [
@@ -4149,42 +4323,87 @@ export default function MessagesPage() {
     }
   }
 
-  async function sendMessage(attachmentId?: number) {
-    if (channelComposerDisabled) return;
-    if (!selectedRoomId || (!draft.trim() && !attachmentId)) return;
+  async function sendMessage(attachment?: Attachment) {
+    if (channelComposerDisabled || sending) return;
+    if (!selectedRoomId || (!draft.trim() && !attachment)) return;
+    const roomId = selectedRoomId;
+    const channelId = selectedChannelId;
+    const messageText = draft.trim();
+    const reply = replyingTo;
+    const messageChannel = typingChannelRef.current;
+    const pendingMessage: Message | null = editingMessage ? null : {
+      id: `pending:${crypto.randomUUID()}`,
+      room_id: roomId,
+      channel_id: channelId || null,
+      sender_id: userId,
+      receiver_id: userId,
+      message: messageText || "Attachment",
+      message_type: attachment ? "attachment" : "text",
+      attachment_id: attachment?.id || null,
+      attachment: attachment || null,
+      sender: profile,
+      reply_to: reply ? { id: reply.id, sender_id: reply.sender_id, message: reply.message, sender: reply.sender } : null,
+      created_at: new Date().toISOString(),
+      optimistic: true,
+    };
     setSending(true);
     setError("");
     setNotice("");
+    if (pendingMessage) {
+      setOptimisticMessages((current) => [...current, pendingMessage]);
+      setDraft((current) => current.trim() === messageText ? "" : current);
+    }
     try {
       if (editingMessage) {
         await authenticatedFetchJson(
-          `/api/messages/rooms/${selectedRoomId}/messages/${editingMessage.id}`,
-          { method: "PATCH", body: JSON.stringify({ message: draft.trim() }) },
+          `/api/messages/rooms/${roomId}/messages/${editingMessage.id}`,
+          { method: "PATCH", body: JSON.stringify({ message: messageText }) },
         );
         setNotice("Message edited.");
       } else {
-        await authenticatedFetchJson(
-          `/api/messages/rooms/${selectedRoomId}/messages`,
+        const delivered = await authenticatedFetchJson<{ message: Message }>(
+          `/api/messages/rooms/${roomId}/messages`,
           {
             method: "POST",
             body: JSON.stringify({
-              message: draft.trim(),
-              attachmentId,
-              replyToId: replyingTo?.id || undefined,
+              message: messageText,
+              attachmentId: attachment?.id,
+              replyToId: reply?.id || undefined,
               channelId: selectedChannelId || undefined,
             }),
           },
         );
+        if (pendingMessage) {
+          setOptimisticMessages((current) => current.filter((message) => message.id !== pendingMessage.id));
+        }
+        if (delivered.message) {
+          const confirmed = { ...delivered.message, attachment: attachment || null, sender: profile };
+          setConversation((current) => current?.room.id === roomId &&
+            !current.messages.some((message) => message.id === confirmed.id)
+            ? { ...current, messages: [...current.messages, confirmed] }
+            : current);
+        }
+        if (messageChannel) void messageChannel.send({
+          type: "broadcast",
+          event: "message",
+          payload: { roomId, channelId },
+        }).catch(() => undefined);
       }
-      setDraft("");
+      setDraft((current) => current.trim() === messageText ? "" : current);
       setReplyingTo(null);
       setEditingMessage(null);
       signalTyping(false);
-      await Promise.all([
-        loadConversation(selectedRoomId, true),
-        loadRooms(selectedRoomId),
-      ]);
+      // The message is visible immediately; a background snapshot fills in
+      // moderation, reactions and unread counts without blocking the composer.
+      void Promise.all([
+        loadConversation(roomId, true, channelId),
+        loadRooms(undefined, false),
+      ]).catch(() => undefined);
     } catch (sendError) {
+      if (pendingMessage) {
+        setOptimisticMessages((current) => current.filter((message) => message.id !== pendingMessage.id));
+        setDraft((current) => current || messageText);
+      }
       setError(
         sendError instanceof Error
           ? sendError.message
@@ -4200,23 +4419,55 @@ export default function MessagesPage() {
     setUploading(true);
     setError("");
     try {
-      const formData = new FormData();
-      formData.set("roomId", selectedRoomId);
-      formData.set("file", file);
-      const uploaded = await authenticatedFetchJson<{
-        attachment: { id: number; moderation_status: string };
-      }>("/api/messages/attachments", {
-        method: "POST",
-        body: formData,
-      });
-      const attachmentId = Number(uploaded.attachment?.id);
-      if (
-        !attachmentId ||
-        uploaded.attachment?.moderation_status !== "approved"
-      ) {
-        throw new Error("Attachment verification did not finish.");
+      let attachmentId = 0;
+      // Large media goes directly from the browser to R2. Routing a 100 MB
+      // video through the Next.js function needlessly buffers it in memory.
+      if (file.type.startsWith("video/") || file.size >= 4 * 1024 * 1024) {
+        const prepared = await authenticatedFetchJson<{
+          upload: { url: string; method: string; headers: Record<string, string> };
+          attachment: { id: number };
+        }>("/api/messages/attachments", {
+          method: "POST",
+          body: JSON.stringify({
+            roomId: selectedRoomId,
+            fileName: file.name,
+            mimeType: file.type,
+            sizeBytes: file.size,
+          }),
+        });
+        attachmentId = Number(prepared.attachment?.id);
+        if (!attachmentId) throw new Error("Attachment preparation failed.");
+        const uploaded = await fetch(prepared.upload.url, {
+          method: prepared.upload.method || "PUT",
+          headers: prepared.upload.headers,
+          body: file,
+        });
+        if (!uploaded.ok) throw new Error("Upload failed. Please try again.");
+        // This endpoint verifies the stored bytes and approves the attachment
+        // before the message can reference it.
+        await authenticatedFetchJson(`/api/messages/attachments/${attachmentId}`);
+      } else {
+        const formData = new FormData();
+        formData.set("roomId", selectedRoomId);
+        formData.set("file", file);
+        const uploaded = await authenticatedFetchJson<{
+          attachment: { id: number; moderation_status: string };
+        }>("/api/messages/attachments", {
+          method: "POST",
+          body: formData,
+        });
+        attachmentId = Number(uploaded.attachment?.id);
+        if (!attachmentId || uploaded.attachment?.moderation_status !== "approved") {
+          throw new Error("Attachment verification did not finish.");
+        }
       }
-      await sendMessage(attachmentId);
+      await sendMessage({
+        id: attachmentId,
+        file_name: file.name,
+        mime_type: file.type,
+        size_bytes: file.size,
+        moderation_status: "approved",
+      });
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -4252,57 +4503,14 @@ export default function MessagesPage() {
     }
   }
 
-  useEffect(() => {
-    if (loading) return;
-
-    let cancelled = false;
-    let readyTimer: number | null = null;
-    let exitTimer: number | null = null;
-
-    async function finishMessagesBoot() {
-      const minimumVisibleMs = 900;
-      const elapsed = Date.now() - loaderStartedAtRef.current;
-      const remaining = Math.max(0, minimumVisibleMs - elapsed);
-
-      if (remaining > 0) {
-        await new Promise<void>((resolve) => {
-          readyTimer = window.setTimeout(resolve, remaining);
-        });
-      }
-
-      try {
-        await document.fonts?.ready;
-      } catch {
-        // Font readiness is optional; data readiness remains the source of truth.
-      }
-
-      await new Promise<void>((resolve) =>
-        window.requestAnimationFrame(() =>
-          window.requestAnimationFrame(() => resolve()),
-        ),
-      );
-
-      if (cancelled) return;
-      setLoaderDataReady(true);
-
-      exitTimer = window.setTimeout(() => {
-        if (!cancelled) setLoaderCanExit(true);
-      }, 520);
-    }
-
-    void finishMessagesBoot();
-
-    return () => {
-      cancelled = true;
-      if (readyTimer !== null) window.clearTimeout(readyTimer);
-      if (exitTimer !== null) window.clearTimeout(exitTimer);
-    };
-  }, [loading]);
-
-
-
-  if (loading || !loaderCanExit) {
-    return <MessagesLoadingOperatorV15 ready={loaderDataReady} />;
+  // Open the workspace as soon as its data is ready. Fonts and decorative
+  // loading animations must not keep an authenticated user outside their chat.
+  if (loading) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-[#10161d] px-6 text-base text-slate-200" role="status" aria-live="polite">
+        Memuat komunitas…
+      </main>
+    );
   }
 
   if (String(viewerMode) === "guest") {
@@ -4323,11 +4531,6 @@ export default function MessagesPage() {
   const serverVoiceChannels = (selectedServerBundle?.channels || []).filter(
     (channel) => channel.channel_type === "voice",
   );
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const messagesToday = (conversation?.messages || []).filter(
-    (message) => new Date(message.created_at).getTime() >= todayStart.getTime(),
-  ).length;
   const visibleSquadInviteSlots = Math.min(
     2,
     Math.max(
@@ -4341,11 +4544,21 @@ export default function MessagesPage() {
   return (
     <main
       data-messages-page="true"
-      className={`${styles.page} ${styles.messageTypography} relative overflow-hidden bg-[#02060d] text-white`}
+      className={`${styles.page} ${styles.messageTypography} ${styles.simpleCommunity} relative overflow-hidden bg-[#02060d] text-white`}
     >
       {userId ? <SecureIncomingCallAlert key={userId} userId={userId} onOpenRoom={async roomId => {
-        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId);
-        const room = available.find(item => item.id === roomId);
+        const available = roomsRef.current.some(room => room.id === roomId) ? roomsRef.current : await loadRooms(roomId, false);
+        let room = available.find(item => item.id === roomId) || null;
+        if (!room) {
+          const detail = await authenticatedFetchJson<ConversationResponse>(
+            `/api/messages/rooms/${encodeURIComponent(roomId)}?limit=1`,
+          );
+          room = detail.room;
+          if (room && !isTradeRoom(room)) {
+            roomsRef.current = [room, ...roomsRef.current];
+            setRooms(roomsRef.current);
+          }
+        }
         if (!room) throw new Error("Conversation not found.");
         setShowPrivateMessages(false); setShowFriendsMenu(false); setCommunityOverlay(null);
         openRoom(room);
@@ -4357,9 +4570,6 @@ export default function MessagesPage() {
           display: none !important;
         }
       `}</style>
-      <div className="pointer-events-none fixed inset-0 bg-[#02060d]" />
-      <div className="pointer-events-none fixed inset-0 bg-[url('/hero-bg.webp')] bg-cover bg-center opacity-45" />
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_58%_28%,rgba(6,182,212,0.22),transparent_30%),radial-gradient(circle_at_18%_80%,rgba(250,204,21,0.08),transparent_28%),linear-gradient(180deg,rgba(1,7,18,0.88)_0%,rgba(1,10,24,0.66)_42%,rgba(1,7,14,0.92)_100%)]" />
 
       <ArcadeWindow
         key={arcadeWindowKey}
@@ -4374,8 +4584,8 @@ export default function MessagesPage() {
         <Link
           href="/"
           className={`${styles.headerBrandLink} flex shrink-0 cursor-pointer items-center rounded-lg outline-none transition focus-visible:ring-2 focus-visible:ring-cyan-300`}
-          title="Go to ComePlayers homepage"
-          aria-label="Go to ComePlayers homepage"
+          title="Beranda ComePlayers"
+          aria-label="Beranda ComePlayers"
         >
           <span className={styles.headerLogoCrop}>
             <Image
@@ -4403,7 +4613,7 @@ export default function MessagesPage() {
               className="inline-flex items-center gap-2 transition hover:text-cyan-300"
               aria-expanded={showPlayMenu}
             >
-              Games
+              Game
               <FaChevronDown
                 className={`text-[10px] text-cyan-300 transition ${showPlayMenu ? "rotate-180" : ""}`}
               />
@@ -4429,7 +4639,7 @@ export default function MessagesPage() {
                     }}
                     className="inline-flex items-center gap-2 rounded-xl border border-yellow-400/25 bg-yellow-400/10 px-3 py-2 text-xs font-black text-yellow-200 transition hover:bg-yellow-400/20"
                   >
-                    View All <FaArrowRight className="text-[9px]" />
+                    Lihat semua <FaArrowRight className="text-[9px]" />
                   </button>
                 </div>
 
@@ -4463,7 +4673,7 @@ export default function MessagesPage() {
             <button
               type="button"
               onClick={() => {
-                if (!requireLogin("Sign in to open Contacts.")) return;
+                if (!requireLogin("Masuk untuk membuka kontak.")) return;
                 setShowFriendsMenu((current) => !current);
                 setShowPrivateMessages(false);
                 setShowPlayMenu(false);
@@ -4474,7 +4684,7 @@ export default function MessagesPage() {
               className="inline-flex items-center gap-2 transition hover:text-cyan-300"
               aria-expanded={showFriendsMenu}
             >
-              Contacts
+              Kontak
               <FaChevronDown
                 className={`text-[10px] text-cyan-300 transition ${showFriendsMenu ? "rotate-180" : ""}`}
               />
@@ -4487,7 +4697,7 @@ export default function MessagesPage() {
             }}
             className="transition hover:text-cyan-300"
           >
-            Tournaments
+            Turnamen
           </button>
         </nav>
         <form
@@ -4502,14 +4712,14 @@ export default function MessagesPage() {
             ref={globalSearchRef}
             value={globalSearch}
             onChange={(event) => setGlobalSearch(event.target.value)}
-            aria-label="Search servers, games, and players"
-            placeholder="Search servers, games, players..."
+            aria-label="Cari komunitas, game, dan teman"
+            placeholder="Cari komunitas, game, teman…"
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-gray-500"
           />
           <button
             type="submit"
             className="ml-auto rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-black text-gray-400 hover:border-cyan-400/30 hover:text-cyan-200"
-            title="Search"
+            title="Cari"
           >
             {"\u2318K"}
           </button>
@@ -4518,7 +4728,7 @@ export default function MessagesPage() {
           <button
             type="button"
             onClick={() => {
-              if (!requireLogin("Sign in to create a server or squad.")) return;
+                if (!requireLogin("Masuk untuk membuat komunitas.")) return;
               setShowCreateMenu((current) => !current);
               setShowPlayMenu(false);
               setShowFriendsMenu(false);
@@ -4529,7 +4739,7 @@ export default function MessagesPage() {
             className="inline-flex h-11 items-center gap-2 rounded-full border border-cyan-400/15 bg-[#07131f]/82 px-5 text-sm font-black shadow-[inset_0_0_18px_rgba(255,255,255,0.03)] transition hover:border-yellow-400/60 hover:text-yellow-300"
             aria-expanded={showCreateMenu}
           >
-            <FaPlus className="text-yellow-400" /> Create
+            <FaPlus className="text-yellow-400" /> Buat
           </button>
           {showCreateMenu ? (
             <div className="absolute right-0 top-14 z-[75] w-56 rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-2 text-xs font-bold shadow-[0_22px_65px_rgba(0,0,0,0.65)] backdrop-blur-xl">
@@ -4542,9 +4752,9 @@ export default function MessagesPage() {
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
               >
-                <FaServer /> Create Server
+                <FaServer /> Buat komunitas
               </button>
-              <button
+              {SQUAD_DISCOVERY_ENABLED ? (<button
                 type="button"
                 onClick={() => {
                   setCreateAsParty(true);
@@ -4553,8 +4763,8 @@ export default function MessagesPage() {
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-yellow-400/10 hover:text-yellow-200"
               >
-                <FaCrosshairs /> Publish Squad
-              </button>
+                <FaCrosshairs /> Buat tim
+              </button>) : null}
               <button
                 type="button"
                 onClick={() => {
@@ -4564,7 +4774,7 @@ export default function MessagesPage() {
                 disabled={!selectedRoom || selectedChannelIsVoice}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <FaEdit /> New Message
+                <FaEdit /> Pesan baru
               </button>
               <button
                 type="button"
@@ -4574,7 +4784,7 @@ export default function MessagesPage() {
                 }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
               >
-                <FaGamepad /> Seller Center
+                <FaGamepad /> Pusat penjual
               </button>
             </div>
           ) : null}
@@ -4635,10 +4845,10 @@ export default function MessagesPage() {
           href="/marketplace"
           className={styles.shopButton}
           title="Open ComePlayers Shop"
-          aria-label="Open ComePlayers Shop"
+          aria-label="Buka Toko ComePlayers"
         >
           <FaShoppingCart />
-          <span>SHOP</span>
+          <span>Toko</span>
         </Link>
       </header>
 
@@ -4649,6 +4859,7 @@ export default function MessagesPage() {
         privateMessagesOpen={showPrivateMessages}
         onCloseFriendMenu={() => setShowFriendsMenu(false)}
         onClosePrivateMessages={() => setShowPrivateMessages(false)}
+        onOpenPrivateRoom={(roomId) => void openPrivateRoomById(roomId)}
         onUnreadChange={setPrivateUnreadCount}
       />
 
@@ -4748,7 +4959,7 @@ export default function MessagesPage() {
                         {displayName(invite.invitee)}
                       </p>
                       <p className="truncate text-[10px] text-gray-500">
-                        {invite.room?.title || "Squad"} Â· Pending
+                        {invite.room?.title || "Squad"} · Pending
                       </p>
                     </div>
                     <span className="rounded-full border border-yellow-400/20 px-2 py-1 text-[9px] font-black text-yellow-300">
@@ -4762,7 +4973,7 @@ export default function MessagesPage() {
               href="/notifications"
               className="flex items-center justify-center gap-2 rounded-xl border border-cyan-400/25 px-3 py-2.5 text-xs font-black text-cyan-200 hover:bg-cyan-400/10"
             >
-              View all notifications <FaArrowRight />
+              Lihat semua notifications <FaArrowRight />
             </Link>
           </div>
         </section>
@@ -4807,7 +5018,7 @@ export default function MessagesPage() {
         </section>
       ) : null}
 
-      {communityOverlay ? (
+      {communityOverlay && (communityOverlay !== "discover" || SQUAD_DISCOVERY_ENABLED) ? (
         <div
           className="fixed inset-0 z-[80] flex items-center justify-center bg-[#01050d]/78 p-5 backdrop-blur-md"
           role="dialog"
@@ -4824,7 +5035,7 @@ export default function MessagesPage() {
                   {communityOverlay === "discover"
                     ? "Discover Players & Squads"
                     : communityOverlay === "members"
-                      ? "Server Members"
+                      ? "Anggota komunitas"
                       : communityOverlay === "rankings"
                         ? "Server Rankings"
                         : "Tournaments & Events"}
@@ -4833,7 +5044,7 @@ export default function MessagesPage() {
                   {communityOverlay === "discover"
                     ? "Live parties from ComePlayers matchmaking."
                     : communityOverlay === "members"
-                      ? `${conversationMembers.length} members in this server.`
+                      ? `${conversationMembers.length} anggota komunitas.`
                       : communityOverlay === "rankings"
                         ? "Ranked by recent channel participation using live room data."
                         : "Published ComePlayers announcements and activities."}
@@ -4877,7 +5088,7 @@ export default function MessagesPage() {
                               </p>
                               <p className="mt-1 text-xs text-gray-500">
                                 {party.party_game || "Game not specified"}
-                                {party.party_mode ? ` Â· ${party.party_mode}` : ""}
+                                {party.party_mode ? ` · ${party.party_mode}` : ""}
                               </p>
                             </div>
                             <span className="text-xs font-black text-cyan-300">
@@ -4945,12 +5156,12 @@ export default function MessagesPage() {
                             {displayName(member.profile)}
                           </p>
                           <p className="text-[10px] font-bold text-gray-500">
-                            {memberRoleLabel(member.member_role)} Â·{" "}
+                            {memberRoleLabel(member.member_role)} ·{" "}
                             {redisEnabled
                               ? onlineUserIds.has(member.user_id)
                                 ? "Online"
                                 : "Offline"
-                              : "Presence unavailable"}
+                              : "Status belum tersedia"}
                           </p>
                         </div>
                         <div className="flex shrink-0 gap-1">
@@ -5030,12 +5241,12 @@ export default function MessagesPage() {
                             {displayName(entry.member.profile)}
                           </p>
                           <p className="mt-0.5 text-[10px] text-gray-500">
-                            {memberRoleLabel(entry.member.member_role)} Â·{" "}
+                            {memberRoleLabel(entry.member.member_role)} ·{" "}
                             {entry.online
                               ? "Online"
                               : redisEnabled
                                 ? "Offline"
-                                : "Presence unavailable"}
+                                : "Status belum tersedia"}
                           </p>
                         </div>
                         <div className="text-right">
@@ -5104,7 +5315,7 @@ export default function MessagesPage() {
                   href="/announcements"
                   className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/30 px-4 py-2 text-xs font-black text-cyan-200 hover:bg-cyan-400/10"
                 >
-                  View all announcements <FaArrowRight />
+                  Lihat semua announcements <FaArrowRight />
                 </Link>
               </div>
             ) : null}
@@ -5115,89 +5326,45 @@ export default function MessagesPage() {
       <section className="relative z-10 min-w-0">
         <section
           data-mobile-pane={selectedRoom && !mobileInboxOpen ? "chat" : "list"}
+          data-live-active={COMMUNITY_BROADCASTS_ENABLED && streamIsActive || undefined}
           className={`${styles.workspace} ${selectedIsGroup && (showMemberPanel || serverViewMode === "home") ? styles.workspaceWithPanel : styles.workspaceNoPanel} box-border grid h-[calc(100vh-92px)] grid-cols-1 gap-4 overflow-hidden px-4 pb-28 lg:grid-cols-[330px_minmax(0,1fr)] lg:px-6`}
         >
           <aside className={`${styles.leftRail} min-h-0`}>
-            <nav className={styles.serverRail} aria-label="ComePlayers servers">
-              <button
-                type="button"
-                onClick={() => {
-                  setRoomBucket("all");
-                  setCommunityOverlay(null);
-                  if (selectedIsGroup) setServerViewMode("home");
+            <div className={styles.groupRailSlot}>
+              <CommunityGroupRail
+                rooms={serverRooms.map((room) => ({ id: room.id, name: roomTitle(room), iconUrl: room.server?.icon_url, unreadCount: room.unread_count }))}
+                selectedRoomId={selectedRoomId}
+                onSelect={selectServer}
+                onOpenMessages={() => {
+                  if (!requireLogin("Masuk untuk membuka pesan pengguna.")) return;
+                  setShowPrivateMessages(true);
+                  setShowFriendsMenu(false);
                 }}
-                data-active={selectedIsGroup && serverViewMode === "home"}
-                className={styles.serverRailButton}
-                title="Gaming Command Center"
-              >
-                <FaHome />
-              </button>
-              <span className={styles.serverRailDivider} />
-              {serverRooms.map((room) => (
-                <button
-                  key={room.id}
-                  type="button"
-                  onClick={() => selectServer(room.id)}
-                  data-active={room.id === selectedRoomId}
-                  className={styles.serverRailButton}
-                  title={roomTitle(room)}
-                >
-                  <ServerAvatar
-                    name={roomTitle(room)}
-                    iconUrl={room.server?.icon_url}
-                    className={styles.serverRailAvatar}
-                  />
-                  {room.unread_count > 0 ? (
-                    <span className={styles.serverRailBadge}>
-                      {room.unread_count > 9 ? "9+" : room.unread_count}
-                    </span>
-                  ) : null}
-                </button>
-              ))}
-              {viewerMode === "guest" && guestServerPreview ? (
-                <button
-                  type="button"
-                  onClick={() => setShowAuthModal(true)}
-                  data-active="true"
-                  className={styles.serverRailButton}
-                  title={guestServerPreview.name}
-                >
-                  <ServerAvatar
-                    name={guestServerPreview.name}
-                    iconUrl={guestServerPreview.iconUrl}
-                    className={styles.serverRailAvatar}
-                  />
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => {
-                  if (!requireLogin("Sign in to create a server.")) return;
+                onCreate={() => {
+                  if (!requireLogin("Masuk untuk membuat komunitas.")) return;
                   setCreateAsParty(false);
                   setShowCreateGroup(true);
                 }}
-                className={`${styles.serverRailButton} ${styles.serverRailAdd}`}
-                title="Create Server"
-              >
-                <FaPlus />
-              </button>
-            </nav>
+                guestPreview={viewerMode === "guest" ? guestServerPreview : null}
+                onGuestSignIn={() => setShowAuthModal(true)}
+              />
+            </div>
             <div
               className={`${styles.leftCommunityPanel} flex min-h-0 flex-col overflow-hidden rounded-2xl border border-cyan-400/30 bg-[#061421]/78 shadow-[0_24px_80px_rgba(0,0,0,0.42),inset_0_0_42px_rgba(6,182,212,0.04)] backdrop-blur-xl`}
             >
             <div className="relative border-b border-cyan-400/12 p-4">
               <div className={styles.mobileInboxHeading}>
                 <div className="min-w-0">
-                  <p>{selectedIsGroup ? "Server channels" : "Messages"}</p>
+                  <p>{selectedIsGroup ? "Ruang komunitas" : "Chat"}</p>
                   <span>
                     {selectedIsGroup
                       ? selectedServer?.name || roomTitle(selectedRoom)
-                      : "Chats, servers, and protected orders"}
+                      : "Pilih grup di sebelah kiri"}
                   </span>
                 </div>
                 {selectedRoom ? (
                   <button type="button" onClick={openAllMobileChats}>
-                    All chats
+                    Semua percakapan
                   </button>
                 ) : null}
               </div>
@@ -5215,11 +5382,9 @@ export default function MessagesPage() {
                     name={
                       selectedServer?.name ||
                       guestServerPreview?.name ||
-                      "ComePlayers Servers"
+                      "Komunitas saya"
                     }
-                    iconUrl={
-                      selectedServer?.icon_url || guestServerPreview?.iconUrl
-                    }
+                    iconUrl={selectedServer ? selectedServer.icon_url : guestServerPreview?.iconUrl}
                     className="h-12 w-12 rounded-xl border border-cyan-400/25 shadow-[0_0_22px_rgba(6,182,212,0.12)]"
                   />
                   <div className="min-w-0 flex-1">
@@ -5227,7 +5392,7 @@ export default function MessagesPage() {
                       <p className="truncate text-sm font-bold">
                         {selectedIsGroup
                           ? selectedServer?.name || roomTitle(selectedRoom)
-                          : guestServerPreview?.name || "ComePlayers Servers"}
+                          : guestServerPreview?.name || "Komunitas saya"}
                       </p>
                       <FaChevronDown
                         className={`text-[10px] text-cyan-300 transition ${showCommunityMenu ? "rotate-180" : ""}`}
@@ -5237,23 +5402,15 @@ export default function MessagesPage() {
                       <span>
                         {viewerMode === "guest"
                           ? guestServerPreview?.memberCount || 0
-                          : conversationMembers.length} members
+                          : conversationMembers.length} anggota
                       </span>
                       <span>
                         {viewerMode === "guest"
                           ? "Preview"
                           : redisEnabled
                           ? `${onlineUserIds.size} online`
-                          : "Presence unavailable"}
+                          : "Status belum tersedia"}
                       </span>
-                    </div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className="h-full rounded-full bg-yellow-400 transition-[width]"
-                        style={{
-                          width: `${viewerMode === "guest" ? 28 : conversationMembers.length ? Math.min(100, Math.round((onlineUserIds.size / conversationMembers.length) * 100)) : 0}%`,
-                        }}
-                      />
                     </div>
                   </div>
                 </div>
@@ -5266,23 +5423,6 @@ export default function MessagesPage() {
                 onChange={(event) => void handleServerIconChange(event)}
                 className="sr-only"
               />
-              {selectedIsGroup ? (
-                <button
-                  type="button"
-                  onClick={() => void openServerInviteModal()}
-                  disabled={!canInviteToServer}
-                  className={styles.sidebarInviteButton}
-                  title={
-                    canInviteToServer
-                      ? "Invite people to this server"
-                      : "Only the Creator or a Leader can invite people"
-                  }
-                >
-                  <FaUserPlus />
-                  <span>Invite People</span>
-                </button>
-              ) : null}
-
               {showCommunityMenu ? (
                 <div
                   className={`${styles.communityMenu} absolute left-4 right-4 top-[102px] z-40 rounded-xl border border-cyan-400/30 bg-[#061421]/98 p-2 shadow-2xl backdrop-blur-xl`}
@@ -5296,7 +5436,7 @@ export default function MessagesPage() {
                     }}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                   >
-                    <FaPlus /> Create Server
+                    <FaPlus /> Buat komunitas
                   </button>
                   {canManageServerIdentity ? (
                     <>
@@ -5306,7 +5446,7 @@ export default function MessagesPage() {
                         disabled={serverIdentityBusy}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-40"
                       >
-                        <FaCog /> Rename Server
+                        <FaCog /> Ubah nama komunitas
                       </button>
                       <button
                         type="button"
@@ -5314,7 +5454,7 @@ export default function MessagesPage() {
                         disabled={serverIdentityBusy}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200 disabled:opacity-40"
                       >
-                        <FaCamera /> Change Server Icon
+                        <FaCamera /> Ubah foto komunitas
                       </button>
                     </>
                   ) : null}
@@ -5324,7 +5464,7 @@ export default function MessagesPage() {
                       onClick={() => void openServerInviteModal()}
                       className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                     >
-                      <FaExternalLinkAlt /> Invite People
+                      <FaExternalLinkAlt /> Undang teman
                     </button>
                   ) : null}
                   <button
@@ -5332,70 +5472,50 @@ export default function MessagesPage() {
                     onClick={() => void openCommunityOverlay("members")}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                   >
-                    <FaUsers /> Server Members
+                    <FaUsers /> Anggota komunitas
                   </button>
                   <Link
                     href="/announcements"
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-bold text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                   >
-                    <FaCalendarAlt /> Server Announcements
+                    <FaCalendarAlt /> Pengumuman komunitas
                   </Link>
                 </div>
               ) : null}
 
-              <div
-                className={`${styles.communityNav} mt-4 space-y-1 text-sm font-bold`}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setServerViewMode("home");
-                    setMobileInboxOpen(false);
-                    setRoomBucket("all");
-                    setSearch("");
-                    setShowNotifications(false);
-                    setCommunityOverlay(null);
-                    setShowSquadFinder(false);
-                  }}
-                  className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 transition ${serverViewMode === "home" && communityOverlay === null ? "border-cyan-400/70 bg-cyan-400/15 text-cyan-200 shadow-[0_0_22px_rgba(6,182,212,0.2),inset_0_0_18px_rgba(6,182,212,0.08)]" : "border-transparent text-gray-400 hover:bg-white/5 hover:text-white"}`}
-                >
-                  <FaHome /> Server Home
+              {selectedIsGroup ? <nav className={styles.communityNav} aria-label="Menu komunitas">
+                <button type="button" aria-pressed={serverViewMode === "chat" && !communityOverlay}
+                  onClick={() => { setServerViewMode("chat"); setMobileInboxOpen(false); setCommunityOverlay(null); }}>
+                  <FaComments aria-hidden="true" /> Chat
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setServerViewMode("chat");
-                    setMobileInboxOpen(false);
-                    setRoomBucket("all");
-                    setSearch("");
-                    setShowNotifications(false);
-                    setCommunityOverlay(null);
-                    setShowSquadFinder(false);
-                  }}
-                  className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 transition ${serverViewMode === "chat" && communityOverlay === null ? "border-cyan-400/70 bg-cyan-400/15 text-cyan-200 shadow-[0_0_22px_rgba(6,182,212,0.2),inset_0_0_18px_rgba(6,182,212,0.08)]" : "border-transparent text-gray-400 hover:bg-white/5 hover:text-white"}`}
-                >
-                  <FaComments /> Messages
+                <button type="button" aria-pressed={serverViewMode === "home" && !communityOverlay}
+                  onClick={() => { setServerViewMode("home"); setMobileInboxOpen(false); setCommunityOverlay(null); }}>
+                  <FaHome aria-hidden="true" /> Papan
                 </button>
-              </div>
+                <button type="button" aria-pressed={communityOverlay === "events"}
+                  onClick={() => void openCommunityOverlay("events")}>
+                  <FaCalendarAlt aria-hidden="true" /> Kegiatan
+                </button>
+              </nav> : null}
 
-              <div className={`${styles.leftSearch} mt-4 flex gap-2`}>
+              {!selectedIsGroup ? <div className={`${styles.leftSearch} mt-4 flex gap-2`}>
                 <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-3 focus-within:border-cyan-400/50">
                   <FaSearch className="text-xs text-gray-500" />
                   <input
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search chats or servers"
+                    placeholder="Cari percakapan atau komunitas"
                     className="h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-600"
                   />
                 </div>
                 <button
                   onClick={() => setShowCreateGroup((current) => !current)}
                   className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/35 text-cyan-300 transition hover:bg-cyan-400 hover:text-black"
-                  title="Create server or squad"
+                  title={SQUAD_DISCOVERY_ENABLED ? "Buat komunitas atau tim" : "Buat komunitas"}
                 >
                   {showCreateGroup ? <FaTimes /> : <FaPlus />}
                 </button>
-              </div>
+              </div> : null}
             </div>
 
             {showRenameServerModal && selectedServer && typeof document !== "undefined"
@@ -5552,7 +5672,7 @@ export default function MessagesPage() {
                             {serverIdentityBusy ? (
                               <><FaRedo className={styles.renameSavingIcon} /> Saving...</>
                             ) : (
-                              <><FaCheck /> Save new name</>
+                              <><FaCheck /> Simpan nama</>
                             )}
                           </button>
                         </footer>
@@ -5586,7 +5706,7 @@ export default function MessagesPage() {
                       id="create-server-title"
                       className="text-lg font-black text-white"
                     >
-                      {createAsParty ? "Publish Squad" : "Create Server"}
+                      {createAsParty ? "Publish Squad" : "Buat komunitas"}
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
                       Invitations require player acceptance.
@@ -5601,7 +5721,7 @@ export default function MessagesPage() {
                     <FaTimes />
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-[#030914] p-1">
+                {SQUAD_DISCOVERY_ENABLED ? (<div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-[#030914] p-1">
                   <button
                     type="button"
                     onClick={() => setCreateAsParty(false)}
@@ -5618,7 +5738,7 @@ export default function MessagesPage() {
                     <FaCrosshairs className="mr-2 inline" />
                     Squad Finder
                   </button>
-                </div>
+                </div>) : null}
                 <p className="mt-3 text-xs text-gray-400">
                   All users can create a server. The server creator becomes the
                   Creator and can appoint Leaders.
@@ -5764,7 +5884,7 @@ export default function MessagesPage() {
                     ? "Creating..."
                     : createAsParty
                       ? `Publish Squad (${selectedMemberIds.length + 1}/${partySize})`
-                      : `Create Server (${selectedMemberIds.length + 1})`}
+                      : `Buat komunitas (${selectedMemberIds.length + 1})`}
                 </button>
                     </div>
                   </div>,
@@ -5772,12 +5892,12 @@ export default function MessagesPage() {
                 )
               : null}
 
-            <div
+            {!selectedIsGroup ? <div
               className={`${styles.leftSectionSummary} flex items-center justify-between border-b border-white/10 px-4 py-3`}
             >
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-gray-500">
                 {selectedIsGroup
-                  ? "Text Channels"
+                  ? "Ruang komunitas"
                   : roomBuckets.find((bucket) => bucket.id === roomBucket)
                       ?.label || "Channels"}
               </p>
@@ -5786,10 +5906,10 @@ export default function MessagesPage() {
                   ? conversationMembers.length
                   : filteredRooms.length}
               </span>
-            </div>
+            </div> : null}
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
               {selectedIsGroup ? (
-                <div className="h-full min-h-0">
+                <div className={styles.channelSidebarArea}>
                   <CommunityChannelSidebar
                     key={`sidebar:${selectedRoomId}`}
                     roomId={selectedRoomId}
@@ -5820,8 +5940,12 @@ export default function MessagesPage() {
                         roomId: selectedRoomId,
                         channel,
                       });
-                      if (source !== "auto") setServerViewMode("chat");
-                      if (source !== "auto") setMobileInboxOpen(false);
+                      // An automatic initial selection only loads a channel.
+                      // Refreshes must not move the user out of Home, open a
+                      // panel, change the URL, or discard an in-progress draft.
+                      if (source === "auto") return;
+                      setServerViewMode("chat");
+                      setMobileInboxOpen(false);
                       replaceServerChannelAddress(selectedRoomId, channel.id);
                       deepLinkServerIdRef.current = "";
                       deepLinkChannelIdRef.current = "";
@@ -5849,85 +5973,15 @@ export default function MessagesPage() {
                     onError={setError}
                     voiceShortcutToken={voiceShortcutToken}
                   />
-                  <div
-                    className={`${styles.otherChats} border-t border-white/10 pt-3`}
-                  >
-                    <div className="mb-2 flex items-center justify-between px-1">
-                      <p className="text-[10px] font-black uppercase text-gray-500">
-                        Other Chats
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setRoomBucket("all")}
-                        className="text-[10px] font-black text-cyan-300 hover:text-cyan-200"
-                      >
-                        View
-                      </button>
-                    </div>
-                    {filteredRooms
-                      .filter((room) => room.id !== selectedRoomId)
-                      .slice(0, 4)
-                      .map((room) => {
-                        const group = isGroupRoom(room);
-                        const live =
-                          String(room.stream_status || "").toLowerCase() ===
-                          "live";
-                        return (
-                          <button
-                            key={room.id}
-                            onClick={() => openRoom(room)}
-                            className="mb-1 flex w-full gap-3 rounded-xl border border-transparent p-2 text-left transition hover:border-white/10 hover:bg-white/5"
-                          >
-                            <ProfileAvatar
-                              profile={group ? null : room.other}
-                              size="sm"
-                              fallback={group ? <FaUsers /> : roomInitial(room)}
-                              className={
-                                group
-                                  ? "bg-cyan-400/15 text-cyan-200"
-                                  : "bg-white/10 text-cyan-300"
-                              }
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="truncate text-xs font-black">
-                                  {roomTitle(room)}
-                                </p>
-                                {room.party_open ? (
-                                  <FaCrosshairs className="shrink-0 text-[10px] text-yellow-400" />
-                                ) : null}
-                              </div>
-                              <div className="mt-1 flex items-center gap-2 text-[10px] font-bold text-gray-500">
-                                {live ? (
-                                  <span className="rounded-full bg-red-500 px-2 py-0.5 text-white">
-                                    LIVE
-                                  </span>
-                                ) : (
-                                  <span>
-                                    {group
-                                      ? `${room.member_count || 0} members`
-                                      : "Direct"}
-                                  </span>
-                                )}
-                                {room.unread_count > 0 ? (
-                                  <span className="ml-auto rounded-full bg-cyan-400 px-2 py-0.5 text-black">
-                                    {room.unread_count}
-                                  </span>
-                                ) : null}
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                  </div>
+
                 </div>
               ) : filteredRooms.length === 0 ? (
                 <div className={styles.emptyRoomList}>
                   <span className={styles.emptyRoomListIcon}>
                     <FaComments />
                   </span>
-                  <strong>No conversations yet</strong>
-                  <p>Create a gaming server or start a protected product chat.</p>
+                  <strong>Belum ada percakapan</strong>
+                  <p>Buat komunitas untuk mulai mengobrol bersama teman.</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -5935,10 +5989,10 @@ export default function MessagesPage() {
                       setShowCreateGroup(true);
                     }}
                   >
-                    <FaPlus /> Create server
+                    <FaPlus /> Buat komunitas
                   </button>
                   <Link href="/marketplace">
-                    <FaShoppingCart /> Browse marketplace
+                    <FaShoppingCart /> Buka toko
                   </Link>
                 </div>
               ) : (
@@ -5952,16 +6006,20 @@ export default function MessagesPage() {
                       onClick={() => openRoom(room)}
                       className={`mb-1 flex w-full gap-3 rounded-xl border p-3 text-left transition ${selectedRoomId === room.id ? "border-cyan-400/45 bg-cyan-400/10" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}
                     >
-                      <ProfileAvatar
-                        profile={group ? null : room.other}
-                        size="md"
-                        fallback={group ? <FaUsers /> : roomInitial(room)}
-                        className={
-                          group
-                            ? "bg-cyan-400/15 text-cyan-200"
-                            : "bg-white/10 text-cyan-300"
-                        }
-                      />
+                      {group ? (
+                        <ServerAvatar
+                          name={roomTitle(room)}
+                          iconUrl={room.server?.icon_url}
+                          className="h-11 w-11 rounded-xl border border-cyan-400/25"
+                        />
+                      ) : (
+                        <ProfileAvatar
+                          profile={room.other}
+                          size="md"
+                          fallback={roomInitial(room)}
+                          className="bg-white/10 text-cyan-300"
+                        />
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-black">
@@ -5977,15 +6035,17 @@ export default function MessagesPage() {
                           </span>
                         </div>
                         <p className="mt-1 truncate text-xs text-gray-500">
-                          {room.last_message ||
+                          {(room.activity_kind === "call" ? room.activity_preview : null) ||
+                            room.last_message ||
+                            (!group && room.last_message_at ? "Pesan baru" : null) ||
                             room.description ||
                             "Conversation created"}
                         </p>
                         <div className="mt-2 flex items-center gap-2 text-[10px] font-bold text-gray-400">
                           {group ? (
-                            <span>{room.member_count || 0} members</span>
+                            <span>{room.member_count || 0} anggota</span>
                           ) : null}
-                          {live ? (
+                          {COMMUNITY_BROADCASTS_ENABLED && live ? (
                             <span className="rounded-full bg-red-500 px-2 py-0.5 text-white">
                               LIVE
                             </span>
@@ -6014,14 +6074,14 @@ export default function MessagesPage() {
                   )
                 }
                 className="flex w-full items-center gap-3 rounded-xl bg-black/20 p-2 text-left hover:bg-white/[0.06]"
-                title="Open account menu"
+                title="Buka menu akun"
               >
                 <ProfileAvatar profile={profile} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-black">
                     {displayName(profile)}
                   </p>
-                  <p className="text-[10px] text-emerald-300">â— Online</p>
+                  <p className="text-[10px] text-emerald-300">Akun saya</p>
                 </div>
                 <FaCog className="text-gray-500" />
               </button>
@@ -6036,7 +6096,7 @@ export default function MessagesPage() {
                 <button
                   type="button"
                   onClick={openMobileInbox}
-                  aria-label="Back to conversations"
+                  aria-label="Pilih ruang obrolan"
                 >
                   <FaArrowLeft />
                 </button>
@@ -6050,7 +6110,7 @@ export default function MessagesPage() {
                     {selectedIsGroup
                       ? selectedCommunityChannel
                         ? `#${selectedCommunityChannel.name}`
-                        : "Server home"
+                        : "Papan komunitas"
                       : selectedRoom.order_id
                         ? `Protected order #${selectedRoom.order_id}`
                         : "Protected conversation"}
@@ -6064,11 +6124,10 @@ export default function MessagesPage() {
                   <span className={styles.emptyConversationIcon}>
                     <FaComments />
                   </span>
-                  <p className={styles.emptyConversationEyebrow}>ComePlayers Messenger</p>
-                  <h2>Select a conversation</h2>
+                  <p className={styles.emptyConversationEyebrow}>Komunitas ComePlayers</p>
+                  <h2>Mau mengobrol di mana?</h2>
                   <p className={styles.emptyConversationCopy}>
-                    Chat with your squad, organize a server, or keep marketplace
-                    discussions protected in one place.
+                    Pilih komunitas atau percakapan untuk mulai mengobrol.
                   </p>
                   <div className={styles.emptyConversationActions}>
                     <button
@@ -6078,9 +6137,9 @@ export default function MessagesPage() {
                         setShowCreateGroup(true);
                       }}
                     >
-                      <FaPlus /> Create server
+                      <FaPlus /> Buat komunitas
                     </button>
-                    <button
+                    {SQUAD_DISCOVERY_ENABLED ? (<button
                       type="button"
                       onClick={() => {
                         setCreateAsParty(true);
@@ -6088,20 +6147,20 @@ export default function MessagesPage() {
                       }}
                     >
                       <FaCrosshairs /> Publish squad
-                    </button>
+                    </button>) : null}
                     <Link href="/marketplace">
-                      <FaShoppingCart /> Marketplace
+                      <FaShoppingCart /> Toko
                     </Link>
                   </div>
                   <div className={styles.emptyConversationTrust}>
-                    <span><FaShieldAlt /> Protected chats</span>
-                    <span><FaUsers /> Server communities</span>
-                    <span><FaGamepad /> Squad ready</span>
+                    <span><FaComments /> Pesan pribadi</span>
+                    <span><FaUsers /> Komunitas & grup</span>
+                    <span><FaVolumeUp /> Ruang suara</span>
                   </div>
                 </div>
               </div>
             ) : selectedIsGroup && serverViewMode === "home" ? (
-              <div className={styles.commandCenter}>
+              <div className={`${styles.commandCenter} ${!SQUAD_DISCOVERY_ENABLED ? styles.communityHomeFocused : ""}`}>
                 <section className={styles.commandHero}>
                   <div className={styles.commandHeroBackdrop} />
                   <div className={styles.commandHeroContent}>
@@ -6112,13 +6171,13 @@ export default function MessagesPage() {
                         className={styles.commandServerAvatar}
                       />
                       <div className="min-w-0">
-                        <p className={styles.commandEyebrow}>Gaming Command Center</p>
+                        <p className={styles.commandEyebrow}>Papan komunitas</p>
                         <h1 className="truncate text-2xl font-black text-white lg:text-3xl">
-                          Welcome to {selectedServer?.name || roomTitle(selectedRoom)}
+                          {selectedServer?.name || roomTitle(selectedRoom)}
                         </h1>
                         <p className="mt-1 line-clamp-2 max-w-2xl text-sm text-slate-300">
                           {selectedServer?.description || selectedRoom.description ||
-                            "Plan sessions, find a squad, join voice, watch live gameplay, and keep up with your server."}
+                            "Mengobrol, bergabung ke ruang suara, dan mengikuti kegiatan komunitas bersama teman-teman."}
                         </p>
                       </div>
                     </div>
@@ -6128,7 +6187,7 @@ export default function MessagesPage() {
                         onClick={() => setServerViewMode("chat")}
                         className={styles.commandPrimaryButton}
                       >
-                        <FaComments /> Open Messages
+                        <FaComments /> Buka chat
                       </button>
                       <button
                         type="button"
@@ -6136,22 +6195,22 @@ export default function MessagesPage() {
                         disabled={!canInviteToServer}
                         className={styles.commandSecondaryButton}
                       >
-                        <FaUserPlus /> Invite People
+                        <FaUserPlus /> Undang teman
                       </button>
                     </div>
                   </div>
                   <div className={styles.commandStats}>
-                    <div><strong>{conversationMembers.length}</strong><span>Members</span></div>
-                    <div><strong>{redisEnabled ? onlineConversationMembers.length : 0}</strong><span>Online</span></div>
-                    <div><strong>{serverVoiceChannels.length}</strong><span>Voice Rooms</span></div>
-                    <div><strong>{messagesToday}</strong><span>Messages Today</span></div>
+                    <div><strong>{conversationMembers.length}</strong><span>Anggota</span></div>
+                    <div><strong>{redisEnabled ? onlineConversationMembers.length : "—"}</strong><span>Online</span></div>
+                    <div><strong>{serverVoiceChannels.length}</strong><span>Ruang suara</span></div>
+                    <div><strong>{selectedServerBundle?.channels.filter((channel) => channel.channel_type !== "voice").length ?? "—"}</strong><span>Ruang chat</span></div>
                   </div>
                 </section>
 
                 <div className={styles.commandGrid}>
                   <section className={`${styles.commandCard} ${styles.commandBioCard}`}>
                     <div className={styles.commandCardHeader}>
-                      <div><p>Server Bio</p><span>Owner notes for this server</span></div>
+                      <div><p>Tentang komunitas</p><span>Info dan catatan untuk anggota</span></div>
                       <div className={styles.commandBioActions}>
                         {canEditServerBio ? (
                           serverBioEditing ? (
@@ -6162,7 +6221,7 @@ export default function MessagesPage() {
                                 disabled={serverIdentityBusy}
                                 className={styles.commandBioSaveButton}
                               >
-                                <FaCheck /> Save
+                                <FaCheck /> Simpan
                               </button>
                               <button
                                 type="button"
@@ -6173,7 +6232,7 @@ export default function MessagesPage() {
                                 disabled={serverIdentityBusy}
                                 className={styles.commandBioCancelButton}
                               >
-                                <FaTimes /> Cancel
+                                <FaTimes /> Batal
                               </button>
                             </>
                           ) : (
@@ -6185,12 +6244,12 @@ export default function MessagesPage() {
                               }}
                               className={styles.commandBioEditButton}
                             >
-                              <FaEdit /> Edit Bio
+                              <FaEdit /> Ubah info
                             </button>
                           )
                         ) : (
                           <span className={styles.commandBioOwnerOnly}>
-                            <FaLock /> Owner only
+                            <FaLock /> Dikelola pemilik
                           </span>
                         )}
                       </div>
@@ -6204,18 +6263,18 @@ export default function MessagesPage() {
                             maxLength={500}
                             rows={5}
                             autoFocus
-                            placeholder="Write a note or description for this server..."
+                            aria-label="Info komunitas" placeholder="Tulis info atau catatan untuk anggota…"
                             className={styles.commandBioEditor}
                           />
                           <div className={styles.commandBioCounter}>
-                            <span>Visible to all server members</span>
+                            <span>Terlihat oleh anggota komunitas</span>
                             <strong>{serverBioDraft.length}/500</strong>
                           </div>
                         </>
                       ) : (
                         <p className={styles.commandBioText}>
                           {selectedServer?.description || selectedRoom.description ||
-                            "The server owner has not written a bio yet."}
+                            "Belum ada catatan. Ruang obrolan tetap siap digunakan."}
                         </p>
                       )}
                     </div>
@@ -6223,8 +6282,8 @@ export default function MessagesPage() {
 
                   <section className={`${styles.commandCard} ${styles.commandCardWide}`}>
                     <div className={styles.commandCardHeader}>
-                      <div><p>Upcoming Events</p><span>What is happening in the community</span></div>
-                      <button type="button" onClick={() => void openCommunityOverlay("events")}>View all</button>
+                      <div><p>Kegiatan ComePlayers</p><span>Kabar dan pengumuman untuk semua komunitas</span></div>
+                      <button type="button" onClick={() => void openCommunityOverlay("events")}>Lihat semua</button>
                     </div>
                     <div className={styles.commandEventGrid}>
                       {announcements.slice(0, 3).map((announcement) => (
@@ -6235,23 +6294,23 @@ export default function MessagesPage() {
                           ) : <span><FaCalendarAlt /></span>}
                           <div className="min-w-0">
                             <strong className="block truncate">{announcement.title}</strong>
-                            <small className="line-clamp-2">{announcement.summary || "Open event details."}</small>
+                            <small className="line-clamp-2">{announcement.summary || "Lihat informasi kegiatan."}</small>
                           </div>
                         </Link>
                       ))}
-                      {!announcements.length ? <p className={styles.commandEmpty}>No published server events right now.</p> : null}
+                      {!announcements.length ? <p className={styles.commandEmpty}>Belum ada kegiatan yang diumumkan.</p> : null}
                     </div>
                   </section>
 
                 </div>
 
-                <section className={`${styles.commandCard} ${styles.commandSquadCard} ${styles.commandSquadSidebar}`}>
+                {SQUAD_DISCOVERY_ENABLED ? (<section className={`${styles.commandCard} ${styles.commandSquadCard} ${styles.commandSquadSidebar}`}>
                   <div className={styles.commandSquadHero}>
                     <div className={styles.commandSquadHeading}>
                       <span className={styles.commandSquadEyebrow}>
                         <FaCrosshairs /> Squad Discovery
                       </span>
-                      <h2>Find <span>Squad</span></h2>
+                      <h2>Find <span>Tim</span></h2>
                       <p>Team up. Queue faster. Play together.</p>
                     </div>
                   </div>
@@ -6310,7 +6369,7 @@ export default function MessagesPage() {
                               </strong>
                               <small className="block truncate">
                                 {party.member_count}/{party.party_size || 5} players
-                                {party.party_mode ? ` Â· ${party.party_mode}` : ""}
+                                {party.party_mode ? ` · ${party.party_mode}` : ""}
                               </small>
                             </div>
                             <button
@@ -6334,7 +6393,7 @@ export default function MessagesPage() {
                       <p className={styles.commandEmpty}>No open squads are available.</p>
                     )}
                   </div>
-                </section>
+                </section>) : null}
               </div>
             ) : (
               <>
@@ -6363,9 +6422,9 @@ export default function MessagesPage() {
                           {selectedIsGroup
                             ? selectedCommunityChannel?.topic ||
                               selectedRoom.description ||
-                              "General discussion for all server members."
+                              "Tempat mengobrol bersama anggota komunitas."
                             : selectedRoom.order_id
-                              ? `Protected order chat Â· Order #${selectedRoom.order_id}`
+                              ? `Protected order chat · Order #${selectedRoom.order_id}`
                               : "Protected pre-sale product chat"}
                         </p>
                       </div>
@@ -6377,8 +6436,8 @@ export default function MessagesPage() {
                         <span className="inline-flex items-center gap-2 border-r border-white/10 px-1 pr-5 text-xs font-medium text-gray-300">
                           <FaCircle className="text-[8px] text-emerald-400" />
                           {redisEnabled
-                            ? `${onlineUserIds.size} members online`
-                            : `${conversationMembers.length} members`}
+                            ? `${onlineUserIds.size} anggota online`
+                            : `${conversationMembers.length} anggota`}
                         </span>
                       ) : null}
                       {selectedRoom.party_game ? (
@@ -6387,7 +6446,7 @@ export default function MessagesPage() {
                           {selectedRoom.party_game}
                         </span>
                       ) : null}
-                      {String(
+                      {COMMUNITY_BROADCASTS_ENABLED && String(
                         selectedRoom.stream_status || "",
                       ).toLowerCase() === "live" ? (
                         <span className="inline-flex items-center gap-2 rounded-full bg-red-500 px-3 py-2 text-xs font-black text-white">
@@ -6400,7 +6459,7 @@ export default function MessagesPage() {
                           href={`/orders/${selectedRoom.order_id}`}
                           className="rounded-full border border-yellow-400/40 px-3 py-2 text-xs font-black text-yellow-300 hover:bg-yellow-400 hover:text-black"
                         >
-                          Open Order
+                          Lihat pesanan
                         </Link>
                       ) : null}
                       {selectedRoom.product_id ? (
@@ -6408,7 +6467,7 @@ export default function MessagesPage() {
                           href={`/product/${selectedRoom.product_id}`}
                           className="rounded-full border border-cyan-400/40 px-3 py-2 text-xs font-black text-cyan-300 hover:bg-cyan-400 hover:text-black"
                         >
-                          View Product
+                          Lihat produk
                         </Link>
                       ) : null}
                       <button
@@ -6417,32 +6476,48 @@ export default function MessagesPage() {
                           setShowPinnedPanel((current) => !current)
                         }
                         className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${showPinnedPanel ? "bg-cyan-400/10 text-cyan-200" : "text-gray-400 hover:bg-white/5 hover:text-cyan-300"}`}
-                        title="Channel brief"
+                        title="Tentang ruang ini"
                       >
                         <FaThumbtack />
                       </button>
                       <button
                         type="button"
                         onClick={() => {
+                          if (!wideMessagesLayout) { void openCommunityOverlay("members"); return; }
                           setRightPanelTab("members");
                           setShowMemberPanel((current) => !current);
                         }}
-                        className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${showMemberPanel ? "bg-cyan-400/10 text-cyan-200" : "text-gray-400 hover:bg-white/5 hover:text-cyan-300"}`}
-                        title={showMemberPanel ? "Hide member panel" : "Show member panel"}
+                        className={`${styles.membersToggle} flex items-center justify-center gap-2 rounded-lg transition ${showMemberPanel ? "bg-cyan-400/10 text-cyan-200" : "text-gray-300 hover:bg-white/5 hover:text-cyan-300"}`}
+                        title={showMemberPanel ? "Tutup daftar anggota" : "Lihat anggota"}
+                        aria-label={showMemberPanel ? "Tutup daftar anggota" : "Lihat anggota"}
+                        aria-expanded={showMemberPanel || communityOverlay === "members"}
                       >
-                        <FaUsers />
+                        <FaUsers /><span>Anggota</span>
                       </button>
                       <div className="relative">
                         <button
                           type="button"
                           onClick={() => setShowMoreMenu((current) => !current)}
                           className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${showMoreMenu ? "bg-cyan-400/10 text-cyan-200" : "text-gray-400 hover:bg-white/5 hover:text-cyan-300"}`}
-                          title="More"
+                          title="Lainnya" aria-label="Pilihan percakapan"
                         >
                           <FaEllipsisH />
                         </button>
                         {showMoreMenu ? (
                           <div className="absolute right-0 top-11 z-40 w-56 overflow-hidden rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-2 text-xs font-bold shadow-[0_22px_60px_rgba(0,0,0,0.55)]">
+                            {selectedIsGroup && streamIsActive && selectedRoom.stream_host_id === userId ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowMoreMenu(false);
+                                  void forceStopHostedLive(selectedRoom.id, "Siaran lama sudah diakhiri.");
+                                }}
+                                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-200 hover:bg-white/10"
+                              >
+                                <FaBroadcastTower />
+                                Akhiri siaran lama
+                              </button>
+                            ) : null}
                             {selectedIsGroup &&
                             canManageSelectedGroupMembers ? (
                               <button
@@ -6458,10 +6533,10 @@ export default function MessagesPage() {
                                 }}
                                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                               >
-                                <FaUserPlus /> Invite player
+                                <FaUserPlus /> Undang anggota
                               </button>
                             ) : null}
-                            {selectedRoom.party_game &&
+                            {SQUAD_DISCOVERY_ENABLED && selectedRoom.party_game &&
                             canManageSelectedGroupMembers ? (
                               <button
                                 type="button"
@@ -6487,7 +6562,7 @@ export default function MessagesPage() {
                               }}
                               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                             >
-                              <FaArrowRight /> Refresh room
+                              <FaArrowRight /> Muat ulang percakapan
                             </button>
                             <button
                               type="button"
@@ -6498,21 +6573,21 @@ export default function MessagesPage() {
                                     `${window.location.origin}/cpcommunity?room=${selectedRoom.id}`,
                                   )
                                   .then(
-                                    () => setNotice("Room link copied."),
+                                    () => setNotice("Tautan ruang disalin."),
                                     () =>
-                                      setError("Could not copy the room link."),
+                                      setError("Tautan belum dapat disalin. Coba lagi."),
                                   );
                               }}
                               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-300 hover:bg-cyan-400/10 hover:text-cyan-200"
                             >
-                              <FaPaperclip /> Copy room link
+                              <FaPaperclip /> Salin tautan ruang
                             </button>
                           </div>
                         ) : null}
                       </div>
                     </div>
                   </div>
-                  {selectedIsGroup && selectedRoom.party_game ? (
+                  {SQUAD_DISCOVERY_ENABLED && selectedIsGroup && selectedRoom.party_game ? (
                     <div
                       className={`${styles.channelTagRow} mt-3 flex flex-wrap gap-2 text-[10px] font-bold text-gray-400`}
                     >
@@ -6552,12 +6627,12 @@ export default function MessagesPage() {
                       <FaThumbtack className="mt-0.5 shrink-0 text-yellow-300" />
                       <div>
                         <p className="font-black text-yellow-200">
-                          Channel brief
+                          Tentang ruang ini
                         </p>
                         <p className="mt-1 text-gray-400">
                           {selectedCommunityChannel?.topic ||
                             selectedRoom.description ||
-                            "No channel topic has been published yet."}
+                            "Belum ada deskripsi untuk ruang ini."}
                         </p>
                       </div>
                     </div>
@@ -6568,44 +6643,8 @@ export default function MessagesPage() {
                   className={`${styles.conversationGrid} min-h-0 flex-1 ${selectedIsGroup && showMemberPanel ? "grid xl:grid-cols-[minmax(0,1fr)_320px]" : "flex flex-col"}`}
                 >
                   <div
-                    className={`${styles.chatColumn} ${streamIsActive ? styles.chatColumnLive : styles.chatColumnFocus} flex min-h-0 flex-col`}
+                    className={`${styles.chatColumn} ${COMMUNITY_BROADCASTS_ENABLED && streamIsActive ? styles.chatColumnLive : styles.chatColumnFocus} flex min-h-0 flex-col`}
                   >
-                    {selectedRoom.product ? (
-                      <div className="border-b border-white/10 bg-cyan-400/5 p-4">
-                        <div className="flex items-center justify-between gap-4 rounded-2xl border border-cyan-400/20 bg-black/30 p-4">
-                          <div className="min-w-0">
-                            <p className="text-xs font-black uppercase tracking-wider text-cyan-300">
-                              Product Context
-                            </p>
-                            <p className="truncate font-black">
-                              {selectedRoom.product.title || "Product"}
-                            </p>
-                          </div>
-                          <p className="shrink-0 font-black text-green-300">
-                            {formatPrice(selectedRoom.product.price || 0)}
-                          </p>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {!selectedIsGroup ? (
-                      <div className="border-b border-emerald-400/20 bg-emerald-400/[0.06] px-5 py-3">
-                        <p className="flex items-center gap-2 text-xs font-bold text-emerald-200">
-                          <FaLock />
-                          Direct message, lampiran, dan panggilan baru dienkripsi end-to-end. Riwayat disimpan terenkripsi di perangkat ini.
-                        </p>
-                      </div>
-                    ) : null}
-
-                    {!selectedIsGroup ? (
-                      <div className="border-b border-yellow-400/20 bg-yellow-400/10 px-5 py-3 text-sm text-yellow-100">
-                        <strong>Safety:</strong> Never move payment outside
-                        ComePlayers. Sellers must send account credentials
-                        through the encrypted delivery form on the order page,
-                        not chat.
-                      </div>
-                    ) : null}
-
                     {!selectedIsGroup ? (
                       <SecureDirectConversation
                         key={`secure-direct:${userId}:${selectedRoom.id}`}
@@ -6620,16 +6659,15 @@ export default function MessagesPage() {
                       >
                         <strong className="text-cyan-300">
                           {selectedCommunityChannel.channel_type === "voice"
-                            ? `ðŸ”Š ${selectedCommunityChannel.name}`
+                            ? `🔊 ${selectedCommunityChannel.name}`
                             : `#${selectedCommunityChannel.name}`}
                         </strong>
                         {selectedCommunityChannel.topic
-                          ? ` â€” ${selectedCommunityChannel.topic}`
+                          ? ` — ${selectedCommunityChannel.topic}`
                           : ""}
                         {selectedChannelIsVoice ? (
                           <span className="ml-2 text-emerald-300">
-                            Secure LiveKit voice, video, and screen sharing are
-                            available in this channel.
+                            Anda dapat berbicara, menyalakan kamera, atau membagikan layar di ruang ini.
                           </span>
                         ) : null}
                       </div>
@@ -6644,12 +6682,12 @@ export default function MessagesPage() {
                             type="button"
                             onClick={() => setShowVoicePanel(false)}
                             className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-[#061421]/90 text-gray-400 hover:border-cyan-400/30 hover:text-white"
-                            title="Close voice controls"
+                            title="Tutup kontrol suara"
                           >
                             <FaTimes />
                           </button>
                         ) : null}
-                        {selectedChannelIsVoice ? (
+                        {COMMUNITY_BROADCASTS_ENABLED && selectedChannelIsVoice ? (
                           <div className={styles.liveBridgeHost} aria-hidden="true">
                             <GroupLiveStreamPanel
                               key={`voice-live-bridge:${selectedRoom.id}:${selectedChannelId}`}
@@ -6677,11 +6715,8 @@ export default function MessagesPage() {
                     ) : null}
 
                     <div
-                      className={`${styles.messageViewport} ${!selectedIsGroup ? "hidden" : ""} relative flex-1 overflow-hidden bg-[url('/hero-bg.webp')] bg-cover bg-center`}
+                      className={`${styles.messageViewport} ${!selectedIsGroup ? "hidden" : ""} relative flex-1 overflow-hidden`}
                     >
-                      <div className="pointer-events-none absolute inset-0 bg-[#02101c]/78" />
-                      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_62%_42%,rgba(6,182,212,0.22),transparent_30%),linear-gradient(90deg,rgba(2,8,18,0.86),rgba(4,18,33,0.62)_50%,rgba(2,8,18,0.8))]" />
-                      <div className="pointer-events-none absolute inset-0 bg-[url('/brand/comeplayers-cp-v6.png')] bg-[length:132px_auto] bg-center bg-no-repeat opacity-[0.055]" />
                       <div
                         className={`${styles.messageScroller} relative z-10 h-full overflow-y-auto p-5 lg:p-6 ${selectedIsGroup && selectedChannelIsVoice && wideMessagesLayout ? "xl:pr-[356px]" : ""}`}
                       >
@@ -6690,23 +6725,30 @@ export default function MessagesPage() {
                             <div>
                               <FaHeadphones className="mx-auto mb-3 text-3xl text-emerald-300" />
                               <p className="font-black text-gray-300">
-                                Voice channel selected
+                                Ruang suara
                               </p>
                               <p className="mt-1">
-                                Use the LiveKit controls above to talk, enable
-                                video, share your screen, or leave.
+                                Gunakan tombol di atas untuk berbicara, menyalakan kamera,
+                                membagikan layar, atau keluar.
                               </p>
                             </div>
                           </div>
                         ) : loadingMessages ? (
-                          <div className="flex h-full items-center justify-center text-gray-400">
-                            Loading chat...
+                          <div role="status" className="flex h-full items-center justify-center text-slate-300">
+                            Memuat percakapan…
                           </div>
-                        ) : conversation?.messages?.length ? (
+                        ) : conversationLoadError ? (
+                          <div role="alert" className={styles.conversationState}>
+                            <p>{conversationLoadError}</p>
+                            <button type="button" onClick={() => void loadConversation(selectedRoom.id)}>
+                              Coba lagi
+                            </button>
+                          </div>
+                        ) : renderedMessages.length ? (
                           <div
                             className={`${styles.groupMessageList} space-y-5`}
                           >
-                            {conversation.messages.map((message) => {
+                            {renderedMessages.map((message) => {
                               const mine = message.sender_id === userId;
                               const sender =
                                 message.sender ||
@@ -6717,15 +6759,18 @@ export default function MessagesPage() {
                               const imageAttachment = isImageAttachment(
                                 message.attachment,
                               );
+                              const videoAttachment = isVideoAttachment(
+                                message.attachment,
+                              );
                               const showMessageText = Boolean(
                                 message.message &&
                                 !(
-                                  imageAttachment &&
+                                  (imageAttachment || videoAttachment) &&
                                   isGenericAttachmentMessage(message.message)
                                 ),
                               );
                               const imageOnly =
-                                imageAttachment && !showMessageText;
+                                (imageAttachment || videoAttachment) && !showMessageText;
                               if (selectedIsGroup) {
                                 return (
                                   <div
@@ -6747,6 +6792,7 @@ export default function MessagesPage() {
                                         <span className="text-[11px] text-gray-500">
                                           {formatMessageTime(message.created_at)}
                                         </span>
+                                        {message.optimistic ? <span className="text-[11px] text-cyan-300">Mengirim…</span> : null}
                                         {message.moderation_status ===
                                         "reported" ? (
                                           <span className="text-[11px] text-red-300">
@@ -6783,7 +6829,7 @@ export default function MessagesPage() {
                                           ) : null}
                                         </div>
                                       ) : null}
-                                      <MessageInteractions
+                                      {!message.optimistic ? <MessageInteractions
                                         message={message}
                                         mine={mine}
                                         onReply={() => beginReply(message)}
@@ -6797,7 +6843,7 @@ export default function MessagesPage() {
                                         onReport={() =>
                                           void reportMessage(message)
                                         }
-                                      />
+                                      /> : null}
                                     </div>
                                   </div>
                                 );
@@ -6862,7 +6908,8 @@ export default function MessagesPage() {
                                         {message.edited_at ? (
                                           <span>Edited</span>
                                         ) : null}
-                                        {mine && !selectedIsGroup ? (
+                                        {message.optimistic ? <span>Mengirim…</span> : null}
+                                        {mine && !selectedIsGroup && !message.optimistic ? (
                                           <span>
                                             {message.is_read ? "Read" : "Sent"}
                                           </span>
@@ -6873,7 +6920,7 @@ export default function MessagesPage() {
                                         ) : null}
                                       </div>
                                     </div>
-                                    <MessageInteractions
+                                    {!message.optimistic ? <MessageInteractions
                                       message={message}
                                       mine={mine}
                                       onReply={() => beginReply(message)}
@@ -6887,7 +6934,7 @@ export default function MessagesPage() {
                                       onReport={() =>
                                         void reportMessage(message)
                                       }
-                                    />
+                                    /> : null}
                                   </div>
                                   {mine ? (
                                     <ProfileAvatar
@@ -6910,14 +6957,12 @@ export default function MessagesPage() {
                                 <FaShieldAlt className="mx-auto text-4xl text-cyan-300" />
                               )}
                               <h2 className="mt-4 text-2xl font-black">
-                                {selectedIsGroup
-                                  ? "Start the server conversation"
-                                  : "Start a protected conversation"}
+                                Mulai percakapan
                               </h2>
                               <p className="mt-2 text-gray-400">
                                 {selectedIsGroup
-                                  ? "Share updates with the server or start a live gameplay session."
-                                  : "Ask about the product without sharing external contact details."}
+                                  ? "Tulis pesan di bawah untuk menyapa teman-teman."
+                                  : "Tanyakan tentang produk langsung di percakapan ini."}
                               </p>
                             </div>
                           </div>
@@ -6933,7 +6978,7 @@ export default function MessagesPage() {
                           .map((entry) => entry.name)
                           .slice(0, 3)
                           .join(", ")}{" "}
-                        typingâ€¦
+                        sedang mengetik…
                       </div>
                     ) : null}
 
@@ -7059,10 +7104,10 @@ export default function MessagesPage() {
                                 className={`${styles.composerPicker} absolute bottom-[58px] left-12 z-30 grid w-48 grid-cols-2 gap-2 rounded-xl border border-yellow-400/25 bg-[#061421]/98 p-3 shadow-2xl`}
                               >
                                 {[
-                                  "ðŸŽ GG Pack",
-                                  "ðŸ† MVP Badge",
-                                  "âš¡ Boost",
-                                  "ðŸ’Ž Gem Drop",
+                                  "🎁 GG Pack",
+                                  "🏆 MVP Badge",
+                                  "⚡ Boost",
+                                  "💎 Gem Drop",
                                 ].map((gift) => (
                                   <button
                                     key={gift}
@@ -7101,7 +7146,7 @@ export default function MessagesPage() {
                                 selectedIsGroup
                                   ? selectedChannelIsVoice
                                     ? "Voice channels do not accept text messages."
-                                    : `Message #${selectedCommunityChannel?.name || "general"}`
+                                    : `Tulis pesan di #${selectedCommunityChannel?.name || "general"}`
                                   : "Type a protected message..."
                               }
                               className="min-h-[46px] flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-6 outline-none placeholder:text-gray-600"
@@ -7136,14 +7181,14 @@ export default function MessagesPage() {
                                 className={`${styles.composerPicker} absolute bottom-[58px] right-12 z-30 flex flex-wrap gap-2 rounded-xl border border-cyan-400/25 bg-[#061421]/98 p-3 shadow-2xl`}
                               >
                                 {[
-                                  "ðŸ˜€",
-                                  "ðŸ”¥",
-                                  "ðŸŽ®",
-                                  "ðŸ‘",
-                                  "â¤ï¸",
-                                  "ðŸ˜‚",
-                                  "âœ…",
-                                  "ðŸ†",
+                                  "😀",
+                                  "🔥",
+                                  "🎮",
+                                  "👍",
+                                  "❤️",
+                                  "😂",
+                                  "✅",
+                                  "🏆",
                                 ].map((emoji) => (
                                   <button
                                     key={emoji}
@@ -7173,17 +7218,17 @@ export default function MessagesPage() {
                               }
                               className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-transparent text-lg text-cyan-300 transition hover:bg-cyan-400/10 hover:text-cyan-100 disabled:opacity-40"
                               title={
-                                editingMessage ? "Save message" : "Send message"
+                                editingMessage ? "Simpan pesan" : "Kirim pesan"
                               }
                             >
-                              {sending || uploading ? "â€¦" : <FaPaperPlane />}
+                              {sending || uploading ? "…" : <FaPaperPlane />}
                             </button>
                           </div>
                           <p
                             className={`${styles.composerHint} mt-2 flex items-center justify-between text-[10px] text-gray-600`}
                           >
                             <span>
-                              Enter to send Â· Shift+Enter for a new line
+                              Enter untuk mengirim · Shift+Enter untuk baris baru
                             </span>
                             <span>{draft.length}/2000</span>
                           </p>
@@ -7195,10 +7240,10 @@ export default function MessagesPage() {
                   {selectedIsGroup && showMemberPanel && wideMessagesLayout ? (
                     <aside
                       className={`${styles.rightRail} ${styles.rightPanelTabbed} hidden min-h-0 xl:grid`}
-                      aria-label="Server members, squad, and events"
+                      aria-label="Anggota dan kegiatan komunitas"
                     >
                       <div className={styles.rightPanelTabs}>
-                        {(["members", "squad", "events"] as RightPanelTab[]).map(
+                        {COMMUNITY_PANEL_TABS.map(
                           (tab) => (
                             <button
                               key={tab}
@@ -7208,10 +7253,10 @@ export default function MessagesPage() {
                               className={styles.rightPanelTab}
                             >
                               {tab === "members"
-                                ? "Members"
+                                ? "Anggota"
                                 : tab === "squad"
-                                  ? "Squad"
-                                  : "Events"}
+                                  ? "Tim"
+                                  : "Kegiatan"}
                             </button>
                           ),
                         )}
@@ -7222,19 +7267,19 @@ export default function MessagesPage() {
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
-                                <p>Server Members</p>
+                                <p>Anggota komunitas</p>
                                 <span>{conversationMembers.length} total</span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => void openCommunityOverlay("members")}
                               >
-                                View All
+                                Lihat semua
                               </button>
                             </div>
 
                             <div className={styles.memberStatusSection}>
-                              <p>Online â€” {onlineConversationMembers.length}</p>
+                              <p>Online — {onlineConversationMembers.length}</p>
                               {onlineConversationMembers.length ? (
                                 onlineConversationMembers.slice(0, 7).map((member) => (
                                   <button
@@ -7260,12 +7305,12 @@ export default function MessagesPage() {
                                   </button>
                                 ))
                               ) : (
-                                <p className={styles.rightPanelEmpty}>No members online.</p>
+                                <p className={styles.rightPanelEmpty}>Belum ada anggota online.</p>
                               )}
                             </div>
 
                             <div className={styles.memberStatusSection}>
-                              <p>Offline â€” {offlineConversationMembers.length}</p>
+                              <p>Offline — {offlineConversationMembers.length}</p>
                               {offlineConversationMembers.slice(0, 6).map((member) => (
                                 <button
                                   key={`offline:${member.user_id}`}
@@ -7289,11 +7334,11 @@ export default function MessagesPage() {
                           </>
                         ) : null}
 
-                        {rightPanelTab === "squad" ? (
+                        {SQUAD_DISCOVERY_ENABLED && rightPanelTab === "squad" ? (
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
-                                <p>Squad</p>
+                                <p>Tim</p>
                                 <span>
                                   {conversationMembers.length}/
                                   {selectedRoom.party_size || Math.max(conversationMembers.length, 5)} players
@@ -7356,7 +7401,7 @@ export default function MessagesPage() {
                                     <span className={styles.squadInviteIcon}>
                                       <FaPlus />
                                     </span>
-                                    <span className="text-sm font-medium">Invite Player</span>
+                                    <span className="text-sm font-medium">Undang anggota</span>
                                   </button>
                                 ),
                               )}
@@ -7398,19 +7443,19 @@ export default function MessagesPage() {
                           <>
                             <div className={styles.rightPanelHeading}>
                               <div>
-                                <p>Upcoming Events</p>
+                                <p>Kegiatan mendatang</p>
                                 <span>Server activities and tournaments</span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => void openCommunityOverlay("events")}
                               >
-                                View All
+                                Lihat semua
                               </button>
                             </div>
                             <div className={styles.eventList}>
                               {announcementsLoading ? (
-                                <p className={styles.rightPanelEmpty}>Loading events...</p>
+                                <p className={styles.rightPanelEmpty}>Memuat kegiatan…</p>
                               ) : announcements.length ? (
                                 announcements.slice(0, 4).map((announcement) => (
                                   <Link
@@ -7449,7 +7494,7 @@ export default function MessagesPage() {
                                   href="/announcements"
                                   className={styles.rightPanelEmpty}
                                 >
-                                  No published events. Browse announcements â†’
+                                  Belum ada kegiatan. Lihat pengumuman →
                                 </Link>
                               )}
                             </div>
@@ -7457,7 +7502,7 @@ export default function MessagesPage() {
                         ) : null}
                       </section>
 
-                      {showSquadFinder ? (
+                      {SQUAD_DISCOVERY_ENABLED && showSquadFinder ? (
                         <section
                           className={`${styles.finderOverlay} border border-cyan-400/30 bg-[#061421]/98 p-4 shadow-2xl`}
                         >
@@ -7503,7 +7548,7 @@ export default function MessagesPage() {
                                     <p className="truncate text-[10px] text-gray-500">
                                       {party.member_count}/{party.party_size || 5}
                                       {party.party_mode
-                                        ? ` Â· ${party.party_mode}`
+                                        ? ` · ${party.party_mode}`
                                         : ""}
                                     </p>
                                   </div>
@@ -7565,7 +7610,7 @@ export default function MessagesPage() {
                           }}
                         >
                           <label className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-500">
-                            Invite player Â· acceptance required
+                            Undang anggota · acceptance required
                           </label>
                           <div className="mt-2 flex gap-2">
                             <input
@@ -7584,7 +7629,7 @@ export default function MessagesPage() {
                                 memberActionBusy.startsWith("invite:")
                               }
                               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/40 bg-cyan-400/10 text-cyan-200 transition hover:bg-cyan-400 hover:text-black disabled:opacity-40"
-                              title="Invite player"
+                              title="Undang anggota"
                             >
                               <FaUserPlus />
                             </button>
@@ -7592,7 +7637,7 @@ export default function MessagesPage() {
                         </form>
                       ) : null}
 
-                      {canManageSelectedGroupMembers &&
+                      {SQUAD_DISCOVERY_ENABLED && canManageSelectedGroupMembers &&
                       selectedRoom.party_game ? (
                         <div className="shrink-0 rounded-2xl border border-yellow-400/20 bg-yellow-400/[0.05] p-3 shadow-[inset_0_0_24px_rgba(250,204,21,0.03)]">
                           <div className="flex items-start gap-3">
@@ -7716,7 +7761,7 @@ export default function MessagesPage() {
                                   className={`text-[10px] font-bold ${targetIsOwner ? "text-yellow-400" : targetIsModerator ? "text-cyan-300" : "text-gray-500"}`}
                                 >
                                   {memberRoleLabel(member.member_role)}
-                                  {liveHost ? " Â· Live host" : ""}
+                                  {liveHost ? " · Live host" : ""}
                                 </p>
                               </div>
                               <div className="flex shrink-0 gap-1 opacity-0 transition group-hover:opacity-100">
@@ -7766,13 +7811,13 @@ export default function MessagesPage() {
                       <div className="shrink-0 rounded-2xl border border-cyan-400/20 bg-[#071827]/76 p-4 shadow-[inset_0_0_30px_rgba(6,182,212,0.05)]">
                         <div className="mb-3 flex items-center justify-between">
                           <p className="text-[11px] font-black uppercase tracking-[0.14em] text-gray-300">
-                            Upcoming Events
+                            Kegiatan mendatang
                           </p>
                           <Link
                             href="/announcements"
                             className="text-[10px] font-black text-cyan-300 hover:text-cyan-200"
                           >
-                            View All
+                            Lihat semua
                           </Link>
                         </div>
                         <div className="space-y-3">
@@ -7817,7 +7862,7 @@ export default function MessagesPage() {
                         </div>
                       </div>
 
-                      <div className="shrink-0 rounded-2xl border border-cyan-400/20 bg-[#071827]/76 p-4 shadow-[inset_0_0_30px_rgba(6,182,212,0.05)]">
+                      {SQUAD_DISCOVERY_ENABLED ? (<div className="shrink-0 rounded-2xl border border-cyan-400/20 bg-[#071827]/76 p-4 shadow-[inset_0_0_30px_rgba(6,182,212,0.05)]">
                         <div className="flex items-center justify-between gap-2 px-1">
                           <div>
                             <p className="text-[11px] font-black uppercase tracking-[0.14em] text-gray-400">
@@ -7837,7 +7882,7 @@ export default function MessagesPage() {
                             {showSquadFinder ? "Hide" : "View"}
                           </button>
                         </div>
-                        {showSquadFinder ? (
+                        {SQUAD_DISCOVERY_ENABLED && showSquadFinder ? (
                           <div className="mt-3 space-y-2">
                             {matchmakingLoading ? (
                               <div className="rounded-xl border border-white/10 p-3 text-xs text-gray-500">
@@ -7868,8 +7913,8 @@ export default function MessagesPage() {
                                             `${party.party_game || "Game"} Squad`}
                                         </p>
                                         <p className="mt-1 truncate text-[10px] text-gray-500">
-                                          {party.party_game || "Any game"} Â·{" "}
-                                          {party.party_mode || "Any mode"} Â·{" "}
+                                          {party.party_game || "Any game"} ·{" "}
+                                          {party.party_mode || "Any mode"} ·{" "}
                                           {party.party_region || "Any region"}
                                         </p>
                                         <div className="mt-2 flex items-center gap-2 text-[10px] font-bold text-gray-400">
@@ -7913,7 +7958,7 @@ export default function MessagesPage() {
                             )}
                           </div>
                         ) : null}
-                      </div>
+                      </div>) : null}
                     </aside>
                   ) : null}
                 </div>
@@ -8143,12 +8188,12 @@ export default function MessagesPage() {
           </div>
         </div>
       ) : null}
-      {showLiveLobbyPicker ? (
+      {COMMUNITY_BROADCASTS_ENABLED && showLiveLobbyPicker ? (
         <div
           className="fixed inset-0 z-[130] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
-          aria-label="Choose a Voice Lobby for live streaming"
+          aria-label="Pilih ruang suara untuk siaran"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setShowLiveLobbyPicker(false);
@@ -8159,20 +8204,20 @@ export default function MessagesPage() {
             <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
-                  Go Live
+                  Mulai siaran
                 </p>
                 <h2 className="mt-1 text-xl font-black text-white">
-                  Choose a Voice Lobby
+                  Pilih ruang untuk siaran
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
-                  Live streaming is only available from a server Voice Lobby. Select one to join and go live automatically.
+                  Pilih ruang suara di bawah. Anda akan langsung bergabung dan memulai siaran di ruang tersebut.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowLiveLobbyPicker(false)}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-slate-400 transition hover:bg-white/5 hover:text-white"
-                title="Close"
+                title="Tutup" aria-label="Tutup pilihan ruang siaran"
               >
                 <FaTimes />
               </button>
@@ -8189,7 +8234,7 @@ export default function MessagesPage() {
                     key={`live-lobby:${channel.id}`}
                     type="button"
                     onClick={() => selectLiveLobbyForStreaming(channel)}
-                    className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${
+                    className={`flex w-full flex-wrap items-center gap-3 rounded-2xl border p-4 text-left transition sm:flex-nowrap ${
                       selected
                         ? "border-yellow-400/60 bg-yellow-400/10 shadow-[0_0_24px_rgba(250,204,21,0.12)]"
                         : "border-white/10 bg-white/[0.035] hover:border-cyan-400/35 hover:bg-cyan-400/[0.07]"
@@ -8210,18 +8255,18 @@ export default function MessagesPage() {
                       </span>
                       <span className="mt-1 block truncate text-xs text-slate-400">
                         {connected
-                          ? `${voiceDockState.participantCount} connected`
-                          : channel.topic || "Ready to join and start live"}
+                          ? `${voiceDockState.participantCount} peserta terhubung`
+                          : channel.topic || "Siaran bersama anggota di ruang ini"}
                       </span>
                     </span>
                     <span
-                      className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${
+                      className={`w-full shrink-0 rounded-lg px-3 py-2 text-center text-sm font-bold sm:w-auto sm:max-w-[150px] ${
                         selected
                           ? "bg-yellow-400 text-black"
                           : "border border-white/10 text-slate-400"
                       }`}
                     >
-                      {selected ? "Joining" : "Auto Start"}
+                      {selected ? "Sedang bergabung…" : "Gabung & mulai siaran"}
                     </span>
                   </button>
                 );
@@ -8230,21 +8275,21 @@ export default function MessagesPage() {
 
             <div className="flex items-center justify-between gap-3 border-t border-white/10 bg-black/20 px-5 py-4">
               <p className="text-xs font-bold text-slate-400">
-                Pick one lobby and ComePlayers will join it and start live automatically.
+                Belum siap siaran? Pilih Batal untuk kembali mengobrol.
               </p>
               <button
                 type="button"
                 onClick={() => setShowLiveLobbyPicker(false)}
                 className="min-h-11 rounded-xl border border-white/10 px-5 text-sm font-black text-slate-300 transition hover:bg-white/5 hover:text-white"
               >
-                Cancel
+                Batal
               </button>
             </div>
           </div>
         </div>
       ) : null}
 
-      {selectedIsGroup && selectedRoom ? (
+      {COMMUNITY_BROADCASTS_ENABLED && selectedIsGroup && selectedRoom && streamIsActive ? (
         <div
           className={`${styles.voiceDock} ${showMemberPanel ? "" : styles.voiceDockExpanded} fixed bottom-4 left-[370px] right-6 z-30 hidden h-20 items-center overflow-hidden rounded-2xl border border-yellow-400/25 bg-[#07131f]/94 shadow-[0_0_34px_rgba(250,204,21,0.12),inset_0_0_28px_rgba(255,255,255,0.025)] backdrop-blur-xl xl:flex 2xl:right-[365px]`}
         >
@@ -8257,7 +8302,7 @@ export default function MessagesPage() {
               }`}
             >
               <FaBroadcastTower />
-              {streamIsActive ? "Live Now" : "Live Ready"}
+              {streamIsActive ? "Sedang siaran" : "Siaran"}
             </span>
 
             <ServerAvatar
@@ -8274,7 +8319,7 @@ export default function MessagesPage() {
                 {streamIsActive
                   ? selectedRoom.stream_title || selectedRoom.party_game || "Live gameplay"
                   : selectedRoom.party_game || "Start a server livestream"}
-                {selectedRoom.party_mode ? ` Â· ${selectedRoom.party_mode}` : ""}
+                {selectedRoom.party_mode ? ` · ${selectedRoom.party_mode}` : ""}
               </p>
             </div>
 
@@ -8282,7 +8327,7 @@ export default function MessagesPage() {
               <span className={`h-2.5 w-2.5 rounded-full ${streamIsActive ? "bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.7)]" : "bg-gray-600"}`} />
               <div>
                 <p className="text-lg font-black leading-5 text-white">{streamViewerCount}</p>
-                <p className="text-[9px] text-gray-500">Watching Now</p>
+                <p className="text-[9px] text-gray-500">Penonton</p>
               </div>
             </div>
 
@@ -8294,8 +8339,8 @@ export default function MessagesPage() {
                 </p>
                 <p className="text-[9px] text-gray-500">
                   {streamIsActive
-                    ? `Started by ${displayName(selectedRoom.stream_host)}`
-                    : "Live Duration"}
+                    ? `Dimulai oleh ${displayName(selectedRoom.stream_host)}`
+                    : "Durasi siaran"}
                 </p>
               </div>
             </div>
@@ -8323,11 +8368,11 @@ export default function MessagesPage() {
             >
               {streamIsActive
                 ? selectedRoom.stream_host_id === userId
-                  ? "Stop Live"
+                  ? "Akhiri siaran"
                   : streamViewerActive
-                    ? "Leave Live"
-                    : "Watch Live"
-                : "Go Live"}
+                    ? "Keluar siaran"
+                    : "Tonton siaran"
+                : "Mulai siaran"}
             </button>
           </div>
         </div>

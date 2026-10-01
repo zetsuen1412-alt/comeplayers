@@ -17,7 +17,7 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["games", "shopping", "social"],
     icons: [
       {
-        src: "/icon.png",
+        src: "/brand/comeplayers-app-icon-2026.png",
         sizes: "1254x1254",
         type: "image/png",
         purpose: "any",

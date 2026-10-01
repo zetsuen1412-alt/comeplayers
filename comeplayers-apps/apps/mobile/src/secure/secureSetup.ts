@@ -3,16 +3,19 @@ import { mobileSecureTransport } from "./mobileSecureTransport";
 import { persistVerifiedSession } from "./verifiedVault";
 import { createNativePasskeyRecovery, unlockNativePasskeyRecovery } from "./nativePasskey";
 import { fingerprint } from "./crypto";
+import { openPasswordRecovery } from "./passwordRecovery";
 import { rosterHash, verifyRoster } from "./multiDevice";
 import { supabase } from "../runtime";
 import { LEGACY_RECOVERY_POLICY, parseRecoveryPolicy, recoveryHeaders, validateDeviceReplacement, type RecoveryPolicy } from "./recoveryPolicy";
 
 export type SecureSetup = ({ kind: "new"; recoveryKey: string; plan: EnrollmentPlan } | { kind: "recover"; snapshot: AccountSnapshot }) & { policy?: RecoveryPolicy };
 const plans = new WeakMap<SecureSetup, { plan: EnrollmentPlan; selection: string }>();
+const activations = new WeakMap<SecureSetup, Promise<void>>();
 
 async function assertUser(userId: string) {
   const { data } = await supabase.auth.getSession();
   if (!data.session || data.session.user.id !== userId) throw new Error("The signed-in account changed. Reopen Messages to continue.");
+  return data.session.user;
 }
 
 /** Legacy archive compatibility only; the setup UI never requests this key. */
@@ -23,8 +26,26 @@ export async function activateSecureSetup(userId: string, setup: SecureSetup, re
   await activateVerifiedDevice(plan, mobileSecureTransport, async (session, root) => { await assertUser(userId); await persistVerifiedSession(session, root); });
 }
 
-export async function activatePasskeySetup(userId: string, setup: SecureSetup, removeDeviceIds: string[] = []): Promise<void> {
-  await assertUser(userId);
+export function activatePasskeySetup(userId: string, setup: SecureSetup, removeDeviceIds: string[] = []): Promise<void> {
+  // Leaving a conversation while its system prompt is open must not let a
+  // remounted screen create another passkey or register a duplicate device.
+  const pending = activations.get(setup);
+  if (pending) return pending;
+  const activation = activatePasskeySetupOnce(userId, setup, removeDeviceIds).finally(() => activations.delete(setup));
+  activations.set(setup, activation);
+  return activation;
+}
+
+export function activatePasswordSetup(userId: string, setup: SecureSetup, password: string, removeDeviceIds: string[] = []): Promise<void> {
+  const pending = activations.get(setup);
+  if (pending) return pending;
+  const activation = activatePasskeySetupOnce(userId, setup, removeDeviceIds, password).finally(() => activations.delete(setup));
+  activations.set(setup, activation);
+  return activation;
+}
+
+async function activatePasskeySetupOnce(userId: string, setup: SecureSetup, removeDeviceIds: string[], password?: string): Promise<void> {
+  const user = await assertUser(userId);
   const policy = setup.policy ?? LEGACY_RECOVERY_POLICY;
   const selection = [...removeDeviceIds].sort().join(",");
   let cached = plans.get(setup);
@@ -33,11 +54,17 @@ export async function activatePasskeySetup(userId: string, setup: SecureSetup, r
     let plan: EnrollmentPlan;
     if (setup.kind === "new") {
       if (!setup.plan.backup) throw new Error("The encrypted identity backup is missing.");
-      const passkey = await createNativePasskeyRecovery(setup.plan.recoveryIdentity);
+      const passkey = await createNativePasskeyRecovery(setup.plan.recoveryIdentity, { email: user.email });
       plan = { ...setup.plan, backup: { ...setup.plan.backup, passkey } };
+    } else if (password !== undefined) {
+      const recovery = setup.snapshot.encrypted_backup.password;
+      if (!recovery) throw new Error("Sandi cadangan belum diatur. Gunakan perangkat lama Anda.");
+      validateDeviceReplacement(setup.snapshot.roster.devices.map(device => device.id), removeDeviceIds);
+      const key = await openPasswordRecovery(recovery, password, setup.snapshot.roster.identity);
+      plan = prepareRecoveredDevice(userId, { ...setup.snapshot, encrypted_backup: recovery.backup }, key, { pinnedRoot: setup.snapshot.roster.identity, removeDeviceIds });
     } else {
       const passkey = setup.snapshot.encrypted_backup.passkey;
-      if (!passkey) throw new Error("This account is waiting for the approved recovery reset. Refresh after the new release is active.");
+      if (!passkey) throw new Error("Pemulihan chat belum diatur. Gunakan perangkat lama Anda.");
       validateDeviceReplacement(setup.snapshot.roster.devices.map(device => device.id), removeDeviceIds);
       const key = await unlockNativePasskeyRecovery(passkey, setup.snapshot.roster.identity);
       plan = prepareRecoveredDevice(userId, { ...setup.snapshot, encrypted_backup: passkey.backup }, key, { pinnedRoot: setup.snapshot.roster.identity, removeDeviceIds });

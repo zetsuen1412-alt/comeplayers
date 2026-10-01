@@ -5,6 +5,7 @@ import { roomName, roomPreview, roomUnreadCount, type ChatRoom } from "@comeplay
 import { type AccountPreferences } from "./messagingApi";
 import { colors } from "./theme";
 import { useInbox } from "./InboxProvider";
+import { isCallActivity } from "./inboxOrdering";
 export function MessageAlerts({ session, account, activeRoom, onOpen, onUnread }: { session: Session | null; account: AccountPreferences | null; activeRoom?: string; onOpen: (room: ChatRoom) => void; onUnread: (count: number) => void }) {
   const [toast, setToast] = useState<ChatRoom | null>(null);
   const { rooms, preferences, loading } = useInbox();
@@ -14,7 +15,7 @@ export function MessageAlerts({ session, account, activeRoom, onOpen, onUnread }
     if (!session || !account || loading || (account.phoneRequired && !account.phoneVerified)) return;
     onUnread(rooms.reduce((sum, room) => { const cleared = preferences.find(p => p.room_id === room.id)?.cleared_before; return sum + (cleared && (!room.last_message_at || room.last_message_at <= cleared) ? 0 : roomUnreadCount(room)); }, 0));
     if (previous.current && account.settings.message_notifications && AppState.currentState === "active") {
-      const incoming = rooms.find(r => r.id !== activeRoom && roomUnreadCount(r) > 0 && r.last_message_at && r.last_message_at !== previous.current?.get(r.id) && !preferences.find(p => p.room_id === r.id)?.muted);
+      const incoming = rooms.find(r => r.id !== activeRoom && !isCallActivity(r) && roomUnreadCount(r) > 0 && r.last_message_at && r.last_message_at !== previous.current?.get(r.id) && !preferences.find(p => p.room_id === r.id)?.muted);
       if (incoming) setToast(incoming);
     }
     previous.current = new Map(rooms.map(r => [r.id, r.last_message_at || ""]));

@@ -7,9 +7,9 @@ import { parseRecoveryPolicy, RECOVERY_CLIENT_VERSION, type RecoveryPolicy } fro
 
 const json = (body: unknown) => NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
 async function readPolicy(db: ReturnType<typeof createSupabaseAdmin>): Promise<RecoveryPolicy> {
-  const result = await db.from("cp_secure_recovery_control").select("generation,reset_at,require_passkey").eq("singleton", true).single();
+  const result = await db.from("cp_secure_recovery_control").select("generation,reset_at,require_passkey,allow_device_setup,messaging_mode").eq("singleton", true).single();
   if (result.error || !result.data) throw inputError("Account recovery is being prepared. Please try again shortly.", 503);
-  return parseRecoveryPolicy({ generation: result.data.generation, resetAt: result.data.reset_at, requirePasskey: result.data.require_passkey });
+  return parseRecoveryPolicy({ generation: result.data.generation, resetAt: result.data.reset_at, requirePasskey: result.data.require_passkey, allowDeviceSetup: result.data.allow_device_setup && result.data.messaging_mode === "e2ee" });
 }
 
 // Login authorizes downloading ciphertext, never plaintext key recovery.
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     verifyDeviceRequest(request, text, user.id, roster.devices);
     const backup = body.backup == null ? null : verifyRootBackup(body.backup, roster.identity);
     if (!existing.data && !backup) throw inputError("Save the client-encrypted account backup before activation.");
-    if (recovery.requirePasskey && !(backup ?? existing.data?.encrypted_backup)?.passkey) throw inputError("Protect this account with a synced passkey before activation.");
+    if (recovery.requirePasskey && !recovery.allowDeviceSetup && !(backup ?? existing.data?.encrypted_backup)?.passkey) throw inputError("Protect this account with a synced passkey before activation.");
     const saved = await db.rpc("cp_secure_authorize_account_recovery", { p_user: user.id, p_roster: roster, p_hash: signedRosterHash(roster), p_backup: backup, p_generation: recovery.generation });
     if (saved.error) throw inputError(/rate limit/i.test(saved.error.message) ? "Too many device changes. Try again later." : "Account authorization changed. Refresh the device list and try again.", /rate limit/i.test(saved.error.message) ? 429 : 409);
     return json({ revision: saved.data, rosterHash: signedRosterHash(roster), passkeySignature: backup?.passkey?.signature ?? null, recoveryGeneration: recovery.generation });

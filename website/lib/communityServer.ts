@@ -564,26 +564,24 @@ export async function loadCommunityBundle(input: {
     ]),
   );
   const unreadByChannel = new Map<string, number>();
-  if (visibleChannelIds.length) {
-    const { data: unreadRows, error: unreadError } = await supabaseAdmin
-      .from("chat_messages")
-      .select("channel_id,sender_id,created_at")
-      .in("channel_id", visibleChannelIds)
-      .neq("sender_id", userId)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false })
-      .range(0, 4999);
-    if (unreadError) throw new Error(unreadError.message);
-    for (const message of unreadRows || []) {
-      const channelId = String(message.channel_id || "");
-      if (
-        channelId &&
-        new Date(String(message.created_at || 0)).getTime() >
-          (readAtByChannel.get(channelId) || 0)
-      ) {
-        unreadByChannel.set(channelId, (unreadByChannel.get(channelId) || 0) + 1);
+  // Count on the server instead of transferring up to 5,000 message rows on
+  // every community refresh. Limit concurrent counts for large communities.
+  for (let offset = 0; offset < visibleChannelIds.length; offset += 8) {
+    await Promise.all(visibleChannelIds.slice(offset, offset + 8).map(async (channelId) => {
+      let query = supabaseAdmin
+        .from("chat_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("channel_id", channelId)
+        .neq("sender_id", userId)
+        .is("deleted_at", null);
+      const readAt = readAtByChannel.get(channelId) || 0;
+      if (Number.isFinite(readAt) && readAt > 0) {
+        query = query.gt("created_at", new Date(readAt).toISOString());
       }
-    }
+      const { count, error } = await query;
+      if (error) throw new Error(error.message);
+      unreadByChannel.set(channelId, count || 0);
+    }));
   }
 
   return {

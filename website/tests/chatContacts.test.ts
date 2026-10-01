@@ -36,12 +36,12 @@ test("contact client refreshes an expired session once and exposes blocked error
   assert.deepEqual(refreshes,[false,true]); assert.equal(calls,2);
 });
 
-test("Messages first and center / News label are mobile-only changes", () => {
+test("mobile opens on Chat with Chat and Community first in the bottom navigation", () => {
   const app=fs.readFileSync("../comeplayers-apps/apps/mobile/App.tsx","utf8");
   const components=fs.readFileSync("../comeplayers-apps/apps/mobile/src/components.tsx","utf8");
   assert.match(app,/useState<AppTab>\("messages"\)/);
-  assert.deepEqual([...components.matchAll(/\{ id: "(\w+)", label:/g)].map(m=>m[1]),["home","community","messages","marketplace","profile"]);
-  assert.match(components,/id: "home", label: "News"/);
+  assert.deepEqual([...components.matchAll(/\{ id: "(\w+)", label:/g)].map(m=>m[1]),["messages","community","home","marketplace","profile"]);
+  assert.match(components,/id: "home", label: "Berita"/);
   const website=fs.readFileSync("app/cpcommunity/page.tsx","utf8");
   assert.match(website,/messages\/page/);
 });

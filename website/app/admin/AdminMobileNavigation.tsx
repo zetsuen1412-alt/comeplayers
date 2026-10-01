@@ -39,6 +39,7 @@ const adminLinks: AdminLink[] = [
   { href: "/admin", label: "Dasbor", icon: FaHome },
   { href: "/admin/users", label: "Pengguna", icon: FaUsers },
   { href: "/admin/products", label: "Produk", icon: FaCube },
+  { href: "/admin/catalog/opportunities", label: "Ide penawaran", icon: FaCube },
   { href: "/admin/orders", label: "Pesanan", icon: FaShoppingBag },
   { href: "/admin/disputes", label: "Sengketa", icon: FaBalanceScale },
   { href: "/admin/withdrawals", label: "Penarikan Dana", icon: FaMoneyBillWave },

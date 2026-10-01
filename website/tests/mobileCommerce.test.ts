@@ -105,6 +105,7 @@ test("group message acknowledgement does not wait for push delivery", async () =
   } };
   const handler = moduleWithMocks("app/api/messages/rooms/[id]/messages/route.ts", {
     "next/server": { ...response, after: (task: () => Promise<void>) => after.push(task) },
+    "@/lib/chatRoomScope": { isTransactionChatRoom: () => false },
     "@/lib/chatContacts": { assertContactAllowed: async () => {} },
     "@/lib/apiErrors": { safeApiErrorMessage: () => "Failed" },
     "@/lib/backgroundJobs": { dispatchChatPushNotifications: async () => { notifications++; throw Error("Provider down"); } },

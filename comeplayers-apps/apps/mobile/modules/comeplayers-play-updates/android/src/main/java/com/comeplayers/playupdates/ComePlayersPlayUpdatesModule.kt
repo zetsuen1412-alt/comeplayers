@@ -4,10 +4,8 @@ import android.app.Activity
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
-import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.ActivityResult
 import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.functions.Queues
@@ -16,35 +14,11 @@ import expo.modules.kotlin.modules.ModuleDefinition
 
 class ComePlayersPlayUpdatesModule : Module() {
   private var updateManager: AppUpdateManager? = null
-  private var installListener: InstallStateUpdatedListener? = null
 
   private fun manager(): AppUpdateManager? {
     updateManager?.let { return it }
     val context = appContext.reactContext ?: return null
     return AppUpdateManagerFactory.create(context).also { updateManager = it }
-  }
-
-  private fun unregisterInstallListener() {
-    val manager = updateManager ?: return
-    installListener?.let(manager::unregisterListener)
-    installListener = null
-  }
-
-  private fun registerFlexibleInstallListener(manager: AppUpdateManager) {
-    if (installListener != null) return
-
-    val listener = InstallStateUpdatedListener { state ->
-      when (state.installStatus()) {
-        InstallStatus.DOWNLOADED -> {
-          manager.completeUpdate()
-        }
-        InstallStatus.CANCELED,
-        InstallStatus.FAILED,
-        InstallStatus.INSTALLED -> unregisterInstallListener()
-      }
-    }
-    installListener = listener
-    manager.registerListener(listener)
   }
 
   private fun resolve(
@@ -75,16 +49,6 @@ class ComePlayersPlayUpdatesModule : Module() {
 
       manager.appUpdateInfo
         .addOnSuccessListener { info ->
-          if (info.installStatus() == InstallStatus.DOWNLOADED) {
-            manager.completeUpdate()
-            resolve(
-              promise,
-              status = "completing",
-              availableVersionCode = info.availableVersionCode()
-            )
-            return@addOnSuccessListener
-          }
-
           val availability = info.updateAvailability()
           if (
             availability != UpdateAvailability.UPDATE_AVAILABLE &&
@@ -94,19 +58,10 @@ class ComePlayersPlayUpdatesModule : Module() {
             return@addOnSuccessListener
           }
 
-          val staleDays = info.clientVersionStalenessDays() ?: 0
-          val highPriority = info.updatePriority() >= 4 || staleDays >= 7
-          val updateType = when {
-            highPriority && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) ->
-              AppUpdateType.IMMEDIATE
-            info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) ->
-              AppUpdateType.FLEXIBLE
-            info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) ->
-              AppUpdateType.IMMEDIATE
-            else -> null
-          }
-
-          if (updateType == null) {
+          // Google requests consent and keeps its progress UI in the foreground
+          // until installation finishes. Never complete a background download
+          // while the user may have returned to a draft or an active call.
+          if (!info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
             resolve(
               promise,
               status = "not_allowed",
@@ -115,13 +70,8 @@ class ComePlayersPlayUpdatesModule : Module() {
             return@addOnSuccessListener
           }
 
-          val mode =
-            if (updateType == AppUpdateType.IMMEDIATE) "immediate" else "flexible"
-          if (updateType == AppUpdateType.FLEXIBLE) {
-            registerFlexibleInstallListener(manager)
-          }
-
-          val options = AppUpdateOptions.newBuilder(updateType).build()
+          val mode = "immediate"
+          val options = AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
           manager.startUpdateFlow(info, activity, options)
             .addOnSuccessListener { resultCode ->
               when (resultCode) {
@@ -132,7 +82,6 @@ class ComePlayersPlayUpdatesModule : Module() {
                   availableVersionCode = info.availableVersionCode()
                 )
                 Activity.RESULT_CANCELED -> {
-                  unregisterInstallListener()
                   resolve(
                     promise,
                     status = "cancelled",
@@ -141,7 +90,6 @@ class ComePlayersPlayUpdatesModule : Module() {
                   )
                 }
                 ActivityResult.RESULT_IN_APP_UPDATE_FAILED -> {
-                  unregisterInstallListener()
                   resolve(
                     promise,
                     status = "failed",
@@ -158,7 +106,6 @@ class ComePlayersPlayUpdatesModule : Module() {
               }
             }
             .addOnFailureListener {
-              unregisterInstallListener()
               resolve(
                 promise,
                 status = "failed",
@@ -172,9 +119,5 @@ class ComePlayersPlayUpdatesModule : Module() {
           resolve(promise, "unavailable")
         }
     }.runOnQueue(Queues.MAIN)
-
-    OnDestroy {
-      unregisterInstallListener()
-    }
   }
 }

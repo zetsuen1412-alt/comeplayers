@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireCommunityAccess } from "@/lib/communityServer";
 import {
   chatErrorStatus,
   isAdminUser,
@@ -87,6 +86,15 @@ export async function POST(request: Request, context: RouteContext) {
       );
     }
 
+    // Community broadcasts are retired. Keep stop available so a host or
+    // moderator can end a stream that was already running during rollout.
+    if (action === "start") {
+      return NextResponse.json(
+        { error: "Siaran komunitas tidak tersedia. Gunakan panggilan suara atau video untuk berbicara langsung." },
+        { status: 410 },
+      );
+    }
+
     const supabaseAdmin = createSupabaseAdmin();
     const access = await requireChatRoomAccess({
       roomId,
@@ -108,46 +116,6 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const now = new Date().toISOString();
-
-    if (action === "start") {
-      await requireCommunityAccess({ supabaseAdmin, userId: user.id, roomId, permission: "start_stream" });
-      if (
-        String(access.room.stream_status || "idle").toLowerCase() === "live" &&
-        access.room.stream_host_id &&
-        access.room.stream_host_id !== user.id
-      ) {
-        return NextResponse.json(
-          { error: "Another member is already live in this group." },
-          { status: 409 },
-        );
-      }
-
-      const streamTitle =
-        String(body.title || "")
-          .trim()
-          .slice(0, 80) || "Live gameplay";
-      const { data, error } = await supabaseAdmin
-        .from("chat_rooms")
-        .update({
-          stream_status: "live",
-          stream_host_id: user.id,
-          stream_title: streamTitle,
-          stream_started_at: now,
-          stream_ended_at: null,
-          stream_updated_at: now,
-          updated_at: now,
-        })
-        .eq("id", roomId)
-        .select(roomSelect)
-        .single();
-
-      if (error) throw new Error(error.message);
-      return NextResponse.json({
-        ok: true,
-        room: data,
-        stream: createPublicChatStreamState(data, requestOrigin(request)),
-      });
-    }
 
     const admin = await isAdminUser(supabaseAdmin, user.id);
     const canStop =

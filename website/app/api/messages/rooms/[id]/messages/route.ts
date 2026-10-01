@@ -8,6 +8,7 @@ import {
   isUpstashRedisConfigured,
 } from "@/lib/upstashRedis";
 import { analyzeChatMessage, chatMessagePreview } from "@/lib/chatSafety";
+import { isTransactionChatRoom } from "@/lib/chatRoomScope";
 import {
   assertChatUserCanSend,
   assertLegacyDirectMessagingAllowed,
@@ -360,7 +361,7 @@ export async function POST(request: Request, context: RouteContext) {
             senderName,
             roomId,
             preview: notificationPreview,
-            linkUrl: `/chat?room=${encodeURIComponent(roomId)}`,
+            linkUrl: `${isTransactionChatRoom(room) ? "/chat" : "/cpcommunity"}?room=${encodeURIComponent(roomId)}`,
           });
         }
 

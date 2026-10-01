@@ -30,7 +30,7 @@ apps/desktop/src-tauri/target/release/bundle/nsis/
 ## Updater release
 
 ```powershell
-npm run desktop:update:prepare -- -Version 0.5.4 -DownloadUrl https://downloads.comeplayers.com/desktop/ComePlayers_0.5.4_x64-setup.exe
+npm run desktop:update:prepare -- -Version 1.0.0 -DownloadUrl https://downloads.comeplayers.com/desktop/ComePlayers_1.0.0_x64-setup.exe
 ```
 
 Script memvalidasi versi installer, signature, URL, dan checksum sebelum menyiapkan folder `release/desktop/VERSION`.

@@ -1,7 +1,7 @@
 param(
   [string]$IdentityName = $env:COMEPLAYERS_STORE_IDENTITY_NAME,
   [string]$PublisherId = $env:COMEPLAYERS_STORE_PUBLISHER_ID,
-  [string]$PublisherDisplayName = "PT COME PLAYERS DIGITAL"
+  [string]$PublisherDisplayName = "ComePlayers"
 )
 
 $ErrorActionPreference = "Stop"
@@ -85,6 +85,13 @@ $manifestPath = Join-Path $layoutRoot "AppxManifest.xml"
 $executable = Join-Path $desktopRoot "src-tauri\target\release\comeplayers-desktop.exe"
 $sourceIcon = Join-Path $desktopRoot "src-tauri\icons\256x256.png"
 $version = [string](Get-Content -Raw -LiteralPath (Join-Path $desktopRoot "package.json") | ConvertFrom-Json).version
+if ($version -notmatch '^(\d{1,5})\.(\d{1,5})\.(\d{1,5})$') {
+  throw "Desktop version must use Major.Minor.Build numeric format for Microsoft Store."
+}
+$versionParts = $version.Split('.') | ForEach-Object { [int]$_ }
+if ($versionParts[0] -eq 0 -or ($versionParts | Where-Object { $_ -gt 65535 })) {
+  throw "Microsoft Store requires a nonzero major version and version fields no greater than 65535."
+}
 $msixVersion = "$version.0"
 $outputPath = Join-Path $outputRoot "ComePlayers_$($version)_x64.msix"
 
@@ -95,6 +102,11 @@ if (-not (Test-Path -LiteralPath $tauriCommand)) {
 $makeAppx = Find-WindowsSdkTool -Name "makeappx.exe"
 
 if (Test-Path -LiteralPath $packageRoot) {
+  $expectedPackageRoot = [System.IO.Path]::GetFullPath((Join-Path $desktopRoot "store-package"))
+  if ($packageRoot -ne $expectedPackageRoot -or
+      -not $packageRoot.StartsWith(($desktopRoot.TrimEnd('\') + '\'), [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "Refusing to remove a Store package directory outside the desktop workspace."
+  }
   Remove-Item -LiteralPath $packageRoot -Recurse -Force
 }
 New-Item -ItemType Directory -Path $assetsRoot -Force | Out-Null
@@ -103,9 +115,15 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 $previousDistribution = $env:VITE_COMEPLAYERS_DISTRIBUTION
 try {
   $env:VITE_COMEPLAYERS_DISTRIBUTION = "store"
-  & $tauriCommand build --ci --no-bundle
-  if ($LASTEXITCODE -ne 0) {
-    throw "Tauri Store build failed with exit code $LASTEXITCODE."
+  Push-Location -LiteralPath $desktopRoot
+  try {
+    & $tauriCommand build --ci --no-bundle
+    if ($LASTEXITCODE -ne 0) {
+      throw "Tauri Store build failed with exit code $LASTEXITCODE."
+    }
+  }
+  finally {
+    Pop-Location
   }
 }
 finally {
@@ -130,8 +148,9 @@ $manifest = @"
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
+  IgnorableNamespaces="uap uap3 rescap">
   <Identity Name="$escapedIdentity" Publisher="$escapedPublisher" Version="$msixVersion" ProcessorArchitecture="x64" />
   <Properties>
     <DisplayName>ComePlayers</DisplayName>
@@ -154,6 +173,11 @@ $manifest = @"
         BackgroundColor="transparent"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Square150x150Logo="Assets\Square150x150Logo.png" />
+      <Extensions>
+        <uap3:Extension Category="windows.protocol">
+          <uap3:Protocol Name="comeplayers" Parameters="&quot;%1&quot;" />
+        </uap3:Extension>
+      </Extensions>
     </Application>
   </Applications>
   <Capabilities>

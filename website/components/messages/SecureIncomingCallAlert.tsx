@@ -40,7 +40,7 @@ export default function SecureIncomingCallAlert({ userId, onOpenRoom }: {
           }
         }
       } catch { /* Keep the last result only until its ringing deadline. */ }
-      finally { if (alive) timer = setTimeout(() => void poll(), 4000); }
+      finally { if (alive) timer = setTimeout(() => void poll(), 2000); }
     }
     void poll();
     return () => { alive = false; controller.abort(); clearTimeout(timer); notification?.close(); };

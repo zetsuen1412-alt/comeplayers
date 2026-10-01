@@ -35,7 +35,9 @@ export default function CommunityChannelSidebar(props: Props) {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(false);
-  const [showTopics, setShowTopics] = useState(true);
+  const [showTopics, setShowTopics] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showManageControls, setShowManageControls] = useState(false);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   const [editor, setEditor] = useState<ChannelEditorTarget | null>(null);
   const [connection, setConnection] = useState("Connecting");
@@ -60,11 +62,15 @@ export default function CommunityChannelSidebar(props: Props) {
       setSyncedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
       const latest = current.current;
       latest.onBundleChange?.(data);
-      const target = requestedChannelId || latest.selectedChannelId || latest.preferredChannelId;
-      const preferred = data.channels.find((item) => item.id === target)
-        || data.channels.find((item) => item.is_default)
-        || data.channels.find((item) => item.channel_type !== "voice") || data.channels[0];
-      if (preferred && preferred.id !== latest.selectedChannelId) latest.onSelectChannel(preferred, "auto");
+      // Background updates may briefly omit a channel. Keep the user's
+      // selection instead of silently jumping to another room on every sync.
+      if (!latest.selectedChannelId) {
+        const target = requestedChannelId || latest.preferredChannelId;
+        const preferred = data.channels.find((item) => item.id === target)
+          || data.channels.find((item) => item.is_default)
+          || data.channels.find((item) => item.channel_type !== "voice") || data.channels[0];
+        if (preferred) latest.onSelectChannel(preferred, "auto");
+      }
     } catch (reason) {
       if (!controller.signal.aborted) {
         setError(reason instanceof Error ? reason.message : "Unable to load channels.");
@@ -82,7 +88,7 @@ export default function CommunityChannelSidebar(props: Props) {
     const initialLoad = window.setTimeout(() => void loadBundle(), 0);
     const wake = () => {
       if (!navigator.onLine) setConnection("Offline");
-      else { setConnection(realtimeReady.current ? "Live" : "Auto refresh"); queue.request(); }
+      else { setConnection(realtimeReady.current ? "Tersambung" : "Menyegarkan"); queue.request(); }
     };
     const timer = window.setInterval(() => queue.request(), 30_000);
     const readChanged = (event: Event) => {
@@ -115,7 +121,7 @@ export default function CommunityChannelSidebar(props: Props) {
     channel.subscribe((status) => {
       if (!active) return;
       realtimeReady.current = status === "SUBSCRIBED";
-      setConnection(!navigator.onLine ? "Offline" : status === "SUBSCRIBED" ? "Live" : "Auto refresh");
+      setConnection(!navigator.onLine ? "Offline" : status === "SUBSCRIBED" ? "Tersambung" : "Menyegarkan");
       if (status === "SUBSCRIBED") queue.request();
     });
     return () => { active = false; realtimeReady.current = false; queue.dispose(); void supabase.removeChannel(channel); };
@@ -126,11 +132,20 @@ export default function CommunityChannelSidebar(props: Props) {
     handledVoiceShortcut.current = voiceShortcutToken;
     const channel = bundle.channels.find((item) => item.channel_type === "voice");
     if (channel) current.current.onSelectChannel(channel, "shortcut");
-    else current.current.onError?.("This server does not have a voice channel yet.");
+    else current.current.onError?.("Komunitas ini belum memiliki ruang suara.");
   }, [voiceShortcutToken, bundle]);
 
   const canManage = Boolean(bundle?.currentUser.isOwner || bundle?.currentUser.isAdmin
     || bundle?.currentUser.permissions.some((permission) => permission === "*" || permission === "manage_channels"));
+  const manageControlsVisible = canManage && showManageControls;
+  const categoryLabel = (name: string) => {
+    const defaults: Record<string, string> = { information: "Info", "text channels": "Ruang chat", "voice channels": "Ruang suara" };
+    return defaults[name.trim().toLowerCase()] || name;
+  };
+  function openEditor(target: ChannelEditorTarget) {
+    setSettingsOpen(false);
+    setEditor(target);
+  }
   const groups = useMemo(() => {
     if (!bundle) return [];
     const needle = query.trim().toLowerCase();
@@ -143,36 +158,44 @@ export default function CommunityChannelSidebar(props: Props) {
     }));
     const known = new Set(bundle.categories.map((category) => category.id));
     const uncategorized = channels.filter((channel) => !channel.category_id || !known.has(channel.category_id));
-    if (uncategorized.length) result.push({ id: "uncategorized", community_id: bundle.community.id, name: "Other channels", position: 999, channels: uncategorized });
+    if (uncategorized.length) result.push({ id: "uncategorized", community_id: bundle.community.id, name: "Ruang lainnya", position: 999, channels: uncategorized });
     return result.filter((group) => group.channels.length || (canManage && !needle && !unreadOnly));
   }, [bundle, query, unreadOnly, canManage]);
 
-  if (loading && !bundle) return <div role="status" className="rounded-xl bg-white/5 p-4 text-sm text-gray-300">Loading your channels…</div>;
-  if (!bundle) return <div role="alert" className="space-y-3 rounded-xl bg-white/5 p-4 text-sm text-gray-300"><p>{error || "No channels available."}</p><button type="button" onClick={() => void loadBundle()} className="min-h-11 rounded-lg border border-cyan-300/30 px-3 text-cyan-200">Try again</button></div>;
+  if (loading && !bundle) return <div role="status" className="rounded-xl bg-white/5 p-4 text-base text-slate-300">Menyiapkan ruang obrolan…</div>;
+  if (!bundle) return <div role="alert" className="space-y-3 rounded-xl bg-white/5 p-4 text-base text-slate-300"><p>Ruang obrolan belum dapat dibuka.</p><button type="button" onClick={() => void loadBundle()} className="min-h-11 rounded-lg border border-cyan-300/30 px-4 font-semibold text-cyan-200">Coba lagi</button>{error ? <details className="text-sm text-slate-400"><summary className="min-h-11 cursor-pointer py-3">Rincian masalah</summary><p className="break-words">{error}</p></details> : null}</div>;
 
   return (
-    <nav data-community-sidebar aria-label="Community channels" className="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-      <div className="shrink-0 space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-3">
+    <nav data-community-sidebar aria-label="Ruang komunitas" className="flex h-full min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+      <div data-channel-toolbar className="shrink-0 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0"><p className="truncate text-sm font-bold text-white">Chat Hub</p><p role="status" className="mt-1 text-xs text-gray-400"><span className={connection === "Live" ? "text-emerald-300" : "text-amber-200"}>{connection}</span>{syncedAt ? ` · Updated ${syncedAt}` : ""}</p></div>
-          <button type="button" aria-label="Refresh channels" title="Refresh channels" onClick={() => void loadBundle()} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-300 hover:bg-white/10 focus-visible:outline-cyan-300"><FaSyncAlt /></button>
+          <h2 className="min-w-0 flex-1 text-base font-bold text-white">Ruang</h2>
+          <button type="button" aria-pressed={unreadOnly} onClick={() => setUnreadOnly(value => !value)} className={`min-h-11 rounded-lg px-2 text-sm font-semibold focus-visible:outline-cyan-300 ${unreadOnly ? "bg-cyan-300/15 text-cyan-100" : "text-slate-300 hover:bg-white/5"}`}>Belum dibaca</button>
+          <button type="button" aria-label="Pilihan daftar ruang" title="Pilihan daftar ruang" aria-expanded={settingsOpen} aria-controls={`channel-settings-${roomId}`} onClick={() => setSettingsOpen(value => !value)} className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg focus-visible:outline-cyan-300 ${settingsOpen ? "bg-cyan-300/15 text-cyan-100" : "text-slate-300 hover:bg-white/10"}`}><FaCog aria-hidden="true" /></button>
         </div>
-        <label className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/15 px-3 text-gray-400"><FaSearch aria-hidden="true" /><input aria-label="Search channels" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a channel…" className="min-h-11 w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-gray-500" /></label>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
-          <button type="button" aria-pressed={unreadOnly} onClick={() => setUnreadOnly(!unreadOnly)} className={`min-h-8 rounded-lg border px-2.5 ${unreadOnly ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-200" : "border-white/15 text-gray-300"}`}>Unread only</button>
-          <label className="flex min-h-8 cursor-pointer items-center gap-1.5 text-gray-300"><input type="checkbox" checked={showTopics} onChange={(event) => setShowTopics(event.target.checked)} className="accent-cyan-300" />Show topics</label>
-        </div>
+        <label className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 text-slate-400 focus-within:border-cyan-300"><FaSearch aria-hidden="true" /><input aria-label="Cari ruang obrolan" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari ruang…" className="min-h-11 w-full min-w-0 bg-transparent text-base text-white outline-none placeholder:text-slate-400" /></label>
+        {connection === "Offline" ? <p role="status" className="px-1 text-sm text-amber-200">Tidak ada koneksi. Daftar terakhir tetap tersedia.</p> : null}
       </div>
-      {error ? <p role="alert" className="rounded-lg bg-amber-400/10 p-2 text-xs text-amber-200">{error} Use refresh to retry.</p> : null}
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+      {settingsOpen ? <div data-channel-settings id={`channel-settings-${roomId}`} className="max-h-64 shrink-0 space-y-1 overflow-y-auto rounded-xl border border-white/10 bg-white/5 p-2 text-sm text-slate-300">
+        <label className="flex min-h-11 cursor-pointer items-center gap-3 px-2"><input type="checkbox" checked={showTopics} onChange={(event) => setShowTopics(event.target.checked)} className="h-4 w-4 accent-cyan-300" />Tampilkan deskripsi ruang</label>
+        {canManage ? <>
+          <label className="flex min-h-11 cursor-pointer items-center gap-3 px-2"><input type="checkbox" checked={showManageControls} onChange={(event) => { setShowManageControls(event.target.checked); setSettingsOpen(false); }} className="h-4 w-4 accent-cyan-300" />Tampilkan pengaturan ruang</label>
+          <button type="button" onClick={() => openEditor({ kind: "channel" })} className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left font-semibold text-cyan-200 hover:bg-white/5"><FaPlus aria-hidden="true" />Tambah ruang</button>
+          <button type="button" onClick={() => openEditor({ kind: "category" })} className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left font-semibold text-cyan-200 hover:bg-white/5"><FaPlus aria-hidden="true" />Tambah kategori</button>
+        </> : null}
+        <button type="button" aria-label="Muat ulang ruang obrolan" onClick={() => void loadBundle()} className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left hover:bg-white/5"><FaSyncAlt aria-hidden="true" />Muat ulang</button>
+        <p role="status" className="px-2 pb-1 text-xs text-slate-400">{connection === "Offline" ? "Tidak ada koneksi" : connection === "Connecting" ? "Menghubungkan…" : "Diperbarui otomatis"}{syncedAt ? ` · ${syncedAt}` : ""}</p>
+      </div> : null}
+      {error ? <div role="alert" className="rounded-lg bg-amber-400/10 p-3 text-sm text-amber-100"><p>Daftar ruang belum dapat diperbarui.</p><button type="button" onClick={() => void loadBundle()} className="min-h-11 font-bold underline">Coba lagi</button></div> : null}
+      <div data-channel-list className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
         {groups.length ? groups.map((group) => {
           const closed = collapsed.has(group.id) && !query && !unreadOnly;
-          return <section key={group.id} className="rounded-xl border border-white/[0.07] bg-black/10 p-2">
+          return <section key={group.id}>
             <div className="flex items-center gap-1">
-              <button type="button" aria-expanded={!closed} aria-controls={`category-${group.id}`} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group.id)) next.delete(group.id); else next.add(group.id); return next; })} className="flex min-h-10 min-w-0 flex-1 items-center gap-2 px-1 text-left text-xs font-bold text-gray-300">
-                <FaChevronDown aria-hidden="true" className={closed ? "-rotate-90" : ""} /><span className="truncate">{group.name}</span><span className="ml-auto text-gray-500">{group.channels.length}</span>
+              <button type="button" aria-expanded={!closed} aria-controls={`category-${group.id}`} onClick={() => setCollapsed((previous) => { const next = new Set(previous); if (next.has(group.id)) next.delete(group.id); else next.add(group.id); return next; })} className="flex min-h-11 min-w-0 flex-1 items-center gap-2 px-2 text-left text-sm font-semibold text-slate-300">
+                <FaChevronDown aria-hidden="true" className={closed ? "-rotate-90" : ""} /><span className="truncate">{categoryLabel(group.name)}</span><span className="ml-auto text-gray-500">{group.channels.length}</span>
               </button>
-              {canManage ? <button type="button" aria-label={`Create channel in ${group.name}`} onClick={() => setEditor({ kind: "channel", categoryId: group.id === "uncategorized" ? "" : group.id })} className="flex h-9 w-9 items-center justify-center rounded-lg text-cyan-200 hover:bg-white/10"><FaPlus /></button> : null}
+              {manageControlsVisible ? <button type="button" aria-label={`Tambah ruang di ${categoryLabel(group.name)}`} onClick={() => openEditor({ kind: "channel", categoryId: group.id === "uncategorized" ? "" : group.id })} className="flex h-11 w-11 items-center justify-center rounded-lg text-cyan-200 hover:bg-white/10"><FaPlus /></button> : null}
             </div>
             <div id={`category-${group.id}`} hidden={closed} className="space-y-1">
               {group.channels.map((channel) => {
@@ -181,25 +204,21 @@ export default function CommunityChannelSidebar(props: Props) {
                 const unread = Number(channel.unread_count || 0);
                 const Icon = channel.channel_type === "voice" ? FaVolumeUp : channel.channel_type === "announcement" ? FaBullhorn : FaHashtag;
                 return <div key={channel.id} className={`flex items-center rounded-lg border ${active ? "border-cyan-300/45 bg-cyan-300/10" : "border-transparent hover:bg-white/5"}`}>
-                  <button data-community-channel data-voice-channel={channel.channel_type === "voice" || undefined} type="button" aria-current={active ? "page" : undefined} title={channel.topic || channel.name} onClick={() => props.onSelectChannel(channel, "user")} className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left focus-visible:outline-cyan-300">
+                  <button data-community-channel data-voice-channel={channel.channel_type === "voice" || undefined} type="button" aria-current={active ? "page" : undefined} title={channel.topic || channel.name} onClick={() => { setSettingsOpen(false); props.onSelectChannel(channel, "user"); }} className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left focus-visible:outline-cyan-300">
                     <Icon aria-hidden="true" className={connected ? "shrink-0 text-emerald-300" : active ? "shrink-0 text-cyan-200" : "shrink-0 text-gray-400"} />
-                    <span className="min-w-0 flex-1"><span className={`block truncate text-sm ${active || unread ? "font-bold text-white" : "text-gray-300"}`}>{channel.name}</span>{showTopics && channel.topic ? <span className="mt-0.5 block truncate text-xs text-gray-400">{channel.topic}</span> : null}{connected ? <span className="block text-xs text-emerald-300">Connected · {activeVoice?.participantCount} in voice</span> : null}</span>
-                    {channel.is_private ? <FaLock aria-label="Private channel" className="shrink-0 text-xs text-gray-400" /> : null}
-                    {unread > 0 ? <span aria-label={`${unread} unread messages`} className="rounded-full bg-cyan-300 px-1.5 py-0.5 text-xs font-bold text-slate-950">{unread > 99 ? "99+" : unread}</span> : null}
+                    <span className="min-w-0 flex-1"><span className={`block break-words text-base ${active || unread ? "font-bold text-white" : "text-slate-200"}`}>{channel.name}</span>{showTopics && channel.topic ? <span className="mt-0.5 block truncate text-sm text-slate-400">{channel.topic}</span> : null}{connected ? <span className="block text-sm text-emerald-300">Terhubung · {activeVoice?.participantCount} peserta</span> : null}</span>
+                    {channel.is_private ? <FaLock aria-label="Ruang khusus anggota" className="shrink-0 text-xs text-slate-400" /> : null}
+                    {unread > 0 ? <span aria-label={`${unread} pesan belum dibaca`} className="rounded-full bg-cyan-300 px-2 py-0.5 text-xs font-bold text-slate-950">{unread > 99 ? "99+" : unread}</span> : null}
                   </button>
-                  {canManage ? <button type="button" aria-label={`Settings for ${channel.name}`} onClick={() => setEditor({ kind: "channel", channel })} className="flex h-10 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:text-cyan-200 focus-visible:outline-cyan-300"><FaCog /></button> : null}
+                  {manageControlsVisible ? <button type="button" aria-label={`Pengaturan ruang ${channel.name}`} onClick={() => openEditor({ kind: "channel", channel })} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:text-cyan-200 focus-visible:outline-cyan-300"><FaCog /></button> : null}
                 </div>;
               })}
-              {!group.channels.length ? <p className="px-2 py-3 text-xs text-gray-400">Create a channel to get started.</p> : null}
+              {!group.channels.length ? <p className="px-2 py-3 text-sm text-slate-400">Tambahkan ruang untuk mulai mengobrol.</p> : null}
             </div>
           </section>;
-        }) : <div className="rounded-xl border border-dashed border-white/15 p-4 text-sm text-gray-300"><p>{unreadOnly ? "You're all caught up. No unread channels match." : "No channels match your search."}</p><button type="button" onClick={() => { setQuery(""); setUnreadOnly(false); }} className="mt-2 min-h-10 text-cyan-200">Show all channels</button></div>}
+        }) : <div className="rounded-xl border border-dashed border-white/15 p-4 text-base text-slate-300"><p>{unreadOnly ? "Semua pesan dalam pencarian ini sudah dibaca." : "Ruang tidak ditemukan. Coba nama lain."}</p><button type="button" onClick={() => { setQuery(""); setUnreadOnly(false); }} className="mt-2 min-h-11 font-semibold text-cyan-200">Tampilkan semua ruang</button></div>}
       </div>
-      {canManage ? <div className="flex shrink-0 gap-2 border-t border-white/10 pt-2">
-        <button type="button" onClick={() => setEditor({ kind: "channel" })} className="min-h-11 flex-1 rounded-lg bg-cyan-300/10 px-2 text-xs font-bold text-cyan-200">+ Channel</button>
-        <button type="button" onClick={() => setEditor({ kind: "category" })} className="min-h-11 flex-1 rounded-lg border border-white/10 px-2 text-xs text-gray-300">+ Category</button>
-      </div> : null}
-      {editor ? <CommunityChannelEditor bundle={bundle} target={editor} onClose={() => setEditor(null)} onSaved={(channel) => { setEditor(null); props.onNotice?.(channel ? `#${channel.name} saved.` : "Category created."); void loadBundle(channel?.id); }} /> : null}
+      {editor ? <CommunityChannelEditor bundle={bundle} target={editor} onClose={() => setEditor(null)} onSaved={(channel) => { setEditor(null); props.onNotice?.(channel ? `Ruang ${channel.name} disimpan.` : "Kategori ditambahkan."); void loadBundle(channel?.id); }} /> : null}
     </nav>
   );
 }

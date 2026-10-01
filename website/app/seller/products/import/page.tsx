@@ -132,7 +132,7 @@ const EN_COPY = {
   workflowThree: "Upload and validate before anything is saved.",
   guideTitle: "What to fill in each column",
   guideCopy:
-    "Do not add, delete, or rename columns. Product numbers, IDs, status, and URLs are created automatically by ComePlayers.",
+    "Keep the controlled Excel template's columns unchanged. ComePlayers assigns product IDs and URLs. An admin idea CSV can include status=inactive so imported drafts remain unpublished until reviewed.",
   column: "Column",
   required: "Required",
   entryGuide: "What to enter",
@@ -228,7 +228,7 @@ const ID_COPY: Record<keyof typeof EN_COPY, string> = {
   workflowThree: "Unggah dan validasi sebelum data disimpan.",
   guideTitle: "Panduan pengisian setiap kolom",
   guideCopy:
-    "Jangan menambah, menghapus, atau mengganti nama kolom. Nomor, ID produk, status, dan URL dibuat otomatis oleh ComePlayers.",
+    "Jangan mengubah kolom template Excel. ComePlayers membuat ID produk dan URL. CSV ide admin dapat berisi status=inactive agar draf impor belum tayang sampai diperiksa.",
   column: "Kolom",
   required: "Wajib",
   entryGuide: "Yang harus diisi",

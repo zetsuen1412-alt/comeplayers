@@ -48,6 +48,16 @@ export const BULK_LISTING_MAX_ROWS = 5000;
 export const BULK_LISTING_API_BATCH_ROWS = 200;
 export const BULK_LISTING_MAX_FILE_BYTES = 8 * 1024 * 1024;
 
+export function resolveBulkListingStatus(
+  policyDecision: string,
+  requestedStatus: "active" | "inactive",
+  stock: number
+): "active" | "inactive" {
+  return policyDecision === "allow" && requestedStatus === "active" && stock > 0
+    ? "active"
+    : "inactive";
+}
+
 export function normalizeBulkListingHeader(value: unknown) {
   return String(value ?? "")
     .replace(/^\uFEFF/, "")

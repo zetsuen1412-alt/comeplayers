@@ -10,6 +10,7 @@ import {
   FaVideoSlash,
 } from "react-icons/fa";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { selectCurrentAccountCall } from "@/lib/callPresence";
 import type { Room as LiveKitRoom, Track as LiveKitTrack } from "livekit-client";
 
 type CallRecord = {
@@ -48,13 +49,17 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   const [busy, setBusy] = useState(false);
   const [microphone, setMicrophone] = useState(true);
   const [camera, setCamera] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(false);
+  const [connectionError, setConnectionError] = useState("");
   const mounted = useRef(false);
   const joining = useRef(false);
   const polling = useRef(false);
   const callRef = useRef<CallRecord | null>(null);
   const failedCalls = useRef(new Set<string>());
+  const endedCalls = useRef(new Set<string>());
   const liveRoom = useRef<LiveKitRoom | null>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const pendingMedia = useRef<HTMLElement[]>([]);
 
   const updateCall = useCallback((value: CallRecord | null) => {
     callRef.current = value;
@@ -62,6 +67,8 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   }, []);
 
   const clearMedia = useCallback(() => {
+    pendingMedia.current.forEach(element => element.remove());
+    pendingMedia.current = [];
     stage.current?.querySelectorAll("audio,video").forEach((element) => {
       const media = element as HTMLMediaElement;
       media.pause();
@@ -78,12 +85,20 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     setConnected(false);
     setMicrophone(true);
     setCamera(false);
+    setAudioBlocked(false);
   }, [clearMedia]);
+
+  useEffect(() => {
+    if (!stage.current || !pendingMedia.current.length) return;
+    pendingMedia.current.forEach(element => stage.current?.appendChild(element));
+    pendingMedia.current = [];
+  }, [call]);
 
   const join = useCallback(async (target: CallRecord) => {
     if (!mounted.current || joining.current || liveRoom.current || failedCalls.current.has(target.id) || target.status !== "accepted") return;
     joining.current = true;
     setBusy(true);
+    setConnectionError("");
     try {
       const livekit = await import("livekit-client");
       if (!mounted.current) return;
@@ -103,7 +118,8 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         } else {
           element.className = "hidden";
         }
-        stage.current?.appendChild(element);
+        if (stage.current) stage.current.appendChild(element);
+        else pendingMedia.current.push(element);
       };
       room
         .on(livekit.RoomEvent.TrackSubscribed, (track) => attach(track))
@@ -112,7 +128,15 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         })
         .on(livekit.RoomEvent.TrackUnsubscribed, (track) => track.detach().forEach((element) => element.remove()))
         .on(livekit.RoomEvent.LocalTrackUnpublished, (publication) => publication.track?.detach().forEach((element) => element.remove()))
-        .on(livekit.RoomEvent.Disconnected, () => { if (liveRoom.current === room) disconnectMedia(); });
+        .on(livekit.RoomEvent.AudioPlaybackStatusChanged, () => {
+          if (liveRoom.current === room) setAudioBlocked(!room.canPlaybackAudio);
+        })
+        .on(livekit.RoomEvent.Disconnected, () => {
+          if (liveRoom.current !== room) return;
+          failedCalls.current.add(target.id);
+          disconnectMedia();
+          setConnectionError("Call disconnected. Retry connection.");
+        });
       const token = await callApi<TokenResponse>("/api/messages/calls", "PATCH", { id: target.id, action: "token" });
       if (!mounted.current || liveRoom.current !== room) return;
       await room.connect(token.serverUrl, token.participantToken, { autoSubscribe: true });
@@ -126,19 +150,18 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
       if (!mounted.current || liveRoom.current !== room) { void room.disconnect(true); return; }
       setMicrophone(true);
       setCamera(target.media === "video");
+      setAudioBlocked(!room.canPlaybackAudio);
       setConnected(true);
     } catch (cause) {
       if (!mounted.current) return;
       failedCalls.current.add(target.id);
       disconnectMedia();
-      updateCall(null);
-      void callApi("/api/messages/calls", "PATCH", { id: target.id, action: "end" }).catch(() => undefined);
-      onError(cause instanceof Error ? cause.message : "The call could not connect.");
+      setConnectionError(cause instanceof Error ? cause.message : "The call could not connect.");
     } finally {
       joining.current = false;
       if (mounted.current) setBusy(false);
     }
-  }, [disconnectMedia, onError, updateCall]);
+  }, [disconnectMedia]);
 
   const poll = useCallback(async () => {
     if (!mounted.current || polling.current) return;
@@ -148,10 +171,10 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         `/api/messages/calls?active=1${callRef.current ? `&id=${encodeURIComponent(callRef.current.id)}` : ""}`,
       );
       if (!mounted.current) return;
-      const current = result.calls.find((item) => item.room_id === roomId) || null;
+      const current = selectCurrentAccountCall(result.calls.filter(item => !endedCalls.current.has(item.id)), roomId, callRef.current?.id);
       updateCall(current);
       if (current?.status === "accepted") void join(current);
-      if (!current || !["ringing", "accepted", "scheduled"].includes(current.status)) disconnectMedia();
+      if (!current) { disconnectMedia(); setConnectionError(""); }
     } catch {
       // A short poll failure must not tear down a live media session.
     } finally { polling.current = false; }
@@ -160,7 +183,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
   useEffect(() => {
     mounted.current = true;
     void poll();
-    const timer = window.setInterval(() => void poll(), 2500);
+    const timer = window.setInterval(() => void poll(), 1500);
     return () => { mounted.current = false; window.clearInterval(timer); };
   }, [poll]);
 
@@ -170,6 +193,7 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     if (busy || call) return;
     setBusy(true);
     onError("");
+    setConnectionError("");
     try {
       const result = await callApi<{ call: CallRecord }>("/api/messages/calls", "POST", {
         roomId,
@@ -203,11 +227,16 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     const current = call;
     disconnectMedia();
     updateCall(null);
+    setConnectionError("");
     if (!current) return;
     failedCalls.current.add(current.id);
+    endedCalls.current.add(current.id);
     try {
       await callApi("/api/messages/calls", "PATCH", { id: current.id, action });
     } catch (cause) {
+      endedCalls.current.delete(current.id);
+      failedCalls.current.delete(current.id);
+      if (mounted.current) updateCall(current);
       onError(cause instanceof Error ? cause.message : "The call state could not be updated.");
     }
   }
@@ -238,6 +267,24 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
     }
   }
 
+  async function enableAudio() {
+    const room = liveRoom.current;
+    if (!room) return;
+    try {
+      await room.startAudio();
+      setAudioBlocked(!room.canPlaybackAudio);
+    } catch {
+      onError("Audio playback is blocked. Tap Enable sound again or check your browser sound setting.");
+    }
+  }
+
+  function retryConnection() {
+    const current = callRef.current;
+    if (!current || current.status !== "accepted" || busy) return;
+    failedCalls.current.delete(current.id);
+    void join(current);
+  }
+
   const incoming = call?.caller_id !== userId && call?.status === "ringing";
   if (!call) {
     return (
@@ -259,6 +306,8 @@ export default function AccountDirectCall({ roomId, userId, peerName, onError }:
         <div ref={stage} className="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden py-5">
           {!connected ? <div className="flex h-28 w-28 animate-pulse items-center justify-center rounded-full bg-emerald-400/15 text-4xl text-emerald-300">{call.media === "video" ? <FaVideo /> : <FaPhone />}</div> : null}
         </div>
+        {connectionError ? <div role="alert" className="mb-3 text-sm text-red-200"><p>{connectionError}</p><button type="button" disabled={busy} onClick={retryConnection} className="mt-3 min-h-11 rounded-xl bg-yellow-400 px-5 font-bold text-black disabled:opacity-50">Retry connection</button></div> : null}
+        {audioBlocked ? <button type="button" onClick={() => void enableAudio()} className="mb-3 min-h-11 rounded-xl bg-yellow-400 px-5 font-bold text-black">Enable sound</button> : null}
         <div className="flex items-center justify-center gap-3">
           {incoming ? (
             <>
