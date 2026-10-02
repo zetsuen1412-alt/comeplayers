@@ -1,0 +1,59 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "alexia",
+  "date": "2026-10-02",
+  "status": "paused_by_public_zerogpu_quota_before_v7_generation",
+  "approvedVisual": {
+    "source": "production/turnarounds/alexia/turnaround-blue-imagegen-v2.png",
+    "eyeColor": "blue",
+    "suitcase": "must be separate prop for reconstruction",
+    "rigging": "blocked until clean geometry passes"
+  },
+  "attempts": [
+    {
+      "id": "v4-strict-body-crop",
+      "result": "rejected",
+      "faces": 265090,
+      "vertices": 98731,
+      "connectedComponents": 66873,
+      "mainComponentFaces": 191024,
+      "issue": "crop/background edges were interpreted as box-like prop geometry"
+    },
+    {
+      "id": "v5-transparent-input",
+      "result": "rejected",
+      "faces": 347704,
+      "vertices": 134381,
+      "connectedComponents": 78386,
+      "mainComponentFaces": 261172,
+      "issue": "suitcase/floor remnants remained in transparent segmentation and were reconstructed"
+    },
+    {
+      "id": "v6-largest-2d-component",
+      "result": "input_review_failed_before_acceptance",
+      "faces": 379898,
+      "vertices": 147881,
+      "issue": "2D connected-component cleanup still retained suitcase because it touched the character in source panels"
+    },
+    {
+      "id": "v7-explicit-prop-and-floor-removal",
+      "result": "prepared_but_not_generated",
+      "inputCleanup": {
+        "suitcase": "explicitly removed by per-view masks",
+        "floorShadow": "removed",
+        "reconstructionInput": "body-only silhouette from approved V2",
+        "microDetail": "downsampled for cleaner geometry"
+      },
+      "submitOutcome": "blocked before generation",
+      "blocker": "Hunyuan3D-2mv public ZeroGPU quota exhausted: 60s requested vs 0s left",
+      "observedReset": "approximately 17:55:47 from last attempt",
+      "billingChanged": false
+    }
+  ],
+  "nextStep": [
+    "When authorized/free compute is available, submit the already prepared V7 body-only views to Hunyuan3D-2mv using seed 1412.",
+    "Render front, 3/4, left, right and back before texturing.",
+    "Reject if suitcase-like geometry, floor planes, fragmented hair or poor articulation gaps remain.",
+    "Only after geometry passes, texture the body and reconstruct the navy/gold suitcase as a separate prop."
+  ]
+}
