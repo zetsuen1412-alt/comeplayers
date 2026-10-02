@@ -61,3 +61,10 @@ test('latest STOP migration cancels all queued or leased loker tasks', () => {
   assert.match(s,/status IN \('queued','leased'\)/);
   assert.match(s,/w\.state='stopped'/);
 });
+
+test('unsupported reviewed posts are skipped before dispatch', () => {
+  const source=readFileSync(resolve(process.cwd(),'../tools/comeplayers-loker-extension/facebook.js'),'utf8');
+  assert.match(source,/status: 'skipped'/);
+  assert.match(source,/Dilewati sebelum kirim/);
+  assert.match(source,/await dispatch\(job\);\s*send\.click\(\)/);
+});
