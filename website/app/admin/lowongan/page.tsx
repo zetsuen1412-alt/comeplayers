@@ -258,6 +258,9 @@ export default function LowonganPage(){
     setSelected(prev=>{const next=new Set(prev);next.has(url)?next.delete(url):next.add(url);return next;});
   }
 
+  const jobCounts=(snapshot?.jobs||[]).reduce((acc,j)=>{acc[j.status]=(acc[j.status]||0)+1;return acc;},{} as Record<string,number>);
+  const queuedCount=(jobCounts.queued||0)+(jobCounts.leased||0)+(jobCounts.sending||0);
+
   return <section className="lkr-root" lang="id">
     <header className="lkr-header">
       <div><span className="lkr-eyebrow">COMEPLAYERS · REVIEW KOMENTAR FACEBOOK</span><h1>Lowongan Facebook</h1><p>Foto → grup → scan → tandai semua → kirim komentar.</p></div>
@@ -271,6 +274,10 @@ export default function LowonganPage(){
       <span className={snapshot?.connection.enabled?'ready':''}>Server: {snapshot?.connection.enabled?'aktif':'nonaktif'}</span>
       <span className={bridgeStatus.attached?'ready':''}>Facebook: {bridgeStatus.attached?'terhubung':'belum terhubung'}{bridgeStatus.version?` · ekstensi v${bridgeStatus.version}`:''}</span>
       <span>{scanning?'Sedang scan…':dirty?'Ada perubahan':'Siap'}</span>
+      <span className="ready">Terkirim: {jobCounts.sent||0}</span>
+      <span>Antrean: {queuedCount}</span>
+      <span>Dilewati: {jobCounts.skipped||0}</span>
+      {(jobCounts.uncertain||jobCounts.failed)?<span>Perlu diperiksa: {(jobCounts.uncertain||0)+(jobCounts.failed||0)}</span>:null}
     </div>
 
     <div className="lkr-grid"><div>
