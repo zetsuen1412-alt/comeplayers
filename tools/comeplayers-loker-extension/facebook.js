@@ -216,25 +216,35 @@
     }
 
     if (job.kind === 'group_comment') {
-      const context = await until(job, () => job.payload?.adminSelected === true ? findCommentContext(job) : findJobPostArticle(job), 20000);
-      const editor = await until(job, () => commentEditor(context), 12000);
-      const beforeImages = new Set([...context.querySelectorAll('img')].map(i => i.src));
+      let context;
+      let send;
+      let beforeImages;
+      try {
+        context = await until(job, () => job.payload?.adminSelected === true ? findCommentContext(job) : findJobPostArticle(job), 20000);
+        const editor = await until(job, () => commentEditor(context), 12000);
+        beforeImages = new Set([...context.querySelectorAll('img')].map(i => i.src));
 
-      let scope = editor.parentElement;
-      let chosen = null;
-      for (let i = 0; i < 9 && scope && scope !== context.parentElement; i++, scope = scope.parentElement) {
-        const inputs = [...scope.querySelectorAll('input[type="file"]')].filter(e => !e.accept || /image/.test(e.accept));
-        const photoButtons = buttons(scope).filter(b => /(foto|photo|gambar|image|camera|kamera|lampir|attach)/i.test(label(b)));
-        if (inputs.length === 1 || photoButtons.length === 1) { chosen = scope; break; }
+        let scope = editor.parentElement;
+        let chosen = null;
+        for (let i = 0; i < 9 && scope && scope !== context.parentElement; i++, scope = scope.parentElement) {
+          const inputs = [...scope.querySelectorAll('input[type="file"]')].filter(e => !e.accept || /image/.test(e.accept));
+          const photoButtons = buttons(scope).filter(b => /(foto|photo|gambar|image|camera|kamera|lampir|attach)/i.test(label(b)));
+          if (inputs.length === 1 || photoButtons.length === 1) { chosen = scope; break; }
+        }
+        chosen ||= context;
+
+        await attach(job, chosen);
+
+        send = await until(job, () => {
+          const button = commentSendButton(chosen) || commentSendButton(context);
+          return button && button.getAttribute('aria-disabled') !== 'true' && !button.disabled ? button : null;
+        }, 12000);
+      } catch (e) {
+        return {
+          status: 'skipped',
+          note: `Dilewati sebelum kirim: ${e instanceof Error ? e.message : 'kolom komentar/foto tidak tersedia.'}`.slice(0, 240)
+        };
       }
-      chosen ||= context;
-
-      await attach(job, chosen);
-
-      const send = await until(job, () => {
-        const button = commentSendButton(chosen) || commentSendButton(context);
-        return button && button.getAttribute('aria-disabled') !== 'true' && !button.disabled ? button : null;
-      }, 12000);
 
       await dispatch(job);
       send.click();
