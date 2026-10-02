@@ -1,0 +1,53 @@
+{
+  "deploymentId": "dpl_7XokN7Ghzj5p2PDqCmrCLJSEQVkd",
+  "checks": [
+    {
+      "name": "health",
+      "httpStatus": 200
+    },
+    {
+      "name": "initialize",
+      "httpStatus": 200
+    },
+    {
+      "name": "notifications/initialized",
+      "httpStatus": 202
+    },
+    {
+      "name": "tools/list",
+      "httpStatus": 200
+    },
+    {
+      "name": "ping",
+      "httpStatus": 200
+    },
+    {
+      "name": "tools/call",
+      "httpStatus": 200
+    }
+  ],
+  "deployment": "https://evo-gaming-4srpjaa1i-ilham-evogaming-s-projects.vercel.app",
+  "serverInfo": {
+    "name": "crazy-rich-gemini",
+    "version": "0.1.0"
+  },
+  "models": {
+    "text": "gemini-3.8-flash",
+    "image": "gemini-3.1-flash-image"
+  },
+  "target": "Preview",
+  "readyForGeminiCalls": true,
+  "protocolPassed": true,
+  "checkedAt": "2026-10-01T12:45:07.4750399Z",
+  "geminiConfigured": true,
+  "tools": [
+    "gemini_status",
+    "gemini_analyze_reference",
+    "gemini_generate_image",
+    "gemini_character_turnaround"
+  ],
+  "firstUnusedKeyRevoked": true,
+  "replacementKeyStoredAsSecret": true,
+  "commit": "74e7331e38adb79c81ef329222150e5480871c89",
+  "secretScope": "codex/crazy-rich-web-v30"
+}

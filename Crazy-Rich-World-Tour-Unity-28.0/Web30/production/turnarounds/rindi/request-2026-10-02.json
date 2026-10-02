@@ -1,0 +1,26 @@
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "gemini_character_turnaround",
+    "arguments": {
+      "character_name": "Rindi — ONLY the pink-haired female figure, second from left in the TOP ROW of the supplied ten-character lineup",
+      "reference_image_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/9791fc30-aaea-4b93-9504-65a6b7d1b49e.png",
+      "design_requirements": "Isolate ONLY Rindi, the top-row second figure from the left. The full lineup is supplied solely as the approved source; every output panel must show Rindi, never another roster member. Preserve the source's detailed anime-chibi collectible figure design, roughly 2.8–3 heads tall, oversized round face and head, small nose, cheerful expression, crimson/ruby eyes, candy-pink layered fringe, side locks, and two high voluminous curly twin-tails. Preserve the red ribbon bows, heart decorations and small gold/yellow hair clips visible in the reference. For the neutral modeling pose use both eyes open with the visible eye's shape and ruby iris color; this is a draft expression adjustment for review. Preserve the oversized white/pink jacket with red trim and cuff/hem construction, white inner shirt and red chest detail, dark red/pink/black tartan pleated short skirt, belt/closures, white ankle socks, and chunky red/white high-top sneakers with white laces and thick soles. Preserve the pastel-pink/cream crossbody satchel with gold hardware on her anatomical RIGHT hip, and white rabbit accessory on her anatomical LEFT sleeve/forearm region exactly as visible in the source; keep the placement fixed relative to her body, never mirrored between views. Keep the satchel strap and accessory attachments physically coherent. Retain all visible trims, fasteners and material separations; do not replace them with generic clothing. Remove the display pedestal. Keep the full body and feet visible, in one consistent relaxed standing pose with hands slightly clear of the torso. Maintain the same hair silhouette and volume, head/body proportions, jacket construction, skirt pleats, footwear and prop scale across every view. Arrange exactly EIGHT equal panels in a four-column, two-row grid, in the specified view order. Hidden construction must be conservative and is inferred, not an approved design fact. Top view should reveal hair roots/bows and head/shoulder depth. Bottom view should show shoe soles and fully clothed geometry, with skirt/opaque undershorts coverage maintained; add no anatomical detail or display-stand peg system. No labels, other characters, scenery, logos or pedestal. This is a DRAFT 2D modeling reference for visual review, not proof of a completed 3D mesh.",
+      "views": [
+        "front orthographic",
+        "front three-quarter",
+        "left side 90 degrees",
+        "right side 90 degrees",
+        "back three-quarter",
+        "back orthographic",
+        "top orthographic",
+        "bottom orthographic"
+      ],
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "4K"
+    }
+  }
+}

@@ -2,6 +2,14 @@
 
 Tanggal handoff: 2026-10-01
 
+## Arahan pengguna terbaru — 2026-10-02
+
+Pengguna meminta melanjutkan **Alexia tanpa mata merah, memakai desain sebelumnya**. Referensi aktif Alexia sekarang adalah figur pertama dari kiri pada baris atas lineup yang sudah disetujui, dengan **mata BIRU**. Pilihan terbaru ini menggantikan override crimson di bawah; gambar crimson yang belum tersedia tidak lagi menjadi prasyarat pekerjaan Alexia.
+
+Pertahankan rambut silver/lavender, headphone dan pakaian hitam/putih/emas, shorts/belt, sepatu tebal, serta koper navy dengan bintang emas dari lineup asli. Perubahan ini tidak mengaktifkan kembali model procedural/sculpt yang ditolak.
+
+Konektor Gemini sudah diperbaiki pada commit `5c562517c44306d46df7fc0134fffce5975f9c64`; Preview lulus build dan enam pemeriksaan MCP. Analisis gambar berhasil. Pemeriksaan generasi gambar Gemini terakhir mencatat kuota free-tier 0, sehingga draft turnaround Rindi dibuat melalui built-in imagegen. Rindi masih menunggu tinjauan visual; instruksi melanjutkan Alexia tidak dianggap sebagai persetujuan otomatis atas draft Rindi.
+
 ## Scope
 Proyek ini KHUSUS Crazy Rich: World Tour. Jangan campur dengan ComePlayers Marketplace, CP Empires & Allies, payroll, lowongan, atau proyek lain.
 
@@ -24,7 +32,7 @@ Visual reference yang disetujui user:
 - sample yang ditunjukkan ke user HARUS memakai aset GLB yang sama dengan yang masuk game
 - wajib 360° preview + screenshot in-game + sample video Idle/Walk/action
 
-Alexia override terakhir:
+Riwayat override Alexia 2026-10-01 — dinonaktifkan oleh pilihan pengguna 2026-10-02:
 - mata MERAH / CRIMSON
 - silver/lavender layered hair
 - black/white/gold headphones
@@ -83,7 +91,7 @@ Jangan commit secret ke source.
 3. Ensure health says geminiConfigured=true after user adds GEMINI_API_KEY.
 4. Test MCP initialize, tools/list, and gemini_status.
 5. Test gemini_analyze_reference with a trusted reference URL.
-6. Test gemini_character_turnaround using APPROVED RED-EYED ALEXIA reference.
+6. Continue Alexia turnaround using the currently approved ORIGINAL BLUE-EYED ALEXIA lineup reference, per the user's 2026-10-02 instruction. The missing crimson image is no longer required. Use the documented imagegen fallback while Gemini image quota is unavailable.
 7. Compare all generated views for identity consistency BEFORE any 3D conversion.
 8. Do not generate another fake/sample 3D if turnaround is inconsistent.
 9. Once turnaround is approved, create actual 3D asset using all views.

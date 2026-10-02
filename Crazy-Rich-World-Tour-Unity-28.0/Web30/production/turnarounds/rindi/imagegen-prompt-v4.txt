@@ -1,0 +1,7 @@
+Use case: precise-object-edit.
+The supplied image is the edit target: a six-panel Rindi turnaround (3 columns x 2 rows).
+EDIT ONLY THE BOTTOM-MIDDLE PANEL (panel 5, back three-quarter). Keep every other panel EXACTLY unchanged, and preserve the character, pose, proportions, hair, face, clothing, skirt, shoes, lighting, gray background and layout in all panels.
+
+In the bottom-middle panel the pink handbag incorrectly appears on the LEFT side of the image, beside the rabbit. Correct just this handbag placement and shoulder strap. Move the pink handbag to the RIGHT side of the figure in that bottom-middle image, attached on her anatomical RIGHT hip, matching the bottom-right straight back view. Place its strap on the same RIGHT shoulder (image-right), matching the strap construction in the bottom-right panel. The bag can be partially occluded by the body in this back three-quarter view, but must be on the same physical hip as in the bottom-right view. Remove the wrong left-side bag and the wrong left-side/diagonal strap.
+Keep the white rabbit on the LEFT side of the bottom-middle image, at her anatomical LEFT sleeve/forearm. Therefore in both back-view panels: rabbit image-left, bag image-right.
+Preserve the handbag's exact pink/cream colors, gold clips, envelope flap and heart decoration. Do not swap the rabbit or mirror the character. Do not change any other panel or design detail. Output the corrected entire six-panel sheet, no labels or text.

@@ -1,0 +1,52 @@
+{
+  "attempts": [
+    {
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "result": {
+          "isError": true,
+          "content": [
+            {
+              "type": "text",
+              "text": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+            }
+          ]
+        }
+      },
+      "checkedAt": "2026-10-02T05:07:47.6097554Z",
+      "succeeded": false,
+      "model": "gemini-3.8-flash"
+    },
+    {
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Gemini model: gemini-3.5-flash-lite\n\n**Alexia: Visual Analysis**\n\n*   **Face & Proportions:** Chibi proportions featuring a large head, compact torso, and short limbs. Vibrant blue eyes, a button nose, and a cheerful closed-mouth smile. \n*   **Hair:** Long, voluminous silver-lavender hair styled in twin pigtails high on the head, with loose bangs framing the face and distinct layered strands.\n*   **Headphones:** Chunky, futuristic over-ear headphones rest on her head, featuring dark ear-cups and gold-rimmed exterior accents.\n*   **Clothing:** A layered black, white, and gold-trimmed bomber jacket worn open over a white inner shirt. Dark shorts held up by a belt with metallic buckles. \n*   **Accessories:** Black fingerless gloves on both hands (left and right). A navy blue travel suitcase with gold corner guards and a gold star emblem stands behind her left leg, touching the base plate.\n*   **Footwear:** Chunky, high-top platform sneakers in white and yellow.\n*   **Visible vs. Hidden:** The front view clearly shows the jacket lapels, belt, and shoes. The back of the jacket, the rear suitcase details, and the back of her head/pigtails are inferred hidden surfaces based on standard front-facing anime-chibi design.\n\n---\n\n**Turnaround Requirements & Consistency Checks**\n\nAll views maintain a neutral standing pose, chibi proportions, silver-lavender layered twin pigtails, blue eyes, headphones, black/white/gold jacket, shorts, and chunky sneakers.\n\n1.  **Front View:**\n    *   *Requirements:* Face forward, open jacket showing inner shirt, both gloved hands visible (left hand raised near face, right hand resting on hip), both sneakers facing forward.\n    *   *Consistency Check:* Ensure the gold star on the jacket collar and symmetrical glove cuff placement match the source.\n2.  **Front-Three-Quarter View:**\n    *   *Requirements:* Body angled 45 degrees toward the viewer. Head turned slightly more forward.\n    *   *Consistency Check:* Verify the right arm is forward and the left arm recedes naturally, keeping the headphones centered.\n3.  **Left Side View:**\n    *   *Requirements:* Body rotated 90 degrees to the left. Left arm visible in profile. Left sneaker shown from the outer side.\n    *   *Consistency Check:* Confirm the left headphone ear-cup is fully visible and the jacket side panel aligns with front colors.\n4.  **Right Side View:**\n    *   *Requirements:* Body rotated 90 degrees to the right. Right arm visible in profile. Right sneaker and the navy suitcase with the gold star positioned beside the right leg.\n    *   *Consistency Check:* Ensure the suitcase placement relative to the right anatomical side is consistent with the front reference.\n5.  **Back-Three-Quarter View:**\n    *   *Requirements:* Body angled away at 45 degrees. Rear pigtails and back of the jacket visible.\n    *   *Consistency Check:* Check that headphone headband arc correctly bridges the back of the silver-lavender hair volume.\n6.  **Back View:**\n    *   *Requirements:* Directly facing away. Full display of the back of the jacket and hanging pigtails.\n    *   *Consistency Check:* Verify absence of front closures and confirm uniform distribution of layered hair down the spine."
+            }
+          ]
+        }
+      },
+      "checkedAt": "2026-10-02T05:07:55.2846129Z",
+      "succeeded": true,
+      "model": "gemini-3.5-flash-lite"
+    }
+  ],
+  "tool": "gemini_analyze_reference",
+  "supersedesCrimsonOverride": true,
+  "deployment": "https://evo-gaming-6f0vhlo5c-ilham-evogaming-s-projects.vercel.app",
+  "reference": {
+    "target": "Top row, first from left",
+    "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/9791fc30-aaea-4b93-9504-65a6b7d1b49e.png",
+    "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e"
+  },
+  "meshProduced": false,
+  "succeeded": true,
+  "userReferenceDirection": "Continue Alexia without red eyes, using the earlier approved original lineup design",
+  "character": "alexia",
+  "activeEyeColor": "blue"
+}

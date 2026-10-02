@@ -1,0 +1,9 @@
+Use case: identity-preserve.
+Input image 1: APPROVED MASTER LINEUP. Alexia is the silver/lavender-haired headphone-wearing figure FIRST FROM LEFT IN TOP ROW; BLUE eyes are mandatory, no red-eye override.
+Input image 2: EDIT TARGET, the six-panel blue-eyed Alexia turnaround.
+Keep the same detailed character, blue eyes, face, head/body proportions, silver/lavender layered hair, black-white-gold headphones, jacket, shirt, shorts, belt, gloves, chunky shoes, neutral standing pose, navy suitcase, lighting, gray background and 3-column x 2-row layout. Keep panels 1, 3, 4, and 6 unchanged.
+
+Correct the ROTATION CONSISTENCY of only panel 2 (top-middle) and panel 5 (bottom-middle).
+Panel 2: a genuine FRONT THREE-QUARTER 45-degree view, showing clear asymmetric depth of the face and torso, not near-frontal. Rotate the SAME complete standing figure AND her suitcase together relative to the camera. Keep both eyes blue and exactly the same face/hair/outfit.
+Panel 5: a genuine BACK THREE-QUARTER 45-degree view of the SAME figure. IMPORTANT: the suitcase in the current panel 5 is incorrectly on image-right. Move it to image-LEFT of the figure in this back three-quarter panel, attached to her ANATOMICAL LEFT side, matching panel 6's correct back-view placement. Keep a small consistent gap behind and beside her anatomical LEFT leg. Never move the case to her anatomical right side. The visible rear broad face of the suitcase must be PLAIN NAVY with conservative gold trim, as in panel 6. The one gold star is on its FRONT face only; do not duplicate it on the back. Preserve compact handle, corner guards, wheels, suitcase scale and gold trim. Keep the figure unmirrored, and do not swap headphone sides.
+No other panel edits. No redesign or added decorations. No labels, text, pedestal or extra props. Output the corrected entire six-panel sheet.

@@ -1,0 +1,29 @@
+{
+  "submitted": true,
+  "userAuthorizedImageTransmission": true,
+  "reference": {
+    "expectedSha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "actualSha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "hashMatches": true,
+    "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/9791fc30-aaea-4b93-9504-65a6b7d1b49e.png"
+  },
+  "model": "gemini-3.5-flash-lite",
+  "fallbackReason": "Gemini 3.8 returned temporary high-demand error",
+  "tool": "gemini_analyze_reference",
+  "deployment": "https://evo-gaming-4srpjaa1i-ilham-evogaming-s-projects.vercel.app",
+  "alexiaCrimsonOverrideUsed": false,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Gemini model: gemini-3.5-flash-lite\n\nThis character lineup displays a stylized, anime-chibi aesthetic with exaggerated proportions, featuring oversized heads and large, expressive eyes. The figures are rendered as glossy collectible vinyl figures or figurines mounted on circular grey bases. \n\nEach character exhibits intricate layered clothing and detailed accessories corresponding to distinct themes:\n* **Top row:** A silver-haired figure in a black and gold utility jacket with a matching suitcase; a vibrant pink-haired character in a white and pink bomber jacket holding a small plush; a blue-haired adventurer with goggles and sneakers mid-stride; a purple-haired witch in a star-patterned robe holding a golden staff; and a purple-haired magician in a top hat and tailcoat with floating playing cards and a tiny rabbit.\n* **Bottom row:** An orange-clad explorer carrying rolled maps and a large backpack; a teal-haired adventurer with goggles and a yellow scarf; a paint-splattered artist in blue overalls holding a palette and brush; a calico cat wearing a cap and messenger bag; and two matching robotic suitcases adorned with colorful stickers."
+        }
+      ]
+    }
+  },
+  "succeeded": true,
+  "checkedAt": "2026-10-01T12:45:14.7516963Z"
+}

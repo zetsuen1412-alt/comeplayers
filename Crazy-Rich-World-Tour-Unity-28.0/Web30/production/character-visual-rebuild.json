@@ -1,7 +1,7 @@
 {
   "project": "Crazy Rich: World Tour",
-  "updated_at": "2026-10-01",
-  "status": "blocked_compute_payment_required_no_new_character_mesh",
+  "updated_at": "2026-10-02",
+  "status": "awaiting_blue_eyed_alexia_turnaround_visual_review_no_new_character_mesh",
   "existing_sculpt_v1": {
     "visual_status": "rejected_by_user",
     "functional_tests_are_not_visual_approval": true,
@@ -16,6 +16,9 @@
     "roster": ["alexia", "rindi", "kairo", "luna", "nox", "atlas", "zeno", "yuna", "mochi", "pip"],
     "reference_overrides": {
       "alexia": {
+        "active": false,
+        "superseded_by_user_instruction_on": "2026-10-02",
+        "superseded_reason": "User chose to continue Alexia without red eyes, using the previous original blue-eyed lineup design",
         "filename": "crimson_eyed_chibi_traveler.png",
         "sha256": "654908f1116cb0941adecb13240b49095b752c9a7413efec9728cf62671214bf",
         "source": "User-approved image attached to this ChatGPT conversation; binary not imported into this repository by this update.",
@@ -24,9 +27,54 @@
         "preserve": ["anime-chibi face and proportions", "silver-lavender layered hair", "black-white-gold headphones", "black-white jacket with gold details", "black shorts and belt", "black-white-gold sneakers", "navy luggage with gold star"],
         "model_generated_from_this_reference": false
       }
+    },
+    "active_reference_selections": {
+      "alexia": {
+        "selected_on": "2026-10-02",
+        "filename": "chibi_travel_adventurers_collectible_lineup.png",
+        "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+        "target": "Top row, first figure from left",
+        "eye_color": "blue",
+        "source": "Original approved lineup, explicitly selected again by the user",
+        "crimson_reference_required": false,
+        "model_generated_from_this_reference": false
+      }
     }
   },
   "next_asset": "alexia",
+  "turnaround_history": {
+    "rindi": {
+      "draft": "production/turnarounds/rindi/turnaround-imagegen-v5.png",
+      "sha256": "17027d250f5115118c9edba31a1023bfb379a5437817b770a75beea1a6ba08a7",
+      "provider": "Built-in imagegen",
+      "visual_approved": false,
+      "evidence": "production/turnarounds/rindi/review-2026-10-02.json"
+    }
+  },
+  "gemini_workflow": {
+    "updated_at": "2026-10-02",
+    "user_direction": "Continue Alexia without red eyes, using the earlier original lineup design",
+    "deferred_character": null,
+    "alexia_override_still_required": false,
+    "active_character": "alexia",
+    "active_eye_color": "blue",
+    "analysis_primary_model": "gemini-3.8-flash",
+    "analysis_model": "gemini-3.5-flash-lite",
+    "reference_analysis_succeeded": true,
+    "image_model": "gemini-3.1-flash-image",
+    "gemini_image_generation_succeeded": false,
+    "gemini_image_blocker": "Google project free-tier image generation quota has limit 0",
+    "connector_fix_commit": "5c562517c44306d46df7fc0134fffce5975f9c64",
+    "preview_deployment_id": "dpl_Cdniro9fodWxHUMV9WviEzr6HYWU",
+    "protocol_passed": true,
+    "gemini_configured": true,
+    "turnaround_provider": "Built-in imagegen",
+    "turnaround_draft": "production/turnarounds/alexia/turnaround-blue-imagegen-v2.png",
+    "turnaround_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "turnaround_is_2d_reference_only": true,
+    "turnaround_visual_approved": false,
+    "evidence": "production/turnarounds/alexia/review-2026-10-02.json"
+  },
   "rebuild_requirements": [
     "Use the approved image as the shape and appearance reference, not a generic parametric doll with recolored hair.",
     "Match head/body proportions, facial silhouette, eye shape, expression, layered hair volume and outfit silhouette before fine detail.",

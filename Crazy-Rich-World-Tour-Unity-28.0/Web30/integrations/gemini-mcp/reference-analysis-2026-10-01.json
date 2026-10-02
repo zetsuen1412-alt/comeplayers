@@ -1,0 +1,28 @@
+{
+  "succeeded": false,
+  "userAuthorizedImageTransmission": true,
+  "reference": {
+    "expectedSha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "actualSha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "hashMatches": true,
+    "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/9791fc30-aaea-4b93-9504-65a6b7d1b49e.png"
+  },
+  "submitted": true,
+  "tool": "gemini_analyze_reference",
+  "purpose": "Original approved lineup used only to verify connector; newer approved crimson-eyed Alexia reference still missing.",
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "result": {
+      "isError": true,
+      "content": [
+        {
+          "type": "text",
+          "text": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+        }
+      ]
+    }
+  },
+  "deployment": "https://evo-gaming-4srpjaa1i-ilham-evogaming-s-projects.vercel.app",
+  "checkedAt": "2026-10-01T12:41:16.5182081Z"
+}
