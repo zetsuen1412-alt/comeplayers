@@ -31,6 +31,20 @@ const DEFAULT_ALLOWED_IMAGE_HOSTS = [
   "storage.googleapis.com",
 ];
 
+// generateContent v1 uses protobuf enum names, unlike the Interactions API.
+const IMAGE_ASPECT_RATIOS: Record<string, string> = {
+  "1:1": "ASPECT_RATIO_ONE_BY_ONE",
+  "4:3": "ASPECT_RATIO_FOUR_BY_THREE",
+  "3:4": "ASPECT_RATIO_THREE_BY_FOUR",
+  "16:9": "ASPECT_RATIO_SIXTEEN_BY_NINE",
+  "9:16": "ASPECT_RATIO_NINE_BY_SIXTEEN",
+};
+const IMAGE_SIZES: Record<string, string> = {
+  "1K": "IMAGE_SIZE_ONE_K",
+  "2K": "IMAGE_SIZE_TWO_K",
+  "4K": "IMAGE_SIZE_FOUR_K",
+};
+
 function allowedImageHosts() {
   const extra = (process.env.CRWT_GEMINI_ALLOWED_IMAGE_HOSTS || "")
     .split(",")
@@ -253,6 +267,14 @@ async function geminiGenerateImage(args: JsonObject): Promise<ToolResult> {
       : "gemini-3.1-flash-image";
   const aspectRatio = textArg(args, "aspect_ratio") || "1:1";
   const imageSize = textArg(args, "image_size") || "1K";
+  const apiAspectRatio = IMAGE_ASPECT_RATIOS[aspectRatio];
+  const apiImageSize = IMAGE_SIZES[imageSize];
+  if (!Object.hasOwn(IMAGE_ASPECT_RATIOS, aspectRatio)) {
+    throw new Error("aspect_ratio must be one of 1:1, 4:3, 3:4, 16:9, 9:16.");
+  }
+  if (!Object.hasOwn(IMAGE_SIZES, imageSize)) {
+    throw new Error("image_size must be one of 1K, 2K, 4K.");
+  }
 
   const parts: unknown[] = [{ text: prompt.slice(0, 16_000) }];
   if (imageUrl) parts.push(await loadReferenceImage(imageUrl));
@@ -261,8 +283,8 @@ async function geminiGenerateImage(args: JsonObject): Promise<ToolResult> {
     responseModalities: ["TEXT", "IMAGE"],
     responseFormat: {
       image: {
-        aspectRatio,
-        imageSize,
+        aspectRatio: apiAspectRatio,
+        imageSize: apiImageSize,
       },
     },
   });
