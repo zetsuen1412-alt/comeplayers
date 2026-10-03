@@ -1,7 +1,7 @@
 {
   "project": "Crazy Rich: World Tour",
-  "updated_at": "2026-10-02",
-  "status": "awaiting_blue_eyed_alexia_turnaround_visual_review_no_new_character_mesh",
+  "updated_at": "2026-10-03",
+  "status": "alexia_reconstruction_in_progress_clean_body_inputs_required_zerogpu_quota_blocked",
   "existing_sculpt_v1": {
     "visual_status": "rejected_by_user",
     "functional_tests_are_not_visual_approval": true,
@@ -13,7 +13,18 @@
     "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
     "image_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/9791fc30-aaea-4b93-9504-65a6b7d1b49e.png",
     "style": "Detailed anime chibi collectible-style 3D; not photorealistic human anatomy.",
-    "roster": ["alexia", "rindi", "kairo", "luna", "nox", "atlas", "zeno", "yuna", "mochi", "pip"],
+    "roster": [
+      "alexia",
+      "rindi",
+      "kairo",
+      "luna",
+      "nox",
+      "atlas",
+      "zeno",
+      "yuna",
+      "mochi",
+      "pip"
+    ],
     "reference_overrides": {
       "alexia": {
         "active": false,
@@ -24,7 +35,15 @@
         "source": "User-approved image attached to this ChatGPT conversation; binary not imported into this repository by this update.",
         "eye_color": "red",
         "supersedes": "Earlier blue-eyed Alexia references and production prompts",
-        "preserve": ["anime-chibi face and proportions", "silver-lavender layered hair", "black-white-gold headphones", "black-white jacket with gold details", "black shorts and belt", "black-white-gold sneakers", "navy luggage with gold star"],
+        "preserve": [
+          "anime-chibi face and proportions",
+          "silver-lavender layered hair",
+          "black-white-gold headphones",
+          "black-white jacket with gold details",
+          "black shorts and belt",
+          "black-white-gold sneakers",
+          "navy luggage with gold star"
+        ],
         "model_generated_from_this_reference": false
       }
     },
@@ -73,7 +92,10 @@
     "turnaround_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
     "turnaround_is_2d_reference_only": true,
     "turnaround_visual_approved": false,
-    "evidence": "production/turnarounds/alexia/review-2026-10-02.json"
+    "evidence": "production/turnarounds/alexia/review-2026-10-02.json",
+    "user_proceeded_past_turnaround_review_gate": true,
+    "proceeded_on": "2026-10-02",
+    "note": "User instructed continuation after Alexia V2 was displayed; reconstruction may continue, but no generated mesh is automatically approved."
   },
   "rebuild_requirements": [
     "Use the approved image as the shape and appearance reference, not a generic parametric doll with recolored hair.",
@@ -90,37 +112,72 @@
     "A standalone inspection viewer is not proof of live-game integration. Test the board and character selector with the same accepted asset."
   ],
   "attempt": {
-    "method": "Direct image-conditioned reconstruction using the official Microsoft TRELLIS.2 Space",
+    "method": "Hunyuan3D-2mv multiview reconstruction from approved Alexia V2",
     "character": "alexia",
-    "completed": ["exact reference crop", "reference preprocessing"],
-    "result": "Earlier attempt stopped at GPU quota error at image_to_3d; no new mesh produced",
-    "retry_policy": "Do not bypass quota or silently substitute the rejected procedural models. Resolve authorized compute access before retrying."
+    "status": "Six real mesh attempts generated and rejected before texture; V7 not generated due ZeroGPU quota.",
+    "retry_policy": "Do not repeat V1-V6. Prepare genuinely suitcase-free body-only inputs from V2, inspect them, then submit V7 only when free/authorized compute is available."
   },
   "latest_compute_check": {
-    "service": "Hugging Face Jobs",
+    "service": "Hugging Face public ZeroGPU / Hunyuan3D-2mv",
     "account": "ComePlayers",
-    "authenticated": true,
-    "operation": "uv",
-    "requested_flavor": "cpu-basic",
-    "timeout": "60s",
-    "purpose": "Check authenticated execution without submitting a large generation workload",
-    "result": "API request failed: 402 Payment Required",
-    "job_id": null,
-    "confirmed_job_started": false,
+    "authenticated_account_is_pro": false,
+    "result": "V7 generation rejected before start: ZeroGPU quota 0s left",
     "generation_started": false,
-    "automatic_retries_after_payment_error": 0,
     "billing_or_subscription_changed": false
   },
-  "latest_higgsfield_check": {"credits": 0, "subscription_plan_type": "free", "new_3d_generation_submitted": false},
+  "latest_higgsfield_check": {
+    "credits": 0,
+    "subscription_plan_type": "free",
+    "new_3d_generation_submitted": false,
+    "note": "No paid 3D generation was submitted."
+  },
   "delivery_gate": {
-    "required_real_mesh_views": ["front", "three-quarter", "left", "right", "back", "top", "bottom"],
-    "required_clips": ["Idle", "Walk", "Jump", "Skill", "Win", "Lose"],
+    "required_real_mesh_views": [
+      "front",
+      "three-quarter",
+      "left",
+      "right",
+      "back",
+      "top",
+      "bottom"
+    ],
+    "required_clips": [
+      "Idle",
+      "Walk",
+      "Jump",
+      "Skill",
+      "Win",
+      "Lose"
+    ],
     "actual_in_game_evidence_required": true,
     "same_reviewed_and_integrated_glb_hash_required": true,
     "automatic_visual_approval": false
   },
-  "new_models_produced": 0,
+  "new_models_produced": 6,
   "visual_final_approved": false,
   "game_assets_replaced": false,
-  "note": "This file records approved visual requirements and observed blockers. It is not a runtime deployment guard, a completed model, or a claim of improved visual fidelity."
+  "note": "This file records approved visual requirements and observed blockers. It is not a runtime deployment guard, a completed model, or a claim of improved visual fidelity.",
+  "reconstruction_status": {
+    "active_reference": "production/turnarounds/alexia/turnaround-blue-imagegen-v2.png",
+    "active_eye_color": "blue",
+    "accepted_meshes": 0,
+    "generated_mesh_attempts": 6,
+    "latest_generated_attempt": "v6-largest-2d-component",
+    "latest_planned_attempt": "v7-clean-body-only",
+    "latest_planned_attempt_generated": false,
+    "latest_blocker": "Hunyuan3D-2mv public ZeroGPU quota exhausted before V7 generation",
+    "v1_gemini_verdict": "REBUILD BEFORE TEXTURE",
+    "suitcase_strategy": "Separate prop GLB; never fused into Alexia body mesh",
+    "rejected_methods": [
+      "full sheet including suitcase",
+      "masked/cropped inputs leaving suitcase or floor remnants",
+      "salvaging V6 by cutting fused prop geometry",
+      "image-generated body-only sheets that drift from Alexia V2"
+    ],
+    "evidence": [
+      "production/reconstruction/alexia/rebuild-attempts-2026-10-02.json",
+      "production/reconstruction/alexia/rebuild-attempts-v4-v7-2026-10-02.json"
+    ]
+  },
+  "accepted_models_produced": 0
 }

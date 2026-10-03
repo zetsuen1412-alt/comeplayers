@@ -1,5 +1,58 @@
 # CODEX HANDOFF — Crazy Rich: World Tour — Gemini MCP + Character Rebuild
 
+## PEMBARUAN CODEX — 2026-10-03
+
+Pengguna meminta **lanjut di Codex**. Status ini menggantikan bagian lama yang masih menyebut turnaround belum ditinjau.
+
+### Status aktif Alexia
+- Referensi desain tetap **Alexia V2 bermata biru**: `production/turnarounds/alexia/turnaround-blue-imagegen-v2.png`.
+- Mata biru, rambut silver/lavender, headphone hitam/putih/emas, jacket/shorts/belt/sepatu chunky tetap dikunci.
+- Koper navy dengan bintang emas tetap bagian desain, tetapi **harus direkonstruksi sebagai prop terpisah**, bukan menyatu dengan body mesh.
+- Pengguna sudah memerintahkan untuk melanjutkan setelah V2 ditampilkan. Ini mengizinkan proses rekonstruksi diteruskan, tetapi **tidak berarti mesh 3D otomatis disetujui**.
+- Jangan memakai kembali override mata merah/crimson.
+- Jangan memakai model procedural/sculpt lama yang pernah ditolak.
+
+### Rekonstruksi yang sudah dicoba
+Hunyuan3D-2mv public ZeroGPU sudah benar-benar diuji.
+
+- V1 full-sheet: mesh nyata dibuat. Gemini review memberi verdict **REBUILD BEFORE TEXTURE** karena koper menyatu ke tubuh, hair noise/floating fragments, dan articulation gaps buruk.
+- V2 masked-body: mesh nyata dibuat; masih merekonstruksi koper dan memiliki sangat banyak disconnected components.
+- V3 strict-crop: mesh nyata dibuat; masih muncul prop-like box dan hair fragmentation.
+- V4 strict-body-crop: mesh nyata dibuat; crop/background edge dibaca sebagai box geometry.
+- V5 transparent-input: mesh nyata dibuat; sisa koper/floor masih ikut direkonstruksi.
+- V6 largest-2D-component: mesh nyata dibuat; koper menyentuh karakter sehingga masih masuk komponen. Salvage V6 dengan memotong prop + membuang long-triangle spikes tetap tidak layak dan **ditolak**.
+- V7: belum menghasilkan mesh. Submit diblokir karena public ZeroGPU quota habis (`60s requested vs 0s left`).
+
+Bukti:
+- `production/reconstruction/alexia/rebuild-attempts-2026-10-02.json`
+- `production/reconstruction/alexia/rebuild-attempts-v4-v7-2026-10-02.json`
+
+### Sheet body-only dari image generation
+Percobaan menghapus koper dengan image generation menghasilkan **design drift** pada beberapa sheet (rambut/emblem/outfit berubah atau berubah menjadi concept board). **Jangan gunakan output drift tersebut sebagai referensi rekonstruksi atau pengganti V2.**
+
+### Titik lanjut yang benar di Codex
+1. Checkout/fetch branch `codex/crazy-rich-web-v30`.
+2. Baca file ini, manifest rebuild, review Alexia, dan kedua evidence reconstruction JSON.
+3. Gunakan **V2 asli** sebagai source of truth.
+4. Buat empat input body-only bersih: front / back / left / right. Koper, handle, wheels, floor shadow, dan panel-border harus benar-benar hilang. Jangan mengubah wajah, mata, rambut utama, headphone, outfit, proporsi, atau sepatu.
+5. Sebelum submit 3D, tampilkan empat input tersebut untuk inspeksi. Jika ada sisa koper/background-edge yang tersambung ke tubuh, perbaiki dulu.
+6. Jika public ZeroGPU sudah reset, submit ke Hunyuan3D-2mv dengan seed `1412`; simpan parameter aktual dan SHA-256 output.
+7. Render mesh nyata minimal front / 3/4 / left / right / back. Tolak sebelum texturing jika ada prop-fusion, floor planes, long spikes, fragmented hair berlebihan, atau articulation gaps yang buruk.
+8. Hanya setelah body geometry lolos: texture body.
+9. Rekonstruksi koper sebagai GLB terpisah, lalu pasang sebagai prop/accessory.
+10. Rig/animasi baru dilakukan setelah fidelity geometry + material lolos.
+11. Integrasi Unity harus memakai GLB yang sama dengan hash yang direview.
+12. Bukti akhir wajib: 360 turntable, board screenshot, Idle, Walk, Jump, Skill, Win, Lose.
+
+### Larangan
+- Jangan mengulang V1–V6 tanpa perubahan metodologi.
+- Jangan menganggap polygon count / GLB valid / skeleton sebagai visual approval.
+- Jangan silently mengganti ke generic procedural doll.
+- Jangan merge koper ke body.
+- Jangan mengubah billing, membeli kredit, atau menjalankan job berbayar tanpa persetujuan pengguna.
+- Jangan gunakan `HANDOFF_CHATGPT_ID.md`.
+
+
 Tanggal handoff awal: 2026-10-01
 Pembaruan untuk melanjutkan di ChatGPT browser: 2026-10-02
 
