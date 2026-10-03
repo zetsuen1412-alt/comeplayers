@@ -86,6 +86,43 @@ both sandboxed and approved local launch attempts. No sandbox-disabling option
 was used. The successful fixture suite and screenshot use Python Playwright with
 the same installed Edge executable and isolated test contexts.
 
+### Actual unpacked extension integration
+
+The unchanged extension **1.3.4** was also loaded as a real MV3 extension in a
+fresh local Playwright Chromium **145.0.7632.6** profile. Its localhost bridge
+was injected from the manifest, the actual action popup was exercised through
+official `action.openPopup` and foreground `extension.getViews`, and the worker
+injected `facebook.js` through `chrome.scripting`. **20/20 checks passed.**
+
+From `tools/comeplayers-loker-extension/`, after installing bundled Chromium
+as described in `tests/README.md`:
+
+```text
+python tests/unpacked-extension.py --report ../../docs/verification/lowongan-facebook/2026-10-03-unpacked-integration.json --screenshot-post ../../docs/verification/lowongan-facebook/2026-10-03-unpacked-post-synthetic.png
+```
+
+Seven exact synthetic Facebook URL requests were fulfilled entirely in memory.
+The native content/worker/bridge path verified one PNG comment in a feed, one in
+the deep `Tulis jawaban` modal, and a sequence of three approved jobs returning
+`skipped`, `sent`, `sent` after one trusted review click. Each synthetic send
+had exactly one preflight and one DOM send action. Connected STOP prevented
+navigation and preflight. This controlled sequence does not exercise the
+production Admin queue pump or a live Facebook batch.
+
+The denying localhost proxy forwarded zero external requests. It separately
+recorded 18 denied Facebook CONNECT attempts; their initiator is not inferred.
+Unknown application routes were zero. The temporary test profile was deleted.
+Popup clicks were observer-backed untrusted DOM clicks; Admin review used
+trusted browser input. One declared real-storage setup isolated approval
+consumption without changing runtime APIs, source, clocks, or timers.
+
+Storage persistence and popup reload passed. The final full-flow run omitted
+the optional browser restart check: an earlier isolated restart passed, but
+intermittent Chromium relaunch stalls were observed. Its JSON reports this
+limitation explicitly. The screenshot is labelled synthetic and was inspected.
+Raw and LF-normalized runtime hashes bind the report to the unchanged source.
+**This does not satisfy authenticated live Facebook acceptance.**
+
 ## Acceptance tracking
 
 | Gate | Result |
@@ -94,6 +131,7 @@ the same installed Edge executable and isolated test contexts.
 | Website typecheck | PASS |
 | Targeted Lowongan tests | PASS — 51/51, including worker/bridge races and four deployed SQL subtests |
 | Extension feed/modal fixtures | PASS — 40/40, final source fingerprint in adjacent JSON |
+| Actual unpacked MV3 integration | PASS — 20/20 in isolated Chromium, native worker/bridge/popup/content path with synthetic pages |
 | Website lint | PASS — zero errors, 297 repository warnings; targeted Lowongan has one existing banner-effect warning |
 | Website production build | PASS — 242/242 pages using public configuration |
 | Installed version matches Admin | PENDING — observed production installation remains 1.3.2 |
