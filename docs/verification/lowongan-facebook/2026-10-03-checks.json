@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-03",
+  "branch": "codex/facebook-lowongan-stabilize-v2",
+  "extensionUnderTest": "1.3.4",
+  "dependencyInstall": {
+    "command": "npm ci --cache C:/Comeplayers-new/.npm-cache --no-audit --no-fund",
+    "exitCode": 0,
+    "packages": 513,
+    "lockfileChanged": false
+  },
+  "typecheck": {
+    "command": "npm run typecheck",
+    "exitCode": 0,
+    "dependencyPreparation": "Ignored sibling node_modules junction to installed identical shared crypto dependencies"
+  },
+  "lowongan": {
+    "command": "node node_modules/tsx/dist/cli.mjs --test tests/loker-automation.test.ts",
+    "exitCode": 0,
+    "passed": 51,
+    "failed": 0
+  },
+  "lint": {
+    "command": "npm run lint -- --format json --output-file tmp/loker-eslint-final.json",
+    "exitCode": 0,
+    "errors": 0,
+    "warnings": 297
+  },
+  "build": {
+    "command": "next build (npm run build implementation)",
+    "exitCode": 0,
+    "pages": 242,
+    "publicConfigLoadedWithoutPrinting": true
+  },
+  "live": {
+    "observedInstalledVersion": "1.3.2",
+    "newVersionInstalled": false,
+    "normalImageSent": false,
+    "modalImageSent": false,
+    "reviewedBatchSent": false,
+    "oldQueueStopConfirmed": true,
+    "liveAcceptanceStatus": "pending installation"
+  },
+  "mergeAllowed": false
+}

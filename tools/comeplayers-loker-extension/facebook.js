@@ -4,7 +4,9 @@
   globalThis.__cpLokerInstalled = true;
   let cancelled = false;
   const norm = v => String(v || '').replace(/\s+/g, ' ').trim();
-  const visible = el => el instanceof HTMLElement && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  const visible = el => el instanceof HTMLElement && !el.closest('[hidden],[aria-hidden="true"],[inert]')
+    && !['hidden', 'collapse'].includes(getComputedStyle(el).visibility)
+    && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
   const label = el => norm(el.getAttribute('aria-label') || el.textContent);
   const buttons = root => [...root.querySelectorAll('button,[role="button"]')].filter(visible);
   const articles = () => [...document.querySelectorAll('[role="article"]')].filter(a => !a.parentElement?.closest('[role="article"]'));
@@ -12,11 +14,17 @@
   const seeker = t => /\b(cari kerja|mencari (kerja|pekerjaan)|butuh (kerja|pekerjaan)|info loker|loker dong|ada loker|butuh loker|mau kerja)\b/i.test(t)
     && !/\b(kami membuka|dibutuhkan|open recruitment|lowongan tersedia|sedang membuka|membuka lowongan|hiring)\b/i.test(t);
   const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const editorSelector = '[contenteditable="true"][role="textbox"],[contenteditable="true"][data-lexical-editor="true"],textarea[role="textbox"]';
+  const commentSelector = '[role="article"],[role="listitem"],[data-comment-id],[data-commentid],[data-ad-rendering-role="comment"]';
+  const imageInput = input => !input.disabled && (!input.accept || /image\/|\.(png|jpe?g|webp)(?:,|$)/i.test(input.accept));
+  const enabled = control => visible(control) && control.getAttribute('aria-disabled') !== 'true' && !control.disabled;
+  function failure(code, message) { return Object.assign(new Error(message), { code }); }
 
   function target(url) {
     try {
       const u = new URL(url, location.href);
-      if (!['www.facebook.com','web.facebook.com','m.facebook.com'].includes(u.hostname) || u.protocol !== 'https:') return null;
+      if (!['www.facebook.com','web.facebook.com','m.facebook.com'].includes(u.hostname) || u.protocol !== 'https:'
+        || u.username || u.password || u.port) return null;
       const m = u.pathname.match(/^\/groups\/([a-zA-Z0-9._-]+)(?:\/(?:posts|permalink)\/(\d+))?\/?$/);
       return m ? { group: m[1], post: m[2] || '', url: `https://www.facebook.com/groups/${m[1]}${m[2] ? `/posts/${m[2]}` : ''}/` } : null;
     } catch { return null; }
@@ -24,10 +32,10 @@
 
   function check(job) {
     const here = target(location.href), wanted = target(job.target);
-    if (cancelled || Date.now() > job.expiresAt) throw new Error('Dihentikan atau tugas kedaluwarsa.');
-    if (!here || !wanted || here.group !== wanted.group || (wanted.post && wanted.post !== here.post)) throw new Error('Halaman bukan tujuan tugas.');
+    if (cancelled || Date.now() > job.expiresAt) throw failure('cancelled', 'Dihentikan atau tugas kedaluwarsa.');
+    if (!here || !wanted || here.group !== wanted.group || (wanted.post && wanted.post !== here.post)) throw failure('target_changed', 'Halaman bukan tujuan tugas.');
     if (/checkpoint|captcha|login/.test(location.pathname) || [...document.querySelectorAll('[role="alert"],[role="dialog"]')].some(e => /temporarily blocked|dibatasi sementara|confirm your identity|konfirmasi identitas|security check|pemeriksaan keamanan/i.test(e.textContent))) {
-      throw new Error('Facebook meminta pemeriksaan keamanan/pembatasan.');
+      throw failure('security_restriction', 'Facebook meminta pemeriksaan keamanan/pembatasan.');
     }
   }
 
@@ -46,7 +54,7 @@
     check(job);
     const reply = await chrome.runtime.sendMessage({ type: 'CP_LOKER_CHECK', id: job.id, lease: job.lease, dispatch: true });
     check(job);
-    if (!reply?.allowed) throw new Error('START tidak aktif, admin terputus, atau tugas sudah pernah dikirim.');
+    if (!reply?.allowed) throw failure('preflight_denied', 'START tidak aktif, admin terputus, atau tugas sudah pernah dikirim.');
   }
 
   async function attach(job, root) {
@@ -84,58 +92,242 @@
     return [...root.querySelectorAll('img')].some(i => visible(i) && (i.naturalWidth > 120 || i.width > 120));
   }
 
-  function findJobPostArticle(job) {
-    const wanted = target(job.target);
-    return articles().find(a => {
-      if (!story(a) || !seeker(story(a).textContent || '')) return false;
-      return postUrlFromArticle(a, wanted.group) === wanted.url;
-    }) || null;
-  }
-
   function findExactPostArticle(job) {
     const wanted = target(job.target);
-    return articles().find(a => postUrlFromArticle(a, wanted.group) === wanted.url) || null;
+    return articles().find(article => hasPostPermalink(article, wanted)) || null;
+  }
+
+  function hasPostPermalink(article, wanted) {
+    return [...article.querySelectorAll('a[href]')].some(link => {
+      const url = new URL(link.href, location.href);
+      return !url.searchParams.has('comment_id') && !url.searchParams.has('reply_comment_id')
+        && target(link.href)?.url === wanted.url;
+    });
   }
 
   function findPostModal(job) {
     const wanted = target(job.target);
     const here = target(location.href);
     if (!wanted?.post || !here || here.group !== wanted.group || here.post !== wanted.post) return null;
-    const dialogs = [...document.querySelectorAll('[role="dialog"]')].filter(dialog => {
-      if (!visible(dialog)) return false;
-      const text = norm(dialog.getAttribute('aria-label') || dialog.textContent || '');
-      if (/buat postingan|create post/i.test(text)) return false;
-      return [...dialog.querySelectorAll('[contenteditable="true"][role="textbox"]')]
-        .some(editor => visible(editor) && /komentar|comment/i.test(label(editor)) && !/balas|reply/i.test(label(editor)));
+    const visibleDialogs = [...document.querySelectorAll('[role="dialog"]')].filter(visible);
+    // Resolve the active/deepest dialog before checking post evidence. A
+    // reply overlay must not expose a sendable footer in the post behind it.
+    const innermost = visibleDialogs.filter(dialog => !visibleDialogs.some(other => other !== dialog && dialog.contains(other)));
+    if (innermost.length !== 1) return null;
+    const dialogs = innermost.filter(dialog => {
+      const heading = norm([...dialog.querySelectorAll('h1,h2,[role="heading"]')].map(e => e.textContent).join(' '));
+      if (/^(buat postingan|create post)/i.test(heading)) return false;
+      // Require post evidence, not merely an editor/heading: a reply or share
+      // overlay can appear while the address bar still names the same post.
+      const refs = [...dialog.querySelectorAll('a[href]')].flatMap(link => {
+        const url = new URL(link.href, location.href), parsed = target(link.href);
+        return parsed?.post && !url.searchParams.has('comment_id') && !url.searchParams.has('reply_comment_id') ? [parsed.url] : [];
+      });
+      if (refs.length && !refs.includes(wanted.url)) return false;
+      return !!story(dialog) || refs.includes(wanted.url);
     });
-    return dialogs.length === 1 ? dialogs[0] : dialogs[0] || null;
+    return dialogs.length === 1 ? dialogs[0] : null;
   }
 
   function findCommentContext(job) {
-    return findExactPostArticle(job) || findPostModal(job);
+    // The feed behind a modal can include the same permalink. Always resolve
+    // the active dialog first so controls cannot leak out to the background.
+    if ([...document.querySelectorAll('[role="dialog"]')].some(visible)) return findPostModal(job);
+    return findExactPostArticle(job);
   }
 
-  function commentEditor(root) {
-    const editors = [...root.querySelectorAll('[contenteditable="true"][role="textbox"]')]
-      .filter(editor => visible(editor) && /komentar|comment/i.test(label(editor)) && !/balas|reply/i.test(label(editor)));
-    return editors.length ? editors[editors.length - 1] : null;
-  }
-
-  function commentSendButton(root) {
-    const candidates = buttons(root).filter(button => {
-      const value = label(button);
-      if (/(foto|photo|gambar|image|camera|kamera|gif|stiker|sticker|emoji|balas|reply)/i.test(value)) return false;
-      return /^(kirim|send|kirim komentar|post comment|komentar|comment|komentari|posting|post)$/i.test(value)
-        || /^(kirim|send)\b/i.test(value);
+  function postRoot(context, job) {
+    if (context.matches('[role="article"]')) return context;
+    const wanted = target(job.target);
+    const roots = [...context.querySelectorAll('[role="article"]')].filter(article => {
+      if (article.parentElement?.closest('[role="article"]')) return false;
+      return !!story(article) || hasPostPermalink(article, wanted);
     });
-    return candidates.length ? candidates[candidates.length - 1] : null;
+    return roots.length === 1 ? roots[0] : context;
+  }
+
+  function nestedComment(element, context, root) {
+    for (let node = element.parentElement; node && node !== document.body; node = node.parentElement) {
+      if (node === context || node === root) continue;
+      // A semantic comment can wrap a nested dialog. Continue beyond the
+      // selected dialog instead of declaring its reply editor a post root.
+      if (!context.contains(node) && node.matches('[role="article"]') && story(node)) continue;
+      if (node !== root && (node.matches(commentSelector)
+        || node.matches('li') && node.parentElement?.matches('[role="list"],ul,ol')
+        || node.matches('[data-reply-thread],[data-comment-thread]'))) return true;
+    }
+    return false;
+  }
+
+  function classifyComposers(context, job) {
+    const root = postRoot(context, job);
+    const all = [...context.querySelectorAll(editorSelector)].filter(visible);
+    const accepted = all.filter(editor => {
+      if (nestedComment(editor, context, root)) return false;
+      // A reply list is also semantic evidence, even if it uses plain divs
+      // instead of an article for the individual comment.
+      for (let node = editor.parentElement; node && node !== context; node = node.parentElement) {
+        if (node !== root && node.matches('[role="list"],[data-comment-list]')) return false;
+      }
+      return true;
+    });
+    return { all, accepted, root };
+  }
+
+  function composerScopes(editor, context) {
+    const scopes = [];
+    const form = editor.closest('form');
+    for (let scope = editor.parentElement; scope && context.contains(scope); scope = scope.parentElement) {
+      // Never broaden a composer search into the post header, share controls,
+      // or a comment list. Facebook can nest the footer dozens of divs deep.
+      if (story(scope) || scope.querySelector(commentSelector) || scope.querySelector('h1,h2,[role="heading"]')) break;
+      const editors = [...scope.querySelectorAll(editorSelector)].filter(visible);
+      if (editors.length === 1 && editors[0] === editor) scopes.push(scope);
+      if (scope === context || scope === form) break;
+    }
+    return scopes;
+  }
+
+  function photoControls(scope, context, root) {
+    return buttons(scope).filter(button => !nestedComment(button, context, root)
+      && /(foto|photo|gambar|image|camera|kamera|lampir|attach)/i.test(label(button)));
+  }
+
+  function commentSendButton(scopes, context, root) {
+    for (const scope of scopes) {
+      const candidates = buttons(scope).filter(button => {
+        if (nestedComment(button, context, root)) return false;
+        const value = label(button);
+        if (/(foto|photo|gambar|image|camera|kamera|gif|stiker|sticker|emoji|balas|reply|bagikan|share|teman|friends?|profil|profile)/i.test(value)) return false;
+        return /^(kirim|send|kirim komentar|post comment|komentar|comment|komentari|posting|post)$/i.test(value)
+          || /^(kirim komentar|send comment|post comment)\b/i.test(value)
+          || button.matches('button[type="submit"],input[type="submit"]') && button.form?.contains(scope.querySelector(editorSelector));
+      });
+      if (candidates.length === 1) return candidates[0];
+      if (candidates.length > 1) return null;
+    }
+    return null;
+  }
+
+  function mediaImages(scope) {
+    return [...scope.querySelectorAll('img')].filter(img => {
+      const width = img.getBoundingClientRect().width || img.width;
+      return visible(img) && img.complete && img.naturalWidth >= 80 && width >= 80;
+    });
+  }
+
+  async function waitFor(job, fn, timeout, code, message) {
+    try { return await until(job, fn, timeout); }
+    catch (error) { if (error.code) throw error; throw failure(code, message); }
+  }
+
+  function bannerFile(job) {
+    const banner = job.banner;
+    if (!banner || !['image/png', 'image/jpeg', 'image/webp'].includes(banner.mime)
+      || typeof banner.body !== 'string' || banner.body.length > 6990508) {
+      throw failure('banner_invalid', 'Foto harus PNG, JPEG, atau WebP maksimal 5 MB.');
+    }
+    let raw;
+    try { raw = atob(banner.body); }
+    catch { throw failure('banner_invalid', 'Data foto tidak valid.'); }
+    if (!raw.length || raw.length > 5 * 1024 * 1024) throw failure('banner_invalid', 'Foto harus berukuran 1 byte sampai 5 MB.');
+    const ext = banner.mime === 'image/jpeg' ? 'jpg' : banner.mime.split('/')[1];
+    return new File([Uint8Array.from(raw, c => c.charCodeAt(0))], `lowongan.${ext}`, { type: banner.mime });
+  }
+
+  async function attachComment(job, editor, context, root, mark) {
+    const file = bannerFile(job);
+    const scopes = composerScopes(editor, context);
+    const scope = [...scopes].reverse().find(node => photoControls(node, context, root).length === 1
+      || [...node.querySelectorAll('input[type="file"]')].filter(imageInput).length === 1);
+    if (!scope) throw failure('photo_control_unavailable', 'Kontrol foto komentar tidak tersedia.');
+    const before = new Map([...scope.querySelectorAll('img')].map(img => [img, img.currentSrc || img.src]));
+    let inputs = [...scope.querySelectorAll('input[type="file"]')].filter(imageInput);
+    if (inputs.length !== 1) {
+      const photos = photoControls(scope, context, root);
+      if (photos.length !== 1) throw failure('photo_control_unavailable', 'Kontrol foto komentar tidak dapat dipastikan.');
+      const photo = photos[0];
+      const previous = new Set(context.querySelectorAll('input[type="file"]'));
+      const controlledIds = norm(`${photo.getAttribute('aria-controls') || ''} ${photo.getAttribute('aria-owns') || ''}`).split(' ').filter(Boolean);
+      check(job);
+      photo.click();
+      inputs = await waitFor(job, () => {
+        const available = [...context.querySelectorAll('input[type="file"]')].filter(imageInput);
+        const mapped = available.filter(input => controlledIds.some(id => input.id === id || document.getElementById(id)?.contains(input)));
+        if (mapped.length === 1) return mapped;
+        const created = available.filter(input => !previous.has(input));
+        if (created.length === 1) return created;
+        // A unique local photo control can reveal the dialog's one hidden
+        // file input. Do not guess between multiple existing inputs.
+        return available.length === 1 ? available : null;
+      }, 6000, 'photo_control_unavailable', 'Input foto komentar tidak ditemukan.');
+    }
+    mark('photo_control_found');
+    check(job);
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    inputs[0].files = transfer.files;
+    inputs[0].dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    const preview = await waitFor(job, () => {
+      if (scope.querySelector('[role="progressbar"]')) return null;
+      const remove = buttons(scope).some(button => /(hapus|remove|delete).*(foto|photo|gambar|image|lampiran|attachment)/i.test(label(button)));
+      return mediaImages(scope).find(img => before.get(img) !== (img.currentSrc || img.src)
+        && (img.closest('[data-attachment-preview]') || /^(blob:|data:image\/)/i.test(img.currentSrc || img.src) || remove)) || null;
+    }, 30000, 'attachment_preview_missing', 'Pratinjau foto pada kolom komentar tidak terkonfirmasi.');
+    mark('attachment_preview_found');
+    return { scope, preview, scopes };
+  }
+
+  function topLevelComments(context, root, composer) {
+    const nodes = [...context.querySelectorAll(commentSelector)].filter(node => node !== root
+      && !node.contains(composer) && !composer.contains(node) && !story(node));
+    return nodes.filter(node => !nodes.some(parent => parent !== node && parent.contains(node)));
+  }
+
+  function commentKey(comment) {
+    const explicit = comment.getAttribute('data-comment-id') || comment.getAttribute('data-commentid');
+    if (explicit) return `id:${explicit}`;
+    for (const link of comment.querySelectorAll('a[href]')) {
+      const owner = link.closest(commentSelector);
+      if (owner && owner !== comment) continue;
+      const url = new URL(link.href, location.href);
+      const id = url.searchParams.get('reply_comment_id') || url.searchParams.get('comment_id');
+      if (id) return `id:${id}`;
+    }
+    return '';
+  }
+
+  function mediaKey(img) {
+    try {
+      const url = new URL(img.currentSrc || img.src, location.href);
+      return url.protocol === 'https:' ? `${url.origin}${url.pathname}` : url.href;
+    } catch { return ''; }
+  }
+
+  function actorKey(href) {
+    try {
+      const url = new URL(href, location.href);
+      if (!['www.facebook.com', 'web.facebook.com', 'm.facebook.com'].includes(url.hostname)) return '';
+      if (url.pathname === '/profile.php') return url.searchParams.has('id') ? `${url.pathname}?id=${url.searchParams.get('id')}` : '';
+      if (/^\/people\/[^/]+\/\d+\/?$/.test(url.pathname)) return url.pathname.replace(/\/$/, '');
+      if (/^\/[a-zA-Z0-9._-]+\/?$/.test(url.pathname) && !/^\/(groups|photo|photos|watch|marketplace|notifications|home|me|reel|reels|login|help|messages)\/?$/.test(url.pathname)) return url.pathname.replace(/\/$/, '');
+      return '';
+    } catch { return ''; }
+  }
+
+  function composerCleared(editor, scope, preview) {
+    const text = norm(editor instanceof HTMLTextAreaElement ? editor.value : editor.textContent);
+    const previews = mediaImages(scope).filter(img => img.closest('[data-attachment-preview]')
+      || /^(blob:|data:image\/)/i.test(img.currentSrc || img.src));
+    return !text && previews.length === 0 && (!preview.isConnected || !scope.contains(preview) || !visible(preview))
+      && !scope.querySelector('[role="progressbar"]');
   }
 
   async function scanAllPosts(groupUrl) {
     cancelled = false;
     const wanted = target(groupUrl);
     const here = target(location.href);
-    if (!wanted || wanted.post || !here || here.group !== wanted.group) throw new Error('Halaman grup tidak cocok untuk scan.');
+    if (!wanted || wanted.post || !here || here.post || here.group !== wanted.group) throw new Error('Halaman grup tidak cocok untuk scan.');
     if (/checkpoint|captcha|login/.test(location.pathname) || [...document.querySelectorAll('[role="alert"],[role="dialog"]')].some(e => /temporarily blocked|dibatasi sementara|confirm your identity|konfirmasi identitas|security check|pemeriksaan keamanan/i.test(e.textContent))) {
       throw new Error('Facebook meminta pemeriksaan keamanan/pembatasan.');
     }
@@ -159,7 +351,7 @@
 
   async function run(job) {
     cancelled = false;
-    check(job);
+    if (job.kind !== 'group_comment') check(job);
 
     if (job.kind === 'group_scan') {
       await dispatch(job);
@@ -216,46 +408,87 @@
     }
 
     if (job.kind === 'group_comment') {
-      let context;
-      let send;
-      let beforeImages;
+      const stages = [];
+      let dispatched = false;
+      const mark = stage => { if (stages[stages.length - 1] !== stage) stages.push(stage); };
+      const result = (status, message, ref) => ({ status, ...(ref ? { ref } : {}),
+        stage: stages[stages.length - 1], stages, dispatched,
+        note: `[stage:${stages[stages.length - 1]}] ${message}`.slice(0, 240) });
       try {
-        context = await until(job, () => job.payload?.adminSelected === true ? findCommentContext(job) : findJobPostArticle(job), 20000);
-        const editor = await until(job, () => commentEditor(context), 12000);
-        beforeImages = new Set([...context.querySelectorAll('img')].map(i => i.src));
-
-        let scope = editor.parentElement;
-        let chosen = null;
-        for (let i = 0; i < 9 && scope && scope !== context.parentElement; i++, scope = scope.parentElement) {
-          const inputs = [...scope.querySelectorAll('input[type="file"]')].filter(e => !e.accept || /image/.test(e.accept));
-          const photoButtons = buttons(scope).filter(b => /(foto|photo|gambar|image|camera|kamera|lampir|attach)/i.test(label(b)));
-          if (inputs.length === 1 || photoButtons.length === 1) { chosen = scope; break; }
+        check(job);
+        mark('navigated');
+        if (job.payload?.adminSelected !== true) throw failure('approval_required', 'Postingan belum ditandai dan disetujui admin.');
+        const context = await waitFor(job, () => findCommentContext(job),
+          20000, 'context_unavailable', 'Konteks postingan belum tersedia.');
+        mark(`post_context_found:${context.matches('[role="dialog"]') ? 'modal' : 'feed'}`);
+        let classification = classifyComposers(context, job);
+        mark(`composer_candidates:${classification.all.length}`);
+        if (!classification.accepted.length) {
+          classification = await waitFor(job, () => {
+            const candidate = classifyComposers(context, job);
+            return candidate.accepted.length ? candidate : null;
+          }, 12000, classification.all.length ? 'composer_nested_reply' : 'composer_missing',
+          classification.all.length ? 'Hanya kolom balasan komentar yang tersedia.' : 'Kolom komentar postingan tidak tersedia.');
+          mark(`composer_candidates:${classification.all.length}`);
         }
-        chosen ||= context;
-
-        await attach(job, chosen);
-
-        send = await until(job, () => {
-          const button = commentSendButton(chosen) || commentSendButton(context);
-          return button && button.getAttribute('aria-disabled') !== 'true' && !button.disabled ? button : null;
-        }, 12000);
-      } catch (e) {
-        return {
-          status: 'skipped',
-          note: `Dilewati sebelum kirim: ${e instanceof Error ? e.message : 'kolom komentar/foto tidak tersedia.'}`.slice(0, 240)
+        if (classification.accepted.length !== 1) throw failure('composer_ambiguous', 'Ada beberapa kolom komentar; tujuan kirim tidak dapat dipastikan.');
+        const editor = classification.accepted[0];
+        const root = classification.root;
+        mark('composer_selected:post_root');
+        const { scope, preview, scopes } = await attachComment(job, editor, context, root, mark);
+        const send = await waitFor(job, () => {
+          const control = commentSendButton(scopes, context, root);
+          return control && enabled(control) ? control : null;
+        }, 12000, 'send_control_unavailable', 'Kontrol kirim foto tidak tersedia atau belum aktif.');
+        mark('send_control_found');
+        const existingComments = topLevelComments(context, root, scope);
+        const beforeComments = {
+          nodes: new Set(existingComments),
+          keys: new Set(existingComments.map(commentKey).filter(Boolean)),
+          media: new Set(existingComments.flatMap(comment => mediaImages(comment).map(mediaKey)).filter(Boolean)),
         };
+        // Compare actor links only in memory, never include identity in a
+        // result, note, storage, or log. Some variants have no avatar link.
+        const actorLinks = new Set([...scope.querySelectorAll('a[href]')].filter(link => link.querySelector('img'))
+          .map(link => actorKey(link.href)).filter(Boolean));
+        check(job);
+        if (!editor.isConnected || !context.contains(editor) || !preview.isConnected || !enabled(send)) {
+          throw failure('send_control_unavailable', 'Kolom foto atau kontrol kirim berubah sebelum kirim.');
+        }
+        await dispatch(job);
+        mark('preflight_allowed');
+        // STOP may arrive while the server preflight is awaiting a response.
+        // Recheck all local conditions immediately before the actual click.
+        check(job);
+        if (!context.isConnected || !editor.isConnected || !preview.isConnected || !enabled(send)
+          || !classifyComposers(context, job).accepted.includes(editor)) {
+          throw failure('send_control_unavailable', 'Kolom foto atau kontrol kirim berubah setelah pemeriksaan izin.');
+        }
+        dispatched = true;
+        send.click();
+        mark('send_clicked');
+        await waitFor(job, () => {
+          if (!composerCleared(editor, scope, preview)) return null;
+          const comments = topLevelComments(context, root, scope);
+          if (comments.length <= beforeComments.nodes.size) return null;
+          return comments.find(comment => {
+            const key = commentKey(comment), images = mediaImages(comment);
+            if (beforeComments.nodes.has(comment) || key && beforeComments.keys.has(key) || !images.length) return false;
+            if (!key && images.every(img => beforeComments.media.has(mediaKey(img)))) return false;
+            const author = [...comment.querySelectorAll('a[href]')].map(link => actorKey(link.href)).find(Boolean);
+            return !actorLinks.size || !author || actorLinks.has(author);
+          }) || null;
+        }, 18000, 'verification_inconclusive', 'Kirim sudah dicoba, tetapi komentar foto baru belum terkonfirmasi. Periksa manual; tidak dikirim ulang.');
+        mark('verified_new_comment');
+        return result('sent', context.matches('[role="dialog"]') ? 'Komentar foto baru terverifikasi di modal postingan.' : 'Komentar foto baru terverifikasi pada postingan.', target(job.target).url);
+      } catch (error) {
+        mark(error.code || (dispatched ? 'verification_inconclusive' : 'send_control_unavailable'));
+        const message = error.code ? error.message : dispatched
+          ? 'Kirim mungkin sudah terjadi. Periksa manual; tidak dikirim ulang.' : 'Kontrol komentar berubah sebelum kirim.';
+        const status = dispatched ? 'uncertain' : error.code === 'security_restriction' ? 'failed'
+          : error.code === 'cancelled' ? 'cancelled' : 'skipped';
+        return result(status, message);
       }
-
-      await dispatch(job);
-      send.click();
-      await sleep(2500);
-
-      await until(job, () => {
-        const images = [...context.querySelectorAll('img')];
-        return images.some(i => !beforeImages.has(i.src) && visible(i) && (i.naturalWidth > 120 || i.width > 120));
-      }, 18000);
-
-      return { status: 'sent', ref: target(job.target).url, note: findPostModal(job) ? 'Foto lowongan terkirim dari modal postingan.' : 'Foto lowongan terkirim pada komentar postingan.' };
     }
 
     throw new Error('Jenis tugas tidak didukung.');

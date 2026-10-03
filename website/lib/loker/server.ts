@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { EMPTY_CONFIG, LokerError, validateConfig, publicationText, facebookTarget, type Config, type JobKind, type Outcome, type RunState } from './model';
+import { EMPTY_CONFIG, LokerError, validateConfig, publicationText, facebookTarget, browserResultNote, type Config, type JobKind, type Outcome, type RunState } from './model';
 import { automationEnabled, metaConfig, unseal } from './security';
 export type DB = SupabaseClient;
 export type Workspace = { id: number; revision: number; generation: string; state: RunState; config: Config; updated_at: string };
@@ -66,7 +66,7 @@ export async function browserResult(db: DB, body: Record<string, unknown>) {
     ref = parsed.url;
   }
   if (status === 'sent' && !ref) throw new LokerError('Kiriman berhasil memerlukan tautan bukti.');
-  const note = typeof body.note === 'string' ? body.note.slice(0,250) : '';
+  const note = browserResultNote(body.note, body.stage);
   await finish(db, job, status, ref, note);
   if (job.kind === 'group_scan' && status === 'skipped' && w.state === 'running' && w.generation === job.generation && Array.isArray(body.discovered)) {
     const group = facebookTarget(job.target).group;

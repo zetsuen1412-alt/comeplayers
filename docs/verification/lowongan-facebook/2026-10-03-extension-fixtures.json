@@ -1,0 +1,371 @@
+{
+  "synthetic_only": true,
+  "source": "facebook.js",
+  "source_sha256": "0f26c04d8dac8348d80948742b9baa66bf3ba350b7b68fd00fc504f1bc46d7c4",
+  "extension_version_from_manifest": "1.3.4",
+  "browser_version": "154.0.4258.48",
+  "passed": 40,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "01 normal feed public comment image sends once",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "02 post modal public comment composer",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.031
+    },
+    {
+      "name": "03 post modal root Tulis jawaban composer",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "04 nested comment Tulis jawaban rejected",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "composer_nested_reply",
+      "duration_seconds": 0.406
+    },
+    {
+      "name": "05 camera reveals mapped external hidden input",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "06 comments disabled skipped before dispatch",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "composer_missing",
+      "duration_seconds": 0.406
+    },
+    {
+      "name": "07 missing send control skipped before dispatch",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "send_control_unavailable",
+      "duration_seconds": 0.438
+    },
+    {
+      "name": "08 real icon send dispatches exactly once",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "09 unverified dispatch pauses without retry",
+      "passed": true,
+      "status": "uncertain",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verification_inconclusive",
+      "duration_seconds": 0.625
+    },
+    {
+      "name": "10 STOP while awaiting attachment prevents dispatch",
+      "passed": true,
+      "status": "cancelled",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "cancelled",
+      "duration_seconds": 0.046
+    },
+    {
+      "name": "11 scan all canonicalizes every post without comment",
+      "passed": true,
+      "status": "scan",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": null,
+      "duration_seconds": 0.187
+    },
+    {
+      "name": "12 duplicate scan URLs deduplicated",
+      "passed": true,
+      "status": "scan",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": null,
+      "duration_seconds": 0.203
+    },
+    {
+      "name": "JPEG accepted with correct file MIME",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "WebP accepted with correct file MIME",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.031
+    },
+    {
+      "name": "existing external input mapped by photo control",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.032
+    },
+    {
+      "name": "native form submit icon is a real send control",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "preflight denial clicks nothing",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 1,
+      "sends": 0,
+      "stage": "preflight_denied",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "nested reply ignored when root composer exists",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.047
+    },
+    {
+      "name": "unrelated lazy image cannot prove success",
+      "passed": true,
+      "status": "uncertain",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verification_inconclusive",
+      "duration_seconds": 0.641
+    },
+    {
+      "name": "media added to existing comment cannot prove success",
+      "passed": true,
+      "status": "uncertain",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verification_inconclusive",
+      "duration_seconds": 0.625
+    },
+    {
+      "name": "new nested reply cannot prove top-level comment",
+      "passed": true,
+      "status": "uncertain",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verification_inconclusive",
+      "duration_seconds": 0.625
+    },
+    {
+      "name": "two equally eligible root composers rejected",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "composer_ambiguous",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "attachment with no preview never dispatches",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "attachment_preview_missing",
+      "duration_seconds": 1.015
+    },
+    {
+      "name": "send awaits attachment and enabled control",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.078
+    },
+    {
+      "name": "different actor new comment cannot prove our send",
+      "passed": true,
+      "status": "uncertain",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verification_inconclusive",
+      "duration_seconds": 0.641
+    },
+    {
+      "name": "wrong group route never dispatches",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "target_changed",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "expired job never dispatches",
+      "passed": true,
+      "status": "cancelled",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "cancelled",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "security restriction stops before dispatch",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "security_restriction",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "deep 26-wrapper modal Tulis jawaban with photo/video input",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "share-to-profile control never substitutes missing send",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "send_control_unavailable",
+      "duration_seconds": 0.422
+    },
+    {
+      "name": "deep composer ignores share control outside form",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "inner post dialog chosen inside outer dialog",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.016
+    },
+    {
+      "name": "unapproved selection cannot attach or dispatch",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "approval_required",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "missing reviewed selection cannot attach or dispatch",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "approval_required",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "inner reply dialog inside comment cannot dispatch",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "context_unavailable",
+      "duration_seconds": 0.688
+    },
+    {
+      "name": "mismatched modal permalink cannot dispatch on valid route",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "context_unavailable",
+      "duration_seconds": 0.672
+    },
+    {
+      "name": "rerender existing comment plus lazy count growth cannot prove success",
+      "passed": true,
+      "status": "uncertain",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verification_inconclusive",
+      "duration_seconds": 0.625
+    },
+    {
+      "name": "unproven active reply overlay blocks outer post composer",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": "context_unavailable",
+      "duration_seconds": 0.672
+    },
+    {
+      "name": "stale post route cannot masquerade as group scan",
+      "passed": true,
+      "status": "scan",
+      "dispatches": 0,
+      "sends": 0,
+      "stage": null,
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "attachment preview moved into new comment proves success",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.031
+    }
+  ]
+}
