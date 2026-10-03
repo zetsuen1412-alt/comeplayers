@@ -1,0 +1,18 @@
+{
+  "project": "Crazy Rich World Tour",
+  "asset": "Alexia navy suitcase, separate prop",
+  "approved": false,
+  "source": "Approved Alexia V2, front gold star and plain navy back",
+  "method": "Reference-guided independent hard-surface geometry",
+  "sha256": "8a36bb0661f9e9a2922d5120a53cc369e96770dd62666b56acc169689c4c639a",
+  "geometries": 50,
+  "triangles": 13580,
+  "dimensionsMetresProvisional": [
+    0.56,
+    1.18,
+    0.33
+  ],
+  "bodyFused": false,
+  "animation": "Static geometry; wheel/handle nodes separate, not animated yet",
+  "gameAssetsReplaced": false
+}
