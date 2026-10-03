@@ -8,14 +8,19 @@ Extension under test: **1.3.5**
 ## Status
 
 **Not complete. Do not merge.** The authenticated production Admin now reports
-installed extension **1.3.4**. A user-reported stuck modal was matched to a
+installed extension **1.3.5** after the user reloaded it. A user-reported stuck
+modal on **1.3.4** was matched to a
 `skipped / attachment_preview_missing` history result, before dispatch. Live
-normal-post, modal-post and sequential-batch image-send acceptance remain pending.
+normal-post and sequential-batch image-send acceptance remain pending. One fresh
+reviewed modal post succeeded on **1.3.5** with `sent / verified_new_comment`.
+The selected recruitment image was visually confirmed at **168 × 210 px**;
+after a reload, its comment identity and media path matched in memory and the
+same loaded image was visible. Anonymous evidence is in `2026-10-03-live-v135.json`.
 
 STOP was clicked and its status confirmed
-`STOP aktif. Pengiriman berikutnya dihentikan.` The Admin currently reports zero
-sent, zero queued and three jobs requiring review. No uncertain job was retried
-and no Facebook comment was sent by this investigation.
+`STOP aktif. Pengiriman berikutnya dihentikan.` The investigation subsequently
+sent one confirmed modal image comment and stopped the campaign again.
+No uncertain job was retried.
 
 The observed live modal has nested dialog wrappers, two story markers, eight
 semantic comment articles, and one composer labelled `Tulis jawaban...` outside
@@ -167,9 +172,9 @@ Raw and LF-normalized runtime hashes bind the report to the unchanged source.
 | Actual unpacked MV3 integration | PASS — 22/22 in isolated Chromium, native worker/bridge/popup/content path with synthetic pages |
 | Website lint | PASS — zero errors, 297 repository warnings; targeted Lowongan has one existing banner-effect warning |
 | Website production build | PASS — 242/242 pages using public configuration |
-| Installed version matches Admin | PENDING — Admin confirmed 1.3.4; tested 1.3.5 needs reload |
+| Installed version matches Admin | PASS — authenticated Admin confirmed 1.3.5 after user reload |
 | Live normal-post image comment, retained after reload | PENDING |
-| Live modal-post image comment, retained after reload | PENDING |
+| Live modal-post image comment, retained after reload | PASS on 1.3.5 — fresh reviewed target, sent / verified_new_comment, same loaded 168×210 image and comment after reload |
 | Reviewed 2–3 post sequential batch | PENDING |
 | Unsupported target skips and next proceeds | PASS in DOM fixtures and deployed SQL; live PENDING |
 | STOP prevents not-yet-dispatched jobs | PASS in automated worker/bridge/SQL tests; live 1.3.4 STOP confirmed, 1.3.5 live PENDING |
@@ -186,10 +191,12 @@ background, comment nodes without semantic/identity evidence, or virtualized
 comment lists with no count growth can yield `skipped` or `uncertain`. They must
 be diagnosed with live stage notes; they must not trigger automatic retry.
 
-## Live installation blocker and next steps
+## Live follow-up and next steps
 
-The user loaded v1.3.4 and the authenticated Admin confirmed it. The tested
-v1.3.5 changes now need an extension reload. Tab-control policy blocks
+The user loaded/reloaded v1.3.5 and the authenticated Admin confirmed it. The
+granted group tab was reconnected through the actual toolbar popup, which showed
+`Tab Facebook terhubung.` No additional extension permission was granted.
+Tab-control policy blocks
 `edge://extensions` and explicitly disallows using another surface to work
 around that installation restriction. No alternate protocol, raw CDP, profile
 extraction, or policy workaround was attempted for installation.
@@ -202,8 +209,16 @@ C:\Comeplayers-new\.worktrees\facebook-lowongan\tools\comeplayers-loker-extensio
 
 Keep only one active ComePlayers Lowongan extension, connect a logged-in Facebook
 group tab, and reload `https://www.comeplayers.com/admin/lowongan`. Confirm **1.3.5**
-before a new scan. Review one normal post, send once, and confirm its image after
-reload. Repeat for a modal post, then a reviewed 2–3 post batch with an unsupported
+before a new scan. The 1.3.5 modal test is confirmed. Direct canonical post URLs
+rendered as modals in both an existing and a fresh authenticated Edge tab.
+The actual group feed renders ordinary posts in plain DIV containers rather than
+semantic post articles. A trusted timestamp click and closing the modal hydrates
+an exact non-comment header permalink in the original feed. A guarded existing
+feed path is being prepared; its code and regression tests must pass and its
+installed version must be confirmed before use.
+
+Review one normal post, send once, and confirm its image after reload. Retest
+the modal on any changed runtime, then run a reviewed 2–3 post batch with an unsupported
 target. Verify sequential advancement and STOP. Preserve uncertainty rather than
 retrying any previously ambiguous post.
 
