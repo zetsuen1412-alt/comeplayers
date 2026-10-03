@@ -51,6 +51,9 @@ window.chrome = {runtime: {id: 'fixture', onMessage: {addListener: f => listener
       document.getElementById('photo-input').value='';
       document.querySelector('#preview img').src=window.__replacementURL;
     }
+    if (m.dispatch && window.targetChangeOnPreflight) {
+      document.querySelector('[data-fixture-post] > a').href='/groups/example/posts/999/';
+    }
     return {allowed: window.allow !== false};
   }}};
 window.events = [];
@@ -191,7 +194,13 @@ if (window.camera) camera.onclick = () => {
 };
 function bindSend(control) { control.onclick = e => {
   e.preventDefault(); window.sends++; window.events.push('send');
-  window.lastSendLabel=control.getAttribute('aria-label');
+    window.lastSendLabel=control.getAttribute('aria-label');
+    // Capture the loaded thumbnail while it still belongs to the composer.
+    // Its queued load event can run after submission removes the preview.
+    if (opts.smallCdnPreview && preview.querySelector('img')) {
+      const image=preview.querySelector('img'), rect=image.getBoundingClientRect();
+      window.lastPreview={naturalWidth:image.naturalWidth,width:rect.width,height:rect.height,outsideForm:!document.getElementById('composer').contains(image)};
+    }
   if (opts.outcome === 'success' || opts.outcome === 'nested' || opts.outcome === 'moved-preview') {
     const c = document.createElement('div'); c.setAttribute('role', 'listitem'); c.setAttribute('data-comment-id', 'new-comment');
     const actor = document.createElement('a'); actor.href = '/profile.php?id=' + (opts.actorMismatch ? '200' : '100'); actor.textContent='Profil';
@@ -232,6 +241,14 @@ if (opts.focusSend) editor.addEventListener('focus', () => {
 def assert_equal(actual, expected, why):
     if actual != expected:
         raise AssertionError(f'{why}: expected {expected!r}, got {actual!r}')
+
+
+def plain_article(post='123', message='Status biasa', href=None):
+    return article(post, message, href).replace('<article role="article">', '<div data-fixture-post="true">').replace('</article>', '</div>')
+
+
+def plain_comment_fixture(**options):
+    return comment_fixture(**options).replace('<article role="article">', '<div data-fixture-post="true">', 1).replace('</article><script>', '</div><script>', 1)
 
 
 def nested_reply_dialog_fixture():
@@ -289,6 +306,7 @@ def run_case(browser, script, case):
     page.evaluate('(a) => window.allow = a', case.get('allow', True))
     page.evaluate('({enabled,url})=>{window.replaceOnPreflight=enabled;window.__replacementURL=url}', {'enabled':case.get('replace_on_preflight',False),'url':USER_PREVIEW})
     page.evaluate('(u) => window.__fixtureURL = u', case.get('url', POST))
+    page.evaluate('(enabled) => window.targetChangeOnPreflight = enabled', case.get('change_target', False))
     page.add_script_tag(content=script)
     job = page.evaluate("""({url, mime, selected, expired}) => {
       const canvas=document.createElement('canvas'); canvas.width=180; canvas.height=180;
@@ -302,24 +320,29 @@ def run_case(browser, script, case):
         job['banner'] = case['banner_override']
     if case.get('missing_payload'):
         job.pop('payload')
+    if case.get('use_existing_feed'):
+        job['useExistingFeed'] = True
     if case.get('preexisting_file'):
         page.evaluate("()=>{const transfer=new DataTransfer();transfer.items.add(new File([new Uint8Array([1,2,3])],'user-draft.png',{type:'image/png'}));document.getElementById('photo-input').files=transfer.files;}")
     started = time.monotonic()
-    result = page.evaluate("""async ({job, scan, cancel}) => {
+    result = page.evaluate("""async ({job, scan, probe, cancel}) => {
       if (cancel) setTimeout(() => listeners[0]({type:'CP_LOKER_CANCEL'},{id:'fixture'},()=>{}), cancel);
       return await new Promise((resolve,reject) => {
         const timeout = __realSetTimeout(() => reject(new Error('fixture response timed out')),12000);
-        const message = scan ? {type:'CP_LOKER_SCAN_ALL',group:job.target} : {type:'CP_LOKER_RUN',job};
+        const message = scan ? {type:'CP_LOKER_SCAN_ALL',group:job.target} : {type:probe ? 'CP_LOKER_PROBE_FEED' : 'CP_LOKER_RUN',job};
         listeners[0](message,{id:'fixture'},r => {__realClearTimeout(timeout);resolve(r)});
       });
-    }""", dict(job=job, scan=case.get('scan', False), cancel=case.get('cancel', 0)))
+    }""", dict(job=job, scan=case.get('scan', False), probe=case.get('probe', False), cancel=case.get('cancel', 0)))
     counters = page.evaluate('({dispatches,sends,fileChanges,enterEvents,cameraClicks,removeClicks,events,lastFile:window.lastFile,lastPreview:window.lastPreview,lastSendLabel:window.lastSendLabel})')
     try:
         assert_equal(network_attempts, [], 'all fixture page network requests are blocked')
         assert_equal(counters['dispatches'], case.get('dispatches', 0), 'preflight dispatch count')
         assert_equal(counters['sends'], case.get('sends', 0), 'irreversible send click count')
         assert_equal(counters['enterEvents'], 0, 'never synthesize Enter')
-        if case.get('scan'):
+        if case.get('probe'):
+            assert_equal(result.get('ready'), case['ready'], 'read-only feed probe readiness')
+            assert_equal(counters['fileChanges'], 0, 'read-only probe never attaches an image')
+        elif case.get('scan'):
             if case.get('scan_error'):
                 assert_equal(isinstance(result.get('error'), str) and bool(result['error']), True, 'scan fails safely with a clear error')
             else:
@@ -431,6 +454,27 @@ def cases():
         dict(name='user text typed during upload is preserved without send or cleanup', html=comment_fixture(modal=True, user_text_during_upload=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=1, preserved_text='Draf pengguna baru'),
         dict(name='same IMG user source replacement on focus preserves empty-text cleared-file draft', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, focus_send=True, replace_preview_on_focus=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=0, preserved_replacement=True),
         dict(name='pending same IMG user source replacement during preflight never sends or removes replacement', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, focus_send=True), replace_on_preflight=True, slow_replacement=True, status='failed', stage='attachment_cleanup_blocked', dispatches=1, sends=0, file_changes=1, remove_clicks=0, files_remaining=0, preserved_replacement=True),
+        dict(name='plain DIV canonical post sends verified image', html=plain_comment_fixture(), **success),
+        dict(name='plain DIV reviewed existing group feed sends to exact header permalink', html=plain_comment_fixture()+plain_article('124'), url=GROUP, job_target=POST, use_existing_feed=True, **success),
+        dict(name='plain DIV read-only probe recognizes exact approved root composer', html=plain_comment_fixture(), url=GROUP, job_target=POST, probe=True, ready=True),
+        dict(name='plain DIV probe refuses a nested reply-only composer', html=plain_comment_fixture(reply_only=True), url=GROUP, job_target=POST, probe=True, ready=False),
+        dict(name='plain DIV probe refuses unapproved target', html=plain_comment_fixture(), url=GROUP, job_target=POST, selected=False, probe=True, ready=False),
+        dict(name='plain DIV probe refuses target found only in body text', html=plain_comment_fixture().replace('<a href="/groups/example/posts/123/">Waktu</a>', '').replace('Info loker apa aja</div>', 'Info loker <a href="/groups/example/posts/123/">URL</a></div>'), url=GROUP, job_target=POST, probe=True, ready=False),
+        dict(name='plain DIV group feed requires explicit worker reuse decision', html=plain_comment_fixture(), url=GROUP, job_target=POST, file_changes=0, **skipped),
+        dict(name='plain DIV mismatched target never attaches or dispatches', html=plain_comment_fixture(), url=GROUP, job_target=GROUP+'posts/124/', use_existing_feed=True, file_changes=0, **skipped),
+        dict(name='plain DIV wrong group never reuses approved composer', html=plain_comment_fixture(), url='https://www.facebook.com/groups/other/', job_target=POST, use_existing_feed=True, file_changes=0, **skipped),
+        dict(name='plain DIV duplicate rendered target is ambiguous', html=plain_comment_fixture()+plain_article(), url=GROUP, job_target=POST, use_existing_feed=True, file_changes=0, **skipped),
+        dict(name='plain DIV existing feed STOP cleans owned image before dispatch', html=plain_comment_fixture(attachment_delay=3000), url=GROUP, job_target=POST, use_existing_feed=True, cancel=900, status='cancelled', dispatches=0, sends=0, remove_clicks=1, cleaned=True),
+        dict(name='plain DIV header change during preflight prevents send and preserves ambiguous draft', html=plain_comment_fixture(), url=GROUP, job_target=POST, use_existing_feed=True, change_target=True, status='failed', stage='attachment_cleanup_blocked', dispatches=1, sends=0, file_changes=1, remove_clicks=0, files_remaining=1),
+        dict(name='plain DIV nested reply cannot become reviewed group root', html=plain_comment_fixture(reply_only=True), url=GROUP, job_target=POST, use_existing_feed=True, file_changes=0, **skipped),
+        dict(name='plain DIV draft remains intact on reviewed group feed', html=plain_comment_fixture().replace('id="editor"></div>', 'id="editor">Draf pengguna lama</div>'), url=GROUP, job_target=POST, use_existing_feed=True, status='failed', stage='composer_draft_present', dispatches=0, sends=0, file_changes=0, remove_clicks=0, preserved_text='Draf pengguna lama'),
+        dict(name='plain DIV group feed refuses active reply overlay', html=plain_comment_fixture()+'<div role="dialog"><div contenteditable="true" role="textbox">Balas</div></div>', url=GROUP, job_target=POST, use_existing_feed=True, file_changes=0, **skipped),
+        dict(name='plain DIV scan canonicalizes adjacent posts', scan=True, url=GROUP, html='<div role="feed">'+plain_article('123')+plain_article('124',href='https://web.facebook.com/groups/example/permalink/124/?x=1')+'</div>', items=[POST,GROUP+'posts/124/']),
+        dict(name='scan ignores comment and reply permalinks', scan=True, url=GROUP, html=article('123',href='/groups/example/posts/123/?comment_id=1')+plain_article('124',href='/groups/example/posts/124/?reply_comment_id=2'), items=[]),
+        dict(name='scan ignores permalink mentioned only in post body', scan=True, url=GROUP, html='<div><div data-ad-preview="message">Status <a href="/groups/example/posts/123/">URL</a></div></div>', items=[]),
+        dict(name='plain DIV nested-comment story cannot become a scanned post', scan=True, url=GROUP, html='<div role="listitem" data-comment-id="reply">'+plain_article()+'</div>', items=[]),
+        dict(name='plain DIV hidden header cannot authorize existing feed reuse', html=plain_comment_fixture().replace('<a href="/groups/example/posts/123/">', '<a hidden href="/groups/example/posts/123/">'), url=GROUP, job_target=POST, probe=True, ready=False),
+        dict(name='plain DIV feed boundary cannot combine unrelated story and header', html='<div role="feed">'+plain_comment_fixture().replace('<a href="/groups/example/posts/123/">Waktu</a>', '')+'<div><a href="/groups/example/posts/123/">Waktu tetangga</a></div></div>', url=GROUP, job_target=POST, probe=True, ready=False),
     ]
 
 

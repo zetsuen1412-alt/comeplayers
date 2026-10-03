@@ -10,7 +10,8 @@
   const label = el => norm(el.getAttribute('aria-label') || el.textContent);
   const buttons = root => [...root.querySelectorAll('button,[role="button"]')].filter(visible);
   const articles = () => [...document.querySelectorAll('[role="article"]')].filter(a => !a.parentElement?.closest('[role="article"]'));
-  const story = a => a.querySelector('[data-ad-preview="message"],[data-ad-comet-preview="message"],[data-ad-rendering-role="story_message"]');
+  const storySelector = '[data-ad-preview="message"],[data-ad-comet-preview="message"],[data-ad-rendering-role="story_message"]';
+  const story = a => a.querySelector(storySelector);
   const seeker = t => /\b(cari kerja|mencari (kerja|pekerjaan)|butuh (kerja|pekerjaan)|info loker|loker dong|ada loker|butuh loker|mau kerja)\b/i.test(t)
     && !/\b(kami membuka|dibutuhkan|open recruitment|lowongan tersedia|sedang membuka|membuka lowongan|hiring)\b/i.test(t);
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -33,7 +34,10 @@
   function check(job) {
     const here = target(location.href), wanted = target(job.target);
     if (cancelled || Date.now() > job.expiresAt) throw failure('cancelled', 'Dihentikan atau tugas kedaluwarsa.');
-    if (!here || !wanted || here.group !== wanted.group || (wanted.post && wanted.post !== here.post)) throw failure('target_changed', 'Halaman bukan tujuan tugas.');
+    const reviewedFeed = here && wanted && !here.post && wanted.post && here.group === wanted.group
+      && job.kind === 'group_comment' && job.payload?.adminSelected === true && job.useExistingFeed === true
+      && ![...document.querySelectorAll('[role="dialog"]')].some(visible) && findFeedContext(job, false);
+    if (!here || !wanted || here.group !== wanted.group || (wanted.post && wanted.post !== here.post && !reviewedFeed)) throw failure('target_changed', 'Halaman bukan tujuan tugas.');
     if (/checkpoint|captcha|login/.test(location.pathname) || [...document.querySelectorAll('[role="alert"],[role="dialog"]')].some(e => /temporarily blocked|dibatasi sementara|confirm your identity|konfirmasi identitas|security check|pemeriksaan keamanan/i.test(e.textContent))) {
       throw failure('security_restriction', 'Facebook meminta pemeriksaan keamanan/pembatasan.');
     }
@@ -81,11 +85,53 @@
   }
 
   function postUrlFromArticle(article, group) {
-    for (const link of article.querySelectorAll('a[href]')) {
-      const p = target(link.href);
-      if (p?.post && p.group === group) return p.url;
+    const refs = postHeaderRefs(article, group);
+    return refs.size === 1 ? [...refs][0] : '';
+  }
+
+  function postHeaderRefs(root, group) {
+    const refs = new Set();
+    for (const link of root.querySelectorAll('a[href]')) {
+      if (!visible(link) || link.closest(storySelector) || nestedComment(link, root, root)) continue;
+      const url = new URL(link.href, location.href), parsed = target(link.href);
+      if (parsed?.post && parsed.group === group && !url.searchParams.has('comment_id') && !url.searchParams.has('reply_comment_id')) refs.add(parsed.url);
     }
-    return '';
+    return refs;
+  }
+
+  function plainPostContexts(group, wanted = '', withComposer = false, job = null) {
+    const contexts = new Set();
+    const markers = [...document.querySelectorAll(storySelector)].filter(marker => visible(marker)
+      && !marker.parentElement?.closest(storySelector)
+      && !marker.closest(`${commentSelector},[role="dialog"],[role="list"],[data-comment-list],[data-reply-thread],[data-comment-thread],form`));
+    for (const marker of markers) {
+      for (let scope = marker.parentElement; scope && scope !== document.body; scope = scope.parentElement) {
+        if (scope.matches(`${commentSelector},[role="dialog"],[role="list"],[role="feed"],main,[role="main"],[data-comment-list],[data-reply-thread],[data-comment-thread],form`)) break;
+        const stories = [...scope.querySelectorAll(storySelector)].filter(node => visible(node) && !node.parentElement?.closest(storySelector));
+        if (stories.length !== 1 || stories[0] !== marker) break;
+        const refs = postHeaderRefs(scope, group);
+        // Never enlarge one post into a feed wrapper containing another post.
+        if (refs.size > 1) break;
+        if (refs.size !== 1 || wanted && !refs.has(wanted)) continue;
+        if (withComposer && classifyComposers(scope, job).accepted.length !== 1) continue;
+        contexts.add(scope);
+        break;
+      }
+    }
+    return [...contexts];
+  }
+
+  function scanPostContexts(group) {
+    return [...articles(), ...plainPostContexts(group)];
+  }
+
+  function findFeedContext(job, withComposer = true) {
+    const wanted = target(job.target);
+    if (!wanted?.post) return null;
+    const semantic = articles().filter(article => visible(article) && hasPostPermalink(article, wanted));
+    if (semantic.length) return semantic.length === 1 ? semantic[0] : null;
+    const plain = plainPostContexts(wanted.group, wanted.url, withComposer, job);
+    return plain.length === 1 ? plain[0] : null;
   }
 
   function hasLargeImage(root) {
@@ -93,16 +139,12 @@
   }
 
   function findExactPostArticle(job) {
-    const wanted = target(job.target);
-    return articles().find(article => hasPostPermalink(article, wanted)) || null;
+    return findFeedContext(job);
   }
 
   function hasPostPermalink(article, wanted) {
-    return [...article.querySelectorAll('a[href]')].some(link => {
-      const url = new URL(link.href, location.href);
-      return !url.searchParams.has('comment_id') && !url.searchParams.has('reply_comment_id')
-        && target(link.href)?.url === wanted.url;
-    });
+    const refs = postHeaderRefs(article, wanted.group);
+    return refs.size === 1 && refs.has(wanted.url);
   }
 
   function findPostModal(job) {
@@ -349,7 +391,10 @@
     const fileOwned = () => !input.files.length || input.files.length === 1 && input.files[0] === ownership.assignedFile;
     const sameComposer = () => {
       const here = target(location.href), wanted = target(job.target);
-      return here?.url === wanted?.url && context.isConnected && editor.isConnected && input.isConnected
+      const sameTarget = here?.url === wanted?.url || job.useExistingFeed === true && job.payload?.adminSelected === true
+        && here && !here.post && wanted?.post && here.group === wanted.group && hasPostPermalink(context, wanted)
+        && ![...document.querySelectorAll('[role="dialog"]')].some(visible);
+      return sameTarget && context.isConnected && editor.isConnected && input.isConnected
         && !ownership.userChanged && previewScope.isConnected && context.contains(previewScope) && editorText(editor) === originalText
         && fileOwned() && findCommentContext(job) === context
         && composerScopes(editor, context, true).includes(previewScope);
@@ -450,7 +495,7 @@
     const deadline = Date.now() + 45000;
     while (!cancelled && Date.now() < deadline && idleRounds < 5) {
       const before = found.size;
-      for (const a of articles()) {
+      for (const a of scanPostContexts(wanted.group)) {
         const ref = postUrlFromArticle(a, wanted.group);
         if (!ref || found.has(ref)) continue;
         const message = norm(story(a)?.textContent || a.textContent || '');
@@ -475,7 +520,7 @@
       while (Date.now() < scanUntil && idleRounds < 4) {
         check(job);
         const before = found.size;
-        for (const a of articles()) {
+        for (const a of scanPostContexts(target(job.target).group)) {
           const message = story(a);
           if (!message || !seeker(message.textContent || '')) continue;
           const ref = postUrlFromArticle(a, target(job.target).group);
@@ -639,6 +684,16 @@
   chrome.runtime.onMessage.addListener((m, sender, respond) => {
     if (sender.id !== chrome.runtime.id) return;
     if (m?.type === 'CP_LOKER_CANCEL') { cancelled = true; respond({ stopped: true }); return; }
+    if (m?.type === 'CP_LOKER_PROBE_FEED') {
+      // Read-only probe: the worker still checks STOP and obtains server
+      // preflight before any approved job can attach or submit a comment.
+      const job = m.job, here = target(location.href), wanted = target(job?.target);
+      const context = job?.kind === 'group_comment' && job.payload?.adminSelected === true && job.expiresAt > Date.now()
+        && here && !here.post && wanted?.post && here.group === wanted.group
+        && ![...document.querySelectorAll('[role="dialog"]')].some(visible) ? findFeedContext(job) : null;
+      respond({ ready: !!context && classifyComposers(context, job).accepted.length === 1 });
+      return;
+    }
     if (m?.type === 'CP_LOKER_SCAN_ALL') {
       scanAllPosts(m.group).then(respond).catch(e => respond({ error: e.message, items: [] }));
       return true;

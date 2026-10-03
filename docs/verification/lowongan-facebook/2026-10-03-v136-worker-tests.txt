@@ -1,0 +1,16 @@
+✔ positive feed probe runs approved target without navigation (10.6231ms)
+✔ negative probe falls back to the exact approved canonical post (6.1347ms)
+✔ probe transport failure falls back to the exact approved canonical post (3.3431ms)
+✔ different group falls back to the exact approved canonical post (5.2587ms)
+✔ pending document falls back to the exact approved canonical post (2.7316ms)
+✔ STOP while read-only probe awaits response prevents run and navigation (3.0871ms)
+✔ persistent STOP rejects next job before any feed probe or injection (1.774ms)
+✔ unreviewed job never gains existing-feed permission (2.6061ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 197.7532

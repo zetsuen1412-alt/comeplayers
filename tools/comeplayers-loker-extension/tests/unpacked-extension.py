@@ -278,9 +278,9 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
         manifest = worker.evaluate('()=>chrome.runtime.getManifest()')
         installed_version = manifest['version']
         metadata['installed_version'] = installed_version
-        check('actual unpacked MV3 service worker loads v1.3.5', lambda: (
+        check('actual unpacked MV3 service worker loads v1.3.6', lambda: (
             assert_equal(manifest['manifest_version'], 3, 'installed manifest is MV3'),
-            assert_equal(installed_version, '1.3.5', 'actual installed extension version'),
+            assert_equal(installed_version, '1.3.6', 'actual installed extension version'),
             assert_equal(urlparse(worker.url).path, '/worker.js', 'real background worker loaded'),
         ))
         admin = context.new_page()
@@ -439,8 +439,10 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
             admin.evaluate("id=>{window.fixtureAllowDispatch=true;window.fixtureAllowedJobIds.push(id)}", result['id'])
             return result
 
-        def content_send(post, suffix, expected_status='sent', expected_stage='photo_control_unavailable', expected_file_changes=0, expected_removals=0):
+        def content_send(post, suffix, expected_status='sent', expected_stage='photo_control_unavailable', expected_file_changes=0, expected_removals=0, target_group=None):
             selected_job = content_job(post, suffix)
+            if target_group:
+                selected_job['target'] = target_group+f'posts/{post}/'
             before_preflight = admin.evaluate('window.fixturePreflights')
             started = time.monotonic()
             result = command(admin, 'run', selected_job)
@@ -533,6 +535,20 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
             finally:
                 calibration.close()
         check('native dirty attachment beforeunload positive control dismisses then clean navigation passes',beforeunload_control)
+        fake_facebook.goto(fixtures.FEED_REUSE_URL)
+        admin.locator('#review').click()
+        reuse_requests = metadata['synthetic_facebook_requests_intercepted']
+        reused_result = content_send('123', 'plain-div-feed-reuse', target_group=fixtures.FEED_REUSE_URL)
+        check('reviewed plain DIV post reuses exact existing group feed without navigation', lambda: (
+            assert_equal(reused_result.get('status'), 'sent', 'exact approved feed post was verified'),
+            assert_equal(fake_facebook.url, fixtures.FEED_REUSE_URL, 'group feed URL is retained'),
+            assert_equal(metadata['synthetic_facebook_requests_intercepted'], reuse_requests, 'no new Facebook document request during reuse'),
+        ))
+        fallback_result = content_send('124', 'plain-div-fallback', target_group=fixtures.FEED_REUSE_URL)
+        check('neighbor without proven root composer falls back to its exact canonical post', lambda: (
+            assert_equal(fallback_result.get('status'), 'sent', 'fallback modal post was verified'),
+            assert_equal(fake_facebook.url, fixtures.FEED_REUSE_URL+'posts/124/', 'canonical target navigation occurs'),
+        ))
         if screenshot:
             screenshot.parent.mkdir(parents=True, exist_ok=True)
             fake_facebook.screenshot(path=str(screenshot), full_page=True)

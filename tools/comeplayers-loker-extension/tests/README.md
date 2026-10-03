@@ -19,6 +19,28 @@ detected automatically. Set `CHROMIUM_PATH` to override the browser executable;
 otherwise Playwright's installed Chromium can be used (`python -m playwright
 install chromium`). Browsers always launch with a fresh isolated test profile.
 
+The v1.3.6 suite has 73 DOM cases. It adds ordinary DIV posts, exact approved
+group-feed reuse, read-only probing, header-versus-body/comment URLs, duplicate
+rendered targets, STOP cleanup, and target changes during preflight. The loaded
+small-preview measurement is captured immediately before synthetic submission
+so a queued image load event cannot measure an already removed thumbnail.
+
+Run the eight deterministic worker-routing tests with Node.js:
+
+```text
+node --test tests/feed-worker.test.mjs
+```
+
+These simulate Chrome transport/storage and short waits to isolate feed routing,
+canonical fallback, pending navigation, missing approval, and STOP while the
+read-only probe awaits a response. They complement the actual MV3 suite below.
+
+The MV3 suite also checks exact group-feed reuse without navigation and fallback
+to a neighboring post's canonical URL when no safe composer is present. The
+v1.3.6 attempt in the restricted Codex environment crashed Chromium before the
+extension service worker loaded; those integration cases have not passed here.
+The failure and pending live gates are recorded in the v1.3.6 verification note.
+
 The suite covers all twelve cases in the stabilization handoff, plus attachment
 MIME handling, icon/form submit controls, preflight refusal, ambiguous composers,
 lazy images, existing-comment media, nested replies, actor mismatch, and delayed

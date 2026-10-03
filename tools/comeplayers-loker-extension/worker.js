@@ -114,12 +114,30 @@ async function run(job, controller) {
     claimed = true;
     if (epoch !== cancelEpoch) await chrome.storage.local.set({ cancelled: true });
     if (await cancelled(epoch)) return terminal('cancelled', 'cancelled', false, 'STOP aktif sebelum navigasi.');
-    await chrome.tabs.update(s.facebookTab, { url: job.target, active: true });
-    if (!await waitTab(s.facebookTab, epoch, false, job.target)) return terminal('cancelled', 'cancelled', false, 'STOP aktif sebelum pengiriman.');
+    let useExistingFeed = false;
+    if (job.kind === 'group_comment' && job.payload?.adminSelected === true) {
+      const tab = await chrome.tabs.get(s.facebookTab);
+      const here = new URL(tab.url), wanted = new URL(job.target);
+      const feedPath = wanted.pathname.replace(/\/(?:posts|permalink)\/\d+\/?$/, '').replace(/\/$/, '');
+      if (tab.status === 'complete' && !tab.pendingUrl && fb(tab.url) && here.pathname.replace(/\/$/, '') === feedPath) {
+        try {
+          await chrome.scripting.executeScript({ target: { tabId: s.facebookTab }, files: ['facebook.js'] });
+          if (!await cancelled(epoch)) {
+            const probe = await chrome.tabs.sendMessage(s.facebookTab, { type: 'CP_LOKER_PROBE_FEED', job });
+            useExistingFeed = probe?.ready === true;
+          }
+        } catch { /* Unavailable or ambiguous feed falls back to the exact post URL. */ }
+      }
+    }
+    if (await cancelled(epoch)) return terminal('cancelled', 'cancelled', false, 'STOP aktif sebelum pengiriman.');
+    if (!useExistingFeed) {
+      await chrome.tabs.update(s.facebookTab, { url: job.target, active: true });
+      if (!await waitTab(s.facebookTab, epoch, false, job.target)) return terminal('cancelled', 'cancelled', false, 'STOP aktif sebelum pengiriman.');
+    }
     stage = 'navigated';
     await chrome.scripting.executeScript({ target: { tabId: s.facebookTab }, files: ['facebook.js'] });
     if (await cancelled(epoch)) return terminal('cancelled', 'cancelled', false, 'STOP aktif sebelum pengiriman.');
-    let result = await chrome.tabs.sendMessage(s.facebookTab, { type: 'CP_LOKER_RUN', job });
+    let result = await chrome.tabs.sendMessage(s.facebookTab, { type: 'CP_LOKER_RUN', job: { ...job, useExistingFeed } });
     if (result?.status === 'verify') {
       if (!fb(result.ref)) throw new Error('Bukti tujuan tidak valid.');
       if (result.ref === job.target) await chrome.tabs.reload(s.facebookTab);

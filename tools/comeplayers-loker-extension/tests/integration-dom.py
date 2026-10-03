@@ -13,6 +13,7 @@ import sys
 
 
 GROUP_URL = "https://www.facebook.com/groups/example/"
+FEED_REUSE_URL = "https://www.facebook.com/groups/native-feed/"
 
 
 def _fixture_module():
@@ -180,6 +181,15 @@ def synthetic_pages() -> dict[str, str]:
             content = re.sub(r'<button\b[^>]*\bid="camera"[^>]*>.*?</button>', '', content)
             content = re.sub(r'<input\b[^>]*\bid="photo-input"[^>]*>', '', content)
         pages[f'{GROUP_URL}posts/{post}/'] = _document(content + '<script>' + HANDLER_JS + '</script>', fixtures.CSS, post)
+    # Native group-feed URL with a plain DIV post, an exact header permalink,
+    # and a second neighboring post without a composer. Runtime APIs stay real.
+    feed = fixtures.plain_comment_fixture(enabled=False).split('<script>', 1)[0]
+    feed += fixtures.plain_article('124')
+    feed = feed.replace('/groups/example/', '/groups/native-feed/')
+    pages[FEED_REUSE_URL] = _document(feed + '<script>' + HANDLER_JS + '</script>', fixtures.CSS, '123')
+    fallback = fixtures.comment_fixture(modal=True, enabled=False).split('<script>', 1)[0]
+    fallback = fallback.replace('/groups/example/posts/123/', '/groups/native-feed/posts/124/')
+    pages[FEED_REUSE_URL+'posts/124/'] = _document(fallback + '<script>' + HANDLER_JS + '</script>', fixtures.CSS, '124')
     return pages
 
 
