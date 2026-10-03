@@ -1,0 +1,89 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "attempt": "v9-front-only-controlled-diagnostic",
+  "purpose": "Controlled removal of inconsistent side/back views using the SAME existing V8 front reference and V8 parameters.",
+  "sourceProvenance": "Existing imagegen front view derived from the previously reviewed sheet. NOT a Gemini/Nano Banana output.",
+  "provider": "Tencent Hunyuan3D-2mv public ZeroGPU Space",
+  "startedUtc": "2026-10-03T15:46:23.404310+00:00",
+  "params": {
+    "steps": 10,
+    "guidance_scale": 5.0,
+    "seed": 1412,
+    "octree_resolution": 256,
+    "check_box_rembg": true,
+    "num_chunks": 8000,
+    "randomize_seed": false
+  },
+  "enabledViews": [
+    "front"
+  ],
+  "disabledViews": [
+    "back",
+    "left",
+    "right"
+  ],
+  "submissionLimit": 1,
+  "meshApproved": false,
+  "rigged": false,
+  "gameAssetsReplaced": false,
+  "productionMeshApproved": false,
+  "status": "diagnostic-reviewed-rejected-rebuild-required",
+  "geometryReview": "geometry-review.json",
+  "geometryReviewVerdict": "rebuild",
+  "geometryReviewedUtc": "2026-10-03T15:53:09Z",
+  "geometryGatePassed": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "generationReturned": true,
+  "input": {
+    "file": "alexia\\inputs\\front.png",
+    "sha256": "65c54f7a3eed009cb63baba6345bb6b498148396dcafe55ef06efd6fb3d1c367",
+    "image": {
+      "format": "PNG",
+      "mode": "RGBA",
+      "size": [
+        1254,
+        1254
+      ]
+    }
+  },
+  "providerReportedMeshStats": {
+    "model": {
+      "shapegen": "tencent/Hunyuan3D-2mv/hunyuan3d-dit-v2-mv-turbo",
+      "texgen": "tencent/Hunyuan3D-2"
+    },
+    "params": {
+      "caption": null,
+      "steps": 10,
+      "guidance_scale": 5.0,
+      "seed": 1412,
+      "octree_resolution": 256,
+      "check_box_rembg": true,
+      "num_chunks": 8000
+    },
+    "number_of_faces": 1098020,
+    "number_of_vertices": 359970,
+    "time": {
+      "remove background": 1.0855414867401123,
+      "shape generation": 2.29842209815979,
+      "export to trimesh": 0.17310380935668945,
+      "total": 3.560534954071045
+    }
+  },
+  "actualSeed": 1412,
+  "download": {
+    "mode": "download-existing-service-result",
+    "bytes": 17497152
+  },
+  "glbValidation": {
+    "magic": "glTF",
+    "version": 2,
+    "bytes": 17497152,
+    "declaredLength": 17497152
+  },
+  "sha256": "870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8",
+  "mesh": "alexia-v9-front-only-untextured-diagnostic.glb",
+  "inputNote": "Only the existing V8 front was supplied. Hidden surfaces are inferred; identity/fidelity and side/back construction remain unverified.",
+  "endedUtc": "2026-10-03T15:46:50.073699+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "glbSha256": "e7120dfe3285742e5556dd484c899d61c5e0604ae1760b94a0268130b1a42df0",
+  "faces": 2304,
+  "vertices": 1684,
+  "renderedViews": [
+    "front",
+    "three-quarter",
+    "left",
+    "right",
+    "back",
+    "top",
+    "bottom"
+  ],
+  "renderer": "AMD Radeon R7 Graphics",
+  "noTexture": true,
+  "noRig": true
+}

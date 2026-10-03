@@ -1,0 +1,107 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "attempt": "v10-nano-banana-front-capture-controlled-diagnostic",
+  "purpose": "Compare changed Nano Banana corrected FRONT hair/A-pose input with V9 using unchanged Hunyuan parameters; front only until multiview consistency passes.",
+  "sourceProvenance": "Actual Gemini corrected FRONT container 4bca68acb91fd063 captured as an annotation-free intended 584 px UI JPEG crop; NOT original full-size PNG and NOT the prior imagegen input.",
+  "provider": "Tencent Hunyuan3D-2mv public ZeroGPU Space",
+  "startedUtc": "2026-10-03T16:10:10.478955+00:00",
+  "params": {
+    "steps": 10,
+    "guidance_scale": 5.0,
+    "seed": 1412,
+    "octree_resolution": 256,
+    "check_box_rembg": true,
+    "num_chunks": 8000,
+    "randomize_seed": false
+  },
+  "enabledViews": [
+    "front"
+  ],
+  "disabledViews": [
+    "back",
+    "left",
+    "right"
+  ],
+  "submissionLimit": 1,
+  "automaticRetry": false,
+  "input": {
+    "file": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-03\\new-chat\\outputs\\alexia\\nano-banana-ui-review\\nano-banana-front-capture.jpg",
+    "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "sourceImageCaptureJpegSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "bytes": 98474,
+    "image": {
+      "format": "JPEG",
+      "mode": "RGB",
+      "size": [
+        584,
+        584
+      ]
+    },
+    "captureProvenance": {
+      "provider": "Gemini Apps / Nano Banana UI",
+      "correctedFrontContainer": "4bca68acb91fd063",
+      "captureKind": "screenshot-cropped JPEG",
+      "expectedUiCropWidthPx": 584,
+      "originalFullSizePng": false,
+      "intendedCrop": "annotation-free generated-image area",
+      "annotationFreeVisualReviewRequired": true,
+      "requestedChanges": "coherent layered hair and clean mild A-pose",
+      "lowResolutionLimitation": "About 584 px UI crop; compression/capture detail is limited. Not an original full-resolution image export.",
+      "multiviewConsistencyPassed": false,
+      "diagnosticInputApprovedAsFinal": false
+    },
+    "submittedSnapshot": "input-capture.jpg",
+    "submittedSnapshotSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928"
+  },
+  "meshApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "rigged": false,
+  "gameAssetsReplaced": false,
+  "productionMeshApproved": false,
+  "status": "diagnostic-reviewed-rejected-rebuild-required",
+  "geometryReview": "geometry-review.json",
+  "geometryReviewVerdict": "rebuild",
+  "geometryReviewedUtc": "2026-10-03T16:13:49Z",
+  "geometryGatePassed": false,
+  "generationReturned": true,
+  "providerReportedMeshStats": {
+    "model": {
+      "shapegen": "tencent/Hunyuan3D-2mv/hunyuan3d-dit-v2-mv-turbo",
+      "texgen": "tencent/Hunyuan3D-2"
+    },
+    "params": {
+      "caption": null,
+      "steps": 10,
+      "guidance_scale": 5.0,
+      "seed": 1412,
+      "octree_resolution": 256,
+      "check_box_rembg": true,
+      "num_chunks": 8000
+    },
+    "number_of_faces": 800876,
+    "number_of_vertices": 268436,
+    "time": {
+      "remove background": 0.9968879222869873,
+      "shape generation": 2.320802927017212,
+      "export to trimesh": 0.15796613693237305,
+      "total": 3.4783530235290527
+    }
+  },
+  "actualSeed": 1412,
+  "download": {
+    "mode": "download-existing-service-result",
+    "bytes": 12833016
+  },
+  "glbValidation": {
+    "magic": "glTF",
+    "version": 2,
+    "bytes": 12833016,
+    "declaredLength": 12833016
+  },
+  "sha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+  "mesh": "alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+  "inputNote": "Only the low-resolution Nano Banana corrected FRONT UI capture was supplied. Hidden surfaces are inferred; source-fidelity and side/back construction remain unverified.",
+  "endedUtc": "2026-10-03T16:10:36.266137+00:00"
+}

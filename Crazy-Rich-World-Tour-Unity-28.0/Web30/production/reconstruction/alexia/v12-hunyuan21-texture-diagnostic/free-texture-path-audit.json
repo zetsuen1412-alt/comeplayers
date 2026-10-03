@@ -1,0 +1,162 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "auditType": "read-only-official-existing-mesh-texture-path",
+  "checkedUtc": "2026-10-03T17:03:45Z",
+  "reviewer": "review_inputs",
+  "status": "completed-no-verified-free-hosted-texture-only-route",
+  "scope": "Two official Tencent public HF Space implementations plus the official Hunyuan3D 2.1 Paint source. This is a bounded audit, not proof that no other Space exists.",
+  "triggeringFailure": {
+    "attempt": "v12-hunyuan21-controlled-texture-diagnostic",
+    "endpoint": "/generation_all",
+    "spaceOrigin": "https://tencent-hunyuan3d-2-1.hf.space",
+    "errorClass": "AppError",
+    "error": "'The requested GPU duration (270s) is larger than the maximum allowedSubscribe to Hugging Face PRO to allow GPU tasks up to 40 min - https://huggingface.co/subscribe/pro?from=ZeroGPU'",
+    "generationReturned": false,
+    "requestedGpuDurationSecondsReportedByService": 270,
+    "maximumAllowedGpuDurationSeconds": null,
+    "accountQuotaRemaining": null,
+    "quotaResetTime": null,
+    "quotaInterpretation": "The service rejected the requested duration before returning a generation result. The exact allowed limit, remaining quota and reset time are not established by this error.",
+    "textureGlbReturned": false,
+    "evidence": "reconstruction-evidence.json"
+  },
+  "baselinePreserved": {
+    "mesh": "../v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+    "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+    "actualLocalHashVerified": true,
+    "meshChanged": false,
+    "shapeCandidateStatus": "Eligible for controlled texture inspection only; no final approval"
+  },
+  "oneOfficialExistingMeshPath": {
+    "name": "Hunyuan3D 2.1 Hunyuan3DPaintPipeline",
+    "sourceUrl": "https://huggingface.co/tencent/Hunyuan3D-2.1/blob/main/hy3dpaint/textureGenPipeline.py",
+    "sourceCodeVerified": true,
+    "officialOwner": "tencent",
+    "existingMeshAcceptedBySource": true,
+    "imageConditioningAcceptedBySource": true,
+    "callable": "Hunyuan3DPaintPipeline.__call__",
+    "arguments": [
+      {
+        "name": "mesh_path",
+        "default": null,
+        "purpose": "Path to an existing mesh"
+      },
+      {
+        "name": "image_path",
+        "default": null,
+        "purpose": "Reference image path or PIL image"
+      },
+      {
+        "name": "output_mesh_path",
+        "default": null,
+        "purpose": "Output mesh path"
+      },
+      {
+        "name": "use_remesh",
+        "default": true,
+        "purpose": "Remeshes by default; False bypasses the remesh branch"
+      },
+      {
+        "name": "save_glb",
+        "default": true,
+        "purpose": "Enables GLB save path in the pipeline"
+      }
+    ],
+    "geometryNote": "The source loads the supplied mesh and unwraps UVs. Default use_remesh=True changes geometry; use_remesh=False skips that branch but does not certify an identical mesh/hash after UV processing.",
+    "localOrSelfHosted": true,
+    "publicTextureOnlyEndpointVerified": false,
+    "publicApiEndpoint": null,
+    "publicZeroGpuDurationSeconds": null,
+    "currentlyExecutableFreeHostedRouteVerified": false,
+    "localRuntimeAndCompatibleGpuAvailabilityVerified": false,
+    "v11GlbCompatibilityActuallyTested": false,
+    "notEstablished": [
+      "An official free public texture-only Space accepting this V11 GLB",
+      "Available compatible local GPU and complete paint runtime",
+      "Duration for a standalone Paint run",
+      "Successful V11 paint output or unchanged geometry",
+      "Texture/source fidelity"
+    ]
+  },
+  "officialPublicSpaceChecks": [
+    {
+      "name": "Tencent Hunyuan3D 2.1",
+      "spaceUrl": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1",
+      "sourceUrl": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1/blob/main/gradio_app.py",
+      "sourcePageStatusShown": "Running on Zero",
+      "combinedEndpoint": "/generation_all",
+      "sourceDecoratorGpuDurationSeconds": 180,
+      "combinedFunctionGeneratesShapeFirst": true,
+      "existingMeshTextureOnlyUploadExposedInCheckedSource": false,
+      "savedLiveApiInfo": "../../../work/hunyuan21-info.json",
+      "savedLiveApiEndpointNames": [
+        "/lambda",
+        "/shape_generation",
+        "/lambda_1",
+        "/lambda_2",
+        "/generation_all",
+        "/lambda_3",
+        "/lambda_4",
+        "/on_gen_mode_change",
+        "/on_decode_mode_change",
+        "/lambda_5",
+        "/on_export_click"
+      ],
+      "savedLiveApiTextureOnlyEndpointFound": false,
+      "exportEndpointNote": "/on_export_click exposes export/format/simplification inputs. It is not a verified paint-generation endpoint.",
+      "durationCaveat": "The browsed main source declares 180 seconds; the actual V12 rejection reports 270 seconds. These are separate observations. No explanation, free limit or retry suitability is inferred.",
+      "conclusion": "Does not provide the required verified standalone existing-mesh paint route."
+    },
+    {
+      "name": "Tencent Hunyuan3D 2",
+      "spaceUrl": "https://huggingface.co/spaces/tencent/Hunyuan3D-2",
+      "sourceUrl": "https://huggingface.co/spaces/tencent/Hunyuan3D-2/blob/main/gradio_app.py",
+      "sourcePageStatusShown": "Running on Zero",
+      "combinedEndpoint": "/generation_all",
+      "sourceDecoratorGpuDurationSeconds": 90,
+      "combinedFunctionGeneratesShapeFirst": true,
+      "existingMeshTextureOnlyUploadExposedInCheckedSource": false,
+      "freeDurationAcceptanceActuallyTested": false,
+      "conclusion": "Its shorter declared combined duration does not satisfy existing-mesh texture-only input, and was not submitted."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Official Tencent Hunyuan3D 2.1 Paint pipeline",
+      "url": "https://huggingface.co/tencent/Hunyuan3D-2.1/blob/main/hy3dpaint/textureGenPipeline.py",
+      "supports": "Existing mesh/image callable and optional remesh branch"
+    },
+    {
+      "title": "Official Tencent Hunyuan3D 2.1 public Space source",
+      "url": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1/blob/main/gradio_app.py",
+      "supports": "Combined generation path, source-declared GPU duration and checked UI event wiring"
+    },
+    {
+      "title": "Official Tencent Hunyuan3D 2 public Space source",
+      "url": "https://huggingface.co/spaces/tencent/Hunyuan3D-2/blob/main/gradio_app.py",
+      "supports": "Combined 90-second source decorator and image-based generation UI rather than existing-mesh paint input"
+    }
+  ],
+  "actionsPerformed": {
+    "webSourceReads": true,
+    "localEvidenceAndSavedApiReads": true,
+    "localAuditMetadataWritten": true,
+    "providerGenerationSubmissions": 0,
+    "newTextureJobs": 0,
+    "checkpointDownloads": 0,
+    "runtimeProvisioning": false,
+    "billingOrSubscriptionChanged": false,
+    "meshEdits": false
+  },
+  "verdict": "official-existing-mesh-paint-code-verified-but-no-free-hosted-execution-path-verified",
+  "verifiedFreeHostedTextureOnlyPath": false,
+  "separateOfficialPaintCodeAvailable": true,
+  "paidFallbackUsed": false,
+  "textureApproved": false,
+  "sourceFidelityApproved": false,
+  "productionMeshApproved": false,
+  "readyForRigging": false,
+  "readyForGame": false,
+  "nextStep": "Preserve the actual V11 candidate. Official local Paint is a potential engineering route if compatible compute/runtime becomes available; this audit does not claim a free hosted execution path or a texture result."
+}

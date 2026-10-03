@@ -1,0 +1,79 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "propId": "yuna-painter-palette",
+  "reviewType": "independent-actual-mesh-visual-optimization-comparison",
+  "reviewedUtc": "2026-10-03T15:53:09Z",
+  "reviewer": "review_inputs",
+  "status": "reviewed-optimized-candidate-manual-approximation",
+  "label": "candidate",
+  "mesh": "../yuna-palette-source-guided-optimized-candidate.glb",
+  "meshSha256": "e7120dfe3285742e5556dd484c899d61c5e0604ae1760b94a0268130b1a42df0",
+  "localMeshHashVerified": true,
+  "faces": 2304,
+  "uniqueReferencedPositionVertices": 1172,
+  "primitiveExpandedPositionVertices": 1684,
+  "reviewEvidence": {
+    "actualMeshRenderReviewed": true,
+    "renderEvidence": "render-evidence.json",
+    "contactSheet": "geometry-contact-sheet.png",
+    "viewsInspectedViaContactSheet": [
+      "front",
+      "three-quarter",
+      "left",
+      "right",
+      "back",
+      "top",
+      "bottom"
+    ],
+    "originalCandidateContactSheet": "../yuna-palette-source-guided-candidate-review/geometry-contact-sheet.png",
+    "originalCandidateSha256": "0463579d662806eb9afd71d8c9ee9e759139cd8daa4de0ce2c7c0cc4260bb684",
+    "source": "../../../work/master-lineup.png",
+    "sourceTarget": "Bottom row third figure, palette in anatomical right hand",
+    "sourceSha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e"
+  },
+  "comparisonWithOriginalCandidate": {
+    "mainOutlinePreservedVisually": true,
+    "openThumbHolePreservedVisually": true,
+    "finiteThicknessPreservedVisually": true,
+    "paintCountAndLayoutPreservedVisually": true,
+    "plainBackPreservedVisually": true,
+    "observations": [
+      "Optimized candidate retains the same tall asymmetric palette silhouette, open elongated thumb hole, front patch layout and plain rear as the original candidate.",
+      "Side/top/bottom views show finite body thickness and paint patches confined to the front face.",
+      "Reduced paint sampling produces visible faceting, particularly on the large blue, mint, pink and yellow patches; original patches read more smoothly rounded.",
+      "Body outline and bevel are slightly more angular at this inspection size, without an obvious filled hole or gross silhouette collapse."
+    ],
+    "optimizationTradeoff": "Useful lower-polygon candidate for further comparison; modest visible loss of paint-blob roundness remains.",
+    "reportedTriangleReductionPercent": 77.57009345794393,
+    "sourceFidelityMetric": false,
+    "deviationNote": "Builder-reported 0.003989 design-unit boundary deviation compares candidate to candidate, not to the source image."
+  },
+  "sourceComparison": {
+    "recognizableSourceFeatures": [
+      "pale cream asymmetrical painter palette",
+      "elongated thumb/grip hole",
+      "multiple colored paint families"
+    ],
+    "unresolvedDifferences": [
+      "Paint patches are simplified regular blobs; exact source count, irregular outlines, spacing and small smears are not reproduced or verified.",
+      "The source is foreshortened, so exact unforeshortened body contour and thumb-hole placement are unverified.",
+      "Thickness, plain rear, bevel profile, material response and arbitrary unit scale are inferred.",
+      "Grip fit and orientation relative to Yuna's accepted body have not been tested."
+    ]
+  },
+  "risks": [
+    "Rendered colors come from simple material values; no source-faithful texture or material pass was verified.",
+    "Normal smoothing or slightly higher paint boundary sampling may be useful if close-up appearance matters.",
+    "Builder reports closed components and zero nonmanifold/degenerate faces, but this visual review did not independently recompute topology."
+  ],
+  "verdict": "retain-optimized-candidate-for-revision",
+  "optimizationCandidateUsable": true,
+  "finalAssetReady": false,
+  "visualFinalApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "scaleAndHandGripVerified": false,
+  "productionMeshApproved": false,
+  "gameAssetsReplaced": false,
+  "nextAction": "Keep the candidate label. Revise source-facing paint shapes/layout and inspect shading, then fit to an accepted Yuna body before any final asset or integration approval."
+}

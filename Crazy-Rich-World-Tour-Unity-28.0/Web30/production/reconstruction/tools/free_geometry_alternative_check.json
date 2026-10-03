@@ -1,0 +1,190 @@
+{
+  "checked_at_utc": "2026-10-03T16:19:07Z",
+  "scope": "One official Tencent public Space; read-only sources and metadata requests. No generation, GPU allocation, key retrieval, or checkpoint download.",
+  "candidate": {
+    "space": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1",
+    "app": "https://tencent-hunyuan3d-2-1.hf.space/",
+    "visible_status": "Running on Zero",
+    "status_source": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1",
+    "metadata_tool": {
+      "author": "tencent",
+      "sdk": "gradio",
+      "updated": "2025-08-11"
+    },
+    "runtime": {
+      "stage": "RUNNING",
+      "hardware_code": "zero-a10g",
+      "private": false,
+      "gated": false,
+      "disabled": false,
+      "domains_stage": "READY",
+      "sha": "61d23d8ce7d066d418ed501df7c3ee4329817f14",
+      "py_spaces_version": "0.47.0",
+      "source": "https://huggingface.co/api/spaces/tencent/Hunyuan3D-2.1"
+    }
+  },
+  "free_access": {
+    "source": "https://huggingface.co/docs/hub/spaces-zerogpu",
+    "official_documentation": "Existing ZeroGPU Spaces are free to all users, subject to account-tier daily GPU quotas and queues.",
+    "remaining_account_quota": "Not checked.",
+    "specific_gpu_model": "Runtime API returns hardware code zero-a10g; physical GPU model was not independently observed."
+  },
+  "source_geometry": {
+    "app_source": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1/blob/main/gradio_app.py",
+    "model": "tencent/Hunyuan3D-2.1",
+    "subfolder": "hunyuan3d-dit-v2-1",
+    "flashvdm_enabled": false,
+    "input_mode": "Single image; model name does not select MV_MODE. Four multiview controls exist but are hidden and ignored in this default mode.",
+    "image_component": {
+      "type": "pil",
+      "image_mode": "RGBA"
+    },
+    "shape_gpu_duration_seconds": 60,
+    "ui_defaults": {
+      "steps": 30,
+      "guidance_scale": 5,
+      "octree_resolution": 256,
+      "num_chunks": 8000,
+      "remove_background": true,
+      "randomize_seed": true,
+      "seed": 1234
+    },
+    "ui_ranges": {
+      "steps": [
+        1,
+        100
+      ],
+      "octree_resolution": [
+        16,
+        512
+      ],
+      "num_chunks": [
+        1000,
+        5000000
+      ]
+    },
+    "python_function_defaults": {
+      "steps": 50,
+      "guidance_scale": 7.5,
+      "octree_resolution": 256,
+      "num_chunks": 200000,
+      "remove_background": false,
+      "randomize_seed": false
+    },
+    "sampling": "App forwards steps, guidance, deterministic torch.Generator seed, octree resolution and chunk count to Hunyuan3DDiTFlowMatchingPipeline.",
+    "output": "Shape-only function exports untextured white_mesh.glb and returns file update, viewer HTML, mesh statistics, seed. No cleanup or face reduction is applied on this shape-only path.",
+    "quality_mode_controls": "Options tab is hidden. Turbo/Fast/Standard callback sets steps to 5/10/30 only; no model switch. High decoding maps to resolution 384.",
+    "model_selection_basis": "Source launch defaults plus live hidden MultiView/Options tabs. Actual returned mesh stats are required to confirm model identity after a future generation."
+  },
+  "source_dtypes": {
+    "source": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1/blob/main/hy3dshape/hy3dshape/pipelines.py",
+    "loader_defaults": {
+      "device": "cuda",
+      "dtype": "torch.float16",
+      "variant": "fp16",
+      "use_safetensors": false
+    },
+    "app_override": "App supplies device but does not override dtype or variant.",
+    "flow_matching_defaults": {
+      "steps": 50,
+      "guidance_scale": 5,
+      "octree_resolution": 384,
+      "num_chunks": 8000
+    },
+    "scheduler": "Uniform sigmas from 0 to 1; classifier-free guidance is conditioned on model guidance embedding support."
+  },
+  "official_model_facts": {
+    "source": "https://huggingface.co/spaces/tencent/Hunyuan3D-2.1/blob/main/README.md",
+    "shape_model_parameters": "3.3B",
+    "published_shape_vram_gb": 10,
+    "reported_evaluation": "README reports higher image-condition metrics than listed baselines; this is not a character-specific result or comparison against current 2mv Turbo."
+  },
+  "api": {
+    "api_name": "/shape_generation",
+    "config_url": "https://tencent-hunyuan3d-2-1.hf.space/config",
+    "info_url": "https://tencent-hunyuan3d-2-1.hf.space/info",
+    "local_metadata_files": [
+      "work/hunyuan21-config.json",
+      "work/hunyuan21-info.json",
+      "work/hunyuan21-runtime.json"
+    ],
+    "live_schema_status": "Root fetched public GET metadata successfully; read locally.",
+    "gradio_version": "4.44.0",
+    "fn_index": 2,
+    "queue": true,
+    "show_api": true,
+    "caption": "Gradio State excluded from public API arguments.",
+    "input_order": [
+      "image",
+      "mv_image_front",
+      "mv_image_back",
+      "mv_image_left",
+      "mv_image_right",
+      "steps",
+      "guidance_scale",
+      "seed",
+      "octree_resolution",
+      "check_box_rembg",
+      "num_chunks",
+      "randomize_seed"
+    ],
+    "image_payload": {
+      "title": "FileData",
+      "required": [
+        "path"
+      ],
+      "optional": [
+        "url",
+        "size",
+        "orig_name",
+        "mime_type",
+        "is_stream",
+        "meta"
+      ],
+      "meta_default": {
+        "_type": "gradio.FileData"
+      },
+      "python_type": "filepath"
+    },
+    "live_defaults": {
+      "image": null,
+      "mv_image_front": null,
+      "mv_image_back": null,
+      "mv_image_left": null,
+      "mv_image_right": null,
+      "steps": 30,
+      "guidance_scale": 5,
+      "seed": 1234,
+      "octree_resolution": 256,
+      "check_box_rembg": true,
+      "num_chunks": 8000,
+      "randomize_seed": true
+    },
+    "returns": [
+      {
+        "index": 0,
+        "component": "File",
+        "python_type": "filepath",
+        "schema": "FileData"
+      },
+      {
+        "index": 1,
+        "component": "Html",
+        "python_type": "str"
+      },
+      {
+        "index": 2,
+        "component": "Json",
+        "python_type": "Dict[Any, Any]"
+      },
+      {
+        "index": 3,
+        "component": "Slider",
+        "python_type": "float"
+      }
+    ],
+    "texture_endpoint": "/generation_all is separate; source GPU duration 180 seconds. Not called.",
+    "request_submitted": false,
+    "artifact_download_attempted": false
+  }
+}

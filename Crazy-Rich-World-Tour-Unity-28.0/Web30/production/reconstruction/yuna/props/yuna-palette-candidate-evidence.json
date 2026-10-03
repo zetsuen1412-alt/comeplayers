@@ -1,0 +1,325 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "prop_id": "yuna-painter-palette",
+  "status": "candidate-unreviewed-manual-approximation",
+  "generated_at_utc": "2026-10-03T15:29:51.740262+00:00",
+  "source": {
+    "repository": "zetsuen1412-alt/comeplayers",
+    "branch": "codex/crazy-rich-web-v30",
+    "commit": "fbdb1e36ecb9ee3fc07aaed9072441285ba683b9",
+    "repository_path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/references/chibi_travel_adventurers_collectible_lineup.png",
+    "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "image_visually_inspected": true,
+    "target": "Bottom row, third figure; name Yuna inferred from repository roster order",
+    "selection_reason": "Kairo suitcase is significantly occluded by legs/footwear; Yuna palette's rigid front silhouette and main color families are more readable."
+  },
+  "observed": [
+    "Pale cream asymmetrical painter palette",
+    "A visible elongated thumb/grip hole near upper-right part of shown face",
+    "Multiple colored paint patches: blues, pink/red, warm yellow/orange, green and purple, with a brown-looking patch",
+    "Held on Yuna's anatomical right side"
+  ],
+  "inferred_or_approximate": [
+    "Contour is hand-approximated, not segmented or recovered by photogrammetry",
+    "True unforeshortened shape inferred from an angled reference",
+    "Thumb-hole exact size, position and interior bevel",
+    "Paint count, placement, outline, depth and material values",
+    "Total thickness and edge bevels",
+    "Plain rear surface, unseen underside, grip alignment and arbitrary unit scale"
+  ],
+  "not_claimed": [
+    "Exact visual match",
+    "User visual approval",
+    "Gemini-generated mesh",
+    "Final production topology or textures",
+    "Character body, rig, animation or game integration"
+  ],
+  "method": {
+    "builder": "build_yuna_palette_candidate.py",
+    "provider": "Local Python standard-library mesh construction",
+    "paid_api": false,
+    "network_used": false,
+    "system_installations": false,
+    "front_axis": "+Z",
+    "up_axis": "+Y",
+    "palette_thickness_design_units": 0.042,
+    "separate_components": [
+      "palette body",
+      "pink_upper",
+      "coral_upper",
+      "cobalt_left_upper",
+      "mint_upper_middle",
+      "orange_left_middle",
+      "sky_middle",
+      "violet_lower_left",
+      "rose_lower",
+      "yellow_lower",
+      "brown_right_middle"
+    ],
+    "geometry_note": "Palette body is a closed annular beveled solid with a genuinely open thumb hole; paint patches are separate closed meshes partly embedded in its face."
+  },
+  "output": {
+    "file": "yuna-palette-source-guided-candidate.glb",
+    "sha256": "0463579d662806eb9afd71d8c9ee9e759139cd8daa4de0ce2c7c0cc4260bb684",
+    "bytes": 196312,
+    "format": "glTF 2.0 / GLB",
+    "mesh_count": 11,
+    "material_count": 12,
+    "total_vertices": 5156,
+    "total_triangles": 10272,
+    "skins": 0,
+    "animations": 0,
+    "embedded_textures": 0,
+    "bounds": [
+      [
+        -0.34552353315427264,
+        -0.50852187674615,
+        -0.021
+      ],
+      [
+        0.3551597360421507,
+        0.5400396716587205,
+        0.031
+      ]
+    ]
+  },
+  "validation": {
+    "source_hash_matches": true,
+    "all_components_closed": true,
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_triangles": 0,
+    "actual_mesh_render_reviewed": false,
+    "visual_match_verified": false,
+    "scale_and_hand_grip_verified": false,
+    "game_assets_replaced": false,
+    "component_reports": [
+      {
+        "vertices": 1536,
+        "triangles": 3072,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.34552353315427264,
+            -0.50852187674615,
+            -0.021
+          ],
+          [
+            0.3551597360421507,
+            0.5400396716587205,
+            0.021
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.01836236277084273,
+            0.38534015931594146,
+            0.013000000000000003
+          ],
+          [
+            0.09863692472586769,
+            0.47110149450108557,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            0.13288902629139043,
+            0.35805536140037336,
+            0.013000000000000003
+          ],
+          [
+            0.21768480879535748,
+            0.43937417967193726,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.23020348426516285,
+            0.12355734553926614,
+            0.013000000000000003
+          ],
+          [
+            -0.09089210309190991,
+            0.30113138699079456,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.0184988649657718,
+            0.12590185439780277,
+            0.013000000000000003
+          ],
+          [
+            0.1013608337563831,
+            0.27401299168100934,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.2694263310209915,
+            -0.06228754615654311,
+            0.013000000000000003
+          ],
+          [
+            -0.1982429797909174,
+            0.03175035830857688,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.07329504295304007,
+            -0.13980705277609332,
+            0.013000000000000003
+          ],
+          [
+            0.02311562910374222,
+            -0.058171298245222026,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.2795493898022605,
+            -0.2993674846859598,
+            0.013000000000000003
+          ],
+          [
+            -0.20207012894043322,
+            -0.19282163698206364,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            -0.17260777682032433,
+            -0.440089400979549,
+            0.013000000000000003
+          ],
+          [
+            -0.04087718237833243,
+            -0.2846560542259873,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            0.04102870510834481,
+            -0.4079734385954245,
+            0.013000000000000003
+          ],
+          [
+            0.15255878777196885,
+            -0.28961865393880004,
+            0.031
+          ]
+        ]
+      },
+      {
+        "vertices": 362,
+        "triangles": 720,
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "degenerate_triangles": 0,
+        "closed_triangle_surface": true,
+        "bounds": [
+          [
+            0.18713798788467373,
+            -0.2272787688941218,
+            0.013000000000000003
+          ],
+          [
+            0.25643809413271124,
+            -0.15252130008775075,
+            0.031
+          ]
+        ]
+      }
+    ]
+  },
+  "next_review": [
+    "Render actual GLB front/back/side/three-quarter and compare its source-visible outline, thumb hole and paint layout",
+    "Check rear/plain-surface inference and thickness in camera orbit",
+    "Fit to Yuna's hand only after accepted Yuna body exists",
+    "Revise differences before any acceptance or game integration"
+  ]
+}

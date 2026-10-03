@@ -1,7 +1,7 @@
 {
   "project": "Crazy Rich: World Tour",
   "updated_at": "2026-10-03",
-  "status": "alexia_reconstruction_in_progress_clean_body_inputs_required_zerogpu_quota_blocked",
+  "status": "alexia_v11_preserved_texture_blocked_by_free_duration_and_unavailable_alternative",
   "existing_sculpt_v1": {
     "visual_status": "rejected_by_user",
     "functional_tests_are_not_visual_approval": true,
@@ -71,7 +71,7 @@
     }
   },
   "gemini_workflow": {
-    "updated_at": "2026-10-02",
+    "updated_at": "2026-10-03",
     "user_direction": "Continue Alexia without red eyes, using the earlier original lineup design",
     "deferred_character": null,
     "alexia_override_still_required": false,
@@ -81,8 +81,8 @@
     "analysis_model": "gemini-3.5-flash-lite",
     "reference_analysis_succeeded": true,
     "image_model": "gemini-3.1-flash-image",
-    "gemini_image_generation_succeeded": false,
-    "gemini_image_blocker": "Google project free-tier image generation quota has limit 0",
+    "gemini_image_generation_succeeded": true,
+    "gemini_image_blocker": "Original Gemini Apps PNG download not recovered; UI screenshots can be preserved as lower-resolution JPEG review/capture evidence.",
     "connector_fix_commit": "5c562517c44306d46df7fc0134fffce5975f9c64",
     "preview_deployment_id": "dpl_Cdniro9fodWxHUMV9WviEzr6HYWU",
     "protocol_passed": true,
@@ -97,7 +97,33 @@
     "proceeded_on": "2026-10-02",
     "note": "User instructed continuation after Alexia V2 was displayed; reconstruction may continue, but no generated mesh is automatically approved.",
     "latest_text_spec_succeeded": true,
-    "nano_banana_app_access": "Browser opened but signed out; awaiting user login. Paid image API not invoked."
+    "nano_banana_app_access": "Signed in; actual Nano Banana 2 image responses visibly inspected. No billing or subscription changed.",
+    "nano_banana_apps": {
+      "family_shown": "Nano Banana 2",
+      "mode_picker": "Pro",
+      "exact_backend_model_id": "not disclosed",
+      "conversation": "https://gemini.google.com/app/463f62a84b89b00c",
+      "evidence": "production/reconstruction/alexia/nano-banana-app-evidence.json",
+      "actual_raster_capture_succeeded": true,
+      "captured_views": [
+        "front",
+        "back",
+        "left",
+        "right"
+      ],
+      "captured_raster_resolution": [
+        584,
+        584
+      ],
+      "capture_type": "Cropped CUA UI JPEG screenshot; not original PNG",
+      "multiview_consistency_approved": false,
+      "mesh_generated_from_front_capture": true
+    },
+    "prior_image_api_failure": {
+      "model": "gemini-3.1-flash-image",
+      "reported_free_tier_image_quota_limit": 0,
+      "scope": "Historical API attempt; not a claim that Gemini Apps or today's ZeroGPU services are quota blocked."
+    }
   },
   "rebuild_requirements": [
     "Use the approved image as the shape and appearance reference, not a generic parametric doll with recolored hair.",
@@ -114,14 +140,14 @@
     "A standalone inspection viewer is not proof of live-game integration. Test the board and character selector with the same accepted asset."
   ],
   "attempt": {
-    "method": "Hunyuan3D-2mv seed 1412 from body-only individual images with server rembg",
+    "method": "Official Hunyuan3D-2.1 Standard steps30/resolution256, same Nano Banana front capture as V10",
     "character": "alexia",
-    "status": "V8 generated and rejected before texture/rig after actual seven-view render; conservative cleanup did not pass",
-    "retry_policy": "Do not repeat unchanged V8 inputs/parameters. Improve coherent hair and arm gaps or use a different reconstruction method."
+    "status": "V11 actual shape eligible for controlled texture inspection; V12 generation_all rejected by free GPU duration, no new mesh/texture returned",
+    "retry_policy": "Texture path creates different geometry after reduction/UV remesh. Verify actual returned GLB hash/count and inspect before rig/game."
   },
   "latest_compute_check": {
-    "service": "Hunyuan3D-2mv / TRELLIS / Microsoft TRELLIS.2 public ZeroGPU",
-    "result": "Hunyuan generated a real mesh. Both TRELLIS compare services returned hidden upstream app errors. Do not infer quota cause.",
+    "service": "Hunyuan3D-2mv / Hunyuan3D-2.1 / TRELLIS / Microsoft TRELLIS.2 public ZeroGPU",
+    "result": "Hunyuan generated V8/V9/V10/V11. V11 is a more coherent Standard shape. One V12 texture submission was explicitly rejected because requested GPU duration 270 seconds exceeds the free-access maximum. Remaining quota was not measured. TRELLIS failures remain undisclosed upstream errors. A read-only preflight of official Hunyuan3D-2 found its 90-second combined path, but the live config explicitly reports Texture Generation (Unavailable); no V13 GPU request was submitted.",
     "billing_or_subscription_changed": false
   },
   "latest_higgsfield_check": {
@@ -152,7 +178,7 @@
     "same_reviewed_and_integrated_glb_hash_required": true,
     "automatic_visual_approval": false
   },
-  "new_models_produced": 7,
+  "new_models_produced": 10,
   "visual_final_approved": false,
   "game_assets_replaced": false,
   "note": "This file records approved visual requirements and observed blockers. It is not a runtime deployment guard, a completed model, or a claim of improved visual fidelity.",
@@ -160,11 +186,11 @@
     "active_reference": "production/turnarounds/alexia/turnaround-blue-imagegen-v2.png",
     "active_eye_color": "blue",
     "accepted_meshes": 0,
-    "generated_mesh_attempts": 7,
-    "latest_generated_attempt": "v8-approved-body-only-individual-views",
-    "latest_planned_attempt": "Clean coherent hair multiview with Gemini Nano Banana app, then changed reconstruction method",
+    "generated_mesh_attempts": 10,
+    "latest_generated_attempt": "v11-hunyuan21-standard-front-diagnostic",
+    "latest_planned_attempt": "Preserve V11 and verify an executable free paint route; correct source consistency and detailed geometry before rig/game",
     "latest_planned_attempt_generated": false,
-    "latest_blocker": "V8 geometry rejected: noisy fragmented hair, insufficient jacket/hand/shoe detail. TRELLIS and TRELLIS.2 comparison requests failed with upstream error; cause undisclosed.",
+    "latest_blocker": "V12 combined texture endpoint exceeds free GPU duration. V11 hair loops, eye relief, fused digits, small components and hidden surfaces require revision. Four Nano Banana views are not consistent; none of the ten characters is production-approved. Official Hunyuan3D-2 alternative currently reports its texture module unavailable.",
     "v1_gemini_verdict": "REBUILD BEFORE TEXTURE",
     "suitcase_strategy": "Separate prop GLB; never fused into Alexia body mesh",
     "rejected_methods": [
@@ -178,8 +204,62 @@
       "production/reconstruction/alexia/rebuild-attempts-v4-v7-2026-10-02.json",
       "production/reconstruction/alexia/v8-body-only/reconstruction-evidence.json",
       "production/reconstruction/alexia/v8-body-only/trellis-evidence.json",
-      "production/reconstruction/alexia/v8-body-only/trellis2-evidence.json"
-    ]
+      "production/reconstruction/alexia/v8-body-only/trellis2-evidence.json",
+      "production/reconstruction/alexia/v9-front-only-diagnostic/reconstruction-evidence.json",
+      "production/reconstruction/alexia/v9-front-only-diagnostic/geometry-review.json",
+      "production/reconstruction/alexia/v10-nano-banana-front-diagnostic/reconstruction-evidence.json",
+      "production/reconstruction/alexia/v10-nano-banana-front-diagnostic/geometry-review.json",
+      "production/reconstruction/alexia/nano-banana-ui-review/multiview-review.json",
+      "production/reconstruction/alexia/v11-hunyuan21-diagnostic/reconstruction-evidence.json",
+      "production/reconstruction/alexia/v11-hunyuan21-diagnostic/geometry-review.json",
+      "production/reconstruction/alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json",
+      "production/reconstruction/alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+    ],
+    "best_shape_candidate": {
+      "attempt": "v11-hunyuan21-diagnostic",
+      "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "faces": 449582,
+      "vertices": 224713,
+      "texture_candidate_eligible": true,
+      "production_approved": false
+    },
+    "latest_submitted_attempt": "v12-hunyuan21-controlled-texture-diagnostic",
+    "latest_submitted_attempt_generated": false,
+    "latest_submission_failure": {
+      "classification": "provider-rejected-requested-gpu-duration-on-free-access",
+      "exactError": "'The requested GPU duration (270s) is larger than the maximum allowedSubscribe to Hugging Face PRO to allow GPU tasks up to 40 min - https://huggingface.co/subscribe/pro?from=ZeroGPU'",
+      "requestedGpuDurationSeconds": 270,
+      "remainingQuotaChecked": false,
+      "newMeshOrTextureProduced": false,
+      "automaticRetry": false,
+      "evidence": "production/reconstruction/alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json"
+    },
+    "latest_preflight_attempt": {
+      "attempt": "v13-hunyuan2-texture-preflight",
+      "status": "not-submitted-configured-texture-generation-unavailable",
+      "declaredCombinedGpuDurationSeconds": 90,
+      "configuredTextureGeneration": "Unavailable",
+      "providerGenerationSubmitted": false,
+      "newMeshOrTextureProduced": false,
+      "remainingQuotaChecked": false,
+      "evidence": "production/reconstruction/alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+    }
   },
-  "accepted_models_produced": 0
+  "accepted_models_produced": 0,
+  "props": {
+    "alexia_suitcase": {
+      "status": "candidate_unrigged_not_in_game",
+      "sha256": "8a36bb0661f9e9a2922d5120a53cc369e96770dd62666b56acc169689c4c639a",
+      "triangles": 13580
+    },
+    "yuna_palette": {
+      "status": "optimized_candidate_for_revision_no_visual_approval",
+      "sha256": "e7120dfe3285742e5556dd484c899d61c5e0604ae1760b94a0268130b1a42df0",
+      "triangles": 2304,
+      "source_name_assignment": "inferred from roster order",
+      "source_fidelity": "approximation; paint smears/faceting require review",
+      "evidence": "production/reconstruction/yuna/props/yuna-palette-optimized-candidate-evidence.json"
+    }
+  },
+  "counting_note": "new_models_produced and generated_mesh_attempts count successful reconstruction generation attempts, not every exported representation or cleanup copy. The failed V12 submission produced no mesh and is not added to the successful-mesh count."
 }

@@ -1,0 +1,143 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "reviewType": "independent-actual-mesh-shape-stage-gate",
+  "reviewedUtc": "2026-10-03T16:46:41Z",
+  "reviewer": "review_inputs",
+  "mesh": "alexia-v11-hunyuan21-untextured-diagnostic.glb",
+  "meshSha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+  "localMeshHashVerified": true,
+  "faces": 449582,
+  "vertices": 224713,
+  "gateScope": "Eligibility for a controlled texture diagnostic only; not final source fidelity, production geometry, rigging or game integration.",
+  "provenance": {
+    "provider": "Tencent official Hunyuan3D 2.1 Standard",
+    "providerReportedModel": "tencent/Hunyuan3D-2.1/hunyuan3d-dit-v2-1",
+    "modelIdentityConfirmedInSavedProviderStats": true,
+    "steps": 30,
+    "guidanceScale": 5,
+    "seed": 1412,
+    "octreeResolution": 256,
+    "source": "Exact Nano Banana corrected FRONT screenshot JPEG from Gemini container 4bca68acb91fd063, reused from V10",
+    "input": "../nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "inputSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "inputSize": [
+      584,
+      584
+    ],
+    "originalFullResolutionImageExport": false,
+    "markFreeCaptureCertified": false,
+    "captureLimitations": [
+      "Low-resolution JPEG UI capture rather than original full-size PNG.",
+      "Small white sparkle in lower-right background remains in the exact JPEG; outside character and not certified mark-free.",
+      "Single image uploaded through image; all multiview slots None. Hidden surfaces are inferred, not independently guided by the approved back/side views."
+    ]
+  },
+  "reviewEvidence": {
+    "actualMeshRenders": true,
+    "renderEvidence": "mesh-review/render-evidence.json",
+    "renderedViewsInspected": [
+      "front",
+      "three-quarter",
+      "left",
+      "right",
+      "back",
+      "top",
+      "bottom"
+    ],
+    "contactSheet": "mesh-review/geometry-contact-sheet.png",
+    "nanoBananaCapture": "../nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "approvedReference": "../../references/alexia-approved-v2-blue.png",
+    "priorV10ContactSheet": "../v10-nano-banana-front-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "priorV10MeshSha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+    "topologyStats": "mesh-review/topology-stats.json",
+    "method": "Seven individual actual gray GLB renders plus contact sheet, submitted Nano Banana capture and approved V2 comparison; direct read-only actual GLB edge/connectivity checks. No mesh edits or new AI calls."
+  },
+  "shapeStageAssessment": {
+    "headAndFace": {
+      "result": "Sufficient recognizable head/face scaffold for texture inspection; identity not final-approved",
+      "observations": [
+        "Rounded chibi head, central bangs, headphone band/earcups and cheek/chin outline are recognizable from the submitted capture.",
+        "Fringe and face surfaces are substantially cleaner than V10; eye regions are no longer hidden by shredded debris.",
+        "Eye rims remain rough/asymmetric and the eyes read closed or blank in gray geometry. A texture diagnostic must demonstrate correct large blue eyes, alignment, lashes and expression; gray shape alone does not prove them."
+      ]
+    },
+    "hair": {
+      "result": "Coherent broad lock structure usable for inspection, simplified relative to V2",
+      "observations": [
+        "V11 replaces V10's shredded curtain/terrain with smooth connected-looking broad wavy clumps and intentional-looking curling silhouettes.",
+        "Both sides and back show consistent placement behind the headphones and body; the back has smooth continuous broad waves rather than fractal noise.",
+        "Several clumps have thin ribbon-like or flattened profiles, oversized loose loops and angular tips; the detailed layered curled locks and tied/root construction in V2 are not exactly recovered.",
+        "The extreme long wire/needle terrain is gone, but stylized loop/flyaway forms and small disconnected components still require semantic inspection."
+      ]
+    },
+    "outfitAndLimbs": {
+      "result": "Main shapes readable; fine anatomy and garment detail still incomplete",
+      "observations": [
+        "Mild A-pose, separate legs, shorts, open jacket panels, shirt, belt, large cuffs and sneaker silhouette remain readable across front/three-quarter/profile renders.",
+        "Lapels, cuff/coat boundaries and belt/shirt relief are more regular and legible than V10.",
+        "Hands have rounded mitten-like/fused digits and cuffs can merge into the palm silhouette; this is not a clean articulated hand model.",
+        "Star patches, buttons, gold hardware and source sneaker trim cannot be accepted from the untextured geometry."
+      ]
+    },
+    "volumeAndCoherence": {
+      "result": "Actual closed 3D surfaces present; hidden-surface source fidelity unverified",
+      "observations": [
+        "Profile/top/bottom/back renders show head/body/foot thickness and shaped hair depth, rather than a front-only flat card.",
+        "No missing boundary faces were found by the indexed and exact-position edge checks; visible hair-loop gaps are not identified as open boundary leaks.",
+        "Ten closed vertex-connected components exist. The dominant component contains 448,244 of 449,582 faces (99.70239%); the other 1,338 faces are small islands whose semantic purpose has not been identified.",
+        "Edge closure and positive signed volume do not prove adequate local hair thickness, vertex-manifoldness, no self-intersections or separate riggable parts."
+      ]
+    },
+    "comparisonWithV10": {
+      "sameInputHash": true,
+      "mainChange": "Coherent smooth hair and more legible face/garments replace the shredded noisy reconstruction.",
+      "v10Faces": 800876,
+      "v11Faces": 449582,
+      "faceReductionPercent": 43.8637,
+      "eligibilityBasis": "Eligibility follows recognizable multi-angle shapes and a stable closed dominant surface, not the face-count reduction or improvement alone."
+    }
+  },
+  "topologySummary": {
+    "edgeWatertight": true,
+    "indexedBoundaryEdges": 0,
+    "indexedNonmanifoldEdgesOverTwoFaces": 0,
+    "windingConflicts": 0,
+    "duplicateIndexedFaces": 0,
+    "exactZeroAreaFaces": 0,
+    "nearZeroAreaFacesAtTwiceArea1eMinus12": 6,
+    "vertexConnectedComponents": 10,
+    "largestComponentFaces": 448244,
+    "otherComponentFaces": 1338,
+    "sourceFidelityValidatedByTopology": false,
+    "productionTopologyApproved": false
+  },
+  "verdict": "eligible-for-controlled-texture-inspection",
+  "textureCandidateEligible": true,
+  "shapeStageGatePassed": true,
+  "productionGeometryGatePassed": false,
+  "readyForRigging": false,
+  "readyForGame": false,
+  "meshApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "rigged": false,
+  "productionMeshApproved": false,
+  "gameAssetsReplaced": false,
+  "textureInspectionRequirements": [
+    "Preserve this actual V11 shape/source provenance; save any texture result as a separate unapproved diagnostic with actual mesh hash and render evidence.",
+    "Compare all textured views to the input and V2 for blue eyes/expression, lavender hair, headphone black/gold materials, jacket star patches, white cuffs/shirt, gold trim, shorts and sneaker details.",
+    "Inspect hair/face/cuff texture projection, seams and stretching across broad thin clumps and inferred back surfaces.",
+    "Check that the lower-right capture sparkle is not projected onto the character or reconstructed as an unwanted artifact.",
+    "If a texture workflow regenerates shape, independently verify the returned geometry; this gate does not automatically transfer to a different mesh."
+  ],
+  "requiredBeforeRigOrGame": [
+    "Resolve or explicitly approve hair/root/curl silhouette differences against approved V2 and verify hidden back/side garment construction.",
+    "Identify the nine small components and remove/rebuild unwanted islands only in a separately reviewed revision; inspect loop/ribbon thickness and self-intersections.",
+    "Repair eye-region shape if texture inspection exposes deformations; rebuild clean hand/finger and cuff boundaries for intended articulation.",
+    "Create production topology/asset-budget reduction and UV/material maps while preserving accepted silhouette.",
+    "Separate/define riggable semantic parts, build skeleton/weights, and test hand/limb/hair deformation and animation clearance.",
+    "Obtain actual source-fidelity/texture/production review and game integration checks before replacing assets."
+  ],
+  "nextAction": "A controlled free texture inspection is justified for this shape candidate. Preserve candidate status; texture quality and final source fidelity remain undecided."
+}

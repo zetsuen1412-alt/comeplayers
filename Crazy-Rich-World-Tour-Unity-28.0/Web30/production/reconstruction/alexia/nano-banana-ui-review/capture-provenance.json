@@ -1,0 +1,98 @@
+[
+  {
+    "view": "front",
+    "geminiTurnContainer": "4bca68acb91fd063",
+    "proof": "nano-banana-front-review.jpg",
+    "proofSha256": "3744fa57f4ce4e8142a94c8ad6a591b161bbcc82cd67a03467749d8ea212c25e",
+    "capture": "nano-banana-front-capture.jpg",
+    "captureSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "cropBounds": [
+      335,
+      78,
+      919,
+      662
+    ],
+    "captureSize": [
+      584,
+      584
+    ],
+    "source": "actual Gemini Nano Banana image visible within CUA JPEG screenshot",
+    "originalGeminiPngExport": false,
+    "imageContentRegenerated": false,
+    "resizedOrMirrored": false,
+    "jpegReencodedAfterRectangleExtraction": true,
+    "multiviewConsistencyApproved": false
+  },
+  {
+    "view": "back",
+    "geminiTurnContainer": "183ad99d7462869e",
+    "proof": "nano-banana-back-review.jpg",
+    "proofSha256": "ca02674735d79b069b9028192006a2a88976748f070bdeac43d8016c48d9b367",
+    "capture": "nano-banana-back-capture.jpg",
+    "captureSha256": "b731761320b2bdc1f3fb1291efe40f510250cd2efd83871087d1f3a43870a8cf",
+    "cropBounds": [
+      335,
+      78,
+      919,
+      662
+    ],
+    "captureSize": [
+      584,
+      584
+    ],
+    "source": "actual Gemini Nano Banana image visible within CUA JPEG screenshot",
+    "originalGeminiPngExport": false,
+    "imageContentRegenerated": false,
+    "resizedOrMirrored": false,
+    "jpegReencodedAfterRectangleExtraction": true,
+    "multiviewConsistencyApproved": false
+  },
+  {
+    "view": "right",
+    "geminiTurnContainer": "9615a9e1eb0f2c55",
+    "proof": "nano-banana-right-review.jpg",
+    "proofSha256": "57b4c814f149422200f21c38c8c3a7cbf468cdf35f7f11434e7a907a97043187",
+    "capture": "nano-banana-right-capture.jpg",
+    "captureSha256": "20c4e4aaceb04f2b3e508fab4992311cc546e915e5336850709444233c8e1f1f",
+    "cropBounds": [
+      335,
+      78,
+      919,
+      662
+    ],
+    "captureSize": [
+      584,
+      584
+    ],
+    "source": "actual Gemini Nano Banana image visible within CUA JPEG screenshot",
+    "originalGeminiPngExport": false,
+    "imageContentRegenerated": false,
+    "resizedOrMirrored": false,
+    "jpegReencodedAfterRectangleExtraction": true,
+    "multiviewConsistencyApproved": false
+  },
+  {
+    "view": "left",
+    "geminiTurnContainer": "6ad02da5b2600a2e",
+    "proof": "nano-banana-left-review.jpg",
+    "proofSha256": "c9f16743c85378f613b7e16e65a303be831f6a83909319d47d58ec9ee81da846",
+    "capture": "nano-banana-left-capture.jpg",
+    "captureSha256": "cd3db64d55252aa93e4327e9fe6254db3f036a695c115a2621d9665da879d22b",
+    "cropBounds": [
+      335,
+      78,
+      919,
+      662
+    ],
+    "captureSize": [
+      584,
+      584
+    ],
+    "source": "actual Gemini Nano Banana image visible within CUA JPEG screenshot",
+    "originalGeminiPngExport": false,
+    "imageContentRegenerated": false,
+    "resizedOrMirrored": false,
+    "jpegReencodedAfterRectangleExtraction": true,
+    "multiviewConsistencyApproved": false
+  }
+]

@@ -1,0 +1,290 @@
+Crazy Rich: World Tour / Alexia - portable V9, V10 and V11 diagnostics
+
+These scripts reproduce three diagnostic methods, not approved production game
+characters or the complete game asset pipeline. V9 and V10 failed geometry
+review. V11 generated successfully; consult its stored reconstruction evidence
+and geometry review for the latest verdict. All three are shape-only diagnostic
+meshes; these scripts do not grant production approval or provide rigging.
+
+Archive layout
+Run commands from the extracted archive root: the directory containing tools/
+and alexia/. Script paths resolve relative to tools/, independently of the shell
+working directory. There is no extra outputs/ directory in these portable paths.
+
+Inputs:
+  V9:  alexia/inputs/front.png
+       Existing imagegen front, not a Gemini / Nano Banana image.
+  V10: alexia/nano-banana-ui-review/nano-banana-front-capture.jpg
+       Actual corrected Nano Banana FRONT displayed in Gemini Apps, preserved as
+       a 584 x 584 JPEG rectangle extracted from a saved CUA UI screenshot.
+  V11: The exact same JPEG as V10; its SHA-256 is pinned in the V11 script.
+       Also requires tools/hunyuan21-info.json for the offline API contract and
+       the preserved prior V10 mesh at:
+       alexia/v10-nano-banana-front-diagnostic/alexia-v10-nano-banana-front-untextured-diagnostic.glb
+       The V10 mesh SHA-256 is pinned; it is checked, not uploaded or modified.
+
+Dependencies
+Use Python 3.10 or newer. Install into the same interpreter used below:
+
+  python -m pip install certifi Pillow gradio_client
+
+The scripts use installed packages by default. If the archive contains optional
+work/pydeps/, that directory takes precedence. No model checkpoint download,
+local GPU setup, Blender, texture generator, or paid provider is required by
+these three client scripts. Dependency versions are not locked; preserve the
+original evidence because future clients and remote services may change.
+
+Offline validation (safe to run in the full extracted archive)
+
+  python tools/reconstruct_alexia_v10_diagnostic.py --validate-only
+  python tools/reconstruct_alexia_v11_hunyuan21_diagnostic.py --validate-only
+
+This command decodes the exact JPEG, checks format and minimum dimensions, and
+prints its SHA-256. It creates no provider client, output directory, or run lock.
+It does not approve visual identity, crop quality, or multiview consistency.
+V9 does not have a --validate-only mode. Do not pass that flag to V9.
+The V11 command additionally checks the cached official 12-argument API contract,
+the exact V10 FRONT capture hash, and the preserved V10 mesh hash. Its offline
+mode also creates no provider client, output directory, or run lock.
+
+Generation commands (each may submit ONE remote GPU request)
+
+  python tools/reconstruct_alexia_v9_diagnostic.py
+  python tools/reconstruct_alexia_v10_diagnostic.py
+  python tools/reconstruct_alexia_v11_hunyuan21_diagnostic.py
+
+V9 and V10 call the public Tencent Hunyuan3D-2mv shape_generation endpoint:
+  https://huggingface.co/spaces/tencent/Hunyuan3D-2mv
+  https://tencent-hunyuan3d-2mv.hf.space
+
+V9 and V10 supply only a front image, with all other views disabled:
+  steps=10, guidance_scale=5.0, seed=1412, octree_resolution=256,
+  check_box_rembg=True, num_chunks=8000, randomize_seed=False.
+They request geometry only, without texturing or rigging.
+
+V11 calls the official Tencent Hunyuan3D-2.1 shape_generation endpoint:
+  https://huggingface.co/spaces/tencent/Hunyuan3D-2.1
+  https://tencent-hunyuan3d-2-1.hf.space
+It supplies the exact same V10 JPEG through image, every mv_image slot None,
+and no caption argument. Parameters are:
+  steps=30, guidance_scale=5.0, seed=1412, octree_resolution=256,
+  check_box_rembg=True, num_chunks=8000, randomize_seed=False.
+This preserves the actual V11 Standard trial at resolution 256; it does not
+silently change to the separately considered resolution 384. Returned model
+statistics confirm tencent/Hunyuan3D-2.1/hunyuan3d-dit-v2-1. Source audit identifies
+FP16 and disabled FlashVDM as server settings, not client API parameters.
+V11 does not invoke the texture endpoint or regenerate any reference image.
+
+Preserve the existing results
+The full archive contains the actual generated GLBs and their evidence. Normal
+commands above intentionally refuse to run when their diagnostic output folder
+already contains files. This protects current results even if an archive omitted
+run-started.lock. Do not remove the existing result files, evidence, or lock to
+force a rerun.
+
+For a separately chosen new diagnostic, first make a separate fresh directory
+containing copies of tools/ and the required source input paths listed above.
+For a new V9 or V10 diagnostic, omit its corresponding diagnostic output folder.
+For a new V11 diagnostic, omit v11-hunyuan21-diagnostic/ but copy the preserved
+V10 GLB to its required path, since the V11 offline preflight verifies that file.
+The V10 comparison GLB is not overwritten or uploaded by V11.
+Run the same exact command from that new directory. Keep the full original
+archive intact for comparison. Each script creates an exclusive run-started.lock
+in its new output folder; a second run refuses submission.
+
+New output paths:
+  alexia/v9-front-only-diagnostic/
+  alexia/v10-nano-banana-front-diagnostic/
+  alexia/v11-hunyuan21-diagnostic/
+
+There is no automatic retry. If generation returns but downloading fails, inspect
+the saved service-result.json and partial result. Recover that existing result
+instead of submitting another GPU request. Returned provider files can expire.
+The scripts verify HTTPS certificates, restrict result downloads to the same
+Space origin, cap downloads at 128 MiB, validate the GLB header and declared file
+length, and record the actual downloaded SHA-256.
+
+Remote availability and determinism
+Public ZeroGPU access is subject to queues, daily free usage limits, and current
+Space availability. This package does not establish remaining account quota and
+does not purchase credits or subscriptions. A fixed seed does not guarantee that
+a future rerun matches the stored mesh when provider weights, code, hardware,
+dependencies, or Space revision change.
+
+Preserved actual diagnostic GLB hashes:
+  V9:  870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8
+  V10: 9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce
+  V11: d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66
+V10/V11 FRONT capture JPEG SHA-256:
+  1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928
+
+Screenshot provenance
+The actual session helper was work/extract_nano_banana_screen_captures.py. It
+read 1254 x 884 saved CUA JPEG proof screenshots and extracted the observed
+rectangle (335, 78, 919, 662), saving 584 x 584 JPEG captures at quality=95 and
+subsampling=0. Extraction reencoded JPEG pixels; it did not regenerate, mirror,
+resize, retouch, or replace the image content or background. Provenance and
+actual proof/capture hashes are preserved in:
+  alexia/nano-banana-ui-review/capture-provenance.json
+
+Gemini's original full-size PNG was never successfully downloaded. These files
+are lower-resolution screen captures, not original PNG exports. Only the front
+capture was used for V10 and V11; the other screenshots do not establish approved
+multiview consistency. Source fidelity, facial detail, hands, topology, UVs,
+materials, rigging, animation, optimization, and game integration remain subject
+to their separate production reviews. A small lower-right sparkle artifact in
+the exact front JPEG was retained; V11 does not certify a mark-free capture.
+
+Historical official read-only audit
+  tools/free_geometry_alternative_check.json
+  tools/hunyuan21-info.json
+Both JSON files were copied byte-for-byte from the actual session records.
+The source audit's scope and request_submitted=false describe only that earlier
+read-only GET investigation at its recorded timestamp. They do not claim that
+the overall session performed no generation: V11 subsequently generated the
+actual GLB recorded above. The cached API contract is historical metadata,
+not a promise that a future remote endpoint remains unchanged.
+
+This portability step added copies and offline checks; it submitted no new
+provider generation or texture request.
+
+V12 controlled texture diagnostic
+The additional portable script is:
+  tools/reconstruct_alexia_v12_texture_diagnostic.py
+It preserves the actual one-shot /generation_all script, the V11 review gate,
+the pinned input and baseline hashes, the exclusive run lock, and the refusal
+to submit when its output folder already contains files. It uses the same
+Python dependencies listed above: certifi, Pillow and gradio_client. An optional
+archive/work/pydeps/ directory is used only if present; globally installed
+packages work without that directory.
+
+Required archive-relative paths:
+  alexia/nano-banana-ui-review/nano-banana-front-capture.jpg
+  alexia/v11-hunyuan21-diagnostic/geometry-review.json
+  alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb
+  tools/hunyuan21-info.json
+The actual V11 review must have textureCandidateEligible exactly true, its
+meshSha256 must match the actual V11 GLB, and its provenance.inputSha256 must
+match the front JPEG. The following pinned hashes are enforced offline:
+  V11 GLB: d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66
+  FRONT:   1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928
+
+From the unzipped archive root, offline validation only:
+  python tools/reconstruct_alexia_v12_texture_diagnostic.py --validate-only
+This verifies the saved API contract, source gate and input without creating
+a provider client, output folder or lock. This is the appropriate command for
+checking the current preserved package.
+
+The actual session made one V12 submission. The free Space rejected it with
+AppError: "The requested GPU duration (270s) is larger than the maximum allowed"
+and offered a Hugging Face PRO subscription. This was a requested-duration
+limit rejection on free access, not evidence that credit quota was exhausted.
+generationReturned=false; no service result, OBJ, GLB or texture was produced.
+Remaining account quota and charged compute were not established. No retry or
+subscription purchase followed. The preserved failure evidence and run lock
+are in:
+  alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json
+  alexia/v12-hunyuan21-texture-diagnostic/run-started.lock
+Keep these files and the unchanged V11 baseline. Do not remove the lock or
+current output folder to repeat the failed request.
+
+The exact provider command is recorded for a separately authorized future
+diagnostic after any relevant service condition has changed:
+  python tools/reconstruct_alexia_v12_texture_diagnostic.py
+Such a run requires a separate fresh archive directory containing the source
+paths above but no v12-hunyuan21-texture-diagnostic/ output folder. The script
+submits at most once and never automatically retries. Queues, current free
+access limits and provider availability still apply; this command does not
+establish quota or guarantee acceptance. No paid Jobs service is used.
+
+Fixed arguments: single image, all four multiview slots None, steps=30,
+guidance_scale=5.0, seed=1412, octree_resolution=256, check_box_rembg=True,
+num_chunks=8000 and randomize_seed=False. The cached /generation_all contract
+has 12 parameters. If generation succeeds, result[0] is white OBJ, result[1]
+is textured GLB, result[3] is stats and result[4] is seed; result[2] is viewer
+HTML. Provider results are saved before any artifact download. Actual file
+hashes and face/material/texture counts are recorded from downloaded files,
+not assumed from the provider's earlier shape statistics.
+
+/generation_all regenerates geometry. It does not reuse the saved V11 mesh;
+face reduction, remeshing and UV processing can change the returned geometry.
+Any future result needs independent geometry and texture review. The V11 gate
+permits only this controlled diagnostic and does not approve the new geometry.
+All final source, geometry, texture, rigging and game approval fields remain
+false. The exact 584px JPEG retains its sparkle artifact and inferred hidden
+surfaces; Gemini's original PNG was not exported. This portable copy is a
+diagnostic reproduction tool, not a completed game character pipeline.
+
+The V12 portability step made no provider, texture or GPU request and did not
+change the preserved V12 failure records or earlier meshes.
+
+
+Local embedded-albedo inspection renderer
+  tools/render_textured_mesh.py
+
+This separate renderer loads actual embedded GLB baseColor/albedo images and
+loaded mesh UVs. It performs local graphics rendering only: no provider request,
+texture generation or baking, geometry export, retopology, rigging, or game
+integration. The earlier untextured work/render_mesh.py was left unchanged.
+
+Additional dependencies, installed into the interpreter used for rendering:
+
+  python -m pip install numpy trimesh Pillow moderngl
+
+An OpenGL 3.3 context and working graphics driver are required. Optional local
+packages take precedence: tools/pydeps/, then archive-root work/pydeps/; the
+workspace development layout also checks the enclosing workspace work/pydeps/.
+Installed packages are the fallback. The synthetic orientation test used
+Trimesh 5.1.1 and succeeded on the session's AMD Radeon R7 Graphics context;
+this does not guarantee another machine has a suitable context.
+
+Run from the extracted archive root; replace the example GLB path with the
+actual embedded-textured file to inspect:
+
+  python tools/render_textured_mesh.py path/to/actual-textured-model.glb
+
+Outputs are adjacent to the input GLB in <model-stem>-textured-review/:
+  front.png, three-quarter.png, left.png, right.png, back.png, top.png, bottom.png
+  albedo-contact-sheet.png
+  actual-textured-mesh-turntable.gif (36 frames covering 360 degrees)
+  render-evidence.json
+
+The input file is not changed. These local review images can be regenerated;
+running the renderer again replaces its previous review images/evidence, so
+preserve a prior review folder separately if needed for comparison.
+
+Evidence records the actual GLB SHA-256, loaded faces and vertices, source
+materials/images/textures and names, decoded embedded-image pixel hashes,
+material batches, UV convention, renderer/version, and preserved input hash.
+The vertex count sums transformed loaded instances; a shared source accessor
+may therefore be counted per primitive or instance. textureCount counts unique
+loaded albedo images; sourceTextureCount separately records all declared GLB
+textures. albedoLoaded=true requires an actual loaded image with valid UVs,
+matching decoded pixels from an embedded GLB image, and successful rendering.
+It never means source fidelity, full PBR, rigging, or game readiness is approved.
+
+The renderer keeps loaded Trimesh UV values unchanged. A runtime uv_to_color
+probe determines the image upload orientation. The installed GLB loader was
+also inspected: it converts glTF's upper-left V origin to lower-left. A tiny
+locally built four-color GLB passed the actual importer/shader check: front
+top-left red, top-right green, bottom-left blue, bottom-right yellow, with the
+input SHA-256 preserved. That fixture is synthetic validation only and is not
+included as a character or prop deliverable. It does not establish that a real
+character's texture has been inspected or approved.
+
+This is an albedo plus simple diffuse/fill lighting preview. Texture RGB is
+decoded from sRGB, multiplied by loaded baseColorFactor and simple lighting,
+then encoded to sRGB. Normal, metallic/roughness, occlusion and emissive maps,
+environment/specular PBR, material extensions, skin deformation and animations
+are not rendered. Bilinear/repeat sampling and two-sided inspection are used;
+source sampler/culling behavior is not faithfully reproduced. BLEND alpha is
+approximated as a near-zero-alpha cutout, without transparent sorting. Only
+explicit ColorVisuals colors are multiplied; additional TextureVisuals vertex
+attributes are not evaluated. Textures may already contain baked shading.
+External resources, nonzero baseColor texCoord, or KHR_texture_transform cause
+a refusal rather than an uncertain UV result. A GLB without actual embedded
+albedo also fails this renderer; use the separate geometry renderer for it.
+
+Use these images for limited albedo inspection. They are not faithful full-PBR
+approval and do not replace source, topology, UV seam, rig, six animation clip,
+optimization, and game integration reviews.
