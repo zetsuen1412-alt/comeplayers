@@ -1,6 +1,6 @@
 # Prompt Nano Banana — Crazy Rich: World Tour
 
-Paket ini meminta **referensi raster** untuk rekonstruksi karakter. Gambar tidak menjadi GLB, mesh, rig, animasi, atau bukti bahwa karakter sudah masuk game. Tidak ada generasi/API atau biaya yang dijalankan oleh paket ini.
+Paket ini menyediakan prompt untuk **referensi raster** bagi rekonstruksi karakter. Gambar tidak menjadi GLB, mesh, rig, animasi, atau bukti bahwa karakter sudah masuk game. Dokumen prompt sendiri tidak menjalankan API; hasil pengujian nyata Gemini dan rekonstruksi disertakan dalam paket progres.
 
 Dasar: [inventaris desain](character-design-inventory-2026-10-03.json), master `chibi_travel_adventurers_collectible_lineup.png` (SHA-256 `d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e`) dan handoff branch `codex/crazy-rich-web-v30`, commit `fbdb1e36ecb9ee3fc07aaed9072441285ba683b9`.
 

@@ -1,0 +1,37 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "date": "2026-10-03",
+  "provider": "Gemini Apps image generation",
+  "familyShownOnImagesPage": "Nano Banana 2",
+  "modePicker": "Pro",
+  "exactBackendModelId": "not disclosed by the UI; not asserted",
+  "source": {
+    "file": "../../turnarounds/alexia/turnaround-blue-imagegen-v2.png",
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+  },
+  "attempts": [
+    {
+      "request": "Four-view body-only reconstruction sheet; preserve blue eyes, layered silver-lavender hair and source costume; remove suitcase and floor",
+      "status": "The app displayed Creating your image, then returned to a new draft/home page without a recoverable output",
+      "cause": "not disclosed; no quota/capacity cause is asserted"
+    },
+    {
+      "request": "One orthographic FRONT body-only view, mild A-pose; preserve blue eyes and fixed costume star patches; remove suitcase only",
+      "status": "Image generated and visibly rendered in the Gemini conversation",
+      "width": 1024,
+      "height": 1024,
+      "conversation": "https://gemini.google.com/app/463f62a84b89b00c",
+      "observed": "Blue eyes, silver-lavender hair, headphones, black/white/gold outfit, separated arms, no suitcase. Ground/contact shadow is still visible and must be removed before reconstruction. Back and side consistency is unverified.",
+      "export": "Download full size image and documented downloadMedia failed to return a local file; Copy image returned no transferable clipboard data",
+      "localRasterSaved": false,
+      "acceptedForReconstruction": false
+    }
+  ],
+  "billingEnabledOrChanged": false,
+  "creditsOrSubscriptionPurchased": false,
+  "meshGeneratedFromNanoBananaOutput": false,
+  "rigged": false,
+  "gameAssetsReplaced": false,
+  "productionMeshApproved": false
+}
