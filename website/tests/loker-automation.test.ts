@@ -78,6 +78,21 @@ test('history retains an allowlisted final stage within the database note limit'
   assert.equal(browserResultNote('Pesan\u0000aman', 'cancelled'), '[stage:cancelled] Pesan aman');
 });
 
+test('draft safeguards retain only the exact safe stage in persisted history', () => {
+  for (const stage of ['composer_draft_present', 'attachment_cleanup_blocked']) {
+    const note = browserResultNote('[stage:attachment_preview_missing] Draft perlu diperiksa.\n'+ 'x'.repeat(400), stage);
+    assert.equal(note.length, 250);
+    assert.equal(browserNoteStage(note), stage);
+    assert.ok(note.startsWith(`[stage:${stage}] Draft perlu diperiksa. `));
+    assert.equal((note.match(/\[stage:/g)||[]).length, 1);
+    for (const unsafe of [`${stage}:private`, `${stage}\nCookie:secret`, `${stage} `]) {
+      assert.equal(browserStage(unsafe), '');
+      assert.equal(browserResultNote('Draft perlu diperiksa.', unsafe), 'Draft perlu diperiksa.');
+      assert.equal(browserNoteStage(`[stage:${unsafe}] Draft perlu diperiksa.`), '');
+    }
+  }
+});
+
 type WorkerResult = {status?:string;stage?:string;dispatched?:boolean;stopped?:boolean;handled?:boolean;groupsScanned?:number;items?:unknown[]};
 type WorkerMessage = {type:string;id?:string;lease?:string;dispatch?:boolean;job?:Record<string,unknown>;group?:string};
 type WorkerSender = {id:string;tab?:{id:number};url?:string};
@@ -219,7 +234,7 @@ test('popup STOP while reviewed resume is pending never starts the browser job',
   assert.equal((bridge.results.at(-1)?.result as WorkerResult).status,'cancelled');
 });
 
-test('deployed queue SQL serializes jobs, skips safely, cancels STOP and pauses uncertain sends', async t => {
+test('deployed queue SQL serializes jobs, skips safely, cancels STOP and pauses unsafe sends', async t => {
   const db=new PGlite();
   const actor='11111111-1111-1111-1111-111111111111';
   type LeasedJob={id:string;lease:string;status:string};
@@ -239,6 +254,22 @@ test('deployed queue SQL serializes jobs, skips safely, cancels STOP and pauses 
       assert.equal(await preflightJob(second),true);assert.equal(await preflightJob(second),false);
       await finishJob(second,'sent');const third=await claimJob();assert.ok(third);assert.equal(await preflightJob(third),true);
     });
+    for (const stage of ['composer_draft_present', 'attachment_cleanup_blocked']) {
+      await t.test(`${stage} pauses the selected batch before dispatch without retry`,async()=>{
+        await seed();const first=await claimJob();assert.ok(first);
+        const note=browserResultNote('Draft perlu diperiksa sebelum melanjutkan.',stage);
+        assert.equal((await db.query<{finished:boolean}>("select cp_loker_finish($1,$2,'failed','',$3) as finished",[first.id,first.lease,note])).rows[0].finished,true);
+        const saved=(await db.query<{status:string;started_at:string|null;note:string;payload:Record<string,unknown>}>('select status,started_at,note,payload from cp_loker_jobs where id=$1',[first.id])).rows[0];
+        assert.equal(saved.status,'failed');assert.equal(saved.started_at,null);
+        assert.equal(saved.note,note);assert.equal(browserNoteStage(saved.note),stage);assert.deepEqual(saved.payload,{});
+        assert.equal((await db.query<{state:string}>('select state from cp_loker_workspace')).rows[0].state,'paused');
+        assert.equal(await preflightJob(first),false);assert.equal(await claimJob(),null);assert.equal(await claimJob(),null);
+        assert.equal((await db.query<{n:number}>("select count(*)::int as n from cp_loker_jobs where status='queued' and started_at is null")).rows[0].n,2);
+        await db.query("select cp_loker_control(1,'start','{}',$1)",[actor]);
+        const next=await claimJob();assert.ok(next);assert.notEqual(next.id,first.id);
+        assert.equal((await db.query<{status:string}>('select status from cp_loker_jobs where id=$1',[first.id])).rows[0].status,'failed');
+      });
+    }
     await t.test('STOP cancels every queued and leased target before dispatch',async()=>{
       await seed();const first=await claimJob();assert.ok(first);
       await db.query("select cp_loker_control(0,'stop','{}',$1)",[actor]);

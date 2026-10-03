@@ -8,6 +8,7 @@ profile is deleted after the browser closes, including on failure.
 from __future__ import annotations
 
 import argparse
+import base64
 from collections import Counter
 import hashlib
 import importlib.util
@@ -146,6 +147,16 @@ def tab_urls(worker):
     return worker.evaluate('async()=> (await chrome.tabs.query({})).map(t=>t.url).sort()')
 
 
+def wait_evaluate(page, function, arg=None, timeout=5):
+    """Bounded reads avoid wait_for_function's eval compilation under MV3 CSP."""
+    deadline=time.monotonic()+timeout
+    while time.monotonic()<deadline:
+        if page.evaluate(function,arg):
+            return
+        time.sleep(.05)
+    raise AssertionError('Extension popup state did not settle within the bounded wait.')
+
+
 def no_send_assertions(worker, page, before_urls):
     assert_equal(tab_urls(worker), before_urls, 'run cannot navigate or create a tab')
     assert_equal(page.evaluate('window.fixturePreflights'), 0, 'no dispatch preflight')
@@ -166,11 +177,19 @@ class ActionPopup:
         self.open()
 
     def open(self):
-        self.worker.evaluate("""async()=>{
-          const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
-          await chrome.action.openPopup(tab?.windowId ? {windowId:tab.windowId} : {});
-        }""")
-        self.observer.wait_for_function("chrome.extension.getViews({type:'popup'}).length === 1", timeout=5000)
+        for attempt in range(2):
+            try:
+                self.worker.evaluate("""async()=>{
+                  const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
+                  if(tab?.windowId)await chrome.windows.update(tab.windowId,{focused:true});
+                  await chrome.action.openPopup(tab?.windowId ? {windowId:tab.windowId} : {});
+                }""")
+                break
+            except Exception:
+                if attempt:
+                    raise
+                wait_evaluate(self.observer,"()=>chrome.extension.getViews({type:'popup'}).length === 0")
+        wait_evaluate(self.observer,"()=>chrome.extension.getViews({type:'popup'}).length === 1")
 
     def ensure(self):
         if not self.observer.evaluate("chrome.extension.getViews({type:'popup'}).length"):
@@ -190,7 +209,7 @@ class ActionPopup:
 
     def wait_status(self, text):
         self.ensure()
-        self.observer.wait_for_function("text=>{const view=chrome.extension.getViews({type:'popup'})[0];return view?.document.getElementById('status')?.textContent.includes(text);}", arg=text)
+        wait_evaluate(self.observer,"text=>{const view=chrome.extension.getViews({type:'popup'})[0];return view?.document.getElementById('status')?.textContent.includes(text);}",text)
 
     def reload(self):
         self.ensure()
@@ -198,6 +217,7 @@ class ActionPopup:
 
     def close(self):
         self.observer.evaluate("chrome.extension.getViews({type:'popup'}).forEach(view=>view.close())")
+        wait_evaluate(self.observer,"()=>chrome.extension.getViews({type:'popup'}).length === 0")
 
 
 def run_suite(playwright, profile, proxy_port, results, request_blocks, screenshot, metadata, restart_check):
@@ -206,12 +226,16 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
     sys.modules[spec.name] = fixtures
     spec.loader.exec_module(fixtures)
     synthetic_documents = fixtures.synthetic_documents()
+    synthetic_resources = fixtures.synthetic_resources()
 
     def route_request(route):
         url = urlparse(route.request.url)
         if route.request.url in synthetic_documents:
             metadata['synthetic_facebook_requests_intercepted'] += 1
             route.fulfill(status=200, content_type='text/html; charset=utf-8', body=synthetic_documents[route.request.url])
+        elif route.request.url in synthetic_resources:
+            metadata['synthetic_cdn_resources_intercepted'] += 1
+            route.fulfill(status=200, **synthetic_resources[route.request.url])
         elif url.scheme in ('chrome-extension', 'data', 'blob', 'about'):
             route.continue_()
         elif url.scheme == 'http' and url.hostname == 'localhost' and url.port == 3000:
@@ -254,9 +278,9 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
         manifest = worker.evaluate('()=>chrome.runtime.getManifest()')
         installed_version = manifest['version']
         metadata['installed_version'] = installed_version
-        check('actual unpacked MV3 service worker loads v1.3.4', lambda: (
+        check('actual unpacked MV3 service worker loads v1.3.5', lambda: (
             assert_equal(manifest['manifest_version'], 3, 'installed manifest is MV3'),
-            assert_equal(installed_version, '1.3.4', 'actual installed extension version'),
+            assert_equal(installed_version, '1.3.5', 'actual installed extension version'),
             assert_equal(urlparse(worker.url).path, '/worker.js', 'real background worker loaded'),
         ))
         admin = context.new_page()
@@ -267,7 +291,7 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
         ))
         observer = context.new_page()
         observer.goto(f'chrome-extension://{extension_id}/popup.html')
-        observer.wait_for_function("document.getElementById('status').textContent !== 'Memeriksa tab…'")
+        wait_evaluate(observer,"()=>document.getElementById('status').textContent !== 'Memeriksa tab…'")
         check('regular extension tab cannot impersonate browser-action popup', lambda:
             assert_equal(observer.locator('#status').inner_text(), 'Ekstensi belum siap. Muat ulang ekstensi.', 'actual worker rejects popup message sent from a tab'))
         popup = ActionPopup(observer, worker)
@@ -379,6 +403,8 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
         metadata['current_stage'] = 'attach exact in-memory synthetic Facebook tab'
         metadata['synthetic_content_network_mode'] = 'Exact in-memory route fulfillment; denying loopback proxy never forwards external origins.'
         fake_facebook = context.new_page()
+        fixture_dialogs = []
+        fake_facebook.on('dialog', lambda dialog: (fixture_dialogs.append(dialog.type), dialog.dismiss()))
         feed_url = fixtures.GROUP_URL+'posts/123/'
         fake_facebook.goto(feed_url)
         observer = context.new_page()
@@ -387,7 +413,7 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
         popup = ActionPopup(observer, worker)
         popup.click('#attach')
         attached_id = worker.evaluate("async url=>(await chrome.tabs.query({url}))[0]?.id", feed_url)
-        observer.wait_for_function("async expected=>(await chrome.storage.local.get('facebookTab')).facebookTab===expected", arg=attached_id)
+        wait_evaluate(observer,"async expected=>(await chrome.storage.local.get('facebookTab')).facebookTab===expected",attached_id)
         check('actual popup attaches the wholly intercepted synthetic Facebook tab', lambda: (
             assert_equal(storage(worker).get('facebookTab'), attached_id, 'real popup selected the active synthetic tab'),
             assert_equal(command(admin, 'ping').get('attached'), True, 'real bridge reports attached synthetic tab'),
@@ -396,7 +422,7 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
         scanned = command(admin, 'scan', {'groups':[fixtures.GROUP_URL]})
         check('installed worker injects real scan content script without commenting', lambda: (
             assert_equal(scanned.get('groupsScanned'), 1, 'actual worker scans one intercepted group'),
-            assert_equal([item['url'] for item in scanned.get('items', [])], [fixtures.GROUP_URL+f'posts/{post}/' for post in ['123','124','125','126','127']], 'real content scan canonical URLs'),
+            assert_equal([item['url'] for item in scanned.get('items', [])], [fixtures.GROUP_URL+f'posts/{post}/' for post in ['123','124','125','126','127','128']], 'real content scan canonical URLs'),
             assert_equal(admin.evaluate('window.fixturePreflights'), scan_before, 'scan never requests dispatch preflight'),
             assert_equal(fake_facebook.locator('#photo-input').count(), 0, 'group scan DOM has no comment file input'),
         ))
@@ -413,7 +439,7 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
             admin.evaluate("id=>{window.fixtureAllowDispatch=true;window.fixtureAllowedJobIds.push(id)}", result['id'])
             return result
 
-        def content_send(post, suffix, expected_status='sent'):
+        def content_send(post, suffix, expected_status='sent', expected_stage='photo_control_unavailable', expected_file_changes=0, expected_removals=0):
             selected_job = content_job(post, suffix)
             before_preflight = admin.evaluate('window.fixturePreflights')
             started = time.monotonic()
@@ -435,22 +461,30 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
                 assert_equal(observations['attachmentPreviewImages'], 0, 'attachment moved out of composer')
                 assert_equal(observations['newTopLevelComments'], 1, 'one newly added top-level comment')
                 assert_equal(observations['loadedNewCommentImages'], 1, 'valid attached PNG visible in new comment')
+                assert_equal(observations['removeClicks'], 0, 'verified send never removes attachment as unsent cleanup')
+                if post == '124':
+                    assert_equal(observations['lastPreview'], {'naturalWidth':64,'width':64,'height':80,'outsideForm':True}, 'observed small HTTPS preview outside FORM')
+                    assert_equal(observations['sendLabel'], 'Posting komentar', 'focus reveals exact actual send label')
                 metadata['synthetic_content_sends'] += 1
             else:
                 assert_equal(result.get('dispatched'), False, 'unsupported target never dispatched')
-                assert_equal(result.get('stage'), 'photo_control_unavailable', 'precise unsupported attachment stage')
+                assert_equal(result.get('stage'), expected_stage, 'precise unsupported attachment stage')
                 assert_equal(delta, 0, 'unsupported target has zero preflight dispatch')
                 assert_equal(observations['sends'], 0, 'unsupported target has zero send clicks')
-                assert_equal(observations['fileChanges'], 0, 'unsupported target has zero attachment changes')
+                assert_equal(observations['fileChanges'], expected_file_changes, 'expected native attachment changes')
+                assert_equal(observations['removeClicks'], expected_removals, 'only owned unsent image is removed')
+                assert_equal(observations['attachmentFilesRemaining'], 0, 'skipped target retains no selected file')
+                assert_equal(observations['attachmentPreviewImages'], 0, 'skipped target retains no unsent preview')
             metadata['synthetic_content_results'].append({'post':post, 'status':result['status'], 'stage':result['stage'],
                 'dispatch_preflights':delta, 'synthetic_send_clicks':observations['sends'],
+                'owned_attachment_removals':observations['removeClicks'],
                 'duration_seconds':round(time.monotonic()-started, 3)})
             return result
 
         admin.locator('#review').click()
         check('installed unpacked extension sends one native PNG comment in synthetic feed', lambda: content_send('123', 'normal'))
         admin.locator('#review').click()
-        check('installed unpacked extension sends native PNG in deep Tulis jawaban modal', lambda: content_send('124', 'modal'))
+        check('installed extension confirms small HTTPS sibling preview and focus-gated Posting komentar modal', lambda: content_send('124', 'modal'))
         metadata['installed_facebook_content_tested'] = True
         admin.locator('#review').evaluate("button=>button.textContent='KIRIM KOMENTAR (3)'")
         review_before = admin.evaluate('window.fixtureTrustedReviews')
@@ -462,6 +496,43 @@ def run_suite(playwright, profile, proxy_port, results, request_blocks, screensh
             assert_equal([result['status'] for result in batch_results], ['skipped','sent','sent'], 'batch skips safely and advances'),
             assert_equal(admin.evaluate('window.fixtureTrustedReviews')-review_before, 1, 'one reviewed click authorizes the controlled three-post batch'),
         ))
+        admin.locator('#review').click()
+        metadata['current_stage'] = 'owned missing-send image is cleaned before next reviewed target'
+        cleanup_result=content_send('128','cleanup-missing-send','skipped','send_control_unavailable',1,1)
+        fake_facebook.locator('#editor').click()
+        next_result=content_send('123','after-cleanup')
+        check('owned unsent image cleanup permits next target without beforeunload prompt',lambda:(
+            assert_equal([cleanup_result['status'],next_result['status']],['skipped','sent'],'cleaned skipped job safely advances'),
+            assert_equal(fixture_dialogs,[],'no native beforeunload dialog blocks subsequent navigation'),
+        ))
+        def beforeunload_control():
+            calibration=context.new_page()
+            observed_dialogs=[]
+            calibration.on('dialog',lambda dialog:(observed_dialogs.append(dialog.type),dialog.dismiss()))
+            try:
+                dirty_url=fixtures.GROUP_URL+'posts/128/'
+                calibration.goto(dirty_url)
+                calibration.locator('#editor').click()
+                image=content_job('128','fixture-beforeunload-control')['banner']['body']
+                calibration.locator('#photo-input').set_input_files({'name':'fixture-control.png','mimeType':'image/png','buffer':base64.b64decode(image)})
+                calibration.wait_for_function("document.querySelector('#preview img')?.complete")
+                assert_equal(calibration.evaluate("document.getElementById('photo-input').files.length"),1,'positive guard has dirty native file')
+                try:
+                    calibration.goto(feed_url,timeout=5000)
+                except Exception:
+                    if observed_dialogs!=['beforeunload']:
+                        raise
+                assert_equal(observed_dialogs,['beforeunload'],'dirty native beforeunload guard is genuinely active')
+                assert_equal(calibration.url,dirty_url,'dismissed native dialog preserves dirty page')
+                calibration.get_by_role('button',name='Hapus foto',exact=True).click()
+                assert_equal(calibration.evaluate("document.getElementById('photo-input').files.length"),0,'fixture remove empties positive control')
+                assert_equal(calibration.locator('#preview img').count(),0,'fixture remove clears positive preview')
+                calibration.goto(feed_url,timeout=5000)
+                assert_equal(observed_dialogs,['beforeunload'],'clean native page navigates without another dialog')
+                metadata['native_beforeunload_positive_control']={'dirty_dialogs':1,'clean_dialogs':0,'dismissed':True}
+            finally:
+                calibration.close()
+        check('native dirty attachment beforeunload positive control dismisses then clean navigation passes',beforeunload_control)
         if screenshot:
             screenshot.parent.mkdir(parents=True, exist_ok=True)
             fake_facebook.screenshot(path=str(screenshot), full_page=True)
@@ -495,6 +566,7 @@ def main():
     scratch = None
     browser_version = installed_version = None
     metadata = {'fixture_storage_setup':[], 'synthetic_facebook_requests_intercepted':0,
+                'synthetic_cdn_resources_intercepted':0,
                 'synthetic_content_sends':0, 'synthetic_content_results':[], 'browser_restart_tested':False}
     failure = None
     profile_deleted = True
@@ -577,10 +649,12 @@ def main():
               'application_context_external_requests_blocked':len(request_blocks),
               'external_network_requests_dispatched':external_forwarded,
               'synthetic_facebook_requests_intercepted':metadata['synthetic_facebook_requests_intercepted'],
+              'synthetic_cdn_resources_intercepted':metadata['synthetic_cdn_resources_intercepted'],
               'synthetic_content_sends':metadata['synthetic_content_sends'],
               'synthetic_content_network_mode':metadata.get('synthetic_content_network_mode'),
               'synthetic_content_results':metadata['synthetic_content_results'],
               'synthetic_batch_method':'One trusted review click, then three sequential real bridge/worker/content jobs with fixture Admin preflight. The production Admin queue pump and live Facebook batch are not exercised.',
+              'native_beforeunload_positive_control':metadata.get('native_beforeunload_positive_control'),
               'synthetic_post_screenshot':metadata.get('synthetic_post_screenshot'),
               'fixture_storage_setup':metadata['fixture_storage_setup'],
               'popup_test_method':metadata.get('popup_test_method'),

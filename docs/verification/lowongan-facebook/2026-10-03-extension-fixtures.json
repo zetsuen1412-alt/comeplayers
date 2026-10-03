@@ -1,10 +1,15 @@
 {
   "synthetic_only": true,
   "source": "facebook.js",
-  "source_sha256": "0f26c04d8dac8348d80948742b9baa66bf3ba350b7b68fd00fc504f1bc46d7c4",
-  "extension_version_from_manifest": "1.3.4",
+  "source_sha256": "1d5bbce08f831e3ff9ed3369254c411c76bd8e2fd4df1ebc44fa9b882ce32239",
+  "source_sha256_lf": "d047d703aa82e2d2b4bf8bb9731825ed6cca1802752cbdf80cfdfb788ba2fc57",
+  "source_hash_line_endings": {
+    "source_sha256": "raw bytes",
+    "source_sha256_lf": "LF"
+  },
+  "extension_version_from_manifest": "1.3.5",
   "browser_version": "154.0.4258.48",
-  "passed": 40,
+  "passed": 52,
   "failed": 0,
   "tests": [
     {
@@ -13,8 +18,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.016
+      "duration_seconds": 0.031
     },
     {
       "name": "02 post modal public comment composer",
@@ -22,6 +29,8 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
       "duration_seconds": 0.031
     },
@@ -31,8 +40,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.015
+      "duration_seconds": 0.032
     },
     {
       "name": "04 nested comment Tulis jawaban rejected",
@@ -40,8 +51,10 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "composer_nested_reply",
-      "duration_seconds": 0.406
+      "duration_seconds": 0.422
     },
     {
       "name": "05 camera reveals mapped external hidden input",
@@ -49,8 +62,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.016
+      "duration_seconds": 0.031
     },
     {
       "name": "06 comments disabled skipped before dispatch",
@@ -58,17 +73,21 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "composer_missing",
-      "duration_seconds": 0.406
+      "duration_seconds": 0.422
     },
     {
-      "name": "07 missing send control skipped before dispatch",
+      "name": "07 missing send control cleans only own unsent image before skip",
       "passed": true,
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 1,
       "stage": "send_control_unavailable",
-      "duration_seconds": 0.438
+      "duration_seconds": 0.453
     },
     {
       "name": "08 real icon send dispatches exactly once",
@@ -76,26 +95,32 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.015
+      "duration_seconds": 0.016
     },
     {
-      "name": "09 unverified dispatch pauses without retry",
+      "name": "09 unverified dispatch pauses without cleanup or retry",
       "passed": true,
       "status": "uncertain",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verification_inconclusive",
       "duration_seconds": 0.625
     },
     {
-      "name": "10 STOP while awaiting attachment prevents dispatch",
+      "name": "10 STOP while awaiting attachment removes own image without dispatch",
       "passed": true,
       "status": "cancelled",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 1,
       "stage": "cancelled",
-      "duration_seconds": 0.046
+      "duration_seconds": 0.063
     },
     {
       "name": "11 scan all canonicalizes every post without comment",
@@ -103,8 +128,10 @@
       "status": "scan",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": null,
-      "duration_seconds": 0.187
+      "duration_seconds": 0.204
     },
     {
       "name": "12 duplicate scan URLs deduplicated",
@@ -112,8 +139,10 @@
       "status": "scan",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": null,
-      "duration_seconds": 0.203
+      "duration_seconds": 0.188
     },
     {
       "name": "JPEG accepted with correct file MIME",
@@ -121,8 +150,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.015
+      "duration_seconds": 0.031
     },
     {
       "name": "WebP accepted with correct file MIME",
@@ -130,8 +161,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.031
+      "duration_seconds": 0.016
     },
     {
       "name": "existing external input mapped by photo control",
@@ -139,8 +172,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.032
+      "duration_seconds": 0.016
     },
     {
       "name": "native form submit icon is a real send control",
@@ -148,6 +183,8 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
       "duration_seconds": 0.016
     },
@@ -157,6 +194,8 @@
       "status": "skipped",
       "dispatches": 1,
       "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 1,
       "stage": "preflight_denied",
       "duration_seconds": 0.016
     },
@@ -166,8 +205,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.047
+      "duration_seconds": 0.031
     },
     {
       "name": "unrelated lazy image cannot prove success",
@@ -175,8 +216,10 @@
       "status": "uncertain",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verification_inconclusive",
-      "duration_seconds": 0.641
+      "duration_seconds": 0.625
     },
     {
       "name": "media added to existing comment cannot prove success",
@@ -184,8 +227,10 @@
       "status": "uncertain",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verification_inconclusive",
-      "duration_seconds": 0.625
+      "duration_seconds": 0.641
     },
     {
       "name": "new nested reply cannot prove top-level comment",
@@ -193,6 +238,8 @@
       "status": "uncertain",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verification_inconclusive",
       "duration_seconds": 0.625
     },
@@ -202,17 +249,21 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "composer_ambiguous",
-      "duration_seconds": 0.0
+      "duration_seconds": 0.016
     },
     {
-      "name": "attachment with no preview never dispatches",
+      "name": "attachment with no preview is safely cleaned without dispatch",
       "passed": true,
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 1,
       "stage": "attachment_preview_missing",
-      "duration_seconds": 1.015
+      "duration_seconds": 1.031
     },
     {
       "name": "send awaits attachment and enabled control",
@@ -220,8 +271,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.078
+      "duration_seconds": 0.062
     },
     {
       "name": "different actor new comment cannot prove our send",
@@ -229,8 +282,10 @@
       "status": "uncertain",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verification_inconclusive",
-      "duration_seconds": 0.641
+      "duration_seconds": 0.625
     },
     {
       "name": "wrong group route never dispatches",
@@ -238,8 +293,10 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "target_changed",
-      "duration_seconds": 0.016
+      "duration_seconds": 0.0
     },
     {
       "name": "expired job never dispatches",
@@ -247,8 +304,10 @@
       "status": "cancelled",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "cancelled",
-      "duration_seconds": 0.015
+      "duration_seconds": 0.016
     },
     {
       "name": "security restriction stops before dispatch",
@@ -256,8 +315,10 @@
       "status": "failed",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "security_restriction",
-      "duration_seconds": 0.0
+      "duration_seconds": 0.015
     },
     {
       "name": "deep 26-wrapper modal Tulis jawaban with photo/video input",
@@ -265,6 +326,8 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
       "duration_seconds": 0.016
     },
@@ -274,8 +337,10 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 1,
       "stage": "send_control_unavailable",
-      "duration_seconds": 0.422
+      "duration_seconds": 0.421
     },
     {
       "name": "deep composer ignores share control outside form",
@@ -283,6 +348,8 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
       "duration_seconds": 0.016
     },
@@ -292,8 +359,10 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
-      "duration_seconds": 0.016
+      "duration_seconds": 0.031
     },
     {
       "name": "unapproved selection cannot attach or dispatch",
@@ -301,6 +370,8 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "approval_required",
       "duration_seconds": 0.0
     },
@@ -310,6 +381,8 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "approval_required",
       "duration_seconds": 0.015
     },
@@ -319,8 +392,10 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "context_unavailable",
-      "duration_seconds": 0.688
+      "duration_seconds": 0.687
     },
     {
       "name": "mismatched modal permalink cannot dispatch on valid route",
@@ -328,6 +403,8 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "context_unavailable",
       "duration_seconds": 0.672
     },
@@ -337,6 +414,8 @@
       "status": "uncertain",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verification_inconclusive",
       "duration_seconds": 0.625
     },
@@ -346,8 +425,10 @@
       "status": "skipped",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": "context_unavailable",
-      "duration_seconds": 0.672
+      "duration_seconds": 0.688
     },
     {
       "name": "stale post route cannot masquerade as group scan",
@@ -355,8 +436,10 @@
       "status": "scan",
       "dispatches": 0,
       "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
       "stage": null,
-      "duration_seconds": 0.015
+      "duration_seconds": 0.016
     },
     {
       "name": "attachment preview moved into new comment proves success",
@@ -364,8 +447,149 @@
       "status": "sent",
       "dispatches": 1,
       "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
       "stage": "verified_new_comment",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "64x80 HTTPS preview outside form TABLE depth12 then focus reveals Posting komentar",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "observed_preview": {
+        "naturalWidth": 64,
+        "width": 64,
+        "height": 80,
+        "outsideForm": true
+      },
+      "send_label": "Posting komentar",
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.047
+    },
+    {
+      "name": "small HTTPS sibling preview permits real native form submit",
+      "passed": true,
+      "status": "sent",
+      "dispatches": 1,
+      "sends": 1,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "verified_new_comment",
+      "duration_seconds": 0.032
+    },
+    {
+      "name": "preexisting small sibling image preserves draft and blocks new attachment",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
+      "stage": "composer_draft_present",
       "duration_seconds": 0.031
+    },
+    {
+      "name": "small sibling preview without real send cleans own image and never presses Enter",
+      "passed": true,
+      "status": "skipped",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 1,
+      "stage": "send_control_unavailable",
+      "duration_seconds": 0.437
+    },
+    {
+      "name": "preview outside bounded composer cannot authorize send or unsafe removal",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "attachment_cleanup_blocked",
+      "duration_seconds": 1.016
+    },
+    {
+      "name": "image in nested comment cannot authorize root send or remove reply draft",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "attachment_cleanup_blocked",
+      "duration_seconds": 1.016
+    },
+    {
+      "name": "preexisting user text is preserved before any file assignment",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
+      "stage": "composer_draft_present",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "preexisting selected file is preserved before any assignment",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 0,
+      "attachment_removals": 0,
+      "stage": "composer_draft_present",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "ambiguous photo removal preserves unsent draft and pauses",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "attachment_cleanup_blocked",
+      "duration_seconds": 0.438
+    },
+    {
+      "name": "user text typed during upload is preserved without send or cleanup",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "attachment_cleanup_blocked",
+      "duration_seconds": 0.031
+    },
+    {
+      "name": "same IMG user source replacement on focus preserves empty-text cleared-file draft",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 0,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "attachment_cleanup_blocked",
+      "duration_seconds": 0.047
+    },
+    {
+      "name": "pending same IMG user source replacement during preflight never sends or removes replacement",
+      "passed": true,
+      "status": "failed",
+      "dispatches": 1,
+      "sends": 0,
+      "file_changes": 1,
+      "attachment_removals": 0,
+      "stage": "attachment_cleanup_blocked",
+      "duration_seconds": 0.203
     }
   ]
 }

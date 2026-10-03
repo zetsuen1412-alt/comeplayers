@@ -1,4 +1,4 @@
-# ComePlayers Lowongan — browser bridge v1.3.4
+# ComePlayers Lowongan — browser bridge v1.3.5
 
 Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia memakai tab Facebook yang sudah login dan tidak meminta password atau cookie Facebook.
 
@@ -19,8 +19,10 @@ Foto lowongan dapat berukuran sampai 5 MB (PNG/JPG/WebP).
 
 ## Pemeriksaan versi dan pengiriman
 
-Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.4**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
+Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.5**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
 
 Uji satu postingan biasa terlebih dahulu, lalu satu postingan modal. Pastikan komentar gambar tetap terlihat setelah memuat ulang post sebelum mencoba batch kecil 2–3 postingan. Jangan mengirim ulang tugas berstatus **perlu diperiksa** sampai hasil sebelumnya diperiksa langsung di Facebook.
 
 Composer bertuliskan `Tulis jawaban...` hanya boleh dipakai jika struktur halaman menunjukkan composer milik post. Composer balasan di dalam komentar ditolak. Riwayat menampilkan tahap terakhir tanpa menyimpan isi post atau identitas Facebook. Target yang tidak mendukung komentar gambar dilewati sebelum kirim; hasil ambigu sesudah kirim menghentikan batch untuk diperiksa.
+
+Preview kecil di samping form dideteksi dalam container composer yang sama. Jika tugas berhenti sebelum kirim, ekstensi menghapus hanya foto yang baru dipasangnya sendiri. Draf yang sudah ada atau foto yang tidak terbukti bersih menghentikan antrean agar tidak meninggalkan draf saat pindah post.

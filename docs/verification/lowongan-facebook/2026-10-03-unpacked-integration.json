@@ -4,7 +4,7 @@
   "user_authenticated_browser_tested": false,
   "live_facebook_sends_tested": false,
   "installed_facebook_content_tested": true,
-  "extension_version_installed": "1.3.4",
+  "extension_version_installed": "1.3.5",
   "browser_channel": "chromium",
   "browser_version": "145.0.7632.6",
   "browser_source": "Official Playwright Chromium download, fresh local test profile.",
@@ -13,22 +13,22 @@
     "chrome.dll": "44b4f037604948f3d17116c43b18d2e0872631666781c92b6587175f1827c7a8"
   },
   "runtime_source_sha256": {
-    "manifest.json": "5ab0e8b82923585d0b730af135f3ed5e81d8e91b6f5d9bcef74afd4d7fa45f1d",
+    "manifest.json": "f1afd280ed00706acac1ba7e5ea3e58bb3ce3c001e6e34acb9b70f30edc76eb6",
     "worker.js": "29acfad2ce1f75879bf6481e5865482cc569f6ac3c2a28d7560bf5af07fe1b03",
     "bridge.js": "ad669af098e113644ce717a6ff6afd7b3990c92d7ab33408f143c36c39b6ab6c",
     "popup.js": "05cd195df6524d2478b72311970eb0300740f1aa9706eeb3942ee9c94c57492b",
     "popup.html": "e5ad9c8ebf7ba3a15b6c79c34f86065646407f600340e1423ed647bf6e5a662d",
     "popup.css": "c57860e68e33cfd296e4e583e414c1b3a71cec978609df1234b198fcb41a9d6c",
-    "facebook.js": "0f26c04d8dac8348d80948742b9baa66bf3ba350b7b68fd00fc504f1bc46d7c4"
+    "facebook.js": "1d5bbce08f831e3ff9ed3369254c411c76bd8e2fd4df1ebc44fa9b882ce32239"
   },
   "runtime_source_sha256_lf": {
-    "manifest.json": "b8561adf8220e9a01236a9d3c398f6ed24f013ffebac50daa641d599532b5596",
+    "manifest.json": "4e116448014347d53275525b2c1adf502492b5c41f8dd4cf835e9d308585a95f",
     "worker.js": "f3bbc1c22abf6d4ea8ac8814f125b0de83cc9498d64249259f256eef6405c544",
     "bridge.js": "504203a1cd53846cfe045c3f54e068db802f08a8d891c2884bd4ca6a2fdd9686",
     "popup.js": "ced834142b8157bf67ee9fda4143bb685578d5ec9da0afb74aee8632b23c503a",
     "popup.html": "e5ad9c8ebf7ba3a15b6c79c34f86065646407f600340e1423ed647bf6e5a662d",
     "popup.css": "7a16af77370884c0cd37e828a17d2eb996be142b4756cfa0a068c42965dd6095",
-    "facebook.js": "04eae5d38d7c5adb450ee74734ace7521e37fa0e0cd2898de6b049583ce7a38e"
+    "facebook.js": "d047d703aa82e2d2b4bf8bb9731825ed6cca1802752cbdf80cfdfb788ba2fc57"
   },
   "runtime_source_hash_line_endings": {
     "runtime_source_sha256": "raw bytes",
@@ -39,28 +39,29 @@
   "browser_restart_tested": false,
   "browser_restart_limitation": "Optional restart check omitted from this run; actual storage persistence and popup reload are tested. Restart succeeded in an earlier isolated trial but intermittent relaunch stalls were observed.",
   "network_policy": "All external HTTP(S) blocked by a denying loopback proxy and page request routing.",
-  "external_requests_blocked": 49,
+  "external_requests_blocked": 76,
   "application_facebook_requests_blocked": 0,
-  "browser_proxy_facebook_requests_blocked": 18,
-  "browser_proxy_facebook_connect_probes_blocked": 18,
+  "browser_proxy_facebook_requests_blocked": 34,
+  "browser_proxy_facebook_connect_probes_blocked": 34,
   "browser_proxy_blocked_host_counts": {
     "accounts.google.com": 4,
-    "android.clients.google.com": 1,
+    "android.clients.google.com": 2,
     "clients2.google.com": 1,
-    "www.facebook.com": 18,
-    "www.google.com": 25
+    "www.facebook.com": 34,
+    "www.google.com": 35
   },
   "browser_proxy_blocked_method_counts": {
-    "CONNECT": 48,
+    "CONNECT": 75,
     "GET": 1
   },
   "browser_proxy_probe_note": "Browser-level denied proxy requests are reported separately from application route requests. Their initiator is not inferred. No external origin is forwarded by the proxy.",
-  "browser_proxy_external_requests_blocked": 49,
+  "browser_proxy_external_requests_blocked": 76,
   "browser_proxy_localhost_requests_forwarded": 1,
   "application_context_external_requests_blocked": 0,
   "external_network_requests_dispatched": 0,
-  "synthetic_facebook_requests_intercepted": 7,
-  "synthetic_content_sends": 4,
+  "synthetic_facebook_requests_intercepted": 11,
+  "synthetic_cdn_resources_intercepted": 1,
+  "synthetic_content_sends": 5,
   "synthetic_content_network_mode": "Exact in-memory route fulfillment; denying loopback proxy never forwards external origins.",
   "synthetic_content_results": [
     {
@@ -69,7 +70,8 @@
       "stage": "verified_new_comment",
       "dispatch_preflights": 1,
       "synthetic_send_clicks": 1,
-      "duration_seconds": 0.969
+      "owned_attachment_removals": 0,
+      "duration_seconds": 0.922
     },
     {
       "post": "124",
@@ -77,7 +79,8 @@
       "stage": "verified_new_comment",
       "dispatch_preflights": 1,
       "synthetic_send_clicks": 1,
-      "duration_seconds": 1.032
+      "owned_attachment_removals": 0,
+      "duration_seconds": 1.266
     },
     {
       "post": "125",
@@ -85,7 +88,8 @@
       "stage": "photo_control_unavailable",
       "dispatch_preflights": 0,
       "synthetic_send_clicks": 0,
-      "duration_seconds": 0.766
+      "owned_attachment_removals": 0,
+      "duration_seconds": 0.641
     },
     {
       "post": "126",
@@ -93,7 +97,8 @@
       "stage": "verified_new_comment",
       "dispatch_preflights": 1,
       "synthetic_send_clicks": 1,
-      "duration_seconds": 0.969
+      "owned_attachment_removals": 0,
+      "duration_seconds": 0.89
     },
     {
       "post": "127",
@@ -101,10 +106,34 @@
       "stage": "verified_new_comment",
       "dispatch_preflights": 1,
       "synthetic_send_clicks": 1,
-      "duration_seconds": 0.937
+      "owned_attachment_removals": 0,
+      "duration_seconds": 0.891
+    },
+    {
+      "post": "128",
+      "status": "skipped",
+      "stage": "send_control_unavailable",
+      "dispatch_preflights": 0,
+      "synthetic_send_clicks": 0,
+      "owned_attachment_removals": 1,
+      "duration_seconds": 13.047
+    },
+    {
+      "post": "123",
+      "status": "sent",
+      "stage": "verified_new_comment",
+      "dispatch_preflights": 1,
+      "synthetic_send_clicks": 1,
+      "owned_attachment_removals": 0,
+      "duration_seconds": 0.891
     }
   ],
   "synthetic_batch_method": "One trusted review click, then three sequential real bridge/worker/content jobs with fixture Admin preflight. The production Admin queue pump and live Facebook batch are not exercised.",
+  "native_beforeunload_positive_control": {
+    "dirty_dialogs": 1,
+    "clean_dialogs": 0,
+    "dismissed": true
+  },
   "synthetic_post_screenshot": "2026-10-03-unpacked-post-synthetic.png",
   "fixture_storage_setup": [
     "Set STOP latch through real chrome.storage.local solely to isolate legacy reviewed approval consumption."
@@ -114,33 +143,33 @@
   "official_extension_test_docs": "https://playwright.dev/python/docs/chrome-extensions",
   "official_popup_docs": "https://developer.chrome.com/docs/extensions/reference/api/action#method-openPopup",
   "official_popup_view_docs": "https://developer.chrome.com/docs/extensions/reference/api/extension#method-getViews",
-  "passed": 20,
+  "passed": 22,
   "failed": 0,
   "tests": [
     {
-      "name": "actual unpacked MV3 service worker loads v1.3.4",
+      "name": "actual unpacked MV3 service worker loads v1.3.5",
       "passed": true,
       "duration_seconds": 0.0
     },
     {
       "name": "actual localhost content-script bridge ping returns installed version",
       "passed": true,
-      "duration_seconds": 0.188
+      "duration_seconds": 0.047
     },
     {
       "name": "regular extension tab cannot impersonate browser-action popup",
       "passed": true,
-      "duration_seconds": 0.078
+      "duration_seconds": 0.031
     },
     {
       "name": "actual packaged popup JavaScript initializes safely without Facebook",
       "passed": true,
-      "duration_seconds": 0.031
+      "duration_seconds": 0.016
     },
     {
       "name": "popup STOP crosses worker and bridge and persists browser latch",
       "passed": true,
-      "duration_seconds": 0.031
+      "duration_seconds": 0.016
     },
     {
       "name": "stopped run cancels before navigation or dispatch",
@@ -150,37 +179,37 @@
     {
       "name": "popup reload retains persisted STOP",
       "passed": true,
-      "duration_seconds": 0.0
+      "duration_seconds": 0.015
     },
     {
       "name": "untrusted synthetic review click cannot resume old Admin bridge",
       "passed": true,
-      "duration_seconds": 0.016
+      "duration_seconds": 0.015
     },
     {
       "name": "trusted reviewed click resumes once and safely fails with no Facebook tab",
       "passed": true,
-      "duration_seconds": 0.031
+      "duration_seconds": 0.016
     },
     {
       "name": "consumed reviewed approval cannot silently unlatch another run",
       "passed": true,
-      "duration_seconds": 0.016
+      "duration_seconds": 0.0
     },
     {
       "name": "popup STOP revokes pending legacy reviewed approval",
       "passed": true,
-      "duration_seconds": 0.0
+      "duration_seconds": 0.016
     },
     {
       "name": "trusted STOP invalidates a pending reviewed click",
       "passed": true,
-      "duration_seconds": 0.015
+      "duration_seconds": 0.016
     },
     {
       "name": "new Admin explicit reviewed resume reaches worker and fails safely without Facebook",
       "passed": true,
-      "duration_seconds": 0.375
+      "duration_seconds": 0.0
     },
     {
       "name": "actual popup attaches the wholly intercepted synthetic Facebook tab",
@@ -190,22 +219,32 @@
     {
       "name": "installed worker injects real scan content script without commenting",
       "passed": true,
-      "duration_seconds": 0.031
+      "duration_seconds": 0.015
     },
     {
       "name": "installed unpacked extension sends one native PNG comment in synthetic feed",
       "passed": true,
-      "duration_seconds": 1.016
+      "duration_seconds": 0.953
     },
     {
-      "name": "installed unpacked extension sends native PNG in deep Tulis jawaban modal",
+      "name": "installed extension confirms small HTTPS sibling preview and focus-gated Posting komentar modal",
       "passed": true,
-      "duration_seconds": 1.047
+      "duration_seconds": 1.281
     },
     {
       "name": "three reviewed synthetic posts advance sequentially past unsupported target",
       "passed": true,
-      "duration_seconds": 0.016
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "owned unsent image cleanup permits next target without beforeunload prompt",
+      "passed": true,
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "native dirty attachment beforeunload positive control dismisses then clean navigation passes",
+      "passed": true,
+      "duration_seconds": 0.187
     },
     {
       "name": "STOP blocks a not-yet-dispatched job on attached synthetic Facebook tab",

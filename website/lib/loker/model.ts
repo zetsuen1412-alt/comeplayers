@@ -22,6 +22,7 @@ const BROWSER_STAGES = new Set([
   'navigated', 'composer_selected:post_root', 'photo_control_found', 'attachment_preview_found',
   'send_control_found', 'preflight_allowed', 'send_clicked', 'verified_new_comment',
   'context_unavailable', 'composer_missing', 'composer_nested_reply', 'composer_ambiguous',
+  'composer_draft_present', 'attachment_cleanup_blocked',
   'photo_control_unavailable', 'attachment_preview_missing', 'send_control_unavailable',
   'preflight_denied', 'cancelled', 'verification_inconclusive', 'security_restriction',
   'navigation_unavailable', 'browser_interrupted',

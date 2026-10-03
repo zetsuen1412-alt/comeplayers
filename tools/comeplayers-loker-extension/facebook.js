@@ -174,16 +174,18 @@
     return { all, accepted, root };
   }
 
-  function composerScopes(editor, context) {
+  function composerScopes(editor, context, includePreviewParents = false) {
     const scopes = [];
     const form = editor.closest('form');
     for (let scope = editor.parentElement; scope && context.contains(scope); scope = scope.parentElement) {
       // Never broaden a composer search into the post header, share controls,
       // or a comment list. Facebook can nest the footer dozens of divs deep.
-      if (story(scope) || scope.querySelector(commentSelector) || scope.querySelector('h1,h2,[role="heading"]')) break;
-      const editors = [...scope.querySelectorAll(editorSelector)].filter(visible);
+      if (story(scope) || scope.querySelector(commentSelector) || scope.querySelector('h1,h2,[role="heading"]')
+        || includePreviewParents && scope.querySelector('[role="list"],[data-comment-list],[data-reply-thread],[data-comment-thread]')) break;
+      const editors = [...scope.querySelectorAll(editorSelector)].filter(node => includePreviewParents || visible(node));
+      if (editors.length !== 1 || editors[0] !== editor) break;
       if (editors.length === 1 && editors[0] === editor) scopes.push(scope);
-      if (scope === context || scope === form) break;
+      if (scope === context || scope === form && !includePreviewParents) break;
     }
     return scopes;
   }
@@ -199,7 +201,7 @@
         if (nestedComment(button, context, root)) return false;
         const value = label(button);
         if (/(foto|photo|gambar|image|camera|kamera|gif|stiker|sticker|emoji|balas|reply|bagikan|share|teman|friends?|profil|profile)/i.test(value)) return false;
-        return /^(kirim|send|kirim komentar|post comment|komentar|comment|komentari|posting|post)$/i.test(value)
+        return /^(kirim|send|kirim komentar|posting komentar|post comment|komentar|comment|komentari|posting|post)$/i.test(value)
           || /^(kirim komentar|send comment|post comment)\b/i.test(value)
           || button.matches('button[type="submit"],input[type="submit"]') && button.form?.contains(scope.querySelector(editorSelector));
       });
@@ -214,6 +216,27 @@
       const width = img.getBoundingClientRect().width || img.width;
       return visible(img) && img.complete && img.naturalWidth >= 80 && width >= 80;
     });
+  }
+
+  function attachmentImages(scope) {
+    return [...scope.querySelectorAll('img')].filter(img => {
+      const profile = img.closest('a[href]');
+      return !(profile && actorKey(profile.href)) && visible(img) && img.complete
+        && img.naturalWidth >= 40 && (img.getBoundingClientRect().width || img.width) >= 40;
+    });
+  }
+
+  function attachmentRemoveControls(scope, context, root) {
+    return buttons(scope).filter(button => !nestedComment(button, context, root)
+      && /^(hapus foto|remove photo|hapus gambar|remove image|hapus lampiran(?: foto)?|remove attachment)$/i.test(label(button)));
+  }
+
+  function activeUpload(scope) {
+    return [...scope.querySelectorAll('[role="progressbar"]')].some(visible);
+  }
+
+  function editorText(editor) {
+    return norm(editor instanceof HTMLTextAreaElement ? editor.value : editor.textContent);
   }
 
   async function waitFor(job, fn, timeout, code, message) {
@@ -235,13 +258,22 @@
     return new File([Uint8Array.from(raw, c => c.charCodeAt(0))], `lowongan.${ext}`, { type: banner.mime });
   }
 
-  async function attachComment(job, editor, context, root, mark) {
+  async function attachComment(job, editor, context, root, mark, track) {
+    if (editorText(editor)) throw failure('composer_draft_present', 'Kolom komentar sudah berisi draf.');
     const file = bannerFile(job);
     const scopes = composerScopes(editor, context);
     const scope = [...scopes].reverse().find(node => photoControls(node, context, root).length === 1
       || [...node.querySelectorAll('input[type="file"]')].filter(imageInput).length === 1);
     if (!scope) throw failure('photo_control_unavailable', 'Kontrol foto komentar tidak tersedia.');
-    const before = new Map([...scope.querySelectorAll('img')].map(img => [img, img.currentSrc || img.src]));
+    const previewScopes = composerScopes(editor, context, true);
+    const previewScope = previewScopes[previewScopes.length - 1] || scope;
+    // The observed Facebook thumbnail is a 64px HTTPS image next to the
+    // form. This separate scope stops before posts, replies and other editors.
+    if (editorText(editor) || attachmentImages(previewScope).length || activeUpload(previewScope)
+      || attachmentRemoveControls(previewScope, context, root).length) {
+      throw failure('composer_draft_present', 'Kolom komentar sudah berisi draf. Bersihkan atau simpan draf sebelum melanjutkan.');
+    }
+    const before = new Map([...previewScope.querySelectorAll('img')].map(img => [img, img.currentSrc || img.src]));
     let inputs = [...scope.querySelectorAll('input[type="file"]')].filter(imageInput);
     if (inputs.length !== 1) {
       const photos = photoControls(scope, context, root);
@@ -264,18 +296,99 @@
     }
     mark('photo_control_found');
     check(job);
+    if (inputs[0].files.length || editorText(editor) || attachmentImages(previewScope).length || activeUpload(previewScope)
+      || attachmentRemoveControls(previewScope, context, root).length || !context.isConnected || !editor.isConnected
+      || !composerScopes(editor, context, true).includes(previewScope)) {
+      throw failure('composer_draft_present', 'Kolom komentar atau input foto sudah berisi draf.');
+    }
+    const ownership = { editor, context, root, input: inputs[0], file, previewScope, before,
+      beforeRemoves: new Set(attachmentRemoveControls(previewScope, context, root)),
+      originalText: editorText(editor), changed: false, userChanged: false, cleaning: false };
+    track(ownership);
+    const watch = event => {
+      if (!ownership.cleaning && event !== ownership.changeEvent) ownership.userChanged = true;
+    };
+    for (const type of ['input', 'change', 'paste', 'drop']) {
+      previewScope.addEventListener(type, watch, true);
+      inputs[0].addEventListener(type, watch, true);
+    }
+    ownership.release = () => {
+      for (const type of ['input', 'change', 'paste', 'drop']) {
+        previewScope.removeEventListener(type, watch, true);
+        inputs[0].removeEventListener(type, watch, true);
+      }
+    };
     const transfer = new DataTransfer();
     transfer.items.add(file);
+    // Record ownership first: the change handler may create a draft even when
+    // preview detection later times out or STOP arrives during an upload.
+    ownership.changed = true;
     inputs[0].files = transfer.files;
-    inputs[0].dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    ownership.assignedFile = inputs[0].files[0];
+    ownership.changeEvent = new Event('change', { bubbles: true, composed: true });
+    inputs[0].dispatchEvent(ownership.changeEvent);
     const preview = await waitFor(job, () => {
-      if (scope.querySelector('[role="progressbar"]')) return null;
-      const remove = buttons(scope).some(button => /(hapus|remove|delete).*(foto|photo|gambar|image|lampiran|attachment)/i.test(label(button)));
-      return mediaImages(scope).find(img => before.get(img) !== (img.currentSrc || img.src)
-        && (img.closest('[data-attachment-preview]') || /^(blob:|data:image\/)/i.test(img.currentSrc || img.src) || remove)) || null;
+      if (activeUpload(previewScope)) return null;
+      const remove = attachmentRemoveControls(previewScope, context, root);
+      const candidates = attachmentImages(previewScope).filter(img => !nestedComment(img, context, root)
+        && before.get(img) !== (img.currentSrc || img.src)
+        && (img.closest('[data-attachment-preview]') || /^(blob:|data:image\/)/i.test(img.currentSrc || img.src) || remove.length === 1));
+      return candidates.length === 1 ? candidates[0] : null;
     }, 30000, 'attachment_preview_missing', 'Pratinjau foto pada kolom komentar tidak terkonfirmasi.');
+    ownership.preview = preview;
+    ownership.previewSource = preview.currentSrc || preview.src;
+    ownership.previewSrc = preview.src;
+    ownership.previewSrcset = preview.srcset;
     mark('attachment_preview_found');
-    return { scope, preview, scopes };
+    return { scope: previewScope, preview, scopes };
+  }
+
+  async function cleanupAttachment(job, ownership) {
+    if (!ownership?.changed) return true;
+    const { editor, context, root, input, previewScope, before, beforeRemoves, originalText } = ownership;
+    const fileOwned = () => !input.files.length || input.files.length === 1 && input.files[0] === ownership.assignedFile;
+    const sameComposer = () => {
+      const here = target(location.href), wanted = target(job.target);
+      return here?.url === wanted?.url && context.isConnected && editor.isConnected && input.isConnected
+        && !ownership.userChanged && previewScope.isConnected && context.contains(previewScope) && editorText(editor) === originalText
+        && fileOwned() && findCommentContext(job) === context
+        && composerScopes(editor, context, true).includes(previewScope);
+    };
+    const newImages = () => [...previewScope.querySelectorAll('img')].filter(img => visible(img)
+      && before.get(img) !== (img.currentSrc || img.src));
+    if (!sameComposer()) return false;
+    const removes = attachmentRemoveControls(previewScope, context, root).filter(button => !beforeRemoves.has(button));
+    if (!newImages().length && !input.files.length && !activeUpload(previewScope) && !removes.length) return true;
+    const knownPreview = ownership.preview;
+    if (knownPreview ? !knownPreview.isConnected || !previewScope.contains(knownPreview) || !knownPreview.complete
+      || knownPreview.src !== ownership.previewSrc || knownPreview.srcset !== ownership.previewSrcset
+      || (knownPreview.currentSrc || knownPreview.src) !== ownership.previewSource
+      : input.files.length !== 1 || input.files[0] !== ownership.assignedFile) return false;
+    // A new exact photo-removal control in the originally empty composer is
+    // required. Never click a dialog-wide/global or generic "Hapus" action.
+    if (removes.length !== 1 || !enabled(removes[0]) || (!newImages().length && !input.files.length)) return false;
+    ownership.cleaning = true;
+    removes[0].click();
+    if (input.isConnected && fileOwned()) input.value = '';
+    const start = Date.now();
+    while (Date.now() - start < 4000) {
+      // Cleanup reverses only this unsent upload, so STOP/lease expiry must not
+      // block it. Target, composer and user-draft ownership are still checked.
+      if (!sameComposer()) return false;
+      if (!newImages().length && !input.files.length && !activeUpload(previewScope)
+        && !attachmentRemoveControls(previewScope, context, root).some(button => !beforeRemoves.has(button))) return true;
+      await sleep(100);
+    }
+    return false;
+  }
+
+  function attachmentStillOwned(ownership, preview) {
+    const { input, assignedFile, previewScope, before, userChanged, previewSource } = ownership;
+    const candidates = attachmentImages(previewScope).filter(img => before.get(img) !== (img.currentSrc || img.src));
+    return !userChanged && preview.isConnected && previewScope.contains(preview)
+      && preview.src === ownership.previewSrc && preview.srcset === ownership.previewSrcset
+      && (preview.currentSrc || preview.src) === previewSource && candidates.length === 1 && candidates[0] === preview
+      && (!input.files.length || input.files.length === 1 && input.files[0] === assignedFile) && !activeUpload(previewScope);
   }
 
   function topLevelComments(context, root, composer) {
@@ -309,6 +422,7 @@
       const url = new URL(href, location.href);
       if (!['www.facebook.com', 'web.facebook.com', 'm.facebook.com'].includes(url.hostname)) return '';
       if (url.pathname === '/profile.php') return url.searchParams.has('id') ? `${url.pathname}?id=${url.searchParams.get('id')}` : '';
+      if (/^\/(photo|story|permalink|l)\.php$/.test(url.pathname)) return '';
       if (/^\/people\/[^/]+\/\d+\/?$/.test(url.pathname)) return url.pathname.replace(/\/$/, '');
       if (/^\/[a-zA-Z0-9._-]+\/?$/.test(url.pathname) && !/^\/(groups|photo|photos|watch|marketplace|notifications|home|me|reel|reels|login|help|messages)\/?$/.test(url.pathname)) return url.pathname.replace(/\/$/, '');
       return '';
@@ -410,6 +524,7 @@
     if (job.kind === 'group_comment') {
       const stages = [];
       let dispatched = false;
+      let ownership = null;
       const mark = stage => { if (stages[stages.length - 1] !== stage) stages.push(stage); };
       const result = (status, message, ref) => ({ status, ...(ref ? { ref } : {}),
         stage: stages[stages.length - 1], stages, dispatched,
@@ -435,7 +550,13 @@
         const editor = classification.accepted[0];
         const root = classification.root;
         mark('composer_selected:post_root');
-        const { scope, preview, scopes } = await attachComment(job, editor, context, root, mark);
+        const { scope, preview, scopes } = await attachComment(job, editor, context, root, mark, tracked => { ownership = tracked; });
+        check(job);
+        if (ownership.userChanged || editorText(editor) !== ownership.originalText) throw failure('composer_draft_present', 'Draf berubah selama foto dipasang.');
+        // In the observed modal, the real "Posting komentar" icon appears
+        // only after focusing this already-classified post-level editor.
+        editor.focus();
+        check(job);
         const send = await waitFor(job, () => {
           const control = commentSendButton(scopes, context, root);
           return control && enabled(control) ? control : null;
@@ -452,7 +573,8 @@
         const actorLinks = new Set([...scope.querySelectorAll('a[href]')].filter(link => link.querySelector('img'))
           .map(link => actorKey(link.href)).filter(Boolean));
         check(job);
-        if (!editor.isConnected || !context.contains(editor) || !preview.isConnected || !enabled(send)) {
+        if (!editor.isConnected || !context.contains(editor) || !attachmentStillOwned(ownership, preview) || !enabled(send)
+          || ownership.userChanged || editorText(editor) !== ownership.originalText) {
           throw failure('send_control_unavailable', 'Kolom foto atau kontrol kirim berubah sebelum kirim.');
         }
         await dispatch(job);
@@ -460,8 +582,8 @@
         // STOP may arrive while the server preflight is awaiting a response.
         // Recheck all local conditions immediately before the actual click.
         check(job);
-        if (!context.isConnected || !editor.isConnected || !preview.isConnected || !enabled(send)
-          || !classifyComposers(context, job).accepted.includes(editor)) {
+        if (!context.isConnected || !editor.isConnected || !attachmentStillOwned(ownership, preview) || !enabled(send)
+          || !classifyComposers(context, job).accepted.includes(editor) || ownership.userChanged || editorText(editor) !== ownership.originalText) {
           throw failure('send_control_unavailable', 'Kolom foto atau kontrol kirim berubah setelah pemeriksaan izin.');
         }
         dispatched = true;
@@ -482,12 +604,22 @@
         mark('verified_new_comment');
         return result('sent', context.matches('[role="dialog"]') ? 'Komentar foto baru terverifikasi di modal postingan.' : 'Komentar foto baru terverifikasi pada postingan.', target(job.target).url);
       } catch (error) {
+        if (!dispatched && ownership?.changed) {
+          let cleaned = false;
+          try { cleaned = await cleanupAttachment(job, ownership); } catch { /* Fail closed on any cleanup ambiguity. */ }
+          if (!cleaned) {
+            mark('attachment_cleanup_blocked');
+            return result('failed', 'Foto draf belum terbukti bersih. Periksa kolom komentar sebelum melanjutkan.');
+          }
+        }
         mark(error.code || (dispatched ? 'verification_inconclusive' : 'send_control_unavailable'));
         const message = error.code ? error.message : dispatched
           ? 'Kirim mungkin sudah terjadi. Periksa manual; tidak dikirim ulang.' : 'Kontrol komentar berubah sebelum kirim.';
-        const status = dispatched ? 'uncertain' : error.code === 'security_restriction' ? 'failed'
+        const status = dispatched ? 'uncertain' : ['security_restriction', 'composer_draft_present'].includes(error.code) ? 'failed'
           : error.code === 'cancelled' ? 'cancelled' : 'skipped';
         return result(status, message);
+      } finally {
+        ownership?.release?.();
       }
     }
 

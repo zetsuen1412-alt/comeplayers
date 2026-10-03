@@ -2,7 +2,8 @@
 
 These tests execute `facebook.js` in isolated browser contexts using synthetic
 HTML. They do not connect to Facebook, use a logged-in profile, or send comments.
-Every page network request is blocked and fails the corresponding case. Passing
+Exact synthetic image assets are fulfilled in memory; every other page network
+request is blocked and fails the corresponding case. Passing
 this suite does not prove live Facebook acceptance criteria.
 
 Install test dependencies locally without changing application dependencies:
@@ -21,7 +22,9 @@ install chromium`). Browsers always launch with a fresh isolated test profile.
 The suite covers all twelve cases in the stabilization handoff, plus attachment
 MIME handling, icon/form submit controls, preflight refusal, ambiguous composers,
 lazy images, existing-comment media, nested replies, actor mismatch, and delayed
-attachment readiness. Timers run 30 times faster in the test page. The content
+attachment readiness, the observed 64×80 HTTPS form-sibling preview, focus-gated
+`Posting komentar`, owned-photo cleanup and preservation of preexisting or
+replaced user drafts. Timers run 30 times faster in the test page. The content
 script is loaded intact except that `location.href` and `location.pathname` read
 the synthetic target URL. Use `--source path/to/facebook.js` for baseline
 comparison or `--filter phrase` to inspect a specific case.
@@ -58,13 +61,19 @@ clicks. Admin review clicks use Playwright's trusted browser input. One fixture
 setup writes STOP through the real storage API to isolate one-use reviewed
 approval consumption; this setup is declared in the JSON report.
 
-The content cases verify a normal post, a modal with 26 wrappers and `Tulis
-jawaban`, and three sequential jobs that skip an unsupported post before two
+The content cases verify a normal post and a `Tulis jawaban` modal with the
+observed form at ancestor seven, composer table at twelve and post boundary at
+twenty-three. Its 64×80 HTTPS thumbnail is beside the form, and focusing the
+editor reveals the real `Posting komentar` control. Three sequential jobs skip
+an unsupported post before two
 synthetic sends. A single trusted review click authorizes that sequence. The
 fixture Admin grants preflight only to its approved synthetic jobs. This tests
 the actual bridge, worker and content path; it does not exercise the production
 Admin queue pump or a live Facebook batch. All authenticated live acceptance
-criteria remain pending.
+criteria remain pending. A missing-send target cleans its own unsent photo
+before a later job succeeds without a leave-site dialog. A separate native
+positive control proves a dirty photo really triggers `beforeunload`; after
+dismissal and photo removal, clean navigation produces no second dialog.
 
 Storage persistence and popup reload are included by default. The optional
 `--restart-check` also relaunches the isolated profile to check STOP persistence

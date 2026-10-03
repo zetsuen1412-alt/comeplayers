@@ -25,6 +25,9 @@ from playwright.sync_api import sync_playwright  # noqa: E402
 
 GROUP = "https://www.facebook.com/groups/example/"
 POST = GROUP + "posts/123/"
+CDN_PREVIEW = 'https://static.xx.fbcdn.net/synthetic-lowongan/attachment-64.svg'
+CDN_PREVIEW_BODY = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="80"><rect width="64" height="80" fill="teal"/></svg>'
+USER_PREVIEW = 'https://static.xx.fbcdn.net/synthetic-lowongan/user-draft-64.svg'
 IMAGE = "data:image/svg+xml," + (
     "%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E"
     "%3Crect width='200' height='200' fill='teal'/%3E%3C/svg%3E"
@@ -40,9 +43,14 @@ const realInterval = window.setInterval.bind(window);
 window.setInterval = (fn, ms, ...args) => realInterval(fn, Math.max(1, ms / speed), ...args);
 window.listeners = []; window.dispatches = 0; window.sends = 0;
 window.fileChanges = 0; window.enterEvents = 0; window.cameraClicks = 0;
+window.removeClicks = 0;
 window.chrome = {runtime: {id: 'fixture', onMessage: {addListener: f => listeners.push(f)},
   sendMessage: async m => {
     if (m.dispatch) { window.dispatches++; window.events.push('preflight'); }
+    if (m.dispatch && window.replaceOnPreflight) {
+      document.getElementById('photo-input').value='';
+      document.querySelector('#preview img').src=window.__replacementURL;
+    }
     return {allowed: window.allow !== false};
   }}};
 window.events = [];
@@ -75,31 +83,50 @@ def comment_fixture(*, modal=False, placeholder="Tulis komentar publik...",
                     outcome="success", preview=True, attachment_delay=0,
                     enable_delay=0, two_composers=False, comments_disabled=False,
                     actor_mismatch=False, deep_wrappers=False, share_decoy=False,
-                    nested_dialog=False):
+                    nested_dialog=False, preview_sibling=False,
+                    small_cdn_preview=False, stale_preview=False,
+                    preview_outside=False, preview_reply=False, focus_send=False,
+                    ambiguous_remove=False, user_text_during_upload=False,
+                    replace_preview_on_focus=False, live_preview_structure=False):
     """Real DOM attachment/send handlers with an observable irreversible click."""
     root = '<div role="dialog" aria-label="Postingan fixture">' if modal else '<article role="article">'
     close = '</div>' if modal else '</article>'
     story = '<div data-ad-preview="message">Info loker apa aja</div><a href="/groups/example/posts/123/">Waktu</a>'
     comments = '<div id="comments" role="list" data-comment-list="true"><div role="listitem" data-comment-id="existing">Komentar sebelumnya</div></div>'
+    if live_preview_structure:
+        story='<h2>Postingan sintetis</h2>'+story
+        comments=comments.replace('</div></div>','</div>'+''.join(f'<article role="article" data-comment-id="prior-{n}">Komentar sintetis</article>' for n in range(10))+'</div>')
     textbox = f'<div contenteditable="true" role="textbox" aria-label="{placeholder}" id="editor"></div>'
     if deep_wrappers:
         textbox = '<div>' * 6 + textbox + '</div>' * 6
     photo = '<button type="button" id="camera" aria-label="Lampirkan foto" aria-controls="photo-input">Foto</button>'
     file_input = f'<input id="photo-input" type="file" accept="{input_accept}" hidden>'
     send_html = ''
-    if send:
+    if send and not focus_send:
         disabled = '' if enabled else ' disabled aria-disabled="true"'
         send_html = (f'<button id="send" type="{"submit" if submit_send else "button"}"'
                      f' aria-label="{"" if submit_send else "Kirim"}"{disabled}>'
                      f'{"➤" if icon_send or submit_send else "Kirim"}</button>')
+    stale = f'<img src="{CDN_PREVIEW}" width="64" height="80" style="width:64px;height:80px">' if stale_preview else ''
+    preview_html = '<div id="preview">'+stale+'</div>'
+    remove = '<span id="remove-controls"></span>'
+    external_preview = ''
+    if preview_reply:
+        comments = comments.replace('Komentar sebelumnya</div>', 'Komentar sebelumnya'+preview_html+remove+'</div>')
+    elif preview_outside:
+        external_preview = preview_html+remove
     composer = '' if comments_disabled else (
         '<form id="composer" role="presentation" onsubmit="return false" data-composer="true">'
         '<a aria-label="Profil Anda" href="/profile.php?id=100"><img alt="Avatar sintetis" width="32" height="32" '
         'src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\'%3E%3C/svg%3E">Profil</a>'
         + textbox + photo + ('' if external_input or deferred_input else file_input)
-        + '<div id="preview"></div>' + send_html + '</form>'
+        + ('' if preview_sibling or preview_outside or preview_reply else preview_html+remove) + send_html + '</form>'
     )
-    if deep_wrappers:
+    if preview_sibling:
+        composer = '<div id="composer-shell">'+composer+preview_html+remove+'</div>'
+    if live_preview_structure:
+        composer='<div>'*10+'<div role="table">'+'<div>'*3+composer+'</div>'*3+'</div>'+'</div>'*10
+    elif deep_wrappers:
         composer = '<div>' * 18 + composer + '</div>' * 18
     reply = ('<div role="listitem" data-comment-id="reply-parent">Komentar induk'
              '<form id="reply-composer"><div contenteditable="true" role="textbox" '
@@ -117,22 +144,44 @@ def comment_fixture(*, modal=False, placeholder="Tulis komentar publik...",
     external = file_input if external_input and not deferred_input else ''
     opts = json.dumps(dict(outcome=outcome, preview=preview, attachmentDelay=attachment_delay,
                            enableDelay=enable_delay, deferred=deferred_input,
-                           accept=input_accept, actorMismatch=actor_mismatch))
+                           accept=input_accept, actorMismatch=actor_mismatch,
+                           smallCdnPreview=small_cdn_preview, focusSend=focus_send,
+                           stalePreview=stale_preview, ambiguousRemove=ambiguous_remove,
+                           userTextDuringUpload=user_text_during_upload,
+                           replacePreviewOnFocus=replace_preview_on_focus))
     handler = """
 const opts = OPTS, imageURL = IMAGE;
 function media() { const i = document.createElement('img'); i.src = imageURL; return i; }
+function attachment() {
+  if (!opts.smallCdnPreview) { const i=media();i.setAttribute('data-attachment-preview','true');return i; }
+  const i=document.createElement('img');i.src=CDN_URL;i.width=64;i.height=80;
+  i.style.cssText='width:64px;height:80px';
+  i.addEventListener('load',()=>{const rect=i.getBoundingClientRect();window.lastPreview={naturalWidth:i.naturalWidth,width:rect.width,height:rect.height,outsideForm:!document.getElementById('composer').contains(i)};});
+  return i;
+}
+function addRemove(input) {
+  const holder=document.getElementById('remove-controls');if(!holder||holder.children.length)return;
+  for(let n=0;n<(opts.ambiguousRemove?2:1);n++) {
+    const control=document.createElement('button');control.type='button';control.setAttribute('aria-label','Hapus foto');
+    control.textContent='×';control.onclick=()=>{window.removeClicks++;preview.replaceChildren();input.value='';holder.replaceChildren();};
+    holder.append(control);
+  }
+}
 function bindInput(input) {
   input.addEventListener('change', () => {
     window.fileChanges++; window.events.push('attachment');
     window.lastFile = input.files[0] && {name:input.files[0].name, type:input.files[0].type, size:input.files[0].size};
+    addRemove(input);
+    if(opts.userTextDuringUpload) editor.textContent='Draf pengguna baru';
     setTimeout(() => {
-      if (opts.preview) { const i = media(); i.setAttribute('data-attachment-preview', 'true'); preview.append(i); }
+      if (!input.files.length) return;
+      if (opts.preview) preview.append(attachment());
       const enable = () => { if (window.send) { send.disabled = false; send.removeAttribute('aria-disabled'); } };
       if (opts.enableDelay) setTimeout(enable, opts.enableDelay); else enable();
     }, opts.attachmentDelay);
   });
 }
-const input = document.getElementById('photo-input'); if (input) bindInput(input);
+const input = document.getElementById('photo-input'); if (input) {bindInput(input);if(opts.stalePreview)addRemove(input);}
 if (window.camera) camera.onclick = () => {
   window.cameraClicks++;
   if (opts.deferred && !document.getElementById('photo-input')) {
@@ -140,8 +189,9 @@ if (window.camera) camera.onclick = () => {
     input.accept = opts.accept; input.hidden = true; document.querySelector('[role=dialog]').append(input); bindInput(input);
   }
 };
-if (window.send) send.onclick = e => {
+function bindSend(control) { control.onclick = e => {
   e.preventDefault(); window.sends++; window.events.push('send');
+  window.lastSendLabel=control.getAttribute('aria-label');
   if (opts.outcome === 'success' || opts.outcome === 'nested' || opts.outcome === 'moved-preview') {
     const c = document.createElement('div'); c.setAttribute('role', 'listitem'); c.setAttribute('data-comment-id', 'new-comment');
     const actor = document.createElement('a'); actor.href = '/profile.php?id=' + (opts.actorMismatch ? '200' : '100'); actor.textContent='Profil';
@@ -160,11 +210,20 @@ if (window.send) send.onclick = e => {
     lazyComment.setAttribute('data-comment-id','lazy-loaded-text'); lazyComment.textContent='Komentar teks dimuat belakangan';
     comments.append(lazyComment); editor.textContent=''; preview.replaceChildren();
   }
-};
-""".replace('OPTS', opts).replace('IMAGE', json.dumps(IMAGE))
+}; }
+if (window.send) bindSend(send);
+if (opts.focusSend) editor.addEventListener('focus', () => {
+  if (!preview.querySelector('img') || document.getElementById('send')) return;
+  if(opts.replacePreviewOnFocus) {input.value='';preview.querySelector('img').src=USER_CDN_URL;}
+  const control=document.createElement('div');control.id='send';control.setAttribute('role','button');
+  control.setAttribute('aria-label','Posting komentar');control.tabIndex=0;
+  control.style.cssText='width:16px;height:16px;padding:0;display:inline-block';
+  control.textContent='➤';document.getElementById('composer').append(control);bindSend(control);
+});
+""".replace('OPTS', opts).replace('IMAGE', json.dumps(IMAGE)).replace('USER_CDN_URL', json.dumps(USER_PREVIEW)).replace('CDN_URL', json.dumps(CDN_PREVIEW))
     decoy = ('<button aria-label="Kirim ini ke teman atau posting di profil Anda." '
              'onclick="window.sends++;">Bagikan</button>') if share_decoy else ''
-    result = root + story + decoy + comments + composer + extra + external + close
+    result = root + story + decoy + comments + composer + extra + external + external_preview + close
     if nested_dialog:
         result = '<div role="dialog" aria-label="Dialog luar">' + result + '</div>'
     return result + '<script>' + handler + '</script>'
@@ -211,7 +270,15 @@ def choose_executable():
 def run_case(browser, script, case):
     context = browser.new_context()
     network_attempts = []
-    context.route('**/*', lambda route: (network_attempts.append(route.request.url), route.abort()))
+    def route_request(route):
+        if route.request.url in (CDN_PREVIEW,USER_PREVIEW):
+            if route.request.url == USER_PREVIEW and case.get('slow_replacement'):
+                time.sleep(.15)
+            route.fulfill(status=200, content_type='image/svg+xml', body=CDN_PREVIEW_BODY)
+        else:
+            network_attempts.append(route.request.url)
+            route.abort()
+    context.route('**/*', route_request)
     page = context.new_page()
     page.set_default_timeout(10000)
     html = case.get('html', '')
@@ -220,6 +287,7 @@ def run_case(browser, script, case):
     if case.get('overlay_ready'):
         assert_equal(page.evaluate("typeof document.getElementById('inner-input').onchange"), 'function', 'inner overlay fixture attachment handler is valid')
     page.evaluate('(a) => window.allow = a', case.get('allow', True))
+    page.evaluate('({enabled,url})=>{window.replaceOnPreflight=enabled;window.__replacementURL=url}', {'enabled':case.get('replace_on_preflight',False),'url':USER_PREVIEW})
     page.evaluate('(u) => window.__fixtureURL = u', case.get('url', POST))
     page.add_script_tag(content=script)
     job = page.evaluate("""({url, mime, selected, expired}) => {
@@ -234,6 +302,8 @@ def run_case(browser, script, case):
         job['banner'] = case['banner_override']
     if case.get('missing_payload'):
         job.pop('payload')
+    if case.get('preexisting_file'):
+        page.evaluate("()=>{const transfer=new DataTransfer();transfer.items.add(new File([new Uint8Array([1,2,3])],'user-draft.png',{type:'image/png'}));document.getElementById('photo-input').files=transfer.files;}")
     started = time.monotonic()
     result = page.evaluate("""async ({job, scan, cancel}) => {
       if (cancel) setTimeout(() => listeners[0]({type:'CP_LOKER_CANCEL'},{id:'fixture'},()=>{}), cancel);
@@ -243,7 +313,7 @@ def run_case(browser, script, case):
         listeners[0](message,{id:'fixture'},r => {__realClearTimeout(timeout);resolve(r)});
       });
     }""", dict(job=job, scan=case.get('scan', False), cancel=case.get('cancel', 0)))
-    counters = page.evaluate('({dispatches,sends,fileChanges,enterEvents,cameraClicks,events,lastFile:window.lastFile})')
+    counters = page.evaluate('({dispatches,sends,fileChanges,enterEvents,cameraClicks,removeClicks,events,lastFile:window.lastFile,lastPreview:window.lastPreview,lastSendLabel:window.lastSendLabel})')
     try:
         assert_equal(network_attempts, [], 'all fixture page network requests are blocked')
         assert_equal(counters['dispatches'], case.get('dispatches', 0), 'preflight dispatch count')
@@ -257,16 +327,41 @@ def run_case(browser, script, case):
             assert_equal([item['url'] for item in result.get('items', [])], case['items'], 'canonical scan results')
         else:
             assert_equal(result.get('status'), case['status'], 'terminal status')
+            assert_equal(result.get('dispatched'), bool(case.get('sends')), 'terminal result records actual send dispatch')
             if case.get('file_changes') is not None:
                 assert_equal(counters['fileChanges'], case['file_changes'], 'file input change count')
+            if case.get('remove_clicks') is not None:
+                assert_equal(counters['removeClicks'], case['remove_clicks'], 'owned unsent attachment removal count')
+            if case.get('stage'):
+                assert_equal(result.get('stage'), case['stage'], 'precise guarded terminal stage')
+            if case.get('preserved_text'):
+                assert_equal(page.locator('#editor').inner_text(), case['preserved_text'], 'user draft is preserved')
+            if case.get('preserved_file'):
+                assert_equal(page.evaluate("document.getElementById('photo-input').files[0]?.name"), 'user-draft.png', 'preexisting file is preserved')
+            if case.get('preserved_preview'):
+                assert_equal(page.locator('#preview img').count(), 1, 'preexisting image is preserved')
+                assert_equal(page.locator('#preview img').get_attribute('src'), CDN_PREVIEW, 'preexisting image source is preserved')
+            if case.get('preserved_replacement'):
+                assert_equal(page.locator('#preview img').count(),1,'user replacement image is preserved')
+                assert_equal(page.locator('#preview img').get_attribute('src'),USER_PREVIEW,'user replacement source is preserved')
+            if case.get('cleaned'):
+                assert_equal(page.locator('#preview img').count(), 0, 'our unsent image is cleared')
+                assert_equal(page.evaluate("document.getElementById('photo-input').files.length"), 0, 'our unsent file is cleared')
+            if case.get('files_remaining') is not None:
+                assert_equal(page.evaluate("document.getElementById('photo-input').files.length"), case['files_remaining'], 'unsafe cleanup preserves remaining draft file')
             if case.get('sends'):
                 assert_equal(counters['events'], ['attachment', 'preflight', 'send'], 'preflight follows attachment immediately before dispatch')
             if case.get('check_mime'):
                 assert_equal(counters['lastFile']['type'], case['mime'], 'banner MIME preserved')
             if case.get('wrong_empty'):
                 assert_equal(page.locator('#wrong').inner_text(), '', 'nested reply editor unchanged')
+            if case.get('observed_preview'):
+                assert_equal(counters['lastPreview'], {'naturalWidth':64,'width':64,'height':80,'outsideForm':True}, 'confirmed small HTTPS preview outside form')
+                assert_equal(counters['lastSendLabel'], 'Posting komentar', 'confirmed focus-gated send label')
         return {'name':case['name'], 'passed':True, 'status':result.get('status', 'scan'),
                 'dispatches':counters['dispatches'], 'sends':counters['sends'],
+                'file_changes':counters['fileChanges'], 'attachment_removals':counters['removeClicks'],
+                **({'observed_preview':counters['lastPreview'],'send_label':counters['lastSendLabel']} if case.get('observed_preview') else {}),
                 'stage':result.get('stage'), 'duration_seconds':round(time.monotonic()-started, 3)}
     except AssertionError as error:
         return {'name':case['name'], 'passed':False, 'error':str(error), 'result':result,
@@ -286,10 +381,10 @@ def cases():
         dict(name='04 nested comment Tulis jawaban rejected', html=comment_fixture(modal=True, reply_only=True), **skipped),
         dict(name='05 camera reveals mapped external hidden input', html=comment_fixture(modal=True, deferred_input=True), **success),
         dict(name='06 comments disabled skipped before dispatch', html=comment_fixture(modal=True, comments_disabled=True), **skipped),
-        dict(name='07 missing send control skipped before dispatch', html=comment_fixture(modal=True, send=False), **skipped),
+        dict(name='07 missing send control cleans only own unsent image before skip', html=comment_fixture(modal=True, send=False), remove_clicks=1, cleaned=True, **skipped),
         dict(name='08 real icon send dispatches exactly once', html=comment_fixture(modal=True, icon_send=True), **success),
-        dict(name='09 unverified dispatch pauses without retry', html=comment_fixture(modal=True, outcome='none'), **uncertain),
-        dict(name='10 STOP while awaiting attachment prevents dispatch', html=comment_fixture(modal=True, attachment_delay=3000), cancel=900, status='cancelled', dispatches=0, sends=0),
+        dict(name='09 unverified dispatch pauses without cleanup or retry', html=comment_fixture(modal=True, outcome='none'), remove_clicks=0, files_remaining=1, **uncertain),
+        dict(name='10 STOP while awaiting attachment removes own image without dispatch', html=comment_fixture(modal=True, attachment_delay=3000), cancel=900, status='cancelled', dispatches=0, sends=0, remove_clicks=1, cleaned=True),
         dict(name='11 scan all canonicalizes every post without comment', scan=True, url=GROUP,
              html=article('123','Info loker')+article('124','Kami membuka lowongan')+article('125','Status biasa', 'https://web.facebook.com/groups/example/permalink/125/?x=1#hash'),
              items=[POST,GROUP+'posts/124/',GROUP+'posts/125/']),
@@ -306,7 +401,7 @@ def cases():
         dict(name='media added to existing comment cannot prove success', html=comment_fixture(modal=True, outcome='existing-media'), **uncertain),
         dict(name='new nested reply cannot prove top-level comment', html=comment_fixture(modal=True, outcome='nested'), **uncertain),
         dict(name='two equally eligible root composers rejected', html=comment_fixture(modal=True, two_composers=True), **skipped),
-        dict(name='attachment with no preview never dispatches', html=comment_fixture(modal=True, preview=False), **skipped),
+        dict(name='attachment with no preview is safely cleaned without dispatch', html=comment_fixture(modal=True, preview=False), remove_clicks=1, cleaned=True, **skipped),
         dict(name='send awaits attachment and enabled control', html=comment_fixture(modal=True, enabled=False, enable_delay=1200), **success),
         dict(name='different actor new comment cannot prove our send', html=comment_fixture(modal=True, actor_mismatch=True), **uncertain),
         dict(name='wrong group route never dispatches', html=comment_fixture(modal=True), url='https://www.facebook.com/groups/other/posts/123/', job_target=POST, **skipped),
@@ -324,6 +419,18 @@ def cases():
         dict(name='unproven active reply overlay blocks outer post composer', html=reply_overlay_fixture(), overlay_ready=True, file_changes=0, **skipped),
         dict(name='stale post route cannot masquerade as group scan', scan=True, scan_error=True, url=POST, job_target=GROUP, html=article('123'), items=[]),
         dict(name='attachment preview moved into new comment proves success', html=comment_fixture(modal=True, outcome='moved-preview'), **success),
+        dict(name='64x80 HTTPS preview outside form TABLE depth12 then focus reveals Posting komentar', html=comment_fixture(modal=True, placeholder='Tulis jawaban...', deep_wrappers=True, preview_sibling=True, small_cdn_preview=True, focus_send=True, live_preview_structure=True), observed_preview=True, **success),
+        dict(name='small HTTPS sibling preview permits real native form submit', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, submit_send=True), **success),
+        dict(name='preexisting small sibling image preserves draft and blocks new attachment', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, stale_preview=True, preview=False), status='failed', stage='composer_draft_present', dispatches=0, sends=0, file_changes=0, remove_clicks=0, preserved_preview=True),
+        dict(name='small sibling preview without real send cleans own image and never presses Enter', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, send=False), remove_clicks=1, cleaned=True, **skipped),
+        dict(name='preview outside bounded composer cannot authorize send or unsafe removal', html=comment_fixture(modal=True, preview_outside=True, small_cdn_preview=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=1),
+        dict(name='image in nested comment cannot authorize root send or remove reply draft', html=comment_fixture(modal=True, preview_reply=True, small_cdn_preview=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=1),
+        dict(name='preexisting user text is preserved before any file assignment', html=comment_fixture(modal=True).replace('id="editor"></div>', 'id="editor">Draf pengguna lama</div>'), status='failed', stage='composer_draft_present', dispatches=0, sends=0, file_changes=0, remove_clicks=0, preserved_text='Draf pengguna lama'),
+        dict(name='preexisting selected file is preserved before any assignment', html=comment_fixture(modal=True), preexisting_file=True, preserved_file=True, status='failed', stage='composer_draft_present', dispatches=0, sends=0, file_changes=0, remove_clicks=0),
+        dict(name='ambiguous photo removal preserves unsent draft and pauses', html=comment_fixture(modal=True, send=False, ambiguous_remove=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=1),
+        dict(name='user text typed during upload is preserved without send or cleanup', html=comment_fixture(modal=True, user_text_during_upload=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=1, preserved_text='Draf pengguna baru'),
+        dict(name='same IMG user source replacement on focus preserves empty-text cleared-file draft', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, focus_send=True, replace_preview_on_focus=True), status='failed', stage='attachment_cleanup_blocked', dispatches=0, sends=0, file_changes=1, remove_clicks=0, files_remaining=0, preserved_replacement=True),
+        dict(name='pending same IMG user source replacement during preflight never sends or removes replacement', html=comment_fixture(modal=True, preview_sibling=True, small_cdn_preview=True, focus_send=True), replace_on_preflight=True, slow_replacement=True, status='failed', stage='attachment_cleanup_blocked', dispatches=1, sends=0, file_changes=1, remove_clicks=0, files_remaining=0, preserved_replacement=True),
     ]
 
 
@@ -375,6 +482,8 @@ def main():
         source_path = args.source.name
     report = {'synthetic_only':True, 'source':source_path,
               'source_sha256':hashlib.sha256(source_bytes).hexdigest(),
+              'source_sha256_lf':hashlib.sha256(source_bytes.replace(b'\r\n',b'\n')).hexdigest(),
+              'source_hash_line_endings':{'source_sha256':'raw bytes','source_sha256_lf':'LF'},
               'extension_version_from_manifest':json.loads((EXTENSION / 'manifest.json').read_text(encoding='utf-8'))['version'],
               'browser_version':browser_version,
               'passed':sum(item['passed'] for item in results),
