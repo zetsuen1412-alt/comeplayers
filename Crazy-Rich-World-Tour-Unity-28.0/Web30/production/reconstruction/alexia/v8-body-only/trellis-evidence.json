@@ -1,0 +1,23 @@
+{
+  "provider": "trellis-community/TRELLIS public ZeroGPU",
+  "sourceAlgorithm": "Microsoft TRELLIS",
+  "seed": 1412,
+  "mode": "multiview",
+  "params": {
+    "ss_guidance_strength": 7.5,
+    "ss_sampling_steps": 12,
+    "slat_guidance_strength": 3.0,
+    "slat_sampling_steps": 12,
+    "multiimage_algo": "multidiffusion",
+    "mesh_simplify": 0.95,
+    "texture_size": 1024
+  },
+  "paidJob": false,
+  "approved": false,
+  "gameAssetsReplaced": false,
+  "startedUtc": "2026-10-03T13:31:46.450495+00:00",
+  "status": "not-generated",
+  "errorClass": "AppError",
+  "error": "The upstream Gradio app has raised an exception but has not enabled verbose error reporting. To enable, set show_error=True in launch().",
+  "endedUtc": "2026-10-03T13:32:12.403609+00:00"
+}

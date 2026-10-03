@@ -1,0 +1,56 @@
+Gemini model: gemini-3.5-flash-lite
+
+Berikut adalah spesifikasi teknis mesh, material, rig, serta *checklist* tinjauan geometri untuk karakter *playable* 3D **Alexia** (*Crazy Rich World Tour*), disusun berdasarkan batasan teks murni yang diberikan tanpa asumsi visual atau klaim peninjauan gambar.
+
+---
+
+### **1. Spesifikasi Teknis Mesh & Geometri**
+
+*   **Target Anggaran (Provisional Engineering Targets untuk Mobile/Browser):**
+    *   **Polygon Budget:** Maksimal 15.000 – 20.000 triangles untuk karakter utama (Alexia).
+    *   **Texture Budget:** Maksimal 2 lembar tekstur 2K (2048x2048) untuk tubuh/pakaian, dan 1 lembar 1K (1024x1024) untuk aksesori/rambut (atau digabung menggunakan *atlas texture* efisien).
+*   **Struktur Volume & Skala (360 Derajat):**
+    *   Geometri wajib bervolume penuh 360 derajat (tidak ada permukaan datar atau *n-gons* terbuka).
+    *   Memastikan pemisahan topologi yang jelas pada area ketiak, selangkangan (*thigh gaps*), dan sendi siku/lutut untuk menghindari distorsi ekstrem saat deformasi.
+*   **Rambut (Anime Chibi Collectible):**
+    *   Pola poni *layered* berwarna silver/lavender dan kuncir kuda tinggi (*high ponytail*) panjang dengan gumpalan rambut bergelombang lembut (*soft wavy hair clumps*).
+    *   Menggunakan kombinasi *hair cards* yang terstruktur rapi atau *coherent volumetric clumps* yang teroptimasi. Dilarang keras menggunakan helaian terfragmentasi berlebihan atau duri segitiga panjang (*long triangle spikes*).
+*   **Prop Tas Koper (Suitcase):**
+    *   Koper *navy travel* dengan bintang emas di bagian depan wajib diproduksi sebagai file GLB terpisah. **Dilarang keras** menyatukan (*fuse*) atau menggabungkan geometri koper ke dalam mesh tubuh utama Alexia.
+*   **Aksesori & Pakaian:**
+    *   Headset gaming (hitam, putih, emas).
+    *   Jaket *oversized* (hitam/putih dengan aksen lis, gesper, dan emblem emas), kaos dalam putih, celana pendek hitam dengan sabuk, kaus kaki hitam, dan sepatu kets tebal (*chunky sneakers* warna putih, hitam, emas).
+
+---
+
+### **2. Spesifikasi Material & PBR**
+
+*   **Pemisahan Material (PBR Channel Separation):**
+    *   **Kulit & Wajah:** Albedo, Normal, Roughness, Subsurface Scattering (jika didukung engine) untuk keterbacaan mata biru besar khas chibi pada skala papan permainan (*board scale*).
+    *   **Tekstil (Jaket, Kemeja, Celana, Kaus Kaki):** Albedo, Normal, Roughness, Metallic (untuk trim/gesper/emblem emas).
+    *   **Keras/Hard Surface (Headset, Koper, Sepatu):** Albedo, Metallic, Roughness, Normal.
+*   **Keterbacaan Wajah:** Mata biru besar dan ekspresi wajah harus dioptimalkan agar tetap terbaca jelas dalam jarak pandang kamera *board game* seluler.
+
+---
+
+### **3. Spesifikasi Rigging & Artikulasi**
+
+*   **Urutan Kerja:** Rigging dan *skinning* **hanya** boleh dilakukan setelah lolos tahapan *geometry-review checklist*.
+*   **Topologi Artikulasi:** Alur edge loop harus mendukung deformasi alami pada area bahu, siku, pinggul, lutut, dan leher.
+*   **Daftar Animasi Standar:**
+    *   *Idle* (Diam)
+    *   *Walk* (Berjalan)
+    *   *Jump* (Meloncat)
+    *   *Skill* (Aksi khusus)
+    *   *Win* (Menang)
+    *   *Lose* (Kalah)
+
+---
+
+### **4. Checklist Tinjauan Geometri (Geometry-Review Checklist)**
+
+1.  **Pemisahan Prop:** Apakah file GLB koper *navy* terpisah sepenuhnya dari mesh karakter Alexia? (Tidak boleh ada *vertex* yang menempel atau ter-fuse).
+2.  **Validasi Permukaan & Skala:** Apakah model memiliki volume 360 derajat yang utuh tanpa *plane* lantai yang menempel pada kaki secara permanen?
+3.  **Kualitas Topologi:** Apakah bersih dari *long triangle spikes*, *n-gons*, dan fragmen rambut acak? Apakah *thigh gaps* dan area ketiak memiliki geometri yang cukup untuk artikulasi?
+4.  **Optimalisasi Anggaran:** Apakah jumlah *triangle* berada di dalam batas target (15k–20k) dan ukuran *UV layout/texture* efisien untuk performa *mobile/browser*?
+5.  **Integritas Aset:** Apakah *hash* SHA256 dari file GLB final yang telah ditinjau sama persis dengan yang diterapkan di dalam *game*?

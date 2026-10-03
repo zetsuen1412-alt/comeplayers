@@ -95,7 +95,9 @@
     "evidence": "production/turnarounds/alexia/review-2026-10-02.json",
     "user_proceeded_past_turnaround_review_gate": true,
     "proceeded_on": "2026-10-02",
-    "note": "User instructed continuation after Alexia V2 was displayed; reconstruction may continue, but no generated mesh is automatically approved."
+    "note": "User instructed continuation after Alexia V2 was displayed; reconstruction may continue, but no generated mesh is automatically approved.",
+    "latest_text_spec_succeeded": true,
+    "nano_banana_app_access": "Browser opened but signed out; awaiting user login. Paid image API not invoked."
   },
   "rebuild_requirements": [
     "Use the approved image as the shape and appearance reference, not a generic parametric doll with recolored hair.",
@@ -112,17 +114,14 @@
     "A standalone inspection viewer is not proof of live-game integration. Test the board and character selector with the same accepted asset."
   ],
   "attempt": {
-    "method": "Hunyuan3D-2mv multiview reconstruction from approved Alexia V2",
+    "method": "Hunyuan3D-2mv seed 1412 from body-only individual images with server rembg",
     "character": "alexia",
-    "status": "Six real mesh attempts generated and rejected before texture; V7 not generated due ZeroGPU quota.",
-    "retry_policy": "Do not repeat V1-V6. Prepare genuinely suitcase-free body-only inputs from V2, inspect them, then submit V7 only when free/authorized compute is available."
+    "status": "V8 generated and rejected before texture/rig after actual seven-view render; conservative cleanup did not pass",
+    "retry_policy": "Do not repeat unchanged V8 inputs/parameters. Improve coherent hair and arm gaps or use a different reconstruction method."
   },
   "latest_compute_check": {
-    "service": "Hugging Face public ZeroGPU / Hunyuan3D-2mv",
-    "account": "ComePlayers",
-    "authenticated_account_is_pro": false,
-    "result": "V7 generation rejected before start: ZeroGPU quota 0s left",
-    "generation_started": false,
+    "service": "Hunyuan3D-2mv / TRELLIS / Microsoft TRELLIS.2 public ZeroGPU",
+    "result": "Hunyuan generated a real mesh. Both TRELLIS compare services returned hidden upstream app errors. Do not infer quota cause.",
     "billing_or_subscription_changed": false
   },
   "latest_higgsfield_check": {
@@ -153,7 +152,7 @@
     "same_reviewed_and_integrated_glb_hash_required": true,
     "automatic_visual_approval": false
   },
-  "new_models_produced": 6,
+  "new_models_produced": 7,
   "visual_final_approved": false,
   "game_assets_replaced": false,
   "note": "This file records approved visual requirements and observed blockers. It is not a runtime deployment guard, a completed model, or a claim of improved visual fidelity.",
@@ -161,11 +160,11 @@
     "active_reference": "production/turnarounds/alexia/turnaround-blue-imagegen-v2.png",
     "active_eye_color": "blue",
     "accepted_meshes": 0,
-    "generated_mesh_attempts": 6,
-    "latest_generated_attempt": "v6-largest-2d-component",
-    "latest_planned_attempt": "v7-clean-body-only",
+    "generated_mesh_attempts": 7,
+    "latest_generated_attempt": "v8-approved-body-only-individual-views",
+    "latest_planned_attempt": "Clean coherent hair multiview with Gemini Nano Banana app, then changed reconstruction method",
     "latest_planned_attempt_generated": false,
-    "latest_blocker": "Hunyuan3D-2mv public ZeroGPU quota exhausted before V7 generation",
+    "latest_blocker": "V8 geometry rejected: noisy fragmented hair, insufficient jacket/hand/shoe detail. TRELLIS and TRELLIS.2 comparison requests failed with upstream error; cause undisclosed.",
     "v1_gemini_verdict": "REBUILD BEFORE TEXTURE",
     "suitcase_strategy": "Separate prop GLB; never fused into Alexia body mesh",
     "rejected_methods": [
@@ -176,7 +175,10 @@
     ],
     "evidence": [
       "production/reconstruction/alexia/rebuild-attempts-2026-10-02.json",
-      "production/reconstruction/alexia/rebuild-attempts-v4-v7-2026-10-02.json"
+      "production/reconstruction/alexia/rebuild-attempts-v4-v7-2026-10-02.json",
+      "production/reconstruction/alexia/v8-body-only/reconstruction-evidence.json",
+      "production/reconstruction/alexia/v8-body-only/trellis-evidence.json",
+      "production/reconstruction/alexia/v8-body-only/trellis2-evidence.json"
     ]
   },
   "accepted_models_produced": 0

@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const SERVER_NAME = "crazy-rich-gemini";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.2.0";
 const MODERN_PROTOCOL = "2026-07-28";
 const LEGACY_PROTOCOL = "2025-11-25";
 
@@ -21,6 +21,59 @@ type GeminiPart = {
   inlineData?: { data?: string; mimeType?: string };
   inline_data?: { data?: string; mime_type?: string };
 };
+
+type ReferenceImagePart = {
+  inline_data: { data: string; mime_type: string };
+};
+
+// Base64 adds one third to the byte size. Keep inline requests below Vercel's
+// 4.5 MB payload limit, leaving room for the prompt and JSON-RPC envelope.
+const MAX_INLINE_IMAGE_BYTES = 3 * 1024 * 1024;
+const MAX_INLINE_IMAGE_BASE64 = 4 * Math.ceil(MAX_INLINE_IMAGE_BYTES / 3);
+const MAX_JSON_RESPONSE_BYTES = 4 * 1024 * 1024;
+
+const REFERENCE_IMAGE_PROPERTIES = {
+  reference_image_url: { type: "string", format: "uri", minLength: 1 },
+  reference_image_base64: {
+    type: "string",
+    minLength: 1,
+    maxLength: MAX_INLINE_IMAGE_BASE64,
+    description: "Raw canonical base64 of a local PNG, JPEG, or WebP image, up to 3 MiB. Do not include a data URL prefix.",
+  },
+  reference_image_mime_type: {
+    type: "string",
+    enum: ["image/png", "image/jpeg", "image/webp"],
+  },
+} as const;
+
+const REQUIRED_REFERENCE_IMAGE_SOURCES = [
+  {
+    required: ["reference_image_url"],
+    not: {
+      anyOf: [
+        { required: ["reference_image_base64"] },
+        { required: ["reference_image_mime_type"] },
+      ],
+    },
+  },
+  {
+    required: ["reference_image_base64", "reference_image_mime_type"],
+    not: { required: ["reference_image_url"] },
+  },
+] as const;
+
+const OPTIONAL_REFERENCE_IMAGE_SOURCES = [
+  ...REQUIRED_REFERENCE_IMAGE_SOURCES,
+  {
+    not: {
+      anyOf: [
+        { required: ["reference_image_url"] },
+        { required: ["reference_image_base64"] },
+        { required: ["reference_image_mime_type"] },
+      ],
+    },
+  },
+] as const;
 
 const DEFAULT_ALLOWED_IMAGE_HOSTS = [
   "oaiusercontent.com",
@@ -61,7 +114,11 @@ function hostAllowed(hostname: string) {
 }
 
 function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
+  const serialized = JSON.stringify(data) ?? "null";
+  if (Buffer.byteLength(serialized, "utf8") > MAX_JSON_RESPONSE_BYTES) {
+    throw new Error("Gemini response is too large for this connector. Request a smaller image size.");
+  }
+  return new Response(serialized, {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
@@ -105,6 +162,73 @@ function stringArrayArg(args: JsonObject, name: string) {
     throw new Error(name + " must be an array of strings.");
   }
   return value.map((item) => item.trim()).filter(Boolean);
+}
+
+function inlineImagePart(args: JsonObject): ReferenceImagePart {
+  const data = textArg(args, "reference_image_base64", true);
+  const mimeType = textArg(args, "reference_image_mime_type", true);
+  if (!["image/png", "image/jpeg", "image/webp"].includes(mimeType)) {
+    throw new Error("reference_image_mime_type must be image/png, image/jpeg, or image/webp.");
+  }
+  if (data.length > MAX_INLINE_IMAGE_BASE64) {
+    throw new Error("Inline reference image is larger than 3 MiB.");
+  }
+  if (data !== args.reference_image_base64) {
+    throw new Error("reference_image_base64 must be canonical base64 without a data URL prefix.");
+  }
+  const bytes = Buffer.from(data, "base64");
+  if (!bytes.length || bytes.toString("base64") !== data) {
+    throw new Error("reference_image_base64 must be canonical base64 without a data URL prefix.");
+  }
+  if (bytes.length > MAX_INLINE_IMAGE_BYTES) {
+    throw new Error("Inline reference image is larger than 3 MiB.");
+  }
+
+  // Validate the declared format against the file header; no decoder or SDK
+  // dependency is needed to catch mislabeled files and truncated headers.
+  const png =
+    bytes.length >= 33 &&
+    bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) &&
+    bytes.readUInt32BE(8) === 13 &&
+    bytes.toString("latin1", 12, 16) === "IHDR" &&
+    bytes.readUInt32BE(16) > 0 &&
+    bytes.readUInt32BE(20) > 0;
+  const jpeg =
+    bytes.length >= 12 &&
+    bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff &&
+    bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9;
+  const webp =
+    bytes.length >= 20 &&
+    bytes.toString("latin1", 0, 4) === "RIFF" &&
+    bytes.readUInt32LE(4) + 8 === bytes.length &&
+    bytes.toString("latin1", 8, 12) === "WEBP" &&
+    ["VP8 ", "VP8L", "VP8X"].includes(bytes.toString("latin1", 12, 16)) &&
+    bytes.readUInt32LE(16) > 0 &&
+    20 + bytes.readUInt32LE(16) + (bytes.readUInt32LE(16) & 1) <= bytes.length;
+  const matchesMime =
+    (mimeType === "image/png" && png) ||
+    (mimeType === "image/jpeg" && jpeg) ||
+    (mimeType === "image/webp" && webp);
+  if (!matchesMime) {
+    throw new Error("Inline reference image does not match its MIME type or has a truncated header.");
+  }
+  return { inline_data: { mime_type: mimeType, data } };
+}
+
+async function referenceImagePart(args: JsonObject, required = false) {
+  const imageUrl = textArg(args, "reference_image_url");
+  const hasUrl = args.reference_image_url !== undefined;
+  const hasInline =
+    args.reference_image_base64 !== undefined ||
+    args.reference_image_mime_type !== undefined;
+  if (hasUrl && hasInline) {
+    throw new Error("Provide either reference_image_url or inline reference image fields, not both.");
+  }
+  if (hasInline) return inlineImagePart(args);
+  if (imageUrl) return loadReferenceImage(imageUrl);
+  if (hasUrl) throw new Error("reference_image_url must not be empty.");
+  if (required) throw new Error("A character reference image is required.");
+  return undefined;
 }
 
 async function loadReferenceImage(urlValue: string) {
@@ -232,7 +356,6 @@ function extractImages(payload: JsonObject) {
 
 async function geminiAnalyze(args: JsonObject): Promise<ToolResult> {
   const prompt = textArg(args, "prompt", true);
-  const imageUrl = textArg(args, "reference_image_url");
   const requestedModel = textArg(args, "model");
   const model =
     requestedModel === "gemini-3.5-flash-lite"
@@ -240,7 +363,8 @@ async function geminiAnalyze(args: JsonObject): Promise<ToolResult> {
       : "gemini-3.8-flash";
 
   const parts: unknown[] = [];
-  if (imageUrl) parts.push(await loadReferenceImage(imageUrl));
+  const reference = await referenceImagePart(args);
+  if (reference) parts.push(reference);
   parts.push({ text: prompt.slice(0, 16_000) });
 
   const payload = await callGemini(model, parts, {
@@ -257,9 +381,11 @@ async function geminiAnalyze(args: JsonObject): Promise<ToolResult> {
   };
 }
 
-async function geminiGenerateImage(args: JsonObject): Promise<ToolResult> {
+async function geminiGenerateImage(
+  args: JsonObject,
+  requireReference = false,
+): Promise<ToolResult> {
   const prompt = textArg(args, "prompt", true);
-  const imageUrl = textArg(args, "reference_image_url");
   const requestedModel = textArg(args, "model");
   const model =
     requestedModel === "gemini-3-pro-image"
@@ -277,7 +403,8 @@ async function geminiGenerateImage(args: JsonObject): Promise<ToolResult> {
   }
 
   const parts: unknown[] = [{ text: prompt.slice(0, 16_000) }];
-  if (imageUrl) parts.push(await loadReferenceImage(imageUrl));
+  const reference = await referenceImagePart(args, requireReference);
+  if (reference) parts.push(reference);
 
   const payload = await callGemini(model, parts, {
     responseModalities: ["TEXT", "IMAGE"],
@@ -306,7 +433,6 @@ async function geminiGenerateImage(args: JsonObject): Promise<ToolResult> {
 async function geminiTurnaround(args: JsonObject): Promise<ToolResult> {
   const characterName = textArg(args, "character_name", true);
   const requirements = textArg(args, "design_requirements", true);
-  const imageUrl = textArg(args, "reference_image_url", true);
   const views = stringArrayArg(args, "views");
   const requestedViews =
     views.length > 0
@@ -335,16 +461,21 @@ async function geminiTurnaround(args: JsonObject): Promise<ToolResult> {
     "Output one clean high-resolution sheet suitable as authoritative multi-view reference for a real playable 3D game unit.",
   ].join("\n");
 
-  return geminiGenerateImage({
-    prompt,
-    reference_image_url: imageUrl,
-    model:
-      textArg(args, "model") === "gemini-3-pro-image"
-        ? "gemini-3-pro-image"
-        : "gemini-3.1-flash-image",
-    aspect_ratio: textArg(args, "aspect_ratio") || "4:3",
-    image_size: textArg(args, "image_size") || "1K",
-  });
+  return geminiGenerateImage(
+    {
+      prompt,
+      reference_image_url: args.reference_image_url,
+      reference_image_base64: args.reference_image_base64,
+      reference_image_mime_type: args.reference_image_mime_type,
+      model:
+        textArg(args, "model") === "gemini-3-pro-image"
+          ? "gemini-3-pro-image"
+          : "gemini-3.1-flash-image",
+      aspect_ratio: textArg(args, "aspect_ratio") || "4:3",
+      image_size: textArg(args, "image_size") || "1K",
+    },
+    true,
+  );
 }
 
 const tools = [
@@ -360,18 +491,19 @@ const tools = [
     name: "gemini_analyze_reference",
     title: "Analyze Character Reference with Gemini",
     description:
-      "Send a text prompt and optionally one trusted HTTPS reference image to Gemini for visual/design analysis.",
+      "Send a text prompt and optionally one trusted HTTPS or inline local reference image to Gemini for visual/design analysis.",
     inputSchema: {
       type: "object",
       properties: {
         prompt: { type: "string", minLength: 1, maxLength: 16000 },
-        reference_image_url: { type: "string", format: "uri" },
+        ...REFERENCE_IMAGE_PROPERTIES,
         model: {
           type: "string",
           enum: ["gemini-3.8-flash", "gemini-3.5-flash-lite"],
         },
       },
       required: ["prompt"],
+      oneOf: OPTIONAL_REFERENCE_IMAGE_SOURCES,
       additionalProperties: false,
     },
     annotations: { readOnlyHint: true },
@@ -380,12 +512,12 @@ const tools = [
     name: "gemini_generate_image",
     title: "Generate or Edit an Image with Gemini",
     description:
-      "Generate an image with Gemini, optionally using one trusted HTTPS image as the reference. This consumes Gemini API quota.",
+      "Generate an image with Gemini, optionally using one trusted HTTPS or inline local reference image. This consumes Gemini API quota.",
     inputSchema: {
       type: "object",
       properties: {
         prompt: { type: "string", minLength: 1, maxLength: 16000 },
-        reference_image_url: { type: "string", format: "uri" },
+        ...REFERENCE_IMAGE_PROPERTIES,
         model: {
           type: "string",
           enum: ["gemini-3.1-flash-image", "gemini-3-pro-image"],
@@ -397,6 +529,7 @@ const tools = [
         image_size: { type: "string", enum: ["1K", "2K", "4K"] },
       },
       required: ["prompt"],
+      oneOf: OPTIONAL_REFERENCE_IMAGE_SOURCES,
       additionalProperties: false,
     },
     annotations: { readOnlyHint: false },
@@ -415,7 +548,7 @@ const tools = [
           minLength: 1,
           maxLength: 12000,
         },
-        reference_image_url: { type: "string", format: "uri" },
+        ...REFERENCE_IMAGE_PROPERTIES,
         views: {
           type: "array",
           items: { type: "string", minLength: 1, maxLength: 120 },
@@ -431,11 +564,8 @@ const tools = [
         },
         image_size: { type: "string", enum: ["1K", "2K", "4K"] },
       },
-      required: [
-        "character_name",
-        "design_requirements",
-        "reference_image_url",
-      ],
+      required: ["character_name", "design_requirements"],
+      oneOf: REQUIRED_REFERENCE_IMAGE_SOURCES,
       additionalProperties: false,
     },
     annotations: { readOnlyHint: false },

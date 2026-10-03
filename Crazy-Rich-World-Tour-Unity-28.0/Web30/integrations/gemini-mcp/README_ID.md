@@ -78,3 +78,10 @@ Hasil terbaru 1 Oktober 2026: [laporan](VERIFICATION_2026-10-01_ID.md), [bukti p
 [Lanjutan 2 Oktober 2026](VERIFICATION_2026-10-02_ID.md): pengguna meminta melewati hambatan referensi Alexia; alur turnaround dilanjutkan dengan Rindi dari lineup yang disetujui. Analisis Rindi berhasil. Konektor diperbaiki agar rasio/resolusi gambar dikirim memakai enum `generateContent` v1; tes regresi, TypeScript, lint, build Preview dan enam pemeriksaan MCP lulus. Generasi gambar Gemini terhambat kuota 0. [Draft Rindi enam view](../../production/turnarounds/rindi/README_ID.md) dibuat dengan built-in imagegen dan menunggu tinjauan visual pengguna; belum ada mesh atau penggantian aset game.
 
 Pilihan pengguna berikutnya: lanjutkan **Alexia versi lama bermata biru**. Override crimson dinonaktifkan; binary crimson tidak lagi diperlukan untuk desain aktif. [Draft Alexia enam view](../../production/turnarounds/alexia/README_ID.md) sudah dibuat dengan built-in imagegen setelah analisis Gemini, dan menunggu tinjauan visual. Laporan 2 Oktober mencatat urutan arahan tersebut.
+
+
+## Inline references v0.2 — 2026-10-03
+
+Analyze, image generation, and turnaround accept either the existing `reference_image_url` or paired `reference_image_base64` (raw canonical base64, no data URL prefix) and `reference_image_mime_type` (`image/png`, `image/jpeg`, `image/webp`). Maximum decoded inline image: 3 MiB. Both source types together are rejected; turnaround requires one reference. MIME header checks and a 4 MiB response guard fail safely. No API key is sent by the client.
+
+16 offline mocked tests passed. No paid Nano Banana API call was made; Google currently lists the image API as paid tier only. Gemini app image access is separate from this server API.
