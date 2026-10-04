@@ -28,6 +28,7 @@ jobs:
           ../nano-banana-ui-review/nano-banana-front-capture.jpg
           --selection tools/front-face-selection.json
           --out front-projection/alexia-v11-front-projection-diagnostic.glb
+          --proof front-projection/alexia-v11-front-projection-diagnostic.ci-rebuild-proof.json
       - name: Archive preserved models, references and editable sources
         run: |
           python3 - <<'PY'
