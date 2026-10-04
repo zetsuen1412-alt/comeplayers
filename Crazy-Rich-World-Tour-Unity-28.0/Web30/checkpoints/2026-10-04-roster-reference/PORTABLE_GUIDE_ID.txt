@@ -1,6 +1,6 @@
 CRAZY RICH WORLD TOUR — CHECKPOINT 10 MODEL REFERENSI
 Tanggal: 04 Oktober 2026
-Branch tersimpan: checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference
+Branch tersimpan: checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-verified
 Branch pengembangan: codex/crazy-rich-web-v30
 Repo: https://github.com/zetsuen1412-alt/comeplayers
 
@@ -10,11 +10,12 @@ DI KOMPUTER LAIN
 3. Buka editable/CRWT-semua-karakter-review.blend di Blender 5.2.2 untuk menyunting
    sepuluh model. Tekstur sudah tertanam. ZIP editable juga disertakan.
 4. Untuk melanjutkan keseluruhan project, clone repo privat menggunakan akun Anda:
-   git clone --branch checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference https://github.com/zetsuen1412-alt/comeplayers.git
+   git clone --branch checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-verified https://github.com/zetsuen1412-alt/comeplayers.git
 5. Dari folder repo, periksa hash snapshot:
    python Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py --root .
 6. Untuk membuat kembali galeri dari checkout, jalankan:
-   python Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer/build_offline_gallery.py --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json --output Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/BUKA-REVIEW-MODEL.html
+   python Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer/build_offline_gallery.py --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json --expected-output-sha256 2f2a53f24be0cef8ee9c6b9c54fff5d56250715b788676bbbeb608938e00ff7d --output Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer-rebuild/BUKA-REVIEW-MODEL.html
+   Folder viewer-rebuild harus baru/kosong; file bukti galeri yang dibekukan tidak ditimpa.
 7. Mulai perubahan berikutnya dari checkpoint ini pada branch kerja baru.
 
 HASIL AKTUAL

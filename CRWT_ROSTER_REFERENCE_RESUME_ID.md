@@ -1,6 +1,6 @@
 # Lanjut Crazy Rich World Tour — checkpoint roster referensi
 
-Checkpoint utama: `checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference`. Inventori: `Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04-roster-reference/inventory.json`.
+Checkpoint utama: `checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-verified`. Inventori: `Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04-roster-reference/inventory.json`.
 
 Checkpoint gameplay sebelumnya tetap tersedia: `checkpoint/crazy-rich-world-tour-2026-10-04-gameplay-continuity`, commit `afa28a6d718dc70b4ecb7acc09ccc470c228c733`. Inventori lama: `Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04-gameplay-continuity/inventory.json`; seluruh byte-nya dipertahankan.
 

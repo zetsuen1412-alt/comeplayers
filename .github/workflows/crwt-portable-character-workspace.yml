@@ -29,11 +29,22 @@ jobs:
           Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json
           --receipt crwt-roster-validation.json
       - name: Rebuild the offline ten-character gallery without cloud generation
-        run: >-
-          python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer/build_offline_gallery.py
-          --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json
-          --expected-output-sha256 2f2a53f24be0cef8ee9c6b9c54fff5d56250715b788676bbbeb608938e00ff7d
-          --output Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/BUKA-REVIEW-MODEL.html
+        run: |
+          python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer/build_offline_gallery.py \
+            --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json \
+            --expected-output-sha256 2f2a53f24be0cef8ee9c6b9c54fff5d56250715b788676bbbeb608938e00ff7d \
+            --output crwt-roster-build/BUKA-REVIEW-MODEL.html
+          python3 - <<'PY'
+          import pathlib
+          generated=pathlib.Path('crwt-roster-build/BUKA-REVIEW-MODEL.html')
+          roster=pathlib.Path('Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04')
+          frozen_receipt=roster/'BUKA-REVIEW-MODEL.viewer-receipt.json'
+          rebuilt_receipt=generated.with_suffix('.viewer-receipt.json')
+          assert rebuilt_receipt.read_bytes()==frozen_receipt.read_bytes(), 'Rebuilt receipt differs from frozen evidence'
+          with (roster/'BUKA-REVIEW-MODEL.html').open('xb') as out:
+              out.write(generated.read_bytes())
+          print('Offline gallery and frozen receipt match; source receipt preserved.')
+          PY
       - name: Rebuild exact front projection diagnostic with Python stdlib
         working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/continuation-2026-10-04
         run: >-
