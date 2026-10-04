@@ -1,5 +1,29 @@
 # CODEX HANDOFF — Crazy Rich: World Tour — Gemini MCP + Character Rebuild
 
+## CHECKPOINT AKTIF — 2026-10-04
+
+Bagian ini adalah titik lanjut terbaru. Bagian V8 dan instruksi lama di bawah tetap sebagai riwayat; jangan memperlakukannya sebagai checkpoint aktif. Baca `production/CHARACTER-PROGRESS_ID.md` dan `production/character-visual-rebuild.json` sebelum menjalankan provider.
+
+- Referensi tetap Alexia V2 **bermata biru**. Tidak ada persetujuan baru atas geometri atau tekstur.
+- Kandidat bentuk terbaik yang tersimpan adalah **V11 Hunyuan3D-2.1 Standard**, bukan V8: `production/reconstruction/alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb`.
+- Baseline SHA-256: `d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66`; 449.582 faces / 224.713 vertices. Pertahankan baseline ini tanpa perubahan.
+- Tujuh render GLB nyata dan 360° tersedia dalam `v11-hunyuan21-diagnostic/mesh-review/`. Review hanya mengizinkan diagnostik tekstur terbatas. Hair loops/root silhouette, eye relief, fused digits/cuffs, sembilan komponen kecil dan sisi tersembunyi masih memerlukan revisi serta pemeriksaan.
+- Empat input Nano Banana berupa capture JPEG layar 584×584, bukan ekspor PNG asli. `multiviewApproved=false`; jangan memasukkannya bersama-sama sebagai referensi konsisten. V11 memakai front-only.
+- V12 `/generation_all` ditolak karena requested GPU duration **270 detik** melebihi batas akses gratis. Tidak menghasilkan tekstur/GLB. Sisa kuota tidak diukur; jangan mengklaim kuota habis atau retry otomatis.
+- V13 hanya preflight: live config Hunyuan3D-2 menyatakan **Texture Generation (Unavailable)**. Tidak ada GPU submission atau GLB V13.
+- Source resmi Paint menerima existing mesh, tetapi runtime/GPU lokal yang kompatibel dan endpoint hosted gratis texture-only belum terverifikasi. `generation_all` menghasilkan geometri baru dan tidak memberi tekstur langsung pada baseline V11.
+- Koper Alexia tetap GLB terpisah berstatus candidate. Belum ada karakter produksi yang diterima, rig final atau aset gameplay yang diganti.
+
+### Urutan pekerjaan berikutnya
+
+1. Dapatkan binary V11 dan verifikasi SHA-256 aktual sebelum mengedit. Preview PNG saja tidak cukup untuk mengubah atau mengaudit mesh.
+2. Identifikasi komponen kecil berdasarkan posisi/semantik dan periksa rambut, mata, tangan serta cuff dari mesh nyata. Simpan setiap revisi sebagai kandidat baru; jangan menghapus komponen hanya berdasarkan ukuran.
+3. Untuk diagnostik tekstur, verifikasi jalur yang benar-benar dapat dijalankan dengan akses gratis yang tersedia. Jangan mengulang V12/V13 tanpa perubahan layanan yang terbukti, membeli kredit atau mengubah billing.
+4. Perbaiki konsistensi referensi sebelum rekonstruksi multiview baru. Pertahankan V2 sebagai desain, dan beri label sisi yang diinferensikan.
+5. Tinjau geometri + material dahulu, kemudian topology/rig dan Idle, Walk, Jump, Skill, Win, Lose. Integrasi baru sesudah gate visual/deformasi lolos, dengan hash GLB yang sama pada selector dan papan.
+
+Reproduksi diagnostik: `production/reconstruction/tools/REPRODUCE-DIAGNOSTICS.txt`. Perhatikan bahwa instruksi portable mengacu pada layout arsip; jalur repository dijelaskan pada awal `CHARACTER-PROGRESS_ID.md`.
+
 ## CONTINUATION UPDATE — 2026-10-03
 
 User approved continuation from the displayed body-only draft and requested detailed game characters using available resources, especially free services and Gemini Nano Banana.
