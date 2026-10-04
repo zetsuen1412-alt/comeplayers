@@ -1,3 +1,9 @@
+# Checkpoint seluruh proyek — 2026-10-04
+
+Baca [CHECKPOINT_LATEST_ID.md](../CHECKPOINT_LATEST_ID.md) untuk pemulihan lintas komputer dan inventaris seluruh model. Selain kandidat rebuild Alexia berikut, **10 model roster 3D sudah tersimpan** di `client/assets/characters/sculpt-v1/models/`, source revision 10, dengan enam animasi dan source ZIP `production/CRWT-Editable-Source.zip`. Seluruhnya dipreservasi beserta status review; sculpt-v1 tetap backup visual yang pernah ditolak sebagai final.
+
+Catatan Alexia Jutsu revision 6 di chat **Lanjutkan Rekonstruksi Alexia** juga dicatat pada checkpoint; binary ekspor belum tersedia di tree. Checkpoint mencakup semua hasil yang sudah dilacak Git dan mencatat hasil eksternal yang belum dipulihkan. Jangan menganggap hanya Alexia yang sudah mempunyai model.
+
 # Catatan jalur repository
 
 Daftar file berikut mengacu pada isi arsip unduhan lokal. Di repository, body/preview Alexia tersedia dalam production/reconstruction/alexia/, prop Yuna dalam production/reconstruction/yuna/props/, dan skrip portable dalam production/reconstruction/tools/. GLB diagnostik gagal V9/V10 hanya disertakan di arsip; repository menyimpan evidence dan contact sheet. Referensi kanonis tersedia dalam production/references/chibi_travel_adventurers_collectible_lineup.png dan production/turnarounds/alexia/turnaround-blue-imagegen-v2.png.

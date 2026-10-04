@@ -1,8 +1,18 @@
 # CODEX HANDOFF — Crazy Rich: World Tour — Gemini MCP + Character Rebuild
 
-## CHECKPOINT AKTIF — 2026-10-04
+## CHECKPOINT LENGKAP — 2026-10-04
 
-Bagian ini adalah titik lanjut terbaru. Bagian V8 dan instruksi lama di bawah tetap sebagai riwayat; jangan memperlakukannya sebagai checkpoint aktif. Baca `production/CHARACTER-PROGRESS_ID.md` dan `production/character-visual-rebuild.json` sebelum menjalankan provider.
+Titik masuk lintas komputer sekarang **[CHECKPOINT_LATEST_ID.md](CHECKPOINT_LATEST_ID.md)**, yang menautkan snapshot lengkap seluruh proyek dan inventaris/hash. Jangan memakai ringkasan Alexia saja sebagai checkpoint roster.
+
+**Sepuluh model 3D Alexia, Rindi, Kairo, Luna, Nox, Atlas, Zeno, Yuna, Mochi dan Pip tersimpan** di `client/assets/characters/sculpt-v1/models/`, beserta `roster.glb`, material/skin dan enam animasi dari source revision 10. `production/CRWT-Editable-Source.zip` juga dilacak Git. Pertahankan model lama dan status review-nya: sculpt-v1 ditolak sebagai visual final dan tetap backup, bukan berarti belum ada model 3D.
+
+Alexia V11 tetap kandidat rebuild Hunyuan terbaru yang berhasil tersimpan; V12 tidak menghasilkan tekstur/mesh dan V13 hanya preflight. Hasil Alexia 3D Jutsu revision 6 dicatat di chat asal tetapi binary ekspornya belum ditemukan di GitHub; pulihkan hasil itu bila tersedia sebelum memilih kandidat. Referensi aktif tetap mata biru.
+
+Snapshot: `checkpoint/crazy-rich-world-tour-2026-10-04`. Commit baseline audit sebelum checkpoint: `758f1cd5faa1f99ff08f97a11e71bba2b8b6af9b`. Baca `checkpoints/2026-10-04/README_ID.md`, lalu jalankan `tools/verify_checkpoint.py` pada checkout lengkap. Bagian di bawah adalah riwayat jalur rebuild; checkpoint baru menjadi titik lanjut utama.
+
+## CHECKPOINT ALEXIA — 2026-10-04 (riwayat)
+
+Bagian ini menyimpan riwayat checkpoint Alexia; checkpoint lengkap di atas menjadi titik lanjut aktif. Bagian V8 dan instruksi lama di bawah tetap sebagai riwayat. Baca `production/CHARACTER-PROGRESS_ID.md` dan `production/character-visual-rebuild.json` sebelum menjalankan provider.
 
 - Referensi tetap Alexia V2 **bermata biru**. Tidak ada persetujuan baru atas geometri atau tekstur.
 - Kandidat bentuk terbaik yang tersimpan adalah **V11 Hunyuan3D-2.1 Standard**, bukan V8: `production/reconstruction/alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb`.

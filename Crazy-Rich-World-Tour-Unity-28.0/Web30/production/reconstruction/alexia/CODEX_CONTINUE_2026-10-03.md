@@ -1,3 +1,11 @@
+# Titik lanjut diperbarui — 2026-10-04
+
+File ini sekarang riwayat percobaan V8. Untuk status terbaru seluruh proyek, mulai dari [CHECKPOINT_LATEST_ID.md](../../../CHECKPOINT_LATEST_ID.md) dan [CHARACTER-PROGRESS_ID.md](../../CHARACTER-PROGRESS_ID.md).
+
+Sepuluh GLB roster tersimpan di `Web30/client/assets/characters/sculpt-v1/models/`. Alexia V11 sudah dihasilkan dan dipreservasi; V12 gagal tanpa tekstur/mesh; V13 berhenti di preflight. Jangan mengulang V8 sebagai titik lanjut default. Referensi aktif tetap Alexia V2 bermata biru. Roster lama dan kandidat Jutsu eksternal dicatat pada checkpoint lengkap.
+
+---
+
 # CODEX CONTINUE — Alexia reconstruction — 2026-10-03
 
 ## CONTINUATION UPDATE — 2026-10-03
@@ -15,4 +23,3 @@ User approved continuation from the displayed body-only draft and requested deta
 - Inventory of all ten designs saved in `production/character-design-inventory-2026-10-03.json`. Eight unlabeled lineup identities are inferred by roster order and require confirmation before final asset assignments. Mochi requires kitten rig; Pip mechanical suitcase rig. Hidden sides/Skill choreography remain unspecified.
 
 Next: use Nano Banana app after user login to clean/normalize coherent hair views while preserving V2; inspect before changed reconstruction. Do not repeat failed Hunyuan V8 unchanged or texture/rig/install this rejected mesh. Continue all ten only after one fidelity-validated method passes. Preserve same reviewed/in-game GLB hash and full Idle/Walk/Jump/Skill/Win/Lose + board evidence gates.
-

@@ -1,6 +1,6 @@
 {
   "project": "Crazy Rich: World Tour",
-  "updated_at": "2026-10-03",
+  "updated_at": "2026-10-04",
   "status": "alexia_v11_preserved_texture_blocked_by_free_duration_and_unavailable_alternative",
   "existing_sculpt_v1": {
     "visual_status": "rejected_by_user",
@@ -261,5 +261,29 @@
       "evidence": "production/reconstruction/yuna/props/yuna-palette-optimized-candidate-evidence.json"
     }
   },
-  "counting_note": "new_models_produced and generated_mesh_attempts count successful reconstruction generation attempts, not every exported representation or cleanup copy. The failed V12 submission produced no mesh and is not added to the successful-mesh count."
+  "counting_note": "new_models_produced and generated_mesh_attempts count successful reconstruction generation attempts, not every exported representation or cleanup copy. The failed V12 submission produced no mesh and is not added to the successful-mesh count.",
+  "portable_checkpoint": {
+    "id": "crwt-2026-10-04",
+    "entry": "CHECKPOINT_LATEST_ID.md",
+    "detail": "checkpoints/2026-10-04/README_ID.md",
+    "inventory": "checkpoints/2026-10-04/inventory.json",
+    "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-04",
+    "roster_3d_files_present": 10,
+    "roster_source_revision": 10,
+    "roster_directory": "client/assets/characters/sculpt-v1/models",
+    "roster_review_status_preserved": "rejected_by_user_backup_only",
+    "editable_source_archive": "production/CRWT-Editable-Source.zip",
+    "user_correction": "User reminded on 2026-10-04 that Alexia, Rindi and other 3D models already exist. Inventory includes the entire roster, not only Alexia reconstruction.",
+    "external_candidate_pending_recovery": {
+      "project": "Crazy Rich - Alexia V2 Clean Rebuild",
+      "provider": "3D Jutsu",
+      "revision": 6,
+      "source_chat": "6abfc1ce-6418-83ec-9423-e4df870c1465",
+      "binary_in_repository_verified": false
+    },
+    "new_meshes_generated_by_checkpoint": 0,
+    "visual_approval_changed": false,
+    "game_assets_replaced_by_checkpoint": false,
+    "remote_checkpoint_status": "github_snapshot"
+  }
 }

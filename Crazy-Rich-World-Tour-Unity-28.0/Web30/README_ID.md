@@ -10,6 +10,10 @@ Folder ini adalah **source of truth** Crazy Rich: World Tour untuk target:
 
 Backend gameplay tetap Supabase dan server-authoritative. Client Web/Android/PC tidak boleh menentukan hasil Starwheel, economy, ownership, card effect, skill, timeout, atau winner secara lokal.
 
+## Checkpoint lintas komputer
+
+Mulai dari [CHECKPOINT_LATEST_ID.md](CHECKPOINT_LATEST_ID.md) untuk seluruh roster model 3D, kandidat rebuild, source ZIP, inventaris/hash dan instruksi pindah komputer. Snapshot: `checkpoint/crazy-rich-world-tour-2026-10-04`. Commit baseline audit sebelum checkpoint: `758f1cd5faa1f99ff08f97a11e71bba2b8b6af9b`.
+
 ## Struktur
 
 - `client/` — launcher, offline preview, online renderer WebGL/Three.js, GLB characters, environment/landmark assets.
