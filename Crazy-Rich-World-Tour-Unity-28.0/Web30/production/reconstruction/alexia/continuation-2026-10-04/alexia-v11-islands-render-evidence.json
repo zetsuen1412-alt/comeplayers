@@ -1,0 +1,28 @@
+{
+  "input_sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+  "input_unchanged": true,
+  "actual_geometry": true,
+  "depth_tested": true,
+  "renderer": "NVIDIA GeForce GTX 1660 SUPER/PCIe/SSE2",
+  "front_camera": "+Z looking toward -Z; image X=source X, up=source Y",
+  "back_camera": "-Z looking toward +Z; image X=-source X, up=source Y",
+  "all_triangles": 449582,
+  "component_face_counts": [
+    448244,
+    500,
+    212,
+    200,
+    188,
+    124,
+    82,
+    16,
+    8,
+    8
+  ],
+  "marker_note": "Enlarged center markers, superimposed irrespective of depth; circles do not depict actual island size",
+  "isolation_note": "Main component omitted in isolated inspection panels only; no model was exported/edited",
+  "paths": [
+    "alexia-v11-islands-locations.png",
+    "alexia-v11-islands-isolated.png"
+  ]
+}

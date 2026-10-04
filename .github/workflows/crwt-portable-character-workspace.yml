@@ -20,20 +20,46 @@ jobs:
           persist-credentials: false
       - name: Verify checkpoint assets
         run: python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py
+      - name: Rebuild exact front projection diagnostic with Python stdlib
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/continuation-2026-10-04
+        run: >-
+          python3 tools/rebuild_front_projection.py
+          ../v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb
+          ../nano-banana-ui-review/nano-banana-front-capture.jpg
+          --selection tools/front-face-selection.json
+          --out front-projection/alexia-v11-front-projection-diagnostic.glb
       - name: Archive preserved models, references and editable sources
         run: |
           python3 - <<'PY'
-          import hashlib,json,pathlib,zipfile
+          import hashlib,json,pathlib,zipfile,os,sys
           root=pathlib.Path('.').resolve()
           source=root/'Crazy-Rich-World-Tour-Unity-28.0/Web30'
           target=root/'crwt-portable-character-workspace.zip'
           files=sorted(p for p in source.rglob('*') if p.is_file())
+          diagnostic=source/'production/reconstruction/alexia/continuation-2026-10-04'
+          verifier=(diagnostic/'tools/verify_portable_workspace.py').read_bytes()
+          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(diagnostic/'PORTABLE_GUIDE_ID.txt').read_bytes()
+          extras={'verify_portable_workspace.py':verifier,'MULAI-DI-SINI.txt':guide}
+          records=[]
           with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
               for p in files:
-                  z.write(p,p.relative_to(root).as_posix())
+                  assert p.resolve().is_relative_to(source.resolve())
+                  assert p.name == '.env.example' or not p.name.startswith('.env')
+                  name=p.relative_to(root).as_posix()
+                  data=p.read_bytes()
+                  z.writestr(name,data)
+                  records.append({'path':name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+              for name,data in extras.items():
+                  z.writestr(name,data)
+                  records.append({'path':name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+              manifest={'schema':'crwt.web30.portable.v1','scope':'Web30 with preserved models and continuation diagnostics; excludes surrounding Unity project and website mirrors','continuation_commit':os.environ['GITHUB_SHA'],'files':sorted(records,key=lambda r:r['path']),'excluded_from_hash':['portable-manifest.json (self-referential)']}
+              z.writestr('portable-manifest.json',json.dumps(manifest,indent=2)+'\n')
           with zipfile.ZipFile(target) as z:
               assert z.testzip() is None
-          receipt={'commit':__import__('os').environ['GITHUB_SHA'],'files':len(files),'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'game_assets_changed':False}
+              for record in records:
+                  data=z.read(record['path'])
+                  assert len(data)==record['bytes'] and hashlib.sha256(data).hexdigest()==record['sha256']
+          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'diagnostic_rebuilt_from_frozen_selection':True,'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
           (root/'crwt-portable-character-workspace-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
           print(json.dumps(receipt))
           PY

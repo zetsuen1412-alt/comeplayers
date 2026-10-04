@@ -1,0 +1,2394 @@
+{
+  "schema": "crwt.read_only_glb_component_audit.v1",
+  "input_file": "alexia-v11-hunyuan21-untextured-diagnostic.glb",
+  "input_bytes": 8092808,
+  "input_sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+  "input_git_blob_sha1": "bcd068f9644b82b413de6ec56ffa3978ca763368",
+  "binary_chunk_sha256": "4c6eb50f472dfb8a9cca00aee6a5602bde3ee30597895be8af9a7681d6801328",
+  "json_chunk_sha256": "2a5d08ec9b9c71d153b17ec1c3b2b179bba203576c21016cde150c2d42735018",
+  "scene": 0,
+  "scene_instances": 1,
+  "mesh_count": 1,
+  "primitive_count": 1,
+  "skin_count": 0,
+  "animation_count": 0,
+  "material_count": 0,
+  "image_count": 0,
+  "indexed_vertices": 224713,
+  "used_indexed_vertices": 224713,
+  "exact_coordinate_vertices": 224713,
+  "used_exact_coordinate_vertices": 224713,
+  "faces": 449582,
+  "bounds_min": [
+    -0.709930956363678,
+    -0.9977096319198608,
+    -0.45268574357032776
+  ],
+  "bounds_max": [
+    0.7035887241363525,
+    0.9882368445396423,
+    0.46762484312057495
+  ],
+  "connectivity_definition": "Vertex connectivity permits point-only contacts; edge connectivity requires an entire shared edge. Indexed pools stay separate for each mesh primitive/instance. Exact-coordinate pools analytically coalesce equal world-space coordinates across primitive pools; no tolerance, mesh edits, or output welding. Edge-connected exact-coordinate components are the primary surface-island inventory.",
+  "hash_note": "File/chunk/accessor hashes identify original binary data. Component hashes identify ordered membership or decoded world-space values; coordinate component numbering differs from indexed numbering.",
+  "primitives": [
+    {
+      "audit_primitive": 0,
+      "mesh": 0,
+      "mesh_name": "geometry_0",
+      "node": 1,
+      "node_name": "geometry_0",
+      "primitive": 0,
+      "mode": 4,
+      "vertices": 224713,
+      "faces": 449582,
+      "material": null,
+      "attributes": {
+        "POSITION": 1
+      },
+      "position": {
+        "accessor": 1,
+        "component_type": 5126,
+        "type": "VEC3",
+        "count": 224713,
+        "raw_attribute_sha256": "416825b530ca4cdae092800cb917a2ffdbc5f30202f6621b58d5ce80219218e6",
+        "hash_definition": "accessor element bytes in original component dtype, deinterleaved; sparse overrides applied"
+      },
+      "indices": {
+        "accessor": 0,
+        "component_type": 5125,
+        "type": "SCALAR",
+        "count": 1348746,
+        "raw_attribute_sha256": "e5a321d62cdacca1924f83c966dbba454cba7edcafa444d2fc320cfe1ba1c941",
+        "hash_definition": "accessor element bytes in original component dtype, deinterleaved; sparse overrides applied"
+      },
+      "world_transform": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "world_bounds_min": [
+        -0.709930956363678,
+        -0.9977096319198608,
+        -0.45268574357032776
+      ],
+      "world_bounds_max": [
+        0.7035887241363525,
+        0.9882368445396423,
+        0.46762484312057495
+      ]
+    }
+  ],
+  "indexed_components": [
+    {
+      "component": 1,
+      "vertices": 224028,
+      "faces": 448244,
+      "bounds_min": [
+        -0.709930956363678,
+        -0.9977096319198608,
+        -0.45268574357032776
+      ],
+      "bounds_max": [
+        0.7035887241363525,
+        0.9882368445396423,
+        0.46762484312057495
+      ],
+      "extent_xyz": [
+        1.4135196805000305,
+        1.9859464764595032,
+        0.9203105866909027
+      ],
+      "bounds_center": [
+        -0.0031711161136627197,
+        -0.004736393690109253,
+        0.007469549775123596
+      ],
+      "vertex_mean": [
+        -0.003539862772483997,
+        0.0669556775945492,
+        0.048846458506524436
+      ],
+      "surface_centroid": [
+        -0.002513397845477317,
+        0.06336538740324657,
+        0.051113315876293364
+      ],
+      "surface_area": 9.362040577929868,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 0.5151427770015085,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "7d8bd00d14f806b5c039828c105fa94294b1ff8e8f11ab679437e40bb2172c08",
+      "vertex_membership_sha256": "37657123720e379faf17eabcf65c75969192fc851550549e4469afe62841ffe0",
+      "position_values_sha256": "4a283f6cc5d158cdd800249fe3be9af23d65b985c7380d46a846b3946ca9108a",
+      "triangle_index_values_sha256": "a89081189320f83ef88e1e7d2d8defc2ba42b9e608580ea02e7c32d2a64d0239",
+      "face_fraction": 0.9970239022024903,
+      "area_fraction": 0.9973199422708969,
+      "center_in_main_bounds_xyz": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "max_extent_vs_main": 1.0,
+      "interpretation": "main component by face count"
+    },
+    {
+      "component": 2,
+      "vertices": 252,
+      "faces": 500,
+      "bounds_min": [
+        0.23924849927425385,
+        -0.3150772750377655,
+        -0.2835027277469635
+      ],
+      "bounds_max": [
+        0.30238500237464905,
+        -0.23744842410087585,
+        -0.22544421255588531
+      ],
+      "extent_xyz": [
+        0.0631365031003952,
+        0.07762885093688965,
+        0.058058515191078186
+      ],
+      "bounds_center": [
+        0.27081675082445145,
+        -0.2762628495693207,
+        -0.2544734701514244
+      ],
+      "vertex_mean": [
+        0.26858643667092397,
+        -0.2795537179188123,
+        -0.25343128400189535
+      ],
+      "surface_centroid": [
+        0.26895844698878685,
+        -0.280356989011407,
+        -0.252971463978642
+      ],
+      "surface_area": 0.010014945419102365,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 7.291557805920517e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "8d6c76283b08476e41c470f89dafce573c679cf921df1ca3c70798b0c93fba66",
+      "vertex_membership_sha256": "a32bbc221dd22d6a2852c23fd597197e1e4a3ab82ee11c6a806448a8df8090e0",
+      "position_values_sha256": "393d670b4b6fe6e6510c7a97507dfe239d437ba5dcc7dda59ca8738f499d699e",
+      "triangle_index_values_sha256": "c05402d3db30b82fa94db89fbbb9e59bb94822009b2e8afa44c437ec879e152c",
+      "face_fraction": 0.0011121441694729771,
+      "area_fraction": 0.0010668726229163515,
+      "center_in_main_bounds_xyz": [
+        0.6938337829447068,
+        0.363276045403156,
+        0.21537541378460237
+      ],
+      "max_extent_vs_main": 0.03908909522842955,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 3,
+      "vertices": 108,
+      "faces": 212,
+      "bounds_min": [
+        -0.23468846082687378,
+        0.44996002316474915,
+        -0.32717663049697876
+      ],
+      "bounds_max": [
+        -0.1770429015159607,
+        0.4831489324569702,
+        -0.2916576564311981
+      ],
+      "extent_xyz": [
+        0.057645559310913086,
+        0.03318890929222107,
+        0.03551897406578064
+      ],
+      "bounds_center": [
+        -0.20586568117141724,
+        0.4665544778108597,
+        -0.30941714346408844
+      ],
+      "vertex_mean": [
+        -0.20726019337221427,
+        0.46459527341304,
+        -0.30951035353872514
+      ],
+      "surface_centroid": [
+        -0.20625520850170756,
+        0.4654809795506703,
+        -0.31012484002106067
+      ],
+      "surface_area": 0.004365948307482288,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 2.0820727234617636e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "c5623ebac3addea22bf6210d06e7a56542e728c598fd3b6b73ecc996a412ce68",
+      "vertex_membership_sha256": "b231c65952c0a510cfbd78ea34e79baacac273595075af8fcfb8f04b4985cc26",
+      "position_values_sha256": "8a101b21b1f6c6582b737423a329494539c503157c07e9555103a2a001be1039",
+      "triangle_index_values_sha256": "aebdfef9567c69dafafd686ef6512b93a531113823448df4f2b8d5fd553cc360",
+      "face_fraction": 0.0004715491278565423,
+      "area_fraction": 0.00046509596681739286,
+      "center_in_main_bounds_xyz": [
+        0.35660294097493456,
+        0.7373129775084245,
+        0.15567418453956977
+      ],
+      "max_extent_vs_main": 0.029026743668178902,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 4,
+      "vertices": 102,
+      "faces": 200,
+      "bounds_min": [
+        0.3513110280036926,
+        0.10196754336357117,
+        -0.4465618431568146
+      ],
+      "bounds_max": [
+        0.40804529190063477,
+        0.12132579833269119,
+        -0.37593650817871094
+      ],
+      "extent_xyz": [
+        0.05673426389694214,
+        0.019358254969120026,
+        0.07062533497810364
+      ],
+      "bounds_center": [
+        0.3796781599521637,
+        0.11164667084813118,
+        -0.41124917566776276
+      ],
+      "vertex_mean": [
+        0.3800320552260268,
+        0.11097334391053985,
+        -0.4082490798889422
+      ],
+      "surface_centroid": [
+        0.37868988778319806,
+        0.11165019954984275,
+        -0.4093556642422505
+      ],
+      "surface_area": 0.003926118948409432,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 1.3010823285004752e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9a66c18cf3e0090e1f7df2c25c5dc38b57831d87411dd90bb8365b54fab02a35",
+      "vertex_membership_sha256": "41f83c1b39388393da0a2f9922918c25588b869838ddb8a2e08fde8c683fb100",
+      "position_values_sha256": "8d4593e59ee622eb9d802f0a428ed403d464470d41b65f193c8fe978d99c8f3d",
+      "triangle_index_values_sha256": "821636bd2d0663070bc74657890d300c69aab4e796c154a6f1a5312734768d3a",
+      "face_fraction": 0.00044485766778919086,
+      "area_fraction": 0.00041824180213521195,
+      "center_in_main_bounds_xyz": [
+        0.7708482105678175,
+        0.5586033238648633,
+        0.04502454769270406
+      ],
+      "max_extent_vs_main": 0.03556255710577495,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 5,
+      "vertices": 94,
+      "faces": 188,
+      "bounds_min": [
+        0.2386164516210556,
+        -0.22604472935199738,
+        0.04956742748618126
+      ],
+      "bounds_max": [
+        0.2643347382545471,
+        -0.18978726863861084,
+        0.09304285794496536
+      ],
+      "extent_xyz": [
+        0.025718286633491516,
+        0.036257460713386536,
+        0.0434754304587841
+      ],
+      "bounds_center": [
+        0.25147559493780136,
+        -0.2079159989953041,
+        0.07130514271557331
+      ],
+      "vertex_mean": [
+        0.2520977146130927,
+        -0.21063314378261566,
+        0.06978147885108248
+      ],
+      "surface_centroid": [
+        0.25173303329585056,
+        -0.2095636851185016,
+        0.07095954142513895
+      ],
+      "surface_area": 0.0031637446088964016,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -6.80771289615027e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "3027a48c92307ef3ab8b0ee4e5533826b42bb78b4e8e2c3faaed939ddda21994",
+      "vertex_membership_sha256": "7d1cd77b34844a7596166245ffad50eb14b366edfcdeaa0840a391ff3357e0e9",
+      "position_values_sha256": "dcafe53af7e003b47bf7ba389a91e3de05c3fbe297ee5997c563da5b8ed0d858",
+      "triangle_index_values_sha256": "15aa2c164ae2dfdb1e85e76aea79c7b0ec235ae75bfb5feadce9bb0355857173",
+      "face_fraction": 0.0004181662077218394,
+      "area_fraction": 0.00033702754911601893,
+      "center_in_main_bounds_xyz": [
+        0.6801508069285481,
+        0.39769129847476126,
+        0.5693630974842732
+      ],
+      "max_extent_vs_main": 0.021891541878958913,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 6,
+      "vertices": 64,
+      "faces": 124,
+      "bounds_min": [
+        -0.057551298290491104,
+        0.24486015737056732,
+        0.06413891166448593
+      ],
+      "bounds_max": [
+        0.000649196736048907,
+        0.2662806510925293,
+        0.07984988391399384
+      ],
+      "extent_xyz": [
+        0.05820049502654001,
+        0.021420493721961975,
+        0.015710972249507904
+      ],
+      "bounds_center": [
+        -0.0284510507772211,
+        0.2555704042315483,
+        0.07199439778923988
+      ],
+      "vertex_mean": [
+        -0.028298931288190943,
+        0.2563889902085066,
+        0.07143884722609073
+      ],
+      "surface_centroid": [
+        -0.031039636612682428,
+        0.2562799424713087,
+        0.07171518047561071
+      ],
+      "surface_area": 0.0022670911448072813,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -5.333130305483623e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "18a9f92b2bbd84615085daf33621f1edb9f31c41f59786e625e4af5a85c68abd",
+      "vertex_membership_sha256": "a1f62105965c6abdab324263ab2289528a59473802309ea059e1f58a27bef3be",
+      "position_values_sha256": "3e51fd0e8fe41187c2afded58d8a5f2c229df2c1ccf2cad5a1151ce066b41ba2",
+      "triangle_index_values_sha256": "b83e61bf1a52e5c03ca6818444fe8e9c0da6c642112324c552137d9c460d693b",
+      "face_fraction": 0.0002758117540292983,
+      "area_fraction": 0.00024150880257795405,
+      "center_in_main_bounds_xyz": [
+        0.4821156118218208,
+        0.6310744277387204,
+        0.5701120349447721
+      ],
+      "max_extent_vs_main": 0.02930617502355775,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 7,
+      "vertices": 43,
+      "faces": 82,
+      "bounds_min": [
+        0.17615467309951782,
+        -0.21667873859405518,
+        0.0007762056775391102
+      ],
+      "bounds_max": [
+        0.1971501260995865,
+        -0.18518298864364624,
+        0.014629054814577103
+      ],
+      "extent_xyz": [
+        0.020995453000068665,
+        0.031495749950408936,
+        0.013852849137037992
+      ],
+      "bounds_center": [
+        0.18665239959955215,
+        -0.2009308636188507,
+        0.007702630246058106
+      ],
+      "vertex_mean": [
+        0.18574949995029805,
+        -0.20381244046743527,
+        0.007684605445192997
+      ],
+      "surface_centroid": [
+        0.1863772773963649,
+        -0.20309818983615305,
+        0.008024334784928384
+      ],
+      "surface_area": 0.001171597149077224,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.9349180195137574e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "ddedf1febaec49bf5789292dd5182e75197914244ea38b400ea85345528c0b95",
+      "vertex_membership_sha256": "e10248ff14cb7dc5763bfe368c60e2a35d60c3003057f9bf8605a064eb0aea13",
+      "position_values_sha256": "33c520b6b8fee783eb45a2666b6137f9bfad1e3c01c2c5e11f02d55753d3d7f4",
+      "triangle_index_values_sha256": "fee117682df57d7c894eabc380533c1e2b582543facce07d7e5b65a7a9452238",
+      "face_fraction": 0.00018239164379356824,
+      "area_fraction": 0.00012480796161436992,
+      "center_in_main_bounds_xyz": [
+        0.6342913850665772,
+        0.4012085812712777,
+        0.5002532628378997
+      ],
+      "max_extent_vs_main": 0.015859314600743312,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 8,
+      "vertices": 10,
+      "faces": 16,
+      "bounds_min": [
+        -0.18933776021003723,
+        0.23659953474998474,
+        0.08505497127771378
+      ],
+      "bounds_max": [
+        -0.18001112341880798,
+        0.24213647842407227,
+        0.10076557844877243
+      ],
+      "extent_xyz": [
+        0.009326636791229248,
+        0.005536943674087524,
+        0.015710607171058655
+      ],
+      "bounds_center": [
+        -0.1846744418144226,
+        0.2393680065870285,
+        0.0929102748632431
+      ],
+      "vertex_mean": [
+        -0.18471040576696396,
+        0.2397758662700653,
+        0.09403730630874634
+      ],
+      "surface_centroid": [
+        -0.18467653866128908,
+        0.23972727676959452,
+        0.09283524216863616
+      ],
+      "surface_area": 0.00021641006771936218,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.805242021024153e-07,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bb38102c5190e84046a2883d2886d4efc57ae852321d7852bcfbbad5cd55c34e",
+      "vertex_membership_sha256": "04f6923fa52ab1bb0d5569c613db7c3f738fb59e85c16c2d4dea95d94693c962",
+      "position_values_sha256": "f1b26986d7aa0de87451505dcb96cc5f1c0839c2b5240f12523077c6a8971893",
+      "triangle_index_values_sha256": "1d426ec64e59429b5638173da8d19342638e82d25357367a70858ea4a46a8a99",
+      "face_fraction": 3.558861342313527e-05,
+      "area_fraction": 2.305374287241548e-05,
+      "center_in_main_bounds_xyz": [
+        0.37159476574351386,
+        0.6229159008919118,
+        0.5928390114421402
+      ],
+      "max_extent_vs_main": 0.007910891535741257,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 9,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.0701671615242958,
+        0.513261079788208,
+        0.39591217041015625
+      ],
+      "bounds_max": [
+        -0.06584195792675018,
+        0.5177837610244751,
+        0.3977943956851959
+      ],
+      "extent_xyz": [
+        0.004325203597545624,
+        0.00452268123626709,
+        0.0018822252750396729
+      ],
+      "bounds_center": [
+        -0.068004559725523,
+        0.5155224204063416,
+        0.3968532830476761
+      ],
+      "vertex_mean": [
+        -0.06720774744947751,
+        0.5150574247042338,
+        0.39690181116263074
+      ],
+      "surface_centroid": [
+        -0.06753604545286848,
+        0.5152590732353105,
+        0.3968946190604446
+      ],
+      "surface_area": 2.350140452247327e-05,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 6.136530334124273e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9643f71bcb198ac60e2cd6041e5676a755e3afa6a973d01ccb2d8d2a382deba8",
+      "vertex_membership_sha256": "2ecd25fab67daf7da1e5ce90d76e80836a8b7e3f6fe122c85ca7e50dfb992fed",
+      "position_values_sha256": "54d93bc5e6d2f64ef02a4c2f7dc2b1ad28515708ecee100bc6e597fea2fed97d",
+      "triangle_index_values_sha256": "adb498340d1f9ac73896acff145c55b610d2a1ad99b3f0b923dbc6426bfdf0c0",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 2.5035588349074145e-06,
+      "center_in_main_bounds_xyz": [
+        0.45413332795697225,
+        0.7619702092998778,
+        0.9231003521024709
+      ],
+      "max_extent_vs_main": 0.002277342964615046,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 10,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.060033850371837616,
+        0.25492337346076965,
+        0.08001970499753952
+      ],
+      "bounds_max": [
+        -0.058071088045835495,
+        0.25652027130126953,
+        0.08314096182584763
+      ],
+      "extent_xyz": [
+        0.001962762326002121,
+        0.001596897840499878,
+        0.0031212568283081055
+      ],
+      "bounds_center": [
+        -0.059052469208836555,
+        0.2557218223810196,
+        0.08158033341169357
+      ],
+      "vertex_mean": [
+        -0.058983766163388886,
+        0.2555389255285263,
+        0.08221289763847987
+      ],
+      "surface_centroid": [
+        -0.05900663744633264,
+        0.255583508475435,
+        0.08195442218666824
+      ],
+      "surface_area": 8.877682485450388e-06,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.6305086309389988e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bbff14efc9344801b7e017f2a805f80cf50f133f200ebc89545ff4917e5d9cf4",
+      "vertex_membership_sha256": "fda4a4baffda349fd4b8f6f79baf39d0a1af4e43b2b4259b154f3fa6d9e03eb1",
+      "position_values_sha256": "b03e6afabf0644fee542e7bdfd68c867101217a4f40195bcc1cb363090958107",
+      "triangle_index_values_sha256": "5a8f628ce336762684bb2663b818d3c2a15dfd9efc77d8b8851a8940aadad945",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 9.457222183762959e-07,
+      "center_in_main_bounds_xyz": [
+        0.4604665192384121,
+        0.6311506725677055,
+        0.5805280138122121
+      ],
+      "max_extent_vs_main": 0.0015716721801448577,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    }
+  ],
+  "exact_coordinate_components": [
+    {
+      "component": 1,
+      "vertices": 224028,
+      "faces": 448244,
+      "bounds_min": [
+        -0.709930956363678,
+        -0.9977096319198608,
+        -0.45268574357032776
+      ],
+      "bounds_max": [
+        0.7035887241363525,
+        0.9882368445396423,
+        0.46762484312057495
+      ],
+      "extent_xyz": [
+        1.4135196805000305,
+        1.9859464764595032,
+        0.9203105866909027
+      ],
+      "bounds_center": [
+        -0.0031711161136627197,
+        -0.004736393690109253,
+        0.007469549775123596
+      ],
+      "vertex_mean": [
+        -0.003539862772483997,
+        0.0669556775945492,
+        0.048846458506524436
+      ],
+      "surface_centroid": [
+        -0.002513397845477317,
+        0.06336538740324657,
+        0.051113315876293364
+      ],
+      "surface_area": 9.362040577929868,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 0.5151427770015085,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "7d8bd00d14f806b5c039828c105fa94294b1ff8e8f11ab679437e40bb2172c08",
+      "vertex_membership_sha256": "95ad36af4cf8ff753e50007736836dc2b5086f7a49c8d3852b2777abe02e33ec",
+      "position_values_sha256": "b6ff42da98559fd92dcf8357e54760ab55363a3bc04f22cb703d81812d25ad0b",
+      "triangle_index_values_sha256": "79b29ced784a46c7ba262bba3c545b6c1984a1999fcf99c585a9e56829a099ce",
+      "face_fraction": 0.9970239022024903,
+      "area_fraction": 0.9973199422708969,
+      "center_in_main_bounds_xyz": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "max_extent_vs_main": 1.0,
+      "interpretation": "main component by face count"
+    },
+    {
+      "component": 2,
+      "vertices": 252,
+      "faces": 500,
+      "bounds_min": [
+        0.23924849927425385,
+        -0.3150772750377655,
+        -0.2835027277469635
+      ],
+      "bounds_max": [
+        0.30238500237464905,
+        -0.23744842410087585,
+        -0.22544421255588531
+      ],
+      "extent_xyz": [
+        0.0631365031003952,
+        0.07762885093688965,
+        0.058058515191078186
+      ],
+      "bounds_center": [
+        0.27081675082445145,
+        -0.2762628495693207,
+        -0.2544734701514244
+      ],
+      "vertex_mean": [
+        0.26858643667092397,
+        -0.2795537179188123,
+        -0.25343128400189535
+      ],
+      "surface_centroid": [
+        0.26895844698878685,
+        -0.280356989011407,
+        -0.252971463978642
+      ],
+      "surface_area": 0.010014945419102365,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 7.291557805920517e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "8d6c76283b08476e41c470f89dafce573c679cf921df1ca3c70798b0c93fba66",
+      "vertex_membership_sha256": "735f158c6fffc44671276d04da72fe49a8152468ae0cd3470f9ed0e3463da207",
+      "position_values_sha256": "0ecb272835c37a9d0f636c0a27f42e5058c61716d0776841b5ab49d2a1cc33d7",
+      "triangle_index_values_sha256": "5c80fd12d6488f33db94cfed77686a6ba27204729a0e0378566b447ea6cf30a6",
+      "face_fraction": 0.0011121441694729771,
+      "area_fraction": 0.0010668726229163515,
+      "center_in_main_bounds_xyz": [
+        0.6938337829447068,
+        0.363276045403156,
+        0.21537541378460237
+      ],
+      "max_extent_vs_main": 0.03908909522842955,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 3,
+      "vertices": 108,
+      "faces": 212,
+      "bounds_min": [
+        -0.23468846082687378,
+        0.44996002316474915,
+        -0.32717663049697876
+      ],
+      "bounds_max": [
+        -0.1770429015159607,
+        0.4831489324569702,
+        -0.2916576564311981
+      ],
+      "extent_xyz": [
+        0.057645559310913086,
+        0.03318890929222107,
+        0.03551897406578064
+      ],
+      "bounds_center": [
+        -0.20586568117141724,
+        0.4665544778108597,
+        -0.30941714346408844
+      ],
+      "vertex_mean": [
+        -0.20726019337221427,
+        0.46459527341304,
+        -0.30951035353872514
+      ],
+      "surface_centroid": [
+        -0.20625520850170756,
+        0.4654809795506703,
+        -0.31012484002106067
+      ],
+      "surface_area": 0.004365948307482288,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 2.0820727234617636e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "c5623ebac3addea22bf6210d06e7a56542e728c598fd3b6b73ecc996a412ce68",
+      "vertex_membership_sha256": "23cb1e89c3c34d41f04edf5d4c4ec6e3f7f7eb6f088400e3075d05c3d6ac89ff",
+      "position_values_sha256": "c37d8bb1f32848aa6eb9eabd5479fbb14207bb16d10c66578aa1170eaaa5730c",
+      "triangle_index_values_sha256": "511050b32f58e592dcf040c0004ffd74978564db5bad97938f1b4fe550c2cfc3",
+      "face_fraction": 0.0004715491278565423,
+      "area_fraction": 0.00046509596681739286,
+      "center_in_main_bounds_xyz": [
+        0.35660294097493456,
+        0.7373129775084245,
+        0.15567418453956977
+      ],
+      "max_extent_vs_main": 0.029026743668178902,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 4,
+      "vertices": 102,
+      "faces": 200,
+      "bounds_min": [
+        0.3513110280036926,
+        0.10196754336357117,
+        -0.4465618431568146
+      ],
+      "bounds_max": [
+        0.40804529190063477,
+        0.12132579833269119,
+        -0.37593650817871094
+      ],
+      "extent_xyz": [
+        0.05673426389694214,
+        0.019358254969120026,
+        0.07062533497810364
+      ],
+      "bounds_center": [
+        0.3796781599521637,
+        0.11164667084813118,
+        -0.41124917566776276
+      ],
+      "vertex_mean": [
+        0.3800320552260268,
+        0.11097334391053985,
+        -0.4082490798889422
+      ],
+      "surface_centroid": [
+        0.37868988778319806,
+        0.11165019954984275,
+        -0.4093556642422505
+      ],
+      "surface_area": 0.003926118948409432,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 1.3010823285004752e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9a66c18cf3e0090e1f7df2c25c5dc38b57831d87411dd90bb8365b54fab02a35",
+      "vertex_membership_sha256": "49151ba466607e36e6958e5e94adcb020f0e4c7c7f750a0d6a9ed4545cd7e7d9",
+      "position_values_sha256": "fac5bf5b6af044fb748d6540629cb9744cc1b55efa56bf0fe1b4bb04b2e59c6b",
+      "triangle_index_values_sha256": "57dd547f90ebe3b676110956ee3ae487c6b37f383477565fa55a829d3b2038e2",
+      "face_fraction": 0.00044485766778919086,
+      "area_fraction": 0.00041824180213521195,
+      "center_in_main_bounds_xyz": [
+        0.7708482105678175,
+        0.5586033238648633,
+        0.04502454769270406
+      ],
+      "max_extent_vs_main": 0.03556255710577495,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 5,
+      "vertices": 94,
+      "faces": 188,
+      "bounds_min": [
+        0.2386164516210556,
+        -0.22604472935199738,
+        0.04956742748618126
+      ],
+      "bounds_max": [
+        0.2643347382545471,
+        -0.18978726863861084,
+        0.09304285794496536
+      ],
+      "extent_xyz": [
+        0.025718286633491516,
+        0.036257460713386536,
+        0.0434754304587841
+      ],
+      "bounds_center": [
+        0.25147559493780136,
+        -0.2079159989953041,
+        0.07130514271557331
+      ],
+      "vertex_mean": [
+        0.2520977146130927,
+        -0.21063314378261566,
+        0.06978147885108248
+      ],
+      "surface_centroid": [
+        0.25173303329585056,
+        -0.2095636851185016,
+        0.07095954142513895
+      ],
+      "surface_area": 0.0031637446088964016,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -6.80771289615027e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "3027a48c92307ef3ab8b0ee4e5533826b42bb78b4e8e2c3faaed939ddda21994",
+      "vertex_membership_sha256": "a966d049d79f43ab95f2686af2fb01756cf0c8bdfa3b90aa99a3bb295ba5c065",
+      "position_values_sha256": "15c8411341bd0a374b1a5de7ce7adda3ab5e6d29cfd30daa856229965a8722c8",
+      "triangle_index_values_sha256": "40e12cbbcc444d1cb44d961d2ec0b8b343bb872483eee0bf689b0e7cbffdb4d9",
+      "face_fraction": 0.0004181662077218394,
+      "area_fraction": 0.00033702754911601893,
+      "center_in_main_bounds_xyz": [
+        0.6801508069285481,
+        0.39769129847476126,
+        0.5693630974842732
+      ],
+      "max_extent_vs_main": 0.021891541878958913,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 6,
+      "vertices": 64,
+      "faces": 124,
+      "bounds_min": [
+        -0.057551298290491104,
+        0.24486015737056732,
+        0.06413891166448593
+      ],
+      "bounds_max": [
+        0.000649196736048907,
+        0.2662806510925293,
+        0.07984988391399384
+      ],
+      "extent_xyz": [
+        0.05820049502654001,
+        0.021420493721961975,
+        0.015710972249507904
+      ],
+      "bounds_center": [
+        -0.0284510507772211,
+        0.2555704042315483,
+        0.07199439778923988
+      ],
+      "vertex_mean": [
+        -0.028298931288190943,
+        0.2563889902085066,
+        0.07143884722609073
+      ],
+      "surface_centroid": [
+        -0.031039636612682428,
+        0.2562799424713087,
+        0.07171518047561071
+      ],
+      "surface_area": 0.0022670911448072813,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -5.333130305483623e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "18a9f92b2bbd84615085daf33621f1edb9f31c41f59786e625e4af5a85c68abd",
+      "vertex_membership_sha256": "820c7c004b28184347f60f6e9b933f4c29fb3cc4109835cc1c6bf6dc5051ac0e",
+      "position_values_sha256": "abeaca1ec5e3233e74b083b148b2f32287a53d7a95db5f0fdb1881ace456a7f0",
+      "triangle_index_values_sha256": "76d58601b7dec32b102c8d6d7b24d635ffea512179666fb53bff0f30ec8ef714",
+      "face_fraction": 0.0002758117540292983,
+      "area_fraction": 0.00024150880257795405,
+      "center_in_main_bounds_xyz": [
+        0.4821156118218208,
+        0.6310744277387204,
+        0.5701120349447721
+      ],
+      "max_extent_vs_main": 0.02930617502355775,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 7,
+      "vertices": 43,
+      "faces": 82,
+      "bounds_min": [
+        0.17615467309951782,
+        -0.21667873859405518,
+        0.0007762056775391102
+      ],
+      "bounds_max": [
+        0.1971501260995865,
+        -0.18518298864364624,
+        0.014629054814577103
+      ],
+      "extent_xyz": [
+        0.020995453000068665,
+        0.031495749950408936,
+        0.013852849137037992
+      ],
+      "bounds_center": [
+        0.18665239959955215,
+        -0.2009308636188507,
+        0.007702630246058106
+      ],
+      "vertex_mean": [
+        0.18574949995029805,
+        -0.20381244046743527,
+        0.007684605445192997
+      ],
+      "surface_centroid": [
+        0.1863772773963649,
+        -0.20309818983615305,
+        0.008024334784928384
+      ],
+      "surface_area": 0.001171597149077224,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.9349180195137574e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "ddedf1febaec49bf5789292dd5182e75197914244ea38b400ea85345528c0b95",
+      "vertex_membership_sha256": "4e201bd6fb61204cb835365a7ee802c27722e4a9e4caba2205d9a1720127f098",
+      "position_values_sha256": "ce93e3f76e470f95e34fb55ad30ae9c47c76b52ac989347153ed310011ee70c5",
+      "triangle_index_values_sha256": "0c70e50f4a922d1bd650da9721d8452f9f2e07b72aae08423d7b0567d15a0a84",
+      "face_fraction": 0.00018239164379356824,
+      "area_fraction": 0.00012480796161436992,
+      "center_in_main_bounds_xyz": [
+        0.6342913850665772,
+        0.4012085812712777,
+        0.5002532628378997
+      ],
+      "max_extent_vs_main": 0.015859314600743312,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 8,
+      "vertices": 10,
+      "faces": 16,
+      "bounds_min": [
+        -0.18933776021003723,
+        0.23659953474998474,
+        0.08505497127771378
+      ],
+      "bounds_max": [
+        -0.18001112341880798,
+        0.24213647842407227,
+        0.10076557844877243
+      ],
+      "extent_xyz": [
+        0.009326636791229248,
+        0.005536943674087524,
+        0.015710607171058655
+      ],
+      "bounds_center": [
+        -0.1846744418144226,
+        0.2393680065870285,
+        0.0929102748632431
+      ],
+      "vertex_mean": [
+        -0.18471040576696396,
+        0.2397758662700653,
+        0.09403730630874634
+      ],
+      "surface_centroid": [
+        -0.18467653866128908,
+        0.23972727676959452,
+        0.09283524216863616
+      ],
+      "surface_area": 0.00021641006771936218,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.805242021024153e-07,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bb38102c5190e84046a2883d2886d4efc57ae852321d7852bcfbbad5cd55c34e",
+      "vertex_membership_sha256": "d6dd2fd374ae17b172ab300126e2a4a8712a5abe92580a700a2eb521fc168d7a",
+      "position_values_sha256": "123ee3256ba408e6d78df3ce10563c7253ec6a1352645313bb527b9c43e82cb4",
+      "triangle_index_values_sha256": "c52ada65d84f47b6d0718d1908815bb4481ef1d3c35225ef2238fdad0e3ece0a",
+      "face_fraction": 3.558861342313527e-05,
+      "area_fraction": 2.305374287241548e-05,
+      "center_in_main_bounds_xyz": [
+        0.37159476574351386,
+        0.6229159008919118,
+        0.5928390114421402
+      ],
+      "max_extent_vs_main": 0.007910891535741257,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 9,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.0701671615242958,
+        0.513261079788208,
+        0.39591217041015625
+      ],
+      "bounds_max": [
+        -0.06584195792675018,
+        0.5177837610244751,
+        0.3977943956851959
+      ],
+      "extent_xyz": [
+        0.004325203597545624,
+        0.00452268123626709,
+        0.0018822252750396729
+      ],
+      "bounds_center": [
+        -0.068004559725523,
+        0.5155224204063416,
+        0.3968532830476761
+      ],
+      "vertex_mean": [
+        -0.06720774744947751,
+        0.5150574247042338,
+        0.39690181116263074
+      ],
+      "surface_centroid": [
+        -0.06753604545286848,
+        0.5152590732353105,
+        0.3968946190604446
+      ],
+      "surface_area": 2.350140452247327e-05,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 6.136530334124273e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9643f71bcb198ac60e2cd6041e5676a755e3afa6a973d01ccb2d8d2a382deba8",
+      "vertex_membership_sha256": "ed9952c86f41e7c6708fe2cea8047b6ae85f37b1ce12dd10c712f230701f620d",
+      "position_values_sha256": "9d7998d5c40ef68d906af27702af10273296442c33c6abfd61455361a2b128b3",
+      "triangle_index_values_sha256": "23ba3d5eb6a307f16cbdae8a74a39a24ee0549e100c8f36670b77e82ea7c4fd1",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 2.5035588349074145e-06,
+      "center_in_main_bounds_xyz": [
+        0.45413332795697225,
+        0.7619702092998778,
+        0.9231003521024709
+      ],
+      "max_extent_vs_main": 0.002277342964615046,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 10,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.060033850371837616,
+        0.25492337346076965,
+        0.08001970499753952
+      ],
+      "bounds_max": [
+        -0.058071088045835495,
+        0.25652027130126953,
+        0.08314096182584763
+      ],
+      "extent_xyz": [
+        0.001962762326002121,
+        0.001596897840499878,
+        0.0031212568283081055
+      ],
+      "bounds_center": [
+        -0.059052469208836555,
+        0.2557218223810196,
+        0.08158033341169357
+      ],
+      "vertex_mean": [
+        -0.058983766163388886,
+        0.2555389255285263,
+        0.08221289763847987
+      ],
+      "surface_centroid": [
+        -0.05900663744633264,
+        0.255583508475435,
+        0.08195442218666824
+      ],
+      "surface_area": 8.877682485450388e-06,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.6305086309389988e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bbff14efc9344801b7e017f2a805f80cf50f133f200ebc89545ff4917e5d9cf4",
+      "vertex_membership_sha256": "8e987552601d122ee7c8097c029844d26771673c81895e0f2cdffe638d9fd40a",
+      "position_values_sha256": "b03e6afabf0644fee542e7bdfd68c867101217a4f40195bcc1cb363090958107",
+      "triangle_index_values_sha256": "4a75faf08e36ffc47a54460a87ce1d76628207468ce7a88a26c4c965a84aa6aa",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 9.457222183762959e-07,
+      "center_in_main_bounds_xyz": [
+        0.4604665192384121,
+        0.6311506725677055,
+        0.5805280138122121
+      ],
+      "max_extent_vs_main": 0.0015716721801448577,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    }
+  ],
+  "indexed_edge_components": [
+    {
+      "component": 1,
+      "vertices": 224028,
+      "faces": 448244,
+      "bounds_min": [
+        -0.709930956363678,
+        -0.9977096319198608,
+        -0.45268574357032776
+      ],
+      "bounds_max": [
+        0.7035887241363525,
+        0.9882368445396423,
+        0.46762484312057495
+      ],
+      "extent_xyz": [
+        1.4135196805000305,
+        1.9859464764595032,
+        0.9203105866909027
+      ],
+      "bounds_center": [
+        -0.0031711161136627197,
+        -0.004736393690109253,
+        0.007469549775123596
+      ],
+      "vertex_mean": [
+        -0.003539862772483997,
+        0.0669556775945492,
+        0.048846458506524436
+      ],
+      "surface_centroid": [
+        -0.002513397845477317,
+        0.06336538740324657,
+        0.051113315876293364
+      ],
+      "surface_area": 9.362040577929868,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 0.5151427770015085,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "7d8bd00d14f806b5c039828c105fa94294b1ff8e8f11ab679437e40bb2172c08",
+      "vertex_membership_sha256": "37657123720e379faf17eabcf65c75969192fc851550549e4469afe62841ffe0",
+      "position_values_sha256": "4a283f6cc5d158cdd800249fe3be9af23d65b985c7380d46a846b3946ca9108a",
+      "triangle_index_values_sha256": "a89081189320f83ef88e1e7d2d8defc2ba42b9e608580ea02e7c32d2a64d0239",
+      "face_fraction": 0.9970239022024903,
+      "area_fraction": 0.9973199422708969,
+      "center_in_main_bounds_xyz": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "max_extent_vs_main": 1.0,
+      "interpretation": "main component by face count"
+    },
+    {
+      "component": 2,
+      "vertices": 252,
+      "faces": 500,
+      "bounds_min": [
+        0.23924849927425385,
+        -0.3150772750377655,
+        -0.2835027277469635
+      ],
+      "bounds_max": [
+        0.30238500237464905,
+        -0.23744842410087585,
+        -0.22544421255588531
+      ],
+      "extent_xyz": [
+        0.0631365031003952,
+        0.07762885093688965,
+        0.058058515191078186
+      ],
+      "bounds_center": [
+        0.27081675082445145,
+        -0.2762628495693207,
+        -0.2544734701514244
+      ],
+      "vertex_mean": [
+        0.26858643667092397,
+        -0.2795537179188123,
+        -0.25343128400189535
+      ],
+      "surface_centroid": [
+        0.26895844698878685,
+        -0.280356989011407,
+        -0.252971463978642
+      ],
+      "surface_area": 0.010014945419102365,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 7.291557805920517e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "8d6c76283b08476e41c470f89dafce573c679cf921df1ca3c70798b0c93fba66",
+      "vertex_membership_sha256": "a32bbc221dd22d6a2852c23fd597197e1e4a3ab82ee11c6a806448a8df8090e0",
+      "position_values_sha256": "393d670b4b6fe6e6510c7a97507dfe239d437ba5dcc7dda59ca8738f499d699e",
+      "triangle_index_values_sha256": "c05402d3db30b82fa94db89fbbb9e59bb94822009b2e8afa44c437ec879e152c",
+      "face_fraction": 0.0011121441694729771,
+      "area_fraction": 0.0010668726229163515,
+      "center_in_main_bounds_xyz": [
+        0.6938337829447068,
+        0.363276045403156,
+        0.21537541378460237
+      ],
+      "max_extent_vs_main": 0.03908909522842955,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 3,
+      "vertices": 108,
+      "faces": 212,
+      "bounds_min": [
+        -0.23468846082687378,
+        0.44996002316474915,
+        -0.32717663049697876
+      ],
+      "bounds_max": [
+        -0.1770429015159607,
+        0.4831489324569702,
+        -0.2916576564311981
+      ],
+      "extent_xyz": [
+        0.057645559310913086,
+        0.03318890929222107,
+        0.03551897406578064
+      ],
+      "bounds_center": [
+        -0.20586568117141724,
+        0.4665544778108597,
+        -0.30941714346408844
+      ],
+      "vertex_mean": [
+        -0.20726019337221427,
+        0.46459527341304,
+        -0.30951035353872514
+      ],
+      "surface_centroid": [
+        -0.20625520850170756,
+        0.4654809795506703,
+        -0.31012484002106067
+      ],
+      "surface_area": 0.004365948307482288,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 2.0820727234617636e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "c5623ebac3addea22bf6210d06e7a56542e728c598fd3b6b73ecc996a412ce68",
+      "vertex_membership_sha256": "b231c65952c0a510cfbd78ea34e79baacac273595075af8fcfb8f04b4985cc26",
+      "position_values_sha256": "8a101b21b1f6c6582b737423a329494539c503157c07e9555103a2a001be1039",
+      "triangle_index_values_sha256": "aebdfef9567c69dafafd686ef6512b93a531113823448df4f2b8d5fd553cc360",
+      "face_fraction": 0.0004715491278565423,
+      "area_fraction": 0.00046509596681739286,
+      "center_in_main_bounds_xyz": [
+        0.35660294097493456,
+        0.7373129775084245,
+        0.15567418453956977
+      ],
+      "max_extent_vs_main": 0.029026743668178902,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 4,
+      "vertices": 102,
+      "faces": 200,
+      "bounds_min": [
+        0.3513110280036926,
+        0.10196754336357117,
+        -0.4465618431568146
+      ],
+      "bounds_max": [
+        0.40804529190063477,
+        0.12132579833269119,
+        -0.37593650817871094
+      ],
+      "extent_xyz": [
+        0.05673426389694214,
+        0.019358254969120026,
+        0.07062533497810364
+      ],
+      "bounds_center": [
+        0.3796781599521637,
+        0.11164667084813118,
+        -0.41124917566776276
+      ],
+      "vertex_mean": [
+        0.3800320552260268,
+        0.11097334391053985,
+        -0.4082490798889422
+      ],
+      "surface_centroid": [
+        0.37868988778319806,
+        0.11165019954984275,
+        -0.4093556642422505
+      ],
+      "surface_area": 0.003926118948409432,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 1.3010823285004752e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9a66c18cf3e0090e1f7df2c25c5dc38b57831d87411dd90bb8365b54fab02a35",
+      "vertex_membership_sha256": "41f83c1b39388393da0a2f9922918c25588b869838ddb8a2e08fde8c683fb100",
+      "position_values_sha256": "8d4593e59ee622eb9d802f0a428ed403d464470d41b65f193c8fe978d99c8f3d",
+      "triangle_index_values_sha256": "821636bd2d0663070bc74657890d300c69aab4e796c154a6f1a5312734768d3a",
+      "face_fraction": 0.00044485766778919086,
+      "area_fraction": 0.00041824180213521195,
+      "center_in_main_bounds_xyz": [
+        0.7708482105678175,
+        0.5586033238648633,
+        0.04502454769270406
+      ],
+      "max_extent_vs_main": 0.03556255710577495,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 5,
+      "vertices": 94,
+      "faces": 188,
+      "bounds_min": [
+        0.2386164516210556,
+        -0.22604472935199738,
+        0.04956742748618126
+      ],
+      "bounds_max": [
+        0.2643347382545471,
+        -0.18978726863861084,
+        0.09304285794496536
+      ],
+      "extent_xyz": [
+        0.025718286633491516,
+        0.036257460713386536,
+        0.0434754304587841
+      ],
+      "bounds_center": [
+        0.25147559493780136,
+        -0.2079159989953041,
+        0.07130514271557331
+      ],
+      "vertex_mean": [
+        0.2520977146130927,
+        -0.21063314378261566,
+        0.06978147885108248
+      ],
+      "surface_centroid": [
+        0.25173303329585056,
+        -0.2095636851185016,
+        0.07095954142513895
+      ],
+      "surface_area": 0.0031637446088964016,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -6.80771289615027e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "3027a48c92307ef3ab8b0ee4e5533826b42bb78b4e8e2c3faaed939ddda21994",
+      "vertex_membership_sha256": "7d1cd77b34844a7596166245ffad50eb14b366edfcdeaa0840a391ff3357e0e9",
+      "position_values_sha256": "dcafe53af7e003b47bf7ba389a91e3de05c3fbe297ee5997c563da5b8ed0d858",
+      "triangle_index_values_sha256": "15aa2c164ae2dfdb1e85e76aea79c7b0ec235ae75bfb5feadce9bb0355857173",
+      "face_fraction": 0.0004181662077218394,
+      "area_fraction": 0.00033702754911601893,
+      "center_in_main_bounds_xyz": [
+        0.6801508069285481,
+        0.39769129847476126,
+        0.5693630974842732
+      ],
+      "max_extent_vs_main": 0.021891541878958913,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 6,
+      "vertices": 64,
+      "faces": 124,
+      "bounds_min": [
+        -0.057551298290491104,
+        0.24486015737056732,
+        0.06413891166448593
+      ],
+      "bounds_max": [
+        0.000649196736048907,
+        0.2662806510925293,
+        0.07984988391399384
+      ],
+      "extent_xyz": [
+        0.05820049502654001,
+        0.021420493721961975,
+        0.015710972249507904
+      ],
+      "bounds_center": [
+        -0.0284510507772211,
+        0.2555704042315483,
+        0.07199439778923988
+      ],
+      "vertex_mean": [
+        -0.028298931288190943,
+        0.2563889902085066,
+        0.07143884722609073
+      ],
+      "surface_centroid": [
+        -0.031039636612682428,
+        0.2562799424713087,
+        0.07171518047561071
+      ],
+      "surface_area": 0.0022670911448072813,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -5.333130305483623e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "18a9f92b2bbd84615085daf33621f1edb9f31c41f59786e625e4af5a85c68abd",
+      "vertex_membership_sha256": "a1f62105965c6abdab324263ab2289528a59473802309ea059e1f58a27bef3be",
+      "position_values_sha256": "3e51fd0e8fe41187c2afded58d8a5f2c229df2c1ccf2cad5a1151ce066b41ba2",
+      "triangle_index_values_sha256": "b83e61bf1a52e5c03ca6818444fe8e9c0da6c642112324c552137d9c460d693b",
+      "face_fraction": 0.0002758117540292983,
+      "area_fraction": 0.00024150880257795405,
+      "center_in_main_bounds_xyz": [
+        0.4821156118218208,
+        0.6310744277387204,
+        0.5701120349447721
+      ],
+      "max_extent_vs_main": 0.02930617502355775,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 7,
+      "vertices": 43,
+      "faces": 82,
+      "bounds_min": [
+        0.17615467309951782,
+        -0.21667873859405518,
+        0.0007762056775391102
+      ],
+      "bounds_max": [
+        0.1971501260995865,
+        -0.18518298864364624,
+        0.014629054814577103
+      ],
+      "extent_xyz": [
+        0.020995453000068665,
+        0.031495749950408936,
+        0.013852849137037992
+      ],
+      "bounds_center": [
+        0.18665239959955215,
+        -0.2009308636188507,
+        0.007702630246058106
+      ],
+      "vertex_mean": [
+        0.18574949995029805,
+        -0.20381244046743527,
+        0.007684605445192997
+      ],
+      "surface_centroid": [
+        0.1863772773963649,
+        -0.20309818983615305,
+        0.008024334784928384
+      ],
+      "surface_area": 0.001171597149077224,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.9349180195137574e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "ddedf1febaec49bf5789292dd5182e75197914244ea38b400ea85345528c0b95",
+      "vertex_membership_sha256": "e10248ff14cb7dc5763bfe368c60e2a35d60c3003057f9bf8605a064eb0aea13",
+      "position_values_sha256": "33c520b6b8fee783eb45a2666b6137f9bfad1e3c01c2c5e11f02d55753d3d7f4",
+      "triangle_index_values_sha256": "fee117682df57d7c894eabc380533c1e2b582543facce07d7e5b65a7a9452238",
+      "face_fraction": 0.00018239164379356824,
+      "area_fraction": 0.00012480796161436992,
+      "center_in_main_bounds_xyz": [
+        0.6342913850665772,
+        0.4012085812712777,
+        0.5002532628378997
+      ],
+      "max_extent_vs_main": 0.015859314600743312,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 8,
+      "vertices": 10,
+      "faces": 16,
+      "bounds_min": [
+        -0.18933776021003723,
+        0.23659953474998474,
+        0.08505497127771378
+      ],
+      "bounds_max": [
+        -0.18001112341880798,
+        0.24213647842407227,
+        0.10076557844877243
+      ],
+      "extent_xyz": [
+        0.009326636791229248,
+        0.005536943674087524,
+        0.015710607171058655
+      ],
+      "bounds_center": [
+        -0.1846744418144226,
+        0.2393680065870285,
+        0.0929102748632431
+      ],
+      "vertex_mean": [
+        -0.18471040576696396,
+        0.2397758662700653,
+        0.09403730630874634
+      ],
+      "surface_centroid": [
+        -0.18467653866128908,
+        0.23972727676959452,
+        0.09283524216863616
+      ],
+      "surface_area": 0.00021641006771936218,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.805242021024153e-07,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bb38102c5190e84046a2883d2886d4efc57ae852321d7852bcfbbad5cd55c34e",
+      "vertex_membership_sha256": "04f6923fa52ab1bb0d5569c613db7c3f738fb59e85c16c2d4dea95d94693c962",
+      "position_values_sha256": "f1b26986d7aa0de87451505dcb96cc5f1c0839c2b5240f12523077c6a8971893",
+      "triangle_index_values_sha256": "1d426ec64e59429b5638173da8d19342638e82d25357367a70858ea4a46a8a99",
+      "face_fraction": 3.558861342313527e-05,
+      "area_fraction": 2.305374287241548e-05,
+      "center_in_main_bounds_xyz": [
+        0.37159476574351386,
+        0.6229159008919118,
+        0.5928390114421402
+      ],
+      "max_extent_vs_main": 0.007910891535741257,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 9,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.0701671615242958,
+        0.513261079788208,
+        0.39591217041015625
+      ],
+      "bounds_max": [
+        -0.06584195792675018,
+        0.5177837610244751,
+        0.3977943956851959
+      ],
+      "extent_xyz": [
+        0.004325203597545624,
+        0.00452268123626709,
+        0.0018822252750396729
+      ],
+      "bounds_center": [
+        -0.068004559725523,
+        0.5155224204063416,
+        0.3968532830476761
+      ],
+      "vertex_mean": [
+        -0.06720774744947751,
+        0.5150574247042338,
+        0.39690181116263074
+      ],
+      "surface_centroid": [
+        -0.06753604545286848,
+        0.5152590732353105,
+        0.3968946190604446
+      ],
+      "surface_area": 2.350140452247327e-05,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 6.136530334124273e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9643f71bcb198ac60e2cd6041e5676a755e3afa6a973d01ccb2d8d2a382deba8",
+      "vertex_membership_sha256": "2ecd25fab67daf7da1e5ce90d76e80836a8b7e3f6fe122c85ca7e50dfb992fed",
+      "position_values_sha256": "54d93bc5e6d2f64ef02a4c2f7dc2b1ad28515708ecee100bc6e597fea2fed97d",
+      "triangle_index_values_sha256": "adb498340d1f9ac73896acff145c55b610d2a1ad99b3f0b923dbc6426bfdf0c0",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 2.5035588349074145e-06,
+      "center_in_main_bounds_xyz": [
+        0.45413332795697225,
+        0.7619702092998778,
+        0.9231003521024709
+      ],
+      "max_extent_vs_main": 0.002277342964615046,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 10,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.060033850371837616,
+        0.25492337346076965,
+        0.08001970499753952
+      ],
+      "bounds_max": [
+        -0.058071088045835495,
+        0.25652027130126953,
+        0.08314096182584763
+      ],
+      "extent_xyz": [
+        0.001962762326002121,
+        0.001596897840499878,
+        0.0031212568283081055
+      ],
+      "bounds_center": [
+        -0.059052469208836555,
+        0.2557218223810196,
+        0.08158033341169357
+      ],
+      "vertex_mean": [
+        -0.058983766163388886,
+        0.2555389255285263,
+        0.08221289763847987
+      ],
+      "surface_centroid": [
+        -0.05900663744633264,
+        0.255583508475435,
+        0.08195442218666824
+      ],
+      "surface_area": 8.877682485450388e-06,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.6305086309389988e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bbff14efc9344801b7e017f2a805f80cf50f133f200ebc89545ff4917e5d9cf4",
+      "vertex_membership_sha256": "fda4a4baffda349fd4b8f6f79baf39d0a1af4e43b2b4259b154f3fa6d9e03eb1",
+      "position_values_sha256": "b03e6afabf0644fee542e7bdfd68c867101217a4f40195bcc1cb363090958107",
+      "triangle_index_values_sha256": "5a8f628ce336762684bb2663b818d3c2a15dfd9efc77d8b8851a8940aadad945",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 9.457222183762959e-07,
+      "center_in_main_bounds_xyz": [
+        0.4604665192384121,
+        0.6311506725677055,
+        0.5805280138122121
+      ],
+      "max_extent_vs_main": 0.0015716721801448577,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    }
+  ],
+  "exact_coordinate_edge_components": [
+    {
+      "component": 1,
+      "vertices": 224028,
+      "faces": 448244,
+      "bounds_min": [
+        -0.709930956363678,
+        -0.9977096319198608,
+        -0.45268574357032776
+      ],
+      "bounds_max": [
+        0.7035887241363525,
+        0.9882368445396423,
+        0.46762484312057495
+      ],
+      "extent_xyz": [
+        1.4135196805000305,
+        1.9859464764595032,
+        0.9203105866909027
+      ],
+      "bounds_center": [
+        -0.0031711161136627197,
+        -0.004736393690109253,
+        0.007469549775123596
+      ],
+      "vertex_mean": [
+        -0.003539862772483997,
+        0.0669556775945492,
+        0.048846458506524436
+      ],
+      "surface_centroid": [
+        -0.002513397845477317,
+        0.06336538740324657,
+        0.051113315876293364
+      ],
+      "surface_area": 9.362040577929868,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 0.5151427770015085,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "7d8bd00d14f806b5c039828c105fa94294b1ff8e8f11ab679437e40bb2172c08",
+      "vertex_membership_sha256": "95ad36af4cf8ff753e50007736836dc2b5086f7a49c8d3852b2777abe02e33ec",
+      "position_values_sha256": "b6ff42da98559fd92dcf8357e54760ab55363a3bc04f22cb703d81812d25ad0b",
+      "triangle_index_values_sha256": "79b29ced784a46c7ba262bba3c545b6c1984a1999fcf99c585a9e56829a099ce",
+      "face_fraction": 0.9970239022024903,
+      "area_fraction": 0.9973199422708969,
+      "center_in_main_bounds_xyz": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "max_extent_vs_main": 1.0,
+      "interpretation": "main component by face count"
+    },
+    {
+      "component": 2,
+      "vertices": 252,
+      "faces": 500,
+      "bounds_min": [
+        0.23924849927425385,
+        -0.3150772750377655,
+        -0.2835027277469635
+      ],
+      "bounds_max": [
+        0.30238500237464905,
+        -0.23744842410087585,
+        -0.22544421255588531
+      ],
+      "extent_xyz": [
+        0.0631365031003952,
+        0.07762885093688965,
+        0.058058515191078186
+      ],
+      "bounds_center": [
+        0.27081675082445145,
+        -0.2762628495693207,
+        -0.2544734701514244
+      ],
+      "vertex_mean": [
+        0.26858643667092397,
+        -0.2795537179188123,
+        -0.25343128400189535
+      ],
+      "surface_centroid": [
+        0.26895844698878685,
+        -0.280356989011407,
+        -0.252971463978642
+      ],
+      "surface_area": 0.010014945419102365,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 7.291557805920517e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "8d6c76283b08476e41c470f89dafce573c679cf921df1ca3c70798b0c93fba66",
+      "vertex_membership_sha256": "735f158c6fffc44671276d04da72fe49a8152468ae0cd3470f9ed0e3463da207",
+      "position_values_sha256": "0ecb272835c37a9d0f636c0a27f42e5058c61716d0776841b5ab49d2a1cc33d7",
+      "triangle_index_values_sha256": "5c80fd12d6488f33db94cfed77686a6ba27204729a0e0378566b447ea6cf30a6",
+      "face_fraction": 0.0011121441694729771,
+      "area_fraction": 0.0010668726229163515,
+      "center_in_main_bounds_xyz": [
+        0.6938337829447068,
+        0.363276045403156,
+        0.21537541378460237
+      ],
+      "max_extent_vs_main": 0.03908909522842955,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 3,
+      "vertices": 108,
+      "faces": 212,
+      "bounds_min": [
+        -0.23468846082687378,
+        0.44996002316474915,
+        -0.32717663049697876
+      ],
+      "bounds_max": [
+        -0.1770429015159607,
+        0.4831489324569702,
+        -0.2916576564311981
+      ],
+      "extent_xyz": [
+        0.057645559310913086,
+        0.03318890929222107,
+        0.03551897406578064
+      ],
+      "bounds_center": [
+        -0.20586568117141724,
+        0.4665544778108597,
+        -0.30941714346408844
+      ],
+      "vertex_mean": [
+        -0.20726019337221427,
+        0.46459527341304,
+        -0.30951035353872514
+      ],
+      "surface_centroid": [
+        -0.20625520850170756,
+        0.4654809795506703,
+        -0.31012484002106067
+      ],
+      "surface_area": 0.004365948307482288,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 2.0820727234617636e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "c5623ebac3addea22bf6210d06e7a56542e728c598fd3b6b73ecc996a412ce68",
+      "vertex_membership_sha256": "23cb1e89c3c34d41f04edf5d4c4ec6e3f7f7eb6f088400e3075d05c3d6ac89ff",
+      "position_values_sha256": "c37d8bb1f32848aa6eb9eabd5479fbb14207bb16d10c66578aa1170eaaa5730c",
+      "triangle_index_values_sha256": "511050b32f58e592dcf040c0004ffd74978564db5bad97938f1b4fe550c2cfc3",
+      "face_fraction": 0.0004715491278565423,
+      "area_fraction": 0.00046509596681739286,
+      "center_in_main_bounds_xyz": [
+        0.35660294097493456,
+        0.7373129775084245,
+        0.15567418453956977
+      ],
+      "max_extent_vs_main": 0.029026743668178902,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 4,
+      "vertices": 102,
+      "faces": 200,
+      "bounds_min": [
+        0.3513110280036926,
+        0.10196754336357117,
+        -0.4465618431568146
+      ],
+      "bounds_max": [
+        0.40804529190063477,
+        0.12132579833269119,
+        -0.37593650817871094
+      ],
+      "extent_xyz": [
+        0.05673426389694214,
+        0.019358254969120026,
+        0.07062533497810364
+      ],
+      "bounds_center": [
+        0.3796781599521637,
+        0.11164667084813118,
+        -0.41124917566776276
+      ],
+      "vertex_mean": [
+        0.3800320552260268,
+        0.11097334391053985,
+        -0.4082490798889422
+      ],
+      "surface_centroid": [
+        0.37868988778319806,
+        0.11165019954984275,
+        -0.4093556642422505
+      ],
+      "surface_area": 0.003926118948409432,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 1.3010823285004752e-05,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9a66c18cf3e0090e1f7df2c25c5dc38b57831d87411dd90bb8365b54fab02a35",
+      "vertex_membership_sha256": "49151ba466607e36e6958e5e94adcb020f0e4c7c7f750a0d6a9ed4545cd7e7d9",
+      "position_values_sha256": "fac5bf5b6af044fb748d6540629cb9744cc1b55efa56bf0fe1b4bb04b2e59c6b",
+      "triangle_index_values_sha256": "57dd547f90ebe3b676110956ee3ae487c6b37f383477565fa55a829d3b2038e2",
+      "face_fraction": 0.00044485766778919086,
+      "area_fraction": 0.00041824180213521195,
+      "center_in_main_bounds_xyz": [
+        0.7708482105678175,
+        0.5586033238648633,
+        0.04502454769270406
+      ],
+      "max_extent_vs_main": 0.03556255710577495,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 5,
+      "vertices": 94,
+      "faces": 188,
+      "bounds_min": [
+        0.2386164516210556,
+        -0.22604472935199738,
+        0.04956742748618126
+      ],
+      "bounds_max": [
+        0.2643347382545471,
+        -0.18978726863861084,
+        0.09304285794496536
+      ],
+      "extent_xyz": [
+        0.025718286633491516,
+        0.036257460713386536,
+        0.0434754304587841
+      ],
+      "bounds_center": [
+        0.25147559493780136,
+        -0.2079159989953041,
+        0.07130514271557331
+      ],
+      "vertex_mean": [
+        0.2520977146130927,
+        -0.21063314378261566,
+        0.06978147885108248
+      ],
+      "surface_centroid": [
+        0.25173303329585056,
+        -0.2095636851185016,
+        0.07095954142513895
+      ],
+      "surface_area": 0.0031637446088964016,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -6.80771289615027e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "3027a48c92307ef3ab8b0ee4e5533826b42bb78b4e8e2c3faaed939ddda21994",
+      "vertex_membership_sha256": "a966d049d79f43ab95f2686af2fb01756cf0c8bdfa3b90aa99a3bb295ba5c065",
+      "position_values_sha256": "15c8411341bd0a374b1a5de7ce7adda3ab5e6d29cfd30daa856229965a8722c8",
+      "triangle_index_values_sha256": "40e12cbbcc444d1cb44d961d2ec0b8b343bb872483eee0bf689b0e7cbffdb4d9",
+      "face_fraction": 0.0004181662077218394,
+      "area_fraction": 0.00033702754911601893,
+      "center_in_main_bounds_xyz": [
+        0.6801508069285481,
+        0.39769129847476126,
+        0.5693630974842732
+      ],
+      "max_extent_vs_main": 0.021891541878958913,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 6,
+      "vertices": 64,
+      "faces": 124,
+      "bounds_min": [
+        -0.057551298290491104,
+        0.24486015737056732,
+        0.06413891166448593
+      ],
+      "bounds_max": [
+        0.000649196736048907,
+        0.2662806510925293,
+        0.07984988391399384
+      ],
+      "extent_xyz": [
+        0.05820049502654001,
+        0.021420493721961975,
+        0.015710972249507904
+      ],
+      "bounds_center": [
+        -0.0284510507772211,
+        0.2555704042315483,
+        0.07199439778923988
+      ],
+      "vertex_mean": [
+        -0.028298931288190943,
+        0.2563889902085066,
+        0.07143884722609073
+      ],
+      "surface_centroid": [
+        -0.031039636612682428,
+        0.2562799424713087,
+        0.07171518047561071
+      ],
+      "surface_area": 0.0022670911448072813,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -5.333130305483623e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "18a9f92b2bbd84615085daf33621f1edb9f31c41f59786e625e4af5a85c68abd",
+      "vertex_membership_sha256": "820c7c004b28184347f60f6e9b933f4c29fb3cc4109835cc1c6bf6dc5051ac0e",
+      "position_values_sha256": "abeaca1ec5e3233e74b083b148b2f32287a53d7a95db5f0fdb1881ace456a7f0",
+      "triangle_index_values_sha256": "76d58601b7dec32b102c8d6d7b24d635ffea512179666fb53bff0f30ec8ef714",
+      "face_fraction": 0.0002758117540292983,
+      "area_fraction": 0.00024150880257795405,
+      "center_in_main_bounds_xyz": [
+        0.4821156118218208,
+        0.6310744277387204,
+        0.5701120349447721
+      ],
+      "max_extent_vs_main": 0.02930617502355775,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 7,
+      "vertices": 43,
+      "faces": 82,
+      "bounds_min": [
+        0.17615467309951782,
+        -0.21667873859405518,
+        0.0007762056775391102
+      ],
+      "bounds_max": [
+        0.1971501260995865,
+        -0.18518298864364624,
+        0.014629054814577103
+      ],
+      "extent_xyz": [
+        0.020995453000068665,
+        0.031495749950408936,
+        0.013852849137037992
+      ],
+      "bounds_center": [
+        0.18665239959955215,
+        -0.2009308636188507,
+        0.007702630246058106
+      ],
+      "vertex_mean": [
+        0.18574949995029805,
+        -0.20381244046743527,
+        0.007684605445192997
+      ],
+      "surface_centroid": [
+        0.1863772773963649,
+        -0.20309818983615305,
+        0.008024334784928384
+      ],
+      "surface_area": 0.001171597149077224,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.9349180195137574e-06,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "ddedf1febaec49bf5789292dd5182e75197914244ea38b400ea85345528c0b95",
+      "vertex_membership_sha256": "4e201bd6fb61204cb835365a7ee802c27722e4a9e4caba2205d9a1720127f098",
+      "position_values_sha256": "ce93e3f76e470f95e34fb55ad30ae9c47c76b52ac989347153ed310011ee70c5",
+      "triangle_index_values_sha256": "0c70e50f4a922d1bd650da9721d8452f9f2e07b72aae08423d7b0567d15a0a84",
+      "face_fraction": 0.00018239164379356824,
+      "area_fraction": 0.00012480796161436992,
+      "center_in_main_bounds_xyz": [
+        0.6342913850665772,
+        0.4012085812712777,
+        0.5002532628378997
+      ],
+      "max_extent_vs_main": 0.015859314600743312,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 8,
+      "vertices": 10,
+      "faces": 16,
+      "bounds_min": [
+        -0.18933776021003723,
+        0.23659953474998474,
+        0.08505497127771378
+      ],
+      "bounds_max": [
+        -0.18001112341880798,
+        0.24213647842407227,
+        0.10076557844877243
+      ],
+      "extent_xyz": [
+        0.009326636791229248,
+        0.005536943674087524,
+        0.015710607171058655
+      ],
+      "bounds_center": [
+        -0.1846744418144226,
+        0.2393680065870285,
+        0.0929102748632431
+      ],
+      "vertex_mean": [
+        -0.18471040576696396,
+        0.2397758662700653,
+        0.09403730630874634
+      ],
+      "surface_centroid": [
+        -0.18467653866128908,
+        0.23972727676959452,
+        0.09283524216863616
+      ],
+      "surface_area": 0.00021641006771936218,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.805242021024153e-07,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bb38102c5190e84046a2883d2886d4efc57ae852321d7852bcfbbad5cd55c34e",
+      "vertex_membership_sha256": "d6dd2fd374ae17b172ab300126e2a4a8712a5abe92580a700a2eb521fc168d7a",
+      "position_values_sha256": "123ee3256ba408e6d78df3ce10563c7253ec6a1352645313bb527b9c43e82cb4",
+      "triangle_index_values_sha256": "c52ada65d84f47b6d0718d1908815bb4481ef1d3c35225ef2238fdad0e3ece0a",
+      "face_fraction": 3.558861342313527e-05,
+      "area_fraction": 2.305374287241548e-05,
+      "center_in_main_bounds_xyz": [
+        0.37159476574351386,
+        0.6229159008919118,
+        0.5928390114421402
+      ],
+      "max_extent_vs_main": 0.007910891535741257,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 9,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.0701671615242958,
+        0.513261079788208,
+        0.39591217041015625
+      ],
+      "bounds_max": [
+        -0.06584195792675018,
+        0.5177837610244751,
+        0.3977943956851959
+      ],
+      "extent_xyz": [
+        0.004325203597545624,
+        0.00452268123626709,
+        0.0018822252750396729
+      ],
+      "bounds_center": [
+        -0.068004559725523,
+        0.5155224204063416,
+        0.3968532830476761
+      ],
+      "vertex_mean": [
+        -0.06720774744947751,
+        0.5150574247042338,
+        0.39690181116263074
+      ],
+      "surface_centroid": [
+        -0.06753604545286848,
+        0.5152590732353105,
+        0.3968946190604446
+      ],
+      "surface_area": 2.350140452247327e-05,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": 6.136530334124273e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "9643f71bcb198ac60e2cd6041e5676a755e3afa6a973d01ccb2d8d2a382deba8",
+      "vertex_membership_sha256": "ed9952c86f41e7c6708fe2cea8047b6ae85f37b1ce12dd10c712f230701f620d",
+      "position_values_sha256": "9d7998d5c40ef68d906af27702af10273296442c33c6abfd61455361a2b128b3",
+      "triangle_index_values_sha256": "23ba3d5eb6a307f16cbdae8a74a39a24ee0549e100c8f36670b77e82ea7c4fd1",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 2.5035588349074145e-06,
+      "center_in_main_bounds_xyz": [
+        0.45413332795697225,
+        0.7619702092998778,
+        0.9231003521024709
+      ],
+      "max_extent_vs_main": 0.002277342964615046,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    },
+    {
+      "component": 10,
+      "vertices": 6,
+      "faces": 8,
+      "bounds_min": [
+        -0.060033850371837616,
+        0.25492337346076965,
+        0.08001970499753952
+      ],
+      "bounds_max": [
+        -0.058071088045835495,
+        0.25652027130126953,
+        0.08314096182584763
+      ],
+      "extent_xyz": [
+        0.001962762326002121,
+        0.001596897840499878,
+        0.0031212568283081055
+      ],
+      "bounds_center": [
+        -0.059052469208836555,
+        0.2557218223810196,
+        0.08158033341169357
+      ],
+      "vertex_mean": [
+        -0.058983766163388886,
+        0.2555389255285263,
+        0.08221289763847987
+      ],
+      "surface_centroid": [
+        -0.05900663744633264,
+        0.255583508475435,
+        0.08195442218666824
+      ],
+      "surface_area": 8.877682485450388e-06,
+      "zero_area_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "closed_edge_manifold": true,
+      "signed_volume_if_closed": -1.6305086309389988e-09,
+      "source_primitives": [
+        0
+      ],
+      "triangle_membership_sha256": "bbff14efc9344801b7e017f2a805f80cf50f133f200ebc89545ff4917e5d9cf4",
+      "vertex_membership_sha256": "8e987552601d122ee7c8097c029844d26771673c81895e0f2cdffe638d9fd40a",
+      "position_values_sha256": "b03e6afabf0644fee542e7bdfd68c867101217a4f40195bcc1cb363090958107",
+      "triangle_index_values_sha256": "4a75faf08e36ffc47a54460a87ce1d76628207468ce7a88a26c4c965a84aa6aa",
+      "face_fraction": 1.7794306711567635e-05,
+      "area_fraction": 9.457222183762959e-07,
+      "center_in_main_bounds_xyz": [
+        0.4604665192384121,
+        0.6311506725677055,
+        0.5805280138122121
+      ],
+      "max_extent_vs_main": 0.0015716721801448577,
+      "interpretation": "separate island; artifact status requires visual/anatomical inspection"
+    }
+  ],
+  "warnings": [],
+  "anatomy_limit": "Bounds and connectivity locate isolated parts but cannot establish hair/eye/finger anatomy or decide deletion. Requires visual inspection of the actual mesh and reference.",
+  "input_hash_before_after_matches": true
+}
