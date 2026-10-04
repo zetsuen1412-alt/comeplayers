@@ -54,6 +54,45 @@ jobs:
             '--expected-output-sha256','257e2d0ffa08fb43574310e9ec871b7730bfdcf5143de0ebfa133a65f3fade8c',
             '--output','viewer/BUKA-INSPEKSI-ALEXIA.html'],check=True)
           PY
+      - name: Rebuild front projection on certified interior candidate
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/surface-review-2026-10-04
+        run: >-
+          python3 tools/build_cleanup_front_projection.py
+          ../interior-cleanup-2026-10-04/candidate/alexia-v11-interior-cleanup-candidate.glb
+          ../nano-banana-ui-review/nano-banana-front-capture.jpg
+          --baseline-projection ../continuation-2026-10-04/front-projection/alexia-v11-front-projection-diagnostic.glb
+          --remap ../interior-cleanup-2026-10-04/candidate/alexia-v11-interior-cleanup-candidate.front-selection-remap.json
+          --expected-output-sha256 4fd3724ec128557e089dea2e78a48873f9ba1140cd80eadbbee38c00df43c599
+          --out models/alexia-v11-cleanup-front-projection-candidate.glb
+          --proof models/alexia-v11-cleanup-front-projection-candidate.ci-projection-proof.json
+      - name: Rebuild separately labeled exterior ablation review variant
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/surface-review-2026-10-04
+        run: >-
+          python3 tools/build_exterior_ablation_candidate.py
+          --original ../v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb
+          --base-candidate ../interior-cleanup-2026-10-04/candidate/alexia-v11-interior-cleanup-candidate.glb
+          --cleanup-proof ../interior-cleanup-2026-10-04/candidate/alexia-v11-interior-cleanup-candidate.cleanup-proof.json
+          --selection exterior-ablation-selection.json
+          --selection-sha256 953b5fefef44c75bc28195c5606ec6f65aeb9844b2f9ea084c4b8d3d2a90d85e
+          --confirm-exterior-ablation-review
+          --expected-output-sha256 6ae8b914b7c3a573d1335a54bc2875ab05df0e82d1442054b4820e28602d2cac
+          --out models/alexia-v11-exterior-ablation-review-candidate.glb
+          --proof models/alexia-v11-exterior-ablation-review-candidate.ci-ablation-proof.json
+      - name: Rebuild compressed offline revision viewer and preserved V2 reference
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/surface-review-2026-10-04
+        run: |
+          python3 - <<'PY'
+          import pathlib,subprocess,sys
+          subprocess.run([sys.executable,'viewer/build_offline_viewer.py',
+            '--vendor-bundle','../interior-cleanup-2026-10-04/viewer/viewer-vendor-bundle.json',
+            '--original','../v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb',
+            '--projection','models/alexia-v11-cleanup-front-projection-candidate.glb',
+            '--cleanup','models/alexia-v11-exterior-ablation-review-candidate.glb',
+            '--cleanup-note',pathlib.Path('viewer/exterior-note.txt').read_text(encoding='utf-8'),
+            '--reference-v2','../../../turnarounds/alexia/turnaround-blue-imagegen-v2.png',
+            '--expected-output-sha256','1f72bd921c907920a47134bc083de69f8991e1d877fb5343ffe3f474e0061158',
+            '--output','viewer/BUKA-REVISI-ALEXIA.html'],check=True)
+          PY
       - name: Archive preserved models, references and editable sources
         run: |
           python3 - <<'PY'
@@ -64,8 +103,9 @@ jobs:
           files=sorted(p for p in source.rglob('*') if p.is_file())
           diagnostic=source/'production/reconstruction/alexia/continuation-2026-10-04'
           current=source/'production/reconstruction/alexia/interior-cleanup-2026-10-04'
+          review=source/'production/reconstruction/alexia/surface-review-2026-10-04'
           verifier=(diagnostic/'tools/verify_portable_workspace.py').read_bytes()
-          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(current/'PORTABLE_GUIDE_ID.txt').read_bytes()
+          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(review/'PORTABLE_GUIDE_ID.txt').read_bytes()
           extras={'verify_portable_workspace.py':verifier,'MULAI-DI-SINI.txt':guide}
           records=[]
           with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
@@ -88,7 +128,10 @@ jobs:
                   assert len(data)==record['bytes'] and hashlib.sha256(data).hexdigest()==record['sha256']
           candidate=current/'candidate/alexia-v11-interior-cleanup-candidate.glb'
           viewer=current/'viewer/BUKA-INSPEKSI-ALEXIA.html'
-          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'diagnostic_rebuilt_from_frozen_selection':True,'cleanup_candidate_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest(),'offline_viewer_sha256':hashlib.sha256(viewer.read_bytes()).hexdigest(),'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
+          colored=review/'models/alexia-v11-cleanup-front-projection-candidate.glb'
+          exterior=review/'models/alexia-v11-exterior-ablation-review-candidate.glb'
+          latest_viewer=review/'viewer/BUKA-REVISI-ALEXIA.html'
+          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'diagnostic_rebuilt_from_frozen_selection':True,'cleanup_candidate_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest(),'cleanup_projection_sha256':hashlib.sha256(colored.read_bytes()).hexdigest(),'exterior_ablation_sha256':hashlib.sha256(exterior.read_bytes()).hexdigest(),'offline_viewer_sha256':hashlib.sha256(latest_viewer.read_bytes()).hexdigest(),'previous_inspection_viewer_sha256':hashlib.sha256(viewer.read_bytes()).hexdigest(),'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
           (root/'crwt-portable-character-workspace-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
           print(json.dumps(receipt))
           PY

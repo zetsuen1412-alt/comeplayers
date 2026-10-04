@@ -1,0 +1,702 @@
+{
+  "status": "finite-albedo-render-comparison",
+  "baseline_sha256": "032e64c6adfd6367f2bc6a92f15adc3df10ba535b6dade9f46d9b251443cd200",
+  "candidate_sha256": "4fd3724ec128557e089dea2e78a48873f9ba1140cd80eadbbee38c00df43c599",
+  "rendered_views": 43,
+  "all_43_tested_rgb_hashes_identical": true,
+  "renderer": "NVIDIA GeForce GTX 1660 SUPER/PCIe/SSE2",
+  "geometry_mutated_by_render": false,
+  "production_approved": false,
+  "baseline_views": [
+    {
+      "view": "front",
+      "rgb_sha256": "897eb1943691bc58986a800f029f167826c48c5303af38e58024842146d6e3a9",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "three-quarter",
+      "rgb_sha256": "47ed51fd44a4795d742bf9b694bdda305efa4873203a18dd7ac4178abbc8de91",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "left",
+      "rgb_sha256": "090665c068bd563775af9023b04f1618f404f783e9e7f2d0298e3c61b970e6cf",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "right",
+      "rgb_sha256": "7abf55bcfd4b35e051bd62abf5cbbf43bf6ca00f4a7a6cfae3dd1776d088ac99",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "back",
+      "rgb_sha256": "b85d7099b4afbcaa21d0965d7acaf64645a54e2522c7f170a06d3e1e35142418",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "top",
+      "rgb_sha256": "fa8dffbacf2aa673327b78ee7f145e42459f8fe10cea2eeaafeeea58bec226db",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "bottom",
+      "rgb_sha256": "5dcf1ee802a80e3c6c83f13297322ef779bbd14bd8d9b31952961815df69ac9e",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-000",
+      "rgb_sha256": "79fbb646fb527bb0b689f98f4ddcb22fbee42fd8fddc707e5163ad348a69dddf",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-010",
+      "rgb_sha256": "1058f62efdc5016ef9c2cce660a5569aa50af51948dc05e4110b5e546966ebda",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-020",
+      "rgb_sha256": "325585217efaaf39f4fc23238fa52e53fd3cd47be2417f3ce99acc155fe289b9",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-030",
+      "rgb_sha256": "860e3e5ac84599ee813c59f173014bc4df7d14c4a797911b534755834f1bd4a2",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-040",
+      "rgb_sha256": "4bfb788553a93a0ca4e6efeaddbfb866836d290a0de110518bca13d514c3df5f",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-050",
+      "rgb_sha256": "e2b190a8bc264e8116394ec8f51e53b5f09e8f38c5ad987c5f6e7be99df0599c",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-060",
+      "rgb_sha256": "9f160997c4683a2633c971a0f83994f6df8014097d205e49734dff7e3e67d503",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-070",
+      "rgb_sha256": "33b7dc969b0576cbe5beddb4c3ded6feb1819bf298f4b2dfb861324784fdb0ff",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-080",
+      "rgb_sha256": "e7ffb63f7e60401821941920bcc06edaeca1aa2256e2e1c11b6ba79e30bbd0ee",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-090",
+      "rgb_sha256": "970647585eca8f183ebe7a78b38e2c127b24f423cff6413fe128f9744e9c1512",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-100",
+      "rgb_sha256": "441306d3dba84db4b30eb3d2032c1b1f72c9b01bd03b37eed2c69ee1193ebd8f",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-110",
+      "rgb_sha256": "c0d7da54f0fbe02ed3739ed7a72522a7ca46ac40b770719e8f3cf2b18e3d6ae3",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-120",
+      "rgb_sha256": "f9543778614c6af35cd0d5c16e221eb46753220679e6970f8b7f194a1befd4fe",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-130",
+      "rgb_sha256": "9fb93f159c64187118819c485f169bc732072ed06e58f77b1c749438371fb597",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-140",
+      "rgb_sha256": "6438c979550dc9494e569d6635fafb697b2b2ed3f8239929562f981aba365cf1",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-150",
+      "rgb_sha256": "2f8945c2f73922a41d5f4a466c49e7a784ef12f30e323ff4f513e8ae5c1740b8",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-160",
+      "rgb_sha256": "82d17462a6dba91a860e04178a0eaecc69282f3a04cc30c1628f174ccdf37360",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-170",
+      "rgb_sha256": "82446e1f193f1dc37f5805ef39d5135ca25e4497a47c0bb26a0b10e57ff55eff",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-180",
+      "rgb_sha256": "d4ebad04598d4708a3ba4d5672b7b25eb35fd6a7823b2507058005646243491a",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-190",
+      "rgb_sha256": "4d179fbf5bd98bfb1ca68f8947721dbfd2f92a42c5e3a03eeca66605c7a66e89",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-200",
+      "rgb_sha256": "54df3393d5472fe19901bf4685594449fe29033d9df4b90bfed3ebaac1746237",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-210",
+      "rgb_sha256": "0964c88205f59841910f8991858357d4391294638a83937726c0dd925539be35",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-220",
+      "rgb_sha256": "bb6da7a8b58a78a3ce232b9b771d7251b0ce0b3b438da53f336776494e891bd5",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-230",
+      "rgb_sha256": "2491ea8f207f95f9e93938d764e6886270a8a23b948b63d771f78cbef1a6b7e3",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-240",
+      "rgb_sha256": "391de8d5988b9b4abbdb2073f77f3221d7f5ca25443ba2c4fd9a4f37b4128a39",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-250",
+      "rgb_sha256": "b804f902f8d3ea7099e7518abc81d6002fff163a661efb7533db203d82211336",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-260",
+      "rgb_sha256": "363e818de2079c2211116867e7cffa209cefa9cf485181e29c40c1f3e7d37ca0",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-270",
+      "rgb_sha256": "ad464d79ad0ba38fd4d708285fc6310cc6c1c7e00bfdb7e125f187e87ca0e86b",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-280",
+      "rgb_sha256": "5ebfc79fa786c2f39558c0ef7bef354f6019873276417c0afce1fd7d25387b81",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-290",
+      "rgb_sha256": "01704cc48ed45b4fce2f18e0a660f4cbe17d5871942d8f203ba6fd47b2ddd96a",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-300",
+      "rgb_sha256": "4dfc92a42bf8ef9120a7096b96db23370f907ca5ebcd6efe67defebd50972c20",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-310",
+      "rgb_sha256": "686e1fbee4445f8ffcba96795a89c2cf71043ea5c3180cf15f0d635f8d9316db",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-320",
+      "rgb_sha256": "e19327ba5b54e49bf4c3faf9c3b50844182ffd8411a412b289e0ee0dce190d5e",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-330",
+      "rgb_sha256": "688f40e598e25b15fb00d561fdc5180bb8e437a43336524478ad7f32f7008249",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-340",
+      "rgb_sha256": "70632766bb67a9c98bcf4255dd92bcf23491f930b000606b6016582c3d88e965",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-350",
+      "rgb_sha256": "1e4a07e7c8eb201a6feed46816b9f616acc7041c3bfd10734f350b2fb9799956",
+      "size": [
+        640,
+        640
+      ]
+    }
+  ],
+  "candidate_views": [
+    {
+      "view": "front",
+      "rgb_sha256": "897eb1943691bc58986a800f029f167826c48c5303af38e58024842146d6e3a9",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "three-quarter",
+      "rgb_sha256": "47ed51fd44a4795d742bf9b694bdda305efa4873203a18dd7ac4178abbc8de91",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "left",
+      "rgb_sha256": "090665c068bd563775af9023b04f1618f404f783e9e7f2d0298e3c61b970e6cf",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "right",
+      "rgb_sha256": "7abf55bcfd4b35e051bd62abf5cbbf43bf6ca00f4a7a6cfae3dd1776d088ac99",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "back",
+      "rgb_sha256": "b85d7099b4afbcaa21d0965d7acaf64645a54e2522c7f170a06d3e1e35142418",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "top",
+      "rgb_sha256": "fa8dffbacf2aa673327b78ee7f145e42459f8fe10cea2eeaafeeea58bec226db",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "bottom",
+      "rgb_sha256": "5dcf1ee802a80e3c6c83f13297322ef779bbd14bd8d9b31952961815df69ac9e",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-000",
+      "rgb_sha256": "79fbb646fb527bb0b689f98f4ddcb22fbee42fd8fddc707e5163ad348a69dddf",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-010",
+      "rgb_sha256": "1058f62efdc5016ef9c2cce660a5569aa50af51948dc05e4110b5e546966ebda",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-020",
+      "rgb_sha256": "325585217efaaf39f4fc23238fa52e53fd3cd47be2417f3ce99acc155fe289b9",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-030",
+      "rgb_sha256": "860e3e5ac84599ee813c59f173014bc4df7d14c4a797911b534755834f1bd4a2",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-040",
+      "rgb_sha256": "4bfb788553a93a0ca4e6efeaddbfb866836d290a0de110518bca13d514c3df5f",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-050",
+      "rgb_sha256": "e2b190a8bc264e8116394ec8f51e53b5f09e8f38c5ad987c5f6e7be99df0599c",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-060",
+      "rgb_sha256": "9f160997c4683a2633c971a0f83994f6df8014097d205e49734dff7e3e67d503",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-070",
+      "rgb_sha256": "33b7dc969b0576cbe5beddb4c3ded6feb1819bf298f4b2dfb861324784fdb0ff",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-080",
+      "rgb_sha256": "e7ffb63f7e60401821941920bcc06edaeca1aa2256e2e1c11b6ba79e30bbd0ee",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-090",
+      "rgb_sha256": "970647585eca8f183ebe7a78b38e2c127b24f423cff6413fe128f9744e9c1512",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-100",
+      "rgb_sha256": "441306d3dba84db4b30eb3d2032c1b1f72c9b01bd03b37eed2c69ee1193ebd8f",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-110",
+      "rgb_sha256": "c0d7da54f0fbe02ed3739ed7a72522a7ca46ac40b770719e8f3cf2b18e3d6ae3",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-120",
+      "rgb_sha256": "f9543778614c6af35cd0d5c16e221eb46753220679e6970f8b7f194a1befd4fe",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-130",
+      "rgb_sha256": "9fb93f159c64187118819c485f169bc732072ed06e58f77b1c749438371fb597",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-140",
+      "rgb_sha256": "6438c979550dc9494e569d6635fafb697b2b2ed3f8239929562f981aba365cf1",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-150",
+      "rgb_sha256": "2f8945c2f73922a41d5f4a466c49e7a784ef12f30e323ff4f513e8ae5c1740b8",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-160",
+      "rgb_sha256": "82d17462a6dba91a860e04178a0eaecc69282f3a04cc30c1628f174ccdf37360",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-170",
+      "rgb_sha256": "82446e1f193f1dc37f5805ef39d5135ca25e4497a47c0bb26a0b10e57ff55eff",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-180",
+      "rgb_sha256": "d4ebad04598d4708a3ba4d5672b7b25eb35fd6a7823b2507058005646243491a",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-190",
+      "rgb_sha256": "4d179fbf5bd98bfb1ca68f8947721dbfd2f92a42c5e3a03eeca66605c7a66e89",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-200",
+      "rgb_sha256": "54df3393d5472fe19901bf4685594449fe29033d9df4b90bfed3ebaac1746237",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-210",
+      "rgb_sha256": "0964c88205f59841910f8991858357d4391294638a83937726c0dd925539be35",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-220",
+      "rgb_sha256": "bb6da7a8b58a78a3ce232b9b771d7251b0ce0b3b438da53f336776494e891bd5",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-230",
+      "rgb_sha256": "2491ea8f207f95f9e93938d764e6886270a8a23b948b63d771f78cbef1a6b7e3",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-240",
+      "rgb_sha256": "391de8d5988b9b4abbdb2073f77f3221d7f5ca25443ba2c4fd9a4f37b4128a39",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-250",
+      "rgb_sha256": "b804f902f8d3ea7099e7518abc81d6002fff163a661efb7533db203d82211336",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-260",
+      "rgb_sha256": "363e818de2079c2211116867e7cffa209cefa9cf485181e29c40c1f3e7d37ca0",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-270",
+      "rgb_sha256": "ad464d79ad0ba38fd4d708285fc6310cc6c1c7e00bfdb7e125f187e87ca0e86b",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-280",
+      "rgb_sha256": "5ebfc79fa786c2f39558c0ef7bef354f6019873276417c0afce1fd7d25387b81",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-290",
+      "rgb_sha256": "01704cc48ed45b4fce2f18e0a660f4cbe17d5871942d8f203ba6fd47b2ddd96a",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-300",
+      "rgb_sha256": "4dfc92a42bf8ef9120a7096b96db23370f907ca5ebcd6efe67defebd50972c20",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-310",
+      "rgb_sha256": "686e1fbee4445f8ffcba96795a89c2cf71043ea5c3180cf15f0d635f8d9316db",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-320",
+      "rgb_sha256": "e19327ba5b54e49bf4c3faf9c3b50844182ffd8411a412b289e0ee0dce190d5e",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-330",
+      "rgb_sha256": "688f40e598e25b15fb00d561fdc5180bb8e437a43336524478ad7f32f7008249",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-340",
+      "rgb_sha256": "70632766bb67a9c98bcf4255dd92bcf23491f930b000606b6016582c3d88e965",
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "view": "orbit-350",
+      "rgb_sha256": "1e4a07e7c8eb201a6feed46816b9f616acc7041c3bfd10734f350b2fb9799956",
+      "size": [
+        640,
+        640
+      ]
+    }
+  ]
+}

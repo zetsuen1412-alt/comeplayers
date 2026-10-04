@@ -1,0 +1,18 @@
+CRWT — REVISI PERMUKAAN 2026-10-04
+
+Ekstrak ZIP ke folder baru, jalankan python verify_portable_workspace.py.
+Baca Crazy-Rich-World-Tour-Unity-28.0/Web30/CONTINUATION_LATEST_ID.md.
+Viewer: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/
+alexia/surface-review-2026-10-04/viewer/BUKA-REVISI-ALEXIA.html.
+Pilih kandidat interior berwarna atau pembanding tiga fragmen luar;
+tombol Lihat referensi V2 membuka enam pandangan sumber mata biru.
+Paket memuat seluruh Web30, 10 karakter dan source Blender roster lama.
+Unity di luar Web30/website mirrors memerlukan clone repo penuh.
+Repo privat: zetsuen1412-alt/comeplayers.
+Snapshot: checkpoint/crazy-rich-world-tour-2026-10-04-surface-review.
+Model lama dan snapshot 7624167/4fa2f97/28a0bc33 tetap dipertahankan.
+Kandidat interior berwarna identik pada 43 sudut albedo uji. Varian luar
+memperlihatkan penghilangan 912 triangle komponen 2/3/4, menyisakan 448.252 triangle.
+Tampak depan identik, perubahan render hanya pada proyeksi island tersebut.
+Rambut utama/mata/tangan belum diperbaiki, belum tekstur penuh/rig/game.
+Accepted models = 0. Jangan anggap varian pembanding sebagai approval final.

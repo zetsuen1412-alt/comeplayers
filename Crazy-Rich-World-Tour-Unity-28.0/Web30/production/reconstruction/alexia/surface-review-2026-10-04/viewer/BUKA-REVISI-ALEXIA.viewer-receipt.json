@@ -1,0 +1,74 @@
+{
+  "schema": "crwt.offline_mesh_inspection.v1",
+  "viewer": "BUKA-REVISI-ALEXIA.html",
+  "viewer_bytes": 28308375,
+  "viewer_sha256": "1f72bd921c907920a47134bc083de69f8991e1d877fb5343ffe3f474e0061158",
+  "models": [
+    {
+      "id": "original",
+      "label": "V11 asli · geometri",
+      "filename": "alexia-v11-hunyuan21-untextured-diagnostic.glb",
+      "bytes": 8092808,
+      "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "faces": 449582,
+      "vertices": 224713,
+      "skins": 0,
+      "animations": 0,
+      "images": 0,
+      "note": "Geometri V11 asli. Tanpa tekstur, rig, animasi atau persetujuan visual.",
+      "visualApproved": false,
+      "gameIntegrated": false,
+      "encoding": "zlib"
+    },
+    {
+      "id": "projection",
+      "label": "Interior bersih · proyeksi depan",
+      "filename": "alexia-v11-cleanup-front-projection-candidate.glb",
+      "bytes": 20771384,
+      "sha256": "4fd3724ec128557e089dea2e78a48873f9ba1140cd80eadbbee38c00df43c599",
+      "faces": 449164,
+      "vertices": 224713,
+      "skins": 0,
+      "animations": 0,
+      "images": 1,
+      "note": "Kandidat hasil pembersihan interior dengan proyeksi depan yang sama. Mata biru dan warna depan dipertahankan; sisi tersembunyi tetap abu-abu. Belum tekstur penuh atau rig.",
+      "visualApproved": false,
+      "gameIntegrated": false,
+      "encoding": "zlib"
+    },
+    {
+      "id": "cleanup",
+      "label": "Tiga fragmen luar · pembanding",
+      "filename": "alexia-v11-exterior-ablation-review-candidate.glb",
+      "bytes": 18863124,
+      "sha256": "6ae8b914b7c3a573d1335a54bc2875ab05df0e82d1442054b4820e28602d2cac",
+      "faces": 448252,
+      "vertices": 224713,
+      "skins": 0,
+      "animations": 0,
+      "images": 0,
+      "note": "Varian pembanding menghilangkan hanya tiga fragmen luar 2/3/4 (912 segitiga) dari kandidat interior. Tersisa 448.252 segitiga, termasuk seluruh mesh utama dan shard mata/poni 9. Bentuk rambut utama, mata, jari dan cuff belum diperbaiki. Ini kandidat abu-abu untuk review, bukan persetujuan desain atau model game.",
+      "visualApproved": false,
+      "gameIntegrated": false,
+      "encoding": "zlib"
+    }
+  ],
+  "vendor_sha256": {
+    "build/three.core.js": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20",
+    "build/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+    "examples/jsm/utils/BufferGeometryUtils.js": "fda7e946b8e0b5ab39b779206589e7a1079a22eb24efb89d7223e03fdfb1f751",
+    "examples/jsm/controls/OrbitControls.js": "b97879c748170baadeb3fb84cea1ffdf4674e283dc06042f34e2acb95a76042c",
+    "examples/jsm/loaders/GLTFLoader.js": "67ac5551fdafa6e349bd80c8f8e5e39c136d6b2fb1ad647db9abb21dc86f9e4a",
+    "LICENSE": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+  },
+  "requires_network": false,
+  "source_files_edited": false,
+  "visual_approval": false,
+  "game_integration": false,
+  "reference": {
+    "filename": "turnaround-blue-imagegen-v2.png",
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "bytes": 1988013,
+    "is_3d_mesh_approval": false
+  }
+}
