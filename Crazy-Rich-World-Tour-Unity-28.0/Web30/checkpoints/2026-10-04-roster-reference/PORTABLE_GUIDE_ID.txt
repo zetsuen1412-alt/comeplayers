@@ -1,6 +1,6 @@
 CRAZY RICH WORLD TOUR — CHECKPOINT 10 MODEL REFERENSI
 Tanggal: 04 Oktober 2026
-Branch tersimpan: checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-verified
+Branch tersimpan: checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable
 Branch pengembangan: codex/crazy-rich-web-v30
 Repo: https://github.com/zetsuen1412-alt/comeplayers
 
@@ -10,7 +10,7 @@ DI KOMPUTER LAIN
 3. Buka editable/CRWT-semua-karakter-review.blend di Blender 5.2.2 untuk menyunting
    sepuluh model. Tekstur sudah tertanam. ZIP editable juga disertakan.
 4. Untuk melanjutkan keseluruhan project, clone repo privat menggunakan akun Anda:
-   git clone --branch checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-verified https://github.com/zetsuen1412-alt/comeplayers.git
+   git clone --branch checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable https://github.com/zetsuen1412-alt/comeplayers.git
 5. Dari folder repo, periksa hash snapshot:
    python Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py --root .
 6. Untuk membuat kembali galeri dari checkout, jalankan:

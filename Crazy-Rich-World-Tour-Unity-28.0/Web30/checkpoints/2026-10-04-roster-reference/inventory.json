@@ -5,7 +5,7 @@
   "timezone": "Asia/Bangkok",
   "repository": "zetsuen1412-alt/comeplayers",
   "development_branch": "codex/crazy-rich-web-v30",
-  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-verified",
+  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable",
   "baseline_source_commit": "afa28a6d718dc70b4ecb7acc09ccc470c228c733",
   "baseline_git_tree": "99775f87a7c211754b662a635ed79eab8988d03b",
   "scope": "Preserved the current 1054 gameplay inventory paths plus its frozen inventory (1055 baseline paths), extended only by staged roster/reference checkpoint prefixes and explicitly named updates.",
@@ -506,15 +506,15 @@
     },
     {
       "path": ".github/workflows/crwt-portable-character-workspace.yml",
-      "bytes": 12666,
-      "git_blob_sha1": "5e95ad545616b5533b844835af3875db48c0d6d9",
-      "sha256_recorded": "f3cee1ee364a81bd4e7a61476852f4ae23ddffe4cda27b7b0bb78122ae4de20d"
+      "bytes": 12756,
+      "git_blob_sha1": "e7dd767ae8da463a68bc79fb931c44977b677cde",
+      "sha256_recorded": "b711cf6fad125f9d6ec85c7995464ac61373c226a431bd3bfb56c03d7ead6796"
     },
     {
       "path": "CRWT_ROSTER_REFERENCE_RESUME_ID.md",
       "bytes": 2358,
-      "git_blob_sha1": "6b1348e38b5d555d2522eb85e3e2346afbdb247c",
-      "sha256_recorded": "0da9bce1e9399eff3463cc063230a51d1df9501692efbb806605b80540e6512c"
+      "git_blob_sha1": "59235c45983715cf5a2b2ab4257ac2c9ef63a531",
+      "sha256_recorded": "4f41f4a3daaf705b74d4500f5a1a54f8882cbd3f603818f0324d225c27d7744c"
     },
     {
       "path": "Crazy-Rich-World-Tour-Unity-28.0/.gitattributes",
@@ -2590,8 +2590,8 @@
     {
       "path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04-roster-reference/PORTABLE_GUIDE_ID.txt",
       "bytes": 2756,
-      "git_blob_sha1": "b01749e2d31c25062ea1c0ca09a7b0ef753f3aae",
-      "sha256_recorded": "7702cd9e4b11b6f7d4dbfac7837a4f44c20dab3366d57f5c1827c925fe42e24c"
+      "git_blob_sha1": "5becd2f4d73a6029abcbb47a1ea12fc5f9e0b703",
+      "sha256_recorded": "3c7b2cb4e3c4793c9d90af842a57c9a1ff749b68a663156b60933301d465b44c"
     },
     {
       "path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04-roster-reference/README_ID.md",
@@ -6430,5 +6430,5 @@
       "git_blob_sha1": "0777fff2c501c5d833f8006b9423b7530f80453e"
     }
   ],
-  "checkpoint_build_fix_parent": "f0f7ea6f48c123082eff5dc46f32b873ad9b2208"
+  "checkpoint_build_fix_parent": "81ded367300fd5ec523996d7ead7409df686c7fa"
 }
