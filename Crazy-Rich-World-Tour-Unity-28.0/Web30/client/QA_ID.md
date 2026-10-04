@@ -1,3 +1,27 @@
+# Crazy Rich: World Tour — Web 30.0 QA (2026-10-04)
+
+## Kelanjutan pertandingan
+- Offline: test actual inline Engine, OfflineSave dan App dalam Node VM.
+- Roundtrip stok kartu yang telah dipakai dan bonus Double Roll aktif lulus.
+- Import lama memakai stok awal; modern autosave tidak mengambil kids.v7 lama.
+- Import tidak valid/dibatalkan menjaga engine, kartu, timer dan storage.
+- Winner/phase tidak konsisten serta format/version tidak dikenal ditolak.
+- Browser localhost: Guest > Practice > match lokal > reload > resume lulus.
+- Pengaturan bisa dibuka melalui tombol baru ketika match sedang aktif.
+- Kontrol Ekspor/Impor save terlihat pada desktop dan viewport 390×844.
+- Tidak ada console error/warning pada flow lokal yang diperiksa.
+- Ekspor Blob JSON diuji dengan fungsi App aktual di VM. Event unduhan pada
+  in-app browser tidak menghasilkan receipt; file unduhan UI belum diverifikasi.
+- Online: tes fixture RPC untuk resume existing match, token handshake dan
+  race pembukaan frame; bukan pertandingan multiakun langsung di produksi.
+- Source dan embedded launcher dibuat dari runtime yang sama; mirror website
+  serta inventaris checkpoint diverifikasi oleh workflow CI.
+
+## Bukti historis Online 27.0
+
+Bagian berikut mencatat QA sebelumnya, bukan pengujian backend baru pada
+checkpoint gameplay-continuity ini.
+
 # Crazy Rich: World Tour — Online 27.0 QA
 
 ## Backend QA — LULUS

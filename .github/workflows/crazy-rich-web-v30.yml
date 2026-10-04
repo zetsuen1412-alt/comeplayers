@@ -42,6 +42,11 @@ jobs:
       - name: Verify project folder matches website publish mirror
         working-directory: .
         run: node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/publish.mjs --check
+      - name: Verify portable saves and online reconnect flow
+        working-directory: .
+        run: |
+          node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/test_offline_save.mjs
+          node Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/test_online_resume.mjs
       - run: npx tsx --test tests/crazy-rich-web-v30.test.ts
       - run: npm run typecheck
       - name: Run full Next.js build

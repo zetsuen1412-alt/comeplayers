@@ -2,10 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import process from "node:process";
+import { spawnSync } from "node:child_process";
 
 const root = path.resolve(import.meta.dirname, "..", "..", "..");
 const project = path.join(root, "Crazy-Rich-World-Tour-Unity-28.0", "Web30");
 const check = process.argv.includes("--check");
+const launcherBuild = spawnSync(process.execPath, [path.join(project, "tools", "sync_launcher.mjs"), ...(check ? ["--check"] : [])], { stdio: "inherit" });
+if (launcherBuild.status !== 0) process.exit(launcherBuild.status || 1);
 
 const mappings = [
   ["client", "website/public/games/crazy-rich-world-tour/client"],

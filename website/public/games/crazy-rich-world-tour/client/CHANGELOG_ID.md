@@ -1,3 +1,13 @@
+# Crazy Rich: World Tour — Web 30.0
+
+## Kelanjutan pertandingan — 2026-10-04
+- Tombol LANJUTKAN PERTANDINGAN untuk host dan peserta di room in_game.
+- Resume membaca match aktif; tidak memulai pertandingan baru.
+- Token sesi diperbarui ke renderer yang dipercaya tanpa mengulang intro/poll.
+- Ekspor/import lokal membawa engine, sisa kartu aksi dan bonus Double Roll.
+- Format save lama tetap didukung dengan extras awal yang deterministik.
+- PWA shell diperbarui; source Web30 dan mirror website disinkronkan.
+
 # Crazy Rich: World Tour — 27.0
 
 ## Match Presentation Final

@@ -1,0 +1,46 @@
+CRAZY RICH: WORLD TOUR — LANJUTKAN PERTANDINGAN
+Checkpoint: checkpoint/crazy-rich-world-tour-2026-10-04-gameplay-continuity
+Branch kerja: codex/crazy-rich-web-v30
+Repository privat: zetsuen1412-alt/comeplayers
+
+DI KOMPUTER LAIN
+1. Ekstrak seluruh paket ke folder baru.
+2. Dari root ekstraksi jalankan: python verify_portable_workspace.py
+   Python 3.10+, tanpa paket tambahan atau jaringan.
+3. Dari root ekstraksi jalankan:
+   python -m http.server 8000 --bind 127.0.0.1
+4. Buka browser:
+   http://127.0.0.1:8000/Crazy-Rich-World-Tour-Unity-28.0/Web30/client/PLAY-Crazy-Rich-World-Tour-Launcher.html
+
+LANJUTKAN GAME ONLINE
+Login dengan akun yang sama. Room aktif dipulihkan dari server. Jika kembali
+ke lobby saat match masih berlangsung, buka room lalu tekan LANJUTKAN
+PERTANDINGAN. Ini membaca match yang sama; tidak membuat match baru.
+Token sesi yang diperbarui diteruskan ke renderer tanpa mengulang match.
+Online perlu internet dan backend Supabase yang tersedia.
+
+PINDAHKAN GAME LOKAL
+Dalam permainan lokal buka Pengaturan > Ekspor save. Simpan JSON itu sendiri
+ke komputer tujuan. Pilih Impor save di Pengaturan, pilih JSON dan konfirmasi.
+Save baru membawa engine, sisa kartu aksi dan bonus Double Roll aktif.
+JSON engine-only lama tetap dapat diimpor dengan stok kartu awal dan tanpa
+bonus aktif karena format lama tidak pernah mencatatnya.
+Paket source ini tidak memuat localStorage browser atau sesi login Anda.
+
+PEKERJAAN PENGEMBANGAN
+Baca CONTINUATION_LATEST_ID.md dan README checkpoint gameplay-continuity.
+Untuk repo penuh, clone repository privat lalu checkout snapshot di atas.
+Jalankan python Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py
+dan kedua test_offline_save.mjs / test_online_resume.mjs dengan Node 22+.
+Inventaris default memeriksa checkpoint baru; inventaris 978 berkas awal
+tetap disimpan tanpa perubahan pada snapshot historisnya.
+
+ASET 3D
+Semua 10 GLB karakter, source roster revision10, referensi V2, V11 Alexia
+dan kandidat review permukaan tetap disertakan. Baca production/
+reconstruction/alexia/surface-review-2026-10-04/README_ID.md untuk status.
+Viewer: folder itu/viewer/BUKA-REVISI-ALEXIA.html.
+Kandidat belum disetujui atau dipasang ke game; accepted models = 0.
+Source Blender roster lama bukan source Hunyuan V11.
+Unity di luar Web30 dan website mirror tidak termasuk ZIP lokal ini;
+keduanya tersedia melalui repository penuh.

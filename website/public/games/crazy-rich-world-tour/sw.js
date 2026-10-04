@@ -1,4 +1,4 @@
-const CACHE="crwt-web-v30-shell";
+const CACHE="crwt-web-v30-gameplay-continuity-20261004";
 const SHELL=[
   "/games/crazy-rich-world-tour",
   "/games/crazy-rich-world-tour/client/PLAY-Crazy-Rich-World-Tour-Launcher.html",

@@ -8,6 +8,9 @@ on:
       - .github/workflows/crwt-portable-character-workspace.yml
       - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/**
       - Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/**
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/client/**
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/**
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/pwa/**
 permissions:
   contents: read
 jobs:
@@ -18,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Verify checkpoint assets
+      - name: Verify current source and preserved checkpoint assets
         run: python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py
       - name: Rebuild exact front projection diagnostic with Python stdlib
         working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/continuation-2026-10-04
@@ -105,7 +108,8 @@ jobs:
           current=source/'production/reconstruction/alexia/interior-cleanup-2026-10-04'
           review=source/'production/reconstruction/alexia/surface-review-2026-10-04'
           verifier=(diagnostic/'tools/verify_portable_workspace.py').read_bytes()
-          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(review/'PORTABLE_GUIDE_ID.txt').read_bytes()
+          latest=source/'checkpoints/2026-10-04-gameplay-continuity/PORTABLE_GUIDE_ID.txt'
+          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(latest if latest.is_file() else review/'PORTABLE_GUIDE_ID.txt').read_bytes()
           extras={'verify_portable_workspace.py':verifier,'MULAI-DI-SINI.txt':guide}
           records=[]
           with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:

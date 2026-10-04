@@ -1,7 +1,14 @@
-# Crazy Rich: World Tour — Online 27.0
+# Crazy Rich: World Tour — Web 30.0
 
-Build 27.0 fokus pada **Match Presentation Final**. Gameplay authority tidak berubah.
+Jalankan launcher PLAY-Crazy-Rich-World-Tour-Launcher.html melalui localhost.
+Online: login akun yang sama, room > LANJUTKAN PERTANDINGAN untuk membuka match
+aktif. Server tetap menentukan seluruh hasil permainan online.
 
-Alur pertandingan: Lobby → Map Intro → Character Entrance → 3-2-1-GO → Turn Presentation → Last Player Standing → Victory → Podium/Rewards → Rematch/Lobby.
+Lokal: Practice > Mulai petualangan. Tombol roda gigi selama pertandingan
+membuka Pengaturan > Ekspor save / Impor save. JSON baru membawa posisi game,
+sisa kartu dan bonus Double Roll. Save format lama tetap didukung.
 
-Rematch menggunakan vote server-side dan membuat room Casual baru setelah seluruh pemain manusia setuju.
+Source ini disinkronkan ke website dengan tools/publish.mjs. Baca
+../CONTINUATION_LATEST_ID.md untuk checkpoint dan panduan komputer lain.
+Match flow online: Lobby > Map Intro > Character Entrance > Countdown >
+Turn Presentation > Last Player Standing > Victory > Podium > Rematch Lobby.

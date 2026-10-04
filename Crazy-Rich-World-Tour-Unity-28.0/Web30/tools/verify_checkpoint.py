@@ -65,10 +65,12 @@ def verify(root, manifest):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=pathlib.Path, help="Repository root (default: inferred from script location)")
-    parser.add_argument("--manifest", type=pathlib.Path, help="Inventory JSON (default: checkpoint 2026-10-04)")
+    parser.add_argument("--manifest", type=pathlib.Path, help="Inventory JSON (default: latest checkpoint available in this checkout)")
     args = parser.parse_args()
     root = (args.root or pathlib.Path(__file__).resolve().parents[3]).resolve()
-    manifest_path = args.manifest or root / "Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04/inventory.json"
+    latest = root / "Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04-gameplay-continuity/inventory.json"
+    original = root / "Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-04/inventory.json"
+    manifest_path = args.manifest or (latest if latest.is_file() else original)
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         result = verify(root, manifest)
