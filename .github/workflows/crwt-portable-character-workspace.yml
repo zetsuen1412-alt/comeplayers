@@ -29,6 +29,31 @@ jobs:
           --selection tools/front-face-selection.json
           --out front-projection/alexia-v11-front-projection-diagnostic.glb
           --proof front-projection/alexia-v11-front-projection-diagnostic.ci-rebuild-proof.json
+      - name: Rebuild source-preserving interior cleanup candidate
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/interior-cleanup-2026-10-04
+        run: >-
+          python3 tools/build_interior_cleanup_candidate.py
+          ../v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb
+          --containment-proof containment-proof-exact.json
+          --containment-proof-sha256 1c28f04907e44fd9b0a0f2169854e19a06bd4a26ca495074a19219c6be599935
+          --confirm-proven-interior-candidate
+          --expected-output-sha256 dae2b0784b190649e5ae69ef2854aa06798468d2244eb5982d61a759c0c54af0
+          --out candidate/alexia-v11-interior-cleanup-candidate.glb
+          --proof candidate/alexia-v11-interior-cleanup-candidate.ci-cleanup-proof.json
+      - name: Rebuild standalone offline inspection viewer from frozen vendor bundle
+        working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/interior-cleanup-2026-10-04
+        run: |
+          python3 - <<'PY'
+          import pathlib,subprocess,sys
+          subprocess.run([sys.executable,'viewer/build_offline_viewer.py',
+            '--vendor-bundle','viewer/viewer-vendor-bundle.json',
+            '--original','../v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb',
+            '--projection','../continuation-2026-10-04/front-projection/alexia-v11-front-projection-diagnostic.glb',
+            '--cleanup','candidate/alexia-v11-interior-cleanup-candidate.glb',
+            '--cleanup-note',pathlib.Path('viewer/cleanup-note.txt').read_text(encoding='utf-8'),
+            '--expected-output-sha256','257e2d0ffa08fb43574310e9ec871b7730bfdcf5143de0ebfa133a65f3fade8c',
+            '--output','viewer/BUKA-INSPEKSI-ALEXIA.html'],check=True)
+          PY
       - name: Archive preserved models, references and editable sources
         run: |
           python3 - <<'PY'
@@ -38,8 +63,9 @@ jobs:
           target=root/'crwt-portable-character-workspace.zip'
           files=sorted(p for p in source.rglob('*') if p.is_file())
           diagnostic=source/'production/reconstruction/alexia/continuation-2026-10-04'
+          current=source/'production/reconstruction/alexia/interior-cleanup-2026-10-04'
           verifier=(diagnostic/'tools/verify_portable_workspace.py').read_bytes()
-          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(diagnostic/'PORTABLE_GUIDE_ID.txt').read_bytes()
+          guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(current/'PORTABLE_GUIDE_ID.txt').read_bytes()
           extras={'verify_portable_workspace.py':verifier,'MULAI-DI-SINI.txt':guide}
           records=[]
           with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
@@ -60,7 +86,9 @@ jobs:
               for record in records:
                   data=z.read(record['path'])
                   assert len(data)==record['bytes'] and hashlib.sha256(data).hexdigest()==record['sha256']
-          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'diagnostic_rebuilt_from_frozen_selection':True,'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
+          candidate=current/'candidate/alexia-v11-interior-cleanup-candidate.glb'
+          viewer=current/'viewer/BUKA-INSPEKSI-ALEXIA.html'
+          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'diagnostic_rebuilt_from_frozen_selection':True,'cleanup_candidate_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest(),'offline_viewer_sha256':hashlib.sha256(viewer.read_bytes()).hexdigest(),'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
           (root/'crwt-portable-character-workspace-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
           print(json.dumps(receipt))
           PY

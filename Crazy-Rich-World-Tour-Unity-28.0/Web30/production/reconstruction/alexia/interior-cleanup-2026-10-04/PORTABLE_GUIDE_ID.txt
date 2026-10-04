@@ -1,0 +1,18 @@
+CRAZY RICH: WORLD TOUR — INSPEKSI 2026-10-04
+
+Ekstrak ZIP ke folder baru, jalankan python verify_portable_workspace.py,
+lalu baca Crazy-Rich-World-Tour-Unity-28.0/Web30/CONTINUATION_LATEST_ID.md.
+Buka HTML viewer offline di Crazy-Rich-World-Tour-Unity-28.0/Web30/
+production/reconstruction/alexia/interior-cleanup-2026-10-04/viewer/.
+Paket mencakup Web30, 10 karakter asli, source Blender roster revision10,
+V11 asli, diagnostik proyeksi, kandidat cleanup, referensi dan bukti.
+Unity di luar Web30 dan website mirror tersedia di repo penuh, bukan ZIP ini.
+Repo privat: zetsuen1412-alt/comeplayers.
+Snapshot: checkpoint/crazy-rich-world-tour-2026-10-04-interior-review.
+Baseline checkpoint verifier 978 file digunakan setelah clone repo penuh;
+validator portabel memeriksa setiap berkas dalam paket Web30.
+Kandidat menghapus 418 triangle interior, tampilan identik pada 43 sudut uji.
+Rambut/mata/tangan belum diperbaiki, belum tekstur penuh/rig/game approval.
+Accepted models = 0. Semua model sumber dan checkpoint lama dipertahankan.
+Lanjutkan dari README tahap interior. Pertahankan mata biru Alexia dan semua
+10 karakter; jangan menganggap diagnostik sebagai persetujuan final pengguna.
