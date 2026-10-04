@@ -1,0 +1,72 @@
+{
+  "status": "actual-textured-mesh-generated-awaiting-review",
+  "character": "zeno",
+  "provider": "stabilityai/stable-fast-3d",
+  "runtime_revision": "da5709055c2e0e08983d1a8b98172db008a91609",
+  "canonical_provenance": {
+    "character": "zeno",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      359,
+      485,
+      673,
+      886
+    ],
+    "crop_sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+    "alpha_sha256": "4770c5df8ed3234498d893c3e5adee0000a643ca647dafc448baeca55c0fea67",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  "upload_rgb_pixels_match_source_rectangle": true,
+  "source_rgb_repainted": false,
+  "upload_operation": "original crop RGB + exact u2net mask alpha; straight RGBA, original cutout preserved",
+  "authentication": "anonymous; token lookup disabled",
+  "declared_gpu_duration_seconds": 60,
+  "transport": "Six positional args: ordinary Run Button plus five public args; standard client inserts None State at wire index2",
+  "frontend_wire_component_ids": [
+    13,
+    7,
+    2,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frontend_wire_types": [
+    "button",
+    "image",
+    "state",
+    "slider",
+    "radio",
+    "slider",
+    "slider"
+  ],
+  "params": {
+    "foreground_ratio": 0.85,
+    "remesh_option": "None",
+    "vertex_count": -1,
+    "texture_size": 2048
+  },
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "provider_generation_submission_status": "result returned",
+  "production_approved": false,
+  "automatic_retry": false,
+  "scope": "Actual single-image textured-mesh diagnostic. Hidden surfaces inferred; source identity, hair, hands and props require actual mesh review.",
+  "input_snapshot_sha256": "01f5ea58a7fdd8dbdcb0f8a901a20b2158fce2803a7440df672c3971bda321ef",
+  "generation_returned": true,
+  "mesh": "zeno-sf3d-canonical-diagnostic.glb",
+  "bytes": 1883648,
+  "sha256": "259d76fe460b816f188fd5651c411c0ab604ae9030c818001eceef7d306b9e36",
+  "gltf_summary": {
+    "meshes": 1,
+    "materials": 1,
+    "images": 2,
+    "textures": 2,
+    "skins": 0,
+    "animations": 0
+  },
+  "ended_utc": "2026-10-04T11:40:55.538398+00:00"
+}

@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-kairo-button-repair\\kairo-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "12f53af92cee124e079da857de431de708178d568267a28e689cabe18763ac7d",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\kairo\\kairo-reference-candidate.glb",
+  "output_sha256": "dfadbc4590d9893cb4bf2a3138edd63322cef8a78f562b1128eb751c486c3289",
+  "bytes": 1128240,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

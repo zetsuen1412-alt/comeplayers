@@ -23,6 +23,17 @@ jobs:
           persist-credentials: false
       - name: Verify current source and preserved checkpoint assets
         run: python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py
+      - name: Verify ten actual reference-based candidate models
+        run: >-
+          python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/tools/validate_roster_candidate.py
+          Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json
+          --receipt crwt-roster-validation.json
+      - name: Rebuild the offline ten-character gallery without cloud generation
+        run: >-
+          python3 Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer/build_offline_gallery.py
+          --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json
+          --expected-output-sha256 2f2a53f24be0cef8ee9c6b9c54fff5d56250715b788676bbbeb608938e00ff7d
+          --output Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/BUKA-REVIEW-MODEL.html
       - name: Rebuild exact front projection diagnostic with Python stdlib
         working-directory: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/alexia/continuation-2026-10-04
         run: >-
@@ -108,7 +119,7 @@ jobs:
           current=source/'production/reconstruction/alexia/interior-cleanup-2026-10-04'
           review=source/'production/reconstruction/alexia/surface-review-2026-10-04'
           verifier=(diagnostic/'tools/verify_portable_workspace.py').read_bytes()
-          latest=source/'checkpoints/2026-10-04-gameplay-continuity/PORTABLE_GUIDE_ID.txt'
+          latest=source/'checkpoints/2026-10-04-roster-reference/PORTABLE_GUIDE_ID.txt'
           guide=('Commit: '+os.environ['GITHUB_SHA']+'\n\n').encode()+(latest if latest.is_file() else review/'PORTABLE_GUIDE_ID.txt').read_bytes()
           extras={'verify_portable_workspace.py':verifier,'MULAI-DI-SINI.txt':guide}
           records=[]
@@ -135,7 +146,9 @@ jobs:
           colored=review/'models/alexia-v11-cleanup-front-projection-candidate.glb'
           exterior=review/'models/alexia-v11-exterior-ablation-review-candidate.glb'
           latest_viewer=review/'viewer/BUKA-REVISI-ALEXIA.html'
-          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':False,'diagnostic_rebuilt_from_frozen_selection':True,'cleanup_candidate_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest(),'cleanup_projection_sha256':hashlib.sha256(colored.read_bytes()).hexdigest(),'exterior_ablation_sha256':hashlib.sha256(exterior.read_bytes()).hexdigest(),'offline_viewer_sha256':hashlib.sha256(latest_viewer.read_bytes()).hexdigest(),'previous_inspection_viewer_sha256':hashlib.sha256(viewer.read_bytes()).hexdigest(),'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
+          roster=source/'production/reconstruction/roster-reference-2026-10-04'
+          roster_manifest=json.loads((roster/'review-manifest.json').read_text())
+          receipt={'commit':os.environ['GITHUB_SHA'],'files':len(records)+1,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size,'mesh_generation':True,'cloud_generation_in_ci':False,'reference_candidate_models':len(roster_manifest['models']),'roster_visual_approved':False,'roster_game_integrated':False,'roster_viewer_sha256':hashlib.sha256((roster/'BUKA-REVIEW-MODEL.html').read_bytes()).hexdigest(),'diagnostic_rebuilt_from_frozen_selection':True,'cleanup_candidate_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest(),'cleanup_projection_sha256':hashlib.sha256(colored.read_bytes()).hexdigest(),'exterior_ablation_sha256':hashlib.sha256(exterior.read_bytes()).hexdigest(),'offline_viewer_sha256':hashlib.sha256(latest_viewer.read_bytes()).hexdigest(),'previous_inspection_viewer_sha256':hashlib.sha256(viewer.read_bytes()).hexdigest(),'game_assets_changed':False,'zip_crc_and_member_hashes_valid':True}
           (root/'crwt-portable-character-workspace-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
           print(json.dumps(receipt))
           PY
@@ -146,5 +159,6 @@ jobs:
           path: |
             crwt-portable-character-workspace.zip
             crwt-portable-character-workspace-receipt.json
+            crwt-roster-validation.json
           retention-days: 7
           if-no-files-found: error

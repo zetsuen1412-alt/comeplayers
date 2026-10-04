@@ -1,0 +1,72 @@
+{
+  "status": "actual-textured-mesh-generated-awaiting-review",
+  "character": "nox",
+  "provider": "stabilityai/stable-fast-3d",
+  "runtime_revision": "da5709055c2e0e08983d1a8b98172db008a91609",
+  "canonical_provenance": {
+    "character": "nox",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      1297,
+      0,
+      1667,
+      482
+    ],
+    "crop_sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+    "alpha_sha256": "d4e28564403880f5c0ae28dbc1cefaaf8123909a9d410fe340611a6df84ef9e7",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  "upload_rgb_pixels_match_source_rectangle": true,
+  "source_rgb_repainted": false,
+  "upload_operation": "original crop RGB + exact u2net mask alpha; straight RGBA, original cutout preserved",
+  "authentication": "anonymous; token lookup disabled",
+  "declared_gpu_duration_seconds": 60,
+  "transport": "Six positional args: ordinary Run Button plus five public args; standard client inserts None State at wire index2",
+  "frontend_wire_component_ids": [
+    13,
+    7,
+    2,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frontend_wire_types": [
+    "button",
+    "image",
+    "state",
+    "slider",
+    "radio",
+    "slider",
+    "slider"
+  ],
+  "params": {
+    "foreground_ratio": 0.85,
+    "remesh_option": "None",
+    "vertex_count": -1,
+    "texture_size": 2048
+  },
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "provider_generation_submission_status": "result returned",
+  "production_approved": false,
+  "automatic_retry": false,
+  "scope": "Actual single-image textured-mesh diagnostic. Hidden surfaces inferred; source identity, hair, hands and props require actual mesh review.",
+  "input_snapshot_sha256": "07c2573fbfb05a3dcbd9bcea8b2da7da626d8350dd8edd0fd676ea47352e0791",
+  "generation_returned": true,
+  "mesh": "nox-sf3d-canonical-diagnostic.glb",
+  "bytes": 1806652,
+  "sha256": "1f003878e0eda62d2bc664aa60c5c39505378fbc4c372ffbbc188ee3bfac5ed1",
+  "gltf_summary": {
+    "meshes": 1,
+    "materials": 1,
+    "images": 2,
+    "textures": 2,
+    "skins": 0,
+    "animations": 0
+  },
+  "ended_utc": "2026-10-04T11:41:36.748365+00:00"
+}

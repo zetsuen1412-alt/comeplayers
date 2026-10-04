@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-rindi\\rindi-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "650d5f098d52d976da8eacf2a314ae00062dca181280ced35fc4977a6263067a",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\rindi\\rindi-reference-candidate.glb",
+  "output_sha256": "8cac7f3db409dbfd3581b8118817586c696da4c1234c7c244ee3516e88afb3ed",
+  "bytes": 1737152,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

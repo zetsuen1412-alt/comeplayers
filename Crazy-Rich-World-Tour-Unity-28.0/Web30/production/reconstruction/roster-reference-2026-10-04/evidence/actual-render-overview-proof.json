@@ -1,0 +1,87 @@
+{
+  "render_source": "actual GLB meshes imported by Blender, assembled as a labelled contact sheet",
+  "models": [
+    {
+      "id": "alexia",
+      "actual_glb_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "render_evidence_sha256": "b7343c8cb6b66389974173b7d6258d9189b848e3d9d1ad602e4c71631559b3a1",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "rindi",
+      "actual_glb_sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+      "render_evidence_sha256": "0239ed303a87c4c46d103d097f6e955eed709f2b44616c4b6c83efaf726e3952",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "kairo",
+      "actual_glb_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "render_evidence_sha256": "30267581cdf1bb63aabca81a093993a2578519160e289cdb5f1acf443ed8e87c",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "luna",
+      "actual_glb_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+      "render_evidence_sha256": "655af966e645c07a73f22717a9e96a8c9855c671b429730fb228e6c6a64499eb",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "nox",
+      "actual_glb_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+      "render_evidence_sha256": "94f38687f2883626ba97862cbc71f7c0dd006684d34ff130fb38d74b1f8edbdf",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "atlas",
+      "actual_glb_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "render_evidence_sha256": "cf17b2a6af26c60bcbbc52fc16c05d6239cdc41962b27a4184075851506a38c1",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "zeno",
+      "actual_glb_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "render_evidence_sha256": "3b5b75e4a6897e2b96a5cd731efcd1fb79a8406827ac13a76c4556225d0ccb65",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "yuna",
+      "actual_glb_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+      "render_evidence_sha256": "d0e07d35c88cb0f6b901f9f2772a56e8ec571f4ef6c69660acf2034a6b0028e9",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "mochi",
+      "actual_glb_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "render_evidence_sha256": "94d482710cdc76b0d19598404b0400a38d6db715dc56a4d4df061946ad4182de",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    },
+    {
+      "id": "pip",
+      "actual_glb_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+      "render_evidence_sha256": "46fdaa0864aede8985ae76057ca411bc01c9cab061cbbf9a1bb5732600f85271",
+      "views": 7,
+      "real_orbit_frames": 24,
+      "reference_image_is_geometry": false
+    }
+  ],
+  "all_render_hashes_match_selected_glbs": true,
+  "visual_approval": false
+}

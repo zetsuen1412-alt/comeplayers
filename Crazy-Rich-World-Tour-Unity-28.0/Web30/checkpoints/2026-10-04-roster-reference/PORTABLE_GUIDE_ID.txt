@@ -1,0 +1,39 @@
+CRAZY RICH WORLD TOUR — CHECKPOINT 10 MODEL REFERENSI
+Tanggal: 04 Oktober 2026
+Branch tersimpan: checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference
+Branch pengembangan: codex/crazy-rich-web-v30
+Repo: https://github.com/zetsuen1412-alt/comeplayers
+
+DI KOMPUTER LAIN
+1. Unduh ZIP checkpoint model, lalu ekstrak seluruh folder.
+2. Buka BUKA-REVIEW-MODEL.html di Chrome/Edge untuk galeri 3D offline.
+3. Buka editable/CRWT-semua-karakter-review.blend di Blender 5.2.2 untuk menyunting
+   sepuluh model. Tekstur sudah tertanam. ZIP editable juga disertakan.
+4. Untuk melanjutkan keseluruhan project, clone repo privat menggunakan akun Anda:
+   git clone --branch checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference https://github.com/zetsuen1412-alt/comeplayers.git
+5. Dari folder repo, periksa hash snapshot:
+   python Crazy-Rich-World-Tour-Unity-28.0/Web30/tools/verify_checkpoint.py --root .
+6. Untuk membuat kembali galeri dari checkout, jalankan:
+   python Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/viewer/build_offline_gallery.py --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/review-manifest.json --output Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-reference-2026-10-04/BUKA-REVIEW-MODEL.html
+7. Mulai perubahan berikutnya dari checkpoint ini pada branch kerja baru.
+
+HASIL AKTUAL
+Sepuluh GLB baru mengikuti referensi: Alexia, Rindi, Kairo, Luna, Nox, Atlas,
+Zeno, Yuna, Mochi, Pip. Alexia memakai referensi V2 bermata biru.
+Sembilan rekonstruksi bertekstur masih statis. Material diperbaiki untuk
+mengurangi silau dan facet. Pip dibangun ulang sebagai dua koper dengan rig
+13 joint dan enam clip mekanis. Ujung ekor Mochi kini tersambung; bentuk
+tersembunyinya merupakan interpretasi desain.
+
+STATUS PENYELESAIAN
+Model ini belum sempurna dan belum menggantikan model runtime game.
+Perbaikan selanjutnya: tekstur belakang, tangan dan aksesori kecil; pemisahan
+bagian, retopologi, rig/deformasi sembilan model statis; review visual dan
+animasi Pip. Lihat catatan per karakter serta evidence/ untuk hash dan bukti.
+Setiap model memiliki tujuh render GLB aktual dan 24 frame putaran pada paket
+lokal. Gambar acuan ditandai sebagai referensi 2D.
+
+Checkpoint gameplay sebelumnya tetap tersimpan pada branch
+checkpoint/crazy-rich-world-tour-2026-10-04-gameplay-continuity
+commit afa28a6d718dc70b4ecb7acc09ccc470c228c733.
+Sumber asli dan seluruh checkpoint sebelumnya tetap dipertahankan.

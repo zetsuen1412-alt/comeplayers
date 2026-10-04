@@ -1,0 +1,42 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\luna\\luna-reference-candidate.glb",
+  "source_sha256": "faa4fceba0bc4db8b6c86cee2bb5638fe73f54c2ea321e28e63a64c02a01e9f2",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\luna\\luna-reference-surface-candidate.glb",
+  "output_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+  "raw_bin_chunks_identical": true,
+  "positions_indices_normals_uv_images_unchanged": true,
+  "operation": "PBR material parameter refinement only",
+  "changes": [
+    {
+      "material_index": 0,
+      "before": {
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "roughnessFactor": 0.9919010996818542,
+          "metallicFactor": 0.3096466064453125
+        },
+        "doubleSided": false,
+        "normalTexture": {
+          "index": 1
+        }
+      },
+      "after": {
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "roughnessFactor": 0.55,
+          "metallicFactor": 0.3096466064453125
+        },
+        "doubleSided": false,
+        "normalTexture": {
+          "index": 1,
+          "scale": 0.0
+        }
+      }
+    }
+  ],
+  "production_approved": false
+}

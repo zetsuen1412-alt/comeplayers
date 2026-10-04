@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-alexia-v2\\alexia-sf3d-approved-v2-diagnostic.glb",
+  "source_sha256": "74e8a9f9e2e33b214144340d872c1e9674bf0f88b8517009f0d2e60a0de082f6",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\alexia\\alexia-reference-candidate.glb",
+  "output_sha256": "f23928f8b1127e9158b37d16e4e93a7772f36063b46a6127baf597410e167260",
+  "bytes": 1942444,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

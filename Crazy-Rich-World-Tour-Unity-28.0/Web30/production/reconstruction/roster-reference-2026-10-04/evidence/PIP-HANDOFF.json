@@ -1,0 +1,245 @@
+{
+  "schema": "crwt.pip-candidate-handoff.v1",
+  "status": "reference_guided_visual_candidate",
+  "visual_final_approved": false,
+  "game_assets_replaced": false,
+  "trial": "trial-v8",
+  "input_source_sha256": "c2ceab85a941585bf5d6189b250646a7647893e1fe3063d80fa7faa649c4dea4",
+  "reference_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+  "original_source_unchanged": true,
+  "actual_glb": {
+    "sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+    "bytes": 5525688,
+    "mesh_parts": 196,
+    "triangles": 87968,
+    "skins": 1,
+    "joints": 13,
+    "clip_names": [
+      "Idle",
+      "Walk",
+      "Jump",
+      "Skill",
+      "Win",
+      "Lose"
+    ],
+    "external_image_dependencies": 0,
+    "unused_vertices": 0,
+    "unweighted_vertices": 0,
+    "nonrigid_weights": 0
+  },
+  "actual_render": {
+    "views": 7,
+    "orbit_frames": 24,
+    "pose": "static rest pose",
+    "bounds_blender_z_up": [
+      [
+        -0.6344482898712158,
+        -0.21599999070167542,
+        -5.587935447692871e-09
+      ],
+      [
+        0.4193347990512848,
+        0.1574999839067459,
+        1.3344998359680176
+      ]
+    ]
+  },
+  "visual_critique": {
+    "observed_improvements": [
+      "Suitcase and companion identity without human limbs",
+      "Large rounded black cyan-face screen",
+      "Top/side handles, slotted gold plaques, outlined star and plane patches",
+      "Blue world relief on gold badge and angular lower gold panel",
+      "Broad cyan corner armor and thicker rounded twin casters"
+    ],
+    "remaining_limits": [
+      "One front reference cannot prove rear details or hidden caster count",
+      "Microdetails and companion hidden design are geometric approximations",
+      "Actual emissive LEDs have no soft bloom in studio preview",
+      "196 separate mesh parts have not been optimized for mobile",
+      "Six mechanical clip choreographies and board integration are unapproved"
+    ]
+  },
+  "files": [
+    {
+      "path": "pip-reference-guided-candidate.glb",
+      "sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+      "bytes": 5525688
+    },
+    {
+      "path": "pip-reference-guided-candidate.blend",
+      "sha256": "92df2dfd3e1f5d5afdfedc8829074f969a48050538299538c6eece79babce6ba",
+      "bytes": 71495072
+    },
+    {
+      "path": "pip-reference-guided-candidate.manifest.json",
+      "sha256": "05a526ea21de2ec26a3b2681cc7de0142c02e1ae839731ecbe2a9bb58e587b4c",
+      "bytes": 12160
+    },
+    {
+      "path": "pip-reference-guided-candidate.bounds-inspection.json",
+      "sha256": "cf369de43792ec9652e285058d713fae35dba365d927138b410d612ac96b6ae9",
+      "bytes": 179801
+    },
+    {
+      "path": "actual-mesh-renders/render-evidence.json",
+      "sha256": "46fdaa0864aede8985ae76057ca411bc01c9cab061cbbf9a1bb5732600f85271",
+      "bytes": 1354
+    },
+    {
+      "path": "actual-mesh-renders/back.png",
+      "sha256": "904d5db68f165d36b4d0a9f54cf1dc114b6e4ccd51e3190caf96a03697661bad",
+      "bytes": 438952
+    },
+    {
+      "path": "actual-mesh-renders/bottom.png",
+      "sha256": "817087c7d3e48e2a7164eec4b89519e85a252e02c12fae52658e080d2f57af95",
+      "bytes": 416563
+    },
+    {
+      "path": "actual-mesh-renders/front.png",
+      "sha256": "700adff30a0a69587c27c7d8aee0e7558bc5cc109a824a75fc1443688c2a0a8f",
+      "bytes": 504026
+    },
+    {
+      "path": "actual-mesh-renders/left.png",
+      "sha256": "91c07ac5df50e65ec13dfef2d8a2517a9105abb3335284756d3623cd9c178f6e",
+      "bytes": 429652
+    },
+    {
+      "path": "actual-mesh-renders/right.png",
+      "sha256": "842331f0a978624ecaa1dcf724aa382d469cf07f57eb61eb59e354dbdda36627",
+      "bytes": 430070
+    },
+    {
+      "path": "actual-mesh-renders/three-quarter.png",
+      "sha256": "5f81bf95fc8aac8261b63c2002a61d6ad430e044fe59bc94387cb1cd5130ad0f",
+      "bytes": 510646
+    },
+    {
+      "path": "actual-mesh-renders/top.png",
+      "sha256": "0dceb9f11128439f6f747a81af12377086618fcd06c0458b93a6ff9704713cf0",
+      "bytes": 413693
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-000.png",
+      "sha256": "5c57e96b7bc3d25eccc324af1fe46a9b5f2d008bbbae193fad1efd3ee07532f4",
+      "bytes": 142077
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-015.png",
+      "sha256": "a57465384d927c1c1d649ba04e9e6568f98e5556e8cf6267f72643d286a99f23",
+      "bytes": 144526
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-030.png",
+      "sha256": "d03471e5b4b0ce29b558025b728b28b01eebca169ed31d54fe29631de6dac225",
+      "bytes": 146672
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-045.png",
+      "sha256": "08d6731ab414b7cdef1c213d7b69d90e034459320b0b751bdfceca886778aaf8",
+      "bytes": 145230
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-060.png",
+      "sha256": "9f784a381f124bc645537f688db061de6232adf17f08fd4698fc572a3cabfaf0",
+      "bytes": 140873
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-075.png",
+      "sha256": "4f20a66470115b02820f3116654af5311ef98a118009b389af8a31156c98795a",
+      "bytes": 132248
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-090.png",
+      "sha256": "35cfd36440ad4080576abbc292c904f9a6e845d7842b4cfe2f2ef3ebbc05d14b",
+      "bytes": 116813
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-105.png",
+      "sha256": "d9083bacd667c4a4ce7c7cc0fc4527f6e45b2181265d762a1cb9531050778ec2",
+      "bytes": 120187
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-120.png",
+      "sha256": "59936e7fe3e10d7e7f7190a703f8926283c36c5e9482aaeffc0f51d4fd0cf2c8",
+      "bytes": 121967
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-135.png",
+      "sha256": "db0fd9615db28bfafb264fd07099c8a0824065b7efb5ad97d1d8473ad9fd557b",
+      "bytes": 123796
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-150.png",
+      "sha256": "be600ba3d114389d48cf29b57ace6379b53539c86c736d80c585a1e6953990f5",
+      "bytes": 123185
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-165.png",
+      "sha256": "eaf7c0ed94f3e1bc07da2fd75a3d5e2b0410a1f1d544966f8e0d09da56f59ce5",
+      "bytes": 120692
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-180.png",
+      "sha256": "59c52c2808923ecb986967117c85c5cda5d59ba762986a1f0b6b30763cd40c8b",
+      "bytes": 119793
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-195.png",
+      "sha256": "fb3e8378d5228774ddaf8e342b02b7bf7e25a35ea8ad2e9b9ed90d3836576025",
+      "bytes": 121658
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-210.png",
+      "sha256": "a619e074160a5f3738d19645fd13d379f8b92fa77557e793632b1fdd7ac0fa22",
+      "bytes": 124024
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-225.png",
+      "sha256": "4888aca82797d5a2c8c9445653c5e675f04dd78e4661f909c283b606fbbaf3f4",
+      "bytes": 125310
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-240.png",
+      "sha256": "e1f06378239607f7e140960e1e4e247c4ce8a99d4129a63825415a3b8b790edc",
+      "bytes": 124773
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-255.png",
+      "sha256": "a6eda211a154c4815d783476094dd6835a50f2a6e879ba7547e52b1403baae22",
+      "bytes": 123173
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-270.png",
+      "sha256": "6680fb560e3b53c488a4c7c87e9d34f617044409ce02bb79bcc23ca70fbfe694",
+      "bytes": 119168
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-285.png",
+      "sha256": "06b903c6a03451135f95e9beb5ca9630a801dbaa53901179062d995e58e58ca2",
+      "bytes": 132535
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-300.png",
+      "sha256": "e88039c16f82f73a4291ab30b984f2170eebc397d12e432fb08113dd9c8994f7",
+      "bytes": 138636
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-315.png",
+      "sha256": "6fe8e8e2874d9ff6ae1fa4417429a7d8e1741d47d9061dbbd24de3e717d6eade",
+      "bytes": 142705
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-330.png",
+      "sha256": "2bbc28ee220b24f8c6341fe069fbf2d9c438349efcc1c0c2c2f40b2b8773b7ae",
+      "bytes": 143483
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-345.png",
+      "sha256": "099bfa016bbac3eaf6d090115d6816d390043221e6d368eb33222ac9493fe400",
+      "bytes": 143507
+    }
+  ]
+}

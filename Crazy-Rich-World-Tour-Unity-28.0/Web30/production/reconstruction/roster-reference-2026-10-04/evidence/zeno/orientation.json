@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-zeno\\zeno-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "259d76fe460b816f188fd5651c411c0ab604ae9030c818001eceef7d306b9e36",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\zeno\\zeno-reference-candidate.glb",
+  "output_sha256": "96c58e7e048a4edd8d42526061a06e51fdb323572ca00ae51af2bb18aece827c",
+  "bytes": 1883884,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

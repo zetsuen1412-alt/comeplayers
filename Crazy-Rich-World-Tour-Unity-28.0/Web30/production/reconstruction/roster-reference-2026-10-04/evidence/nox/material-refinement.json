@@ -1,0 +1,42 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\nox\\nox-reference-candidate.glb",
+  "source_sha256": "82ac3e1a76565dd149947dbe27bbfb562cf0079b8aaec6dba711a32a11389f44",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\nox\\nox-reference-surface-candidate.glb",
+  "output_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+  "raw_bin_chunks_identical": true,
+  "positions_indices_normals_uv_images_unchanged": true,
+  "operation": "PBR material parameter refinement only",
+  "changes": [
+    {
+      "material_index": 0,
+      "before": {
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "roughnessFactor": 0.9319877028465271,
+          "metallicFactor": 0.0017727622762322426
+        },
+        "doubleSided": false,
+        "normalTexture": {
+          "index": 1
+        }
+      },
+      "after": {
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "roughnessFactor": 0.55,
+          "metallicFactor": 0.0017727622762322426
+        },
+        "doubleSided": false,
+        "normalTexture": {
+          "index": 1,
+          "scale": 0.0
+        }
+      }
+    }
+  ],
+  "production_approved": false
+}

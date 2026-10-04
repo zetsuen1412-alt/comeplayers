@@ -1,0 +1,72 @@
+{
+  "status": "actual-textured-mesh-generated-awaiting-review",
+  "character": "yuna",
+  "provider": "stabilityai/stable-fast-3d",
+  "runtime_revision": "da5709055c2e0e08983d1a8b98172db008a91609",
+  "canonical_provenance": {
+    "character": "yuna",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      672,
+      497,
+      1004,
+      889
+    ],
+    "crop_sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+    "alpha_sha256": "722105b7e16bec69fb343e0788f74bda7b39c390b3b1ebb0c5d3fd117d3b8b73",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  "upload_rgb_pixels_match_source_rectangle": true,
+  "source_rgb_repainted": false,
+  "upload_operation": "original crop RGB + exact u2net mask alpha; straight RGBA, original cutout preserved",
+  "authentication": "anonymous; token lookup disabled",
+  "declared_gpu_duration_seconds": 60,
+  "transport": "Six positional args: ordinary Run Button plus five public args; standard client inserts None State at wire index2",
+  "frontend_wire_component_ids": [
+    13,
+    7,
+    2,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frontend_wire_types": [
+    "button",
+    "image",
+    "state",
+    "slider",
+    "radio",
+    "slider",
+    "slider"
+  ],
+  "params": {
+    "foreground_ratio": 0.85,
+    "remesh_option": "None",
+    "vertex_count": -1,
+    "texture_size": 2048
+  },
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "provider_generation_submission_status": "result returned",
+  "production_approved": false,
+  "automatic_retry": false,
+  "scope": "Actual single-image textured-mesh diagnostic. Hidden surfaces inferred; source identity, hair, hands and props require actual mesh review.",
+  "input_snapshot_sha256": "697adb493cceb415003aba23cb134991f68ff67199b7fea31edea31f25dd9a74",
+  "generation_returned": true,
+  "mesh": "yuna-sf3d-canonical-diagnostic.glb",
+  "bytes": 1807084,
+  "sha256": "d8159fdf12f72affefa1c727c8c09fe43ef9e83673f8ce5b2f955c07b2b6d437",
+  "gltf_summary": {
+    "meshes": 1,
+    "materials": 1,
+    "images": 2,
+    "textures": 2,
+    "skins": 0,
+    "animations": 0
+  },
+  "ended_utc": "2026-10-04T11:33:05.110003+00:00"
+}

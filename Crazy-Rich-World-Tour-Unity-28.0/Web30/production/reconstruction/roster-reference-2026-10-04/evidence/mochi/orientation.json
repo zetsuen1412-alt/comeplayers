@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-mochi\\mochi-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "716932ec64364302ac748cd9eac25544304db5a96106b64985fb4c9a29f34796",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\mochi\\mochi-reference-candidate.glb",
+  "output_sha256": "19cc6a8c6a8ff08518ab3bc2f29de1a5f77056daa00bf400400837285e2b372b",
+  "bytes": 1422928,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}
