@@ -1,0 +1,89 @@
+{
+  "schema": "crwt.hair_strands_render_selection.v1",
+  "characters": [
+    {
+      "id": "alexia",
+      "glb_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+      "scope": "new selected Alexia actual5views",
+      "render_proof_sha256": "4e0dd1f8ece4c583cd643a0a78867b4f5bac1cd6414fa0ed95c4887ad85b3a0f",
+      "imported_blender_vertices": 261299,
+      "source_accessor_vertices": 261299
+    },
+    {
+      "id": "rindi",
+      "glb_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "916aabc04b414d3367968e95d70e22a2b8ef52c98eed037625cd1ccd3dcfc214",
+      "imported_blender_vertices": 29416,
+      "source_accessor_vertices": 29689
+    },
+    {
+      "id": "kairo",
+      "glb_sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "1f1ee01eba3e11244c0ce770725aad2ebfbc441d3a231cf0f2d6b17d1b80c681",
+      "imported_blender_vertices": 20492,
+      "source_accessor_vertices": 20492
+    },
+    {
+      "id": "luna",
+      "glb_sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "4c7b9eaacde95ea7b5f0f0aeb1f2861b461226a3856474ca17ff7d63fdc6cca3",
+      "imported_blender_vertices": 39343,
+      "source_accessor_vertices": 40535
+    },
+    {
+      "id": "nox",
+      "glb_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "e3c32753fdc583dd79e925b0ab901609dee1193198fb9754ff8a7046511117db",
+      "imported_blender_vertices": 23535,
+      "source_accessor_vertices": 23535
+    },
+    {
+      "id": "atlas",
+      "glb_sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "da730720e0dbecc7d701f55600909be3f2a35846a4753abe89483b2c8f7aabd4",
+      "imported_blender_vertices": 31672,
+      "source_accessor_vertices": 31672
+    },
+    {
+      "id": "zeno",
+      "glb_sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "52b3ca6b3d387d4912038664cf0b518413ee43e21a1b7b58e228a371f118a527",
+      "imported_blender_vertices": 24679,
+      "source_accessor_vertices": 24679
+    },
+    {
+      "id": "yuna",
+      "glb_sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "7e539a9053ecc8876895cae395eff33d5bd44014986c8156d0f0dedf54128cbe",
+      "imported_blender_vertices": 25055,
+      "source_accessor_vertices": 25055
+    },
+    {
+      "id": "mochi",
+      "glb_sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "96a63aeb015dd007acb6e0c92df7e0809b7bf03ea0c4a10dbff826e31c96919c",
+      "imported_blender_vertices": 18328,
+      "source_accessor_vertices": 18334
+    },
+    {
+      "id": "pip",
+      "glb_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "scope": "exact reused baseline actual5views; not rerendered",
+      "render_proof_sha256": "021bddcabbc10bdecc00a67231e1fcd66add355427dcf2784d28e164cb9e5e5a",
+      "imported_blender_vertices": 103760,
+      "source_accessor_vertices": 103760
+    }
+  ],
+  "new_actual_png_count": 5,
+  "reused_actual_png_count": 45,
+  "approved": false,
+  "gameIntegrated": false
+}

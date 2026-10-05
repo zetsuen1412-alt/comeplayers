@@ -1,0 +1,172 @@
+{
+  "schema": "crwt.independent.selected-curl-lock-visual-assessment.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "perfect_match": false,
+  "candidate_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\geometry\\two-mild-smooth\\alexia.glb",
+  "candidate_bytes": 25054440,
+  "source_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "reference_evidence": "Untouched six-view Alexia blue V2 atlas actually viewed; broad rear S curls and uneven tips are visible. Hidden joins/depth remain inferred.",
+  "geometry_source_sha256": "9f0dcfb88e10fab3859602d4d197de45444e3fbb2acf53d9a4fec023e3f2153f",
+  "byte_audit_sha256": "0777238895c2fb1a1d70d341bad699945e0f0705669f84fee4a7c1a5123b788a",
+  "base_21_view_audit_sha256": "0a3b3b70d9ddbf210e8a81ac8fd5315cafcb2ddae730685d5397224b82f51d1a",
+  "normal_caveat_and_rejected_trials_report_sha256": "b088a40dc24f15cd9a24144f2940465dbdfb3f51e9d13bb75bc39d579f7b2eb9",
+  "selected_5_actual_color_views": [
+    {
+      "name": "front",
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\render\\mild-smooth-640\\front.png",
+      "sha256": "27b4de1c81b80661e261152caf76b57aa022a9b5bc82ebf5ec5b08d639278005",
+      "resolution": [
+        640,
+        640
+      ],
+      "actually_visually_inspected": true
+    },
+    {
+      "name": "three-quarter",
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\render\\mild-smooth-640\\three-quarter.png",
+      "sha256": "a9bcff4209c3f4dc0724ec1487c93bd454181ae6dffad16eda737d1ec424cb2c",
+      "resolution": [
+        640,
+        640
+      ],
+      "actually_visually_inspected": true
+    },
+    {
+      "name": "left",
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\render\\mild-smooth-640\\left.png",
+      "sha256": "8e1340af7db9a38f82cc13dda1dcfb70b2d75919bedd6e4dffb385db4fb7df44",
+      "resolution": [
+        640,
+        640
+      ],
+      "actually_visually_inspected": true
+    },
+    {
+      "name": "right",
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\render\\mild-smooth-640\\right.png",
+      "sha256": "b07b926c507632e3312964ee96d962198edbc07fb62dd4b051c6a3ec1ccd0a70",
+      "resolution": [
+        640,
+        640
+      ],
+      "actually_visually_inspected": true
+    },
+    {
+      "name": "back",
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\render\\mild-smooth-640\\back.png",
+      "sha256": "10c7f2ff20091ebdcd9da2579e255904725e9e7ef4ab1b4a5b6dd83b7b9107dc",
+      "resolution": [
+        640,
+        640
+      ],
+      "actually_visually_inspected": true
+    }
+  ],
+  "selected_actual_render_proof_sha256": "4e0dd1f8ece4c583cd643a0a78867b4f5bac1cd6414fa0ed95c4887ad85b3a0f",
+  "selected_renderer_recipe_sha256": "1a7c09cb0f4c4fcfc57b749b9fdd25d4319d634eca4031242555fd5a34b629df",
+  "actual_render_scope": {
+    "source": "Actual imported GLB volumes/materials, no reference-image scene plane.",
+    "camera": "Five selected640 views use selected model bounds; earlier baseline/mild/moderate512 comparison uses fixed baseline cameras.",
+    "samples_selected": 32,
+    "view_transform": "Standard",
+    "same_camera_pixel_difference_claim_between_selected640_and_old512": false,
+    "gray_geometry_evidence": "Mild9f gray-left/back from earlier identical-camera512 comparison applies: final19f geometry is exactly mild9f."
+  },
+  "verdict": "Accept19f as a bounded, modest work-in-progress increment; retain all production/perfect-match/rig/game approval flags false.",
+  "actual_visible_findings": {
+    "front": "Blue-eye face, headphones, front framing and outfit identity remain recognizable without a visible regression. All original records/bytes are preserved.",
+    "three_quarter": "Original front identity and luggage persist; new rear accents are largely occluded, so this is preservation evidence rather than proof of a full hairstyle repair.",
+    "left_and_right_profiles": "A few narrow tapered ends and curved lower-rear accents are now real volumes extending slightly past the existing bulb. The source silhouette remains broad; the shoulder/side-body textures remain blurred and irregular.",
+    "back": "Two broad flattened S reliefs and staggered ends read over the lower hair. The soft lavender candidate is compatible with the source palette, but central patches remain mottled and the underlying hair remains one merged large mass.",
+    "gray": "Real volume change is visible in mild gray views. It adds two accents over the source rather than replacing its main hair mass with separated sculpted clumps.",
+    "reference_gap": "Reference shows more separated, smoothly flowing locks, cleaner side layering and valleys exposing the coat; current source broad bulb and outer thin sheetlike fragments persist."
+  },
+  "integrity_result": {
+    "new_meshes": 1,
+    "new_nodes": 1,
+    "new_materials": 1,
+    "actual_meshes": 3,
+    "added_vertices": 2596,
+    "added_triangles": 5184,
+    "new_mesh_primitives": 1,
+    "closed_components": 2,
+    "each_component_vertices": 1298,
+    "each_component_triangles": 2592,
+    "each_component_edges": 3888,
+    "each_component_Euler": 2,
+    "all_new_face_average_normal_cosines_positive": true,
+    "minimum_face_average_normal_cosine": 0.11034184331508211,
+    "all_original_BIN_and_mesh_records_preserved": true,
+    "geometry_exact_mild9f": true,
+    "all2596smooth_atlas_colors_independently_reconstructed": true,
+    "global_source_collision_and_self_intersection_certified": false
+  },
+  "nine_other_frozen_source_models": [
+    {
+      "id": "rindi",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "kairo",
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "luna",
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "nox",
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "atlas",
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "zeno",
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "yuna",
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "mochi",
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+      "identical_to_previous_frozen_review": true
+    },
+    {
+      "id": "pip",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "identical_to_previous_frozen_review": true
+    }
+  ],
+  "other_model_scope": "Nine current frozen GLB inputs checked unchanged; no newly staged roster manifest existed when this report was written.",
+  "rejected_trials": [
+    {
+      "sha256": "08e3f5fce40a76fba693b942635eed21eff5b3fc6cd8ecab83fd6c27f966b34e",
+      "reason": "One lower-bend face opposes averaged smooth normals despite closed topology."
+    },
+    {
+      "sha256": "c294aea2009480c12d2d2f6fe8d4e5b7875f1e59eba287e3b2901a6b3ba5d522",
+      "reason": "COLOR-only derivative inherited the same rejected moderate geometry."
+    }
+  ],
+  "limits": [
+    "Additive separate volumes do not erase the old merged core, outer sheet fragments or source anatomical defects.",
+    "Overlapping source attachment roots are intentional and hidden; no exhaustive collision or self-intersection claim.",
+    "Original positions/normals/UV/images/materials are preserved, not newly proven anatomically correct.",
+    "No geometry is welded into a rig-ready hairstyle; no rig/animation/game integration or production approval.",
+    "Manual reference projection/anchors/depth remain approximate, with no match percentage or perfect appearance claim."
+  ]
+}

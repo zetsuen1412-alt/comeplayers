@@ -1,0 +1,105 @@
+{
+  "schema": "crwt.independent.selected-mild-smooth-byte-audit.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "perfect_match": false,
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\geometry\\two-mild-smooth\\alexia.glb",
+  "candidate_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "candidate_bytes": 25054440,
+  "original_source_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "mild_geometry_source_sha256": "9f0dcfb88e10fab3859602d4d197de45444e3fbb2acf53d9a4fec023e3f2153f",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "whole_mild_BIN_prefix_identical": true,
+  "whole_original_7ad_BIN_prefix_identical": true,
+  "all_original_positions_normals_uv_colors_indices_images_materials_records_identical": true,
+  "direct_original_node_change": "world.children appended one node; original scene roots and transforms identical",
+  "final_geometry_exactly_mild9f": true,
+  "changed_existing_attributes": [
+    "only mesh2 COLOR_0 accessor reference"
+  ],
+  "new_color_accessor_count": 1,
+  "changed_new_lock_color_vertices": 2476,
+  "all2596newcolors_float32_exactly_reconstructed": true,
+  "color_recipe_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-strands-next\\geometry\\build_hair_locks_mild_smooth_colors.py",
+  "color_recipe_sha256": "34923c76f9dfb03cfef2360ec7604f5754fbe22162b782c569344ca8d50ed219",
+  "color_proof_sha256": "5370b9927bbccddb59c666d4410b84b590f1bc28883d4721f5e0b72abcfd8ef9",
+  "geometry": {
+    "actual_meshes": 3,
+    "added_meshes": 1,
+    "added_nodes": 1,
+    "added_materials": 1,
+    "new_mesh_primitive_count": 1,
+    "added_vertices": 2596,
+    "added_triangles": 5184,
+    "closed_components": 2,
+    "components": [
+      {
+        "vertex_count": 1298,
+        "triangle_count": 2592,
+        "edge_count": 3888,
+        "euler_characteristic": 2,
+        "cap_center_indices": [
+          1296,
+          1297
+        ],
+        "cap_triangles_per_center": 16,
+        "signed_volume": 0.00013020764517820472,
+        "world_bounds": [
+          [
+            0.027122128754854202,
+            -0.09510619938373566,
+            -0.21967747807502747
+          ],
+          [
+            0.1611405611038208,
+            0.16212648153305054,
+            -0.1407010406255722
+          ]
+        ]
+      },
+      {
+        "vertex_count": 1298,
+        "triangle_count": 2592,
+        "edge_count": 3888,
+        "euler_characteristic": 2,
+        "cap_center_indices": [
+          2594,
+          2595
+        ],
+        "cap_triangles_per_center": 16,
+        "signed_volume": 0.00010719847742003631,
+        "world_bounds": [
+          [
+            -0.11293233931064606,
+            -0.10372033715248108,
+            -0.22469192743301392
+          ],
+          [
+            0.0015363539569079876,
+            0.15558035671710968,
+            -0.1366475373506546
+          ]
+        ]
+      }
+    ],
+    "minimum_triangle_area": 2.96455299559482e-08,
+    "minimum_face_average_normal_cosine": 0.11034184331508211,
+    "face_average_normal_cosine_nonpositive_count": 0,
+    "first_nonpositive_faces": [],
+    "maximum_normal_length_error": 3.9825345021782255e-08,
+    "all_edges_have_two_oppositely_directed_faces": true,
+    "global_self_intersection_and_source_attachment_collision_certificate": false
+  },
+  "all5184_new_face_average_normal_directions_positive": true,
+  "rejected_trials_sha256": [
+    "08e3f5fce40a76fba693b942635eed21eff5b3fc6cd8ecab83fd6c27f966b34e",
+    "c294aea2009480c12d2d2f6fe8d4e5b7875f1e59eba287e3b2901a6b3ba5d522"
+  ],
+  "visual_review_status": "Geometry mild reviewed in baseline comparison; fresh19f smooth color actual five-view review is pending at byte audit time.",
+  "limits": [
+    "Positive normal alignment and closed volumes are local integrity checks, not exhaustive collision/self-intersection certification.",
+    "Source merged lower hair remains, with separate deliberately overlapping root attachments.",
+    "Manual paths, hidden depth and roots remain inferred; no exact camera solve, perfect match, rig or game integration."
+  ],
+  "source_hashes_unchanged_after_audit": true
+}
