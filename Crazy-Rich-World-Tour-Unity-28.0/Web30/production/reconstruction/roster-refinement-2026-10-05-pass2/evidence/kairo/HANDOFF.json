@@ -1,0 +1,294 @@
+{
+  "schema": "crwt.reference_roster_refinement_handoff.v1",
+  "id": "kairo",
+  "created_date": "2026-10-05",
+  "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\models\\kairo.glb",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\references\\kairo.png",
+  "reference_sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\kairo-fitted-rim-beads-candidate.glb",
+  "candidate_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "candidate_bytes": 1278000,
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\kairo-fitted-rim-beads-candidate.blend",
+  "blend_sha256": "4fa2d0c884a40c34e4a28c3cb0fce773dde9a2c4decdd8c8d0020743d19d1447",
+  "blend_bytes": 1284234,
+  "render_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders",
+  "preservation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\kairo-fitted-rim-beads-candidate.preservation-proof.json",
+  "preservation_proof_sha256": "b66f590cbd7741582651490021152480e6c7c8e5f9d06006d472c842a2011d1f",
+  "reopen_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\editable-readonly-reopen-proof.json",
+  "reopen_proof_sha256": "a951918c7060bf96b72d6a41416904d26f42eb9cc1b94664644ae9933544b948",
+  "recipe_paths": [
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\build_fitted_rim_beads.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\rim-fit-v2.json",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\save_and_reopen_editable.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\render_review_blender.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\inspect_head.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\finalize_kairo.py"
+  ],
+  "scope": "Dua bead tipis emas pada rim goggles asli. Lensa, frame dasar, strap, rambut, body dan seluruh tekstur sumber dipertahankan.",
+  "limits": [
+    "Lensa, rambut, wajah, tangan, pakaian dan permukaan belakang rekonstruksi sumber masih lembut; tidak ada perbaikan keseluruhan karakter.",
+    "Rim kanan-bawah memakai fitted plane pada sampel yang dipertahankan; 12 sampel kedalaman dikecualikan karena ray mengenai rambut cekung. Segmen tersebut memakai kedalaman perkiraan, dengan deviasi maksimum 0,02028908096 unit dari hit sumber; bukan bukti menempel sempurna.",
+    "Thickness/radius bead merupakan interpretasi geometri fisik dari referensi depan. Bead kiri memakai depth hit sumber; bead kanan memakai fitted plane yang dicatat di proof.",
+    "Dua bead tambahan masing-masing tertutup dengan winding konsisten dan area triangle positif. Kontak bead/sumber disengaja; tidak ada sertifikasi global bebas intersection atau kualitas anatomi.",
+    "Model statis dengan 0 skin/animation; belum mendapat approval visual pengguna atau integrasi runtime game."
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "actual_glb_validation": {
+    "faces": 27820,
+    "vertices": 20492,
+    "meshes": 3,
+    "mesh_definitions": 3,
+    "default_scene": 0,
+    "default_scene_nodes": 5,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "cf866d33bfe0367ae9c77d6ec967caf8bd05dceb495f58147c464286913ee09d",
+    "accessors_checked": 10,
+    "buffer_views_checked": 12
+  },
+  "source_faces_removed": 0,
+  "source_vertices_moved": 0,
+  "source_bin_prefix_byte_identical": true,
+  "source_vertices": 17420,
+  "source_triangles": 21676,
+  "added_triangles": 6144,
+  "added_vertices": 3072,
+  "new_closed_solids": 2,
+  "full_render_image_count": 31,
+  "main_views": 7,
+  "orbit_frames": 24,
+  "render_receipt_sha256": "298841d06c3004cb190abfe57c33b7ebe9c126e7fc66b3ca8dccee53988f879f",
+  "validation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-glb-validation.json",
+  "finalization_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\finalization-proof.json",
+  "maximum_inferred_depth_vs_source_hit": 0.020289080960561673,
+  "perfect_rim_seating_certified": false,
+  "global_self_intersection_certified": false,
+  "saved_native_geometry_normal_uv_transform_material_image_fingerprints_identical": true,
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\kairo-fitted-rim-beads-candidate.preservation-proof.json",
+      "bytes": 96288,
+      "sha256": "b66f590cbd7741582651490021152480e6c7c8e5f9d06006d472c842a2011d1f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\editable-readonly-reopen-proof.json",
+      "bytes": 1189,
+      "sha256": "a951918c7060bf96b72d6a41416904d26f42eb9cc1b94664644ae9933544b948"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\editable-build-proof.json",
+      "bytes": 10215,
+      "sha256": "8b4129569be599f1bbeab3469d24c1e79c85cded2840400a6ace96400643c29a"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-glb-validation.json",
+      "bytes": 686,
+      "sha256": "9864a8aa06553c3670fd192530dd43cac5802ae8d4a3555a5db71c4c38beb937"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\finalization-proof.json",
+      "bytes": 13939,
+      "sha256": "498a945cbdefd40bcd3ee9cfbaf1b4b98b578768a53cd8b67571fb3b41796c62"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\MULAI-DI-SINI-KAIRO.md",
+      "bytes": 1434,
+      "sha256": "fe78e6a1c7d9757343e3cc10e58a399e80ca2f4239fab735bfc1223e0beee24a"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\render-evidence.json",
+      "bytes": 1371,
+      "sha256": "298841d06c3004cb190abfe57c33b7ebe9c126e7fc66b3ca8dccee53988f879f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\build_fitted_rim_beads.py",
+      "bytes": 13309,
+      "sha256": "c707919059084838797ff0470984992070e6c3576bb5917d7d2b4ccb4b5b3e9d"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\rim-fit-v2.json",
+      "bytes": 735,
+      "sha256": "47713b2dd0dfe7e0c5cf7e5d5c4a4e842ff5626226a2925ac107be9e734c5026"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\save_and_reopen_editable.py",
+      "bytes": 6792,
+      "sha256": "b19c8c7b4f145ae7b4500a09f11738f14787e373b9fb7bee1b00e74640ecec0e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\render_review_blender.py",
+      "bytes": 4677,
+      "sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\inspect_head.py",
+      "bytes": 2723,
+      "sha256": "859ca10c875dd20dd2b93f9f9fee03ab25438505f43c66edb08e194e21eed19a"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\finalize_kairo.py",
+      "bytes": 12390,
+      "sha256": "404079fa0677da2c4d00282d1d0a78b0e412c14eb6ea5af70fec56dbdbcfbdb9"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\front.png",
+      "bytes": 532918,
+      "sha256": "6070986303f3f2ff0628733b9b413bfa091cc8538b5920b262463e1ba98769e4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\three-quarter.png",
+      "bytes": 522761,
+      "sha256": "8a113a1c88b20e35e74c2ba5e2559280dad03c48ac639eaac98a947b90cf75c7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\left.png",
+      "bytes": 499511,
+      "sha256": "7b901892cc56d37cbe80fdbd6f9a2718a19745dbcd81f1019b9da452b3f4ea91"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\right.png",
+      "bytes": 499679,
+      "sha256": "d21439a5aa8b9deaa3c937aefede3c594aefca5dbceafbc21f93cd015263bd60"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\back.png",
+      "bytes": 491986,
+      "sha256": "de79d20987467aaeaca4c240abf49a08b1455f5eefc894437f478cff36daf9fd"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\top.png",
+      "bytes": 451701,
+      "sha256": "e9fb6b36d8171f209d19c92b39c1b22b82cdf88a60d30266eecf86c13f88abd2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\bottom.png",
+      "bytes": 469591,
+      "sha256": "da4c458f0efba18c6e90ceae235ec1ef29cb7d7d598320b4bbde1a839d345fe7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-000.png",
+      "bytes": 147573,
+      "sha256": "89cb985c17432a6c6bedb52767640511f274c483839c74232c7d0c072e4088af"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-015.png",
+      "bytes": 145818,
+      "sha256": "b726c7f9ea23122d83e4037d45a8b8b03b855c2fff823e68cb739fb14ed9cf7e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-030.png",
+      "bytes": 143051,
+      "sha256": "1e2a5c4579f2df87bae313fcc58233e6e1036c063bce3e4ae20c815b30cf6d82"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-045.png",
+      "bytes": 142037,
+      "sha256": "82eba90f7c0e56b74abb8f0202ba174cae136117231dff9b3df80c5d3c127504"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-060.png",
+      "bytes": 139897,
+      "sha256": "2c4578afadfdc66ac6123416e7ee0cd9c59ee540a8395c8d9aeffadad7d39c85"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-075.png",
+      "bytes": 139072,
+      "sha256": "1e8f6a8ec717f23a64ee724439d6ca730e2f4efd93420546a5769902aab8821b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-090.png",
+      "bytes": 137499,
+      "sha256": "73c533762544965405262a084cd199f8a846f7393b50ba76dc90807621a7793d"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-105.png",
+      "bytes": 136601,
+      "sha256": "1c76955e42e1bb4de7786edfd4dddec993e82798cdcd0e0a86541a2874d693d2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-120.png",
+      "bytes": 134972,
+      "sha256": "db740d6074634b49e0d088781362818a444a5b56aff7ad9a1a398104365e72ce"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-135.png",
+      "bytes": 135860,
+      "sha256": "835c69275b779af90e4d882a3622be8fccd9b349086fe25774c88eb483fac267"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-150.png",
+      "bytes": 136223,
+      "sha256": "0ac56418d095ef71766db666ba62bef32dfd4e09a56d72c0ea405f8bb208e636"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-165.png",
+      "bytes": 137062,
+      "sha256": "5e416f0ba66d314883e5695684e9d7657286ce036476ea4a100294a4122bf1fc"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-180.png",
+      "bytes": 137350,
+      "sha256": "156b199161b5979c4765693a76a1f24971d923c266015cef7c42fd73b021c5d8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-195.png",
+      "bytes": 136572,
+      "sha256": "2664edca0528fc57aa2a42103c0f2ffe278764bdfa2c36e5c2ae32287d038b0b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-210.png",
+      "bytes": 135318,
+      "sha256": "5587ee8b979442db9b1be3f878c06a8407f4dd182e54f1856767825b65b529f0"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-225.png",
+      "bytes": 135704,
+      "sha256": "ae0d8bac7f62a0f2a30320812e20c9d95ed2d863cecc52f466c7aec5780d1ec7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-240.png",
+      "bytes": 135687,
+      "sha256": "16e07fabe5815cab6e07bee2b6e10e8bb284651df2627d2ae65105b364ca1532"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-255.png",
+      "bytes": 137761,
+      "sha256": "6cdbcbe54b09ff1b28c5536a52f3c084eb47a8134b4da81d3603f7e077edaa4e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-270.png",
+      "bytes": 140116,
+      "sha256": "70c37cde67447d633d03c1c532513ed2340e05d3ee78df1ba7cba509984635db"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-285.png",
+      "bytes": 141946,
+      "sha256": "c97c3b4fc56b5d3c9baa92ea1ca957182beeff9cecc1e7461141f11a1dea2407"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-300.png",
+      "bytes": 143088,
+      "sha256": "220c3e7ce88cddf85193b710c6b80c32a55f2e4fc5cc37fcf51fc76c9513690e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-315.png",
+      "bytes": 144423,
+      "sha256": "18d0fd5667013d3be3b86f759d96193873462d75eea296ad9abc401de2a33dcd"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-330.png",
+      "bytes": 146272,
+      "sha256": "f234db824334ceefaa33cd7bbf7f33d3e7656125feff6ca7e549a1e27f29c3f0"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\final-actual-mesh-renders\\orbit\\frame-345.png",
+      "bytes": 147166,
+      "sha256": "8e428d288ee1ce90306c9c96b5602c5040440729042a437d036f93440a985dec"
+    }
+  ]
+}

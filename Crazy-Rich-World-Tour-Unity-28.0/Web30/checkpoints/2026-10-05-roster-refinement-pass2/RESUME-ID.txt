@@ -1,0 +1,38 @@
+CRAZY RICH WORLD TOUR — CHECKPOINT 05 OKTOBER 2026, DETAIL 2
+
+Lima perbaikan lokal baru: headphone Alexia, goggles Kairo/Zeno, roll Atlas,
+dan gesper/clasp tas Mochi. Rindi, Nox, Luna, Yuna dan Pip mempertahankan
+revisi pass1 persis. Semua10 masih kandidat; belum sempurna atau terintegrasi
+runtime. Sembilan model statis; Pip memiliki13joint dan6clip mekanis.
+
+Untuk membuka: BUKA-REVIEW-MODEL.html menyimpan vendor, model dan referensi
+di dalam HTML. Jalankan server lokal `python -m http.server 8771` di folder
+ini dan buka http://127.0.0.1:8771/BUKA-REVIEW-MODEL.html dengan Chrome/Edge.
+Standalone juga dirancang untuk file lokal; browser review diverifikasi via
+localhost. Periksa evidence/browser-review-receipt.json untuk hasil aktual.
+
+Untuk edit: buka editable/CRWT-semua-karakter-review.blend pada Blender5.2.2.
+Mesh, UV, material dan18gambar FILE packed diverifikasi lewat pembukaan ulang.
+Lima nativeblend baru: editable/CRWT-refined-individuals.zip. Revisi pass1:
+editable/CRWT-pass1-individuals.zip. Source Pip lengkap termasuk scene lama:
+editable/Pip-source-preserved.zip. Evidence/PORTABLE-PATH-MAP.json memberi
+mapping relatif. Path scratch absolut adalah provenance, bukan syarat restore.
+Recipe disimpan sebagai evidence; jangan menganggap semua recipe berjalan
+tanpa penyesuaian path. Packedblend adalah titik awal edit yang portable.
+
+FULL GAME, UNITY DAN WEBSITE PADA KOMPUTER LAIN:
+git clone --branch checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-pass2-portable --single-branch https://github.com/zetsuen1412-alt/comeplayers.git
+cd comeplayers
+python Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-refinement-2026-10-05-pass2/tools/verify_checkpoint.py --root .
+
+Branch tersebut frozen. Seluruh3449blob baseline df637419 dipertahankan;
+folder, inventori, workflow dan branch checkpoint lama tetap byte-identical.
+Receipt Git/CI lokal memuat fullcommit terbaru setelah publication selesai.
+Untuk rebuild gallery dari Git tanpa mengubah receipt frozen:
+python Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-refinement-2026-10-05-pass2/viewer/build_offline_gallery.py --manifest Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-refinement-2026-10-05-pass2/review-manifest.json --output viewer-rebuild-pass2/BUKA-REVIEW-MODEL.html
+
+PaketZIP model hanya memuat model/referensi/70view+240orbit/native/evidence.
+Fullrepo tersedia pada branchGit di atas. Sesudah mengekstrak seluruh ZIP ke
+folder baru jalankan `python verify_model_checkpoint.py`; itu memeriksaCRC,
+hash dan nama semua file tanpa jaringan atauAPIkey. CI juga membuat archive
+fullsource yang berlaku7hari; branch frozen menjadi checkpoint jangka panjang.

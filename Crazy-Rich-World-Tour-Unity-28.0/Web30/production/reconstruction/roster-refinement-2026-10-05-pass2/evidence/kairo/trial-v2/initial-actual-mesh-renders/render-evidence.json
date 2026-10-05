@@ -1,0 +1,45 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\kairo\\trial-v2\\kairo-fitted-rim-beads-candidate.glb",
+  "input_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "bytes": 1278000,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 3,
+  "vertices": 20492,
+  "polygons": 27820,
+  "bounds_blender_z_up": [
+    [
+      -0.2610214948654175,
+      -0.3367205858230591,
+      -0.4717593491077423
+    ],
+    [
+      0.269461989402771,
+      0.27254462242126465,
+      0.4527919292449951
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 0,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

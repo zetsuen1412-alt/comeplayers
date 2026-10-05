@@ -1,0 +1,110 @@
+{
+  "schema": "crwt.pass2-scoped-visual-review.v1",
+  "baseline_commit": "df6374199d71137b5ed26af07fae6949c661de46",
+  "changed_ids": [
+    "alexia",
+    "kairo",
+    "atlas",
+    "zeno",
+    "mochi"
+  ],
+  "roster_count": 10,
+  "visual_approval": false,
+  "gameIntegrated": false,
+  "changes": [
+    {
+      "id": "alexia",
+      "scope": "Lingkaran perak, bingkai hitam, diafragma emas dan titik tengah headphone mengikuti permukaan earcup sumber.",
+      "source_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "candidate_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+      "limits": [
+        "Rambut belakang masih berbentuk massa lembut dengan pola tekstur grid; belum cocok sempurna dengan turnaround V2.",
+        "Tangan, pakaian, koper dan seluruh 27.512 face sumber dipertahankan, masih perlu detail.",
+        "Sembilan model statis. Coating headphone tertutup secara individual; kontak antarbagian tidak disertifikasi global."
+      ]
+    },
+    {
+      "id": "kairo",
+      "scope": "Dua bead tipis emas pada rim goggles asli. Lensa, frame dasar, strap, rambut, body dan seluruh tekstur sumber dipertahankan.",
+      "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "candidate_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+      "limits": [
+        "Lensa, rambut, wajah, tangan, pakaian dan permukaan belakang rekonstruksi sumber masih lembut; tidak ada perbaikan keseluruhan karakter.",
+        "Rim kanan-bawah memakai fitted plane pada sampel yang dipertahankan; 12 sampel kedalaman dikecualikan karena ray mengenai rambut cekung. Segmen tersebut memakai kedalaman perkiraan, dengan deviasi maksimum 0,02028908096 unit dari hit sumber; bukan bukti menempel sempurna.",
+        "Thickness/radius bead merupakan interpretasi geometri fisik dari referensi depan. Bead kiri memakai depth hit sumber; bead kanan memakai fitted plane yang dicatat di proof.",
+        "Dua bead tambahan masing-masing tertutup dengan winding konsisten dan area triangle positif. Kontak bead/sumber disengaja; tidak ada sertifikasi global bebas intersection atau kualitas anatomi.",
+        "Model statis dengan 0 skin/animation; belum mendapat approval visual pengguna atau integrasi runtime game."
+      ]
+    },
+    {
+      "id": "atlas",
+      "scope": {
+        "operation": "Additive source-conforming rim and shallow spiral relief on the one reference-visible olive sleeping-mat roll end.",
+        "source_faces_retained": 35556,
+        "source_faces_removed": 0,
+        "source_vertex_deltas": 0,
+        "added_vertices": 4738,
+        "added_faces": 9472,
+        "original_bin_prefix_primitive_attributes_images_materials_nodes_exact": true,
+        "new_closed_components": 2,
+        "new_topology_boundary_nonmanifold_inconsistent_winding_zeroarea": 0,
+        "all_added_triangle_points_source_proximity_upper_bound": 0.005119288566145782,
+        "packed_original_images_byte_identical": true,
+        "root_visual_review": "Root inspected reference/front/left and selected as unapproved scoped candidate; pastel material/backpack gaps explicitly remain."
+      },
+      "source_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "candidate_sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+      "limits": [
+        "Original olive roll/material remains too pale versus reference; highlights/studio lighting differ.",
+        "Backpack rear grid, blurred panel/straps, held paper-map detail and overall colors remain original.",
+        "New closed rim/spiral intentionally intersect/support existing roll; they are not a welded body union and no full global manifold/self-intersection/deformation certificate is claimed.",
+        "Reference constrains one visible roll end; hidden back/end geometry is unchanged, not newly validated.",
+        "Static and unrigged candidate; no game integration or final visual/perfection approval.",
+        "Packed blend is the portable editing entry. Recipes retain historical workspace defaults; use source/reference overrides for generation or normalize dependencies when rebuilding elsewhere."
+      ]
+    },
+    {
+      "id": "zeno",
+      "scope": {
+        "operation": "Only thin volumetric warm-gold trim on two existing goggle rims; original lens/frame/fingers/scarf/hair retained.",
+        "source_faces_retained": 27156,
+        "source_faces_removed": 0,
+        "source_vertex_deltas": 0,
+        "added_vertices": 3072,
+        "added_faces": 6144,
+        "original_bin_prefix_primitive_attributes_images_materials_nodes_exact": true,
+        "new_closed_components": 2,
+        "new_topology_boundary_nonmanifold_inconsistent_winding_zeroarea": 0,
+        "packed_original_images_byte_identical": true,
+        "root_visual_review": "Root inspected V2 reference-facing front/left/right and selected scoped unapproved trim; no geometry edits during finalization."
+      },
+      "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "candidate_sha256": "7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88",
+      "limits": [
+        "Existing reconstructed lenses, hair, anatomy, texture and rear are unchanged.",
+        "Tube thickness/seat depth inferred for a physical trim from the front reference.",
+        "Beads intentionally seat slightly into the original rim surface; closedness audit applies to each new bead, not every pre-existing source component or bead/source contact.",
+        "Front-ray anchors prove seat on the actual source surface, not a bitmap or perfect aesthetic match.",
+        "The touching-finger-occluded segment uses an inferred fitted plane: 85 retained anchors max residual 0.00384, 43 excluded occluded rays max depth difference 0.04593. All touching fingers remain original.",
+        "Static unrigged candidate; no final visual/perfection approval or game integration.",
+        "Packed native blend is portable for editing. The local source defaults/recipe dependencies are provenance, not a single-command portable rebuild claim."
+      ]
+    },
+    {
+      "id": "mochi",
+      "scope": "Additive shoulder-strap brass buckle plus bag-flap brass/teal clasp and lower keeper only; source body/paws/hat/appendages/Oct04 connector unchanged.",
+      "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "candidate_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+      "limits": [
+        "Source body, face, paws, hat, both original appendages and Oct04 connector are unchanged; existing surface/texture softness remains.",
+        "Front reference supports buckle/clasp placement and brass/teal colors; edge depth, precise hardware thickness and simple central stud are manually inferred.",
+        "Each new solid is individually closed and consistently oriented. Hardware follows source surface and intentional surface contacts are not a global intersection-free certificate.",
+        "Structural preservation and topology checks do not certify visual approval, deformation or game runtime readiness."
+      ]
+    }
+  ],
+  "remaining": [
+    "Nine characters remain static; Pip has its existing mechanical13joint6clip rig.",
+    "These scoped accessories improve legibility; faces, fingers, clothing, hair/fur and rear texture grids still require work."
+  ]
+}

@@ -1,0 +1,272 @@
+{
+  "schema": "crwt.mochi-candidate-handoff.v1",
+  "status": "reference_guided_tail_attachment_and_pbr_candidate",
+  "visual_final_approved": false,
+  "game_assets_replaced": false,
+  "source_sha256": "19cc6a8c6a8ff08518ab3bc2f29de1a5f77056daa00bf400400837285e2b372b",
+  "source_input_unchanged": true,
+  "geometry_candidate_sha256": "43afaf939f88a5f1a4da92d564e6e9c9c02dc02ab5283cf3214f7ce7f21b3c8d",
+  "combined_glb_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+  "combined_glb_bytes": 2180084,
+  "geometry": {
+    "meshes": 1,
+    "accessor_vertices": 14902,
+    "loaded_render_vertices": 14896,
+    "triangles": 23260,
+    "connected_components": 1,
+    "unused_original_fan_center_indices": [
+      3496,
+      4339,
+      4340,
+      4341,
+      4343,
+      13994
+    ],
+    "all_welded_edges_two_faces": true,
+    "surface_winding_consistent": true,
+    "original_visible_vertex_positions_preserved": true,
+    "skins": 0,
+    "animations": 0
+  },
+  "materials": {
+    "normal_scale": 0,
+    "roughness_factor": 0.55,
+    "embedded_texture_bytes_unchanged": true
+  },
+  "selection": {
+    "original_component_faces": [
+      22604,
+      440
+    ],
+    "retained_original_cream_tip_faces": 434,
+    "anchor_vertices": {
+      "posterior_hip": 3496,
+      "inner_rear_tip": 4339
+    },
+    "removed_hidden_source_face_ids": [
+      3171,
+      3175,
+      3176,
+      3966,
+      3967,
+      3968,
+      15234,
+      15240,
+      15241,
+      15927,
+      15928,
+      15929
+    ]
+  },
+  "actual_review": {
+    "views": 7,
+    "orbit_frames": 24,
+    "bounds_blender_z_up": [
+      [
+        -0.3799600601196289,
+        -0.2640906572341919,
+        -0.4316798150539398
+      ],
+      [
+        0.4034651517868042,
+        0.1486000418663025,
+        0.4643700122833252
+      ]
+    ],
+    "observed": "Cat identity, visible body and cream tuft retained; one short curved posterior connector closes the disconnected component.",
+    "limits": [
+      "Hidden connector anatomy is inferred from a single front view; user approval remains pending.",
+      "Only twelve hidden fan faces are replaced; the cream tuft retains 434 of its 440 source faces and every original vertex attribute.",
+      "Small front hip-gap pixels may change; pixel-identical silhouettes are not claimed.",
+      "Source rear shape and blurry microdetail remain; source generated textures were not repainted.",
+      "No extra fluffy tip, rig, animation or board integration was added."
+    ]
+  },
+  "dependency_proofs": [
+    {
+      "path": "../mochi-tail-attachment.proof.json",
+      "sha256": "6edecd5a7f1db2522fccb5f65517c0efa54a6462229e381d4617f1ba1e3ad56f"
+    },
+    {
+      "path": "../frozen-face-selection.json",
+      "sha256": "e5f008950b4cc25bd92c227c3d066364c676aebb737216b284238f7be624ce8c"
+    }
+  ],
+  "files": [
+    {
+      "path": "mochi-tail-attached-surface-candidate.glb",
+      "sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "bytes": 2180084
+    },
+    {
+      "path": "mochi-tail-attached-surface-candidate.blend",
+      "sha256": "4592c2aa08239b0afc620d3d568e8ecda76f3c39811aff1760c606c7390662c8",
+      "bytes": 1493100
+    },
+    {
+      "path": "mochi-tail-attached-surface-candidate.material-refinement.json",
+      "sha256": "60ccf02bfed67b9654f8ddd76743674e83fe4e758814ab3b93450ea97f4fc36e",
+      "bytes": 1426
+    },
+    {
+      "path": "actual-mesh-renders/render-evidence.json",
+      "sha256": "94d482710cdc76b0d19598404b0400a38d6db715dc56a4d4df061946ad4182de",
+      "bytes": 1370
+    },
+    {
+      "path": "actual-mesh-renders/back.png",
+      "sha256": "66ed47a41e88d766c5b41d95da8e54ab1f8b49a9bdd0935933b1af9a411928aa",
+      "bytes": 462180
+    },
+    {
+      "path": "actual-mesh-renders/bottom.png",
+      "sha256": "a04b56ff069f2c75ab0cd407388a76d3d1ee19576d9bb908be9b9ccf0394e9f6",
+      "bytes": 435646
+    },
+    {
+      "path": "actual-mesh-renders/front.png",
+      "sha256": "3d1dcb6dcbfc02666ec7f650f0677cfd1f84db26541a1a237e65e408146a8241",
+      "bytes": 525279
+    },
+    {
+      "path": "actual-mesh-renders/left.png",
+      "sha256": "f30968505ad79dcebd20a79e8566499ef1e2db786a4e2ac2ee33421d34d99f58",
+      "bytes": 458828
+    },
+    {
+      "path": "actual-mesh-renders/right.png",
+      "sha256": "46f8d4533b7e8d523a2a396407d09b36d54f0b24555a159b448637d5003aa618",
+      "bytes": 450119
+    },
+    {
+      "path": "actual-mesh-renders/three-quarter.png",
+      "sha256": "3d7e655d6719b5f1df28334fc823ff7a69be6c79dfef0453348819b26cabd76d",
+      "bytes": 507786
+    },
+    {
+      "path": "actual-mesh-renders/top.png",
+      "sha256": "1e4cfc6f94f368679da529c3e26a41361a8fc6c4824e70b9992cbfc4ad8ac4b8",
+      "bytes": 425976
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-000.png",
+      "sha256": "1aede994e72edc13ba1c58087ea95c4d5504a87a5d723b1dd8805c6470ab318e",
+      "bytes": 148812
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-015.png",
+      "sha256": "dacf728b154d6a629f3f83ec5387237c50cedeb3ae3e10f59d13554a2a0fddaf",
+      "bytes": 148680
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-030.png",
+      "sha256": "55f37947ac0555c2b7182b6eb88b94e4500790725e1ca1045320776b917edc0f",
+      "bytes": 147014
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-045.png",
+      "sha256": "119b03db9ad3c2848cbac9de201e085a3a4cf71c9ba928db2c05849e6543d4f6",
+      "bytes": 143190
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-060.png",
+      "sha256": "6f4f493385a784298a40a87826d2f5cc3e25b94a276fd3ea182c9434c7b74fca",
+      "bytes": 137676
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-075.png",
+      "sha256": "79b9ae8e62a5b0db6818a3f36e2e1250aa2c4b632eaf6d1cc304353bc24b25d9",
+      "bytes": 130829
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-090.png",
+      "sha256": "b0cb3e88ec9d3caf946818784ab0e759af4902bdffd2a7cc7e78618da3ab1856",
+      "bytes": 125574
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-105.png",
+      "sha256": "29305d36cf3e9998caeacf6dae0d1853ab84b658cbb6332b8a6b483922e19324",
+      "bytes": 122093
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-120.png",
+      "sha256": "44aa17737c7f59c39a468456a911303485ca734109722aede499855d306fa774",
+      "bytes": 120994
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-135.png",
+      "sha256": "d5632db9fefc1b5668bf3af1faa18f8f52c03253b2e5cbe2da69b2a0283990f9",
+      "bytes": 122845
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-150.png",
+      "sha256": "431b736cbce61aec68d1d5bcff9a1983920556be2e2225e676ba9d6c196a48cb",
+      "bytes": 125600
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-165.png",
+      "sha256": "973c55e6458739c52763f1ee7406bc6edfbba39fc47b44ceb63f4f0fafd6ddef",
+      "bytes": 127478
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-180.png",
+      "sha256": "4423ceb2201aed98694ba62b2f621ec98f2238c9db1eb89db5555fe0c651edae",
+      "bytes": 128501
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-195.png",
+      "sha256": "bf13f327e9160764b8bc2502d6320c63c645fac56becb1ab34ab6eca4030418d",
+      "bytes": 128445
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-210.png",
+      "sha256": "dd2b52c0eeb86969a99d584cb8e69e6d5a66192af4640ac5dda316cf64a5a15e",
+      "bytes": 127436
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-225.png",
+      "sha256": "85e3921fe2207cdbe72bde8eeae952ffd3f36301f2194b012cce0f48b8fe6402",
+      "bytes": 125416
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-240.png",
+      "sha256": "a652cb69750782c6d561b28da334c55bdbd8f33a7f40018dcbc58c17f6a9ac4e",
+      "bytes": 122564
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-255.png",
+      "sha256": "f4708380fd79a9753018fc2963446e77256e632468b58e703aaf6adb142ee1cb",
+      "bytes": 121535
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-270.png",
+      "sha256": "cffba6a6f075019f4b787d9f710d594525881e81333e448af193eb9ae523474c",
+      "bytes": 123604
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-285.png",
+      "sha256": "d6d094edb2fa50282a69fd3c0c2df3062e406973b8bb2d39344b037bf3dfae0a",
+      "bytes": 126127
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-300.png",
+      "sha256": "79ef3518aa47c66142238e3710819257adaaa78bfe6b28641cff491b10ecd3d4",
+      "bytes": 131218
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-315.png",
+      "sha256": "88006e61dacade999a3dd04ba8383d40aab2b137d7b9bf6b91f9ca788cef584f",
+      "bytes": 137676
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-330.png",
+      "sha256": "c0c5dcde213800e27e1b193ab1931a0136bc9e9af60f52107c582c37b8966f7b",
+      "bytes": 143138
+    },
+    {
+      "path": "actual-mesh-renders/orbit/frame-345.png",
+      "sha256": "be0b6906ea25f4cdc56cf50c2b635b4fd25540f025d98052be17010008718e52",
+      "bytes": 146624
+    }
+  ]
+}

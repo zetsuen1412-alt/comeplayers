@@ -1,0 +1,158 @@
+{
+  "schema": "crwt.nox_accessory_handoff.v1",
+  "date": "2026-10-05",
+  "status": "manual-hip-card-improvement-candidate-unapproved",
+  "candidate": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\nox\\trial-v1\\nox-hip-card-accessory-candidate.glb",
+  "sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+  "bytes": 1885836,
+  "editable_blend": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\nox\\trial-v1\\actual-mesh-review\\nox-hip-card-editable-candidate.blend",
+  "editable_blend_sha256": "edff8fdb5270c8aaf6a5d7573af83bc7694ec639605406c716e6f04d023cc7e1",
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\nox.glb",
+  "source_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+  "reference": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\references\\nox.png",
+  "reference_sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+  "reference_size": [
+    370,
+    482
+  ],
+  "actual_counts": {
+    "faces": 25472,
+    "vertices": 23535,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "92e84c47888cdf73c38aec0eeb864badf067655c012b74941dcb250aea60f3e5",
+    "accessors_checked": 13,
+    "buffer_views_checked": 15
+  },
+  "faces_added": 1060,
+  "source_bin_prefix_bytes_preserved": 1804864,
+  "original_json_records_preserved": {
+    "accessors": true,
+    "bufferViews": true,
+    "meshes": true,
+    "nodes": true,
+    "materials": true,
+    "textures": true,
+    "images": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true
+  },
+  "source_triangle_aabb_separation_certificate": {
+    "source_triangles_checked": 24412,
+    "overlaps": 0,
+    "minimum_axis_gap": 0.062309104949235916
+  },
+  "reproduced_byte_identical": true,
+  "render_views_each": 4,
+  "packed_images": 2,
+  "approved": false,
+  "visual_final_approved": false,
+  "gameIntegrated": false,
+  "rig_added": false,
+  "animation_added": false,
+  "scope": "One new volumetric floating hip card; all original source geometry, floating cards, materials and textures retained.",
+  "remaining_gaps": [
+    "Rabbit and fingers remain soft/merged reconstruction.",
+    "Hat edge, face and back coat artifacts unchanged.",
+    "New card depth/thickness/plain reverse inferred; no whole-character fidelity certificate."
+  ],
+  "artifact_files": [
+    {
+      "path": "nox-hip-card-accessory-candidate.glb",
+      "bytes": 1885836,
+      "sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b"
+    },
+    {
+      "path": "nox-hip-card-accessory-candidate.preservation-proof.json",
+      "bytes": 4343,
+      "sha256": "4414ce068f454e41ae8e08c9930dbd22780854dde25d26c2e512520c05c16cd7"
+    },
+    {
+      "path": "actual-mesh-review/nox-hip-card-editable-candidate.blend",
+      "bytes": 1839556,
+      "sha256": "edff8fdb5270c8aaf6a5d7573af83bc7694ec639605406c716e6f04d023cc7e1"
+    },
+    {
+      "path": "actual-mesh-review/nox-hip-card-editable-candidate.reopen-proof.json",
+      "bytes": 830,
+      "sha256": "93d6cc8359a888e3869a3fb52f48b0423af6a97dadb1621966cbd3edfa9e3669"
+    },
+    {
+      "path": "actual-mesh-review/render-editable-receipt.json",
+      "bytes": 3226,
+      "sha256": "c55a3abff4cc0e1da6d2ff02ace2483eb4a6dcfebb65b8afad96c8616ef8a398"
+    },
+    {
+      "path": "visual-review.json",
+      "bytes": 2024,
+      "sha256": "c45ac5b61dea0ca2f7a29ae25b1cb708f29c7dfcbdb9c268901e17567d54a1df"
+    },
+    {
+      "path": "MULAI-DI-SINI-NOX.md",
+      "bytes": 2379,
+      "sha256": "733b2c5feb4768b594646a7f4c4d766fe11ada57ea4d61b4df0339b95db36143"
+    },
+    {
+      "path": "actual-mesh-review/after/back.png",
+      "bytes": 795361,
+      "sha256": "dbf49d2591ecd65c109ce3a6cbd2e60925b080a20f3717245196c633cb8c5c3d"
+    },
+    {
+      "path": "actual-mesh-review/after/front.png",
+      "bytes": 847488,
+      "sha256": "7ebe0ec8dc2377ece69522136f7503fe15c4d2be4770c97ca58501438f2d1b02"
+    },
+    {
+      "path": "actual-mesh-review/after/opposite-three-quarter.png",
+      "bytes": 834737,
+      "sha256": "5c8e026c398a9fa68f4cabb5353259fa3d3035e9ca0956775374737417f566db"
+    },
+    {
+      "path": "actual-mesh-review/after/three-quarter.png",
+      "bytes": 823925,
+      "sha256": "1b4fab13cf9c9f9ca87eaf12854f150453c2cdb488b409ea9e7e450a2b0066ad"
+    },
+    {
+      "path": "actual-mesh-review/before/back.png",
+      "bytes": 793325,
+      "sha256": "d63ceda8d2b3ab3bbbbbb49db9abf153532a7953efc67b88c93b4089656b3bfe"
+    },
+    {
+      "path": "actual-mesh-review/before/front.png",
+      "bytes": 845589,
+      "sha256": "c820449bdb42fc25a98b4f304f527795da15ce0385cb0bbd546ca1a48a335530"
+    },
+    {
+      "path": "actual-mesh-review/before/opposite-three-quarter.png",
+      "bytes": 834464,
+      "sha256": "b69dd3a91d0760a108d4173a1ecc9a0d7d2242bd4e47471f6dfe03b502d1e7d7"
+    },
+    {
+      "path": "actual-mesh-review/before/three-quarter.png",
+      "bytes": 821933,
+      "sha256": "9a9cfbd1d093d133491cfa16aa18c4138aacb3b9f65f8abce5eab11e1e3fcc2a"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\nox\\build_nox_hip_card.py",
+      "sha256": "87a012b2609adc00227b5f95349a74cebe5c7f75e077a5915cd5336b1091ef65"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\nox\\render_editable_nox.py",
+      "sha256": "0a65fcc03ff8072b7e4d498481c868fa1b8fbb18b4604ac01da634ee717a8e14"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\nox\\reopen_editable_check.py",
+      "sha256": "877050dcc08fa9c2887d4c110840b9fc0469ee140c54b4c8fd342611d1d729c9"
+    }
+  ]
+}

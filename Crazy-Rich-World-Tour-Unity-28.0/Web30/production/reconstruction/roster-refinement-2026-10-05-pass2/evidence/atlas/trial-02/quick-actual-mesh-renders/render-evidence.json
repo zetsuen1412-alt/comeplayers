@@ -1,0 +1,45 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\atlas-roll-rim-spiral-candidate.glb",
+  "input_sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+  "bytes": 2442104,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 1,
+  "vertices": 31672,
+  "polygons": 45028,
+  "bounds_blender_z_up": [
+    [
+      -0.35188794136047363,
+      -0.32148730754852295,
+      -0.43873992562294006
+    ],
+    [
+      0.3991994857788086,
+      0.33618468046188354,
+      0.446677565574646
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 0,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

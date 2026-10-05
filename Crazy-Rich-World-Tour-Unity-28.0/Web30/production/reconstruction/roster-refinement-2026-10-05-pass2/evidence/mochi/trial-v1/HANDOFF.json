@@ -1,0 +1,581 @@
+{
+  "schema": "crwt.reference_roster_refinement_handoff.v1",
+  "id": "mochi",
+  "created_date": "2026-10-05",
+  "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\models\\mochi.glb",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\references\\mochi.png",
+  "reference_sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\mochi-bag-hardware-candidate.glb",
+  "candidate_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+  "candidate_bytes": 2278336,
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\actual-mesh-review\\mochi-bag-hardware-editable-candidate.blend",
+  "blend_sha256": "52c5729536d66feb709eb3b11ceed3975c8ed90a52ed8808323cbcf78563370e",
+  "render_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders",
+  "preservation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\mochi-bag-hardware-candidate.preservation-proof.json",
+  "preservation_proof_sha256": "767a9e7213f180b08a74804dd74f765b4517d87492fa9af6694ec451ecc4cd0a",
+  "reopen_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\actual-mesh-review\\mochi-bag-hardware-editable-candidate.reopen-proof.json",
+  "reopen_proof_sha256": "3abb0b40766db46da0f77e682dc32eec12b9d0330d653779bc314cdc2e5bbe4e",
+  "recipe_paths": [
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\inspect_accessories.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\build_mochi_bag_hardware.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\render_editable_mochi.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\reopen_native_mochi.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\write_handoff.py"
+  ],
+  "scope": "Additive shoulder-strap brass buckle plus bag-flap brass/teal clasp and lower keeper only; source body/paws/hat/appendages/Oct04 connector unchanged.",
+  "limits": [
+    "Source body, face, paws, hat, both original appendages and Oct04 connector are unchanged; existing surface/texture softness remains.",
+    "Front reference supports buckle/clasp placement and brass/teal colors; edge depth, precise hardware thickness and simple central stud are manually inferred.",
+    "Each new solid is individually closed and consistently oriented. Hardware follows source surface and intentional surface contacts are not a global intersection-free certificate.",
+    "Structural preservation and topology checks do not certify visual approval, deformation or game runtime readiness."
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "actual_glb_validation": {
+    "faces": 24404,
+    "vertices": 18334,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "198703e2a80568cd251416c0fa96ef79ec585535098e57de36fb102cb26045fb",
+    "accessors_checked": 14,
+    "buffer_views_checked": 16
+  },
+  "source_faces_removed": 0,
+  "source_vertices_moved": 0,
+  "source_preservation": {
+    "bin_prefix_byte_identical": true,
+    "existing_accessor_index_position_normal_uv_material_image_node_records_identical": true,
+    "original_scene_roots_retained": true,
+    "source_all_appendages_and_connector_preserved": true
+  },
+  "new_closed_solids": 5,
+  "new_faces": 1144,
+  "native_source_vertices_used": 14896,
+  "native_added_vertices": 3432,
+  "full_render_image_count": 31,
+  "main_views": 7,
+  "orbit_frames": 24,
+  "render_receipt_sha256": "fa9426836c830cd9aea04fe7c19fbed97b6361c9af7152538275e6f6826f5794",
+  "render_files": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\front.png",
+      "sha256": "fd972168a757807b1f910109e530a5103ade6e496532cd87619617bf90f243b4",
+      "bytes": 525867,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\three-quarter.png",
+      "sha256": "79ec570436b2a09865479926e4cfaf34b0181d820562dcecc6f5fb2d304f5c9f",
+      "bytes": 508241,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\left.png",
+      "sha256": "dd2bc9984a0e0dec05e77272af78b8b325a659c9edd0501b2be66fb2bd919c41",
+      "bytes": 459165,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\right.png",
+      "sha256": "87a7655d518abc5e7469a6fb76b7be258fdde063b29174c6412342e15e68a2e2",
+      "bytes": 450185,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\back.png",
+      "sha256": "d5ad88751d6c3833afe7342b70104dc28c53768f485779fa7b6ed3781ba5141f",
+      "bytes": 462180,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\top.png",
+      "sha256": "38eefbfd84b90c171769d006805c5fc9de1b40141321b0e7f1cdf10c8dd60ed4",
+      "bytes": 425867,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\bottom.png",
+      "sha256": "ab2cb4aeba40dbdca49d738b44187dfe7ca0e76d9f1443dcfd7cd181cf36d379",
+      "bytes": 435566,
+      "size": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-000.png",
+      "sha256": "a724865e3f83ce2de78a068aa53d224dab4cea223edc947758f3604c08ffae66",
+      "bytes": 148818,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-015.png",
+      "sha256": "61d8eb7ff75d1cb97e339564ce9cc0dbd19cff69a55496bd273d1e0d3a4f684b",
+      "bytes": 148868,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-030.png",
+      "sha256": "5073b7f63dd79a46fca939df90731f6d178962b25ea11c1e0c465657b92eaeb5",
+      "bytes": 147183,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-045.png",
+      "sha256": "e3ef30a75fb5baec8c6d5846f837582d809026dbd62a1819df28bb8c3bb86a3f",
+      "bytes": 143254,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-060.png",
+      "sha256": "37fd06886848909a96d8ae9073f53ac8b87faa49db5173f603bfac37a4ffa447",
+      "bytes": 137772,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-075.png",
+      "sha256": "286f5910b075122183e9455563ad8467d642283d9deae29374c39beaa24040d5",
+      "bytes": 130938,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-090.png",
+      "sha256": "506eaf7ac111346fc38c4bfadeffcd32389ee2cd3973c8af502902097c8f1c44",
+      "bytes": 125652,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-105.png",
+      "sha256": "756c7c430d3d5475a868974dd63b2a0d887f7fd48e4c694122f1ad07c0dcfe7b",
+      "bytes": 122176,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-120.png",
+      "sha256": "499333826c3127928b34cfc0e9f6e90dc7a20ccd739167c6a65d3ee2a2bb0117",
+      "bytes": 120897,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-135.png",
+      "sha256": "5eb63ecd68ef29705824904b5b69a9a0e8e668af13ab1dd91df11fb6e4a496ea",
+      "bytes": 122866,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-150.png",
+      "sha256": "438772a7582928aad50f7e80b94fcdd021c2b2519de712b4af602d6ab997e9c6",
+      "bytes": 125600,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-165.png",
+      "sha256": "e11a7d983ae8bc78012c0a3d4e2e26e8585391baf462799ffa82d6f6f1a78a96",
+      "bytes": 127478,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-180.png",
+      "sha256": "6090e9c66d04a2671449382f99909fdc8df5033f3f779a2bc23979a8483cb2b3",
+      "bytes": 128501,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-195.png",
+      "sha256": "5da3b047be6abc4fdd066f19179d1a1fe3b9e77c8823908224b2ef7ad53c1834",
+      "bytes": 128445,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-210.png",
+      "sha256": "79940fb0b600eec0bb4839acc1973720aa9dc659d20540622c19b57878170f93",
+      "bytes": 127436,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-225.png",
+      "sha256": "1273ca0887dd249cf6cb842d2570d104b22017b46d6d20a7b41441e70bfcc5e7",
+      "bytes": 125416,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-240.png",
+      "sha256": "1a562e3051a39a29d169e2704f088903b486de3f993b87801a9fe6393b04669e",
+      "bytes": 122564,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-255.png",
+      "sha256": "7da18e4d744a0868c7c4e3a6fac92a90df2fb4205e69468fcaf80a6828928535",
+      "bytes": 121535,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-270.png",
+      "sha256": "180695e04bed2c05314f73aa801bbe8c491ec78779e9d24d85c979c48cbe0ffc",
+      "bytes": 123599,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-285.png",
+      "sha256": "3663a56ecb7b9eb9f2d88631c7a0f55b9883454cc28eb73fd5c4ca8186a5c94b",
+      "bytes": 126094,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-300.png",
+      "sha256": "95757fc6460baa56bab4b2c31aa0ca7aa829bd519d69ca4b9bbf0bc00f118537",
+      "bytes": 131168,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-315.png",
+      "sha256": "0bfdaa196fdefa335d492ea7b44648d0a2686fa931f079ca6f71474cfaf35ae1",
+      "bytes": 137868,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-330.png",
+      "sha256": "303391de309e93e12324cbf457868e7e831396fdc17e620aa8a7e431016d19e0",
+      "bytes": 143244,
+      "size": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-345.png",
+      "sha256": "bd6989cf15070d15b00cd1d02a638fae573c40610f89e168adbbc2faf4a1ee70",
+      "bytes": 146647,
+      "size": [
+        320,
+        320
+      ]
+    }
+  ],
+  "repeat_build_byte_identical": true,
+  "repeat_build_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\repeat-build-proof.json",
+  "visual_comparison_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\comparison.png",
+  "visual_comparison_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\visual-comparison-proof.json",
+  "global_self_intersection_certified": false,
+  "source_image_or_mesh_overwritten": false,
+  "artifacts": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\mochi-bag-hardware-candidate.preservation-proof.json",
+      "sha256": "767a9e7213f180b08a74804dd74f765b4517d87492fa9af6694ec451ecc4cd0a",
+      "bytes": 7301
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\actual-mesh-review\\mochi-bag-hardware-editable-candidate.reopen-proof.json",
+      "sha256": "3abb0b40766db46da0f77e682dc32eec12b9d0330d653779bc314cdc2e5bbe4e",
+      "bytes": 1830
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\repeat-build-proof.json",
+      "sha256": "c4e70759284182e4715f8c478ec10a72c5e142678620ee01d9456f8850c2d804",
+      "bytes": 930
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\visual-comparison-proof.json",
+      "sha256": "f5539248dd2423c1183d9643bac4532036f0f5bcbdea3e34d742bcb75ab6a978",
+      "bytes": 2289
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\comparison.png",
+      "sha256": "33c1bef0b0d7a0a77442644da55feca6de7ebb374bb01369db09c57965fec750",
+      "bytes": 326570
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\MULAI-DI-SINI-MOCHI.md",
+      "sha256": "47aa3211865c3644bbaafc18e329c03bfb316ba58c22e761dda4c645a7870bc2",
+      "bytes": 1526
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\actual-mesh-review\\mochi-bag-hardware-editable-candidate.blend",
+      "sha256": "52c5729536d66feb709eb3b11ceed3975c8ed90a52ed8808323cbcf78563370e",
+      "bytes": 1537722
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\render-evidence.json",
+      "sha256": "fa9426836c830cd9aea04fe7c19fbed97b6361c9af7152538275e6f6826f5794",
+      "bytes": 1367
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\actual-mesh-review\\render-editable-receipt.json",
+      "sha256": "42e8b625d4eaa03f6e0ba1e3b886d6da40ea756fc5612df29c6e5a87608504ed",
+      "bytes": 3505
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\front.png",
+      "sha256": "fd972168a757807b1f910109e530a5103ade6e496532cd87619617bf90f243b4",
+      "bytes": 525867
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\three-quarter.png",
+      "sha256": "79ec570436b2a09865479926e4cfaf34b0181d820562dcecc6f5fb2d304f5c9f",
+      "bytes": 508241
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\left.png",
+      "sha256": "dd2bc9984a0e0dec05e77272af78b8b325a659c9edd0501b2be66fb2bd919c41",
+      "bytes": 459165
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\right.png",
+      "sha256": "87a7655d518abc5e7469a6fb76b7be258fdde063b29174c6412342e15e68a2e2",
+      "bytes": 450185
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\back.png",
+      "sha256": "d5ad88751d6c3833afe7342b70104dc28c53768f485779fa7b6ed3781ba5141f",
+      "bytes": 462180
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\top.png",
+      "sha256": "38eefbfd84b90c171769d006805c5fc9de1b40141321b0e7f1cdf10c8dd60ed4",
+      "bytes": 425867
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\bottom.png",
+      "sha256": "ab2cb4aeba40dbdca49d738b44187dfe7ca0e76d9f1443dcfd7cd181cf36d379",
+      "bytes": 435566
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-000.png",
+      "sha256": "a724865e3f83ce2de78a068aa53d224dab4cea223edc947758f3604c08ffae66",
+      "bytes": 148818
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-015.png",
+      "sha256": "61d8eb7ff75d1cb97e339564ce9cc0dbd19cff69a55496bd273d1e0d3a4f684b",
+      "bytes": 148868
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-030.png",
+      "sha256": "5073b7f63dd79a46fca939df90731f6d178962b25ea11c1e0c465657b92eaeb5",
+      "bytes": 147183
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-045.png",
+      "sha256": "e3ef30a75fb5baec8c6d5846f837582d809026dbd62a1819df28bb8c3bb86a3f",
+      "bytes": 143254
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-060.png",
+      "sha256": "37fd06886848909a96d8ae9073f53ac8b87faa49db5173f603bfac37a4ffa447",
+      "bytes": 137772
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-075.png",
+      "sha256": "286f5910b075122183e9455563ad8467d642283d9deae29374c39beaa24040d5",
+      "bytes": 130938
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-090.png",
+      "sha256": "506eaf7ac111346fc38c4bfadeffcd32389ee2cd3973c8af502902097c8f1c44",
+      "bytes": 125652
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-105.png",
+      "sha256": "756c7c430d3d5475a868974dd63b2a0d887f7fd48e4c694122f1ad07c0dcfe7b",
+      "bytes": 122176
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-120.png",
+      "sha256": "499333826c3127928b34cfc0e9f6e90dc7a20ccd739167c6a65d3ee2a2bb0117",
+      "bytes": 120897
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-135.png",
+      "sha256": "5eb63ecd68ef29705824904b5b69a9a0e8e668af13ab1dd91df11fb6e4a496ea",
+      "bytes": 122866
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-150.png",
+      "sha256": "438772a7582928aad50f7e80b94fcdd021c2b2519de712b4af602d6ab997e9c6",
+      "bytes": 125600
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-165.png",
+      "sha256": "e11a7d983ae8bc78012c0a3d4e2e26e8585391baf462799ffa82d6f6f1a78a96",
+      "bytes": 127478
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-180.png",
+      "sha256": "6090e9c66d04a2671449382f99909fdc8df5033f3f779a2bc23979a8483cb2b3",
+      "bytes": 128501
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-195.png",
+      "sha256": "5da3b047be6abc4fdd066f19179d1a1fe3b9e77c8823908224b2ef7ad53c1834",
+      "bytes": 128445
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-210.png",
+      "sha256": "79940fb0b600eec0bb4839acc1973720aa9dc659d20540622c19b57878170f93",
+      "bytes": 127436
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-225.png",
+      "sha256": "1273ca0887dd249cf6cb842d2570d104b22017b46d6d20a7b41441e70bfcc5e7",
+      "bytes": 125416
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-240.png",
+      "sha256": "1a562e3051a39a29d169e2704f088903b486de3f993b87801a9fe6393b04669e",
+      "bytes": 122564
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-255.png",
+      "sha256": "7da18e4d744a0868c7c4e3a6fac92a90df2fb4205e69468fcaf80a6828928535",
+      "bytes": 121535
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-270.png",
+      "sha256": "180695e04bed2c05314f73aa801bbe8c491ec78779e9d24d85c979c48cbe0ffc",
+      "bytes": 123599
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-285.png",
+      "sha256": "3663a56ecb7b9eb9f2d88631c7a0f55b9883454cc28eb73fd5c4ca8186a5c94b",
+      "bytes": 126094
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-300.png",
+      "sha256": "95757fc6460baa56bab4b2c31aa0ca7aa829bd519d69ca4b9bbf0bc00f118537",
+      "bytes": 131168
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-315.png",
+      "sha256": "0bfdaa196fdefa335d492ea7b44648d0a2686fa931f079ca6f71474cfaf35ae1",
+      "bytes": 137868
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-330.png",
+      "sha256": "303391de309e93e12324cbf457868e7e831396fdc17e620aa8a7e431016d19e0",
+      "bytes": 143244
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\final-actual-mesh-renders\\orbit\\frame-345.png",
+      "sha256": "bd6989cf15070d15b00cd1d02a638fae573c40610f89e168adbbc2faf4a1ee70",
+      "bytes": 146647
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\inspect_accessories.py",
+      "sha256": "2c29980e79100e0eb384f0aa9e871f4128d31266a42b1ad00264f6176ec2c1d4",
+      "bytes": 4228
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\build_mochi_bag_hardware.py",
+      "sha256": "ec9473014ad8b68fc3da96ea807352d8cacdc7793a804a219f15342b6bfb3f31",
+      "bytes": 13532
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\render_editable_mochi.py",
+      "sha256": "634a86ee5fa34b9c6c32f3b3014973b6496297da01c10ceb138d2769d97666c9",
+      "bytes": 6413
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\reopen_native_mochi.py",
+      "sha256": "41c89c755ec27cef9070f3c56e361556c11e765a5a0f2fba8694b50faeb6c940",
+      "bytes": 3099
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\write_handoff.py",
+      "sha256": "d5f7361d6db2c0becb0e6552bf2579d5b34595d57127ca624a9bab0ee0ef80b6",
+      "bytes": 11236
+    }
+  ]
+}

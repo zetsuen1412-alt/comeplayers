@@ -1,0 +1,402 @@
+{
+  "schema": "crwt.packed-editable-build.v1",
+  "id": "kairo",
+  "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+  "candidate_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "blend_sha256": "4fa2d0c884a40c34e4a28c3cb0fce773dde9a2c4decdd8c8d0020743d19d1447",
+  "blend_bytes": 1284234,
+  "native_fingerprint": {
+    "meshes": {
+      "geometry_0": {
+        "geometry_topology_corner_normal_uv_sha256": "bf6961542bf5e1bd3f566730b8def3f050495c1c8b6c0cd1c4adcb78d53e137c",
+        "vertices": 17420,
+        "triangles": 21676,
+        "matrix_world": [
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Material_0"
+        ]
+      },
+      "kairo existing viewer-left upper lens rim fitted thin bead": {
+        "geometry_topology_corner_normal_uv_sha256": "74e57fc4e0d1370270859d7572cd9d07b88a54726414c22877dfdd5fef1cecc3",
+        "vertices": 1536,
+        "triangles": 3072,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "kairo fitted warm-gold rim bead only"
+        ]
+      },
+      "kairo existing viewer-right lower lens rim fitted thin bead": {
+        "geometry_topology_corner_normal_uv_sha256": "78fc86b4a92c9ecd97cbb48137436dbe550a5158d8cb75db0df9536fbe7e0d42",
+        "vertices": 1536,
+        "triangles": 3072,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "kairo fitted warm-gold rim bead only"
+        ]
+      }
+    },
+    "mesh_count": 3,
+    "triangles": 27820,
+    "vertices": 20492,
+    "materials": {
+      "kairo fitted warm-gold rim bead only": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.8227857351303101,
+                0.42869049310684204,
+                0.05448027700185776,
+                1.0
+              ],
+              "Metallic": 0.7200000286102295,
+              "Roughness": 0.27000001072883606,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Material_0": {
+        "nodes": [
+          {
+            "name": "Image Texture",
+            "type": "ShaderNodeTexImage",
+            "image": "Image_0",
+            "inputs": {
+              "Vector": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "Image Texture.001",
+            "type": "ShaderNodeTexImage",
+            "image": "Image_1",
+            "inputs": {
+              "Vector": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Normal Map",
+            "type": "ShaderNodeNormalMap",
+            "image": null,
+            "inputs": {
+              "Strength": 0.0,
+              "Color": [
+                0.5,
+                0.5,
+                1.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.800000011920929,
+                0.800000011920929,
+                0.800000011920929,
+                1.0
+              ],
+              "Metallic": 0.0017673863330855966,
+              "Roughness": 0.550000011920929,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Image Texture",
+            "Color",
+            "Principled BSDF",
+            "Base Color"
+          ],
+          [
+            "Image Texture.001",
+            "Color",
+            "Normal Map",
+            "Color"
+          ],
+          [
+            "Normal Map",
+            "Normal",
+            "Principled BSDF",
+            "Normal"
+          ],
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      }
+    },
+    "images": [
+      {
+        "name": "Image_0",
+        "sha256": "b98010c97f4300a65273e583f38420e60ec750f2149e46ccf9365e78953b1ae2",
+        "bytes": 151312,
+        "colorspace": "sRGB",
+        "size": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "name": "Image_1",
+        "sha256": "fce8646d8c20f3e16bf982a41c1db4cc75af032bef2b15e7ae58db8fc0205e9b",
+        "bytes": 157360,
+        "colorspace": "Non-Color",
+        "size": [
+          1024,
+          1024
+        ]
+      }
+    ],
+    "armatures": 0,
+    "actions": 0
+  },
+  "embedded_images": [
+    {
+      "sha256": "b98010c97f4300a65273e583f38420e60ec750f2149e46ccf9365e78953b1ae2",
+      "bytes": 151312,
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sha256": "fce8646d8c20f3e16bf982a41c1db4cc75af032bef2b15e7ae58db8fc0205e9b",
+      "bytes": 157360,
+      "mimeType": "image/jpeg"
+    }
+  ],
+  "packed_images_byte_identical_to_glb": true,
+  "all_file_images_packed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "blender_version": "5.2.2 LTS"
+}

@@ -1,0 +1,2329 @@
+{
+  "candidate_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+  "new_cap_faces": 11,
+  "retained_faces": 32519,
+  "complete_new_cap_retained_pair_coverage": 357709,
+  "aabb_candidate_pairs_exact_tested": 131,
+  "cap_cap_pairs": 55,
+  "improper_contacts": 0,
+  "failures": [],
+  "allowed_shared_feature_contacts": [
+    {
+      "cap_id": 32519,
+      "other_face_id": 10313,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2095,
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185956",
+          "740692",
+          "-1560843"
+        ],
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32519,
+      "other_face_id": 10314,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32519,
+      "other_face_id": 10316,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32519,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2091,
+        2095
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ],
+        [
+          "-4185956",
+          "740692",
+          "-1560843"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32519,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32519,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32519,
+      "other_face_id": 26400,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10313,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10314,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10316,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2096,
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ],
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10318,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 26400,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 26401,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 26402,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 10316,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 10318,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2360,
+        2412
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ],
+        [
+          "-4005252",
+          "779988",
+          "-1830301"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 10324,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2412
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4005252",
+          "779988",
+          "-1830301"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 26401,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 26402,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 10318,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2412
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4005252",
+          "779988",
+          "-1830301"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 10324,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2373,
+        2412
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ],
+        [
+          "-4005252",
+          "779988",
+          "-1830301"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 26408,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2373
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 26412,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2373
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 10324,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2373
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 10399,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2123
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 26407,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2123
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 26408,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2123,
+        2373
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ],
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 26412,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2373
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 10399,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2060,
+        2123
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ],
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 10400,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 26407,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2123
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 26408,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2123
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 26466,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 26467,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 26468,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 10399,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 10400,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 26465,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1470,
+        2093
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ],
+        [
+          "-4186310",
+          "770416",
+          "-2026801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 26466,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2060,
+        2093
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ],
+        [
+          "-4186310",
+          "770416",
+          "-2026801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 26467,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 26468,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 26469,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 10399,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 10400,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 26465,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 26466,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 26467,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 26468,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 26469,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 10394,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1464
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4514408",
+          "756858",
+          "-1598526"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 26463,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1185,
+        1464
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4724054",
+          "694829",
+          "-1666067"
+        ],
+        [
+          "-4514408",
+          "756858",
+          "-1598526"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 26464,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1185
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4724054",
+          "694829",
+          "-1666067"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 26465,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 26469,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1185,
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4724054",
+          "694829",
+          "-1666067"
+        ],
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 26470,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1185
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4724054",
+          "694829",
+          "-1666067"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 10392,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 10394,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1464,
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4514408",
+          "756858",
+          "-1598526"
+        ],
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 26461,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 26462,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 26463,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1464
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4514408",
+          "756858",
+          "-1598526"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 26465,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 26469,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 10387,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 10389,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 10390,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2083,
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ],
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 10392,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 10394,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 26461,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 26462,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 26465,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 26469,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32520,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2091,
+        2096
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ],
+        [
+          "-4185870",
+          "739138",
+          "-1561714"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32521,
+      "other_face_id": 32520,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2091,
+        2360
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ],
+        [
+          "-4019886",
+          "761307",
+          "-1742996"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 32520,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32522,
+      "other_face_id": 32521,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2091,
+        2412
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ],
+        [
+          "-4005252",
+          "779988",
+          "-1830301"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 32520,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 32521,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32523,
+      "other_face_id": 32522,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2091,
+        2373
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ],
+        [
+          "-4016820",
+          "754725",
+          "-1908801"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 32520,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 32521,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 32522,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32524,
+      "other_face_id": 32523,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2091,
+        2123
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ],
+        [
+          "-4168538",
+          "764692",
+          "-2011990"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32525,
+      "other_face_id": 32524,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32520,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32521,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32522,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32523,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32524,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        2060,
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ],
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32526,
+      "other_face_id": 32525,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1470,
+        2060
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ],
+        [
+          "-4209546",
+          "740314",
+          "-1987346"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 32525,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32527,
+      "other_face_id": 32526,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 32525,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 32526,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32528,
+      "other_face_id": 32527,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1464,
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4514408",
+          "756858",
+          "-1598526"
+        ],
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32519,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32520,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32521,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32522,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32523,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32524,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32525,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32526,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1470,
+        2091
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ],
+        [
+          "-4187294",
+          "739526",
+          "-1560662"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32527,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 1,
+      "shared_vertex_ids": [
+        1470
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ]
+      ]
+    },
+    {
+      "cap_id": 32529,
+      "other_face_id": 32528,
+      "method": "noncoplanar-rational-edge-plane",
+      "intersection_vertex_count": 2,
+      "shared_vertex_ids": [
+        1470,
+        2083
+      ],
+      "contact_only_on_shared_topological_feature": true,
+      "intersection_coordinates_in_exact_scaled_units": [
+        [
+          "-4510810",
+          "770267",
+          "-1983010"
+        ],
+        [
+          "-4189554",
+          "738790",
+          "-1561680"
+        ]
+      ]
+    }
+  ],
+  "scope": "New caps vs retained source and cap/cap only; not retained/retained or accessory volume intersections",
+  "passed": true,
+  "visual_approved": false
+}

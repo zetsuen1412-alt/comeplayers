@@ -1,0 +1,54 @@
+{
+  "schema": "crwt.mochi_packed_native_reopen.v1",
+  "editable_blend_reopened_successfully": true,
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\actual-mesh-review\\mochi-bag-hardware-editable-candidate.blend",
+  "blend_sha256": "52c5729536d66feb709eb3b11ceed3975c8ed90a52ed8808323cbcf78563370e",
+  "source_mesh_fingerprint_retained": true,
+  "all_imported_mesh_uv_polygon_transform_fingerprints_retained": true,
+  "mesh_fingerprints": [
+    {
+      "vertices": 14896,
+      "polygons": 23260,
+      "uv_layers": 1,
+      "materials": 1,
+      "sha256": "4d86876ec7ca4aaa08bdf65ba80cdb6abc09651b9650ad70b60204dabd3fa836"
+    },
+    {
+      "vertices": 3432,
+      "polygons": 1144,
+      "uv_layers": 0,
+      "materials": 2,
+      "sha256": "415501d970ac8e77812a0ad5f3460f21d6d76a2bd35cfaac789522f5c32f13f1"
+    }
+  ],
+  "embedded_images": [
+    {
+      "name": "Image_0",
+      "source": "FILE",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ],
+      "packed_bytes": 307008,
+      "packed_sha256": "308f88e5a2c8dd7fd62ed031573c5ad3981515f8a8f2e2596fe2fdab453d03ef"
+    },
+    {
+      "name": "Image_1",
+      "source": "FILE",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ],
+      "packed_bytes": 363984,
+      "packed_sha256": "cce11850e96ed8c8b9c784d649784ca61ccbf28cdff43e13c5cee817483ee16a"
+    }
+  ],
+  "armatures": 0,
+  "actions": 0,
+  "file_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": "Native fingerprints test coordinates, polygon indices/material indices/smoothing, UV and world matrix. Raw GLB preservation proof also retains normal/image/material records and BIN; native fingerprint does not separately encode every Blender data channel."
+}

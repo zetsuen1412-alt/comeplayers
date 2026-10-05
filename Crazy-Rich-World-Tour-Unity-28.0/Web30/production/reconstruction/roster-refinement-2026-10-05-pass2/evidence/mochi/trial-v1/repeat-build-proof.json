@@ -1,0 +1,19 @@
+{
+  "schema": "crwt.mochi_bag_repeat_build.v1",
+  "candidate_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+  "first_build": {
+    "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\mochi-bag-hardware-candidate.glb",
+    "sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+    "bytes": 2278336
+  },
+  "second_build": {
+    "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\reproducibility-check\\mochi-bag-hardware-candidate.glb",
+    "sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+    "bytes": 2278336
+  },
+  "byte_identical": true,
+  "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+  "source_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false
+}

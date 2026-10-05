@@ -1,0 +1,175 @@
+{
+  "schema": "crwt.pass2-browser-verification.v1",
+  "verified_utc": "2026-10-05T07:52:31.117042+00:00",
+  "manifest_sha256": "f65190b5e1e862df6f1dcd0b362334728e8864cb6fe39a9f5679c6f08c779e24",
+  "gallery_sha256": "5e607a6d1a077e9020405ec3a104caf7fc19a099daa9bb5ec0e4cf81c2b9ff9d",
+  "browser_observations": {
+    "models": [
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "39.032",
+        "name": "Alexia",
+        "note": "Lingkaran perak, bingkai hitam, diafragma emas dan titik tengah headphone mengikuti permukaan earcup sumber. Rambut belakang, tangan, pakaian dan koper masih perlu penyempurnaan. Model statis dan kandidat; belum terintegrasi game.",
+        "source": "alexia.glb2.225.660 byte · 0 skinSHA-256 sumber terverifikasid9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0aeStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "29.185"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "45.278",
+        "name": "Rindi",
+        "note": "Lima jari dan telapak tangan menjulur dibuat sebagai geometri baru. Hanya 316 face tangan diganti; bentuk lain tetap. Detail kuku, lipatan dan pergelangan masih perlu disempurnakan; model statis.",
+        "source": "rindi.glb3.231.408 byte · 0 skinSHA-256 sumber terverifikasid2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "29.689"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "45.028",
+        "name": "Atlas",
+        "note": "Tepi dan spiral pada ujung gulungan hijau dibuat sebagai relief geometri mengikuti permukaan aktual. Ransel, peta, tangan dan pakaian masih perlu penyempurnaan. Model statis dan kandidat; belum terintegrasi game.",
+        "source": "atlas.glb2.442.104 byte · 0 skinSHA-256 sumber terverifikasi3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "31.672"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "27.820",
+        "name": "Kairo",
+        "note": "Dua bingkai tipis emas pada goggles dibuat sebagai volume tertutup, mengikuti bentuk lensa lama. Rambut, wajah, tangan, sepatu dan koper masih perlu penyempurnaan. Model statis dan kandidat; belum terintegrasi game.",
+        "source": "kairo.glb1.278.000 byte · 0 skinSHA-256 sumber terverifikasi543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "20.492"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "55.274",
+        "name": "Luna",
+        "note": "Bola biru, tiga cincin armillary, collar dan finial tongkat dibangun sebagai geometri baru; 1.101 face kepala tongkat diganti dan leher ditutup. Rambut, cape dan ornamen bawah masih perlu penyempurnaan; model statis.",
+        "source": "luna.glb3.076.744 byte · 0 skinSHA-256 sumber terverifikasi2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "40.535"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "24.404",
+        "name": "Mochi",
+        "note": "Gesper strap dan clasp tas warna emas-teal ditambahkan sebagai lima volume tertutup. Kedua appendage dan connector lama utuh; fur, paw, tas dan bentuk belakang masih perlu penyempurnaan. Model statis dan kandidat; belum terintegrasi game.",
+        "source": "mochi.glb2.278.336 byte · 0 skinSHA-256 sumber terverifikasi98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "18.334"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "25.472",
+        "name": "Nox",
+        "note": "Kartu putih berhati merah pada pinggul ditambahkan sebagai volume 3D lengkap. Seluruh mesh dan kartu melayang sumber dipertahankan. Wajah, tangan, rambut dan mantel masih lembut; model statis.",
+        "source": "nox.glb1.885.836 byte · 0 skinSHA-256 sumber terverifikasi0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6bStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "23.535"
+      },
+      {
+        "clips": [
+          "",
+          "Idle",
+          "Walk",
+          "Jump",
+          "Skill",
+          "Win",
+          "Lose"
+        ],
+        "faces": "97.580",
+        "name": "Pip",
+        "note": "Casing, panel, bezel layar cekung, badge dan pelindung cyan diperbaiki sebagai geometri nyata. 13 joint dan enam clip tetap identik dari V8. Motif panel kuning, pijar dan kecocokan detail masih perlu disempurnakan.",
+        "source": "pip.glb5.690.144 byte · 1 skinSHA-256 sumber terverifikasic25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9fStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip.",
+        "vertices": "103.760"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "32.908",
+        "name": "Yuna",
+        "note": "Tepi palet, cat timbul dan ferrule kuningan ditambahkan sebagai volume 3D. Seluruh face sumber, pegangan, tangan dan ujung kuas tetap. Detail wajah, rambut dan pakaian masih perlu penyempurnaan; model statis.",
+        "source": "yuna.glb1.990.760 byte · 0 skinSHA-256 sumber terverifikasi07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "25.055"
+      },
+      {
+        "clips": [
+          ""
+        ],
+        "faces": "33.300",
+        "name": "Zeno",
+        "note": "Bingkai goggles dibuat lebih jelas sebagai geometri baru. Pose menyentuh goggles serta scarf kuning asli dipertahankan; detail wajah, tangan dan pakaian masih perlu penyempurnaan. Model statis dan kandidat; belum terintegrasi game.",
+        "source": "zeno.glb2.033.644 byte · 0 skinSHA-256 sumber terverifikasi7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+        "status": "Model 3D siap · pose statis.",
+        "vertices": "24.679"
+      }
+    ],
+    "clipSelectors": [
+      {
+        "character": "Pip",
+        "selectedClip": "Idle",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+      },
+      {
+        "character": "Pip",
+        "selectedClip": "Walk",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+      },
+      {
+        "character": "Pip",
+        "selectedClip": "Jump",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+      },
+      {
+        "character": "Pip",
+        "selectedClip": "Skill",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+      },
+      {
+        "character": "Pip",
+        "selectedClip": "Win",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+      },
+      {
+        "character": "Pip",
+        "selectedClip": "Lose",
+        "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+      }
+    ],
+    "logs": [],
+    "url": "http://127.0.0.1:8771/BUKA-REVIEW-MODEL.html",
+    "finalCharacter": "Alexia",
+    "finalMode": "compare",
+    "approved": false,
+    "gameIntegrated": false
+  },
+  "all10_ready_hashes_stats_notes_match_manifest": true,
+  "six_pip_clip_selectors_verified": true,
+  "warning_error_log_count": 0,
+  "proof_screenshot": {
+    "path": "evidence/browser-final-alexia-comparison.jpg",
+    "sha256": "db61e7987fe7fb75165516afbe7e72f97bf7358f12f2994a52682d49d55bc1bb",
+    "bytes": 102266
+  },
+  "direct_file_url_verified": false,
+  "approved": false,
+  "gameIntegrated": false
+}

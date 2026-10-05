@@ -1,0 +1,111 @@
+{
+  "schema": "crwt.scoped_roster_publication_receipt.v1",
+  "created_date": "2026-10-05",
+  "repository": "zetsuen1412-alt/comeplayers",
+  "commit": "df6374199d71137b5ed26af07fae6949c661de46",
+  "tree": "f06770fc4353f446e7508bc11dc340c5f8932733",
+  "parent_commit": "1c63379d02ef4fea211c963a18fed7e84a2c6494",
+  "working_branch": "codex/crazy-rich-web-v30",
+  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable",
+  "snapshot_verified": true,
+  "model_count": 10,
+  "refinement_count": 5,
+  "refined_ids": [
+    "rindi",
+    "nox",
+    "luna",
+    "yuna",
+    "pip"
+  ],
+  "unchanged_ids": [
+    "alexia",
+    "kairo",
+    "atlas",
+    "zeno",
+    "mochi"
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "ci_conclusion": "success",
+  "ci_runs": [
+    {
+      "id": 37268653742,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37268653742"
+    },
+    {
+      "id": 37268653878,
+      "name": "Crazy Rich Unity Source Checks",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37268653878"
+    },
+    {
+      "id": 37268648812,
+      "name": "CRWT Roster Refinement 2026-10-05",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37268648812"
+    },
+    {
+      "id": 37268648749,
+      "name": "CRWT Portable Character Workspace",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37268648749"
+    },
+    {
+      "id": 37268648745,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37268648745"
+    }
+  ],
+  "source_preservation": {
+    "baseline_blobs": 3257,
+    "all_baseline_blobs_byte_identical": true,
+    "new_files": 192,
+    "total_git_blobs": 3449,
+    "deleted_paths": [],
+    "overwritten_paths": [],
+    "baseline_local_files_checked": 611,
+    "baseline_full_checkout_ci_verified": true,
+    "old_frozen_branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable",
+    "old_frozen_commit": "1c63379d02ef4fea211c963a18fed7e84a2c6494"
+  },
+  "review_manifest_sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+  "standalone_gallery_sha256": "34e5c9e6dae5a8f58dc679d59154de53cbaa325ac2609cd6c056fa2e607e5f29",
+  "packed_workspace_sha256": "ae7874ae464059792cd5065d82c58c503dace95fc51812ea209b49194ce6e839",
+  "source_ci_artifact": {
+    "id": 11326879660,
+    "name": "CRWT-Roster-Refinement-Source-2026-10-05-df6374199d71137b5ed26af07fae6949c661de46",
+    "size_in_bytes": 399959413,
+    "digest": "sha256:230707a20620ead8a2838bfddc2854b7befd1cdae50256a24501d3f45fba741b",
+    "expires_at": "2026-10-12T05:38:49Z",
+    "head_sha": "df6374199d71137b5ed26af07fae6949c661de46",
+    "run_url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37268648812",
+    "scope": "Complete preserved repository source, compact actual render evidence, packed workspaces and rebuilt offline gallery. Git history excluded."
+  },
+  "local_model_bundle_scope": "10 GLBs, exact references, 70 actual views, 240 orbit frames, 3 editable ZIPs, native packed workspace and source resume guide; full Unity/game repository source is on frozen GitHub branch.",
+  "pr_url": "https://github.com/zetsuen1412-alt/comeplayers/pull/34",
+  "limits": [
+    "Hash and CI establish file integrity, not perfect visual fidelity.",
+    "Nine candidates remain static; Pip retains its six mechanical clips.",
+    "Models are not integrated into runtime game.",
+    "Whole-model self-intersection/deformation certification is not claimed; each geometry proof states its scope.",
+    "Direct file:// IAB opening was not verified; localhost HTTP UI tested."
+  ]
+}

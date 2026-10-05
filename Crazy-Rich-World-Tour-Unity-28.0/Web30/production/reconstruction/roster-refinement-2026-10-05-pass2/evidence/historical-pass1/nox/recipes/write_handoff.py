@@ -1,0 +1,16 @@
+import hashlib, json, pathlib, struct
+folder=pathlib.Path(__file__).resolve().parent;trial=folder/'trial-v1';root=folder.parents[2]
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+source=root/'outputs/model-review-2026-10-04/viewer/models/nox.glb';reference=root/'outputs/model-review-2026-10-04/viewer/references/nox.png'
+candidate=trial/'nox-hip-card-accessory-candidate.glb';rebuilt=folder/'reproducibility-check/nox-hip-card-accessory-candidate.glb';blend=trial/'actual-mesh-review/nox-hip-card-editable-candidate.blend'
+assert candidate.read_bytes()==rebuilt.read_bytes()
+assert sha(source)=='a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0'
+assert sha(reference)=='185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1'
+size=list(struct.unpack_from('>II',reference.read_bytes(),16));assert size==[370,482]
+proof=json.loads(candidate.with_suffix('.preservation-proof.json').read_text());actual=proof['actual_glb_validation']
+files=[candidate,candidate.with_suffix('.preservation-proof.json'),blend,blend.with_suffix('.reopen-proof.json'),trial/'actual-mesh-review/render-editable-receipt.json',trial/'visual-review.json',trial/'MULAI-DI-SINI-NOX.md']+sorted((trial/'actual-mesh-review').glob('*/*.png'))
+records=[{'path':str(p.relative_to(trial)).replace('\\','/'),'bytes':p.stat().st_size,'sha256':sha(p)} for p in files]
+report={'schema':'crwt.nox_accessory_handoff.v1','date':'2026-10-05','status':'manual-hip-card-improvement-candidate-unapproved','candidate':str(candidate),'sha256':sha(candidate),'bytes':candidate.stat().st_size,'editable_blend':str(blend),'editable_blend_sha256':sha(blend),'source':str(source),'source_sha256':sha(source),'reference':str(reference),'reference_sha256':sha(reference),'reference_size':size,'actual_counts':actual,'faces_added':proof['new_faces'],'source_bin_prefix_bytes_preserved':proof['source_bin_bytes'],'original_json_records_preserved':proof['original_json_prefix_records_identical'],'source_triangle_aabb_separation_certificate':{'source_triangles_checked':proof['all_source_triangle_aabbs_checked'],'overlaps':proof['whole_accessory_aabb_source_overlap_count'],'minimum_axis_gap':proof['minimum_separating_axis_gap']},'reproduced_byte_identical':True,'render_views_each':4,'packed_images':2,'approved':False,'visual_final_approved':False,'gameIntegrated':False,'rig_added':False,'animation_added':False,'scope':'One new volumetric floating hip card; all original source geometry, floating cards, materials and textures retained.','remaining_gaps':['Rabbit and fingers remain soft/merged reconstruction.','Hat edge, face and back coat artifacts unchanged.','New card depth/thickness/plain reverse inferred; no whole-character fidelity certificate.'],'artifact_files':records,'scripts':[{'path':str(p),'sha256':sha(p)} for p in (folder/'build_nox_hip_card.py',folder/'render_editable_nox.py',folder/'reopen_editable_check.py')]}
+out=trial/'NOX-HANDOFF.json'
+with out.open('x',encoding='utf-8',newline='\n') as f:f.write(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'handoff':str(out),'sha256':sha(out),'candidate_sha256':sha(candidate),'blend_sha256':sha(blend),'artifact_files':len(records),'reproduced_byte_identical':True}))

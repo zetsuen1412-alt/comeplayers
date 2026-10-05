@@ -1,0 +1,9 @@
+{
+  "id": "zeno",
+  "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+  "coordinate_system": "world glTF +Y up, +Z front; original Y180 root applied for ray anchors only",
+  "rims": [
+    {"name":"viewer-left upper lens rim","center_xy_gltf":[0.0305,0.3290],"ellipse_radii":[0.0505,0.0390],"angle_degrees":-10,"tube_radius":0.00165,"surface_lift":0.00075,"segments":128,"tube_sides":12},
+    {"name":"viewer-right touched lens rim","center_xy_gltf":[0.1435,0.2915],"ellipse_radii":[0.0320,0.0405],"angle_degrees":22,"tube_radius":0.00165,"surface_lift":0.00075,"segments":128,"tube_sides":12}
+  ]
+}

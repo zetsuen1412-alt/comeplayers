@@ -1,0 +1,305 @@
+{
+  "schema": "crwt.yuna_accessory_handoff.v1",
+  "date": "2026-10-05",
+  "status": "manual-accessory-improvement-candidate-unapproved",
+  "candidate": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\trial-v4\\yuna-accessory-refinement-candidate.glb",
+  "sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+  "bytes": 1990760,
+  "editable_blend": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\trial-v4\\actual-mesh-review\\yuna-accessory-refinement-editable-candidate.blend",
+  "editable_blend_sha256": "f596d66b1985d358777c0f49f131e5f80cf79f8d467925e1944bc427cf9870c1",
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\yuna.glb",
+  "source_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+  "reference": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\references\\yuna.png",
+  "reference_sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+  "reference_size": [
+    332,
+    392
+  ],
+  "actual_counts": {
+    "faces": 32908,
+    "vertices": 25055,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "75f34864d26f43226425828d527c75b04a6a4967b88a9c8e8ba09300755b8e09",
+    "accessors_checked": 28,
+    "buffer_views_checked": 30
+  },
+  "source_faces": 25716,
+  "faces_added": 7192,
+  "source_bin_prefix_bytes_preserved": 1805296,
+  "all_source_faces_retained": true,
+  "source_vertices_moved": 0,
+  "source_faces_removed": 0,
+  "original_json_records_preserved": {
+    "accessors": true,
+    "bufferViews": true,
+    "meshes": true,
+    "nodes": true,
+    "materials": true,
+    "textures": true,
+    "images": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true
+  },
+  "new_shape_count": 75,
+  "all_new_shapes_closed_and_consistently_oriented": true,
+  "paint_matched_front_back_xy_graph": true,
+  "source_global_self_intersection_certificate": false,
+  "new_global_self_intersection_certificate": false,
+  "reproduced_byte_identical": true,
+  "render_views_each": 4,
+  "packed_images": 2,
+  "render_change_measurements": [
+    {
+      "view": "front",
+      "changed_rgb_pixels": 10471,
+      "changed_bbox": [
+        104,
+        118,
+        655,
+        717
+      ],
+      "front_palette_roi_changed_pixels": 7079,
+      "front_ferrule_roi_changed_pixels": 768,
+      "front_pixels_changed_outside_accessory_rois": 2624,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    },
+    {
+      "view": "three-quarter",
+      "changed_rgb_pixels": 10575,
+      "changed_bbox": [
+        140,
+        147,
+        660,
+        747
+      ],
+      "front_palette_roi_changed_pixels": null,
+      "front_ferrule_roi_changed_pixels": null,
+      "front_pixels_changed_outside_accessory_rois": null,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    },
+    {
+      "view": "opposite-three-quarter",
+      "changed_rgb_pixels": 6925,
+      "changed_bbox": [
+        139,
+        110,
+        583,
+        729
+      ],
+      "front_palette_roi_changed_pixels": null,
+      "front_ferrule_roi_changed_pixels": null,
+      "front_pixels_changed_outside_accessory_rois": null,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    },
+    {
+      "view": "back",
+      "changed_rgb_pixels": 3147,
+      "changed_bbox": [
+        135,
+        218,
+        696,
+        730
+      ],
+      "front_palette_roi_changed_pixels": null,
+      "front_ferrule_roi_changed_pixels": null,
+      "front_pixels_changed_outside_accessory_rois": null,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    }
+  ],
+  "approved": false,
+  "visual_final_approved": false,
+  "gameIntegrated": false,
+  "rig_added": false,
+  "animation_added": false,
+  "scope": "Partial palette rim, six shallow paint volumes and a thin metal coating conforming to selected original ferrule triangles. Existing grip, fingers, brush tip, body, hair, face, material and texture data preserved.",
+  "grip_hole_cut": false,
+  "remaining_gaps": [
+    "No true thumb-hole or anatomy repair is certified; source grip unchanged.",
+    "Brush paint tip still the existing reconstruction.",
+    "Hair/beret, face, overall/strap and back artifacts remain.",
+    "Reference-only exact visual perfection, rig, animation and gameplay remain unapproved."
+  ],
+  "artifact_files": [
+    {
+      "path": "yuna-accessory-refinement-candidate.glb",
+      "bytes": 1990760,
+      "sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224"
+    },
+    {
+      "path": "yuna-accessory-refinement-candidate.preservation-proof.json",
+      "bytes": 44841,
+      "sha256": "075f628417b2affd042345c4e5e01e00f93afc3f85cab538a42e93868a6eda23"
+    },
+    {
+      "path": "actual-mesh-review/yuna-accessory-refinement-editable-candidate.blend",
+      "bytes": 2005560,
+      "sha256": "f596d66b1985d358777c0f49f131e5f80cf79f8d467925e1944bc427cf9870c1"
+    },
+    {
+      "path": "actual-mesh-review/yuna-accessory-refinement-editable-candidate.reopen-proof.json",
+      "bytes": 822,
+      "sha256": "6797491c56635a2a938bb43fffb94b9b93a5aedeb73a45ac736c081069c3eb16"
+    },
+    {
+      "path": "actual-mesh-review/render-editable-receipt.json",
+      "bytes": 3242,
+      "sha256": "929deaecc3b7ed98985f81afbc35d7280a72d31a23b5982c6a90ef51e4c892d3"
+    },
+    {
+      "path": "visual-review.json",
+      "bytes": 2361,
+      "sha256": "018e8e8b55f17b41e3fa66541649826fbe94c9ff791a569f89e115166fa2de88"
+    },
+    {
+      "path": "MULAI-DI-SINI-YUNA.md",
+      "bytes": 2830,
+      "sha256": "c7eb94a33fe83c478db6a4289c6769287ecf1201600c3ca46ff03d0f7c1a0c01"
+    },
+    {
+      "path": "render-change-measurements.json",
+      "bytes": 2084,
+      "sha256": "c866d97fe92e12a819b7a8133169693fffc8830cc46286ad0d87688975d27f65"
+    },
+    {
+      "path": "actual-mesh-review/after/back.png",
+      "bytes": 801640,
+      "sha256": "c76153031721a5875fadd842ba945397017a7c9c809e58a6d42ceffc2b6fef36"
+    },
+    {
+      "path": "actual-mesh-review/after/front.png",
+      "bytes": 866267,
+      "sha256": "a81ff3315b1c8f5e58544e19e1c83c026f2ce6a7009f3a13a93ca99187f70c92"
+    },
+    {
+      "path": "actual-mesh-review/after/opposite-three-quarter.png",
+      "bytes": 835916,
+      "sha256": "262b79fc2ad12f2d906468de9f612f90de78aeb230204bc5cefeb858eefd694a"
+    },
+    {
+      "path": "actual-mesh-review/after/three-quarter.png",
+      "bytes": 856527,
+      "sha256": "2a3078c63c14ec20fbe46af39fad6f599de3ed246fee74a75d105dbc1524afbf"
+    },
+    {
+      "path": "actual-mesh-review/before/back.png",
+      "bytes": 801066,
+      "sha256": "54e008c57cd71341832b11904a765b2feed410082f6aef3794d44ebaaa6d652d"
+    },
+    {
+      "path": "actual-mesh-review/before/front.png",
+      "bytes": 863431,
+      "sha256": "35b230be66129777df120d3c0964aee389b45a19d908fe0526cc362ba080ccf8"
+    },
+    {
+      "path": "actual-mesh-review/before/opposite-three-quarter.png",
+      "bytes": 833507,
+      "sha256": "fe3bdd4fe1d31958f4225e31bdfc2dbaf000ede92ad2bbad6e251c351d9c0be6"
+    },
+    {
+      "path": "actual-mesh-review/before/three-quarter.png",
+      "bytes": 853810,
+      "sha256": "c1e6b9b937ed0897bcc0a719e532ec0cab8907788e54e0288632ffd52a33f251"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\build_yuna_accessory_details_v4.py",
+      "sha256": "467878c2b0dfe2da311625e75e571d7a9393b0c2d9d6da07e87ecbad7b7f764d"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\render_editable_yuna.py",
+      "sha256": "92ca8947838c0ecc98cace3aaaca5ae5cc01c7b98bd0e02d974cf79c775c0530"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\reopen_editable_check_v4.py",
+      "sha256": "eb3e7581046c612a982bc80979f64fe5727f5b9924c7350d2eb3c69bee9448f8"
+    }
+  ],
+  "recipe": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\build_yuna_accessory_details_v4.py",
+  "recipe_sha256": "467878c2b0dfe2da311625e75e571d7a9393b0c2d9d6da07e87ecbad7b7f764d",
+  "ferrule_selection": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\ferrule-source-face-selection.json",
+  "ferrule_selection_sha256": "3999842cdbaa37929722a21a80fd329f4b6a33dfb15c79873f5a9c7ab1447d2c",
+  "ferrule_source_face_ids": [
+    9288,
+    9289,
+    9332,
+    9333,
+    9334,
+    9339,
+    9340,
+    9342,
+    9344,
+    9356,
+    9357,
+    9358,
+    9359,
+    10079,
+    10083,
+    10084,
+    10085,
+    10086,
+    10087,
+    10088,
+    10099,
+    10100,
+    10108,
+    10111,
+    10112,
+    10113,
+    10114,
+    10115,
+    10116,
+    10117,
+    10118,
+    10125,
+    10128,
+    10131,
+    10132,
+    10133,
+    10134,
+    10140,
+    10141,
+    21822,
+    21823,
+    21830,
+    21831,
+    21836,
+    21837,
+    22428,
+    22434,
+    22435,
+    22436,
+    22437,
+    22440,
+    22441,
+    22445,
+    22446,
+    22447,
+    22450,
+    22453,
+    22454,
+    22456,
+    22469,
+    22472,
+    22473,
+    22474,
+    22475,
+    22482,
+    22483,
+    22484,
+    22485
+  ],
+  "ferrule_source_face_mapping_verified": true,
+  "ferrule_coating_mode": "68 closed triangular prisms extruded parallel to exact selected source triangles by0.05..0.50mm; no inferred axis offset",
+  "full_render_folder": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\final-v4-actual-mesh-renders",
+  "supersedes_v3": "V3 cylinder had a visible depth offset in the left profile; V4 follows exact source ferrule faces."
+}

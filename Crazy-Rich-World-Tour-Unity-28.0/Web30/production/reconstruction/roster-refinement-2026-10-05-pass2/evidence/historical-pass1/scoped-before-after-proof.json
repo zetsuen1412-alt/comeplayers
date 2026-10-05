@@ -1,0 +1,663 @@
+{
+  "schema": "crwt.scoped_before_after_overview.v1",
+  "created_date": "2026-10-05",
+  "output": {
+    "path": "outputs/model-review-2026-10-05/PERUBAHAN-5-MODEL-AKTUAL.png",
+    "sha256": "6b460c0d85a039c3dde3072371443e471503dc713749c6ae434102eb1fb46ff5",
+    "bytes": 785704,
+    "size": [
+      1280,
+      1800
+    ]
+  },
+  "assembler": {
+    "path": "work/refinement-compare/build_scoped_before_after.py",
+    "sha256": "810d36005568a19231ffbc5c9488824554e4fc360f7b1370d390a4740b879c3a",
+    "library": "Pillow"
+  },
+  "selected_manifest_sha256": {
+    "2026-10-04": "d6ffe663221340bdf158cb6d549deaf53ebb65aa4fd9df108fa9f3d3271898ff",
+    "2026-10-05": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30"
+  },
+  "rows": [
+    {
+      "id": "rindi",
+      "name": "Rindi",
+      "scope": "Lima jari dan telapak tangan",
+      "reference": {
+        "path": "outputs/model-review-2026-10-05/viewer/references/rindi.png",
+        "sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6",
+        "size": [
+          305,
+          478
+        ]
+      },
+      "before": {
+        "checkpoint_date": "2026-10-04",
+        "model_path": "outputs/model-review-2026-10-04/viewer/models/rindi.glb",
+        "model_sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+        "render_input_model_sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+        "render_input_path": "work/model-rebuild/surface-refinement/rindi/rindi-reference-surface-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-04/renders/rindi/render-evidence.json",
+        "render_receipt_sha256": "0239ed303a87c4c46d103d097f6e955eed709f2b44616c4b6c83efaf726e3952",
+        "front_path": "outputs/model-review-2026-10-04/renders/rindi/front.png",
+        "front_sha256": "77d1a35b5b79fca79e4d45d69eb2177b55224b52dc2cf09068fb2a0ad4b037d7",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "after": {
+        "checkpoint_date": "2026-10-05",
+        "model_path": "outputs/model-review-2026-10-05/viewer/models/rindi.glb",
+        "model_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+        "render_input_model_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+        "render_input_path": "work/model-refinement-2026-10-05/rindi/trial-v4/rindi-reaching-hand-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-05/renders/rindi/render-evidence.json",
+        "render_receipt_sha256": "f0e21795d01b0312ca39298ff35c999d67329b745b1795a6f1ea3907ee4da1ab",
+        "front_path": "outputs/model-review-2026-10-05/renders/rindi/front.png",
+        "front_sha256": "4888181b64c6eff15750a979e140a57b9cc273a66d24f117acbfed11402af654",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "nox",
+      "name": "Nox",
+      "scope": "Kartu 3D berhati merah di pinggul",
+      "reference": {
+        "path": "outputs/model-review-2026-10-05/viewer/references/nox.png",
+        "sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+        "size": [
+          370,
+          482
+        ]
+      },
+      "before": {
+        "checkpoint_date": "2026-10-04",
+        "model_path": "outputs/model-review-2026-10-04/viewer/models/nox.glb",
+        "model_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+        "render_input_model_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+        "render_input_path": "work/model-rebuild/surface-refinement/nox/nox-reference-surface-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-04/renders/nox/render-evidence.json",
+        "render_receipt_sha256": "94f38687f2883626ba97862cbc71f7c0dd006684d34ff130fb38d74b1f8edbdf",
+        "front_path": "outputs/model-review-2026-10-04/renders/nox/front.png",
+        "front_sha256": "ab85f469fb57af4d543759bfcb158692e9e6de87a7943d4ea1372da2d8c56ef6",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "after": {
+        "checkpoint_date": "2026-10-05",
+        "model_path": "outputs/model-review-2026-10-05/viewer/models/nox.glb",
+        "model_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+        "render_input_model_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+        "render_input_path": "work/model-refinement-2026-10-05/nox/trial-v1/nox-hip-card-accessory-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-05/renders/nox/render-evidence.json",
+        "render_receipt_sha256": "85a06ae809dd137b64704228b8bc3a3b28d6a39fa89150b699fa06a5448050db",
+        "front_path": "outputs/model-review-2026-10-05/renders/nox/front.png",
+        "front_sha256": "b7f1d2bef14acec4fc8d1db25d431f3fea54a0e1d37692a40ffbaba809784419",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "luna",
+      "name": "Luna",
+      "scope": "Bola dan cincin pada kepala tongkat",
+      "reference": {
+        "path": "outputs/model-review-2026-10-05/viewer/references/luna.png",
+        "sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8",
+        "size": [
+          358,
+          481
+        ]
+      },
+      "before": {
+        "checkpoint_date": "2026-10-04",
+        "model_path": "outputs/model-review-2026-10-04/viewer/models/luna.glb",
+        "model_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+        "render_input_model_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+        "render_input_path": "work/model-rebuild/surface-refinement/luna/luna-reference-surface-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-04/renders/luna/render-evidence.json",
+        "render_receipt_sha256": "655af966e645c07a73f22717a9e96a8c9855c671b429730fb228e6c6a64499eb",
+        "front_path": "outputs/model-review-2026-10-04/renders/luna/front.png",
+        "front_sha256": "92dc811eb88f2c5afa665689316ddf98d962a244f02a20672df1d92c03912374",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "after": {
+        "checkpoint_date": "2026-10-05",
+        "model_path": "outputs/model-review-2026-10-05/viewer/models/luna.glb",
+        "model_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+        "render_input_model_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+        "render_input_path": "work/model-refinement-2026-10-05/luna/trial-v1/luna-staff-head-refined-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-05/renders/luna/render-evidence.json",
+        "render_receipt_sha256": "799edc968eb51c58906503e7c9e97ac5dc8bf83a9d50d63063dc01c2f23cf795",
+        "front_path": "outputs/model-review-2026-10-05/renders/luna/front.png",
+        "front_sha256": "130fae68d01d54425e1d8cd966c692b20683d4a4a8661f525bf5841cf73c5454",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "yuna",
+      "name": "Yuna",
+      "scope": "Tepi palet, cat timbul dan ferrule kuas",
+      "reference": {
+        "path": "outputs/model-review-2026-10-05/viewer/references/yuna.png",
+        "sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+        "size": [
+          332,
+          392
+        ]
+      },
+      "before": {
+        "checkpoint_date": "2026-10-04",
+        "model_path": "outputs/model-review-2026-10-04/viewer/models/yuna.glb",
+        "model_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+        "render_input_model_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+        "render_input_path": "work/model-rebuild/surface-refinement/yuna/yuna-reference-surface-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-04/renders/yuna/render-evidence.json",
+        "render_receipt_sha256": "d0e07d35c88cb0f6b901f9f2772a56e8ec571f4ef6c69660acf2034a6b0028e9",
+        "front_path": "outputs/model-review-2026-10-04/renders/yuna/front.png",
+        "front_sha256": "b19b4c4c4749ede1f256e7a43e1d7c02fe8b939a0bc9195fefd3a9fd3d0cea14",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "after": {
+        "checkpoint_date": "2026-10-05",
+        "model_path": "outputs/model-review-2026-10-05/viewer/models/yuna.glb",
+        "model_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+        "render_input_model_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+        "render_input_path": "work/model-refinement-2026-10-05/yuna/trial-v4/yuna-accessory-refinement-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-05/renders/yuna/render-evidence.json",
+        "render_receipt_sha256": "0686f01b9552d1a1266c5e34ba606e3a3e87f59ea797a2545340045bdfaf887e",
+        "front_path": "outputs/model-review-2026-10-05/renders/yuna/front.png",
+        "front_sha256": "bc30881bdc2313bacf46c5fbaab136a785cb1ee15abb2dd69f299f1f69b80476",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "pip",
+      "name": "Pip",
+      "scope": "Casing, panel dan bezel layar",
+      "reference": {
+        "path": "outputs/model-review-2026-10-05/viewer/references/pip.png",
+        "sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5",
+        "size": [
+          321,
+          346
+        ]
+      },
+      "before": {
+        "checkpoint_date": "2026-10-04",
+        "model_path": "outputs/model-review-2026-10-04/viewer/models/pip.glb",
+        "model_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+        "render_input_model_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+        "render_input_path": "work/model-rebuild/Pip/trial-v8/pip-reference-guided-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-04/renders/pip/render-evidence.json",
+        "render_receipt_sha256": "46fdaa0864aede8985ae76057ca411bc01c9cab061cbbf9a1bb5732600f85271",
+        "front_path": "outputs/model-review-2026-10-04/renders/pip/front.png",
+        "front_sha256": "700adff30a0a69587c27c7d8aee0e7558bc5cc109a824a75fc1443688c2a0a8f",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "after": {
+        "checkpoint_date": "2026-10-05",
+        "model_path": "outputs/model-review-2026-10-05/viewer/models/pip.glb",
+        "model_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+        "render_input_model_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+        "render_input_path": "work/model-refinement-2026-10-05/pip/trial-02/pip-reference-guided-candidate.glb",
+        "render_receipt_path": "outputs/model-review-2026-10-05/renders/pip/render-evidence.json",
+        "render_receipt_sha256": "c5411f9978ae94af014379d7184dfaa307601fd892a310c6a954003463658562",
+        "front_path": "outputs/model-review-2026-10-05/renders/pip/front.png",
+        "front_sha256": "6498c76756e686e0b514f4644e6f7b5cb930fb2e222daa15af8c552925188030",
+        "front_size": [
+          640,
+          640
+        ],
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "view": [
+          "front",
+          0,
+          0
+        ],
+        "pose": "static rest pose; animation disabled in render copy"
+      },
+      "approved": false,
+      "gameIntegrated": false
+    }
+  ],
+  "all_inputs_unchanged": true,
+  "source_images_edited": false,
+  "source_model_geometry_edited": false,
+  "reference_used_as_3d_geometry": false,
+  "thumbnail_operations": [
+    "proportional LANCZOS downsize of full input image",
+    "alpha compositing into layout"
+  ],
+  "source_cropping": false,
+  "render_or_reference_repainting": false,
+  "new_model_or_image_generation": false,
+  "layout_labels": [
+    "REFERENSI 2D",
+    "3D SEBELUM · 04 OKT",
+    "3D SESUDAH · 05 OKT"
+  ],
+  "framing_note": "Actual render cameras normalize model bounds; before/after framing is not claimed pixel-identical.",
+  "quality_limit": "Shows scoped changes only; no claim that any full character is visually perfect or production-ready.",
+  "approved": false,
+  "gameIntegrated": false,
+  "inputs": [
+    {
+      "path": "outputs/model-review-2026-10-04/renders/luna/front.png",
+      "sha256": "92dc811eb88f2c5afa665689316ddf98d962a244f02a20672df1d92c03912374",
+      "bytes": 597070,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/luna/render-evidence.json",
+      "sha256": "655af966e645c07a73f22717a9e96a8c9855c671b429730fb228e6c6a64499eb",
+      "bytes": 1363,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/nox/front.png",
+      "sha256": "ab85f469fb57af4d543759bfcb158692e9e6de87a7943d4ea1372da2d8c56ef6",
+      "bytes": 544506,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/nox/render-evidence.json",
+      "sha256": "94f38687f2883626ba97862cbc71f7c0dd006684d34ff130fb38d74b1f8edbdf",
+      "bytes": 1361,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/pip/front.png",
+      "sha256": "700adff30a0a69587c27c7d8aee0e7558bc5cc109a824a75fc1443688c2a0a8f",
+      "bytes": 504026,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/pip/render-evidence.json",
+      "sha256": "46fdaa0864aede8985ae76057ca411bc01c9cab061cbbf9a1bb5732600f85271",
+      "bytes": 1354,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/rindi/front.png",
+      "sha256": "77d1a35b5b79fca79e4d45d69eb2177b55224b52dc2cf09068fb2a0ad4b037d7",
+      "bytes": 530051,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/rindi/render-evidence.json",
+      "sha256": "0239ed303a87c4c46d103d097f6e955eed709f2b44616c4b6c83efaf726e3952",
+      "bytes": 1364,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/yuna/front.png",
+      "sha256": "b19b4c4c4749ede1f256e7a43e1d7c02fe8b939a0bc9195fefd3a9fd3d0cea14",
+      "bytes": 560566,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/renders/yuna/render-evidence.json",
+      "sha256": "d0e07d35c88cb0f6b901f9f2772a56e8ec571f4ef6c69660acf2034a6b0028e9",
+      "bytes": 1364,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/review-manifest.json",
+      "sha256": "d6ffe663221340bdf158cb6d549deaf53ebb65aa4fd9df108fa9f3d3271898ff",
+      "bytes": 9142,
+      "role": "selected roster manifest"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/models/luna.glb",
+      "sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+      "bytes": 2198364,
+      "role": "exact selected GLB for before"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/models/nox.glb",
+      "sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+      "bytes": 1806884,
+      "role": "exact selected GLB for before"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/models/pip.glb",
+      "sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+      "bytes": 5525688,
+      "role": "exact selected GLB for before"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/models/rindi.glb",
+      "sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+      "bytes": 1737152,
+      "role": "exact selected GLB for before"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/models/yuna.glb",
+      "sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+      "bytes": 1807316,
+      "role": "exact selected GLB for before"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/references/luna.png",
+      "sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8",
+      "bytes": 296112,
+      "role": "same baseline canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/references/nox.png",
+      "sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+      "bytes": 257347,
+      "role": "same baseline canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/references/pip.png",
+      "sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5",
+      "bytes": 167049,
+      "role": "same baseline canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/references/rindi.png",
+      "sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6",
+      "bytes": 228229,
+      "role": "same baseline canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-04/viewer/references/yuna.png",
+      "sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+      "bytes": 203728,
+      "role": "same baseline canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/luna/front.png",
+      "sha256": "130fae68d01d54425e1d8cd966c692b20683d4a4a8661f525bf5841cf73c5454",
+      "bytes": 597726,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/luna/render-evidence.json",
+      "sha256": "799edc968eb51c58906503e7c9e97ac5dc8bf83a9d50d63063dc01c2f23cf795",
+      "bytes": 1369,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/nox/front.png",
+      "sha256": "b7f1d2bef14acec4fc8d1db25d431f3fea54a0e1d37692a40ffbaba809784419",
+      "bytes": 545861,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/nox/render-evidence.json",
+      "sha256": "85a06ae809dd137b64704228b8bc3a3b28d6a39fa89150b699fa06a5448050db",
+      "bytes": 1366,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/pip/front.png",
+      "sha256": "6498c76756e686e0b514f4644e6f7b5cb930fb2e222daa15af8c552925188030",
+      "bytes": 504240,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/pip/render-evidence.json",
+      "sha256": "c5411f9978ae94af014379d7184dfaa307601fd892a310c6a954003463658562",
+      "bytes": 1369,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/rindi/front.png",
+      "sha256": "4888181b64c6eff15750a979e140a57b9cc273a66d24f117acbfed11402af654",
+      "bytes": 530629,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/rindi/render-evidence.json",
+      "sha256": "f0e21795d01b0312ca39298ff35c999d67329b745b1795a6f1ea3907ee4da1ab",
+      "bytes": 1365,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/yuna/front.png",
+      "sha256": "bc30881bdc2313bacf46c5fbaab136a785cb1ee15abb2dd69f299f1f69b80476",
+      "bytes": 563262,
+      "role": "actual 640px front render thumbnail source"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/renders/yuna/render-evidence.json",
+      "sha256": "0686f01b9552d1a1266c5e34ba606e3a3e87f59ea797a2545340045bdfaf887e",
+      "bytes": 1372,
+      "role": "actual Blender render input receipt"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/review-manifest.json",
+      "sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+      "bytes": 10951,
+      "role": "selected roster manifest"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/models/luna.glb",
+      "sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+      "bytes": 3076744,
+      "role": "exact selected GLB for after"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/models/nox.glb",
+      "sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+      "bytes": 1885836,
+      "role": "exact selected GLB for after"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/models/pip.glb",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "bytes": 5690144,
+      "role": "exact selected GLB for after"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/models/rindi.glb",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "bytes": 3231408,
+      "role": "exact selected GLB for after"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/models/yuna.glb",
+      "sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+      "bytes": 1990760,
+      "role": "exact selected GLB for after"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/references/luna.png",
+      "sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8",
+      "bytes": 296112,
+      "role": "unchanged canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/references/nox.png",
+      "sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+      "bytes": 257347,
+      "role": "unchanged canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/references/pip.png",
+      "sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5",
+      "bytes": 167049,
+      "role": "unchanged canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/references/rindi.png",
+      "sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6",
+      "bytes": 228229,
+      "role": "unchanged canonical 2D reference"
+    },
+    {
+      "path": "outputs/model-review-2026-10-05/viewer/references/yuna.png",
+      "sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+      "bytes": 203728,
+      "role": "unchanged canonical 2D reference"
+    },
+    {
+      "path": "work/model-rebuild/Pip/trial-v8/pip-reference-guided-candidate.glb",
+      "sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+      "bytes": 5525688,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-rebuild/surface-refinement/luna/luna-reference-surface-candidate.glb",
+      "sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+      "bytes": 2198364,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-rebuild/surface-refinement/nox/nox-reference-surface-candidate.glb",
+      "sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+      "bytes": 1806884,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-rebuild/surface-refinement/rindi/rindi-reference-surface-candidate.glb",
+      "sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+      "bytes": 1737152,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-rebuild/surface-refinement/yuna/yuna-reference-surface-candidate.glb",
+      "sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+      "bytes": 1807316,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-refinement-2026-10-05/luna/trial-v1/luna-staff-head-refined-candidate.glb",
+      "sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+      "bytes": 3076744,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-refinement-2026-10-05/nox/trial-v1/nox-hip-card-accessory-candidate.glb",
+      "sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+      "bytes": 1885836,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-refinement-2026-10-05/pip/trial-02/pip-reference-guided-candidate.glb",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "bytes": 5690144,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-refinement-2026-10-05/rindi/trial-v4/rindi-reaching-hand-candidate.glb",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "bytes": 3231408,
+      "role": "original render-input GLB preserved"
+    },
+    {
+      "path": "work/model-refinement-2026-10-05/yuna/trial-v4/yuna-accessory-refinement-candidate.glb",
+      "sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+      "bytes": 1990760,
+      "role": "original render-input GLB preserved"
+    }
+  ]
+}

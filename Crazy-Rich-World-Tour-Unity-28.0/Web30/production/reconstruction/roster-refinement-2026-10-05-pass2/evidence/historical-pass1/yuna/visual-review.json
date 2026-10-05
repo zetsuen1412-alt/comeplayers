@@ -1,0 +1,37 @@
+{
+  "schema": "crwt.yuna_scoped_visual_review.v1",
+  "date": "2026-10-05",
+  "status": "keep-as-unapproved-scoped-improvement",
+  "sourceSha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+  "candidateSha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+  "referenceSha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+  "viewsInspected": ["front", "three-quarter", "opposite-three-quarter", "left", "right", "back"],
+  "observations": [
+    "The original palette broadly matches the reference silhouette and paint positions, but its edge and color boundaries are soft.",
+    "A partial thin wood rim makes the lower/left palette edge clearer, leaving the original upper-right grip and fingers free.",
+    "Six shallow, mildly irregular real paint volumes clarify the existing coral, blue, mint and gold spots without editing the bitmap.",
+    "The ferrule coating now follows 68 exact selected source triangles; no inferred cylinder axis is used. Front and both quarter views show a warmer, more distinct metal region at the original neck.",
+    "Actual left/right profiles verify that the displaced/double sleeve seen in V3 is gone. The source brush silhouette and depth are retained apart from the thin surface coating.",
+    "The original curved paint tip, grip region, fingers, body, hair, face and clothing/back artifacts remain unchanged. This does not certify a true thumb hole or a perfect whole character."
+  ],
+  "measuredPhysicalDetails": {
+    "palettePartialRimDegrees": 240,
+    "paletteRimTubeDiameter": 0.0047,
+    "paintFrontHeightMaximumOverSampledSourceSurface": 0.0013,
+    "ferruleSourceFaces": 68,
+    "ferruleCoatingOffsetFromExactSourceFaces": [0.00005, 0.0005]
+  },
+  "genuineMesh": true,
+  "referenceImageBillboard": false,
+  "imagesEdited": false,
+  "aiOrCloudGenerationUsed": false,
+  "wholeCharacterPerfect": false,
+  "gripHoleCut": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Inspected local improvement only; no exact reference camera-registration or whole-character approval.",
+    "Rim/paint/ferrule physical relief and metallic response are manual construction.",
+    "Each added solid is topologically closed and consistently oriented; intentional source-accessory contact is not a global intersection certificate."
+  ]
+}

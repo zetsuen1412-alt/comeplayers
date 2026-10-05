@@ -1,0 +1,260 @@
+{
+  "schema": "crwt.mochi_bag_hardware_candidate.v1",
+  "status": "manual-reference-supported-accessory-candidate-unapproved",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\models\\mochi.glb",
+  "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\references\\mochi.png",
+  "reference_sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b",
+  "output_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+  "output_bytes": 2278336,
+  "source_files_preserved": true,
+  "source_bin_prefix_byte_identical": true,
+  "source_bin_bytes": 2176912,
+  "original_json_prefix_records_identical": {
+    "accessors": true,
+    "bufferViews": true,
+    "meshes": true,
+    "nodes": true,
+    "materials": true,
+    "textures": true,
+    "images": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true
+  },
+  "source_positions_indices_normals_uv_images_unchanged": true,
+  "original_scene_root_nodes_retained_in_order": true,
+  "source_active_triangles": 23260,
+  "source_position_accessor_count": 14902,
+  "source_faces_removed": 0,
+  "source_vertices_moved": 0,
+  "source_appendages_and_oct04_connector_preserved": true,
+  "new_faces": 1144,
+  "new_vertices_accessor_count": 3432,
+  "new_meshes": 1,
+  "new_materials": 2,
+  "new_solid_count": 5,
+  "new_solids": [
+    {
+      "name": "Shoulder strap buckle: real rounded brass frame with open center",
+      "material": 0,
+      "triangle_range": [
+        0,
+        288
+      ],
+      "parameters_world_gltf": {
+        "center_xy": [
+          -0.0704,
+          -0.0847
+        ],
+        "rotation_z_degrees": -43,
+        "rear_offset_from_sampled_source": 0.0006,
+        "front_offset_from_sampled_source": 0.0034,
+        "perimeter_samples": 36,
+        "physical_open_center": true
+      },
+      "triangles": 288,
+      "welded_vertices": 144,
+      "welded_edges": 432,
+      "edge_incidence_two": true,
+      "directed_edges_balanced": true,
+      "signed_volume": 1.0233170396270942e-06
+    },
+    {
+      "name": "Bag flap clasp: brass frame with physical opening",
+      "material": 0,
+      "triangle_range": [
+        288,
+        576
+      ],
+      "parameters_world_gltf": {
+        "center_xy": [
+          0.1357,
+          -0.1741
+        ],
+        "rotation_z_degrees": -7,
+        "rear_offset_from_sampled_source": 0.0006,
+        "front_offset_from_sampled_source": 0.0038,
+        "perimeter_samples": 36,
+        "physical_open_center": true
+      },
+      "triangles": 288,
+      "welded_vertices": 144,
+      "welded_edges": 432,
+      "edge_incidence_two": true,
+      "directed_edges_balanced": true,
+      "signed_volume": 1.0884785445588392e-06
+    },
+    {
+      "name": "Bag clasp inset: teal leather enamel face",
+      "material": 1,
+      "triangle_range": [
+        576,
+        716
+      ],
+      "parameters_world_gltf": {
+        "center_xy": [
+          0.1357,
+          -0.1741
+        ],
+        "rotation_z_degrees": -7,
+        "rear_offset_from_sampled_source": 0.0007,
+        "front_offset_from_sampled_source": 0.0024,
+        "matched_xy_front_back": true
+      },
+      "triangles": 140,
+      "welded_vertices": 72,
+      "welded_edges": 210,
+      "edge_incidence_two": true,
+      "directed_edges_balanced": true,
+      "signed_volume": 8.672604747904062e-07
+    },
+    {
+      "name": "Small brass central clasp stud: inferred simple hardware, no invented logo",
+      "material": 0,
+      "triangle_range": [
+        716,
+        856
+      ],
+      "parameters_world_gltf": {
+        "center_xy": [
+          0.1357,
+          -0.1741
+        ],
+        "rotation_z_degrees": -7,
+        "rear_offset_from_sampled_source": 0.0025,
+        "front_offset_from_sampled_source": 0.0033,
+        "matched_xy_front_back": true
+      },
+      "triangles": 140,
+      "welded_vertices": 72,
+      "welded_edges": 210,
+      "edge_incidence_two": true,
+      "directed_edges_balanced": true,
+      "signed_volume": 3.254014495867187e-08
+    },
+    {
+      "name": "Lower clasp keeper: thin brass loop around existing teal strap",
+      "material": 0,
+      "triangle_range": [
+        856,
+        1144
+      ],
+      "parameters_world_gltf": {
+        "center_xy": [
+          0.1278,
+          -0.2085
+        ],
+        "rotation_z_degrees": -7,
+        "rear_offset_from_sampled_source": 0.0006,
+        "front_offset_from_sampled_source": 0.003,
+        "perimeter_samples": 36,
+        "physical_open_center": true
+      },
+      "triangles": 288,
+      "welded_vertices": 144,
+      "welded_edges": 432,
+      "edge_incidence_two": true,
+      "directed_edges_balanced": true,
+      "signed_volume": 4.070697439759514e-07
+    }
+  ],
+  "source_support_method": "Visible front +Z barycentric hit on unchanged source world triangles at each added boundary sample",
+  "source_support_face_ids": [
+    3134,
+    3140,
+    3146,
+    3148,
+    3152,
+    3824,
+    3826,
+    3827,
+    3828,
+    3834,
+    3835,
+    3840,
+    4958,
+    4994,
+    4996,
+    5603,
+    15200,
+    15201,
+    15208,
+    15209,
+    15210,
+    15211,
+    15216,
+    15218,
+    15219,
+    15771,
+    15772,
+    15774,
+    15777,
+    15782,
+    15786,
+    15790,
+    16695,
+    16698,
+    16703,
+    16704,
+    16706,
+    16728,
+    16732,
+    16733
+  ],
+  "source_support_sample_count": 288,
+  "source_bounds_world_gltf": [
+    [
+      -0.3799600601196289,
+      -0.4316798150539398,
+      -0.1486000418663025
+    ],
+    [
+      0.4034651517868042,
+      0.4643700122833252,
+      0.2640906572341919
+    ]
+  ],
+  "new_hardware_bounds_world_gltf": [
+    [
+      -0.09216397255659103,
+      -0.2194540947675705,
+      0.16592150926589966
+    ],
+    [
+      0.15032337605953217,
+      -0.06288667023181915,
+      0.20535828173160553
+    ]
+  ],
+  "overall_bounds_unchanged": true,
+  "actual_glb_validation": {
+    "faces": 24404,
+    "vertices": 18334,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "198703e2a80568cd251416c0fa96ef79ec585535098e57de36fb102cb26045fb",
+    "accessors_checked": 14,
+    "buffer_views_checked": 16
+  },
+  "images_added": 0,
+  "billboard_added": false,
+  "rig_added": false,
+  "animation_added": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "global_self_intersection_certified": false,
+  "limitations": [
+    "Source body, face, paws, hat, both original appendages and Oct04 connector are unchanged; existing surface/texture softness remains.",
+    "Front reference supports buckle/clasp placement and brass/teal colors; edge depth, precise hardware thickness and simple central stud are manually inferred.",
+    "Each new solid is individually closed and consistently oriented. Hardware follows source surface and intentional surface contacts are not a global intersection-free certificate.",
+    "Structural preservation and topology checks do not certify visual approval, deformation or game runtime readiness."
+  ]
+}

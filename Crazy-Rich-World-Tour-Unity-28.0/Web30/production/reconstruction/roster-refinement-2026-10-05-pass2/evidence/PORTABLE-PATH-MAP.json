@@ -1,0 +1,48 @@
+{
+  "schema": "crwt.pass2-portable-path-map.v1",
+  "models_and_references_relative_to_review_manifest": true,
+  "packed_workspace": "editable/CRWT-semua-karakter-review.blend",
+  "pass2_individuals": [
+    {
+      "id": "alexia",
+      "model": "viewer/models/alexia.glb",
+      "native_archive": "editable/CRWT-refined-individuals.zip",
+      "native_member": "alexia/alexia-headphone-editable.blend",
+      "blend_sha256": "c58639582c0da106312391b3548720c2d8b0a03536804b30892c1ba4730a251f"
+    },
+    {
+      "id": "kairo",
+      "model": "viewer/models/kairo.glb",
+      "native_archive": "editable/CRWT-refined-individuals.zip",
+      "native_member": "kairo/kairo-fitted-rim-beads-candidate.blend",
+      "blend_sha256": "4fa2d0c884a40c34e4a28c3cb0fce773dde9a2c4decdd8c8d0020743d19d1447"
+    },
+    {
+      "id": "atlas",
+      "model": "viewer/models/atlas.glb",
+      "native_archive": "editable/CRWT-refined-individuals.zip",
+      "native_member": "atlas/atlas-roll-rim-spiral-candidate.blend",
+      "blend_sha256": "e880c936ffc313c4f8b6f1f3d011905bb5c73fc0d33acc9e1ad1ab6d28b30e6f"
+    },
+    {
+      "id": "zeno",
+      "model": "viewer/models/zeno.glb",
+      "native_archive": "editable/CRWT-refined-individuals.zip",
+      "native_member": "zeno/zeno-fitted-rim-beads-candidate.blend",
+      "blend_sha256": "fcb80134f9e9ee9ae3cf1e50ba42db294aa6961cbcc6feb991cb6ff14cd2529c"
+    },
+    {
+      "id": "mochi",
+      "model": "viewer/models/mochi.glb",
+      "native_archive": "editable/CRWT-refined-individuals.zip",
+      "native_member": "mochi/mochi-bag-hardware-editable-candidate.blend",
+      "blend_sha256": "52c5729536d66feb709eb3b11ceed3975c8ed90a52ed8808323cbcf78563370e"
+    }
+  ],
+  "pass1_individuals": "editable/CRWT-pass1-individuals.zip",
+  "pip_native_original": "editable/Pip-source-preserved.zip",
+  "historical_absolute_paths_are_provenance_only": true,
+  "recipes_are_provenance_not_one_command_portable_rebuild": true,
+  "approved": false,
+  "gameIntegrated": false
+}
