@@ -106,5 +106,28 @@
   "gameIntegrated": false,
   "limits": [
     "DOM loaded/hash status is not a complete animation or visual-quality certification; actual mesh screenshots and five Blender renders are separately included."
+  ],
+  "screenshots": [
+    {
+      "path": "evidence/browser-alexia-back.jpg",
+      "bytes": 104398,
+      "sha256": "432924e3e305a1e042f96432e71cf6084372363d3e3c88756b3714e8351afcba",
+      "format": "JPEG",
+      "mime_type": "image/jpeg"
+    },
+    {
+      "path": "evidence/browser-alexia-profile.jpg",
+      "bytes": 97829,
+      "sha256": "3770cdf46e65cfaa0825b5215217ee5a469597da3a118c4cca8aa257c0b59677",
+      "format": "JPEG",
+      "mime_type": "image/jpeg"
+    },
+    {
+      "path": "evidence/browser-alexia-comparison.jpg",
+      "bytes": 104868,
+      "sha256": "260bd42e689bebe44f51a2465257cb18f5bdbd5cfc068a129cb5a9c5f092ba55",
+      "format": "JPEG",
+      "mime_type": "image/jpeg"
+    }
   ]
 }

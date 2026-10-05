@@ -69,21 +69,21 @@
       "mode": "100644"
     },
     {
-      "path": "evidence/browser-alexia-back.png",
+      "path": "evidence/browser-alexia-back.jpg",
       "bytes": 104398,
       "sha256": "432924e3e305a1e042f96432e71cf6084372363d3e3c88756b3714e8351afcba",
       "git_blob_sha1": "3f566c425b717df4508725300146958eafa78c9b",
       "mode": "100644"
     },
     {
-      "path": "evidence/browser-alexia-comparison.png",
+      "path": "evidence/browser-alexia-comparison.jpg",
       "bytes": 104868,
       "sha256": "260bd42e689bebe44f51a2465257cb18f5bdbd5cfc068a129cb5a9c5f092ba55",
       "git_blob_sha1": "1377a297643d007d0070c20de57bba1e2d7027ff",
       "mode": "100644"
     },
     {
-      "path": "evidence/browser-alexia-profile.png",
+      "path": "evidence/browser-alexia-profile.jpg",
       "bytes": 97829,
       "sha256": "3770cdf46e65cfaa0825b5215217ee5a469597da3a118c4cca8aa257c0b59677",
       "git_blob_sha1": "ec3e8b119672ee0fe662e3d6313542e566e45932",
@@ -91,9 +91,9 @@
     },
     {
       "path": "evidence/browser-verification.json",
-      "bytes": 3194,
-      "sha256": "3b05b5f2c0d2a199aa2c6c7d1fe46eacc0750b587e31dfc97f885a5685fb659d",
-      "git_blob_sha1": "abf10d70efdb6cd567b4065c2355008e95eba0fd",
+      "bytes": 3903,
+      "sha256": "96b61d2f1a10f4cecb6d09e86e3dc7fcce2006ab07c9fb599e85dc66f849698e",
+      "git_blob_sha1": "e2dfa447757e05d739bb40af2a27cc180d30a5cc",
       "mode": "100644"
     },
     {
