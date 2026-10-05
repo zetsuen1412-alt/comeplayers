@@ -1,0 +1,31 @@
+{
+  "schema": "crwt.nox_scoped_visual_review.v1",
+  "date": "2026-10-05",
+  "status": "keep-as-unapproved-scoped-improvement",
+  "sourceSha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+  "candidateSha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+  "referenceSha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+  "referenceImageSize": [370, 482],
+  "manualReferenceCardRegionApproximate": [275, 230, 325, 277],
+  "viewsInspected": ["front", "three-quarter", "opposite-three-quarter", "back"],
+  "observations": [
+    "The source front render has no complete readable white card in the viewer-right gap below the rabbit hand.",
+    "The candidate restores a complete diagonally tilted white card with a central red heart, white central spot and smaller corner decorations as real volumetric geometry.",
+    "Its front outline, approximate relative hip placement, vertical level and size clearly improve correspondence to the reference; this is visual inspection, not an exact camera-registration certificate.",
+    "Both quarter views show the accessory as separate floating geometry, consistent with the existing floating-card design. No existing floating card or source island was removed.",
+    "The back view exposes a plain white physical reverse; the reference does not specify the reverse design.",
+    "The new clean geometric card is sharper than the remaining reconstructed cards. The rabbit, fingers, face, hat edges and coat/back artifacts remain unchanged."
+  ],
+  "genuineMesh": true,
+  "referenceImageBillboard": false,
+  "imagesEdited": false,
+  "aiOrCloudGenerationUsed": false,
+  "wholeCharacterPerfect": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Only the missing visible card is addressed; this is not a whole-character quality approval.",
+    "Depth, thickness, rounded corners and plain reverse are manual inferred construction.",
+    "Studio lighting differs from the raster artwork."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "crwt.rindi_editable_restore.v1",
+  "blend_sha256": "c5df5d2056df17555b284a460a992ea4b3edf39d8bfc2c3487bb8f3142da4a91",
+  "blender_version": "5.2.2 LTS",
+  "loaded_successfully": true,
+  "mesh_objects": 1,
+  "polygons": 45278,
+  "all_file_images_packed": true,
+  "images": [
+    {
+      "name": "Image_0",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ],
+      "colorspace": "sRGB"
+    },
+    {
+      "name": "Image_1",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ],
+      "colorspace": "Non-Color"
+    }
+  ],
+  "source_or_blend_edited": false
+}

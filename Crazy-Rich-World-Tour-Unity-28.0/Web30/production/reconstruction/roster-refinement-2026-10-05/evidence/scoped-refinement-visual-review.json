@@ -1,0 +1,36 @@
+{
+  "schema": "crwt.scoped_refinement_review.v1",
+  "date": "2026-10-05",
+  "approved": false,
+  "gameIntegrated": false,
+  "refined_ids": [
+    "rindi",
+    "nox",
+    "luna",
+    "yuna",
+    "pip"
+  ],
+  "unchanged_ids": [
+    "alexia",
+    "kairo",
+    "atlas",
+    "zeno",
+    "mochi"
+  ],
+  "scope": "Scoped geometry changes checked in actual GLB renders; no texture bitmap edits, cloud generation or rig creation.",
+  "remaining": {
+    "alexia": "Layered lavender curls, hands, trim and rear texture grids.",
+    "rindi": "Nails/creases, simplified fingers/palm, angular wrist and sampled skin color; static model.",
+    "kairo": "Goggles, fingers, shoes and rear surfaces.",
+    "luna": "Staff orb land motifs/top star, lower ornament, layered hair/cape and rear surfaces; hidden cage depth inferred.",
+    "nox": "Face/hands/rabbit/hair/coat and rear texture; card addition does not repair these.",
+    "atlas": "Backpack/rolled props, fingers/map and rear texture.",
+    "zeno": "Goggles, scarf, straps and rear texture.",
+    "yuna": "Face/hair/hands/clothing and palette grip/source brush tip; accessory refinement only.",
+    "mochi": "Fur/back surfaces and source cream-tip appearance; existing connector is inferred hidden geometry.",
+    "pip": "Yellow panel motif, screen glow, small reference details and game/deformation verification."
+  },
+  "discarded_diagnostic": "Global rear COLOR_0 smoothing of Alexia removed valid hair strand contrast; kept only in scratch, never selected.",
+  "geometry_audit_limits": "Each exact contact/manifold proof has its own stated scope; no blanket certificate for original self-intersections or global model perfection.",
+  "reference_policy": "Alexia V2 blue eyes; other9 canonical single-front roster crops; hidden views are inferred."
+}

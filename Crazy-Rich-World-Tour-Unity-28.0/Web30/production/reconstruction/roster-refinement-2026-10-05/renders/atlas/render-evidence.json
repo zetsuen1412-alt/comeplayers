@@ -1,0 +1,65 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\atlas\\atlas-reference-surface-candidate.glb",
+  "input_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+  "bytes": 2175716,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 1,
+  "vertices": 26934,
+  "polygons": 35556,
+  "bounds_blender_z_up": [
+    [
+      -0.35188794136047363,
+      -0.32148730754852295,
+      -0.43873992562294006
+    ],
+    [
+      0.3991994857788086,
+      0.33618468046188354,
+      0.446677565574646
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ],
+    [
+      "top",
+      0,
+      89.9
+    ],
+    [
+      "bottom",
+      0,
+      -89.9
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 24,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

@@ -1,0 +1,1729 @@
+{
+  "schema": "crwt.yuna_accessory_refinement.v1",
+  "status": "manual-additive-accessory-candidate-unapproved",
+  "source_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+  "reference_sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+  "output_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+  "output_bytes": 1990760,
+  "source_files_preserved": true,
+  "source_bin_prefix_byte_identical": true,
+  "source_bin_bytes": 1805296,
+  "original_json_prefix_records_identical": {
+    "accessors": true,
+    "bufferViews": true,
+    "meshes": true,
+    "nodes": true,
+    "materials": true,
+    "textures": true,
+    "images": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true
+  },
+  "all_original_source_positions_indices_normals_uv_images_materials_unchanged": true,
+  "all_original_scene_roots_retained_in_order": true,
+  "all_source_faces_retained": 25716,
+  "all_source_vertices_retained": 21309,
+  "new_faces": 7192,
+  "new_vertices": 3746,
+  "new_meshes": 1,
+  "shapes": [
+    {
+      "name": "Partial 240-degree palette wood edge, upper-right grip left free",
+      "material": 0,
+      "vertices": 1214,
+      "triangles": 2424,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 8.414064156338661e-06,
+      "bounds": [
+        [
+          -0.39316080263687114,
+          -0.19892881370051937,
+          -0.018570275829750398
+        ],
+        [
+          -0.18262488714836128,
+          0.038289083678333696,
+          0.10295528091021802
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9288",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.4878170561175253e-08,
+      "bounds": [
+        [
+          0.2769245915323327,
+          0.14302854704701876,
+          0.09372090179625532
+        ],
+        [
+          0.2842525767384269,
+          0.15159917371257542,
+          0.09851745851725675
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9289",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.5639770304196e-08,
+      "bounds": [
+        [
+          0.2732342394062308,
+          0.1431771954973108,
+          0.0937265229283601
+        ],
+        [
+          0.2805570593661907,
+          0.1520311518617428,
+          0.09780646038113862
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9332",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.8608193533856718e-08,
+      "bounds": [
+        [
+          0.28059907469139456,
+          0.14353771351455624,
+          0.09373132163858919
+        ],
+        [
+          0.2897747072563525,
+          0.15179547800886528,
+          0.09851850050149015
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9333",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 7.53597561199044e-09,
+      "bounds": [
+        [
+          0.2958720119814654,
+          0.14218809278504568,
+          0.1105086537933168
+        ],
+        [
+          0.3027142604396539,
+          0.14857019391824455,
+          0.11415530177688417
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9334",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.4979489027234636e-08,
+      "bounds": [
+        [
+          0.2841799418802272,
+          0.1434585608506552,
+          0.09770503325438598
+        ],
+        [
+          0.2961649106693377,
+          0.15178756274247518,
+          0.11081089643952856
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9339",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.678159387475861e-08,
+      "bounds": [
+        [
+          0.30246942777549307,
+          0.14834137656405866,
+          0.1051642140005822
+        ],
+        [
+          0.3096676607047599,
+          0.16232994387359947,
+          0.11281698783491845
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9340",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.1063081670998828e-08,
+      "bounds": [
+        [
+          0.30247654275542857,
+          0.14834756292769377,
+          0.10840623023069894
+        ],
+        [
+          0.31060915752712515,
+          0.16233056250996297,
+          0.11283032739356855
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9342",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 9.618697197004292e-09,
+      "bounds": [
+        [
+          0.2986137500540949,
+          0.14216116872911932,
+          0.11276123238535614
+        ],
+        [
+          0.3039334924385322,
+          0.1485675015126519,
+          0.1185373756417949
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9344",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 2.695155315480694e-08,
+      "bounds": [
+        [
+          0.2794205869326209,
+          0.14559228181924722,
+          0.13733392928112897
+        ],
+        [
+          0.29096516478977075,
+          0.1554254004956149,
+          0.14385783414734934
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9356",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.908147149995359e-10,
+      "bounds": [
+        [
+          0.3053356009015509,
+          0.15100179141102538,
+          0.12035422556661218
+        ],
+        [
+          0.30692596960968577,
+          0.15298025411897728,
+          0.12194415261970454
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9357",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 2.0226459597485284e-09,
+      "bounds": [
+        [
+          0.30356525629773023,
+          0.14824664016553524,
+          0.11854642655587992
+        ],
+        [
+          0.3069131821408156,
+          0.1529765004118172,
+          0.12131130954988802
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9358",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.563113954712004e-10,
+      "bounds": [
+        [
+          0.30480265222200004,
+          0.15098647063255363,
+          0.12131948310111006
+        ],
+        [
+          0.30632134300552255,
+          0.15255529064464574,
+          0.12301669895391062
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 9359",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.476071415871073e-10,
+      "bounds": [
+        [
+          0.3047990812336215,
+          0.15139365272428215,
+          0.12188436450767656
+        ],
+        [
+          0.30628563312173746,
+          0.15313109167089622,
+          0.12325221918107471
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10079",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.4965623700910369e-13,
+      "bounds": [
+        [
+          0.29253114661224094,
+          0.17480273366228677,
+          0.09007361843282671
+        ],
+        [
+          0.29284318824673433,
+          0.17496532928969058,
+          0.09040212364404866
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10083",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.048973864565844e-08,
+      "bounds": [
+        [
+          0.27840953675287367,
+          0.17485335704892396,
+          0.09010455491532944
+        ],
+        [
+          0.2928232963953191,
+          0.18943995558938337,
+          0.10508952486752476
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10084",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.098128612653311e-13,
+      "bounds": [
+        [
+          0.2925191327412878,
+          0.1749332338623109,
+          0.09005541539938096
+        ],
+        [
+          0.292841986859639,
+          0.17497470980078245,
+          0.09040017817095006
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10085",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.5119802778433697e-08,
+      "bounds": [
+        [
+          0.27324721883581904,
+          0.1516309057399946,
+          0.09373249320550306
+        ],
+        [
+          0.2805583573091495,
+          0.16013864152165028,
+          0.09806520512537513
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10086",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 8.044704328489535e-08,
+      "bounds": [
+        [
+          0.27691127076112176,
+          0.16003850719123103,
+          0.09009947090394149
+        ],
+        [
+          0.2928265345239271,
+          0.17709505764534247,
+          0.10508901646638596
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10087",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 2.4971719252164144e-08,
+      "bounds": [
+        [
+          0.2668114194269845,
+          0.1520535923754307,
+          0.0975313109978498
+        ],
+        [
+          0.2772046972214765,
+          0.16019437483462926,
+          0.10755267662628949
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10088",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.985307149064834e-08,
+      "bounds": [
+        [
+          0.26800451322277336,
+          0.1695818531378297,
+          0.10485561943445798
+        ],
+        [
+          0.2787344074685176,
+          0.18039630637982276,
+          0.11246406064072668
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10099",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.295836135532127e-08,
+      "bounds": [
+        [
+          0.27053785015595966,
+          0.17687493456693482,
+          0.1232194224688341
+        ],
+        [
+          0.2848739144101272,
+          0.18820749653299565,
+          0.13878003725700563
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10100",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.80413040293281e-08,
+      "bounds": [
+        [
+          0.2679701921082561,
+          0.16958738402785814,
+          0.11021416002641697
+        ],
+        [
+          0.2769095766220195,
+          0.18045161528010736,
+          0.12315869193686106
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10108",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.1758803469673598e-13,
+      "bounds": [
+        [
+          0.29271351660893147,
+          0.17486959148320036,
+          0.0899458247393622
+        ],
+        [
+          0.2928754442588546,
+          0.17497201507178195,
+          0.09037425833910956
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10111",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.836060279444827e-09,
+      "bounds": [
+        [
+          0.2931038058594039,
+          0.17126449118924988,
+          0.09008204232846019
+        ],
+        [
+          0.31177490866974167,
+          0.1748682222474345,
+          0.09246894646802974
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10112",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.840726075512767e-14,
+      "bounds": [
+        [
+          0.29284295584070547,
+          0.1748611708108692,
+          0.08992690848167574
+        ],
+        [
+          0.29288570597301705,
+          0.1749452807468584,
+          0.0903750489223558
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10113",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.8210629694314005e-14,
+      "bounds": [
+        [
+          0.292781578651857,
+          0.17476090556953625,
+          0.08996010184544097
+        ],
+        [
+          0.29288110605396744,
+          0.174941119319771,
+          0.09037598407294131
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10114",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 8.544870056880827e-13,
+      "bounds": [
+        [
+          0.29289007973184567,
+          0.17470144078725883,
+          0.08995757914226704
+        ],
+        [
+          0.29313905949497043,
+          0.1749394643759671,
+          0.09040255389277285
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10115",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.2927324937929887e-13,
+      "bounds": [
+        [
+          0.2928855733760976,
+          0.17466109604684568,
+          0.09002192010875763
+        ],
+        [
+          0.29304035175719184,
+          0.17491876444324658,
+          0.09039769290923697
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10116",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.2980492039469275e-12,
+      "bounds": [
+        [
+          0.2928761072824562,
+          0.17459017189407594,
+          0.09003100595748809
+        ],
+        [
+          0.2931222421712693,
+          0.17491391316261315,
+          0.0904092707255248
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10117",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 9.866582596005755e-08,
+      "bounds": [
+        [
+          0.2896124912784221,
+          0.15164564526072563,
+          0.09005002815112853
+        ],
+        [
+          0.30578394083750454,
+          0.17490806428193195,
+          0.10538355572877862
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10118",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.4488394262699596e-08,
+      "bounds": [
+        [
+          0.2930887873053659,
+          0.16917888999492597,
+          0.09013751732005952
+        ],
+        [
+          0.31177340681433785,
+          0.17486318814805216,
+          0.09509900568593967
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10125",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.775574187202567e-08,
+      "bounds": [
+        [
+          0.3055462669542055,
+          0.15997884162178438,
+          0.09497942762839058
+        ],
+        [
+          0.3114648572709367,
+          0.16953308332752268,
+          0.10851587279366182
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10128",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.296884608348065e-08,
+      "bounds": [
+        [
+          0.28209570816568624,
+          0.17688887398980802,
+          0.1303885296561562
+        ],
+        [
+          0.2981309451375525,
+          0.18834689076172773,
+          0.13885910866483328
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10131",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 7.05793304167941e-08,
+      "bounds": [
+        [
+          0.29076154064463217,
+          0.15302775120610063,
+          0.12294376271618943
+        ],
+        [
+          0.30536208861337466,
+          0.16919644854056246,
+          0.13830367502108612
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10132",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.5447453649282527e-08,
+      "bounds": [
+        [
+          0.2991778736310848,
+          0.1530270507401773,
+          0.12251526416002538
+        ],
+        [
+          0.3105442573603471,
+          0.16919637849397012,
+          0.13427188999045161
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10133",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.286844800210576e-08,
+      "bounds": [
+        [
+          0.2849160140618231,
+          0.1690664006640138,
+          0.13397413145697723
+        ],
+        [
+          0.29921824322595797,
+          0.17946167899538698,
+          0.1389261137641083
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10134",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.8354408867397136e-08,
+      "bounds": [
+        [
+          0.27941612491937834,
+          0.15002006486767072,
+          0.13800487628207306
+        ],
+        [
+          0.2909205446573452,
+          0.1682105258816022,
+          0.14387966301299124
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10140",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.1185225822892674e-08,
+      "bounds": [
+        [
+          0.3065458621184416,
+          0.1528513368673885,
+          0.1115222210289262
+        ],
+        [
+          0.3116526261969281,
+          0.1675707810790118,
+          0.12068712175013853
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 10141",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.030001443192158e-08,
+      "bounds": [
+        [
+          0.3102143797412644,
+          0.1619127638061927,
+          0.10858955846407659
+        ],
+        [
+          0.32191124869896004,
+          0.1675460065098612,
+          0.12085823875453539
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 21822",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.590814067695126e-08,
+      "bounds": [
+        [
+          0.2896143436250934,
+          0.14358166325644325,
+          0.09770010126691368
+        ],
+        [
+          0.3058024643042181,
+          0.16031118975932962,
+          0.11081040324078133
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 21823",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 2.296930148319909e-08,
+      "bounds": [
+        [
+          0.295872830982283,
+          0.1435816640026384,
+          0.10511479599465737
+        ],
+        [
+          0.3058024608619536,
+          0.16031118983394915,
+          0.11281204603432597
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 21830",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.62588612063675e-08,
+      "bounds": [
+        [
+          0.2895752374681036,
+          0.1455842891832556,
+          0.122943958556581
+        ],
+        [
+          0.3053711099944515,
+          0.15542460123201574,
+          0.13830563342500185
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 21831",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 7.81089121571569e-09,
+      "bounds": [
+        [
+          0.2895752381349307,
+          0.1455842465283344,
+          0.12288018008369019
+        ],
+        [
+          0.3053711166627226,
+          0.15313112944485616,
+          0.13763685428081054
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 21836",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 2.8756483719517353e-08,
+      "bounds": [
+        [
+          0.30247746861344443,
+          0.14834623209978579,
+          0.11143424639838537
+        ],
+        [
+          0.31061841610728363,
+          0.1622887061758294,
+          0.1203363920546945
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 21837",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.786194811951295e-09,
+      "bounds": [
+        [
+          0.30247746880720344,
+          0.14827697608460763,
+          0.11275853865333059
+        ],
+        [
+          0.30692388374311597,
+          0.15297953400372444,
+          0.12033639168042705
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22428",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.5524398134098902e-10,
+      "bounds": [
+        [
+          0.27949222780966965,
+          0.17483161473602482,
+          0.0901066114247961
+        ],
+        [
+          0.29282753155400776,
+          0.18943778135809344,
+          0.10015495468915625
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22434",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.996927630824055e-08,
+      "bounds": [
+        [
+          0.2769614119043274,
+          0.15162728821958485,
+          0.09001661831104692
+        ],
+        [
+          0.2928433503579132,
+          0.17501197216166867,
+          0.09806786327954524
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22435",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.423924369262297e-10,
+      "bounds": [
+        [
+          0.27696200690219847,
+          0.16002954314975015,
+          0.09001603134801912
+        ],
+        [
+          0.2928434098577003,
+          0.17503286111633684,
+          0.09806780458324246
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22436",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.812527066726151e-08,
+      "bounds": [
+        [
+          0.2668104770305686,
+          0.1574755172538197,
+          0.09778632899846106
+        ],
+        [
+          0.27873525025966694,
+          0.17709038715306502,
+          0.1075523636546984
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22437",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.087899486746028e-08,
+      "bounds": [
+        [
+          0.26681048000689905,
+          0.15747551702089677,
+          0.10480042040559942
+        ],
+        [
+          0.27873525055730003,
+          0.17709038482383568,
+          0.11245854073784083
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22440",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.1589991391017012e-10,
+      "bounds": [
+        [
+          0.27043354418363624,
+          0.17784827146407065,
+          0.11014096830254032
+        ],
+        [
+          0.27690302124270444,
+          0.18021837805470803,
+          0.1231513727644734
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22441",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.145981207447137e-08,
+      "bounds": [
+        [
+          0.2704455854083017,
+          0.17788761388851146,
+          0.11014097479915128
+        ],
+        [
+          0.2773957133450599,
+          0.1898493301464061,
+          0.1231351013461108
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22445",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.644774938705779e-11,
+      "bounds": [
+        [
+          0.26795584257307153,
+          0.16958599205736394,
+          0.11237382282323828
+        ],
+        [
+          0.27084646850413335,
+          0.17811633307974298,
+          0.123172628273077
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22446",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.536658671149758e-08,
+      "bounds": [
+        [
+          0.2705524428149014,
+          0.16817561158938688,
+          0.12322573154434624
+        ],
+        [
+          0.28487607701082973,
+          0.17803785894349045,
+          0.14079613380283745
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22447",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.1274612535730362e-10,
+      "bounds": [
+        [
+          0.2705524195002153,
+          0.1768815791954974,
+          0.12321786549633597
+        ],
+        [
+          0.2848760746793611,
+          0.17805961405275245,
+          0.1387644675320243
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22450",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.5435544104974558e-10,
+      "bounds": [
+        [
+          0.29265939065727664,
+          0.17479940368866348,
+          0.07972517359696506
+        ],
+        [
+          0.30285130626848644,
+          0.18951662392828408,
+          0.09037725602432359
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22453",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 1.0825889295586682e-09,
+      "bounds": [
+        [
+          0.29287949199711616,
+          0.17461945852724645,
+          0.07973986310190816
+        ],
+        [
+          0.3028707176399582,
+          0.18950436337896975,
+          0.09040709678573097
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22454",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.408363779344381e-08,
+      "bounds": [
+        [
+          0.28059893637521105,
+          0.1514508980576757,
+          0.0899927004847796
+        ],
+        [
+          0.29305885132382703,
+          0.17491421955888037,
+          0.09796444162402422
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22456",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.50776233146025e-08,
+      "bounds": [
+        [
+          0.2931033032945817,
+          0.15997178567475584,
+          0.0901086728406069
+        ],
+        [
+          0.311149486480276,
+          0.17486556292874267,
+          0.10538835327458498
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22469",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 9.672694673051015e-09,
+      "bounds": [
+        [
+          0.3093398480490789,
+          0.16184773410247497,
+          0.10550657630347383
+        ],
+        [
+          0.3220372486868949,
+          0.1673152708658444,
+          0.11151282560863413
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22472",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 6.240421727054476e-08,
+      "bounds": [
+        [
+          0.28492533521335345,
+          0.15543475202201143,
+          0.1339737127105557
+        ],
+        [
+          0.29931145474126136,
+          0.1768946698783175,
+          0.13892192629989275
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22473",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.202384624391409e-08,
+      "bounds": [
+        [
+          0.28105067613992696,
+          0.15543475215227953,
+          0.13800608596293412
+        ],
+        [
+          0.2908950451288227,
+          0.17689467118099853,
+          0.14095360846204386
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22474",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.313264752983648e-09,
+      "bounds": [
+        [
+          0.2991785752515609,
+          0.1678451748632557,
+          0.12251553219705376
+        ],
+        [
+          0.3105512735651085,
+          0.1692000195577062,
+          0.1342745703607354
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22475",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.573915935928146e-08,
+      "bounds": [
+        [
+          0.2981677995208124,
+          0.16908517480515983,
+          0.12307444479494453
+        ],
+        [
+          0.31026040125213056,
+          0.17946834862294153,
+          0.13749095464042427
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22482",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.016858443372057e-09,
+      "bounds": [
+        [
+          0.30597384026505664,
+          0.15243108654564894,
+          0.12066309643095972
+        ],
+        [
+          0.3116365721680833,
+          0.16777804651314643,
+          0.1219816994971277
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22483",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.417324092019825e-09,
+      "bounds": [
+        [
+          0.30597384134341776,
+          0.1524310790884339,
+          0.1203579756481111
+        ],
+        [
+          0.3116365829516945,
+          0.1675710984407648,
+          0.12198165343469371
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22484",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.715933801763546e-09,
+      "bounds": [
+        [
+          0.30505088877761477,
+          0.15302868314896315,
+          0.1217593529889929
+        ],
+        [
+          0.3112774205291384,
+          0.16790860457054207,
+          0.12325916595255106
+        ]
+      ]
+    },
+    {
+      "name": "Conforming ferrule closed metal prism, source face 22485",
+      "material": 1,
+      "vertices": 6,
+      "triangles": 8,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 5.353124256238046e-09,
+      "bounds": [
+        [
+          0.3050508853498857,
+          0.1524718735268281,
+          0.1217593568503051
+        ],
+        [
+          0.31127738625184775,
+          0.16778212521126434,
+          0.12325920456567317
+        ]
+      ]
+    },
+    {
+      "name": "Raised paint: Upper-left coral",
+      "material": 3,
+      "vertices": 354,
+      "triangles": 704,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.5134399940379085e-07,
+      "bounds": [
+        [
+          -0.33793289189687153,
+          -0.031584999999999995,
+          -0.02456482193781646
+        ],
+        [
+          -0.31376000000000004,
+          -0.005514826630733903,
+          -0.004940627548000474
+        ]
+      ],
+      "matched_front_back_xy_triangles": true,
+      "unfolded_positive_xy_graph": true
+    },
+    {
+      "name": "Raised paint: Large blue",
+      "material": 4,
+      "vertices": 354,
+      "triangles": 704,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.560715376874729e-07,
+      "bounds": [
+        [
+          -0.35242450338398046,
+          -0.077675,
+          0.00022433795892336784
+        ],
+        [
+          -0.32523,
+          -0.04759403072776989,
+          0.02384683842092698
+        ]
+      ],
+      "matched_front_back_xy_triangles": true,
+      "unfolded_positive_xy_graph": true
+    },
+    {
+      "name": "Raised paint: Central mint",
+      "material": 5,
+      "vertices": 354,
+      "triangles": 704,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.391799992548669e-07,
+      "bounds": [
+        [
+          -0.2889272995549442,
+          -0.100675,
+          0.038174384645764184
+        ],
+        [
+          -0.26274000000000003,
+          -0.0705940307277699,
+          0.05623145212571541
+        ]
+      ],
+      "matched_front_back_xy_triangles": true,
+      "unfolded_positive_xy_graph": true
+    },
+    {
+      "name": "Raised paint: Lower-left pale blue",
+      "material": 6,
+      "vertices": 354,
+      "triangles": 704,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.468395891563893e-07,
+      "bounds": [
+        [
+          -0.3539384842387989,
+          -0.13363,
+          0.03474592336484699
+        ],
+        [
+          -0.33178,
+          -0.10555442867925188,
+          0.05287230058469799
+        ]
+      ],
+      "matched_front_back_xy_triangles": true,
+      "unfolded_positive_xy_graph": true
+    },
+    {
+      "name": "Raised paint: Lower coral",
+      "material": 7,
+      "vertices": 354,
+      "triangles": 704,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 4.864763068680899e-07,
+      "bounds": [
+        [
+          -0.32442450338398043,
+          -0.17872,
+          0.0661931660429145
+        ],
+        [
+          -0.29723,
+          -0.14663363277628788,
+          0.0837915917794453
+        ]
+      ],
+      "matched_front_back_xy_triangles": true,
+      "unfolded_positive_xy_graph": true
+    },
+    {
+      "name": "Raised paint: Lower-right golden",
+      "material": 8,
+      "vertices": 354,
+      "triangles": 704,
+      "closed_index_edge_incidence_two": true,
+      "directed_index_edges_balanced": true,
+      "signed_volume_positive": 3.6260502502605e-07,
+      "bounds": [
+        [
+          -0.2624356880678352,
+          -0.16363,
+          0.08165354771466105
+        ],
+        [
+          -0.23927,
+          -0.13555442867925188,
+          0.09273462007594195
+        ]
+      ],
+      "matched_front_back_xy_triangles": true,
+      "unfolded_positive_xy_graph": true
+    }
+  ],
+  "paint_front_depth_from_source_triangles": true,
+  "partial_rim_grip_exclusion_degrees": [
+    335,
+    95
+  ],
+  "grip_hole_cut": false,
+  "source_faces_removed": 0,
+  "source_vertices_moved": 0,
+  "ferrule_selection_sha256": "3999842cdbaa37929722a21a80fd329f4b6a33dfb15c79873f5a9c7ab1447d2c",
+  "ferrule_source_face_ids": [
+    9288,
+    9289,
+    9332,
+    9333,
+    9334,
+    9339,
+    9340,
+    9342,
+    9344,
+    9356,
+    9357,
+    9358,
+    9359,
+    10079,
+    10083,
+    10084,
+    10085,
+    10086,
+    10087,
+    10088,
+    10099,
+    10100,
+    10108,
+    10111,
+    10112,
+    10113,
+    10114,
+    10115,
+    10116,
+    10117,
+    10118,
+    10125,
+    10128,
+    10131,
+    10132,
+    10133,
+    10134,
+    10140,
+    10141,
+    21822,
+    21823,
+    21830,
+    21831,
+    21836,
+    21837,
+    22428,
+    22434,
+    22435,
+    22436,
+    22437,
+    22440,
+    22441,
+    22445,
+    22446,
+    22447,
+    22450,
+    22453,
+    22454,
+    22456,
+    22469,
+    22472,
+    22473,
+    22474,
+    22475,
+    22482,
+    22483,
+    22484,
+    22485
+  ],
+  "ferrule_source_face_mapping_verified": true,
+  "ferrule_coating_mode": "68 closed triangular prisms extruded parallel to exact selected source triangles by0.05..0.50mm; no inferred axis offset",
+  "actual_glb_validation": {
+    "faces": 32908,
+    "vertices": 25055,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "75f34864d26f43226425828d527c75b04a6a4967b88a9c8e8ba09300755b8e09",
+    "accessors_checked": 28,
+    "buffer_views_checked": 30
+  },
+  "images_added": 0,
+  "billboard_added": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "rig_added": false,
+  "animation_added": false,
+  "limits": [
+    "Only additive palette edge, six raised paint spots and brush ferrule are refined.",
+    "The existing grip region and holding fingers are unchanged; this does not certify a true thumb hole.",
+    "Rim/paint/ferrule contact with accessory surface is intentional; no global intersection certificate is asserted.",
+    "Existing character anatomy, hairstyle, face and back texture artifacts remain.",
+    "Added physical thickness, paint height and unseen accessory details are manual inference from the visible reference."
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "schema": "crwt.nox_actual_render_editable.v1",
+  "source_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+  "candidate_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+  "source_imported_mesh_fingerprints": [
+    {
+      "vertices": 20899,
+      "polygons": 24412,
+      "uv_layers": 1,
+      "materials": 1,
+      "sha256": "1f9413d446b3c85ec1e83cb8b1fd1df6c0d367182c00835d8d2da8ba1ac9a0eb"
+    }
+  ],
+  "candidate_imported_mesh_fingerprints": [
+    {
+      "vertices": 20899,
+      "polygons": 24412,
+      "uv_layers": 1,
+      "materials": 1,
+      "sha256": "1f9413d446b3c85ec1e83cb8b1fd1df6c0d367182c00835d8d2da8ba1ac9a0eb"
+    },
+    {
+      "vertices": 2636,
+      "polygons": 1060,
+      "uv_layers": 0,
+      "materials": 3,
+      "sha256": "d22b6c4267af833fc4e764b9a4a132b66591346f78381bd5a3b5524a8effd48c"
+    }
+  ],
+  "source_imported_native_mesh_uv_polygon_transform_fingerprints_retained": true,
+  "packed_blend": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\nox\\trial-v1\\actual-mesh-review\\nox-hip-card-editable-candidate.blend",
+  "blend_sha256": "edff8fdb5270c8aaf6a5d7573af83bc7694ec639605406c716e6f04d023cc7e1",
+  "blender_version": "5.2.2 LTS",
+  "engine": "BLENDER_EEVEE",
+  "resolution": [
+    800,
+    800
+  ],
+  "same_camera_and_lights": true,
+  "bounds_from_source_blender_z_up": [
+    [
+      -0.2940416932106018,
+      -0.22302556037902832,
+      -0.4637373089790344
+    ],
+    [
+      0.29017889499664307,
+      0.19497370719909668,
+      0.4689217805862427
+    ]
+  ],
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "opposite-three-quarter",
+      30,
+      10
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "render_source": "Actual GLB imported geometry/materials only; no reference image shown as a 3D surface",
+  "approved": false,
+  "gameIntegrated": false,
+  "render_files": [
+    {
+      "path": "after\\back.png",
+      "sha256": "dbf49d2591ecd65c109ce3a6cbd2e60925b080a20f3717245196c633cb8c5c3d"
+    },
+    {
+      "path": "after\\front.png",
+      "sha256": "7ebe0ec8dc2377ece69522136f7503fe15c4d2be4770c97ca58501438f2d1b02"
+    },
+    {
+      "path": "after\\opposite-three-quarter.png",
+      "sha256": "5c8e026c398a9fa68f4cabb5353259fa3d3035e9ca0956775374737417f566db"
+    },
+    {
+      "path": "after\\three-quarter.png",
+      "sha256": "1b4fab13cf9c9f9ca87eaf12854f150453c2cdb488b409ea9e7e450a2b0066ad"
+    },
+    {
+      "path": "before\\back.png",
+      "sha256": "d63ceda8d2b3ab3bbbbbb49db9abf153532a7953efc67b88c93b4089656b3bfe"
+    },
+    {
+      "path": "before\\front.png",
+      "sha256": "c820449bdb42fc25a98b4f304f527795da15ce0385cb0bbd546ca1a48a335530"
+    },
+    {
+      "path": "before\\opposite-three-quarter.png",
+      "sha256": "b69dd3a91d0760a108d4173a1ecc9a0d7d2242bd4e47471f6dfe03b502d1e7d7"
+    },
+    {
+      "path": "before\\three-quarter.png",
+      "sha256": "9a9cfbd1d093d133491cfa16aa18c4138aacb3b9f65f8abce5eab11e1e3fcc2a"
+    }
+  ]
+}

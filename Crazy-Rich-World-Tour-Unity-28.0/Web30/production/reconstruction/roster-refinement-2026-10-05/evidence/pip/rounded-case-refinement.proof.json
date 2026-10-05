@@ -1,0 +1,335 @@
+{
+  "schema": "crwt.pip-rounded-case-refinement.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "baseline_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+  "candidate_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+  "bytes": 5690144,
+  "mesh_parts": 194,
+  "triangles": 97580,
+  "joints": 13,
+  "clip_names": [
+    "Idle",
+    "Walk",
+    "Jump",
+    "Skill",
+    "Win",
+    "Lose"
+  ],
+  "actual_joint_rest_inverse_bind_and_clip_values_identical": true,
+  "protected_inputs_unchanged": {
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\characters-recovered\\source.blend": "c2ceab85a941585bf5d6189b250646a7647893e1fe3063d80fa7faa649c4dea4",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\project\\Crazy-Rich-World-Tour-Unity-28.0\\Web30\\production\\references\\chibi_travel_adventurers_collectible_lineup.png": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\Pip\\trial-v8\\pip-reference-guided-candidate.glb": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\pip\\pip_v8_frozen_builder.py": "86a073f23cbe9af9f7fc8d690bef458b7338b915a1d07d33bb7f9e5ca5a33be2"
+  },
+  "original_objects_and_actions_preserved": {
+    "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\characters-recovered\\source.blend",
+    "sha256": "c2ceab85a941585bf5d6189b250646a7647893e1fe3063d80fa7faa649c4dea4",
+    "revision": 10,
+    "original_objects_preserved": 28,
+    "original_actions_preserved": 60,
+    "original_fingerprints_unchanged": true,
+    "pip_objects": [
+      "pip",
+      "pip | skinned mesh"
+    ]
+  },
+  "operations": [
+    {
+      "part": "Main rounded turquoise shell",
+      "operation": "convex rounded XZ loft with six depth rings",
+      "profile": [
+        [
+          -0.5,
+          0.9,
+          0.91,
+          0.145
+        ],
+        [
+          -0.44,
+          0.97,
+          0.976,
+          0.152
+        ],
+        [
+          -0.32,
+          1,
+          1,
+          0.155
+        ],
+        [
+          0.26,
+          1,
+          0.995,
+          0.155
+        ],
+        [
+          0.43,
+          0.97,
+          0.971,
+          0.15
+        ],
+        [
+          0.5,
+          0.9,
+          0.91,
+          0.145
+        ]
+      ]
+    },
+    {
+      "part": "Main plain rear lid",
+      "operation": "crowned continuous panel",
+      "front_edge_y": 0.14,
+      "center_y": 0.165,
+      "back_y": 0.103,
+      "construction_direction": "rear +Y"
+    },
+    {
+      "part": "Main ivory front face",
+      "operation": "crowned continuous panel",
+      "front_edge_y": -0.153,
+      "center_y": -0.17099999999999999,
+      "back_y": -0.123
+    },
+    {
+      "part": "Main gold screen surround",
+      "operation": "closed annular recessed-screen flange",
+      "front_y": -0.19,
+      "back_y": -0.14500000000000002,
+      "hole_width": 0.5607800000000001,
+      "hole_height": 0.30200000000000005
+    },
+    {
+      "part": "Main white screen bezel",
+      "operation": "closed annular recessed-screen flange",
+      "front_y": -0.208,
+      "back_y": -0.175,
+      "hole_width": 0.53417,
+      "hole_height": 0.28200000000000003
+    },
+    {
+      "part": "Main recessed black glass screen",
+      "operation": "crowned continuous panel",
+      "front_edge_y": -0.1985,
+      "center_y": -0.19940000000000002,
+      "back_y": -0.1855
+    },
+    {
+      "part": "Main central gold compass badge",
+      "operation": "seated thick badge with four-segment bevel",
+      "depth": 0.034,
+      "bevel": 0.0045
+    },
+    {
+      "part": "Main west blue globe land stamp",
+      "operation": "blue relief stands above seated badge",
+      "shift_y": -0.01,
+      "depth": 0.005
+    },
+    {
+      "part": "Main east blue globe land stamp",
+      "operation": "blue relief stands above seated badge",
+      "shift_y": -0.01,
+      "depth": 0.005
+    },
+    {
+      "part": "Main upper left rounded patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.006,
+      "front_y": -0.17384128418549347,
+      "face_clearance": 0.0008
+    },
+    {
+      "part": "Main upper right rounded patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.006,
+      "front_y": -0.17314348989298453,
+      "face_clearance": 0.0008
+    },
+    {
+      "part": "Main blue rounded airplane patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.006,
+      "front_y": -0.17326891200951247,
+      "face_clearance": 0.0008
+    },
+    {
+      "part": "Main white airplane patch silhouette",
+      "operation": "seat airplane relief on measured blue patch front",
+      "center_y": -0.17506891200951247,
+      "depth": 0.0036
+    },
+    {
+      "part": "Main lower left rounded patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.006,
+      "front_y": -0.1707881331747919,
+      "face_clearance": 0.0008
+    },
+    {
+      "part": "Main source-guided gold angular lower panel",
+      "operation": "seat rounded enamel armor into crowned face",
+      "depth": 0.033,
+      "bevel": 0.002
+    },
+    {
+      "part": "Main broad cyan lower right armor",
+      "operation": "smooth manufactured corner strap with tapered ends",
+      "radius": 0.032
+    },
+    {
+      "part": "Main subtle lower panel seam",
+      "operation": "omit unsupported dark V crossing lower enamel tiles"
+    },
+    {
+      "part": "Companion rounded turquoise shell",
+      "operation": "convex rounded XZ loft with six depth rings",
+      "profile": [
+        [
+          -0.5,
+          0.9,
+          0.91,
+          0.145
+        ],
+        [
+          -0.44,
+          0.97,
+          0.976,
+          0.152
+        ],
+        [
+          -0.32,
+          1,
+          1,
+          0.155
+        ],
+        [
+          0.26,
+          1,
+          0.995,
+          0.155
+        ],
+        [
+          0.43,
+          0.97,
+          0.971,
+          0.15
+        ],
+        [
+          0.5,
+          0.9,
+          0.91,
+          0.145
+        ]
+      ]
+    },
+    {
+      "part": "Companion plain rear lid",
+      "operation": "crowned continuous panel",
+      "front_edge_y": -0.014200000000000004,
+      "center_y": -0.0024500000000000077,
+      "back_y": -0.03159000000000001,
+      "construction_direction": "rear +Y"
+    },
+    {
+      "part": "Companion ivory front face",
+      "operation": "crowned continuous panel",
+      "front_edge_y": -0.15191,
+      "center_y": -0.16036999999999998,
+      "back_y": -0.13781
+    },
+    {
+      "part": "Companion gold screen surround",
+      "operation": "closed annular recessed-screen flange",
+      "front_y": -0.1693,
+      "back_y": -0.14815,
+      "hole_width": 0.26356660000000004,
+      "hole_height": 0.14194
+    },
+    {
+      "part": "Companion white screen bezel",
+      "operation": "closed annular recessed-screen flange",
+      "front_y": -0.17776,
+      "back_y": -0.16224999999999998,
+      "hole_width": 0.2510599,
+      "hole_height": 0.13254
+    },
+    {
+      "part": "Companion recessed black glass screen",
+      "operation": "crowned continuous panel",
+      "front_edge_y": -0.173295,
+      "center_y": -0.173718,
+      "back_y": -0.167185
+    },
+    {
+      "part": "Companion central gold compass badge",
+      "operation": "seated thick badge with four-segment bevel",
+      "depth": 0.01598,
+      "bevel": 0.0021149999999999997
+    },
+    {
+      "part": "Companion west blue globe land stamp",
+      "operation": "blue relief stands above seated badge",
+      "shift_y": -0.0047,
+      "depth": 0.00235
+    },
+    {
+      "part": "Companion east blue globe land stamp",
+      "operation": "blue relief stands above seated badge",
+      "shift_y": -0.0047,
+      "depth": 0.00235
+    },
+    {
+      "part": "Companion upper left rounded patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.00282,
+      "front_y": -0.1617054035671819,
+      "face_clearance": 0.000376
+    },
+    {
+      "part": "Companion upper right rounded patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.00282,
+      "front_y": -0.16137744024970274,
+      "face_clearance": 0.000376
+    },
+    {
+      "part": "Companion blue rounded airplane patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.00282,
+      "front_y": -0.16143638864447085,
+      "face_clearance": 0.000376
+    },
+    {
+      "part": "Companion white airplane patch silhouette",
+      "operation": "seat airplane relief on measured blue patch front",
+      "center_y": -0.16228238864447087,
+      "depth": 0.001692
+    },
+    {
+      "part": "Companion lower left rounded patch",
+      "operation": "seat thin patch above nearest crowned-face surface",
+      "depth": 0.00282,
+      "front_y": -0.16027042259215218,
+      "face_clearance": 0.000376
+    },
+    {
+      "part": "Companion source-guided gold angular lower panel",
+      "operation": "seat rounded enamel armor into crowned face",
+      "depth": 0.01551,
+      "bevel": 0.00094
+    },
+    {
+      "part": "Companion broad cyan lower right armor",
+      "operation": "smooth manufactured corner strap with tapered ends",
+      "radius": 0.01504
+    },
+    {
+      "part": "Companion subtle lower panel seam",
+      "operation": "omit unsupported dark V crossing lower enamel tiles"
+    }
+  ],
+  "requires_actual_render_comparison": true
+}

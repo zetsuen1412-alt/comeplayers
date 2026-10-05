@@ -1,0 +1,65 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\alexia\\alexia-reference-surface-candidate.glb",
+  "input_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+  "bytes": 1942444,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 1,
+  "vertices": 23425,
+  "polygons": 27512,
+  "bounds_blender_z_up": [
+    [
+      -0.3544307351112366,
+      -0.25528788566589355,
+      -0.4452480673789978
+    ],
+    [
+      0.3424137830734253,
+      0.15626996755599976,
+      0.47905898094177246
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ],
+    [
+      "top",
+      0,
+      89.9
+    ],
+    [
+      "bottom",
+      0,
+      -89.9
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 24,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

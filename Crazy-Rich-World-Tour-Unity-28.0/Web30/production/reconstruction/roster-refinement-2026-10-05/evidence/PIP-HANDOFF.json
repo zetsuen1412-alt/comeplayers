@@ -1,0 +1,228 @@
+{
+  "schema": "crwt.pip-local-rounded-case-review.v1",
+  "date": "2026-10-05",
+  "approved": false,
+  "gameIntegrated": false,
+  "selected_trial": "trial-02",
+  "baseline_glb_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+  "candidate_glb_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+  "native_blend_sha256": "a985e301590403a548f46d748123f0448f859f4be80ac8dc70d43ae83872d367",
+  "native_parts": 194,
+  "triangles": 97580,
+  "delta_vs_v8": {
+    "mesh_parts": -2,
+    "triangles": 9612,
+    "glb_bytes": 164456
+  },
+  "actual_rig_samples_identical_to_v8": true,
+  "joints": 13,
+  "clip_names": [
+    "Idle",
+    "Walk",
+    "Jump",
+    "Skill",
+    "Win",
+    "Lose"
+  ],
+  "changed_parts": 44,
+  "unchanged_geometry_parts": 150,
+  "removed_unsupported_lower_v_seams": 2,
+  "saved_original_objects": 28,
+  "saved_original_actions": 60,
+  "all10_file_images_packed": true,
+  "actual_views": 7,
+  "actual_orbit_frames": 24,
+  "reference_billboard": false,
+  "visual_review": {
+    "source": "actual Blender Cycles GLB views compared with frozen reference and V8",
+    "improvements": [
+      "rounded casing shoulders and rear transitions",
+      "crowned continuous face panels",
+      "closed annular screen flanges and recessed glass",
+      "thin legible seated star and airplane patches",
+      "thicker beveled badge relief",
+      "smoother cyan lower corner armor"
+    ],
+    "remaining_gaps": [
+      "lower yellow plate motif differs from reference",
+      "cyan face does not reproduce soft reference glow in shared renderer",
+      "fine armor and graphic detail remain approximate",
+      "unseen back and hidden thickness inferred",
+      "no visual, choreography or production approval"
+    ]
+  },
+  "files": {
+    "refine_pip_case.py": {
+      "sha256": "e6f324dfb00e38206904981c4df146217e68edba92ba043a270354bb7eb95efa",
+      "bytes": 16247
+    },
+    "pip_v8_frozen_builder.py": {
+      "sha256": "86a073f23cbe9af9f7fc8d690bef458b7338b915a1d07d33bb7f9e5ca5a33be2",
+      "bytes": 32851
+    },
+    "audit_pip_refinement.py": {
+      "sha256": "b0df8d6056f761f1c7f32d23cb7724985b5e52f57c014c86d0c0c1e4318cf941",
+      "bytes": 9294
+    },
+    "inspect_saved_pip_blend.py": {
+      "sha256": "25ef6ed7005fe537345b19014bd2fc28871ba57ee544bf25d6083441c3fd12cb",
+      "bytes": 2992
+    },
+    "PIP-REFINEMENT-HANDOFF.md": {
+      "sha256": "52535f4c9e097201809e663f6837d2d4463b85e368418fd23affff1cb41ba45a",
+      "bytes": 6793
+    },
+    "trial-02/actual-glb-preservation.proof.json": {
+      "sha256": "fe4d684d1b839a618faa62cd328d6e5fbe9236ab28941f931e24c5463966ee07",
+      "bytes": 13229
+    },
+    "trial-02/pip-reference-guided-candidate.blend": {
+      "sha256": "a985e301590403a548f46d748123f0448f859f4be80ac8dc70d43ae83872d367",
+      "bytes": 72088196
+    },
+    "trial-02/pip-reference-guided-candidate.glb": {
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "bytes": 5690144
+    },
+    "trial-02/pip-reference-guided-candidate.manifest.json": {
+      "sha256": "262f0815b7901c04fdbd69df82c7e6d1c2d7e786b18825e72963538aba3873b7",
+      "bytes": 21254
+    },
+    "trial-02/rounded-case-refinement.proof.json": {
+      "sha256": "1aa0c9711ac23262f5e3f41abe6f31df261ec24cf3a257d62e9d9b2407d29b29",
+      "bytes": 10114
+    },
+    "trial-02/saved-editable-blend.proof.json": {
+      "sha256": "68e925dfe8ae5426dc4c5fbbb51c26ec5a2c3d60e6d3964a7347625e294be34f",
+      "bytes": 859
+    },
+    "trial-02/actual-mesh-renders-final/back.png": {
+      "sha256": "d12b9fc4d111fbcb8e496969ccf9a8ef6aefb94083c691e0b465574e85f58f57",
+      "bytes": 441975
+    },
+    "trial-02/actual-mesh-renders-final/bottom.png": {
+      "sha256": "c3bd11c296113f3db8d6c3ec0b8c07be69b7dd9d95da017c415d4c68d29d600f",
+      "bytes": 414849
+    },
+    "trial-02/actual-mesh-renders-final/front.png": {
+      "sha256": "6498c76756e686e0b514f4644e6f7b5cb930fb2e222daa15af8c552925188030",
+      "bytes": 504240
+    },
+    "trial-02/actual-mesh-renders-final/left.png": {
+      "sha256": "dd16e30b8a7a80b70757067e0156d5a7f0712aeeec968546103943d079ca5c6b",
+      "bytes": 428397
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-000.png": {
+      "sha256": "dc0e8df6114e6d4dc5b47ca051fc2d676fc372031fe8f9fe7ea729e7d5946365",
+      "bytes": 142606
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-015.png": {
+      "sha256": "43ebc11046b48ad5ada76cf7ab243827bedfa82764e4bfbffb2745ac26d7a009",
+      "bytes": 145018
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-030.png": {
+      "sha256": "42985e0ca1d1b57fead30e06e7f464134715c1241fdaae6bc22d7bae13146ebe",
+      "bytes": 145981
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-045.png": {
+      "sha256": "ea6dec2979643e40e625166f4666a4e8d4cca9a8dffc38d5ed756ffce6c2909c",
+      "bytes": 144482
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-060.png": {
+      "sha256": "91ae3a5cc629db2b35d2e282c5f587ace002d30394180078a6b9bb542b2d42eb",
+      "bytes": 140320
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-075.png": {
+      "sha256": "b284078c9c0d23d0d7caa327910154f2f7d92769013ecafa709341cfda3a6e6b",
+      "bytes": 131208
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-090.png": {
+      "sha256": "628f866181d698ec2929b390302218a49fb9858bc1c077a95d90f9d89e84edf6",
+      "bytes": 116537
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-105.png": {
+      "sha256": "a8e9d43d54910636dbef69853b4fdfb50b4fea7b2751465717b7eedf4f62bd17",
+      "bytes": 119790
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-120.png": {
+      "sha256": "6d7230f10cfc8ffea9a421cefb371575be0756f8609fe65601b7418108353985",
+      "bytes": 122285
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-135.png": {
+      "sha256": "2d726554e24986f47148edb1fe277c6ff2eb2a490f695572b372e4bd95823272",
+      "bytes": 124553
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-150.png": {
+      "sha256": "06c36b60cdb8ce00b9b999df267fc98c147a7feccd2084c4a4aee070b988a302",
+      "bytes": 124667
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-165.png": {
+      "sha256": "2b9b7f92697d50007ddfa64a8b5df0a3cc2b06c7fa407d7d7f71e4c0f8b63975",
+      "bytes": 122557
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-180.png": {
+      "sha256": "4506911fa0664dbbd614135a173faef75d08756e53acb071b7d6b15a9ea095fc",
+      "bytes": 121237
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-195.png": {
+      "sha256": "1c3be400eba4f97172a69a478d5eb7e1f7f188576f3a9bab43fe17e42d87604b",
+      "bytes": 123350
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-210.png": {
+      "sha256": "ca4bca5854074527386094c94b86f318fa40ad1449acd3c9175257106619af48",
+      "bytes": 125046
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-225.png": {
+      "sha256": "a966f72f7399238457878517dff615d8827f953cbe1c6735fa11ee4e81799996",
+      "bytes": 126006
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-240.png": {
+      "sha256": "7550b8e31a14b9720ef20f4aa8d371c65ad725d9e9967a88bcfd1b4e5516feac",
+      "bytes": 125209
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-255.png": {
+      "sha256": "6da8095e0da83fe0a55c488e05ddacb3d5f60125e3759e8e4bde52737892e2e4",
+      "bytes": 122496
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-270.png": {
+      "sha256": "994d0b6f6253316bfe7b56242df1ffc978a6f105c2fd877d8ae3864e8b889405",
+      "bytes": 117649
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-285.png": {
+      "sha256": "a5fb9eb8ecb8ae5c9dd98eb2ac1e59d7b6822b1bee81bd1e5efffa18c0b1c354",
+      "bytes": 131050
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-300.png": {
+      "sha256": "c5cab842f089614fbf45f5de9fa0dd21a32fef27a183d0118561986aa66678ee",
+      "bytes": 138065
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-315.png": {
+      "sha256": "67e8d6c1509ee3c5a77643aab3bf50e3863512e3b40caf1a8756c25df518d53f",
+      "bytes": 142256
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-330.png": {
+      "sha256": "4fd4ee5d36aa190cbbfcce770330698c14204367aab0d462d5dfb4fc18784256",
+      "bytes": 142059
+    },
+    "trial-02/actual-mesh-renders-final/orbit/frame-345.png": {
+      "sha256": "fe5bf9cd30677256843fbc6aaf0e1db497f9a0c87b11ebe0361798e14345b292",
+      "bytes": 143886
+    },
+    "trial-02/actual-mesh-renders-final/render-evidence.json": {
+      "sha256": "c5411f9978ae94af014379d7184dfaa307601fd892a310c6a954003463658562",
+      "bytes": 1369
+    },
+    "trial-02/actual-mesh-renders-final/right.png": {
+      "sha256": "281cc85017a04d3a2e05bdd99efc204b0d01248b18bf39c969f90454795ded3f",
+      "bytes": 427536
+    },
+    "trial-02/actual-mesh-renders-final/three-quarter.png": {
+      "sha256": "bf34e0ababe216d588539575282345340c831291a3c05907a283ecebde841eac",
+      "bytes": 509025
+    },
+    "trial-02/actual-mesh-renders-final/top.png": {
+      "sha256": "55565647c63153fbb3ab498a388a96fe4a432f3d3db45b308006646a015abcf0",
+      "bytes": 412679
+    }
+  }
+}

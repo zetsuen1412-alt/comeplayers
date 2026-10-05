@@ -1,0 +1,44 @@
+{
+  "schema": "crwt.luna-packed-editable-reopen.v1",
+  "mode": "verify",
+  "approved": false,
+  "gameIntegrated": false,
+  "source_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+  "candidate_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+  "blend_sha256": "cb88358bcc3ddeb4cd21ac2578bdb7430ff9666253426e1994d4e73246045c23",
+  "saved_geometry_normal_uv_transform_material_image_fingerprints_identical": true,
+  "mesh_count": 13,
+  "triangles": 55274,
+  "vertices": 39343,
+  "image_count": 2,
+  "all_images_packed": true,
+  "packed_image_bytes_match_glb": true,
+  "images": [
+    {
+      "name": "Image_0",
+      "sha256": "c864d8c0a4cf05acfaa5cbf7e9fa29c41c332fae6332984f019be1deb50d258d",
+      "bytes": 405908,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "Image_1",
+      "sha256": "0a5c44321403e714444c2ec90abe384a361e25b3e338221a687cd9ccf8a64197",
+      "bytes": 486840,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    }
+  ],
+  "armatures": 0,
+  "actions": 0,
+  "active_scene": "Luna Staff Head Review Candidate",
+  "blender_version": "5.2.2 LTS",
+  "read_only_reopen": true,
+  "no_input_or_blend_writes": true
+}
