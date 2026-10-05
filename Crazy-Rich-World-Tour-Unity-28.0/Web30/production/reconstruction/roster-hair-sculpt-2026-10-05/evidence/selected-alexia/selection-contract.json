@@ -1,0 +1,97 @@
+{
+  "schema": "crwt.alexia_hair_sculpt_selection_contract.v1",
+  "candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "baseline_manifest_sha256": "02b7cffa243f3f28f8e0a559092d447fb583b3a4f2cba70fdd8483ad0c3bdc91",
+  "proof_contracts": {
+    "selected": {
+      "schema": "crwt.alexia.rear_hair_sculpt_continuous.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "expected_fields": {
+        "/source_BIN_byte_prefix_identical": true,
+        "/original_accessors_and_bufferViews_identical": true,
+        "/unchanged_non_position_normal_accessors": true,
+        "/unchanged_mesh1_mesh2": true,
+        "/all_node_transforms_materials_images_uv_colors_indices_skins_animations_identical": true,
+        "/added_meshes": 0,
+        "/added_nodes": 0,
+        "/added_materials": 0,
+        "/added_vertices": 0,
+        "/added_triangles": 0,
+        "/approved": false,
+        "/gameIntegrated": false,
+        "/passed": true,
+        "/rejected_candidate_glb_dependency": false
+      },
+      "bound_files": [
+        {
+          "path": "evidence/selected-alexia/recipes/build_hair_sculpt_continuous.py",
+          "sha_pointer": "/recipe_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/sculpt-masks.npz",
+          "sha_pointer": "/mask_npz_sha256"
+        },
+        {
+          "path": "references/alexia-blue-v2-turnaround.png",
+          "sha_pointer": "/reference_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/source/alexia-baseline.glb",
+          "sha_pointer": "/source_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/recipes/build_hair_sculpt.py",
+          "sha_pointer": "/recipe_helpers/0/sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/recipes/build_hair_sculpt_smooth_normals.py",
+          "sha_pointer": "/recipe_helpers/1/sha256"
+        }
+      ]
+    },
+    "independent": {
+      "schema": "crwt.alexia_hair_core_independent_audit.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/visual_accepted": true,
+        "/approved": false,
+        "/gameIntegrated": false,
+        "/checks/document_preserved_except_appended_core_arrays_and_refs": true,
+        "/checks/original_binary_prefix_exact": true,
+        "/checks/exact_two_appended_core_arrays_layout": true,
+        "/checks/selected_region_matches": true,
+        "/checks/finite_all_positions_and_normals": true,
+        "/checks/unit_all_normals_within_1e_4": true,
+        "/checks/unchanged_front_position_and_normal": true,
+        "/checks/unchanged_lower_body_position_and_normal": true,
+        "/checks/any_changed_vertices_outside_rear_hair_color_normal_hard_gate": 0,
+        "/checks/new_degenerate_faces": 0,
+        "/checks/new_near_degenerate_faces_at_area_1e_12": 0,
+        "/checks/relative_original_triangle_face_flips": 0
+      }
+    }
+  },
+  "geometry": {
+    "mask_parameters": {
+      "world_axis_signs": [
+        -1,
+        1,
+        -1
+      ],
+      "rear_z_max": -0.095,
+      "abs_x_max": 0.245,
+      "y_min": -0.065,
+      "y_max": 0.365,
+      "blue_minus_green_min": 0.008,
+      "blue_minus_red_min": -0.005,
+      "minimum_rgb": 0.075,
+      "normal_world_z_max": -0.12,
+      "normal_policy": "same_hair_mask"
+    }
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

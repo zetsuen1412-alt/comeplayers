@@ -1,0 +1,11 @@
+{
+  "models": [
+    {
+      "id": "alexia",
+      "path": "viewer/models/alexia.glb",
+      "sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4"
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

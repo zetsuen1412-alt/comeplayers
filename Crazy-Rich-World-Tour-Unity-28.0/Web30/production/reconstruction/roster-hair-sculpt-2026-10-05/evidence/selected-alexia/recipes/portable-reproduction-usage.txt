@@ -1,0 +1,35 @@
+Portable Alexia rear-hair sculpt reproduction
+
+Requires Python 3 and NumPy. The package includes these four scripts together
+in evidence/selected-alexia/recipes/:
+  portable_reproduce_hair_sculpt.py
+  build_hair_sculpt_continuous.py
+  build_hair_sculpt_smooth_normals.py
+  build_hair_sculpt.py
+
+The package includes the original pinned baseline GLB at
+evidence/selected-alexia/source/alexia-baseline.glb
+(SHA-256 19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24)
+and unchanged six-view PNG at references/alexia-blue-v2-turnaround.png
+(SHA-256 935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933).
+
+Run this command from the extracted review package root:
+
+  python evidence/selected-alexia/recipes/portable_reproduce_hair_sculpt.py --source evidence/selected-alexia/source/alexia-baseline.glb --reference references/alexia-blue-v2-turnaround.png --output-parent work/alexia-rebuilt --variant moderate
+
+The output parent must not already exist. Inputs and scripts are read only.
+The runner validates all recipe/input hashes, redirects only in-memory paths,
+and creates moderate-continuous-smooth/alexia.glb with its geometry proof and
+sculpt masks. It also writes portable-reproduction-proof.json.
+
+Expected moderate GLB SHA-256:
+  a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4
+
+Use --variant mild with a different fresh output parent for the mild candidate.
+Expected mild GLB SHA-256:
+  91bc17229fd5937a17b964f0937d74862204577eb0891ed575c21861c6a0b2fd
+
+The frozen recipes retain their original source text; this runner removes the
+need for their historical workspace path. No rejected candidate GLB is needed.
+No installation, network request, input rewrite, game integration, or publishing
+is performed. The generated candidate remains a static review artifact.

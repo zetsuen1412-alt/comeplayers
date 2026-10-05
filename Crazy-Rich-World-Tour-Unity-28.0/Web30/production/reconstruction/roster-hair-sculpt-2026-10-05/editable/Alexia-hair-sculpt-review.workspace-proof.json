@@ -1,0 +1,126 @@
+{
+  "schema": "crwt.editable_roster_review_workspace.v1",
+  "manifest_sha256": "74df7e4ca917fa8dbc4b2fd65c2b57cae38a2b8cf9cadca823d1e2f58bebda53",
+  "blender_version": "5.2.2 LTS",
+  "layout": "none",
+  "grid_spacing": 1.8,
+  "character_count": 1,
+  "characters": [
+    {
+      "id": "alexia",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\viewer\\models\\alexia.glb",
+      "source_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.3544307351112366,
+          -0.25528788566589355,
+          -0.4452480673789978
+        ],
+        "maximum": [
+          0.3424137830734253,
+          0.22469192743301392,
+          0.47905898094177246
+        ],
+        "size": [
+          0.6968445181846619,
+          0.47997981309890747,
+          0.9243070483207703
+        ]
+      },
+      "review_translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "imported_objects": 5,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "Two genuine flattened lower rear S curl locks": {
+          "vertices": 2596,
+          "polygons": 5184,
+          "loops": 15552,
+          "position_float32_sha256": "929e329a6ea84cd88e100efc781a22a2d4c6f2f40b3db6dba5be6a5bd6c3c012",
+          "loop_vertex_indices_sha256": "caf8453496b56a9b33760cf2dd678b1c24d9984770d115fcdd8403107182ed4f",
+          "polygon_starts_sizes_sha256": "0110823d451ab0b75c6dc7cc0852b6521119b46214b57f078f768c9c46b6bbdb",
+          "polygon_material_indices_sha256": "92e3526074bf8e81011b4d0e3c4f91ae99dddafd62b216c28087afdbee919c34",
+          "material_slot_names": [
+            "Alexia rear curl locks - original reference sampled colors"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b942f9b55745f2cb0b053bea14bef053c661e296927a3a7a079269b6ebd1957d"
+            }
+          ],
+          "corner_normal_float32_sha256": "a39b3710ac0cef5d9a21b4bdd388810ea4d68765edfd659dc93cac5fed362551",
+          "color_attributes": [
+            {
+              "name": "Color",
+              "domain": "CORNER",
+              "data_type": "BYTE_COLOR",
+              "float32_color_sha256": "6aeaa567bb596d89efef025b621d13e2132df9ef64b9f28418a622405a34829b"
+            }
+          ]
+        },
+        "Alexia V2 conforming headphone rim and diaphragm candidate": {
+          "vertices": 5760,
+          "polygons": 11520,
+          "loops": 34560,
+          "position_float32_sha256": "29a7ff877a109d26f332fda598467dfdc29965c54e94011db860209dcaa19726",
+          "loop_vertex_indices_sha256": "740f2f757885aa0da107655291c8d4dd53628f046ac20caf48668ed92d6b5270",
+          "polygon_starts_sizes_sha256": "002653c9e0445468643f3f9ad57f330c6f8c18a055d12e9cc030b6bd4fb9ffee",
+          "polygon_material_indices_sha256": "8d01c36eb6b38891205ef005228b7520dd2e714a37ea638e13bf8e7545a11c4c",
+          "material_slot_names": [
+            "Graphite headphone precision rim",
+            "Silver headphone face rim",
+            "Gold headphone diaphragm",
+            "Headphone black center"
+          ],
+          "uv_layers": [],
+          "corner_normal_float32_sha256": "6fa8e1e16f779c33a5e269826bd40bafec05f6fa73138931bba2430d0fedd3aa",
+          "color_attributes": []
+        },
+        "geometry_0": {
+          "vertices": 252943,
+          "polygons": 440192,
+          "loops": 1320576,
+          "position_float32_sha256": "92de55cb3c451091b0716057a786f36379cd2100c3a11420df6a43e04c74ae2c",
+          "loop_vertex_indices_sha256": "bad53b8d9e9d78cbc8a8ea72e02ee9f014d63acbcc9ae85d8f05255922c5efe6",
+          "polygon_starts_sizes_sha256": "6fe177b3ad1ba1418610d82d7d977a2ec45697e1b07fe840866061266c055dff",
+          "polygon_material_indices_sha256": "896c01eba1265b508e477c3d8e95a42d4af760e0d3cde64703ff52f4dd6556ab",
+          "material_slot_names": [
+            "Alexia smooth reference colors on volumetric surface"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "dda06bc490569abc477a27dce3fe5b8cf12500277ef0ddd7b2cdb6065b89300b"
+            }
+          ],
+          "corner_normal_float32_sha256": "ede9a459b9993450207f7e0b1c8a31a44ddfc7038e1f8a43a2d74b7657b1613c",
+          "color_attributes": [
+            {
+              "name": "Color",
+              "domain": "CORNER",
+              "data_type": "BYTE_COLOR",
+              "float32_color_sha256": "678aecabd29b9b35150938337350a35a9eabfc4356ab1ac421f81590e40c1d25"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "accepted": false,
+  "production_ready": false,
+  "all_source_files_unchanged": true,
+  "imported_material_graphs_unchanged": true,
+  "all_file_images_packed": true,
+  "geometry_uv_texture_or_rig_edits_performed": false,
+  "limitation": "Blender imports glTF into its native representation; fidelity checks compare immediately imported data to the saved workspace, not byte identity of Blender's representation with GLB. Raw glTF JSON and input hashes are retained for provenance. Grid parents only place models for review. Visual/model approval remains pending.",
+  "output_blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\checkpoint\\selected-native\\Alexia-hair-sculpt-review.blend",
+  "output_blend_sha256": "c06557dfe5f1a2417ed4029df47246e966bdf9b5b75ca7d5f2e6cd8ca58d29f7"
+}

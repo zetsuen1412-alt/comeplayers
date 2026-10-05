@@ -1,0 +1,18 @@
+{
+  "schema": "crwt.alexia_hair_sculpt_selected_seam_adjacency.v1",
+  "passed": true,
+  "source_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "source_independent_audit_sha256": "6710c6e052de26730848e3ac91aafc52ef2d11edf661e6ee8ccb21c8d2e086b3",
+  "derivation": "Exact selected seam_and_adjacency_checks copied from frozen independent final audit; no new geometry assertion inferred.",
+  "checks": {
+    "exact_original_coincident_vertices_remain_coincident": true,
+    "maximum_exact_cohort_position_component_spread": 0.0,
+    "maximum_rounded_6dec_cohort_inset_spread_after_float32": 0.0,
+    "rounded_cohort_delta_spread_below_3e_minus8": true,
+    "normal_changes_limited_to_incident_changed_position_faces": true,
+    "scope": "Preserves original coincident/nearcoincident cohort offsets; does not certify global self-intersections or collision."
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

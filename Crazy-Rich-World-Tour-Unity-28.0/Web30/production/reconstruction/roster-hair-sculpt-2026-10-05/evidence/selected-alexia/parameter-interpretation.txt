@@ -1,0 +1,44 @@
+ALEXIA CONTINUOUS SCULPT V3 - PARAMETER INTERPRETATION
+
+Selected candidate: a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4
+Source baseline: 19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24
+
+The frozen continuous proof builds mask_parameters by copying the older helper
+MASK dictionary, then overriding active v3 entries. A few unmodified helper
+descriptions therefore mention eroded masks, shared confidence or geodesic
+fade. These legacy descriptions do not describe the active continuous recipe.
+The actual frozen build_hair_sculpt_continuous.py and its explicit v3 entries
+are authoritative for reproduction. No frozen proof or recipe was edited.
+
+Active POSITION policy:
+- Derive the original spatial/color/normal hard rear-hair mask from baseline.
+- Protect incident vertices of source faces with area <= 1e-12.
+- Use no face-neighbor mask erosion and no categorical triangle-quality,
+  geometric-facing or opposing-normal pinning. Sliver quality is diagnostic.
+- Use source-position cohort ties and a Euclidean nearest-protected-boundary
+  distance fade with smoothstep(0, 0.025, distance).
+- Apply compact manually guided continuous S paths and spatial falloffs;
+  color and original-normal values classify the hard mask but do not modulate
+  the inset amplitude.
+- confidence_smoothing_neighbor_iterations and final_inset_smoothing_neighbor_
+  iterations are both zero. The inherited confidence blend, geodesic and
+  eroded-mask narration is unused by this recipe.
+
+Active NORMAL policy:
+- Rotate the original stored smooth normal by the source-to-deformed geometric
+  response, preserving the original smoothing style.
+- Gaussian-smooth the differential correction with sigma 0.010, radius 0.025
+  and source-normal neighbor compatibility dot >= 0.95, then normalize.
+- Write normals only at vertices incident to changed-position faces and within
+  the source hard hair mask. Protected original normals remain byte-exact.
+
+The independent accepted final audit binds this candidate and all five actual
+640x640 render/proof SHA values; it reports no new degeneracy, near-degeneracy
+or relative original face flips, and preserved seam/cohort offsets. Visual
+acceptance is limited to this incremental review candidate. Approval and game
+integration remain false; reference precision and global collision/manifold
+perfection are not claimed.
+
+Portable recipe command from the review root (Python3 + NumPy):
+python evidence/selected-alexia/recipes/portable_reproduce_hair_sculpt.py --source evidence/selected-alexia/source/alexia-baseline.glb --reference references/alexia-blue-v2-turnaround.png --output-parent ../alexia-rebuilt --variant moderate
+Use a fresh external output parent to preserve the verified review inventory.

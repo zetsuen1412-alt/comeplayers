@@ -1,0 +1,260 @@
+{
+  "schema": "crwt.alexia-hair-sculpt-actual-render-comparison.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "render_source": "Actual imported volumetric GLB meshes and original embedded materials; reference PNG not used in scene.",
+  "camera_contract": "All models use identical baseline bounds, orthographic framing, camera transforms and lighting.",
+  "camera_center_blender": [
+    -0.00600847601890564,
+    -0.01529797911643982,
+    0.01690545678138733
+  ],
+  "extent": 0.9243070483207703,
+  "resolution": [
+    512,
+    512
+  ],
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "samples": 16,
+  "view_transform": "Standard",
+  "all_input_files_unchanged": true,
+  "models": [
+    {
+      "label": "candidate-1",
+      "input_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\mild-continuous-smooth\\alexia.glb",
+      "input_sha256": "91bc17229fd5937a17b964f0937d74862204577eb0891ed575c21861c6a0b2fd",
+      "views": [
+        {
+          "name": "front",
+          "azimuth": 0,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\front.png",
+          "sha256": "6ca23053e17ef4fdf5fbc7ba60b37b003fe6b75159a3db4c3c7e8ce82c1a2115",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "left",
+          "azimuth": 90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\left.png",
+          "sha256": "ea57936f4a6d7031217cceeb2cbf90fe2e0791c3c80c31d75dc01c1b5e6932e1",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "right",
+          "azimuth": -90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\right.png",
+          "sha256": "b3496efedf9847d73b2e7ef6cf7fbb2fe47d33765a0ac1c88d35e02d0e1cf894",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "back",
+          "azimuth": 180,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\back.png",
+          "sha256": "81ab295f978df70d5e9dd1713aa5f7129e7da02e4f4837fcad0e9347e5f0fdfc",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "three-quarter",
+          "azimuth": -30,
+          "elevation": 10,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\three-quarter.png",
+          "sha256": "1d5db76b34a82075af03f3feb7941396c5529cb5f17ecf5a746fb92361290065",
+          "resolution": [
+            512,
+            512
+          ]
+        }
+      ],
+      "mesh_objects": 3,
+      "vertices": 261299,
+      "polygons": 456896,
+      "gray_geometry_inspection_views": [
+        {
+          "name": "left",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\gray-left.png",
+          "sha256": "17318ab4467590632ed65d5a017d04ca466fdbc6f73496b1f9a036bcb855b143",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\gray-back.png",
+          "sha256": "1d29c98ff090b6adcf1b0dc633cc09534f17db2c134b345becc447012e313c4f",
+          "resolution": [
+            512,
+            512
+          ]
+        }
+      ],
+      "gray_material_is_render_copy_override_only": true,
+      "fixed_camera_hair_closeups": [
+        {
+          "name": "hair-back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\hair-back.png",
+          "sha256": "7a641105e0a4b210e1a883f30f080489c0b7f43d3981edcca48c1a910f9206e9",
+          "resolution": [
+            512,
+            512
+          ],
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        },
+        {
+          "name": "gray-hair-back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-1\\gray-hair-back.png",
+          "sha256": "70f1e89be5825f1e640b8fdd9a9170bc96ed2e081a9725d38049957516e8f108",
+          "resolution": [
+            512,
+            512
+          ],
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        }
+      ]
+    },
+    {
+      "label": "candidate-2",
+      "input_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\moderate-continuous-smooth\\alexia.glb",
+      "input_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+      "views": [
+        {
+          "name": "front",
+          "azimuth": 0,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\front.png",
+          "sha256": "b9632e35e047ab6516f91d03a6d0db9199e43237e6a4991bb307f29952ce1be5",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "left",
+          "azimuth": 90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\left.png",
+          "sha256": "88294e2240c87fdb01515510f27fce0913aca2709f9aa111b5b6ba2681285920",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "right",
+          "azimuth": -90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\right.png",
+          "sha256": "6035504fdbc4c141695dd26edb2c395bcc1f48d0eb31472a1c7097fd24f782ab",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "back",
+          "azimuth": 180,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\back.png",
+          "sha256": "496268c8a68265eaf12a2fe90ffe7a749fdbbb10515f133eab2415c9e93105f2",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "three-quarter",
+          "azimuth": -30,
+          "elevation": 10,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\three-quarter.png",
+          "sha256": "7fd163db7cc61be88d637e188673814ee059f66ab3b04d7bde92eec2a270fd7c",
+          "resolution": [
+            512,
+            512
+          ]
+        }
+      ],
+      "mesh_objects": 3,
+      "vertices": 261299,
+      "polygons": 456896,
+      "gray_geometry_inspection_views": [
+        {
+          "name": "left",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\gray-left.png",
+          "sha256": "de172edd67e31bec1523a586d4db1e53857dbbf7482d557a80846a925857cd71",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\gray-back.png",
+          "sha256": "75c75837c6fba3a14c95e8334815e3dff8f877f6c58ad139c50c243624022638",
+          "resolution": [
+            512,
+            512
+          ]
+        }
+      ],
+      "gray_material_is_render_copy_override_only": true,
+      "fixed_camera_hair_closeups": [
+        {
+          "name": "hair-back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\hair-back.png",
+          "sha256": "d0b5461270f9037caf28d67bcc6f3ae317b35328450a690779ba38b96431edb9",
+          "resolution": [
+            512,
+            512
+          ],
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        },
+        {
+          "name": "gray-hair-back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\render\\comparison-v3\\candidate-2\\gray-hair-back.png",
+          "sha256": "f2613940bdb24bb6ac3ab75ebee67b7a3acace878efcbcfc653bcf45dc6ea1c3",
+          "resolution": [
+            512,
+            512
+          ],
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        }
+      ]
+    }
+  ]
+}

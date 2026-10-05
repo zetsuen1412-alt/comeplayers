@@ -1,0 +1,52 @@
+{
+  "schema": "crwt.alexia.portable_sculpt_reproduction.v1",
+  "passed": true,
+  "variant": "moderate",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\portable-reproduction-check\\from-copied-recipes\\moderate-continuous-smooth\\alexia.glb",
+  "candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "expected_candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "candidate_hash_reproduced_exactly": true,
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\portable-reproduction-check\\inputs\\alexia-baseline.glb",
+  "source_fingerprint_before": {
+    "sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+    "bytes": 25054440,
+    "mtime_ns": 1791214228396002400
+  },
+  "source_fingerprint_after": {
+    "sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+    "bytes": 25054440,
+    "mtime_ns": 1791214228396002400
+  },
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\portable-reproduction-check\\inputs\\alexia-blue-v2-turnaround.png",
+  "reference_fingerprint_before": {
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "bytes": 1988013,
+    "mtime_ns": 1791214228284002500
+  },
+  "reference_fingerprint_after": {
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "bytes": 1988013,
+    "mtime_ns": 1791214228284002500
+  },
+  "inputs_content_and_mtime_unchanged": true,
+  "historical_workspace_glb_dependency": false,
+  "recipe_location_override": "In-memory only: recipe.f.SOURCE, recipe.f.REF, recipe.HERE. Frozen recipe files retained exact bytes.",
+  "frozen_recipes": [
+    {
+      "filename": "build_hair_sculpt.py",
+      "sha256": "75437b85e74d4452194cc508a9eda15abd4652109090653b0e25aa985cdcdb05"
+    },
+    {
+      "filename": "build_hair_sculpt_smooth_normals.py",
+      "sha256": "9f25470b9f656ccf8878f2335d1c4ac58adf1e03b6094fff73ba1947e2b85282"
+    },
+    {
+      "filename": "build_hair_sculpt_continuous.py",
+      "sha256": "045ecaa659106c42e3e87506e137c0d176ac4e7aab6a76f62160ac5a4f7d0080"
+    }
+  ],
+  "runner_sha256": "89a5ed9136b1156ea19314cb717c491b7cef9cf01656169d1906bac40004d4df",
+  "python_version": "3.12.14",
+  "numpy_version": "2.3.5",
+  "output_parent": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\portable-reproduction-check\\from-copied-recipes"
+}

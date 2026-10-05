@@ -1,0 +1,267 @@
+{
+  "schema": "crwt.alexia_hair_sculpt_independent_staged_chain.v1",
+  "passed": true,
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt",
+  "baseline_manifest_sha256": "02b7cffa243f3f28f8e0a559092d447fb583b3a4f2cba70fdd8483ad0c3bdc91",
+  "staged_manifest_sha256": "50408387c9f4319181b6327791938779bb5b8c779296c053aab9990530ebcdc4",
+  "source_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "independent_final_audit_sha256": "6710c6e052de26730848e3ac91aafc52ef2d11edf661e6ee8ccb21c8d2e086b3",
+  "render_proof_sha256": "2aee84882d67df549d74f04e1d5a5a72683158f5255607561fcce2d1defdc532",
+  "actual_png_sha256": {
+    "front": "38f2ab61fbd0db36f20c91f2f4ee7d1816bd68496d3420d2f8180fa6963c2e69",
+    "three-quarter": "3e551f0e2c0b85b3f3099b62195983e1e2c3a39f0b15e2d7621259382898d80d",
+    "left": "184397b5ed0e6973e0cefdd9dd75e34c92af353bccf42485440dd024b2cb79fc",
+    "right": "8b06d6f4433b27af7ac4cdf771355456ab60c505386187645da51916794807d8",
+    "back": "4cd5f584a90e641f2c0b6ac56b9f6137a0982e2fcb6d6d24e3e2e6e01f7ac5de"
+  },
+  "checks": {
+    "all_ten_model_actual_shas_match": true,
+    "nine_models_byte_exact": true,
+    "all_45_other_pngs_and_nine_proofs_byte_exact": true,
+    "all_reference_files_byte_exact": true,
+    "selected_five_actual_pngs_and_renderproof_bound": true,
+    "three_recipe_helper_actual_shas_and_contracts_bound": true,
+    "portable_19f_baseline_and_reproduction_proof_bound": true,
+    "actual_v3_mask_policy_and_npz_indices_match": true,
+    "independent_staged_geometry_scope_gate_passed": true,
+    "native_hash_certificate_and_scope_passed": true,
+    "browser_manifest_all_ten_model_sha_and_actual_jpeg_bindings_passed": true,
+    "parameter_interpretation_matches_active_recipe": true
+  },
+  "models": [
+    {
+      "id": "alexia",
+      "model_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+      "changed": true,
+      "render_proof_sha256": "2aee84882d67df549d74f04e1d5a5a72683158f5255607561fcce2d1defdc532"
+    },
+    {
+      "id": "atlas",
+      "model_sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+      "changed": false,
+      "render_proof_sha256": "da730720e0dbecc7d701f55600909be3f2a35846a4753abe89483b2c8f7aabd4"
+    },
+    {
+      "id": "kairo",
+      "model_sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+      "changed": false,
+      "render_proof_sha256": "1f1ee01eba3e11244c0ce770725aad2ebfbc441d3a231cf0f2d6b17d1b80c681"
+    },
+    {
+      "id": "luna",
+      "model_sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+      "changed": false,
+      "render_proof_sha256": "4c7b9eaacde95ea7b5f0f0aeb1f2861b461226a3856474ca17ff7d63fdc6cca3"
+    },
+    {
+      "id": "mochi",
+      "model_sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+      "changed": false,
+      "render_proof_sha256": "96a63aeb015dd007acb6e0c92df7e0809b7bf03ea0c4a10dbff826e31c96919c"
+    },
+    {
+      "id": "nox",
+      "model_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+      "changed": false,
+      "render_proof_sha256": "e3c32753fdc583dd79e925b0ab901609dee1193198fb9754ff8a7046511117db"
+    },
+    {
+      "id": "pip",
+      "model_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "changed": false,
+      "render_proof_sha256": "021bddcabbc10bdecc00a67231e1fcd66add355427dcf2784d28e164cb9e5e5a"
+    },
+    {
+      "id": "rindi",
+      "model_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "changed": false,
+      "render_proof_sha256": "916aabc04b414d3367968e95d70e22a2b8ef52c98eed037625cd1ccd3dcfc214"
+    },
+    {
+      "id": "yuna",
+      "model_sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+      "changed": false,
+      "render_proof_sha256": "7e539a9053ecc8876895cae395eff33d5bd44014986c8156d0f0dedf54128cbe"
+    },
+    {
+      "id": "zeno",
+      "model_sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+      "changed": false,
+      "render_proof_sha256": "52b3ca6b3d387d4912038664cf0b518413ee43e21a1b7b58e228a371f118a527"
+    }
+  ],
+  "actual_reference_files": [
+    {
+      "path": "references/alexia-blue-v2-turnaround.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+    },
+    {
+      "path": "references/canonical-roster.png",
+      "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e"
+    },
+    {
+      "path": "viewer/references/alexia.png",
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69"
+    },
+    {
+      "path": "viewer/references/atlas.png",
+      "sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f"
+    },
+    {
+      "path": "viewer/references/kairo.png",
+      "sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8"
+    },
+    {
+      "path": "viewer/references/luna.png",
+      "sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8"
+    },
+    {
+      "path": "viewer/references/mochi.png",
+      "sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b"
+    },
+    {
+      "path": "viewer/references/nox.png",
+      "sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1"
+    },
+    {
+      "path": "viewer/references/pip.png",
+      "sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5"
+    },
+    {
+      "path": "viewer/references/rindi.png",
+      "sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6"
+    },
+    {
+      "path": "viewer/references/yuna.png",
+      "sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4"
+    },
+    {
+      "path": "viewer/references/zeno.png",
+      "sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb"
+    }
+  ],
+  "bound_files": [
+    {
+      "path": "evidence/selected-alexia/recipes/build_hair_sculpt_continuous.py",
+      "sha256": "045ecaa659106c42e3e87506e137c0d176ac4e7aab6a76f62160ac5a4f7d0080",
+      "bound_pointer": "/recipe_sha256"
+    },
+    {
+      "path": "evidence/selected-alexia/sculpt-masks.npz",
+      "sha256": "73564d44c6746fff0aa1f66a3bd89b6350039c21cb88b44d92076d3be071ff1f",
+      "bound_pointer": "/mask_npz_sha256"
+    },
+    {
+      "path": "references/alexia-blue-v2-turnaround.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "bound_pointer": "/reference_sha256"
+    },
+    {
+      "path": "evidence/selected-alexia/source/alexia-baseline.glb",
+      "sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+      "bound_pointer": "/source_sha256"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/build_hair_sculpt.py",
+      "sha256": "75437b85e74d4452194cc508a9eda15abd4652109090653b0e25aa985cdcdb05",
+      "bound_pointer": "/recipe_helpers/0/sha256"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/build_hair_sculpt_smooth_normals.py",
+      "sha256": "9f25470b9f656ccf8878f2335d1c4ac58adf1e03b6094fff73ba1947e2b85282",
+      "bound_pointer": "/recipe_helpers/1/sha256"
+    }
+  ],
+  "native_scope": {
+    "actual_native_meshes": 3,
+    "native_color_attributes": 2,
+    "native_active_packed_file_images": 0,
+    "source_glb_embedded_images": 2,
+    "native_representation": "Blender BYTE_COLOR preserved; source GLB float32 COLOR and two embedded image payloads stay exact."
+  },
+  "actual_mask_counts": {
+    "hard_hair_mask_indices": 26776,
+    "changed_position_indices": 23572,
+    "changed_normal_indices": 24496,
+    "affected_face_indices": 47146
+  },
+  "direct_staged_sculpt_gate": {
+    "document_preserved_except_appended_core_arrays_and_refs": true,
+    "document_difference_paths": [],
+    "original_binary_prefix_exact": true,
+    "exact_two_appended_core_arrays_layout": true,
+    "appended_bytes": 6070632,
+    "mesh0_position_vertices_changed": 23572,
+    "mesh0_normal_vertices_changed": 24496,
+    "any_changed_vertices_outside_rear_hair_color_normal_hard_gate": 0,
+    "selected_region_matches": true,
+    "max_displacement": 0.009000003337860107,
+    "changed_bounds_world": [
+      [
+        -0.24493815004825592,
+        -0.06499570608139038,
+        -0.21906018257141113
+      ],
+      [
+        0.24495787918567657,
+        0.3497563600540161,
+        -0.09500261396169662
+      ]
+    ],
+    "unchanged_front_position_and_normal": true,
+    "unchanged_lower_body_position_and_normal": true,
+    "new_degenerate_faces": 0,
+    "new_degenerate_first_face_ids": [],
+    "relative_original_triangle_face_flips": 0,
+    "relative_original_triangle_faceflip_first_ids": [],
+    "maximum_original_to_candidate_face_angle_degrees": 36.24794705803029,
+    "finite_all_positions_and_normals": true,
+    "unchanged_mesh0_x_y_coordinates": true,
+    "unit_all_normals_within_1e_4": true,
+    "new_near_degenerate_faces_at_area_1e_12": 0
+  },
+  "approved": false,
+  "gameIntegrated": false,
+  "notes": [
+    "Frozen v3 legacy helper narration is explicitly identified as unused in the pinned parameter interpretation annotation; active Euclidean/no-erosion/continuous policies agree with recipe and contract.",
+    "Native certificate assertions are checked against pinned proof bytes; standalone independent native reopen result can supplement this chain audit.",
+    "No global self-intersection/manifold, perfect reference match or production certification."
+  ],
+  "parameter_interpretation_sha256": "ba73c6d690fa85be2cc8d5cae17cc876cbf1f4a4f30b3a78461b902441e3d0f4",
+  "browser_evidence": {
+    "proof_sha256": "bfaf0edcd4f5ea2a4436695fa1bab8ca81d4c5839585cc0bb0d044563c094565",
+    "visible_all_ten_model_shas_match_actual_staged_files": true,
+    "screenshots": [
+      {
+        "path": "evidence/browser/pip-idle.jpg",
+        "bytes": 82580,
+        "sha256": "e06da4ab99154d965a315356736c792731314106440955916e558c273ba4ab2b",
+        "mime": "image/jpeg",
+        "independently_viewed": true
+      },
+      {
+        "path": "evidence/browser/alexia-back.jpg",
+        "bytes": 89798,
+        "sha256": "5b50c2f316e9df219d6547f4983fee132e6945564cdcca8ff4009b443e657d8d",
+        "mime": "image/jpeg",
+        "independently_viewed": true
+      },
+      {
+        "path": "evidence/browser/alexia-back-gray.jpg",
+        "bytes": 81299,
+        "sha256": "852846be984170794c43f58bc6ea71a19dd92bf4997212b41b3db6b158a0ed23",
+        "mime": "image/jpeg",
+        "independently_viewed": true
+      },
+      {
+        "path": "evidence/browser/alexia-front-compare.jpg",
+        "bytes": 103767,
+        "sha256": "3c44ed7ccf7158ca5dd1b2712d89a3afa03b3856a754cf40d0ddd0ab82ebf46b",
+        "mime": "image/jpeg",
+        "independently_viewed": true
+      }
+    ],
+    "scope": "Read-only proof-byte/source-hash binding and independent inspection of four actual JPEGs; live controls were exercised by root."
+  }
+}

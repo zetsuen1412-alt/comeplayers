@@ -1,0 +1,362 @@
+{
+  "schema": "crwt.alexia_hair_core_independent_audit.v1",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-strands\\viewer\\models\\alexia.glb",
+  "source_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "approved": false,
+  "gameIntegrated": false,
+  "visual_verdict": "pending actual candidate renders",
+  "scope": "Only appended replacement mesh0 POSITION/NORMAL arrays, two appended accessors/views, buffer length, and mesh0 POSITION/NORMAL references may change. Original BIN/accessor/view prefixes remain exact. No universal manifold or self-intersection certification.",
+  "baseline_inventory": [
+    {
+      "mesh": 0,
+      "primitive": 0,
+      "vertices": 252943,
+      "triangles": 440192,
+      "position_accessor": 32,
+      "normal_accessor": 33,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 1.2536037021128492e-14,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999999521632563,
+        1.0000000481522615
+      ],
+      "face_average_vertex_normal_disagreement": 39,
+      "bounds_local": [
+        [
+          -0.3424137830734253,
+          -0.4452480673789978,
+          -0.25528788566589355
+        ],
+        [
+          0.3544307351112366,
+          0.47905898094177246,
+          0.21906018257141113
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 64
+    },
+    {
+      "mesh": 1,
+      "primitive": 0,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 4,
+      "normal_accessor": 5,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 8.340645850793913e-07,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999999062392952,
+        1.0000001028160206
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          -0.21242758631706238,
+          0.22189998626708984,
+          0.04146647825837135
+        ],
+        [
+          -0.19553393125534058,
+          0.29409998655319214,
+          0.08327090740203857
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 1,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 7,
+      "normal_accessor": 8,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 7.034147789252637e-07,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.999999895221212,
+        1.0000000996152405
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          -0.21243037283420563,
+          0.22645998001098633,
+          0.04425723850727081
+        ],
+        [
+          -0.19770696759223938,
+          0.28953999280929565,
+          0.0810464471578598
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 2,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 10,
+      "normal_accessor": 11,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 3.419560992708235e-09,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999998961851809,
+        1.000000103392566
+      ],
+      "face_average_vertex_normal_disagreement": 23,
+      "bounds_local": [
+        [
+          -0.21119394898414612,
+          0.23899999260902405,
+          0.05176674202084541
+        ],
+        [
+          -0.20192855596542358,
+          0.27699998021125793,
+          0.07426773011684418
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 3,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 13,
+      "normal_accessor": 14,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 1.4080411187986348e-09,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999998973032673,
+        1.0000001031298267
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          -0.20994509756565094,
+          0.25362998247146606,
+          0.0610942505300045
+        ],
+        [
+          -0.2073805183172226,
+          0.2623699903488159,
+          0.06633403152227402
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 4,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 16,
+      "normal_accessor": 17,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 7.616809255752639e-07,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999999066514494,
+        1.000000108655381
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          0.14957402646541595,
+          0.22379998862743378,
+          0.07297896593809128
+        ],
+        [
+          0.1754377782344818,
+          0.2921999990940094,
+          0.10940127819776535
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 5,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 19,
+      "normal_accessor": 20,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 6.423810365645845e-07,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.999999898443767,
+        1.0000001058957977
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          0.15190212428569794,
+          0.22811998426914215,
+          0.07598496228456497
+        ],
+        [
+          0.17494842410087585,
+          0.28787997364997864,
+          0.10769191384315491
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 6,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 22,
+      "normal_accessor": 23,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 3.1115375782368213e-09,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999998921758215,
+        1.000000097989338
+      ],
+      "face_average_vertex_normal_disagreement": 50,
+      "bounds_local": [
+        [
+          0.157323956489563,
+          0.23999997973442078,
+          0.08308989554643631
+        ],
+        [
+          0.172615647315979,
+          0.2759999930858612,
+          0.10287407040596008
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 1,
+      "primitive": 7,
+      "vertices": 720,
+      "triangles": 1440,
+      "position_accessor": 25,
+      "normal_accessor": 26,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 1.281215295264673e-09,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999998977807906,
+        1.00000009987198
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          0.16477720439434052,
+          0.2538599967956543,
+          0.09277095645666122
+        ],
+        [
+          0.16897134482860565,
+          0.2621399760246277,
+          0.09702862054109573
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    },
+    {
+      "mesh": 2,
+      "primitive": 0,
+      "vertices": 2596,
+      "triangles": 5184,
+      "position_accessor": 38,
+      "normal_accessor": 39,
+      "finite_positions": true,
+      "finite_normals": true,
+      "minimum_area": 2.96455299559482e-08,
+      "degenerate_area_threshold": 5e-15,
+      "degenerate_faces": 0,
+      "repeated_index_faces": 0,
+      "zero_normals": 0,
+      "nonunit_normals_tolerance_1e-4": 0,
+      "normal_length_range": [
+        0.9999999606122038,
+        1.000000039825345
+      ],
+      "face_average_vertex_normal_disagreement": 0,
+      "bounds_local": [
+        [
+          -0.1611405611038208,
+          -0.10372033715248108,
+          0.1366475373506546
+        ],
+        [
+          0.11293233931064606,
+          0.16212648153305054,
+          0.22469192743301392
+        ]
+      ],
+      "near_degenerate_area_threshold": 1e-12,
+      "near_degenerate_faces": 0
+    }
+  ],
+  "passed": true
+}

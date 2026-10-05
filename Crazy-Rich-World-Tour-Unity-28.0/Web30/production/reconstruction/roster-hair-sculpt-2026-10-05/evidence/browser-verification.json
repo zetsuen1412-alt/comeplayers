@@ -1,0 +1,64 @@
+{
+  "schema": "crwt.alexia_hair_sculpt_browser_review.v1",
+  "passed": true,
+  "url": "http://127.0.0.1:8775/BUKA-REVIEW-MODEL.html",
+  "manifest_sha256": "50408387c9f4319181b6327791938779bb5b8c779296c053aab9990530ebcdc4",
+  "visible_model_sha256": {
+    "rindi": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+    "atlas": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+    "kairo": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+    "luna": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+    "mochi": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+    "nox": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+    "yuna": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+    "zeno": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+    "alexia": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+    "pip": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+  },
+  "models_loaded": 10,
+  "alexia_back_color_and_gray_visually_reviewed": true,
+  "alexia_front_reference_comparison_visually_reviewed": true,
+  "pip_animation_options": [
+    "Idle",
+    "Walk",
+    "Jump",
+    "Skill",
+    "Win",
+    "Lose"
+  ],
+  "pip_idle_selected": true,
+  "console_warnings_and_errors": [],
+  "screenshots": [
+    {
+      "path": "evidence/browser/pip-idle.jpg",
+      "bytes": 82580,
+      "sha256": "e06da4ab99154d965a315356736c792731314106440955916e558c273ba4ab2b",
+      "mime": "image/jpeg"
+    },
+    {
+      "path": "evidence/browser/alexia-back.jpg",
+      "bytes": 89798,
+      "sha256": "5b50c2f316e9df219d6547f4983fee132e6945564cdcca8ff4009b443e657d8d",
+      "mime": "image/jpeg"
+    },
+    {
+      "path": "evidence/browser/alexia-back-gray.jpg",
+      "bytes": 81299,
+      "sha256": "852846be984170794c43f58bc6ea71a19dd92bf4997212b41b3db6b158a0ed23",
+      "mime": "image/jpeg"
+    },
+    {
+      "path": "evidence/browser/alexia-front-compare.jpg",
+      "bytes": 103767,
+      "sha256": "3c44ed7ccf7158ca5dd1b2712d89a3afa03b3856a754cf40d0ddd0ab82ebf46b",
+      "mime": "image/jpeg"
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Browser verification confirms loading, controls and visible source hashes. It does not certify perfect visual fidelity or all animation clip quality.",
+    "The accepted change is a modest smoother rear hair surface; merged hair mass, source roughness and side color projection remain.",
+    "The browser forbids file URLs. Actual browser verification used a loopback server exposing only the generated self-contained review HTML."
+  ]
+}
