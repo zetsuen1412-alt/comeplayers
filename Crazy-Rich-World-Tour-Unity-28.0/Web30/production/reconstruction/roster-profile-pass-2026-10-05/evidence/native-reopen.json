@@ -1,0 +1,35 @@
+{
+  "schema": "crwt.alexia_profile_native_reopen.v1",
+  "passed": true,
+  "blend_sha256": "910c03cdeca5589f87824b141b97215245306f4287a52a7ac5d811dfce887b5e",
+  "manifest_sha256": "eb9ee459333b070ab9c719772ea721250b43f3ab72712e93473153e330a26aef",
+  "candidate_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "character_count": 1,
+  "all_mesh_normal_uv_material_fingerprints_equal": true,
+  "color_attribute_fingerprints_equal": true,
+  "native_color_attributes": [
+    [],
+    [
+      {
+        "name": "Color",
+        "domain": "CORNER",
+        "data_type": "BYTE_COLOR",
+        "float32_color_sha256": "678aecabd29b9b35150938337350a35a9eabfc4356ab1ac421f81590e40c1d25"
+      }
+    ]
+  ],
+  "packed_active_image_count": 0,
+  "images": {},
+  "all_file_images_packed": true,
+  "portable_manifest_relative_sources": true,
+  "historical_absolute_source_paths_used": false,
+  "read_only": true,
+  "no_source_or_blend_writes": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Blender imported BYTE_COLOR is preserved across save/reopen; packaged GLB keeps its exact float32 COLOR_0.",
+    "Unused source image bytes remain in GLB even when no FILE images are active in the editable scene.",
+    "Reopen integrity does not certify geometric or visual perfection."
+  ]
+}

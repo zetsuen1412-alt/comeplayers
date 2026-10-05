@@ -1,0 +1,191 @@
+{
+  "schema": "crwt.blended_reference_vertex_colors.v1",
+  "builder_sha256": "480fb2dfed3f17315bf502a091a5345f3746b735e12447e731f6c39915313f70",
+  "config_sha256": "7ff49e78cbd3bbe9f5830d8ee761e723d253b46982d9680cbd612634a68da95c",
+  "blend_normal_thresholds": [
+    0.02,
+    0.45
+  ],
+  "source_sha256": "2db30546a264650f108498019393501cba3ea485d566529db42a1ec978c69b68",
+  "candidate_sha256": "835b1e545f9002157e3465a9437438b760a5a42c497e811bbfc4b55a0ee838fc",
+  "reference_sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+  "back_reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "source_albedo_sha256": "ea8d803146c3a08c6e792c33f9fe2c323aab0ac64fec727e2e07a84c5ac7cbc5",
+  "reference_images_unchanged": true,
+  "source_BIN_prefix_preserved": true,
+  "original_positions_unchanged_on_original_vertices": true,
+  "subdivision_rounds": 2,
+  "source_faces": 27512,
+  "subdivided_faces": 440192,
+  "linear_subdivision_on_original_triangle_surfaces": true,
+  "source_vertex_count": 23425,
+  "active_vertices": 252943,
+  "colors": "Linear sRGB vertex attributes from bilinear read-only original/reference sampling; smooth source/front/back weights from original normals. No bitmap edits or new texture images.",
+  "blend_weights": {
+    "front_full": 47773,
+    "back_full": 57381,
+    "transition": 95270,
+    "source_only": 52519
+  },
+  "validation": {
+    "faces": 451712,
+    "vertices": 258703,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "b7d991bb73b0968c67109375f11f273df231260f809ca4b5fa111cda5a9cbd74",
+    "accessors_checked": 37,
+    "buffer_views_checked": 39
+  },
+  "config": {
+    "source": "work/alexia-profile-refinement-next/geometry/trial-v2/alexia-profile-contour.glb",
+    "source_sha256": "2db30546a264650f108498019393501cba3ea485d566529db42a1ec978c69b68",
+    "reference": "outputs/model-review-2026-10-05-pass2/viewer/references/alexia.png",
+    "reference_sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+    "width": 510,
+    "height": 488,
+    "normal_threshold": 0.05,
+    "vertical": [
+      [
+        -0.445248,
+        470
+      ],
+      [
+        -0.36,
+        425
+      ],
+      [
+        -0.2,
+        338
+      ],
+      [
+        -0.115,
+        296
+      ],
+      [
+        -0.047,
+        258
+      ],
+      [
+        0.1,
+        183
+      ],
+      [
+        0.157,
+        164
+      ],
+      [
+        0.2347,
+        126
+      ],
+      [
+        0.34,
+        73
+      ],
+      [
+        0.479059,
+        20
+      ]
+    ],
+    "horizontal_center_pixels": [
+      [
+        -0.45,
+        223
+      ],
+      [
+        0,
+        223
+      ],
+      [
+        0.15,
+        222.5
+      ],
+      [
+        0.3,
+        222.5
+      ],
+      [
+        0.48,
+        222
+      ]
+    ],
+    "horizontal_center_world": [
+      [
+        -0.45,
+        -0.024
+      ],
+      [
+        0,
+        -0.023
+      ],
+      [
+        0.15,
+        -0.02
+      ],
+      [
+        0.3,
+        -0.02
+      ],
+      [
+        0.48,
+        -0.006
+      ]
+    ],
+    "horizontal_scale": [
+      [
+        -0.45,
+        491
+      ],
+      [
+        0,
+        440
+      ],
+      [
+        0.15,
+        475
+      ],
+      [
+        0.235,
+        510
+      ],
+      [
+        0.34,
+        485
+      ],
+      [
+        0.48,
+        480
+      ]
+    ],
+    "fallback_unlit": true,
+    "exclude_peripheral_hair": true,
+    "back_projection": {
+      "reference": "outputs/model-review-2026-10-05-pass2/references/alexia-blue-v2-turnaround.png",
+      "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "width": 1536,
+      "height": 1024,
+      "center_pixel": 1287,
+      "center_world": -0.006,
+      "scale": 494.4,
+      "top_pixel": 503,
+      "top_world": 0.479059,
+      "normal_threshold": 0.08
+    },
+    "blend_normal_low": 0.02,
+    "blend_normal_high": 0.45,
+    "exclude_back_earcup_projection": true
+  },
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Surface sampling subdivision adds no missing anatomy or separated hair volumes.",
+    "Baked shading stays in colors, and oblique surfaces may remain blurred or stretched.",
+    "Front/back calibration is manual, with approx 2\u20134 pixel landmark uncertainty; no high-precision percentage claim."
+  ]
+}

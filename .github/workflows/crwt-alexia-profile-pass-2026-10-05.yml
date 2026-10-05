@@ -1,0 +1,67 @@
+name: CRWT Alexia Profile Pass 2026-10-05
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/crazy-rich-web-v30
+    paths:
+      - .github/workflows/crwt-alexia-profile-pass-2026-10-05.yml
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05/**
+      - CRWT_ALEXIA_PROFILE_PASS_RESUME_ID.md
+permissions:
+  contents: read
+env:
+  ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05
+  BASELINE_ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-visual-fidelity-2026-10-05
+jobs:
+  verify-profile-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Materialize exact new-prefix HEAD blobs and frozen reused render inputs
+        run: >-
+          python3 -B "$ROSTER/tools/materialize_profile_source.py" --repo-root .
+          --out-dir crwt-profile-pass-raw --expected-commit "$GITHUB_SHA"
+          --receipt crwt-profile-pass-materialization.json
+      - name: Verify source snapshot, selected Alexia, nine unchanged models and local native certificate
+        working-directory: crwt-profile-pass-raw
+        run: >-
+          python3 -B "$ROSTER/tools/verify_profile_source.py" --roster "$ROSTER"
+          --baseline-roster "$BASELINE_ROSTER" --inventory "$ROSTER/source-inventory.json"
+          --receipt ../crwt-profile-pass-source-verification.json
+      - name: Validate all ten actual GLBs with the frozen standard-library validator
+        working-directory: crwt-profile-pass-raw
+        run: >-
+          python3 -B "$ROSTER/tools/validate_roster_candidate.py" "$ROSTER/review-manifest.json"
+          --receipt ../crwt-profile-pass-roster-validation.json
+      - name: Rebuild exact offline gallery in a fresh directory and compare frozen metadata
+        working-directory: crwt-profile-pass-raw
+        # Exact HTML SHA256 25ec72ab2ffb0cfeddd93b50e83737cc53ff6e445311721950b6ad8a60369261
+        # JSON receipt comparison permits platform newline differences; frozen bytes remain untouched.
+        run: >-
+          python3 -B "$ROSTER/tools/rebuild_profile_gallery.py" --roster "$ROSTER"
+          --build-dir ../crwt-profile-pass-gallery-build --receipt ../crwt-profile-pass-gallery-verification.json
+      - name: Restore exact one-entry offline gallery ZIP to a fresh external HTML and verify CRC
+        working-directory: crwt-profile-pass-raw
+        run: >-
+          python3 -B "$ROSTER/tools/restore_offline_gallery.py" --archive "$ROSTER/OFFLINE-GALLERY.zip"
+          --out ../crwt-profile-pass-gallery-restore/BUKA-REVIEW-MODEL.html
+          --receipt ../crwt-profile-pass-gallery-restore.json
+      - name: Save private profile review source and reproducibility evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Alexia-Profile-Pass-2026-10-05-${{ github.sha }}
+          path: |
+            crwt-profile-pass-raw/Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05
+            crwt-profile-pass-gallery-build
+            crwt-profile-pass-gallery-restore
+            crwt-profile-pass-materialization.json
+            crwt-profile-pass-source-verification.json
+            crwt-profile-pass-roster-validation.json
+            crwt-profile-pass-gallery-verification.json
+            crwt-profile-pass-gallery-restore.json
+          retention-days: 7
+          if-no-files-found: error

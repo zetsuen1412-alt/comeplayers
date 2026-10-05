@@ -1,0 +1,19 @@
+{
+  "schema": "crwt.selected_alexia_native.v1",
+  "passed": true,
+  "candidate_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "blend_sha256": "910c03cdeca5589f87824b141b97215245306f4287a52a7ac5d811dfce887b5e",
+  "build_proof_sha256": "017a2e0ec8b3db935029858c20f5ab1430989ca65fbfc8b1e1db2c455fc53389",
+  "reopen_proof_sha256": "cf04cc94b5e394dba5254701ce34789dc7aa9ba61ba50872a4ae59b668f37a44",
+  "all_file_images_packed": true,
+  "read_only_reopen": true,
+  "native_color_attributes_preserved": true,
+  "single_character": "alexia",
+  "packed_active_image_count": 0,
+  "representation_limit": "Native COLOR uses Blender importer representation; packaged GLB bytes remain exact.",
+  "approved": false,
+  "gameIntegrated": false,
+  "editable_manifest_sha256": "eb9ee459333b070ab9c719772ea721250b43f3ab72712e93473153e330a26aef",
+  "native_reopen_proof_path": "evidence/native-reopen.json",
+  "native_build_proof_path": "editable/Alexia-profile-review.workspace-proof.json"
+}
