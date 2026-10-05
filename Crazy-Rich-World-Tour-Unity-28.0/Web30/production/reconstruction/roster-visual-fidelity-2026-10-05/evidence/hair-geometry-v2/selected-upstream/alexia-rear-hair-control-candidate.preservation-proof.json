@@ -1,0 +1,103 @@
+{
+  "schema": "crwt.alexia-rear-hair-control.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\alexia.glb",
+  "source_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.glb",
+  "candidate_sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+  "candidate_bytes": 2788400,
+  "scope": "Existing rear-hair reference-supported depth volume, shallow S-valleys, modest lower taper and staggered tips; no new hair meshes",
+  "selected_vertices": 3695,
+  "unchanged_vertices": 19730,
+  "incident_changed_faces": 5450,
+  "source_main_mesh_faces": 27512,
+  "preexisting_tiny_faces_frozen": false,
+  "strength": 0.85,
+  "maximum_vertex_displacement": 0.056528025476013904,
+  "minimum_jacobian_determinant_at_selected_vertices": 0.6203458217596721,
+  "minimum_changed_face_area": 2.0391736366988996e-13,
+  "source_bin_prefix_byte_identical": true,
+  "source_json_prefix_records_identical": {
+    "nodes": true,
+    "materials": true,
+    "images": true,
+    "textures": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true,
+    "accessors": true,
+    "bufferViews": true
+  },
+  "source_indices_uv_images_materials_nodes_mesh_count_preserved": true,
+  "all_non_roi_positions_normals_floatbytes_identical": true,
+  "headphone_added_mesh_preserved_exact": true,
+  "source_welded_edge_incidence_histogram": {
+    "2": 41268
+  },
+  "candidate_welded_edge_incidence_histogram": {
+    "2": 41268
+  },
+  "topology_unchanged": true,
+  "added_vertices": 0,
+  "added_triangles": 0,
+  "limits": [
+    "Rear hair semantic ROI is pinned from actual source UV/color and coordinate inspection; it is not a complete character segmentation.",
+    "Reference-supported rear clump control is modest; original UV atlas, grid texture, merged clumps, face and anatomy remain.",
+    "Local Jacobian/face orientation and welded-edge tests do not certify every self-intersection or aesthetic fidelity.",
+    "No rig, clips or approval added."
+  ],
+  "continuous_control_face_orientation_audit": [
+    {
+      "mode": "continuous-coordinate-control-no-internal-pinned-islands",
+      "quantization_sensitive_source_slivers": [
+        {
+          "face_id": 8162,
+          "old_area": 6.161884614415752e-13,
+          "new_area": 6.266258552067513e-13,
+          "old_new_normal_cosine": 0.00015398696018039645
+        },
+        {
+          "face_id": 9194,
+          "old_area": 7.055894189769446e-13,
+          "new_area": 7.329422078914038e-13,
+          "old_new_normal_cosine": 0.00020585861747157854
+        },
+        {
+          "face_id": 9195,
+          "old_area": 2.006968804455736e-13,
+          "new_area": 2.0391736366988996e-13,
+          "old_new_normal_cosine": 1.6362552896094227e-05
+        },
+        {
+          "face_id": 9250,
+          "old_area": 7.232826850289901e-13,
+          "new_area": 7.299588573278537e-13,
+          "old_new_normal_cosine": 0.0002102853991880781
+        },
+        {
+          "face_id": 10004,
+          "old_area": 5.837405414545397e-11,
+          "new_area": 5.7986293930980674e-11,
+          "old_new_normal_cosine": 0.9775235155595932
+        }
+      ],
+      "minimum_deformation_predicted_actual_face_normal_cosine": 0.12415736708061903,
+      "minimum_original_deformed_face_normal_cosine": 0.0049083863836959125,
+      "orientation_method": "Cofactor Jacobian transforms old face normal at source centroid, compared with actual new float32 triangle normal. Old/new normal rotation alone is not an inversion test."
+    }
+  ],
+  "minimum_deformation_predicted_actual_face_normal_cosine": 0.12415736708061903,
+  "face_orientation_scope": "Jacobian-predicted vs actual new normal for source face area>=1e-10; smaller pre-existing sliver triangles separately reported due float32 quantization sensitivity; no global collision certificate.",
+  "source_needle_face_local_affine_control": {
+    "face_id": 21598,
+    "center_world_gltf": [
+      0.015656570593516,
+      -0.009423434734344,
+      -0.12658965587616
+    ],
+    "full_affine_radius": 0.019,
+    "smooth_blend_outer_radius": 0.048,
+    "intent": "The skinny source triangle and neighborhood retain full field displacement through a local affine tangent, without zero-pinned dents or new topology."
+  }
+}

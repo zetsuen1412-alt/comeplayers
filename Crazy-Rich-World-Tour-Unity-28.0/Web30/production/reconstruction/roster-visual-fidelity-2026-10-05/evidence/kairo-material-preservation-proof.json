@@ -1,0 +1,33 @@
+{
+  "id": "kairo",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\kairo.glb",
+  "source_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\kairo.glb",
+  "candidate_sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+  "bytes": 1278084,
+  "material_indices_set_unlit": [
+    0
+  ],
+  "pip_preserved_entire_file": false,
+  "binary_chunk_entirely_byte_identical": true,
+  "all_json_except_materials_and_extension_registration_exact": true,
+  "geometry_uv_normals_indices_images_skin_animations_byte_exact": true,
+  "actual": {
+    "faces": 27820,
+    "vertices": 20492,
+    "meshes": 3,
+    "mesh_definitions": 3,
+    "default_scene": 0,
+    "default_scene_nodes": 5,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "cf866d33bfe0367ae9c77d6ec967caf8bd05dceb495f58147c464286913ee09d",
+    "accessors_checked": 10,
+    "buffer_views_checked": 12
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

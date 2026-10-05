@@ -1,0 +1,161 @@
+{
+  "id": "alexia",
+  "source_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.glb",
+  "candidate_sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.blend",
+  "blend_sha256": "c479511928e9b04ce40d397053156a8f96c729dc040a9adda7964b00d4e15cb2",
+  "render_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\actual-renders",
+  "preservation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.preservation-proof.json",
+  "reopen_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\editable-readonly-reopen-proof.json",
+  "independent_integrity_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\geometry-integrity-audit.json",
+  "frozen_roi_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.frozen-roi.json",
+  "recipe_paths": [
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\build_rear_hair_control_v2.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\inspect_hair_roi.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\save_and_reopen_editable.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\render_review_blender.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\validate_roster_candidate.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\finalize_handoff.py"
+  ],
+  "recipe_sha256": {
+    "build_rear_hair_control_v2.py": "6da84cd227392961ae4512b95b43240a5f2d58614c82cbf93a657ad45c63e357",
+    "inspect_hair_roi.py": "e59703fbb6f52d2de2d77b459961b6df95970bab361a0f722543bbca1f3fd359",
+    "save_and_reopen_editable.py": "56229e85d428e1ad4c3f8cdd37b1a409a30ff6110dfbbe210c7191859c0164b1",
+    "render_review_blender.py": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682",
+    "validate_roster_candidate.py": "72ef5252320ffe045415287e1101c61af032fc6574580e3c245aa4820a30a942",
+    "finalize_handoff.py": "355f08f39dbaddada5f55f4c5fe5d6778f8bcfd6cc6a70af1b87fc9c7436a839"
+  },
+  "approved_reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "reference_calibration_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\reference-calibration\\alexia-geometry-calibration.json",
+  "scope": "Modest existing rear-hair depth/volume and curved-valley control, with all face, headphone and non-ROI attributes exact. No new hair strands/meshes.",
+  "geometry_stats": {
+    "meshes": 2,
+    "faces": 39032,
+    "vertices": 29185,
+    "main_vertices_selected": 3695,
+    "main_vertices_unchanged": 19730,
+    "incident_faces": 5450,
+    "added_faces": 0,
+    "added_vertices": 0,
+    "skins": 0,
+    "clips": 0,
+    "packed_images": 2,
+    "source_rear_bound_worldZ": -0.15626996755599976,
+    "candidate_rear_bound_worldZ": -0.2056606262922287,
+    "max_displacement": 0.056528025476013904
+  },
+  "limits": [
+    "Accepted internally only as a modest rear-volume trial, not final hair fidelity or approval.",
+    "Hair remains broad merged clumps with a boxy profile and the unchanged grid atlas; separated tapered locks, side texture and outer/front silhouette still need work.",
+    "Five pre-existing tiny source sliver triangles are separately reported; substantial-face local predicted-normal audit and welded closure do not establish a global collision certificate.",
+    "Rear shape depth and shallow valleys follow approximate six-view landmarks (about .01 world uncertainty); hair does not match every illustrated view exactly.",
+    "Native file is the geometry candidate with original textures; root may combine reference colors separately.",
+    "No rig/animation/game integration added. V1 is rejected scratch and must not be selected."
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "artifact_files": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.glb",
+      "sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+      "bytes": 2788400
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.blend",
+      "sha256": "c479511928e9b04ce40d397053156a8f96c729dc040a9adda7964b00d4e15cb2",
+      "bytes": 2341309
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.preservation-proof.json",
+      "sha256": "62416aaf82c1b35063801071c23b7653df317d38012fb337d14ec1e46d4ed7a6",
+      "bytes": 4566
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.frozen-roi.json",
+      "sha256": "e70ae56c104d42602e8c2ffc774073d8f33c576ca92c470190104541f7d9d51f",
+      "bytes": 124719
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.structural-validation.json",
+      "sha256": "8653b7366fcee172b0c332e2c5031bce3ff502cb7ce5bfef2deb7edd0ae95508",
+      "bytes": 576
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\editable-build-proof.json",
+      "sha256": "de8e37fa10b8d5691c21b59d283ec1fad85f83892d11d94bc8c504512dd904fe",
+      "bytes": 18125
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\editable-readonly-reopen-proof.json",
+      "sha256": "cde07bbbe756b0e068ebdd9a60936be029ffb165613e6eb2c36812ec70a46241",
+      "bytes": 1190
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\geometry-integrity-audit.json",
+      "sha256": "62c8cf977c5792f0238094741acfc9d7bdfdee4cbed020b6336ca55dd6bc00d4",
+      "bytes": 2880
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\source-roi-inspection.json",
+      "sha256": "86d669b11ace773f690b69467c3e0beede5047a84ba3d7155f614e7a16ee6d5a",
+      "bytes": 1372082
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\actual-renders\\render-evidence.json",
+      "sha256": "c578248fb31dec854cb4de12d0a96e29f02056842cdf8ca5ba5bde86c5320ba9",
+      "bytes": 1211
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\actual-renders\\back.png",
+      "sha256": "f3d6b510b6005eb2389df53ab3540527d089f5f1dfd112e493221b3d34d91170",
+      "bytes": 493789
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\actual-renders\\front.png",
+      "sha256": "404e98f4dd046f2e4006da5c491980df6061db9dc78eac303289c5a8283be2e7",
+      "bytes": 547090
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\actual-renders\\left.png",
+      "sha256": "70bad0c3a7dd15e25db42e635668457bcc6a880aae113142af951501cbb2b6f7",
+      "bytes": 467024
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\actual-renders\\right.png",
+      "sha256": "20cb0f6d67519f91307e71637eb98a1ba17124e6dabe9bf23d64b54928dbcae8",
+      "bytes": 485211
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\build_rear_hair_control_v2.py",
+      "sha256": "6da84cd227392961ae4512b95b43240a5f2d58614c82cbf93a657ad45c63e357",
+      "bytes": 14291
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\inspect_hair_roi.py",
+      "sha256": "e59703fbb6f52d2de2d77b459961b6df95970bab361a0f722543bbca1f3fd359",
+      "bytes": 2622
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\save_and_reopen_editable.py",
+      "sha256": "56229e85d428e1ad4c3f8cdd37b1a409a30ff6110dfbbe210c7191859c0164b1",
+      "bytes": 6759
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\render_review_blender.py",
+      "sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682",
+      "bytes": 4677
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\validate_roster_candidate.py",
+      "sha256": "72ef5252320ffe045415287e1101c61af032fc6574580e3c245aa4820a30a942",
+      "bytes": 29339
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\finalize_handoff.py",
+      "sha256": "355f08f39dbaddada5f55f4c5fe5d6778f8bcfd6cc6a70af1b87fc9c7436a839",
+      "bytes": 8460
+    }
+  ],
+  "portable_recipe_note": "Builder accepts explicit --source/--inspection/--output paths; requires matching frozen source SHA and fresh outputs. Geometry rebuild is stdlib; regeneration of UV/color inspection additionally uses Pillow. Blender5.2.2 produces/reopens the packed native and actual render files."
+}

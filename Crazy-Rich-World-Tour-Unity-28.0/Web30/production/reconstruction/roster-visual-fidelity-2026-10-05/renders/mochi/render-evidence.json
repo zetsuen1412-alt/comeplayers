@@ -1,0 +1,24 @@
+{
+  "id": "mochi",
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\mochi.glb",
+  "input_sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+  "original_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+  "render_source": "Actual GLB mesh/materials imported into Blender; no reference billboard or painted/generated texture.",
+  "views": [
+    "front"
+  ],
+  "renders": [
+    {
+      "path": "front.png",
+      "bytes": 549073,
+      "sha256": "89ce3f1a3b5af12cb40835ca82f32e761ec7ece83c049f639a918fa7d5da08d2"
+    }
+  ],
+  "polygons": 24404,
+  "vertices": 18328,
+  "view_transform": "Standard",
+  "geometry_texture_change": false,
+  "pip_baseline_pbr_preserved": false,
+  "approved": false,
+  "gameIntegrated": false
+}

@@ -1,0 +1,24 @@
+{
+  "id": "kairo",
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\kairo.glb",
+  "input_sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+  "original_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "render_source": "Actual GLB mesh/materials imported into Blender; no reference billboard or painted/generated texture.",
+  "views": [
+    "front"
+  ],
+  "renders": [
+    {
+      "path": "front.png",
+      "bytes": 545977,
+      "sha256": "d299564a309ba6b12d3399bad18bcef30b61a0ee42b4f2baaec332f1672c6c2f"
+    }
+  ],
+  "polygons": 27820,
+  "vertices": 20492,
+  "view_transform": "Standard",
+  "geometry_texture_change": false,
+  "pip_baseline_pbr_preserved": false,
+  "approved": false,
+  "gameIntegrated": false
+}

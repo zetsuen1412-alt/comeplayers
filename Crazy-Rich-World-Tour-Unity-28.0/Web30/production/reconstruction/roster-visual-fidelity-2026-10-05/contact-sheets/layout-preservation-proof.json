@@ -1,0 +1,421 @@
+{
+  "schema": "crwt.contact_sheet_layout_preservation.v1",
+  "sheets": {
+    "all10": {
+      "sha256": "b80327e6b020683aa709d7421d8b03bd06e677ab1d5345150bc53ad65756097c",
+      "bytes": 7345085,
+      "size": [
+        2640,
+        3700
+      ],
+      "placements": [
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\alexia.png",
+          "source_sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+          "rect": [
+            75,
+            216,
+            510,
+            488
+          ],
+          "decoded_rgba_sha256": "53c437f5ef5c6d1ea0bc63676c9f59eef882be2e05513b490d86a569b4bd1349",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\alexia\\front.png",
+          "source_sha256": "e41658dd6652604468ed1ef0b15a003137fb6e2cac6aa40068b6c0edcbd7229a",
+          "rect": [
+            670,
+            140,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "58937c6fc1b7e37fd8a560965bc08c4129b4909123d9fc91ae40b7b36f546f4d",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\rindi.png",
+          "source_sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6",
+          "rect": [
+            1497,
+            221,
+            305,
+            478
+          ],
+          "decoded_rgba_sha256": "7a38e5d055131112df5e7044ff3d0a5b2c9d776c0a36b41c77e17e72906b3357",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\rindi\\front.png",
+          "source_sha256": "d5f44a8aebe65763a71da14be4db9045f88751b4d5ffc07eecccf8ee0376413e",
+          "rect": [
+            1990,
+            140,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "53da4bf1b0b88a4444cf5394a7e6c0be2118e8570e84ea28c20174a7c3daf486",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\kairo.png",
+          "source_sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8",
+          "rect": [
+            191,
+            928,
+            277,
+            484
+          ],
+          "decoded_rgba_sha256": "93abf254ff5bb4aa19a2c5cbef87bddbf50e5089077b755dad66dcb2d3c468f3",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\kairo\\front.png",
+          "source_sha256": "e7354025f47d19123cca70d107a4dfef4344f09119ab706f58c7ec0a7a3d07aa",
+          "rect": [
+            670,
+            850,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "9cb9459b0f6aaecc9324ee5f92edad2ab11b8a2d7d87422a778f0c1b39bf15db",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\luna.png",
+          "source_sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8",
+          "rect": [
+            1471,
+            929,
+            358,
+            481
+          ],
+          "decoded_rgba_sha256": "fa0150d4e44119b0de06f5315d7574f3c468bbefdea8a78e9df4d486498bcf32",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\luna\\front.png",
+          "source_sha256": "241ce7e3b72a70f7cdaa5f9ab0204e338efdb3ba77c1918043232e4d2e21576c",
+          "rect": [
+            1990,
+            850,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "5553bfe318c921f3abb1d6bb573f49fe6af9e39c1d056a643402a39de5ea4dc4",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\nox.png",
+          "source_sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+          "rect": [
+            145,
+            1639,
+            370,
+            482
+          ],
+          "decoded_rgba_sha256": "2c0c74249a88398d1d14fcf1653deb9491c2c52622a6d9750d1a1130e7727953",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\nox\\front.png",
+          "source_sha256": "6c8e6700e1440a4b5cd5e1a132a8c2d9e18d865c8f0af66747f0d054bc717432",
+          "rect": [
+            670,
+            1560,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "3b93f73db298775371af4756fddd644f16204d65e081728d18bd4d38b381e53e",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\atlas.png",
+          "source_sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f",
+          "rect": [
+            1482,
+            1680,
+            336,
+            400
+          ],
+          "decoded_rgba_sha256": "2e61ffeb8f949eb64538d9c611d3b852d6ebef6eca39bf71750e0cc5abd93861",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\atlas\\front.png",
+          "source_sha256": "f1d132bdf122e89519bcf7f098781dac6853aee16d1fdb91b8b987055503d70d",
+          "rect": [
+            1990,
+            1560,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "1ded46b3b26107bde1c874db82a525169a77249c3562fbfb59b0ca6443713dfd",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\zeno.png",
+          "source_sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+          "rect": [
+            173,
+            2389,
+            314,
+            401
+          ],
+          "decoded_rgba_sha256": "01262a583cdf644add86a520f7c64005f9b681243f771453c9349f9987731c95",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\zeno\\front.png",
+          "source_sha256": "d4e0469f7aefdff0e865e7222017e997765b2fcb006a145139a8db58c1005706",
+          "rect": [
+            670,
+            2270,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "31aeb71da13594785681907ab4d91c13f1595796671996588f3968c3392eb772",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\yuna.png",
+          "source_sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+          "rect": [
+            1484,
+            2394,
+            332,
+            392
+          ],
+          "decoded_rgba_sha256": "8cedc9b2a1df20265974bfb0ced6b43de3b8546f5588effbbda54ff23ff341de",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\yuna\\front.png",
+          "source_sha256": "247c5c787f9d093a7cb181b963c9cff4c3f3aba06f970c3078bab73e563ace6d",
+          "rect": [
+            1990,
+            2270,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "6051090545d447052f04e528a470e4f63260214908eb7aea2de8286c9b466310",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\mochi.png",
+          "source_sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b",
+          "rect": [
+            187,
+            3134,
+            285,
+            332
+          ],
+          "decoded_rgba_sha256": "8b2b43f57fbcd3a44780dc9002b2e2cef1d750568d03503be77f95fc6ecbb6de",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\mochi\\front.png",
+          "source_sha256": "c3f8d97f61a00ace31f512fd8b8e5e027f24d89b59a22ecfa8252a6cd6f3a49f",
+          "rect": [
+            670,
+            2980,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "44a87c9d739d4084170401da3a32f7aa1737f22419031c613344d709d3a1747f",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\references\\pip.png",
+          "source_sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5",
+          "rect": [
+            1489,
+            3127,
+            321,
+            346
+          ],
+          "decoded_rgba_sha256": "3b32d76bd54721efeb8fa9b8df8d9c1993fc748d249cffdc7493b586d9f86189",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\pip\\front.png",
+          "source_sha256": "e772591c78d45ff0ca8a550068a2fa2a283021e06aadab380b8b77097e7e8644",
+          "rect": [
+            1990,
+            2980,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "b2ac22d85714930cffb4af4e96f4871f5ba429d8ae5ba77b627fff28e90bd423",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        }
+      ],
+      "method": "layout only; exact 1:1 decoded RGBA paste without resize, repaint or alpha compositing"
+    },
+    "alexia": {
+      "sha256": "c6358e3ac30c8e1cf38aee82f8dfb55596a53ccd75b609e84dfb77aee8cacdfb",
+      "bytes": 3861643,
+      "size": [
+        3200,
+        1910
+      ],
+      "placements": [
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\references\\alexia-blue-v2-turnaround.png",
+          "source_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+          "rect": [
+            832,
+            125,
+            1536,
+            1024
+          ],
+          "decoded_rgba_sha256": "b09c6df7dfb49c250ffc523431ec25cca95cb60aad0cf8ec3f87ca34c3f913f9",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\alexia\\front.png",
+          "source_sha256": "e41658dd6652604468ed1ef0b15a003137fb6e2cac6aa40068b6c0edcbd7229a",
+          "rect": [
+            0,
+            1240,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "58937c6fc1b7e37fd8a560965bc08c4129b4909123d9fc91ae40b7b36f546f4d",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\alexia\\three-quarter.png",
+          "source_sha256": "c2fd812d6c10327235da6a0d19e40619380057a1ef5cb5726dc061513cf34611",
+          "rect": [
+            640,
+            1240,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "1f2f74b7eda370ec49c6e7b88ce96588b656ab10c3de893abeb1305e851fb077",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\alexia\\left.png",
+          "source_sha256": "ac9983988b8f7aa0195c8f54c61519912e3575b532405367cff5eca8a1a39145",
+          "rect": [
+            1280,
+            1240,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "b569726f5c9588fa070f4185114d92bba538b9b372b274b63ec7346c4f9909c1",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\alexia\\right.png",
+          "source_sha256": "b5cf640b0ca00bfe869353bd9aa2462593948cb0079b41cf3467cf5642cef241",
+          "rect": [
+            1920,
+            1240,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "b90a2597cf5e6f68d6388d20b9e67336570fa796fbe8c51e778c080771deb6ea",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        },
+        {
+          "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\actual-five-views\\alexia\\back.png",
+          "source_sha256": "d8577288fcfac58ec803723e727af091e3a550c8c544678a34ce79b0344ed884",
+          "rect": [
+            2560,
+            1240,
+            640,
+            640
+          ],
+          "decoded_rgba_sha256": "33e09670d6b244afff3428a854ff0e9046dd156d034eab5aee284889a640e307",
+          "scale": 1,
+          "crop": false,
+          "repaint": false,
+          "pixel_equality_verified": true
+        }
+      ],
+      "method": "layout only; exact 1:1 decoded RGBA paste without resize, repaint or alpha compositing"
+    }
+  },
+  "new_reference_pixels_generated": false,
+  "source_image_edits": false,
+  "approved": false,
+  "gameIntegrated": false
+}

@@ -1,0 +1,364 @@
+{
+  "schema": "crwt.fidelity_native_reopen.v1",
+  "passed": true,
+  "blend_sha256": "08df9d68c5227459da0da00c4dc479ba5fe7b30e292fc26d940b8bb5f1cbd3f9",
+  "manifest_sha256": "02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3",
+  "character_count": 10,
+  "characters": [
+    {
+      "id": "alexia",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    },
+    {
+      "id": "rindi",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "id": "kairo",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915"
+    },
+    {
+      "id": "luna",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509"
+    },
+    {
+      "id": "nox",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f"
+    },
+    {
+      "id": "atlas",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24"
+    },
+    {
+      "id": "zeno",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc"
+    },
+    {
+      "id": "yuna",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b"
+    },
+    {
+      "id": "mochi",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+    },
+    {
+      "id": "pip",
+      "geometry_normals_uv_color_attributes_preserved": true,
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+    }
+  ],
+  "packed_active_image_count": 9,
+  "images": {
+    "Image_0": {
+      "sha256": "f0b20657ef22bf7cb5eb7b33fc466eefd36d4b04a7488cf3bc542e3bbd2eed9e",
+      "bytes": 390876,
+      "colorspace": "sRGB"
+    },
+    "Image_0.001": {
+      "sha256": "b98010c97f4300a65273e583f38420e60ec750f2149e46ccf9365e78953b1ae2",
+      "bytes": 151312,
+      "colorspace": "sRGB"
+    },
+    "Image_0.002": {
+      "sha256": "c864d8c0a4cf05acfaa5cbf7e9fa29c41c332fae6332984f019be1deb50d258d",
+      "bytes": 405908,
+      "colorspace": "sRGB"
+    },
+    "Image_0.003": {
+      "sha256": "c6e0447263cd0121fa574639fa50023795e3527e4fe8858e06e96e748b9ac6a7",
+      "bytes": 381984,
+      "colorspace": "sRGB"
+    },
+    "Image_0.004": {
+      "sha256": "c96a08d6b6ccea731be1f890bca02178cf1c152a0a68ccbf3d90937886355832",
+      "bytes": 415080,
+      "colorspace": "sRGB"
+    },
+    "Image_0.005": {
+      "sha256": "7871117c2bf0cd6445d1f6a9f7f4f6ba50c9e81f68bb470f7141ef0d1dcd5ae6",
+      "bytes": 413680,
+      "colorspace": "sRGB"
+    },
+    "Image_0.006": {
+      "sha256": "9629d434f6ac35d48d1c406b1ea644a7a3fa202d374160db743e18d001979c94",
+      "bytes": 392732,
+      "colorspace": "sRGB"
+    },
+    "Image_0.007": {
+      "sha256": "308f88e5a2c8dd7fd62ed031573c5ad3981515f8a8f2e2596fe2fdab453d03ef",
+      "bytes": 307008,
+      "colorspace": "sRGB"
+    },
+    "Image_1": {
+      "sha256": "7c8cb4626938baa3dbedfa3c40280d7a68abc835aa692b71978ef4a96da4b70f",
+      "bytes": 441568,
+      "colorspace": "Non-Color"
+    }
+  },
+  "material_graphs_equal_fresh_glb_imports": true,
+  "pip": {
+    "bones": {
+      "Root": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Body": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.12999999523162842,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Handle": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.06499999761581421,
+        0.0,
+        0.0,
+        1.0,
+        1.0799999237060547,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.LB": [
+        1.0,
+        0.0,
+        0.0,
+        -0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        0.09199999272823334,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.LF": [
+        1.0,
+        0.0,
+        0.0,
+        -0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        -0.09199997782707214,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.RB": [
+        1.0,
+        0.0,
+        0.0,
+        0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        0.09199999272823334,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.RF": [
+        1.0,
+        0.0,
+        0.0,
+        0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        -0.09199997782707214,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Companion": [
+        1.0,
+        0.0,
+        0.0,
+        -0.4699999690055847,
+        0.0,
+        1.0,
+        0.0,
+        -0.08000001311302185,
+        0.0,
+        0.0,
+        1.0,
+        0.060999996960163116,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionHandle": [
+        1.0,
+        0.0,
+        0.0,
+        -0.4699999690055847,
+        0.0,
+        1.0,
+        0.0,
+        -0.046159982681274414,
+        0.0,
+        0.0,
+        1.0,
+        0.5350000262260437,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.LB": [
+        1.0,
+        0.0,
+        0.0,
+        -0.5967308282852173,
+        0.0,
+        1.0,
+        0.0,
+        -0.03675999492406845,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.LF": [
+        1.0,
+        0.0,
+        0.0,
+        -0.5967308282852173,
+        0.0,
+        1.0,
+        0.0,
+        -0.12323999404907227,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.RB": [
+        1.0,
+        0.0,
+        0.0,
+        -0.3432691693305969,
+        0.0,
+        1.0,
+        0.0,
+        -0.03675999492406845,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.RF": [
+        1.0,
+        0.0,
+        0.0,
+        -0.3432691693305969,
+        0.0,
+        1.0,
+        0.0,
+        -0.12323999404907227,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "clips": [
+      "Idle",
+      "Jump",
+      "Lose",
+      "Skill",
+      "Walk",
+      "Win"
+    ]
+  },
+  "read_only": true,
+  "portable_manifest_relative_sources": true,
+  "historical_absolute_source_paths_used": false,
+  "native_color_representation": "Blender imported BYTE_COLOR; original float COLOR_0 preserved in packaged GLB",
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Includes active imported image textures; Alexia original unused image bytes remain preserved in its packaged GLB and previous native source archive.",
+    "Native restoration and source identity checks do not certify visual precision or runtime integration."
+  ]
+}

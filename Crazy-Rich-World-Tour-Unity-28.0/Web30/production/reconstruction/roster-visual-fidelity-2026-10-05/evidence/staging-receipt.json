@@ -1,0 +1,313 @@
+{
+  "schema": "crwt.reference-fidelity-stage.v1",
+  "historical_step": "Initial local staging only; later native/publication evidence is separate.",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity",
+  "selected_models": 10,
+  "changed_models": 8,
+  "baseline_models_unchanged": [
+    "rindi",
+    "pip"
+  ],
+  "source_files_preserved": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\alexia-blended-reference.glb",
+      "sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\alexia.png",
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\front.png",
+      "sha256": "e09a25c1e592f5e8e0ee61d4afed2141b900d0d9a37d7b78480d55336ba3aaba"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\render-evidence.json",
+      "sha256": "384ba3c0828281072bb3a0df35bebe426c7b0e0f37f84c6fbf038b01983a708d"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\three-quarter.png",
+      "sha256": "0ba93efc577b97a9cef7bc590da316a80d2a3d212e9f9885ada1fd0a28f83a83"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\left.png",
+      "sha256": "3023ecf2ca291a42d89f3bef7f4a706a604abaebd6c258371c1df9893b37c18c"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\right.png",
+      "sha256": "e7c111e5637ac7facb068f526018bd8c6476e6e31995d3f0852469c83064e752"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\back.png",
+      "sha256": "463a5b55da5c7fdcc898e4b3b5fca09bd75498e56695f8d540559341ede0364e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\rindi.glb",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\rindi.png",
+      "sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\rindi\\front.png",
+      "sha256": "4888181b64c6eff15750a979e140a57b9cc273a66d24f117acbfed11402af654"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\rindi\\render-evidence.json",
+      "sha256": "f0e21795d01b0312ca39298ff35c999d67329b745b1795a6f1ea3907ee4da1ab"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\kairo-material-preservation-proof.json",
+      "sha256": "d7c69384c6f34f31af83048e3c348ff29b465e0ef173272f9f30c6a6b3141959"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\kairo.glb",
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\kairo.png",
+      "sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\kairo\\front.png",
+      "sha256": "d299564a309ba6b12d3399bad18bcef30b61a0ee42b4f2baaec332f1672c6c2f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\kairo\\render-evidence.json",
+      "sha256": "fede62f06012d5bc99173fe9ba118333d2ad30344d8c4c5ff68443743dc3f4df"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\luna-material-preservation-proof.json",
+      "sha256": "595d6741af65a29de72d8b8f725991768e7bd0c10ffd82a7843e0f217af142f3"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\luna.glb",
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\luna.png",
+      "sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\luna\\front.png",
+      "sha256": "336cb76d4c8efa8520d153aaffad75b7d45896f3df3c19a96e970a1aad2a6fc3"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\luna\\render-evidence.json",
+      "sha256": "69c0b0ebf33c2efb0965898b8d467ccd1cc0b2cce08d7f9bce9bc8575b1d5aab"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\nox-material-preservation-proof.json",
+      "sha256": "b523b43d88cb3da83ad46487cf8483b2d1f187294d58bae08a7390572a9c48b7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\nox.glb",
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\nox.png",
+      "sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\nox\\front.png",
+      "sha256": "c07af7e97b18fae952ef293bf2a9c1cb9ab935dad9d43774946675f3c9b95e8b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\nox\\render-evidence.json",
+      "sha256": "85138bfc5363d3390ed7e6f9e560643d39468d0dafd0f5f76717e8a79665c863"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\atlas-material-preservation-proof.json",
+      "sha256": "149e0dd42fdeb193cbc61cf4559df64a15ffea41abbbc6ab184bc4e74875a6d2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\atlas.glb",
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\atlas.png",
+      "sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\atlas\\front.png",
+      "sha256": "dd4dd27acde45ae921d88e9ba4d362a5fc385ef5efd75aecdf4ddf4f824e645f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\atlas\\render-evidence.json",
+      "sha256": "ec4822687905b0ba0f829fbaa61bb25e4df5a9bca7ec7100a24ea35707052409"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\zeno-material-preservation-proof.json",
+      "sha256": "df97c158e5b5086b06f3794f5d8fa076adeae461e7ae8f8200bd58c934499c9a"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\zeno.glb",
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\zeno.png",
+      "sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\zeno\\front.png",
+      "sha256": "f2b23d99e6e8bdfc8a2cb0b4f0ce735ac0f39139a6c8d907de5ef763207240ae"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\zeno\\render-evidence.json",
+      "sha256": "33433bf4dc1be789564d3908d35f1575dde523d8b0d546d0b16678748cfca6a8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\yuna-material-preservation-proof.json",
+      "sha256": "00636062d47189ca389a6f40584e9f17c98cda8c12d3548308562ec28fe396fe"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\yuna.glb",
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\yuna.png",
+      "sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\yuna\\front.png",
+      "sha256": "94f8fe9e6ef13cbb1de5f35b54a6970ac860793b22f54afa34f0601d5b96645d"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\yuna\\render-evidence.json",
+      "sha256": "34acddcba93dc96138c621b8f6b317b0a9ee42377307aed7da5d9146162d7769"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\mochi-material-preservation-proof.json",
+      "sha256": "4b3f830c3495ffbd0421d3d858dbe3d3554619cc0a0279b3b0a77d2d724ebcca"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\mochi.glb",
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\mochi.png",
+      "sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\mochi\\front.png",
+      "sha256": "89ce3f1a3b5af12cb40835ca82f32e761ec7ece83c049f639a918fa7d5da08d2"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\renders\\mochi\\render-evidence.json",
+      "sha256": "ff2e97438ef2458833f4d1ab7db7124d894b93e60f531985cf304d7ef2a0ddee"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\pip.glb",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\pip.png",
+      "sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\pip\\front.png",
+      "sha256": "6498c76756e686e0b514f4644e6f7b5cb930fb2e222daa15af8c552925188030"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\pip\\render-evidence.json",
+      "sha256": "c5411f9978ae94af014379d7184dfaa307601fd892a310c6a954003463658562"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\references\\canonical-roster.png",
+      "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\references\\alexia-blue-v2-turnaround.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\vendor\\three\\build\\three.core.js",
+      "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\vendor\\three\\build\\three.module.js",
+      "sha256": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\vendor\\three\\examples\\jsm\\controls\\OrbitControls.js",
+      "sha256": "b97879c748170baadeb3fb84cea1ffdf4674e283dc06042f34e2acb95a76042c"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\vendor\\three\\examples\\jsm\\loaders\\GLTFLoader.js",
+      "sha256": "67ac5551fdafa6e349bd80c8f8e5e39c136d6b2fb1ad647db9abb21dc86f9e4a"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\vendor\\three\\examples\\jsm\\utils\\BufferGeometryUtils.js",
+      "sha256": "fda7e946b8e0b5ab39b779206589e7a1079a22eb24efb89d7223e03fdfb1f751"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\vendor\\three\\LICENSE",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\build_offline_gallery.py",
+      "sha256": "407008e84b2633fec93348384c381a3f68ba9fa1a14435f69bfa5cdf68729d41"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\MULAI-DI-SINI.txt",
+      "sha256": "03a60248e11327c111585652178b61889eb0e459b514b431d0d54f0a539d92cb"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\gallery.html",
+      "sha256": "ccf4f8d568826cb1160f31ea63bb533002ad35b9d87dd9d5d4dc2cdee2844953"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\gallery.js",
+      "sha256": "f9d4ed346615089e0d282c72b0537bfdb7593cdbf89c66d09def362b149da8ef"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\alexia-blended-reference.proof.json",
+      "sha256": "c4ddfb8ffa662508b2edcca49bf8e57fe879e374e90aea6aa7977fa394b4fe2f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.preservation-proof.json",
+      "sha256": "62416aaf82c1b35063801071c23b7653df317d38012fb337d14ec1e46d4ed7a6"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.frozen-roi.json",
+      "sha256": "e70ae56c104d42602e8c2ffc774073d8f33c576ca92c470190104541f7d9d51f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\build_blended_vertex_reference.py",
+      "sha256": "1a492dc30f2512d1932c43e13c860871cb8d467a57d1f08fd92f7b2dedcd7772"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\front-projection-v8.json",
+      "sha256": "1cb5d718639c9e26d7d966f27279ea0a798018bfbd984c3ba5bd9c0fa5ad6a01"
+    }
+  ],
+  "manifest_sha256": "02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3",
+  "html_sha256": "f1d134dfb67d581eef797ca4200f6dd01d2ec7cda11ba92dc91397bc21396998",
+  "native_workspace_included_in_this_step": false,
+  "git_operations_performed_in_this_step": false,
+  "additional_alexia_views": [
+    {
+      "view": "three-quarter",
+      "png_sha256": "0ba93efc577b97a9cef7bc590da316a80d2a3d212e9f9885ada1fd0a28f83a83",
+      "input_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    },
+    {
+      "view": "left",
+      "png_sha256": "3023ecf2ca291a42d89f3bef7f4a706a604abaebd6c258371c1df9893b37c18c",
+      "input_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    },
+    {
+      "view": "right",
+      "png_sha256": "e7c111e5637ac7facb068f526018bd8c6476e6e31995d3f0852469c83064e752",
+      "input_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    },
+    {
+      "view": "back",
+      "png_sha256": "463a5b55da5c7fdcc898e4b3b5fca09bd75498e56695f8d540559341ede0364e",
+      "input_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

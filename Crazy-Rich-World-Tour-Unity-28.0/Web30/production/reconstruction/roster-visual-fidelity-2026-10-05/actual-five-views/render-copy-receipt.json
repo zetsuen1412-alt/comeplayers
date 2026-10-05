@@ -1,0 +1,1018 @@
+{
+  "schema": "crwt.actual_five_views_copy.v1",
+  "manifest_sha256": "02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3",
+  "character_count": 10,
+  "actual_png_count": 50,
+  "characters": [
+    {
+      "id": "alexia",
+      "glb_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\alexia.glb",
+        "input_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1",
+        "bytes": 20213184,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 2,
+        "vertices": 258703,
+        "polygons": 451712,
+        "bounds_blender_z_up": [
+          [
+            -0.3544307351112366,
+            -0.25528788566589355,
+            -0.4452480673789978
+          ],
+          [
+            0.3424137830734253,
+            0.2056606262922287,
+            0.47905898094177246
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 258703,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "210b46ff7b54c5af1f68af1dc603e9c8be67e6bf83bef62f532d1a66f7c4676b",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "e41658dd6652604468ed1ef0b15a003137fb6e2cac6aa40068b6c0edcbd7229a",
+          "bytes": 592956,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\alexia\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "c2fd812d6c10327235da6a0d19e40619380057a1ef5cb5726dc061513cf34611",
+          "bytes": 591038,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\alexia\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "ac9983988b8f7aa0195c8f54c61519912e3575b532405367cff5eca8a1a39145",
+          "bytes": 512712,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\alexia\\left.png"
+        },
+        "right.png": {
+          "sha256": "b5cf640b0ca00bfe869353bd9aa2462593948cb0079b41cf3467cf5642cef241",
+          "bytes": 525364,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\alexia\\right.png"
+        },
+        "back.png": {
+          "sha256": "d8577288fcfac58ec803723e727af091e3a550c8c544678a34ce79b0344ed884",
+          "bytes": 556866,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\alexia\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "210b46ff7b54c5af1f68af1dc603e9c8be67e6bf83bef62f532d1a66f7c4676b",
+        "bytes": 1456,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\alexia\\render-evidence.json"
+      }
+    },
+    {
+      "id": "rindi",
+      "glb_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\rindi.glb",
+        "input_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+        "bytes": 3231408,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 1,
+        "vertices": 29416,
+        "polygons": 45278,
+        "bounds_blender_z_up": [
+          [
+            -0.321225643157959,
+            -0.31494176387786865,
+            -0.47531992197036743
+          ],
+          [
+            0.34069669246673584,
+            0.2540126442909241,
+            0.45940887928009033
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 29689,
+      "unused_vertices_not_imported": 273,
+      "source_render_receipt_sha256": "916aabc04b414d3367968e95d70e22a2b8ef52c98eed037625cd1ccd3dcfc214",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "d5f44a8aebe65763a71da14be4db9045f88751b4d5ffc07eecccf8ee0376413e",
+          "bytes": 530629,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\rindi\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "10516b8a3e16445c486b09c657aa626b4597d3cd2f6a80f73564415556c65f22",
+          "bytes": 516675,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\rindi\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "768193c617ec14112279910097fcae37047c994a6a892eab19f4f9c5fff7c381",
+          "bytes": 485720,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\rindi\\left.png"
+        },
+        "right.png": {
+          "sha256": "1c32c47a0a90a5ecc004ac081270636fc5f4cf9d0edb19a3ebcde364f8b97b1d",
+          "bytes": 489148,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\rindi\\right.png"
+        },
+        "back.png": {
+          "sha256": "4b5b8b3f2606ed7a32ed0f5b02aed2c8db295af9affe3f34f3291e6a4e0f2286",
+          "bytes": 489874,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\rindi\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "916aabc04b414d3367968e95d70e22a2b8ef52c98eed037625cd1ccd3dcfc214",
+        "bytes": 1251,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\rindi\\render-evidence.json"
+      }
+    },
+    {
+      "id": "kairo",
+      "glb_sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\kairo.glb",
+        "input_sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+        "bytes": 1278084,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 3,
+        "vertices": 20492,
+        "polygons": 27820,
+        "bounds_blender_z_up": [
+          [
+            -0.2610214948654175,
+            -0.3367205858230591,
+            -0.4717593491077423
+          ],
+          [
+            0.269461989402771,
+            0.27254462242126465,
+            0.4527919292449951
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 20492,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "1f1ee01eba3e11244c0ce770725aad2ebfbc441d3a231cf0f2d6b17d1b80c681",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "e7354025f47d19123cca70d107a4dfef4344f09119ab706f58c7ec0a7a3d07aa",
+          "bytes": 572893,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\kairo\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "e246f08385b057211874d348a51a6b834d0249d87de3f66c3cdf813db271e956",
+          "bytes": 564471,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\kairo\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "606d75440a40f7b24172657fb23970270a9cf6646de37bc49a1326d6abd19b11",
+          "bytes": 538246,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\kairo\\left.png"
+        },
+        "right.png": {
+          "sha256": "8cc50cf9c27d5c8aa8fe0395522c5eec911635df306fb42594efc523bd9a43e6",
+          "bytes": 533777,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\kairo\\right.png"
+        },
+        "back.png": {
+          "sha256": "bf1c5ec1f608d3cb65e4a2da930fa634850bfb68a52ee2c7c32d98812163847e",
+          "bytes": 528877,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\kairo\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "1f1ee01eba3e11244c0ce770725aad2ebfbc441d3a231cf0f2d6b17d1b80c681",
+        "bytes": 1450,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\kairo\\render-evidence.json"
+      }
+    },
+    {
+      "id": "luna",
+      "glb_sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\luna.glb",
+        "input_sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+        "bytes": 3076828,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 13,
+        "vertices": 39343,
+        "polygons": 55274,
+        "bounds_blender_z_up": [
+          [
+            -0.35823315382003784,
+            -0.2434784173965454,
+            -0.45660412311553955
+          ],
+          [
+            0.3859109878540039,
+            0.26031482219696045,
+            0.4785662889480591
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 40535,
+      "unused_vertices_not_imported": 1192,
+      "source_render_receipt_sha256": "4c7b9eaacde95ea7b5f0f0aeb1f2861b461226a3856474ca17ff7d63fdc6cca3",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "241ce7e3b72a70f7cdaa5f9ab0204e338efdb3ba77c1918043232e4d2e21576c",
+          "bytes": 626281,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\luna\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "c8382cd16130f0fe917077e4d2f18db82f2815c8eb4ed9ef43728362792906d3",
+          "bytes": 598982,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\luna\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "7fb12191f91de027d88cbbc8e9973005c9fe5e0d65514589de076397dd9fdee4",
+          "bytes": 540270,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\luna\\left.png"
+        },
+        "right.png": {
+          "sha256": "9987bcd8ef5f075e5a483af6eadef395a08e5579352e04633273fdb33fc1a628",
+          "bytes": 519151,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\luna\\right.png"
+        },
+        "back.png": {
+          "sha256": "a73732606fef01d172be245d67a2121d116d3671a7866240cda85f9886de0345",
+          "bytes": 531716,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\luna\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "4c7b9eaacde95ea7b5f0f0aeb1f2861b461226a3856474ca17ff7d63fdc6cca3",
+        "bytes": 1453,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\luna\\render-evidence.json"
+      }
+    },
+    {
+      "id": "nox",
+      "glb_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\nox.glb",
+        "input_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+        "bytes": 1885916,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 2,
+        "vertices": 23535,
+        "polygons": 25472,
+        "bounds_blender_z_up": [
+          [
+            -0.2940416932106018,
+            -0.22302556037902832,
+            -0.4637373089790344
+          ],
+          [
+            0.29017889499664307,
+            0.19497370719909668,
+            0.4689217805862427
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 23535,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "e3c32753fdc583dd79e925b0ab901609dee1193198fb9754ff8a7046511117db",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "6c8e6700e1440a4b5cd5e1a132a8c2d9e18d865c8f0af66747f0d054bc717432",
+          "bytes": 563648,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\nox\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "3f15f4c1277d2affc0ac5a2836f9fe52d245818b6c55e2156ed42d35ce852164",
+          "bytes": 542543,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\nox\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "df3265541bb5f054e7bc76185453e78e47cf08350cdbdb9bd3eedb92716d3643",
+          "bytes": 515291,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\nox\\left.png"
+        },
+        "right.png": {
+          "sha256": "adcf10095b6561bda0ef685e7aac770986a5d4848fa69074b5c5b6d6bb9cb0a5",
+          "bytes": 497882,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\nox\\right.png"
+        },
+        "back.png": {
+          "sha256": "d654377359c543e93c100c2bfe5e83ab8c35c5f1a131cc54be654eccdcc70e3e",
+          "bytes": 513099,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\nox\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "e3c32753fdc583dd79e925b0ab901609dee1193198fb9754ff8a7046511117db",
+        "bytes": 1451,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\nox\\render-evidence.json"
+      }
+    },
+    {
+      "id": "atlas",
+      "glb_sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\atlas.glb",
+        "input_sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+        "bytes": 2442228,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 1,
+        "vertices": 31672,
+        "polygons": 45028,
+        "bounds_blender_z_up": [
+          [
+            -0.35188794136047363,
+            -0.32148730754852295,
+            -0.43873992562294006
+          ],
+          [
+            0.3991994857788086,
+            0.33618468046188354,
+            0.446677565574646
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 31672,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "da730720e0dbecc7d701f55600909be3f2a35846a4753abe89483b2c8f7aabd4",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "f1d132bdf122e89519bcf7f098781dac6853aee16d1fdb91b8b987055503d70d",
+          "bytes": 625533,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\atlas\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "007ec721cb1b8e19c8638c788bbd7c573d5d04e8647917078b3c4ec389dab854",
+          "bytes": 619024,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\atlas\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "3d95ebe24d5aa97a22657e67f89513f0baeb91ea0e110cf695f2ad4390138e4a",
+          "bytes": 564301,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\atlas\\left.png"
+        },
+        "right.png": {
+          "sha256": "8a728553fc1ebbe19bac131289bcc989b0b2ff57533d4faf871038a5581aff51",
+          "bytes": 557539,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\atlas\\right.png"
+        },
+        "back.png": {
+          "sha256": "dfb218fe7c8b4cf2dd3c551ba9b8ab2b5a440b8b2d4144b132b1ac44f565fbe6",
+          "bytes": 555718,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\atlas\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "da730720e0dbecc7d701f55600909be3f2a35846a4753abe89483b2c8f7aabd4",
+        "bytes": 1453,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\atlas\\render-evidence.json"
+      }
+    },
+    {
+      "id": "zeno",
+      "glb_sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\zeno.glb",
+        "input_sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+        "bytes": 2033724,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 3,
+        "vertices": 24679,
+        "polygons": 33300,
+        "bounds_blender_z_up": [
+          [
+            -0.36024004220962524,
+            -0.2622412443161011,
+            -0.46155357360839844
+          ],
+          [
+            0.3413287401199341,
+            0.19784015417099,
+            0.46520423889160156
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 24679,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "52b3ca6b3d387d4912038664cf0b518413ee43e21a1b7b58e228a371f118a527",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "d4e0469f7aefdff0e865e7222017e997765b2fcb006a145139a8db58c1005706",
+          "bytes": 601804,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\zeno\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "ce9358b58c3dbf7c7d47780975df658d0a6f097d88131682d14f658aa36e5a4c",
+          "bytes": 589280,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\zeno\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "b9c801d36fba86ddf80fdaafb55d5a3aade2da073738594dd762081625b9d18e",
+          "bytes": 532856,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\zeno\\left.png"
+        },
+        "right.png": {
+          "sha256": "4e0304e907e49594bbba96f1a147468794455611241dd5d461ccba7f10d24ede",
+          "bytes": 525831,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\zeno\\right.png"
+        },
+        "back.png": {
+          "sha256": "ce27f9fed26244d5040c4b7f1078291058dc545391019053f3efc1b3319087a3",
+          "bytes": 543660,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\zeno\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "52b3ca6b3d387d4912038664cf0b518413ee43e21a1b7b58e228a371f118a527",
+        "bytes": 1450,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\zeno\\render-evidence.json"
+      }
+    },
+    {
+      "id": "yuna",
+      "glb_sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\yuna.glb",
+        "input_sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+        "bytes": 1990840,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 2,
+        "vertices": 25055,
+        "polygons": 32908,
+        "bounds_blender_z_up": [
+          [
+            -0.39316079020500183,
+            -0.2391263246536255,
+            -0.44736167788505554
+          ],
+          [
+            0.37436389923095703,
+            0.22648870944976807,
+            0.44999802112579346
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 25055,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "7e539a9053ecc8876895cae395eff33d5bd44014986c8156d0f0dedf54128cbe",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "247c5c787f9d093a7cb181b963c9cff4c3f3aba06f970c3078bab73e563ace6d",
+          "bytes": 613554,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\yuna\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "1924e932bcd47bb8e4789a9aaf652de0553533c78b55bbcd3eaf8af32f6ddec8",
+          "bytes": 605606,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\yuna\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "b6398091dba90f342aeeda4ef2e6397562d754bbf9f5175e985561f4428b4d3c",
+          "bytes": 527611,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\yuna\\left.png"
+        },
+        "right.png": {
+          "sha256": "e2416f44f235bdfa32e2a70d8bf3f5e377facda5040d11ac3ded7e830073db96",
+          "bytes": 542538,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\yuna\\right.png"
+        },
+        "back.png": {
+          "sha256": "7c4e9c80015a8e2f05aef4eb6ba85b74de9d7173c4c006369ad5a0a10d317cee",
+          "bytes": 551739,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\yuna\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "7e539a9053ecc8876895cae395eff33d5bd44014986c8156d0f0dedf54128cbe",
+        "bytes": 1454,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\yuna\\render-evidence.json"
+      }
+    },
+    {
+      "id": "mochi",
+      "glb_sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\mochi.glb",
+        "input_sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+        "bytes": 2278420,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 2,
+        "vertices": 18328,
+        "polygons": 24404,
+        "bounds_blender_z_up": [
+          [
+            -0.3799600601196289,
+            -0.2640906572341919,
+            -0.4316798150539398
+          ],
+          [
+            0.4034651517868042,
+            0.1486000418663025,
+            0.4643700122833252
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "view_transform": "Standard",
+        "solid_accessory_lights": {
+          "world_strength": 0.25,
+          "key_power_factor": 120,
+          "fill_power_factor": 56,
+          "rim_power_factor": 100
+        },
+        "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 18334,
+      "unused_vertices_not_imported": 6,
+      "source_render_receipt_sha256": "96a63aeb015dd007acb6e0c92df7e0809b7bf03ea0c4a10dbff826e31c96919c",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "c3f8d97f61a00ace31f512fd8b8e5e027f24d89b59a22ecfa8252a6cd6f3a49f",
+          "bytes": 564294,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\mochi\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "1a6c065bbee3fcfb280a87f94ba44ed2cc9622e7a6651ba50a875721c9f9c602",
+          "bytes": 544945,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\mochi\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "d35f02d4b6e0cb82bbb10a766ee4c9fb8ac9314b49e0b7f57186dbeded14e41b",
+          "bytes": 481763,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\mochi\\left.png"
+        },
+        "right.png": {
+          "sha256": "f9b840ab4001954d608cab2b9514ded2dc29a3e6a7233c7ea5e89425f8890dc5",
+          "bytes": 466319,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\mochi\\right.png"
+        },
+        "back.png": {
+          "sha256": "7ca3bb3e19eb0c21ffd1260e4c5f439bed4dd5b6364d27fd5b19a3c31576ab92",
+          "bytes": 467597,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\mochi\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "96a63aeb015dd007acb6e0c92df7e0809b7bf03ea0c4a10dbff826e31c96919c",
+        "bytes": 1450,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\mochi\\render-evidence.json"
+      }
+    },
+    {
+      "id": "pip",
+      "glb_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "render_scope": {
+        "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\pip.glb",
+        "input_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+        "bytes": 5690144,
+        "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+        "blender_version": "5.2.2 LTS",
+        "engine": "CYCLES",
+        "cycles_samples": 32,
+        "mesh_objects": 194,
+        "vertices": 103760,
+        "polygons": 97580,
+        "bounds_blender_z_up": [
+          [
+            -0.6344482898712158,
+            -0.22074514627456665,
+            -5.587935447692871e-09
+          ],
+          [
+            0.4193347990512848,
+            0.16499997675418854,
+            1.3344998359680176
+          ]
+        ],
+        "pose": "static rest pose; animation disabled in render copy",
+        "views": [
+          [
+            "front",
+            0,
+            0
+          ],
+          [
+            "three-quarter",
+            -30,
+            10
+          ],
+          [
+            "left",
+            90,
+            0
+          ],
+          [
+            "right",
+            -90,
+            0
+          ],
+          [
+            "back",
+            180,
+            0
+          ]
+        ],
+        "production_approved": false,
+        "orbit_frames": 0,
+        "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+      },
+      "counts_scope": "imported Blender mesh counts; unused accessor vertices may be omitted without face loss",
+      "glb_accessor_vertex_count": 103760,
+      "unused_vertices_not_imported": 0,
+      "source_render_receipt_sha256": "021bddcabbc10bdecc00a67231e1fcd66add355427dcf2784d28e164cb9e5e5a",
+      "copied_outputs": {
+        "front.png": {
+          "sha256": "e772591c78d45ff0ca8a550068a2fa2a283021e06aadab380b8b77097e7e8644",
+          "bytes": 504240,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\pip\\front.png"
+        },
+        "three-quarter.png": {
+          "sha256": "47bcf4b884f26bda68b6e6ea292e4a5ab121bbf2a5bb54f3dd14a74a00ea872b",
+          "bytes": 509025,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\pip\\three-quarter.png"
+        },
+        "left.png": {
+          "sha256": "0700a0dc1be374e7990a6ff8b1211cdff90b6dff2a156fb290c894842804b7f8",
+          "bytes": 428397,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\pip\\left.png"
+        },
+        "right.png": {
+          "sha256": "ba304633a8d25558343e9ae59f5735ebf06175960b84f6847ab9650728fa8e01",
+          "bytes": 427536,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\pip\\right.png"
+        },
+        "back.png": {
+          "sha256": "14eeb475f890cad5ab4407bfd4c18ad4b3902853cf094dd0db400360efad5bf7",
+          "bytes": 441975,
+          "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\pip\\back.png"
+        }
+      },
+      "copied_render_receipt": {
+        "sha256": "021bddcabbc10bdecc00a67231e1fcd66add355427dcf2784d28e164cb9e5e5a",
+        "bytes": 1254,
+        "source_at_staging": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\final-roster-five-views\\pip\\render-evidence.json"
+      }
+    }
+  ],
+  "copy_method": "exact byte copies; actual imported GLB mesh/material renders",
+  "no_model_or_raster_edits": true,
+  "approved": false,
+  "gameIntegrated": false
+}

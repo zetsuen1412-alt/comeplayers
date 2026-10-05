@@ -1,0 +1,694 @@
+{
+  "schema": "crwt.packed-editable-build.v1",
+  "id": "alexia",
+  "source_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "candidate_sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+  "blend_sha256": "c479511928e9b04ce40d397053156a8f96c729dc040a9adda7964b00d4e15cb2",
+  "blend_bytes": 2341309,
+  "native_fingerprint": {
+    "meshes": {
+      "geometry_0": {
+        "geometry_topology_corner_normal_uv_sha256": "7a797608cdf6abfe58d9b34f635424dd3b1fb30bb8b84ef43be1b36a128a3d55",
+        "vertices": 23425,
+        "triangles": 27512,
+        "matrix_world": [
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Material_0"
+        ]
+      },
+      "Alexia original cup face precision details": {
+        "geometry_topology_corner_normal_uv_sha256": "f0411be66a002b6e281dbfb5899dd57332bada37a6dffd2dddbe3e350a165616",
+        "vertices": 5760,
+        "triangles": 11520,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Graphite headphone precision rim",
+          "Silver headphone face rim",
+          "Gold headphone diaphragm",
+          "Headphone black center"
+        ]
+      }
+    },
+    "mesh_count": 2,
+    "triangles": 39032,
+    "vertices": 29185,
+    "materials": {
+      "Gold headphone diaphragm": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.7699999809265137,
+                0.4000000059604645,
+                0.054999999701976776,
+                1.0
+              ],
+              "Metallic": 0.5,
+              "Roughness": 0.3799999952316284,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Graphite headphone precision rim": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.017999999225139618,
+                0.014999999664723873,
+                0.02500000037252903,
+                1.0
+              ],
+              "Metallic": 0.15000000596046448,
+              "Roughness": 0.41999998688697815,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Headphone black center": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.004999999888241291,
+                0.004000000189989805,
+                0.00800000037997961,
+                1.0
+              ],
+              "Metallic": 0.0,
+              "Roughness": 0.5,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Material_0": {
+        "nodes": [
+          {
+            "name": "Image Texture",
+            "type": "ShaderNodeTexImage",
+            "image": "Image_0",
+            "inputs": {
+              "Vector": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "Image Texture.001",
+            "type": "ShaderNodeTexImage",
+            "image": "Image_1",
+            "inputs": {
+              "Vector": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Normal Map",
+            "type": "ShaderNodeNormalMap",
+            "image": null,
+            "inputs": {
+              "Strength": 0.0,
+              "Color": [
+                0.5,
+                0.5,
+                1.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.800000011920929,
+                0.800000011920929,
+                0.800000011920929,
+                1.0
+              ],
+              "Metallic": 0.0026471028104424477,
+              "Roughness": 0.550000011920929,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Image Texture",
+            "Color",
+            "Principled BSDF",
+            "Base Color"
+          ],
+          [
+            "Image Texture.001",
+            "Color",
+            "Normal Map",
+            "Color"
+          ],
+          [
+            "Normal Map",
+            "Normal",
+            "Principled BSDF",
+            "Normal"
+          ],
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Silver headphone face rim": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.7200000286102295,
+                0.7200000286102295,
+                0.7699999809265137,
+                1.0
+              ],
+              "Metallic": 0.6499999761581421,
+              "Roughness": 0.3799999952316284,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      }
+    },
+    "images": [
+      {
+        "name": "Image_0",
+        "sha256": "ea8d803146c3a08c6e792c33f9fe2c323aab0ac64fec727e2e07a84c5ac7cbc5",
+        "bytes": 409284,
+        "colorspace": "sRGB",
+        "size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "name": "Image_1",
+        "sha256": "0003381f67d04442bc3e2662808714ff73156a37967fe98bb56c9d0ce1ebefc0",
+        "bytes": 451396,
+        "colorspace": "Non-Color",
+        "size": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "armatures": 0,
+    "actions": 0
+  },
+  "embedded_images": [
+    {
+      "sha256": "ea8d803146c3a08c6e792c33f9fe2c323aab0ac64fec727e2e07a84c5ac7cbc5",
+      "bytes": 409284,
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sha256": "0003381f67d04442bc3e2662808714ff73156a37967fe98bb56c9d0ce1ebefc0",
+      "bytes": 451396,
+      "mimeType": "image/jpeg"
+    }
+  ],
+  "packed_images_byte_identical_to_glb": true,
+  "all_file_images_packed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "blender_version": "5.2.2 LTS"
+}

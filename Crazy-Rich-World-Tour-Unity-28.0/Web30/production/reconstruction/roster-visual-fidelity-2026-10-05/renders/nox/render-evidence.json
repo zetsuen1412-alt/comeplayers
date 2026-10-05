@@ -1,0 +1,24 @@
+{
+  "id": "nox",
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\nox.glb",
+  "input_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+  "original_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+  "render_source": "Actual GLB mesh/materials imported into Blender; no reference billboard or painted/generated texture.",
+  "views": [
+    "front"
+  ],
+  "renders": [
+    {
+      "path": "front.png",
+      "bytes": 541997,
+      "sha256": "c07af7e97b18fae952ef293bf2a9c1cb9ab935dad9d43774946675f3c9b95e8b"
+    }
+  ],
+  "polygons": 25472,
+  "vertices": 23535,
+  "view_transform": "Standard",
+  "geometry_texture_change": false,
+  "pip_baseline_pbr_preserved": false,
+  "approved": false,
+  "gameIntegrated": false
+}

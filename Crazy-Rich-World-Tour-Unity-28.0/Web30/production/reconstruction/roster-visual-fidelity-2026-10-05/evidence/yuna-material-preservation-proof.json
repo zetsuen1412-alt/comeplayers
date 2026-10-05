@@ -1,0 +1,33 @@
+{
+  "id": "yuna",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\yuna.glb",
+  "source_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\yuna.glb",
+  "candidate_sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+  "bytes": 1990840,
+  "material_indices_set_unlit": [
+    0
+  ],
+  "pip_preserved_entire_file": false,
+  "binary_chunk_entirely_byte_identical": true,
+  "all_json_except_materials_and_extension_registration_exact": true,
+  "geometry_uv_normals_indices_images_skin_animations_byte_exact": true,
+  "actual": {
+    "faces": 32908,
+    "vertices": 25055,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "75f34864d26f43226425828d527c75b04a6a4967b88a9c8e8ba09300755b8e09",
+    "accessors_checked": 28,
+    "buffer_views_checked": 30
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

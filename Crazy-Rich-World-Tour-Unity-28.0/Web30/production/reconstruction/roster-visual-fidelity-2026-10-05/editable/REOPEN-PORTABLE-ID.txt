@@ -1,0 +1,19 @@
+PORTABLE NATIVE RESTORE CHECK
+Current packed .blend can be opened directly. The original reopen recipe is
+historical and reads absolute paths; use the new portable helper for a check
+on another computer. It does not rewrite .blend, model GLBs or old proof.
+
+Extract CRWT-fidelity-editable-roster.zip into a fresh folder. This ZIP includes
+the selected10 GLBs, manifest, native blend, original proofs and build helper.
+Copy editable/tools/reopen_fidelity_workspace_portable.py from this review
+folder into the extracted editable/tools directory; keep the neighbor build
+helper. Or use the final full model-review checkpoint ZIP, which includes it.
+From the extracted root, run Blender 5.2.2 (replace the Blender executable path):
+
+blender --background --factory-startup --disable-autoexec --python-exit-code 3 --python editable/tools/reopen_fidelity_workspace_portable.py -- --blend editable/CRWT-semua-karakter-review.blend --manifest review-manifest.json --out portable-reopen-result.json
+
+Output receipt must be fresh. The helper gates source hashes, manifest, native
+mesh/normal/UV/COLOR fingerprints, active packed images, material graphs, and
+Pip13 joints/six clips. BYTE_COLOR is the native Blender importer representation;
+float COLOR_0 in the original GLB remains exact. This check does not certify
+visual precision, approval or gameplay integration.

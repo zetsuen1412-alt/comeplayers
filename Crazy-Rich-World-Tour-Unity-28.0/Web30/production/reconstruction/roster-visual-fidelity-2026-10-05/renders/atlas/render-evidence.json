@@ -1,0 +1,24 @@
+{
+  "id": "atlas",
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\atlas.glb",
+  "input_sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+  "original_sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+  "render_source": "Actual GLB mesh/materials imported into Blender; no reference billboard or painted/generated texture.",
+  "views": [
+    "front"
+  ],
+  "renders": [
+    {
+      "path": "front.png",
+      "bytes": 613443,
+      "sha256": "dd4dd27acde45ae921d88e9ba4d362a5fc385ef5efd75aecdf4ddf4f824e645f"
+    }
+  ],
+  "polygons": 45028,
+  "vertices": 31672,
+  "view_transform": "Standard",
+  "geometry_texture_change": false,
+  "pip_baseline_pbr_preserved": false,
+  "approved": false,
+  "gameIntegrated": false
+}

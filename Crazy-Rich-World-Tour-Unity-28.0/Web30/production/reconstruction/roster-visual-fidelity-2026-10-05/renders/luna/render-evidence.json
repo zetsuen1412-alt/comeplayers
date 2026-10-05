@@ -1,0 +1,24 @@
+{
+  "id": "luna",
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\luna.glb",
+  "input_sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+  "original_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+  "render_source": "Actual GLB mesh/materials imported into Blender; no reference billboard or painted/generated texture.",
+  "views": [
+    "front"
+  ],
+  "renders": [
+    {
+      "path": "front.png",
+      "bytes": 608698,
+      "sha256": "336cb76d4c8efa8520d153aaffad75b7d45896f3df3c19a96e970a1aad2a6fc3"
+    }
+  ],
+  "polygons": 55274,
+  "vertices": 39343,
+  "view_transform": "Standard",
+  "geometry_texture_change": false,
+  "pip_baseline_pbr_preserved": false,
+  "approved": false,
+  "gameIntegrated": false
+}

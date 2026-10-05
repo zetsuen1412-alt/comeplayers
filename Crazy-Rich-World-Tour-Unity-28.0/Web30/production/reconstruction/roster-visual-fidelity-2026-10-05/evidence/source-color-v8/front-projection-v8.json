@@ -1,0 +1,138 @@
+{
+  "source": "work/reference-fidelity-2026-10-05/hair-geometry/trial-v2/alexia-rear-hair-control-candidate.glb",
+  "source_sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+  "reference": "outputs/model-review-2026-10-05-pass2/viewer/references/alexia.png",
+  "reference_sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+  "width": 510,
+  "height": 488,
+  "normal_threshold": 0.05,
+  "vertical": [
+    [
+      -0.445248,
+      470
+    ],
+    [
+      -0.36,
+      425
+    ],
+    [
+      -0.2,
+      338
+    ],
+    [
+      -0.115,
+      296
+    ],
+    [
+      -0.047,
+      258
+    ],
+    [
+      0.1,
+      183
+    ],
+    [
+      0.157,
+      164
+    ],
+    [
+      0.2347,
+      126
+    ],
+    [
+      0.34,
+      73
+    ],
+    [
+      0.479059,
+      20
+    ]
+  ],
+  "horizontal_center_pixels": [
+    [
+      -0.45,
+      223
+    ],
+    [
+      0,
+      223
+    ],
+    [
+      0.15,
+      222.5
+    ],
+    [
+      0.3,
+      222.5
+    ],
+    [
+      0.48,
+      222
+    ]
+  ],
+  "horizontal_center_world": [
+    [
+      -0.45,
+      -0.024
+    ],
+    [
+      0.0,
+      -0.023
+    ],
+    [
+      0.15,
+      -0.02
+    ],
+    [
+      0.3,
+      -0.02
+    ],
+    [
+      0.48,
+      -0.006
+    ]
+  ],
+  "horizontal_scale": [
+    [
+      -0.45,
+      491
+    ],
+    [
+      0,
+      440
+    ],
+    [
+      0.15,
+      475
+    ],
+    [
+      0.235,
+      510
+    ],
+    [
+      0.34,
+      485
+    ],
+    [
+      0.48,
+      480
+    ]
+  ],
+  "fallback_unlit": true,
+  "exclude_peripheral_hair": true,
+  "back_projection": {
+    "reference": "outputs/model-review-2026-10-05-pass2/references/alexia-blue-v2-turnaround.png",
+    "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "width": 1536,
+    "height": 1024,
+    "center_pixel": 1287,
+    "center_world": -0.006,
+    "scale": 494.4,
+    "top_pixel": 503,
+    "top_world": 0.479059,
+    "normal_threshold": 0.08
+  },
+  "blend_normal_low": 0.02,
+  "blend_normal_high": 0.45,
+  "exclude_back_earcup_projection": true
+}

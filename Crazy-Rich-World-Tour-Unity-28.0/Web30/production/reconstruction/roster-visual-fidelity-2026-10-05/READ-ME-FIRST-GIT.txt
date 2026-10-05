@@ -1,0 +1,24 @@
+CRWT — READ ME FIRST: GIT NATIVE ARCHIVE
+05 Oktober 2026
+
+Khusus salinan Git, ZIP native disimpan sebagai dua bagian agar dapat dikirim
+melalui batas transport. ZIP pengguna asli tetap lengkap dan tidak diubah.
+Dari folder roster-visual-fidelity-2026-10-05 ini, jalankan Python 3 stdlib:
+
+python tools/restore_native_archive.py --parts-dir editable --output editable/CRWT-fidelity-editable-roster.zip --receipt editable/git-native-storage-receipt.json
+
+--receipt adalah INPUT storage manifest. --output harus path ZIP baru; tool
+menolak overwrite. Tool memeriksa SHA setiap bagian, SHA ZIP lengkap, dan CRC
+semua entry. Opsional --report <path-baru.json> menyimpan receipt verifikasi;
+receipt juga dicetak ke stdout. Hasil ZIP harus 65.915.347 byte, SHA256:
+966c135bd63115bbec746c21d30ef6f1ff33d4e6bf5d195c4975da57d470199a
+
+Setelah berhasil, ikuti CURRENT-RESUME-ID.txt untuk mengekstrak ZIP dan membuka
+workspace Blender. Untuk pemeriksaan reopen portable, ikuti
+editable/REOPEN-PORTABLE-ID.txt dan gunakan helper portable yang disertakan.
+Jangan memakai source_path absolut historis sebagai path restore komputer baru.
+
+CI menyambung ZIP ke direktori temp baru di luar source roster agar source
+inventory tetap murni. Arsip source checkpoint mempertahankan kedua bagian
+dan storage receipt. Pemecahan ini tidak mengubah model/native/tekstur atau
+status approval: semua kandidat masih belum disetujui dan belum gameIntegrated.
