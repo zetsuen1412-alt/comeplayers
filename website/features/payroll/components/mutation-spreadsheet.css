@@ -28,10 +28,39 @@
 .evocp-payroll .cp-table.mutation-sheet-table th, .evocp-payroll .cp-table.mutation-sheet-table td { min-width: 0; padding: 12px 14px; border-right: 1px solid #292d35; border-bottom: 1px solid #292d35; text-align: left; vertical-align: top; word-break: normal; overflow-wrap: normal; white-space: normal; }
 .evocp-payroll .cp-table.mutation-sheet-table th { position: sticky; top: 0; z-index: 2; padding: 0; height: 48px; background: #1a1d24; color: #d1d5df; font-size: 13px; }
 .evocp-payroll .cp-table.mutation-sheet-table td { font-size: 14px; line-height: 1.6; overflow: hidden; text-overflow: ellipsis; }
-.evocp-payroll .cp-table.mutation-sheet-table :is(th,td)[data-column="selection"] { position: sticky; left: 0; padding: 12px; text-align: center; vertical-align: middle; background: #111318; z-index: 3; }
+.evocp-payroll .cp-table.mutation-sheet-table :is(th,td)[data-column="selection"] { position: sticky; left: 0; padding: 12px; text-align: center; vertical-align: middle; background: var(--mutation-price-bg, #111318); z-index: 3; }
 .evocp-payroll .cp-table.mutation-sheet-table th[data-column="selection"] { background: #1a1d24; z-index: 4; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-order-selected=true] td { box-shadow: inset 0 2px #f5c54266, inset 0 -2px #f5c54266; }
-.evocp-payroll .cp-table.mutation-sheet-table tr[data-order-selected=true] td[data-column="selection"] { background: #323020; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-order-selected=true] td[data-column="selection"] { background: var(--mutation-price-bg, #323020); }
+.evocp-payroll [data-price-tier="10"] { --mutation-price-bg: #ccecff; --mutation-price-text: #172a3a; --mutation-price-accent: #4b2c6c; }
+.evocp-payroll [data-price-tier="20"] { --mutation-price-bg: #f6c3d4; --mutation-price-text: #36212b; --mutation-price-accent: #542564; }
+.evocp-payroll [data-price-tier="30"] { --mutation-price-bg: #85563c; --mutation-price-text: #fff5ec; --mutation-price-accent: #f4dcff; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td { background: var(--mutation-price-bg); color: var(--mutation-price-text); }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td:not([data-column="status"]):not([data-column="actions"]) :is(.text-zinc-500, .text-zinc-600, .text-amber-300, .text-sky-300) { color: inherit; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="division"] span { color: var(--mutation-price-accent); border-color: currentColor; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="status"] [class~="bg-emerald-500/20"] { background: #064e3b; color: #ecfdf5; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="status"] [class~="bg-sky-500/15"] { background: #0c4a6e; color: #f0f9ff; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="status"] :is([class~="bg-violet-500/15"], [class~="bg-violet-500/30"]) { background: #4c1d95; color: #f5f3ff; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="status"] [class~="bg-amber-500/15"] { background: #78350f; color: #fffbeb; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="status"] [class~="bg-red-500/15"] { background: #7f1d1d; color: #fef2f2; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="text-amber-200"] { background: #78350f; color: #fffbeb; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="bg-sky-500/20"] { background: #0c4a6e; color: #f0f9ff; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="bg-violet-500/20"] { background: #4c1d95; color: #f5f3ff; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="bg-emerald-500/15"] { background: #064e3b; color: #ecfdf5; }
+.evocp-payroll .mutation-price-guide { margin-top: 20px; padding: 16px; border: 1px solid #292d35; border-radius: 14px; font-size: 13px; line-height: 1.6; }
+.evocp-payroll .mutation-price-guide p { margin: 6px 0 12px; color: #a1a1aa; }
+.evocp-payroll .mutation-price-legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.evocp-payroll .mutation-price-legend span { padding: 6px 10px; border-radius: 7px; color: var(--mutation-price-text); background: var(--mutation-price-bg); font-weight: 600; }
+.evocp-payroll .mutation-price-check { margin-top: 6px; font-size: 11px; line-height: 1.7; color: #a1a1aa; white-space: normal; overflow-wrap: anywhere; }
+.evocp-payroll .mutation-price-check small { font-size: inherit; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] .mutation-price-check { color: inherit; }
+.evocp-payroll .mutation-price-badge { display: inline-block; margin-bottom: 3px; padding: 1px 6px; border: 1px solid currentColor; border-radius: 5px; font-size: 11px; }
+.evocp-payroll .mutation-price-group-link { display: block; margin-top: 5px; padding: 4px 7px; min-height: 30px; border: 1px solid currentColor; border-radius: 5px; background: transparent; color: inherit; font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.evocp-payroll .mutation-price-group-link:hover { text-decoration: underline; }
+.evocp-payroll .mutation-price-group-link:focus-visible, .evocp-payroll .mutation-price-active-group button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.evocp-payroll .mutation-price-active-group { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 1px solid #6e6c41; border-radius: 9px; background: #27251a; color: #fef3c7; font-size: 13px; }
+.evocp-payroll .mutation-price-active-group span { flex: 1 1 280px; overflow-wrap: anywhere; }
+.evocp-payroll .mutation-price-active-group button { min-height: 34px; padding: 5px 10px; border: 1px solid currentColor; border-radius: 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .evocp-payroll .cp-table.mutation-sheet-table td[data-column="code"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="source"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="type"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="day"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="division"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="quantity"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="total"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="status"] { white-space: nowrap; }
 .evocp-payroll .cp-table.mutation-sheet-table td[data-column="buyer"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="order"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="task"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="distribution"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="workers"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="game"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="region"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="server"] { overflow-wrap: break-word; }
 .evocp-payroll .cp-table.mutation-sheet-table td[data-column="quantity"], .evocp-payroll .cp-table.mutation-sheet-table td[data-column="total"] { text-align: right; font-variant-numeric: tabular-nums; }

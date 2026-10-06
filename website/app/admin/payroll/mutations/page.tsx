@@ -26,6 +26,7 @@ import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-e
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
 import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
+import { buildOrderPriceAssessments, type PriceTier } from "@/features/payroll/lib/price-anomaly";
 import {
   expandMutationRows,
   formatMutationDistribution,
@@ -38,7 +39,21 @@ import type { Order, OrderIssue } from "@/features/payroll/types/domain";
 type DateMode = "all" | "today" | "week" | "month" | "range";
 type TypeFilter = "SEMUA" | "gold" | "item" | "boosting";
 type ProblemFilter = "SEMUA" | "BERMASALAH" | "NORMAL";
+type PriceFilter = "SEMUA" | "TURUN" | PriceTier;
+type ActivePriceGroup = { key: string; label: string };
 type SortMode = "newest" | "oldest" | "highest" | "lowest" | "source_az" | "buyer_az" | "game_az" | "employee_az" | "employee_za" | "division_az" | "division_za";
+type PriceSortMode = SortMode | "price_drop";
+
+const priceFilterLabels: Record<PriceFilter, string> = {
+  SEMUA: "Semua harga",
+  TURUN: "Semua penurunan ≥10%",
+  "10": "Turun 10–<20% · biru muda",
+  "20": "Turun 20–<30% · pink",
+  "30": "Turun ≥30% · coklat",
+};
+
+const priceBasisLabels = { order: "Harga pesanan", unit: "Harga per unit", day: "Harga per hari" } as const;
+const pricePercentFormat = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
 type TelegramMutationStatus = {
   order_ref: string;
   order_type: "boosting" | "gold" | "item";
@@ -183,6 +198,9 @@ export default function MutationsPage() {
   const [employee, setEmployee] = useState("SEMUA");
   const [division, setDivision] = useState("SEMUA");
   const [problem, setProblem] = useState<ProblemFilter>("SEMUA");
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>("SEMUA");
+  const [activePriceGroup, setActivePriceGroup] = useState<ActivePriceGroup | null>(null);
+  const [sortByPriceDrop, setSortByPriceDrop] = useState(false);
   const [sortState, setSortState] = useState<MutationSortState>(defaultMutationSort);
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
@@ -242,6 +260,8 @@ export default function MutationsPage() {
     return ai - bi;
   }), [assignmentOptions]);
 
+  const priceAssessments = useMemo(() => buildOrderPriceAssessments(allOrders), [allOrders]);
+
   const filteredOrders = useMemo(() => allOrders.filter((order) => {
     if (type !== "SEMUA" && order.orderType !== type) return false;
     if (buyer !== "SEMUA" && (order.buyerName ?? "") !== buyer) return false;
@@ -261,6 +281,11 @@ export default function MutationsPage() {
   const rows = useMemo(() => {
     const term = search.trim().toLowerCase();
     const filtered = periodRows.filter((row) => {
+      const price = priceAssessments.get(row.order.id);
+      if (activePriceGroup && price?.groupKey !== activePriceGroup.key) return false;
+      const priceTier = price?.tier;
+      if (priceFilter === "TURUN" && !priceTier) return false;
+      if (priceFilter !== "SEMUA" && priceFilter !== "TURUN" && priceTier !== priceFilter) return false;
       if (source !== "SEMUA" && row.order.source !== source) return false;
       if (employee !== "SEMUA" && !row.assignments.some((assignment) => assignment.employeeName === employee)) return false;
       if (division !== "SEMUA" && !row.assignments.some((assignment) => normalizeDivisionLabel(assignment.team) === division)) return false;
@@ -285,8 +310,17 @@ export default function MutationsPage() {
       }
       return true;
     });
-    return [...filtered].sort((a, b) => compareViewRows(a, b, sortState));
-  }, [division, employee, employees, periodRows, problem, search, sortState, source]);
+    return [...filtered].sort((a, b) => {
+      if (sortByPriceDrop) {
+        const aDrop = priceAssessments.get(a.order.id)?.dropPercent;
+        const bDrop = priceAssessments.get(b.order.id)?.dropPercent;
+        if (aDrop === undefined && bDrop !== undefined) return 1;
+        if (aDrop !== undefined && bDrop === undefined) return -1;
+        if (aDrop !== undefined && bDrop !== undefined && aDrop !== bDrop) return bDrop - aDrop;
+      }
+      return compareViewRows(a, b, sortState);
+    });
+  }, [activePriceGroup, division, employee, employees, periodRows, priceAssessments, priceFilter, problem, search, sortByPriceDrop, sortState, source]);
 
   const visibleOrderIds = useMemo(() => [...new Set(rows.map(row => row.order.id))], [rows]);
   const visibleOrderIdSet = useMemo(() => new Set(visibleOrderIds), [visibleOrderIds]);
@@ -331,7 +365,7 @@ export default function MutationsPage() {
   }, [employees, periodRows]);
 
   const periodLabel = mode === "all" ? "Semua periode" : mode === "today" ? "Hari ini" : mode === "week" ? "7 hari" : mode === "month" ? "Bulan ini" : `${from} s.d. ${to}`;
-  const selectedSortMode = sortModeFromState(sortState);
+  const selectedSortMode = sortByPriceDrop ? "price_drop" : sortModeFromState(sortState);
   const exportLabel = [
     periodLabel,
     `Sumber: ${source === "SEMUA" ? "Semua" : source}`,
@@ -341,8 +375,10 @@ export default function MutationsPage() {
     `Karyawan: ${employee === "SEMUA" ? "Semua" : employee}`,
     `Divisi: ${division === "SEMUA" ? "Semua" : division}`,
     `Masalah: ${problem === "SEMUA" ? "Semua" : problem === "BERMASALAH" ? "Bermasalah" : "Tidak bermasalah"}`,
+    `Harga: ${priceFilterLabels[priceFilter]}`,
+    `Kelompok harga: ${activePriceGroup?.label ?? "Semua"}`,
     search.trim() ? `Pencarian: ${search.trim()}` : "Pencarian: Semua",
-    `Urutan: ${mutationSortLabel(sortState)}`,
+    `Urutan: ${sortByPriceDrop ? "Penurunan harga terbesar" : mutationSortLabel(sortState)}`,
   ].join(" • ");
 
   function resetFilters() {
@@ -354,6 +390,9 @@ export default function MutationsPage() {
     setEmployee("SEMUA");
     setDivision("SEMUA");
     setProblem("SEMUA");
+    setPriceFilter("SEMUA");
+    setActivePriceGroup(null);
+    setSortByPriceDrop(false);
     setSortState(defaultMutationSort);
     setSearch("");
   }
@@ -506,14 +545,19 @@ export default function MutationsPage() {
             <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
             <label className="text-sm">GAME<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1.35fr_1.15fr_auto]">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <label className="text-sm">Karyawan<select value={employee} onChange={(e) => setEmployee(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua karyawan</option>{employeeNames.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <label className="text-sm">Divisi<select value={division} onChange={(e) => setDivision(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua divisi</option>{divisions.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <label className="text-sm">Masalah<select value={problem} onChange={(e) => setProblem(e.target.value as ProblemFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua status</option><option value="BERMASALAH">Hanya Bermasalah</option><option value="NORMAL">Tidak bermasalah</option></select></label>
+            <label className="text-sm">Harga<select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value as PriceFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{(["SEMUA", "TURUN", "10", "20", "30"] as PriceFilter[]).map(value => <option key={value} value={value}>{priceFilterLabels[value]}</option>)}</select></label>
             <label className="text-sm">Cari kode / nama / divisi / masalah<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151, ANGGA, FH2, bermasalah" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as SortMode; if (sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
+            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as PriceSortMode; setSortByPriceDrop(value === "price_drop"); if (value !== "price_drop" && sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="price_drop">Penurunan harga terbesar</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
             <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
           </div>
+          {activePriceGroup ? <div className="mutation-price-active-group" role="status">
+            <span>Pesanan sejenis: <strong>{activePriceGroup.label}</strong></span>
+            <button type="button" onClick={() => setActivePriceGroup(null)} aria-label="Tampilkan semua kelompok harga">Keluar kelompok</button>
+          </div> : null}
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-zinc-800 pt-5">
@@ -563,15 +607,26 @@ export default function MutationsPage() {
         <strong>Paket harian:</strong> contoh 12 Hours Package X6 dibuat menjadi Hari 1–6; 1 Week menjadi 7 hari; 1 Month menjadi 30 hari; dan X2 mengalikan jumlah harinya. <strong className="text-red-300">Status Bermasalah dapat diklik</strong> untuk melihat penyebab seperti karyawan tidak ditemukan, pembagian jumlah tidak cocok, atau input paket harian tidak konsisten.
       </section>
 
+      <section className="mutation-price-guide" aria-label="Panduan pemeriksaan harga">
+        <strong>Cek harga otomatis</strong>
+        <p>Harga dibandingkan dengan rata-rata minimal 3 pesanan lain yang serupa. Acuan mengikuti jenis, game, paket, wilayah dan server; filter tabel tidak mengubah rata-rata. Baris harian mengikuti pemeriksaan pesanan induk. Kolom Total menampilkan rata-rata, terendah dan tertinggi seluruh pesanan sejenis, termasuk pesanan ini. Rata-rata pembanding untuk penanda warna memakai pesanan lain. Klik Lihat pesanan sejenis untuk membandingkan seluruh kelompok.</p>
+        <div className="mutation-price-legend">
+          <span data-price-tier="10">Turun 10–&lt;20% · biru muda</span>
+          <span data-price-tier="20">Turun 20–&lt;30% · pink</span>
+          <span data-price-tier="30">Turun ≥30% · coklat</span>
+        </div>
+      </section>
+
       <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
         selection={{ totalCount: visibleOrderIds.length, selectedCount: selectedVisibleCount, hiddenCount: selectedOrderIdSet.size - selectedVisibleCount,
           disabled: savingSyncLocks, onToggleAll: toggleVisibleSelection, onClear: () => setSelectedOrderIds([]) }}
-        sortColumn={sortState.column} sortDirection={sortState.direction} onSort={(column) => setSortState((current) => toggleMutationSort(current, column))}
+        sortColumn={sortByPriceDrop ? undefined : sortState.column} sortDirection={sortState.direction} onSort={(column) => { setSortByPriceDrop(false); setSortState((current) => toggleMutationSort(current, column)); }}
         overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : telegramEvidenceOrder ? <TelegramEvidenceModal orderRef={telegramEvidenceOrder} onClose={() => setTelegramEvidenceOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
         onOverlayClose={() => { setTaskOrder(null); setTelegramEvidenceOrder(null); setEditingRow(null); setIssueRow(null); }}>
           <tbody>
             {rows.map((row) => {
               const order = row.order;
+              const price = priceAssessments.get(order.id);
               const issues = issuesByRow.get(row.id) ?? [];
               const telegram = telegramStatuses[order.externalReference.trim().toLowerCase()];
               let status = workStatus(row, issues);
@@ -599,7 +654,7 @@ export default function MutationsPage() {
                         ? "bg-emerald-500/15"
                         : "";
               return (
-                <tr key={row.id} className={rowClass} data-order-selected={selectedOrderIdSet.has(order.id)}>
+                <tr key={row.id} className={rowClass} data-price-tier={price?.tier} data-order-selected={selectedOrderIdSet.has(order.id)}>
                   <td data-column="selection"><input type="checkbox" className="mutation-sheet-checkbox" aria-label={`Pilih pesanan ${order.externalReference}${row.day ? ` · Hari ${row.day.sequence}` : ""}`}
                     checked={selectedOrderIdSet.has(order.id)} disabled={savingSyncLocks} onChange={event => toggleOrderSelection(order.id, event.target.checked)} /></td>
                   <td data-column="date" className="text-sm">{formatDateTimeID(row.orderedAt)}</td>
@@ -614,7 +669,20 @@ export default function MutationsPage() {
                   <td data-column="workers">{row.assignments.length ? row.assignments.map((assignment) => <div key={assignment.id} className="font-semibold">{assignment.employeeName}</div>) : "Belum ada"}</td>
                   <td data-column="division">{mutationDivisions(row).length ? <div className="flex flex-wrap gap-1.5">{mutationDivisions(row).map((division) => <span key={division} className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-xs font-bold text-violet-200">{division}</span>)}</div> : <span className="text-zinc-600">—</span>}</td>
                   <td data-column="game">{order.gameName ?? order.game}</td><td data-column="region">{order.region ?? "—"}</td><td data-column="server">{order.server ?? "—"}</td>
-                  <td data-column="quantity">{row.quantity.toLocaleString("id-ID")}</td><td data-column="total">{formatMoney(row.grossMinor)}</td>
+                  <td data-column="quantity">{row.quantity.toLocaleString("id-ID")}</td>
+                  <td data-column="total">
+                    {formatMoney(row.grossMinor)}
+                    {price ? <div className="mutation-price-check">
+                      {price.tier && price.dropPercent !== undefined ? <strong className="mutation-price-badge">Turun {pricePercentFormat.format(price.dropPercent)}%</strong> : null}
+                      {price.basis !== "order" || row.day ? <div>{price.basis === "order" ? "Harga paket" : priceBasisLabels[price.basis]}: {formatMoney(price.priceMinor)}</div> : null}
+                      <div>Rata-rata: {formatMoney(price.groupAverageMinor)}</div>
+                      <div>Terendah: {formatMoney(price.lowestMinor)}</div>
+                      <div>Tertinggi: {formatMoney(price.highestMinor)}</div>
+                      <small>{price.sampleCount.toLocaleString("id-ID")} pesanan sejenis</small>
+                      {price.peerCount >= 3 && price.averageMinor !== undefined ? <><div>Rata-rata pembanding: {formatMoney(price.averageMinor)}</div><small>{price.peerCount.toLocaleString("id-ID")} pesanan lain</small></> : <div>Pembanding belum cukup ({price.peerCount}/3 pesanan lain)</div>}
+                      <button type="button" className="mutation-price-group-link" onClick={() => { resetFilters(); setActivePriceGroup({ key: price.groupKey, label: [order.gameName ?? order.game, order.orderName ?? order.service, order.region, order.server].filter(Boolean).join(" · ") }); }} aria-label={`Lihat pesanan sejenis ${order.externalReference}`}>Lihat pesanan sejenis</button>
+                    </div> : null}
+                  </td>
                   <td data-column="status">{issues.length ? <button type="button" onClick={() => setIssueRow({ row, issues })} className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</button> : <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span>}</td>
                   <td data-column="actions">
                     <div className="flex flex-wrap gap-2">
