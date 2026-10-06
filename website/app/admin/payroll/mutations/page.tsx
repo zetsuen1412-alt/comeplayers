@@ -13,7 +13,7 @@ import { MutationSpreadsheet } from "@/features/payroll/components/mutation-spre
 import { MutationIssueModal } from "@/features/payroll/components/mutation-issue-modal";
 import { TelegramEvidenceModal } from "@/features/payroll/components/telegram-evidence-modal";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
-import { compareMutationOrders, defaultMutationSort, mutationSortLabel, toggleMutationSort, type MutationSortState } from "@/features/payroll/lib/mutation-table-sort";
+import { compareMutationOrders, compareMutationRowRates, defaultMutationSort, mutationSortLabel, toggleMutationSort, type MutationSortState } from "@/features/payroll/lib/mutation-table-sort";
 import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { MutationEditModal } from "@/features/payroll/components/mutation-edit-modal";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
@@ -27,7 +27,7 @@ import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-e
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
 import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
-import { buildOrderPriceAssessments, getOrderRateMinor, type OrderPriceAssessment, type PriceTier } from "@/features/payroll/lib/price-anomaly";
+import { buildOrderPriceAssessments, getOrderPriceAssessmentKey, getOrderRateMinor, type OrderPriceAssessment, type PriceTier } from "@/features/payroll/lib/price-anomaly";
 import {
   expandMutationRows,
   formatMutationDistribution,
@@ -172,6 +172,7 @@ function workStatus(row: MutationViewRow, issues: OrderIssue[]) {
 }
 
 function compareViewRows(a: MutationViewRow, b: MutationViewRow, sort: MutationSortState) {
+  if (sort.column === "rate") return compareMutationRowRates(a, b, sort.direction);
   if (sort.column === "date" || sort.column === "quantity" || sort.column === "total") {
     let result = sort.column === "date"
       ? Date.parse(a.orderedAt) - Date.parse(b.orderedAt)
@@ -315,17 +316,17 @@ function PriceDetailModal({ row, price, onClose, onShowGroup }: {
         <div className="mutation-price-modal-body">
           <div className="mutation-price-modal-summary" data-price-tier={price.tier} data-price-direction={price.direction}>
             <strong>{changeLabel ? `${changeLabel} dari rata-rata rate pembanding` : hasPeers ? "Tidak ada perbedaan rate ≥10%." : "Pembanding belum cukup untuk menandai rate."}</strong>
-            <div>{priceBasisLabels[price.basis]}{row.day ? " (pesanan induk)" : ""}: <b>{formatRate(price.priceMinor)}</b></div>
+            <div>{priceBasisLabels[price.basis]}{row.day ? ` · Hari ${row.day.sequence}` : ""}: <b>{formatRate(price.priceMinor)}</b></div>
           </div>
           <dl className="mutation-price-modal-stats">
-            <div><dt>Rata-rata rate pesanan sejenis</dt><dd>{formatRate(price.groupAverageMinor)}</dd></div>
+            <div><dt>Rata-rata rate per KODE sejenis</dt><dd>{formatRate(price.groupAverageMinor)}</dd></div>
             <div><dt>Jumlah pesanan sejenis</dt><dd>{price.sampleCount.toLocaleString("id-ID")}</dd></div>
             <div><dt>Rate terendah</dt><dd>{formatRate(price.lowestMinor)}</dd></div>
             <div><dt>Rate tertinggi</dt><dd>{formatRate(price.highestMinor)}</dd></div>
           </dl>
-          <p className="mutation-price-modal-note">Ringkasan Rate Sheet ini mencakup pesanan yang sedang dilihat.</p>
+          <p className="mutation-price-modal-note">Setiap KODE dihitung satu pesanan. Paket harian menyumbang rata-rata RATE hari yang tercatat; terendah dan tertinggi memakai RATE asli. Ringkasan mencakup pesanan ini.</p>
           <div className="mutation-price-modal-reference">
-            {hasPeers ? <><strong>Rata-rata rate pembanding: {formatRate(price.averageMinor!)}</strong><p>{price.peerCount.toLocaleString("id-ID")} pesanan lain, tanpa pesanan ini.</p></> : <><strong>Pembanding tersedia: {price.peerCount} dari minimal 3 pesanan lain.</strong><p>Warna rate muncul setelah pembanding mencukupi.</p></>}
+            {hasPeers ? <><strong>Rata-rata rate pembanding: {formatRate(price.averageMinor!)}</strong><p>{price.peerCount.toLocaleString("id-ID")} KODE lain dengan RATE positif, {row.day ? "tanpa seluruh hari pesanan ini" : "tanpa pesanan ini"}. Paket harian memakai rata-rata RATE positif per KODE.</p></> : <><strong>Pembanding tersedia: {price.peerCount} dari minimal 3 KODE lain.</strong><p>Pembanding memakai RATE positif. Warna rate muncul setelah pembanding mencukupi.</p></>}
           </div>
           <button type="button" className="mutation-price-modal-group" onClick={onShowGroup}>Lihat pesanan sejenis</button>
         </div>
@@ -424,7 +425,7 @@ export default function MutationsPage() {
     const currentOrder = allOrders.find((order) => order.id === priceDetailRow.order.id);
     return currentOrder ? expandMutationRows([currentOrder]).find((row) => row.id === priceDetailRow.id) ?? null : null;
   }, [allOrders, priceDetailRow]);
-  const priceDetail = currentPriceDetailRow ? priceAssessments.get(currentPriceDetailRow.order.id) : undefined;
+  const priceDetail = currentPriceDetailRow ? priceAssessments.get(getOrderPriceAssessmentKey(currentPriceDetailRow.order, currentPriceDetailRow.day)) : undefined;
 
   function openPriceDetails(row: MutationViewRow) {
     setTaskOrder(null);
@@ -460,7 +461,7 @@ export default function MutationsPage() {
   const rows = useMemo(() => {
     const term = search.trim().toLowerCase();
     const filtered = periodRows.filter((row) => {
-      const price = priceAssessments.get(row.order.id);
+      const price = priceAssessments.get(getOrderPriceAssessmentKey(row.order, row.day));
       if (activePriceGroup && price?.groupKey !== activePriceGroup.key) return false;
       const priceTier = price?.tier;
       if (priceFilter !== "SEMUA") {
@@ -481,8 +482,11 @@ export default function MutationsPage() {
       if (problem === "NORMAL" && problematic) return false;
 
       if (term) {
+        const daySearch = /^(?:d|day|hari)\s*(\d+)$/i.exec(term);
+        if (row.day && daySearch) return row.day.sequence === Number(daySearch[1]);
         const searchable = [
           row.order.externalReference,
+          row.day ? `D${row.day.sequence} DAY${row.day.sequence} Hari ${row.day.sequence} Hari${row.day.sequence}` : "",
           row.order.buyerName ?? "",
           row.order.orderName ?? row.order.service ?? "",
           row.order.task ?? "",
@@ -497,8 +501,8 @@ export default function MutationsPage() {
     });
     return [...filtered].sort((a, b) => {
       if (priceSort) {
-        const aPrice = priceAssessments.get(a.order.id);
-        const bPrice = priceAssessments.get(b.order.id);
+        const aPrice = priceAssessments.get(getOrderPriceAssessmentKey(a.order, a.day));
+        const bPrice = priceAssessments.get(getOrderPriceAssessmentKey(b.order, b.day));
         const aDifference = priceSort === "up" ? aPrice?.risePercent : aPrice?.dropPercent;
         const bDifference = priceSort === "up" ? bPrice?.risePercent : bPrice?.dropPercent;
         if (aDifference === undefined && bDifference !== undefined) return 1;
@@ -837,12 +841,12 @@ export default function MutationsPage() {
       </section>
 
       <section className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4 text-sm leading-6 text-zinc-300">
-        <strong>Paket harian:</strong> contoh 12 Hours Package X6 dibuat menjadi Hari 1–6; 1 Week menjadi 7 hari; 1 Month menjadi 30 hari; dan X2 mengalikan jumlah harinya. <strong className="text-red-300">Status Bermasalah dapat diklik</strong> untuk melihat penyebab seperti karyawan tidak ditemukan, pembagian jumlah tidak cocok, atau input paket harian tidak konsisten.
+        <strong>Paket harian:</strong> D1, D2, dan seterusnya menunjukkan hari paket. Hanya hari yang sudah tercatat ditampilkan; progres menunjukkan jumlah hari tercatat dibanding durasi paket. <strong className="text-red-300">Status Bermasalah dapat diklik</strong> untuk melihat penyebab seperti karyawan tidak ditemukan, pembagian jumlah tidak cocok, atau input paket harian tidak konsisten.
       </section>
 
       <section className="mutation-price-guide" aria-label="Panduan pemeriksaan rate">
         <strong>Cek Rate otomatis</strong>
-        <p>Pemeriksaan memakai RATE yang tersimpan dari Sheet. Klik warna untuk memfilter rate yang turun atau naik dari rata-rata minimal 3 pesanan lain dengan jenis, game, paket, wilayah dan server yang sama. Klik Perbedaan rate atau Detail rate pada kolom Rate untuk melihat rata-rata, terendah dan tertinggi. Rate kosong ditampilkan —. Filter tidak mengubah pembanding; baris harian memakai Rate pesanan induk.</p>
+        <p>Pemeriksaan memakai RATE asli dari Sheet, termasuk RATE masing-masing hari. Klik warna untuk memfilter perbedaan terhadap minimal 3 KODE lain dengan RATE positif serta jenis, game, paket, wilayah dan server yang sama. Klik Perbedaan rate atau Detail rate untuk melihat rata-rata, terendah dan tertinggi. RATE kosong ditampilkan —. Setiap KODE menyumbang satu pembanding; filter tidak mengubah pembanding.</p>
         <div className="mutation-price-legend" role="group" aria-label="Filter rate berdasarkan warna">
           <button type="button" onClick={() => setPriceFilter("SEMUA")} aria-pressed={priceFilter === "SEMUA"}>Semua rate</button>
           <button type="button" data-price-direction="down" data-price-tier="10" onClick={() => setPriceFilter("10")} aria-pressed={priceFilter === "10"}>Rate turun 10–&lt;20% · biru muda</button>
@@ -876,8 +880,8 @@ export default function MutationsPage() {
           <tbody>
             {rows.map((row) => {
               const order = row.order;
-              const rate = getOrderRateMinor(order);
-              const price = priceAssessments.get(order.id);
+              const rate = getOrderRateMinor(order, row.day);
+              const price = priceAssessments.get(getOrderPriceAssessmentKey(order, row.day));
               const changeLabel = price ? priceChangeLabel(price) : undefined;
               const issues = issuesByRow.get(row.id) ?? [];
               const telegram = telegramStatuses[order.externalReference.trim().toLowerCase()];
@@ -916,7 +920,7 @@ export default function MutationsPage() {
                   <td data-column="buyer">{order.buyerName ?? "—"}</td>
                   <td data-column="order">{order.orderName ?? order.service}{isSheetOrder(order) ? <div className="mt-1 text-xs text-amber-300">{hasAutomaticSheetProtection(order) ? "Dilindungi otomatis" : order.sheetSyncLocked ? "🔒 Dikunci dari Sheet" : "↻ Mengikuti Sheet"}</div> : null}</td>
                   <td data-column="task" className="text-center">{order.task?.trim() ? <button type="button" onClick={() => setTaskOrder(order)} className="whitespace-nowrap rounded-lg bg-zinc-800 px-2.5 py-2 text-xs font-semibold hover:bg-zinc-700" aria-label={`Lihat TASK ${order.externalReference}`}>Lihat</button> : <span className="text-zinc-600">—</span>}</td>
-                  <td data-column="day"><strong className={row.day ? "text-sky-300" : "text-zinc-500"}>{mutationDayLabel(row)}</strong></td>
+                  <td data-column="day"><strong className={row.day ? "text-sky-300" : "text-zinc-500"}>{mutationDayLabel(row)}</strong>{row.day ? <div className="mt-1 text-xs text-zinc-400">{order.dailyWork?.length ?? 0}/{order.scheduleTotalDays ?? order.dailyWork?.length ?? 0} hari tercatat</div> : null}</td>
                   <td data-column="distribution" className="text-sm">{formatMutationDistribution(row)}</td>
                   <td data-column="workers">{row.assignments.length ? row.assignments.map((assignment) => <div key={assignment.id} className="font-semibold">{assignment.employeeName}</div>) : "Belum ada"}</td>
                   <td data-column="division">{mutationDivisions(row).length ? <div className="flex flex-wrap gap-1.5">{mutationDivisions(row).map((division) => <span key={division} className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-xs font-bold text-violet-200">{division}</span>)}</div> : <span className="text-zinc-600">—</span>}</td>

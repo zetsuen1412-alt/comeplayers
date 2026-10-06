@@ -73,7 +73,7 @@ export function validateWorkspace(value: unknown): WorkspaceState {
       }
     };
     validateAssignments(row.workerAssignments);
-    if(row.scheduleTotalDays!==undefined&&(!Number.isInteger(row.scheduleTotalDays)||Number(row.scheduleTotalDays)<2||Number(row.scheduleTotalDays)>366)) payrollFailure('Jumlah hari paket tidak valid.');
+    if(row.scheduleTotalDays!==undefined&&(!Number.isInteger(row.scheduleTotalDays)||Number(row.scheduleTotalDays)<1||Number(row.scheduleTotalDays)>366)) payrollFailure('Jumlah hari paket tidak valid.');
     if(row.dailyHours!==undefined&&(typeof row.dailyHours!=='number'||row.dailyHours<=0||row.dailyHours>24)) payrollFailure('Jam kerja harian tidak valid.');
     if(row.dailyWork!==undefined&&!Array.isArray(row.dailyWork)) payrollFailure('Daftar pekerjaan harian tidak valid.');
     for(const day of (row.dailyWork??[]) as Array<Record<string,unknown>>) {

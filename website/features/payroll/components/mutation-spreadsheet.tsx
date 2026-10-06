@@ -180,7 +180,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         <label><SelectAllCheckbox selection={selection} label="Pilih semua pesanan pada filter" />Pilih semua</label>
         <span role="status" aria-live="polite">{selection.selectedCount.toLocaleString('id-ID')} dari {selection.totalCount.toLocaleString('id-ID')} pesanan pada filter dipilih{selection.hiddenCount ? ` · ${selection.hiddenCount.toLocaleString('id-ID')} pilihan di luar filter` : ''}</span>
         <button type="button" className="mutation-sheet-action" disabled={selection.disabled || !(selection.selectedCount + selection.hiddenCount)} onClick={selection.onClear}>Batal pilih</button>
-        <small>Paket harian dipilih sebagai satu pesanan.</small>
+        <small>Paket harian dipilih sebagai satu KODE; hari yang sudah tercatat ditampilkan terpisah.</small>
         {selection.actions}
       </div> : null}
       <div className="mutation-sheet-controls">

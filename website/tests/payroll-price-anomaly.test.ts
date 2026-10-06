@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildOrderPriceAssessments, getOrderRateMinor } from "../features/payroll/lib/price-anomaly";
+import { buildOrderPriceAssessments, getOrderPriceAssessmentKey, getOrderRateMinor } from "../features/payroll/lib/price-anomaly";
 import type { Order } from "../features/payroll/types/domain";
 
 function order(id: string, rateMinor: number, patch: Partial<Order> = {}): Order {
@@ -282,4 +282,128 @@ test("closed history remains a RATE reference and changing TOTAL alone never cle
   assert.equal(buildOrderPriceAssessments([...historical, candidate]).get("candidate")?.tier, "30");
   assert.equal(buildOrderPriceAssessments([...historical, { ...candidate, grossMinor: 320_000 }]).get("candidate")?.tier, "30");
   assert.equal(buildOrderPriceAssessments([...historical, { ...candidate, rateMinor: 320_000 }]).get("candidate")?.tier, undefined);
+});
+
+function dailyRateOrder(id: string, rates: (number | undefined)[], patch: Partial<Order> = {}): Order {
+  return order(id, 320_000, {
+    orderName: "1 Month Package (12 Hours/Day)", scheduleMode: "daily", scheduleTotalDays: 30, dailyHours: 12,
+    rateMinor: undefined,
+    dailyWork: rates.map((rateMinor, index) => ({ id: `${id}-d${index + 1}`, sequence: index + 1,
+      workDate: "2026-10-06", grossMinor: 999_999, rateMinor, status: "pending", hours: 12 })), ...patch,
+  });
+}
+
+test("mixed daily RATE flags each DAY independently and excludes all own DAY rates", () => {
+  const references = [1, 2, 3].map(index => dailyRateOrder(`daily-peer-${index}`, [320_000]));
+  const candidate = dailyRateOrder("mixed", [224_000, 416_000]);
+  const before = structuredClone([...references, candidate]);
+  const assessed = buildOrderPriceAssessments([...references, candidate]);
+  const low = assessed.get(getOrderPriceAssessmentKey(candidate, candidate.dailyWork![0]))!;
+  const high = assessed.get(getOrderPriceAssessmentKey(candidate, candidate.dailyWork![1]))!;
+  assert.equal(low.priceMinor, 224_000);
+  assert.equal(low.direction, "down");
+  assert.equal(high.priceMinor, 416_000);
+  assert.equal(high.direction, "up");
+  for (const price of [low, high]) {
+    assert.equal(price.tier, "30");
+    assert.equal(price.averageMinor, 320_000);
+    assert.equal(price.peerCount, 3);
+    assert.equal(price.sampleCount, 4);
+    assert.equal(price.groupAverageMinor, 320_000);
+    assert.equal(price.lowestMinor, 224_000);
+    assert.equal(price.highestMinor, 416_000);
+  }
+  assert.equal(assessed.has(candidate.id), false, "mixed rates must not invent a parent RATE");
+  assert.deepEqual([...references, candidate], before);
+  const changedTotals = [...references, candidate].map(row => ({ ...row, grossMinor: 1, quantity: 999,
+    dailyWork: row.dailyWork?.map(day => ({ ...day, grossMinor: 0, quantity: 123 })) }));
+  assert.deepEqual(buildOrderPriceAssessments(changedTotals), assessed);
+});
+
+test("one thirty-DAY peer counts as one KODE and never supplies three independent peers", () => {
+  const reference = dailyRateOrder("one-peer", Array.from({ length: 30 }, () => 320_000));
+  const candidate = dailyRateOrder("candidate", [224_000]);
+  const price = buildOrderPriceAssessments([reference, candidate]).get(getOrderPriceAssessmentKey(candidate, candidate.dailyWork![0]))!;
+  assert.equal(price.peerCount, 1);
+  assert.equal(price.averageMinor, 320_000);
+  assert.equal(price.sampleCount, 2);
+  assert.equal(price.tier, undefined);
+});
+
+test("each peer KODE contributes an exact RATE mean regardless of how many DAY rows it has", () => {
+  const candidate = dailyRateOrder("candidate", [224_000]);
+  const references = [dailyRateOrder("mixed-peer", [224_000, 416_000]),
+    dailyRateOrder("long-peer", Array.from({ length: 30 }, () => 320_000)), dailyRateOrder("short-peer", [320_000])];
+  const price = buildOrderPriceAssessments([...references, candidate]).get(getOrderPriceAssessmentKey(candidate, candidate.dailyWork![0]))!;
+  assert.equal(price.averageMinor, 320_000);
+  assert.equal(price.peerCount, 3);
+  assert.equal(price.groupAverageMinor, 296_000);
+  assert.equal(price.lowestMinor, 224_000);
+  assert.equal(price.highestMinor, 416_000);
+  assert.equal(price.tier, "30");
+  const decimalPeers = [dailyRateOrder("decimal-mix", [0.2, 0.4]), dailyRateOrder("decimal-two", [0.3]), dailyRateOrder("decimal-three", [0.3])];
+  const exact = dailyRateOrder("exact", [0.27]);
+  const adjacent = dailyRateOrder("adjacent", [0.2700000000000001]);
+  assert.equal(buildOrderPriceAssessments([...decimalPeers, exact]).get(getOrderPriceAssessmentKey(exact, exact.dailyWork![0]))?.tier, "10");
+  assert.equal(buildOrderPriceAssessments([...decimalPeers, adjacent]).get(getOrderPriceAssessmentKey(adjacent, adjacent.dailyWork![0]))?.tier, undefined);
+});
+
+test("DAY RATE preserves explicit zero, falls back only to stored parent RATE, and never reads day TOTAL", () => {
+  assert.equal(getOrderRateMinor({ rateMinor: 320_000 }, { rateMinor: 224_000 }), 224_000);
+  assert.equal(getOrderRateMinor({ rateMinor: 320_000 }, { rateMinor: undefined }), 320_000);
+  assert.equal(getOrderRateMinor({ rateMinor: 320_000 }, { rateMinor: 0 }), 0);
+  assert.equal(getOrderRateMinor({ rateMinor: 320_000 }, { rateMinor: Number.NaN }), undefined);
+  const missing = dailyRateOrder("missing", [undefined]);
+  const zero = dailyRateOrder("zero", [0]);
+  const references = [1, 2, 3].map(index => dailyRateOrder(`reference-${index}`, [320_000]));
+  const assessed = buildOrderPriceAssessments([...references, missing, zero]);
+  assert.equal(assessed.has(getOrderPriceAssessmentKey(missing, missing.dailyWork![0])), false);
+  assert.equal(assessed.get(getOrderPriceAssessmentKey(zero, zero.dailyWork![0]))?.dropPercent, 100);
+});
+
+test("conflicting copies of a daily parent are excluded without counting any surviving DAY as a peer", () => {
+  const original = dailyRateOrder("duplicate", [224_000, 416_000]);
+  const conflicting = { ...original, dailyWork: original.dailyWork!.slice(0, 1) };
+  const candidate = dailyRateOrder("candidate", [224_000]);
+  for (const rows of [[original, conflicting, candidate], [conflicting, original, candidate]]) {
+    const assessed = buildOrderPriceAssessments(rows);
+    assert.equal(assessed.has(getOrderPriceAssessmentKey(original, original.dailyWork![0])), false);
+    assert.equal(assessed.get(getOrderPriceAssessmentKey(candidate, candidate.dailyWork![0]))?.peerCount, 0);
+  }
+});
+
+test("explicit day-package plural title variants retain the same per-DAY comparison scope", () => {
+  const references = [1, 2, 3].map(index => dailyRateOrder(`day-peer-${index}`, [320_000], {
+    orderName: "7 Days Package (6 Hours/Day)", scheduleTotalDays: 7, dailyHours: 6,
+  }));
+  const candidate = dailyRateOrder("candidate", [256_000], {
+    orderName: "7 Day Package (6 Hour/Day)", scheduleTotalDays: 7, dailyHours: 6,
+  });
+  const price = buildOrderPriceAssessments([...references, candidate]).get(getOrderPriceAssessmentKey(candidate, candidate.dailyWork![0]))!;
+  assert.equal(price.peerCount, 3);
+  assert.equal(price.averageMinor, 320_000);
+  assert.equal(price.tier, "20");
+});
+
+test("a zero DAY remains visible but cannot depress its parent positive RATE baseline", () => {
+  const mixed = dailyRateOrder("mixed-zero", [0, 320_000]);
+  const normal = dailyRateOrder("normal", [320_000]);
+  const references = [dailyRateOrder("reference-one", [320_000]), dailyRateOrder("reference-two", [320_000])];
+  const assessed = buildOrderPriceAssessments([mixed, ...references, normal]);
+  const price = assessed.get(getOrderPriceAssessmentKey(normal, normal.dailyWork![0]))!;
+  assert.equal(price.peerCount, 3);
+  assert.equal(price.averageMinor, 320_000);
+  assert.equal(price.tier, undefined);
+  assert.equal(price.direction, undefined);
+  assert.equal(price.sampleCount, 4);
+  assert.equal(price.groupAverageMinor, 280_000, "summary includes the zero DAY with one mean per KODE");
+  assert.equal(price.lowestMinor, 0);
+  assert.equal(price.highestMinor, 320_000);
+  const zero = assessed.get(getOrderPriceAssessmentKey(mixed, mixed.dailyWork![0]))!;
+  assert.equal(zero.peerCount, 3);
+  assert.equal(zero.averageMinor, 320_000);
+  assert.equal(zero.dropPercent, 100);
+  assert.equal(zero.tier, "30");
+  const allZero = dailyRateOrder("all-zero", [0, 0]);
+  assert.equal(buildOrderPriceAssessments([allZero, ...references, normal]).get(getOrderPriceAssessmentKey(normal, normal.dailyWork![0]))?.peerCount, 2);
 });

@@ -123,7 +123,7 @@ function mutationAssignmentGross(row: MutationViewRow, assignmentIndex: number) 
 
 function mutationRow(row: MutationViewRow): ExportRecord {
   const order = row.order;
-  const rate = getOrderRateMinor(order) ?? "";
+  const rate = getOrderRateMinor(order, row.day) ?? "";
   return {
     "HARI & TANGGAL": formatDateTimeID(row.orderedAt),
     KODE: order.externalReference,

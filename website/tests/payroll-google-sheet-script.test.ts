@@ -26,6 +26,7 @@ function harness(count = 3, digestDelayMs = 0) {
     CP_SPREADSHEET_ID: "test-book", CP_SHEET_NAME: "MUTASI FH", CP_HEADER_ROW: "2" };
   let locked = false;
   let status = 200;
+  let fetchError: string | undefined;
   let duringFetch: (() => void) | undefined;
   let afterFetch: (() => void) | undefined;
   let responseTransform: ((response: Record<string, unknown>) => Record<string, unknown>) | undefined;
@@ -99,6 +100,7 @@ function harness(count = 3, digestDelayMs = 0) {
     UrlFetchApp: { fetch: (_url: string, options: { payload: string }) => {
       assert.equal(locked, true, "network write must hold the script lock");
       requests++;
+      if (fetchError) throw new Error(fetchError);
       const payload = JSON.parse(options.payload) as GoogleSheetSyncPayload;
       posts.push(payload);
       duringFetch?.();
@@ -123,12 +125,121 @@ function harness(count = 3, digestDelayMs = 0) {
     rosterEdit: (name: string) => api.onComePlayersPayrollEdit({ source: spreadsheet, range: { getSheet: () => rosterSheet(name) } }),
     change: () => api.onComePlayersPayrollChange({ source: spreadsheet, changeType: "REMOVE_ROW" }),
     fail: (code: number) => { status = code; }, setLocked: (value: boolean) => { locked = value; },
+    fetchError: (message?: string) => { fetchError = message; }, advance: (ms: number) => { elapsedMs += ms; },
     duringFetch: (callback: () => void) => { duringFetch = callback; },
     afterFetch: (callback: () => void) => { afterFetch = callback; },
     transformResponse: (callback: (response: Record<string, unknown>) => Record<string, unknown>) => { responseTransform = callback; },
     get locked() { return locked; }, get requests() { return requests; }, get state() { return state; },
   };
 }
+
+function dailySource(code: string, day: string, date = '25/09/2026 00:24', rate = 160000, quantity = 1) {
+  return [date, code, 'G2G', 'Buyer', '1 Week Package (6 Hours/Day)', `Irwan ${day}`, '2', 'START', 'AION', 'JOKI', quantity, rate, rate * quantity, 'Task'];
+}
+
+test('complete DAY packages recover historical records across Closing periods as one parent', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  h.cells.push(dailySource('X2685', 'D1'), ['CLOSING'], dailySource('X2685', 'DAY 2', '26/09/2026 00:24'), ['CLOSING'], dailySource('X2685', 'D3', '27/09/2026 00:24'));
+  h.reconcile();
+  const uploads = h.posts.flatMap(post => post.rows).filter(row => row.dailyPackage);
+  assert.equal(uploads.length, 1);
+  assert.deepEqual(uploads[0].dailyPackage?.rows.map(row => row.rowNumber), [3, 5, 7]);
+  const orders = h.state[workspaceKeys.orders] as Order[];
+  assert.equal(orders.length, 1);
+  assert.equal(orders[0].scheduleTotalDays, 7);
+  assert.deepEqual(orders[0].dailyWork?.map(day => day.sequence), [1, 2, 3]);
+  assert.equal(orders[0].grossMinor, 480000);
+  assert.equal(orders[0].rateMinor, 160000);
+  assert.equal(orders[0].dailyWork?.every(day => day.rateMinor === 160000), true);
+  assert.equal(orders[0].dailyWork?.every(day => day.workerAssignments?.[0]?.employeeName === 'Irwan'), true);
+  assert.equal(orders[0].dailyWork?.some(day => day.status === 'verified'), false, 'Closing position must not create payroll eligibility');
+  assert.equal(h.reconcile().sent, 0, 'the complete package signature is acknowledged once');
+});
+
+test('Hours Package DAY markers are complete source days even without an X multiplier', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  const first = dailySource('HOURS-DAY', 'D1', '25/09/2026 00:24', 300000); first[4] = '24 Hours Package Piloting All Activities';
+  const second = dailySource('HOURS-DAY', 'D2', '26/09/2026 00:24', 300000); second[4] = first[4];
+  const only = dailySource('ONLY-DAY', 'D1', '27/09/2026 00:24', 160000); only[4] = '6 Hours Package Piloting All Activities';
+  h.cells.push(first, ['CLOSING'], second, only, ['CLOSING']);
+  h.reconcile();
+  const orders = h.state[workspaceKeys.orders] as Order[];
+  const two = orders.find(order => order.externalReference === 'HOURS-DAY')!;
+  assert.deepEqual(two.dailyWork?.map(day => day.sequence), [1, 2]);
+  assert.equal(two.scheduleTotalDays, 2);
+  assert.equal(two.grossMinor, 600000);
+  assert.equal(two.dailyWork?.every(day => day.rateMinor === 300000), true);
+  const single = orders.find(order => order.externalReference === 'ONLY-DAY')!;
+  assert.equal(single.scheduleMode, 'daily');
+  assert.equal(single.scheduleTotalDays, 1);
+  assert.equal(single.dailyWork?.length, 1);
+  assert.equal(single.dailyWork?.[0]?.sequence, 1);
+  assert.equal(single.dailyWork?.[0]?.workerAssignments?.[0]?.employeeName, 'Irwan');
+});
+
+test('editing one historical DAY uploads its entire package and preserves a settled DAY', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  h.cells.push(dailySource('DAILY', 'D1'), dailySource('DAILY', 'D2', '26/09/2026 00:24'), ['CLOSING']);
+  h.reconcile();
+  const order = (h.state[workspaceKeys.orders] as Order[])[0];
+  order.dailyWork![0].status = 'verified'; order.dailyWork![0].verifiedAt = '2026-09-25T12:00:00Z';
+  order.operationalStatus = 'partially_completed';
+  const frozen = structuredClone(order.dailyWork![0]);
+  h.cells[3][11] = 176000; h.cells[3][12] = 176000;
+  const before = h.posts.length; h.edit(4);
+  const uploads = h.posts.slice(before).flatMap(post => post.rows);
+  assert.equal(uploads.length, 1);
+  assert.deepEqual(uploads[0].dailyPackage?.rows.map(row => row.rowNumber), [3, 4]);
+  const updated = (h.state[workspaceKeys.orders] as Order[])[0];
+  assert.deepEqual(updated.dailyWork![0], frozen);
+  assert.equal(updated.dailyWork![1].rateMinor, 176000);
+  assert.equal(updated.grossMinor, 336000);
+  assert.equal(updated.rateMinor, undefined, 'mixed DAY rates must not invent a package rate');
+});
+
+test('explicitly locked DAY packages remain byte-identical and unlock retries the whole group', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  h.cells.push(dailySource('LOCKED-DAY', 'D1'), dailySource('LOCKED-DAY', 'D2'), ['CLOSING']);
+  h.reconcile();
+  const original = (h.state[workspaceKeys.orders] as Order[])[0]; original.sheetSyncLocked = true;
+  const snapshot = structuredClone(original);
+  h.cells[3][11] = 175000; h.cells[3][12] = 175000; h.edit(4);
+  assert.deepEqual((h.state[workspaceKeys.orders] as Order[])[0], snapshot);
+  const current = (h.state[workspaceKeys.orders] as Order[])[0]; current.sheetSyncLocked = false; current.sheetSyncRefreshRequested = true;
+  h.reconcile();
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].dailyWork![1].rateMinor, 175000);
+});
+
+test('a package crossing a raw row batch boundary stays one upload unit', () => {
+  const h = harness(99); h.properties.CP_SYNC_ROSTER = 'true';
+  h.cells.push(dailySource('BATCH-DAY', 'D1'), dailySource('BATCH-DAY', 'D2'));
+  h.reconcile();
+  const dataPosts = h.posts.filter(post => post.rows.length);
+  assert.deepEqual(dataPosts.map(post => post.rows.length), [100]);
+  assert.equal(dataPosts[0].rows.filter(row => row.dailyPackage).length, 1);
+  assert.equal(dataPosts[0].rows.find(row => row.dailyPackage)?.dailyPackage?.rows.length, 2);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).find(order => order.externalReference === 'BATCH-DAY')?.dailyWork?.length, 2);
+});
+
+test('merged row1 headers are detected before importing historical DAY rows', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  h.cells[0] = headers; h.cells[1] = [];
+  h.cells.push(dailySource('MERGED-HEADER', 'D1'), dailySource('MERGED-HEADER', 'D2'), ['CLOSING']);
+  h.reconcile();
+  assert.equal(h.posts.every(post => post.headerRow === 1), true);
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].dailyWork?.length, 2);
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].grossMinor, 320000);
+});
+
+test('reused CODE with incompatible package rows is not resolved by selecting its first DAY', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  h.cells.push(dailySource('REUSED', 'D1'), dailySource('REUSED', 'D2'), ['CLOSING']);
+  h.cells[3][3] = 'Different Buyer';
+  const result = h.reconcile();
+  assert.equal(result.skippedConflicts, 1);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).length, 0);
+  assert.equal(h.posts.flatMap(post => post.rows).filter(row => row.dailyPackage).length, 1);
+});
 
 test("installable single cell edit sends only its row, never the full sheet", () => {
   const h = harness(); h.edit(4);
@@ -244,6 +355,35 @@ test("network errors release the lock and never acknowledge failed signatures", 
   assert.equal(Object.keys(h.properties).some(key => key.startsWith("CP_ROW_HASH_")), false);
   h.fail(200); h.reconcile();
   assert.equal(h.posts[1].rows.length, 3);
+});
+
+test('Google daily UrlFetch quota keeps failed rows pending and retries without reading during backoff', () => {
+  const h = harness(); h.properties.CP_LAST_SYNC_AT = 'last-success';
+  h.fetchError('Exception: Service invoked too many times for one day: urlfetch.');
+  const pending = h.reconcile();
+  assert.equal(pending.skipped, 'google_urlfetch_quota');
+  assert.equal(pending.saved, false);
+  assert.equal(h.locked, false);
+  assert.equal(h.properties.CP_LAST_SYNC_AT, 'last-success');
+  assert.equal(h.properties.CP_LAST_SYNC_STATUS, 'GOOGLE_URLFETCH_QUOTA');
+  assert.equal(Object.keys(h.properties).some(key => key.startsWith('CP_ROW_HASH_')), false);
+  const readCount = h.reads.length; const lockCount = h.lockTimeouts.length;
+  h.fetchError();
+  assert.equal(h.reconcile().skipped, 'google_urlfetch_quota');
+  assert.equal(h.requests, 1);
+  assert.equal(h.reads.length, readCount);
+  assert.equal(h.lockTimeouts.length, lockCount);
+  h.advance(15 * 60 * 1000 + 1);
+  assert.equal(h.reconcile().sent, 3);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).length, 3);
+  assert.equal(h.properties.CP_URLFETCH_RETRY_AFTER, undefined);
+});
+
+test('nonquota Google failures remain visible and do not start quota backoff', () => {
+  const h = harness(); h.fetchError('Service unavailable');
+  assert.throws(() => h.reconcile(), /Service unavailable/);
+  assert.equal(h.properties.CP_URLFETCH_RETRY_AFTER, undefined);
+  assert.equal(h.locked, false);
 });
 
 test("an edit during HTTP is picked up on reconciliation instead of caching newer unread values", () => {

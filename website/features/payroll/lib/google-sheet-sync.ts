@@ -1,6 +1,7 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { mergeGoogleSheetRoster, pruneUnreferencedSheetRosterEmployees, validateGoogleSheetRoster, type GoogleSheetRosterSnapshot } from "./google-sheet-roster";
+import { buildGoogleSheetDailyOrder, mergeGoogleSheetDailyOrder, parseGoogleSheetBoostingDays } from "./google-sheet-daily";
 import { canonical, workspaceKeys, type WorkspaceState } from "@/features/payroll/lib/workspace-model";
 import type { Employee, Order, OrderIssue, OrderWorkerAssignment, ProductGame } from "@/features/payroll/types/domain";
 
@@ -13,6 +14,8 @@ export type GoogleSheetSyncRow = {
   duplicateCode?: boolean;
   /** Complete-sheet count permits a unique KODE to move before the new-order boundary. */
   codeOccurrences?: number;
+  /** One atomic, complete full-Sheet KODE group; nested rows cannot contain packages. */
+  dailyPackage?: { complete: true; rows: GoogleSheetSyncRow[] };
 };
 
 export type GoogleSheetSyncPayload = {
@@ -421,6 +424,96 @@ function protectedFromSheet(order: Order, closingReferences: Set<string>) {
     || closingReferences.has(order.externalReference.trim().toLowerCase()));
 }
 
+function protectedFromDailySheet(order: Order, closingReferences: Set<string>) {
+  if (order.sheetSyncLocked || order.websiteDeletedAt || order.payrollClosedAt || order.payrollPeriodId
+    || ["verified", "reconciled", "ready_to_close", "closed"].includes(order.financeStatus)
+    || order.inventoryAllocations?.length || order.inventoryConsumedAt || order.matchedPaymentMinor > 0
+    || order.verifiedAt || order.operationalStatus === "verified") return true;
+  // A partial daily Closing freezes its own segments; a whole-order/legacy Closing stays locked.
+  return closingReferences.has(order.externalReference.trim().toLowerCase())
+    && !(order.scheduleMode === "daily" && order.dailyWork?.some(day => day.payrollClosedAt || day.payrollPeriodId));
+}
+
+function resolveDailyWorkerNames(value: string, employees: Employee[], team?: Employee["team"]) {
+  const lookup = employeeLookup(employees, team), full = lookup(value);
+  if (full.employee) return { employees: [full.employee], ambiguous: false };
+  if (full.ambiguous) return { employees: [] as Employee[], ambiguous: true };
+  const tokens = value.replace(/[,;+&/|]+/g, " ").trim().split(/\s+/);
+  if (tokens.length > 32) return { employees: [] as Employee[], ambiguous: false };
+  const memo = new Map<number, Employee[][]>();
+  const solutions = (start: number): Employee[][] => {
+    if (start === tokens.length) return [[]];
+    const cached = memo.get(start); if (cached) return cached;
+    const found: Employee[][] = [];
+    for (let end = start + 1; end <= tokens.length && found.length < 2; end++) {
+      const match = lookup(tokens.slice(start, end).join(" "));
+      if (!match.employee) continue;
+      for (const tail of solutions(end)) {
+        const candidate = [match.employee, ...tail];
+        if (new Set(candidate.map(employee => employee.code)).size !== candidate.length) continue;
+        found.push(candidate); if (found.length === 2) break;
+      }
+    }
+    memo.set(start, found); return found;
+  };
+  const found = solutions(0);
+  return { employees: found.length === 1 ? found[0] : [], ambiguous: found.length > 1 };
+}
+
+function parseIncomingDailyPackage(input: {
+  payload: GoogleSheetSyncPayload; row: GoogleSheetSyncRow; columns: ColumnMap; employees: Employee[]; games: ProductGame[];
+}): { order?: Order; issue?: GoogleSheetSyncIssue } {
+  const { row, columns } = input;
+  try {
+    const sourceRows = row.dailyPackage!.rows;
+    if (row.codeOccurrences !== sourceRows.length) throw new Error("Paket harian tidak mencakup semua baris KODE pada Sheet.");
+    const leader = [...sourceRows].sort((a, b) => a.rowNumber - b.rowNumber)[0];
+    const snapshot = (source: GoogleSheetSyncRow) => ({ rowNumber: source.rowNumber, values: source.values, display: source.display, boosterBlack: source.boosterBlack });
+    if (canonical(snapshot(row)) !== canonical(snapshot(leader))) throw new Error("Baris pemimpin paket harus sama dengan baris sumber paling awal.");
+    const expectedCode = folded(displayAt(row, columns.code) || rawAt(row, columns.code));
+    const records = sourceRows.map(source => {
+      if (folded(displayAt(source, columns.code) || rawAt(source, columns.code)) !== expectedCode) throw new Error("Paket harian mencampur KODE yang berbeda.");
+      const claims = displayAt(source, columns.booster).split(/[\r\n]+/).filter(line => line.trim()).map(line => {
+        const marker = parseGoogleSheetBoostingDays(line);
+        if (!marker) throw new Error(`BOOSTER pada baris ${source.rowNumber} tidak memiliki nama dan penanda DAY yang jelas pada setiap baris pekerja.`);
+        return marker;
+      });
+      if (!claims.length) throw new Error(`BOOSTER pada baris ${source.rowNumber} kosong.`);
+      const days = [...new Set(claims.flatMap(claim => claim.days))].sort((a, b) => a - b);
+      const values = [...source.values], display = source.display ? [...source.display] : undefined;
+      values[columns.booster] = claims[0].workerName;
+      if (display) display[columns.booster] = claims[0].workerName;
+      // An explicit Boosting DAY worker is named in BOOSTER, regardless of its fill color.
+      const parsed = parseIncomingOrder({ ...input, row: { ...source, values, display, boosterBlack: false } });
+      if (!parsed.order) throw new Error(parsed.issue?.message ?? `Baris ${source.rowNumber} tidak dapat dibaca.`);
+      const quantity = parseUnit(rawAt(source, columns.quantity)) ?? parseUnit(displayAt(source, columns.quantity));
+      const quantityPerDay = quantity === null ? NaN : quantity / days.length;
+      const team = mapTeam(displayAt(source, columns.team));
+      const resolved = claims.map(claim => ({ ...claim, ...resolveDailyWorkerNames(claim.workerName, input.employees, team) }));
+      const workersByDay = days.map(sequence => {
+        const relevant = resolved.filter(claim => claim.days.includes(sequence));
+        const workers = [...new Map(relevant.flatMap(claim => claim.employees).map(employee => [employee.code, employee])).values()];
+        const unknown = relevant.filter(claim => !claim.employees.length);
+        const issues: OrderIssue[] = [];
+        if (unknown.length) issues.push(importIssue("sheet_daily_workers_review", "Karyawan hari ini perlu diperiksa", `Hari ${sequence}: belum cocok ${unknown.map(claim => `${claim.workerName}${claim.ambiguous ? " (nama ambigu; isi FH)" : ""}`).join(", ")}. Jumlah dan TOTAL sumber tetap disimpan tanpa menebak karyawan.`));
+        const share = quantityPerDay / workers.length;
+        if (workers.length > 1 && !Number.isInteger(share)) issues.push(importIssue("sheet_daily_worker_share_review", "Pembagian kerja harian perlu diperiksa", `Hari ${sequence}: ${quantityPerDay} unit kerja dibagi rata kepada ${workers.length} karyawan (${share} per karyawan). Periksa pembagian sebelum diselesaikan.`));
+        return { sequence, assignments: unknown.length ? [] : workers.map((employee, index) => workerAssignment(employee, parsed.order!.process ?? "LAINNYA", share, source.rowNumber, index)), issues };
+      });
+      const order = { ...parsed.order, importIssues: parsed.order.importIssues?.filter(issue => issue.code !== "sheet_booster_unmatched") };
+      return {
+        order, sourceRow: source.rowNumber, days, quantity, workersByDay,
+        totalMinor: parseIdr(rawAt(source, columns.total)) ?? parseIdr(displayAt(source, columns.total)),
+        sourceStatus: displayAt(source, columns.status),
+      };
+    });
+    return { order: jsonClean(buildGoogleSheetDailyOrder(records)) };
+  } catch (error) {
+    return { issue: { rowNumber: row.rowNumber, code: displayAt(row, columns.code) || normalize(rawAt(row, columns.code)),
+      message: error instanceof Error ? error.message : "Paket harian tidak dapat digabung dengan aman." } };
+  }
+}
+
 function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
   return jsonClean({
     ...existing,
@@ -479,16 +572,32 @@ export function validateGoogleSheetSyncPayload(value: unknown): GoogleSheetSyncP
     }
   }
   const rowNumbers = new Set<number>();
-  for (const row of payload.rows) {
+  let sourceRowCount = 0;
+  function validateRow(row: GoogleSheetSyncRow) {
     if (!row || !Number.isSafeInteger(row.rowNumber) || row.rowNumber < 1 || !Array.isArray(row.values) || row.values.length > 64) throw new Error("Baris sinkronisasi tidak valid.");
     if (row.display !== undefined && (!Array.isArray(row.display) || row.display.length > 64)) throw new Error("Tampilan baris sinkronisasi tidak valid.");
-    if (rowNumbers.has(row.rowNumber)) throw new Error("Nomor baris sinkronisasi duplikat.");
-    rowNumbers.add(row.rowNumber);
     if (row.boosterBlack !== undefined && typeof row.boosterBlack !== "boolean") throw new Error("Warna BOOSTER tidak valid.");
     if (row.duplicateCode !== undefined && typeof row.duplicateCode !== "boolean") throw new Error("Penanda KODE duplikat tidak valid.");
     if (row.codeOccurrences !== undefined && (!Number.isSafeInteger(row.codeOccurrences) || row.codeOccurrences < 1 || row.codeOccurrences > 50000)) {
       throw new Error("Jumlah kemunculan KODE tidak valid.");
     }
+  }
+  for (const row of payload.rows) {
+    validateRow(row);
+    if (rowNumbers.has(row.rowNumber)) throw new Error("Nomor baris sinkronisasi duplikat.");
+    rowNumbers.add(row.rowNumber);
+    if (row.dailyPackage !== undefined) {
+      const group = row.dailyPackage;
+      if (!group || group.complete !== true || !Array.isArray(group.rows) || !group.rows.length || group.rows.length > 366) throw new Error("Daftar sumber paket harian harus lengkap dan berisi 1–366 baris.");
+      const numbers = new Set<number>();
+      for (const source of group.rows) {
+        validateRow(source);
+        if (source.dailyPackage !== undefined || numbers.has(source.rowNumber) || source.rowNumber <= (payload.headerRow ?? 1)) throw new Error("Baris sumber paket harian rekursif, duplikat, atau sebelum header.");
+        numbers.add(source.rowNumber);
+      }
+      sourceRowCount += group.rows.length;
+    } else sourceRowCount++;
+    if (sourceRowCount > MAX_ROWS) throw new Error("Jumlah baris sumber sinkronisasi terlalu besar.");
   }
   return payload as GoogleSheetSyncPayload;
 }
@@ -504,12 +613,15 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const columns = columnsFor(payload.headers);
   const issues: GoogleSheetSyncIssue[] = [];
   const rowResults: GoogleSheetSyncMergeResult["rowResults"] = [];
+  const dailyPackages = new Map<GoogleSheetSyncRow, ReturnType<typeof parseIncomingDailyPackage>>();
+  for (const row of payload.rows) if (row.dailyPackage) dailyPackages.set(row, parseIncomingDailyPackage({ payload, row, columns, employees, games }));
   const existingByReference = new Map<string, Order[]>();
   for (const order of orders) {
     const key = order.externalReference.trim().toLowerCase();
     existingByReference.set(key, [...(existingByReference.get(key) ?? []), order]);
   }
   function historicalRowIsUnrelated(row: GoogleSheetSyncRow) {
+    if (row.dailyPackage) return false; // Invalid groups are reported as conflicts; valid complete groups may recover history.
     if (payload.newOrdersStartRow === undefined || row.rowNumber >= payload.newOrdersStartRow) return false;
     const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).trim().toLowerCase();
     const matches = existingByReference.get(key) ?? [];
@@ -519,6 +631,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     return row.rowNumber !== matches[0].importSourceRow && row.codeOccurrences !== 1;
   }
   function conflictsWithTrackedRow(row: GoogleSheetSyncRow) {
+    if (row.dailyPackage) return false; // Full-CODE validation replaces physical-row identity only for this atomic group.
     if (payload.newOrdersStartRow === undefined || (row.codeOccurrences ?? 0) <= 1) return false;
     const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).trim().toLowerCase();
     const matches = existingByReference.get(key) ?? [];
@@ -526,20 +639,31 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       && row.rowNumber !== matches[0].importSourceRow;
   }
   const referenceCounts = new Map<string, number>();
+  const packageReferences = new Set(payload.rows.filter(row => row.dailyPackage)
+    .map(row => folded(displayAt(row, columns.code) || rawAt(row, columns.code))));
   for (const row of payload.rows) {
-    if (historicalRowIsUnrelated(row) || conflictsWithTrackedRow(row)) continue;
+    if (!packageReferences.has(folded(displayAt(row, columns.code) || rawAt(row, columns.code)))
+      && (historicalRowIsUnrelated(row) || conflictsWithTrackedRow(row))) continue;
     const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).toLowerCase();
     referenceCounts.set(key, (referenceCounts.get(key) ?? 0) + 1);
   }
   const closingReferences = new Set(
-    ((state[workspaceKeys.closings] ?? []) as { orderRefs?: string[] }[])
-      .flatMap(closing => closing.orderRefs ?? []).map(ref => ref.trim().toLowerCase()),
+    ((state[workspaceKeys.closings] ?? []) as { orderRefs?: string[]; ordersSnapshot?: Order[] }[])
+      .flatMap(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []])
+      .map(ref => ref.trim().toLowerCase()),
   );
   let added = 0, updated = 0, unchanged = 0, skippedProtected = 0, skippedConflicts = 0, skippedInvalid = 0;
   let archived = 0, restored = 0;
   let skippedHistorical = 0;
 
   for (const row of payload.rows) {
+    const dailyPackage = dailyPackages.get(row);
+    if (dailyPackage && !dailyPackage.order) {
+      skippedConflicts++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
+      if (dailyPackage.issue) issues.push(dailyPackage.issue);
+      continue;
+    }
     if (historicalRowIsUnrelated(row)) {
       skippedHistorical++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedHistorical" });
@@ -552,7 +676,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
         message: "KODE berulang di periode lain dan nomor baris berbeda dari pesanan terdaftar; data tidak ditimpa." });
       continue;
     }
-    const parsed = parseIncomingOrder({ payload, row, columns, employees, games });
+    const parsed = dailyPackage ?? parseIncomingOrder({ payload, row, columns, employees, games });
     if (!parsed.order) {
       skippedInvalid++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedInvalid" });
@@ -561,7 +685,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     }
     const incoming = parsed.order;
     const refKey = incoming.externalReference.trim().toLowerCase();
-    if (row.duplicateCode || (referenceCounts.get(refKey) ?? 0) > 1) {
+    if ((!dailyPackage && row.duplicateCode) || (referenceCounts.get(refKey) ?? 0) > 1) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE duplikat di payload sinkronisasi." });
@@ -570,7 +694,13 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     const index = orders.findIndex(order => order.externalReference.trim().toLowerCase() === refKey);
 
     if (index < 0) {
-      if (payload.newOrdersStartRow !== undefined && row.rowNumber < payload.newOrdersStartRow) {
+      if (dailyPackage && closingReferences.has(refKey)) {
+        skippedProtected++;
+        rowResults.push({ rowNumber: row.rowNumber, status: "skippedProtected" });
+        issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE sudah tercatat dalam Closing; identitas yang hilang tidak dibuat ulang sebagai pekerjaan belum digaji." });
+        continue;
+      }
+      if (!dailyPackage && payload.newOrdersStartRow !== undefined && row.rowNumber < payload.newOrdersStartRow) {
         skippedHistorical++;
         rowResults.push({ rowNumber: row.rowNumber, status: "skippedHistorical" });
         continue;
@@ -595,14 +725,31 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Perubahan KODE bertabrakan dengan pesanan lain." });
       continue;
     }
-    if (protectedFromSheet(existing, closingReferences)) {
+    if (dailyPackage ? protectedFromDailySheet(existing, closingReferences) : protectedFromSheet(existing, closingReferences)) {
       skippedProtected++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedProtected" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Pesanan dikunci admin atau dilindungi Gaji/Closing/stok/pembayaran; spreadsheet tidak boleh mengubahnya." });
       continue;
     }
 
-    const next = mergeSheetOwnedFields(existing, incoming);
+    if (!dailyPackage && existing.scheduleMode === "daily") {
+      skippedConflicts++;
+      rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
+      issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "Paket harian harus dikirim lengkap agar hari lain tidak tertimpa baris tunggal." });
+      continue;
+    }
+    let next = mergeSheetOwnedFields(existing, incoming);
+    if (dailyPackage) {
+      try {
+        next = jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
+          scheduleTotalDays: incoming.scheduleTotalDays, dailyHours: incoming.dailyHours, dailyWork: incoming.dailyWork }));
+      } catch (error) {
+        skippedConflicts++;
+        rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
+        issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: error instanceof Error ? error.message : "Paket harian website tidak dapat diperbarui dengan aman." });
+        continue;
+      }
+    }
     if (canonical(existing) === canonical(next)) {
       unchanged++;
       rowResults.push({ rowNumber: row.rowNumber, status: "unchanged" });
@@ -629,6 +776,13 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       order.sheetDeletedAt = payload.sentAt;
       archived++;
     }
+  }
+  // Unlock/refresh retries are independent of whether source deletions are enabled.
+  for (const order of orders) {
+    if (!order.id.startsWith(sheetSourcePrefix(payload)) || (!order.sheetSyncRefreshRequested && !order.sheetDeletedAt)
+      || refreshReferences.includes(order.externalReference)) continue;
+    const protectedOrder = order.scheduleMode === "daily" ? protectedFromDailySheet(order, closingReferences) : protectedFromSheet(order, closingReferences);
+    if (!protectedOrder) refreshReferences.push(order.externalReference);
   }
   state[workspaceKeys.orders] = orders;
   if (payload.roster) rosterResult.rosterRemoved += pruneUnreferencedSheetRosterEmployees(state, payload.spreadsheetId);
