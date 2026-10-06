@@ -129,9 +129,12 @@ export function createDailyPayrollSlice(order: Order, segments: OrderDailyWork[]
   };
 }
 
-export function parentDailyOperationalStatus(rows: OrderDailyWork[]): OperationalStatus {
+export function parentDailyOperationalStatus(rows: OrderDailyWork[], totalDays = rows.length): OperationalStatus {
   if (!rows.length) return "assigned";
-  if (rows.every((row) => row.status === "verified")) return "verified";
+  const recorded = new Set(rows.map(row => row.sequence));
+  const completeSchedule = Number.isInteger(totalDays) && totalDays > 0 && rows.length === totalDays && recorded.size === totalDays
+    && rows.every(row => row.sequence >= 1 && row.sequence <= totalDays);
+  if (completeSchedule && rows.every((row) => row.status === "verified")) return "verified";
   const verified = rows.filter((row) => row.status === "verified").length;
   if (verified > 0) return "partially_completed";
   if (rows.some((row) => row.status === "in_progress")) return "in_progress";
@@ -165,7 +168,7 @@ export function replaceDailyWorkStatus(
   });
   if (!found) throw new Error("Hari pekerjaan tidak ditemukan.");
 
-  const operationalStatus = parentDailyOperationalStatus(dailyWork);
+  const operationalStatus = parentDailyOperationalStatus(dailyWork, order.scheduleTotalDays);
   const verifiedRows = dailyWork.filter((row) => row.status === "verified" && row.verifiedAt);
   const lastVerifiedAt = verifiedRows.map((row) => row.verifiedAt as string).sort().at(-1);
 

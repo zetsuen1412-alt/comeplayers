@@ -1,4 +1,4 @@
-import type { Order } from "../types/domain";
+import type { Order, OrderDailyWork } from "../types/domain";
 
 export type PriceTier = "10" | "20" | "30";
 export type PriceDirection = "down" | "up";
@@ -22,12 +22,17 @@ export type OrderPriceAssessment = {
 type Rational = { numerator: bigint; denominator: bigint };
 type Observation = {
   orderId: string;
+  sourceOrderId: string;
   parentIdentity: string;
   groupKey: string;
   exactPrice: Rational;
+  referencePrice: Rational;
+  referenceSamplePrice: Rational;
+  referenceLowest: Rational;
+  referenceHighest: Rational;
   assessment: Omit<OrderPriceAssessment, "lowestMinor" | "highestMinor" | "sampleCount" | "groupAverageMinor">;
 };
-type ParentPrice = { exactPrice: Rational; conflicting: boolean };
+type ParentPrice = { exactPrice: Rational; samplePrice: Rational; lowest: Rational; highest: Rational; conflicting: boolean };
 type PriceGroup = {
   parents: Map<string, ParentPrice>;
   total: Rational;
@@ -108,6 +113,7 @@ function normalizeText(value: string | undefined): string {
     .toLocaleLowerCase("en-US")
     .replace(/(\d)(?=hours?\b)/g, "$1 ")
     .replace(/\bhours?\b/g, "hour")
+    .replace(/\bdays?\b/g, "day")
     .replace(/\bweeks?\b/g, "week")
     .replace(/\bmonths?\b/g, "month")
     .replace(/(?:\bx|×)\s*(\d+)\b/g, "x$1")
@@ -135,41 +141,57 @@ function preciseService(order: Order): string | null {
 }
 
 /** Read only the stored Sheet RATE. Missing values never fall back to TOTAL. */
-export function getOrderRateMinor(order: Pick<Order, "rateMinor">): number | undefined {
-  const rate = order.rateMinor;
+export function getOrderRateMinor(order: Pick<Order, "rateMinor">, day?: Pick<OrderDailyWork, "rateMinor">): number | undefined {
+  const rate = day?.rateMinor === undefined ? order.rateMinor : day.rateMinor;
   return typeof rate === "number" && Number.isFinite(rate) && rate >= 0 ? rate : undefined;
 }
 
-function observation(order: Order): Observation | null {
-  if (order.sheetDeletedAt || order.websiteDeletedAt || order.operationalStatus === "cancelled") return null;
-  if (!["boosting", "gold", "item"].includes(order.orderType ?? "")) return null;
-  const priceMinor = getOrderRateMinor(order);
-  if (priceMinor === undefined) return null;
+export function getOrderPriceAssessmentKey(order: Pick<Order, "id">, day?: Pick<OrderDailyWork, "id">) {
+  return day ? `${order.id}::${day.id}` : order.id;
+}
+
+function observationsFor(order: Order): Observation[] {
+  if (order.sheetDeletedAt || order.websiteDeletedAt || order.operationalStatus === "cancelled") return [];
+  if (!["boosting", "gold", "item"].includes(order.orderType ?? "")) return [];
   const service = preciseService(order);
   const game = normalizeText(order.gameId || order.game || order.gameName);
-  if (!service || !game || /^-+$/.test(game)) return null;
+  if (!service || !game || /^-+$/.test(game)) return [];
 
   const basis: OrderPriceAssessment["basis"] = "rate";
-  const exactPrice = rationalNumber(priceMinor);
   let dailyScope: (string | number)[] = [];
   if (order.scheduleMode === "daily") {
     const days = order.dailyWork;
     const hours = order.dailyHours ?? days?.[0]?.hours;
-    if (hours !== undefined && (!Number.isFinite(hours) || hours <= 0)) return null;
+    if (hours !== undefined && (!Number.isFinite(hours) || hours <= 0)) return [];
     const totalDays = order.scheduleTotalDays ?? days?.length;
-    if (totalDays !== undefined && (!Number.isInteger(totalDays) || totalDays <= 0)) return null;
+    if (totalDays !== undefined && (!Number.isInteger(totalDays) || totalDays <= 0)) return [];
     dailyScope = ["daily", hours ?? "unknown-hours", totalDays ?? "unknown-days"];
   }
-  // Daily rows use the parent RATE once, just like single orders. TOTAL,
-  // JUMLAH and each day's financial amount never change this comparison.
   const groupKey = JSON.stringify([game, order.orderType, normalizeText(order.region), normalizeText(order.server), service, basis, ...dailyScope]);
-  return {
-    orderId: order.id,
+  const days = order.scheduleMode === "daily" && order.dailyWork?.length ? order.dailyWork : [undefined];
+  const candidates = days.flatMap(day => {
+    const priceMinor = getOrderRateMinor(order, day);
+    return priceMinor === undefined ? [] : [{ day, priceMinor, exactPrice: rationalNumber(priceMinor) }];
+  });
+  if (!candidates.length) return [];
+  // Every other KODE contributes one mean of its positive stored DAY rates.
+  // Zero remains a candidate and summary value, never a peer price baseline.
+  // Repeated days never increase the peer count; TOTAL/JUMLAH supply no RATE.
+  const referenceSamplePrice = dividedBy(candidates.reduce((sum, item) => add(sum, item.exactPrice), ZERO_PRICE), rationalNumber(candidates.length));
+  const positive = candidates.filter(item => item.exactPrice.numerator > ZERO);
+  const referencePrice = positive.length
+    ? dividedBy(positive.reduce((sum, item) => add(sum, item.exactPrice), ZERO_PRICE), rationalNumber(positive.length)) : ZERO_PRICE;
+  const referenceLowest = candidates.reduce((lowest, item) => compare(item.exactPrice, lowest) < ZERO ? item.exactPrice : lowest, candidates[0].exactPrice);
+  const referenceHighest = candidates.reduce((highest, item) => compare(item.exactPrice, highest) > ZERO ? item.exactPrice : highest, candidates[0].exactPrice);
+  return candidates.map(({ day, priceMinor, exactPrice }) => ({
+    orderId: getOrderPriceAssessmentKey(order, day),
+    sourceOrderId: order.id,
     parentIdentity: normalizeText(order.externalReference || order.orderNumber) || order.id,
     groupKey,
     exactPrice,
+    referencePrice, referenceSamplePrice, referenceLowest, referenceHighest,
     assessment: { groupKey, basis, priceMinor, peerCount: 0 },
-  };
+  }));
 }
 
 function dropTier(price: Rational, peerTotal: Rational, peerCount: number): PriceTier | undefined {
@@ -193,21 +215,35 @@ function riseTier(price: Rational, peerTotal: Rational, peerCount: number): Pric
 
 /**
  * Assess all active orders before applying table filters. Each parent/KODE is
- * one stored RATE reference, and its own RATE never contributes to its average.
+ * one RATE reference, and all of its own days are excluded from its peer average.
  * No financial data or stored import issues are changed.
  */
 export function buildOrderPriceAssessments(orders: readonly Order[]): Map<string, OrderPriceAssessment> {
   const observationsById = new Map<string, Observation>();
   const conflictingIds = new Set<string>();
+  const parentSignatures = new Map<string, string>();
+  const conflictingOrders = new Set<string>();
+  const aliases = new Map<string, string>();
   const groups = new Map<string, PriceGroup>();
   for (const order of orders) {
-    const item = observation(order);
-    if (!item) continue;
-    const existing = observationsById.get(order.id);
-    if (!existing) observationsById.set(order.id, item);
-    else if (existing.groupKey !== item.groupKey || existing.parentIdentity !== item.parentIdentity || compare(existing.exactPrice, item.exactPrice) !== ZERO) conflictingIds.add(order.id);
+    const items = observationsFor(order);
+    if (!items.length) continue;
+    const signature = JSON.stringify(items.map(item => [item.orderId, item.parentIdentity, item.groupKey,
+      item.exactPrice.numerator.toString(), item.exactPrice.denominator.toString()]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))));
+    const previousSignature = parentSignatures.get(order.id);
+    if (previousSignature !== undefined && previousSignature !== signature) conflictingOrders.add(order.id);
+    else parentSignatures.set(order.id, signature);
+    if (order.scheduleMode === "daily" && order.dailyWork?.length === items.length
+      && items.every(item => compare(item.exactPrice, items[0].exactPrice) === ZERO)) aliases.set(order.id, items[0].orderId);
+    for (const item of items) {
+      const existing = observationsById.get(item.orderId);
+      if (!existing) observationsById.set(item.orderId, item);
+      else if (existing.groupKey !== item.groupKey || existing.parentIdentity !== item.parentIdentity
+        || compare(existing.exactPrice, item.exactPrice) !== ZERO) conflictingIds.add(item.orderId);
+    }
   }
-  const observations = [...observationsById.values()].filter(item => !conflictingIds.has(item.orderId));
+  const observations = [...observationsById.values()].filter(item => !conflictingIds.has(item.orderId)
+    && !conflictingOrders.has(item.sourceOrderId));
   for (const item of observations) {
     let group = groups.get(item.groupKey);
     if (!group) {
@@ -215,16 +251,19 @@ export function buildOrderPriceAssessments(orders: readonly Order[]): Map<string
       groups.set(item.groupKey, group);
     }
     const parent = group.parents.get(item.parentIdentity);
-    if (!parent) group.parents.set(item.parentIdentity, { exactPrice: item.exactPrice, conflicting: false });
-    else if (compare(parent.exactPrice, item.exactPrice) !== ZERO) parent.conflicting = true;
+    if (!parent) group.parents.set(item.parentIdentity, { exactPrice: item.referencePrice,
+      samplePrice: item.referenceSamplePrice, lowest: item.referenceLowest, highest: item.referenceHighest, conflicting: false });
+    else if (compare(parent.exactPrice, item.referencePrice) !== ZERO
+      || compare(parent.samplePrice, item.referenceSamplePrice) !== ZERO
+      || compare(parent.lowest, item.referenceLowest) !== ZERO || compare(parent.highest, item.referenceHighest) !== ZERO) parent.conflicting = true;
   }
   for (const group of groups.values()) {
     for (const parent of group.parents.values()) {
       if (parent.conflicting) continue;
       group.sampleCount += 1;
-      group.sampleTotal = add(group.sampleTotal, parent.exactPrice);
-      if (!group.lowest || compare(parent.exactPrice, group.lowest) < ZERO) group.lowest = parent.exactPrice;
-      if (!group.highest || compare(parent.exactPrice, group.highest) > ZERO) group.highest = parent.exactPrice;
+      group.sampleTotal = add(group.sampleTotal, parent.samplePrice);
+      if (!group.lowest || compare(parent.lowest, group.lowest) < ZERO) group.lowest = parent.lowest;
+      if (!group.highest || compare(parent.highest, group.highest) > ZERO) group.highest = parent.highest;
       if (parent.exactPrice.numerator <= ZERO) continue;
       group.total = add(group.total, parent.exactPrice);
       group.count += 1;
@@ -263,6 +302,10 @@ export function buildOrderPriceAssessments(orders: readonly Order[]): Map<string
       }
     }
     result.set(item.orderId, assessment);
+  }
+  for (const [parentId, key] of aliases) {
+    const assessment = result.get(key);
+    if (assessment && !conflictingOrders.has(parentId)) result.set(parentId, assessment);
   }
   return result;
 }

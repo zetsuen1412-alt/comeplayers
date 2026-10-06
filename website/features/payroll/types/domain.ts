@@ -37,6 +37,8 @@ export interface OrderDailyWork {
   sequence: number;
   workDate: string;
   grossMinor: number;
+  /** RATE asli pada hari ini; tidak diturunkan dari TOTAL. */
+  rateMinor?: number;
   status: OrderDailyStatus;
   /** Jumlah unit pada baris harian. Untuk boosting biasanya 1 hari. */
   quantity?: number;

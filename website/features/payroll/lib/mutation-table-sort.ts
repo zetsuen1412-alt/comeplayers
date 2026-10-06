@@ -1,7 +1,7 @@
 import type { Order } from '../types/domain';
 import { getOrderAssignments } from './order-workers';
 import type { MutationColumnId } from './mutation-table-layout';
-import { normalizeDivisionLabel } from './mutation-rows';
+import { normalizeDivisionLabel, type MutationViewRow } from './mutation-rows';
 import { getOrderRateMinor } from './price-anomaly';
 
 export type MutationSortColumn = Exclude<MutationColumnId, 'actions' | 'day' | 'distribution'>;
@@ -67,6 +67,17 @@ export function compareMutationOrders(a: Order, b: Order, sort: MutationSortStat
 
   if (!result) result = collator.compare(a.externalReference ?? '', b.externalReference ?? '');
   return sort.direction === 'asc' ? result : -result;
+}
+
+export function compareMutationRowRates(a: MutationViewRow, b: MutationViewRow, direction: MutationSortDirection) {
+  const aRate = getOrderRateMinor(a.order, a.day);
+  const bRate = getOrderRateMinor(b.order, b.day);
+  if (aRate === undefined && bRate !== undefined) return 1;
+  if (aRate !== undefined && bRate === undefined) return -1;
+  const result = (aRate ?? 0) - (bRate ?? 0)
+    || collator.compare(a.order.externalReference, b.order.externalReference)
+    || (a.day?.sequence ?? 0) - (b.day?.sequence ?? 0);
+  return direction === 'asc' ? result : -result;
 }
 
 export function mutationSortLabel(sort: MutationSortState) {

@@ -229,13 +229,63 @@ function comePlayersRosterSignature_(roster) {
 }
 
 function runComePlayersPayrollSync_(mode, event) {
+  var props = PropertiesService.getScriptProperties();
+  var retryAfter = Number(props.getProperty('CP_URLFETCH_RETRY_AFTER') || 0);
+  if (retryAfter > Date.now()) {
+    return { ok: false, saved: false, skipped: 'google_urlfetch_quota', retryAt: new Date(retryAfter).toISOString() };
+  }
   // Payroll only reads the source and writes CP_* state; the mirror writes its target/EGM_*.
   // A user lock serializes the installer's payroll triggers independently of the mirror lock.
   var lock = LockService.getUserLock();
   // A missed edit is picked up by reconciliation; never advance its signature.
   if (!lock.tryLock(mode === 'reconcile' ? 25000 : 1000)) return { ok: true, saved: false, skipped: "busy" };
-  try { return syncComePlayersPayrollRows_(mode, event); }
+  try {
+    var result = syncComePlayersPayrollRows_(mode, event);
+    props.deleteProperty('CP_URLFETCH_RETRY_AFTER');
+    return result;
+  } catch (error) {
+    if (!/Service invoked too many times for one day:\s*urlfetch/i.test(String(error))) throw error;
+    // Google quotas are per user and recover independently of this script. Keep
+    // failed rows unacknowledged and let the existing clock retry after a pause.
+    var pending = { ok: false, saved: false, skipped: 'google_urlfetch_quota',
+      retryAt: new Date(Date.now() + 15 * 60 * 1000).toISOString() };
+    props.setProperties({ CP_URLFETCH_RETRY_AFTER: String(Date.now() + 15 * 60 * 1000),
+      CP_LAST_SYNC_STATUS: 'GOOGLE_URLFETCH_QUOTA', CP_LAST_SYNC_RESULT: JSON.stringify(pending) }, false);
+    console.log(JSON.stringify(pending));
+    return pending;
+  }
   finally { lock.releaseLock(); }
+}
+
+function comePlayersHeaders_(sheet, configuredRow, columns) {
+  function hasCode(headers) {
+    return headers.some(function (header) {
+      return ['KODE', 'CODE', 'ORDERCODE'].indexOf(normalizeComePlayersHeader_(header)) >= 0;
+    });
+  }
+  var configured = sheet.getRange(configuredRow, 1, 1, columns).getDisplayValues()[0];
+  if (hasCode(configured)) return { row: configuredRow, headers: configured };
+  // Merged header cells keep their value on the top row. Only accept a complete
+  // KODE/RATE/TOTAL header, never a data row, when the configured lower row is empty.
+  var candidates = sheet.getRange(1, 1, Math.min(10, Math.max(1, sheet.getLastRow())), columns).getDisplayValues();
+  for (var i = 0; i < candidates.length; i++) {
+    var names = candidates[i].map(normalizeComePlayersHeader_);
+    if (hasCode(candidates[i]) && names.indexOf('RATE') >= 0 && names.indexOf('TOTAL') >= 0) {
+      return { row: i + 1, headers: candidates[i] };
+    }
+  }
+  throw new Error('Header KODE/RATE/TOTAL tidak ditemukan; sinkronisasi ditunda.');
+}
+
+function comePlayersDailyPackageTitle_(value) {
+  var title = String(value || '').trim();
+  return /\b\d+\s*(?:weeks?|months?|days?|minggu|bulan|hari)\b/i.test(title)
+    || (/\b\d+(?:[.,]\d+)?\s*hours?\s*package\b/i.test(title)
+      && /\b[x×]\s*(?:[2-9]|[1-9]\d+)\b/i.test(title));
+}
+
+function comePlayersBoosterDaySuffix_(value) {
+  return /\b(?:D|DAY)\s*\d+(?:\s*-\s*(?:D|DAY)?\s*\d+)?\s*$/i.test(String(value || '').trim());
 }
 
 function syncComePlayersPayrollRows_(mode, event) {
@@ -259,6 +309,11 @@ function syncComePlayersPayrollRows_(mode, event) {
   if (secret.length < 24) throw new Error("CP_SYNC_SECRET belum dikonfigurasi.");
   if (!actorEmail) throw new Error("CP_ACTOR_EMAIL belum dikonfigurasi.");
   if (!Number.isInteger(headerRow) || headerRow < 1) throw new Error("CP_HEADER_ROW tidak valid.");
+  var lastRow = sheet.getLastRow();
+  var lastColumn = Math.min(Math.max(sheet.getLastColumn(), 13), 32);
+  var headerInfo = comePlayersHeaders_(sheet, headerRow, lastColumn);
+  headerRow = headerInfo.row;
+  var headers = headerInfo.headers;
   // Keep header mapping independent from the first open-period data row.
   var allExisting = config.CP_SYNC_ALL_EXISTING === 'true';
   var newOrdersStartRow;
@@ -271,8 +326,6 @@ function syncComePlayersPayrollRows_(mode, event) {
     throw new Error("CP_START_ROW harus berupa nomor baris setelah header.");
   }
 
-  var lastRow = sheet.getLastRow();
-  var lastColumn = Math.min(Math.max(sheet.getLastColumn(), 13), 32);
   var firstRow = event ? Math.max(dataStartRow, event.range.getRow()) : dataStartRow;
   var endRow = event ? Math.min(lastRow, event.range.getLastRow()) : lastRow;
   var syncDeletions = config.CP_SYNC_DELETIONS === 'true';
@@ -284,9 +337,9 @@ function syncComePlayersPayrollRows_(mode, event) {
   if (endRow < firstRow && !syncDeletions) return summary;
   if (lastRow - dataStartRow + 1 > 10000) throw new Error("Batas sinkronisasi 10000 baris aktif terlampaui.");
 
-  var headers = sheet.getRange(headerRow, 1, 1, lastColumn).getDisplayValues()[0];
   var codeColumn = findComePlayersHeader_(headers, ["KODE", "CODE", "ORDER CODE"], 1);
   var boosterColumn = findComePlayersHeader_(headers, ["BOOSTER", "KARYAWAN", "PEKERJA"], 5);
+  var titleColumn = findComePlayersHeader_(headers, ['NAMA ORDER', 'ORDER NAME', 'PESANAN', 'PACKAGE'], 4);
   if ((syncDeletions || allExisting) && ['KODE', 'CODE', 'ORDERCODE'].indexOf(normalizeComePlayersHeader_(headers[codeColumn])) < 0) throw new Error('Header KODE tidak valid; tidak ada penghapusan yang diproses.');
   if (lastRow > 50000) throw new Error('Batas pemeriksaan KODE lengkap terlampaui.');
   var allCodeValues = (syncDeletions || allExisting) && lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
@@ -321,6 +374,33 @@ function syncComePlayersPayrollRows_(mode, event) {
   var values = range ? range.getValues() : [];
   var display = range ? range.getDisplayValues() : [];
   var backgrounds = range ? range.getBackgrounds() : [];
+  var touchedPackageCodes = Object.create(null);
+  values.forEach(function (cells, index) {
+    var key = String(display[index][codeColumn] || cells[codeColumn] || '').trim().toLowerCase();
+    if (key && comePlayersDailyPackageTitle_(display[index][titleColumn] || cells[titleColumn])) touchedPackageCodes[key] = true;
+  });
+  var dailyGroups = Object.create(null);
+  if (Object.keys(touchedPackageCodes).length) {
+    // An edit to D13 must carry D1..Dn from the same CODE, including earlier
+    // Closing periods. A package is one atomic upload unit, never separate rows.
+    var fullRange = firstRow === headerRow + 1 && endRow === lastRow ? range
+      : sheet.getRange(headerRow + 1, 1, Math.max(0, lastRow - headerRow), lastColumn);
+    var fullValues = fullRange === range ? values : fullRange.getValues();
+    var fullDisplay = fullRange === range ? display : fullRange.getDisplayValues();
+    var fullBackgrounds = fullRange === range ? backgrounds : fullRange.getBackgrounds();
+    fullValues.forEach(function (cells, index) {
+      var key = String(fullDisplay[index][codeColumn] || cells[codeColumn] || '').trim().toLowerCase();
+      if (!touchedPackageCodes[key]) return;
+      if (!dailyGroups[key]) dailyGroups[key] = { rows: [], hasDay: false };
+      var group = dailyGroups[key];
+      group.rows.push({ rowNumber: headerRow + 1 + index,
+        values: cells.map(comePlayersJsonValue_), display: fullDisplay[index],
+        boosterBlack: isComePlayersBlack_(fullBackgrounds[index][boosterColumn]) });
+      if (comePlayersDailyPackageTitle_(fullDisplay[index][titleColumn] || cells[titleColumn])
+        && comePlayersBoosterDaySuffix_(fullDisplay[index][boosterColumn] || cells[boosterColumn])) group.hasDay = true;
+    });
+    Object.keys(dailyGroups).forEach(function (key) { if (!dailyGroups[key].hasDay) delete dailyGroups[key]; });
+  }
   var rows = [];
   var signatures = {};
   // Shards stay below 9 KB/property; 10,000 signatures (including retries) fit 500 KB.
@@ -391,12 +471,15 @@ function syncComePlayersPayrollRows_(mode, event) {
     });
   }
 
+  var emittedPackages = Object.create(null);
   for (var i = 0; i < rowCount; i++) {
     var code = String(display[i][codeColumn] || values[i][codeColumn] || "").trim();
     if (!code) continue;
     var rowNumber = firstRow + i;
+    var packageGroup = dailyGroups[code.toLowerCase()];
+    if (packageGroup && emittedPackages[code.toLowerCase()]) continue;
     var historical = allExisting && rowNumber < newOrdersStartRow;
-    if (historical && (!tracked[code.toLowerCase()] || (globalCodeCounts[code.toLowerCase()] !== 1
+    if (!packageGroup && historical && (!tracked[code.toLowerCase()] || (globalCodeCounts[code.toLowerCase()] !== 1
       && tracked[code.toLowerCase()].indexOf(rowNumber) < 0))) {
       summary.skippedHistorical++; continue;
     }
@@ -407,7 +490,13 @@ function syncComePlayersPayrollRows_(mode, event) {
       boosterBlack: isComePlayersBlack_(backgrounds[i][boosterColumn]),
       duplicateCode: codeCounts[(allExisting ? periods[firstRow + i] + ':' : '') + code.toLowerCase()] > 1
     };
-    if (allExisting) row.codeOccurrences = globalCodeCounts[code.toLowerCase()];
+    if (packageGroup) {
+      emittedPackages[code.toLowerCase()] = true;
+      var leader = packageGroup.rows[0];
+      row = { rowNumber: leader.rowNumber, values: leader.values, display: leader.display,
+        boosterBlack: leader.boosterBlack, codeOccurrences: packageGroup.rows.length,
+        dailyPackage: { complete: true, rows: packageGroup.rows } };
+    } else if (allExisting) row.codeOccurrences = globalCodeCounts[code.toLowerCase()];
     var signature = comePlayersSignature_([url, actorEmail, sheetName, headers, row, newOrdersStartRow, rosterSignature]);
     var bucket = buckets[cacheKey(row.rowNumber)] || {};
     var cached = String(bucket[row.rowNumber] || "");
@@ -420,7 +509,11 @@ function syncComePlayersPayrollRows_(mode, event) {
   }
   // Current orders make progress first if history needs several batches.
   if (allExisting) rows.sort(function (left, right) {
-    return Number(left.rowNumber < newOrdersStartRow) - Number(right.rowNumber < newOrdersStartRow)
+    function priority(row) {
+      if (row.rowNumber >= newOrdersStartRow || (row.dailyPackage && row.dailyPackage.rows.some(function (day) { return day.rowNumber >= newOrdersStartRow; }))) return 0;
+      return row.dailyPackage ? 1 : 2;
+    }
+    return priority(left) - priority(right)
       || left.rowNumber - right.rowNumber;
   });
 
