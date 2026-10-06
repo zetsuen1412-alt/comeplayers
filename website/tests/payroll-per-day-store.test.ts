@@ -7,6 +7,7 @@ import * as bulkActions from "../features/payroll/lib/bulk-mutation-actions";
 import * as dailyOrders from "../features/payroll/lib/daily-orders";
 import * as bulkInventory from "../features/payroll/lib/bulk-mutation-inventory";
 import * as syncPolicy from "../features/payroll/lib/sheet-sync-policy";
+import * as withdrawal from "../features/payroll/lib/payroll-withdrawal";
 import { workspaceKeys as K } from "../features/payroll/lib/workspace-model";
 import type { Order } from "../features/payroll/types/domain";
 
@@ -46,6 +47,7 @@ function harness(initial: Order[]) {
       if (name === "./bulk-mutation-inventory") return bulkInventory;
       if (name === "./sheet-sync-policy") return syncPolicy;
       if (name === "./daily-orders") return dailyOrders;
+      if (name === "./payroll-withdrawal") return withdrawal;
       if (name === "./workspace-model") return { workspaceKeys: K };
       throw new Error(`Unexpected isolated dependency: ${name}`);
     },
@@ -114,4 +116,47 @@ test("legacy Closing records without DAY markers cannot be withdrawn or repaid",
   const repeat = h.actions.applyBulkAction([target(1)], "complete", { now: later });
   assert.equal(repeat.skipped[0].code, "closed");
   assert.deepEqual(h.state, before);
+});
+
+test("Gaji preview is read-only and ordinary withdrawal uses current workers without undoing stock or payment", () => {
+  const initial: Order = { ...parent(), id: "single", externalReference: "X3173", orderNumber: "X3173",
+    scheduleMode: undefined, scheduleTotalDays: undefined, dailyWork: undefined,
+    operationalStatus: "verified", completedAt: now, verifiedAt: later,
+    employeeCode: "OLD", employeeName: "Old worker", team: "FH3", quantity: 1,
+    workerAssignments: [{ id: "old", employeeCode: "OLD", employeeName: "Old worker", team: "FH3", process: "JOKI", quantity: 1 }],
+    matchedPaymentMinor: 150000, inventoryConsumedAt: now };
+  const h = harness([initial]);
+  const preview = h.actions.previewWithdrawal("single");
+  assert.equal(preview.changed, true);
+  assert.deepEqual(h.writes, []);
+  const current = h.order();
+  current.workerAssignments = [{ id: "fresh", employeeCode: "NEW", employeeName: "New worker", team: "FH3", process: "JOKI", quantity: 1 }];
+  const fresh = structuredClone(current);
+  assert.equal(h.actions.withdrawFromPayroll("single"), true);
+  assert.equal(h.order().operationalStatus, "completed");
+  assert.equal(h.order().verifiedAt, undefined);
+  assert.equal(h.order().completedAt, now);
+  assert.deepEqual(h.order().workerAssignments, fresh.workerAssignments);
+  assert.equal(h.order().matchedPaymentMinor, fresh.matchedPaymentMinor);
+  assert.equal(h.order().inventoryConsumedAt, fresh.inventoryConsumedAt);
+  assert.deepEqual(h.writes, [K.orders]);
+  assert.equal(h.actions.withdrawFromPayroll("single"), false);
+  assert.deepEqual(h.writes, [K.orders]);
+});
+
+test("Gaji target preview cannot bypass admin, fresh Closing or workspace locks", () => {
+  const h = harness([parent()]);
+  h.actions.applyBulkAction([target(2)], "complete", { now });
+  h.admin(false);
+  const writesBefore = [...h.writes];
+  assert.throws(() => h.actions.previewWithdrawal("monthly", "sheet-day:2"), /Hanya admin/);
+  assert.throws(() => h.actions.withdrawFromPayroll("monthly", "sheet-day:2"), /Hanya admin/);
+  h.admin(true);
+  assert.equal(h.actions.previewWithdrawal("monthly", "sheet-day:2").changed, true);
+  h.state[K.closings] = [{ id: "new-closing", ordersSnapshot: [{ externalReference: "X2184" }] }];
+  assert.throws(() => h.actions.withdrawFromPayroll("monthly", "sheet-day:2"), /Tutup Buku/);
+  h.state[K.closings] = [];
+  h.state[K.lock] = { id: "fresh-lock" };
+  assert.throws(() => h.actions.withdrawFromPayroll("monthly", "sheet-day:2"), /dikunci/);
+  assert.deepEqual(h.writes, writesBefore);
 });
