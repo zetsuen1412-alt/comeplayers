@@ -5,8 +5,26 @@ import { clampMutationWidth, defaultMutationWidths, mutationColumns, mutationWid
 import type { MutationSortColumn, MutationSortDirection } from '../lib/mutation-table-sort';
 import './mutation-spreadsheet.css';
 
-type Props = { children: ReactNode; rowCount: number; filterLabel: string; readOnly?: boolean; overlay?: ReactNode; onOverlayClose?: () => void; sortColumn?: MutationSortColumn; sortDirection?: MutationSortDirection; onSort?: (column: MutationSortColumn) => void };
+type Selection = {
+  totalCount: number;
+  selectedCount: number;
+  hiddenCount: number;
+  disabled?: boolean;
+  onToggleAll: (checked: boolean) => void;
+  onClear: () => void;
+};
+type Props = { children: ReactNode; rowCount: number; filterLabel: string; readOnly?: boolean; selection?: Selection; overlay?: ReactNode; onOverlayClose?: () => void; sortColumn?: MutationSortColumn; sortDirection?: MutationSortDirection; onSort?: (column: MutationSortColumn) => void };
 type Drag = { id: MutationColumnId; pointer: number; startX: number; width: number; target: HTMLButtonElement };
+const selectionWidth = 64;
+
+function SelectAllCheckbox({ selection, label }: { selection: Selection; label: string }) {
+  const checkbox = useRef<HTMLInputElement>(null);
+  const checked = selection.totalCount > 0 && selection.selectedCount === selection.totalCount;
+  const mixed = selection.selectedCount > 0 && !checked;
+  useEffect(() => { if (checkbox.current) checkbox.current.indeterminate = mixed; }, [mixed]);
+  return <input ref={checkbox} type="checkbox" className="mutation-sheet-checkbox" aria-label={label} checked={checked}
+    disabled={selection.disabled || !selection.totalCount} onChange={event => selection.onToggleAll(event.target.checked)} />;
+}
 
 function syncHorizontal(source: HTMLDivElement, target: HTMLDivElement | null) {
   if (!target) return;
@@ -18,7 +36,7 @@ function syncHorizontal(source: HTMLDivElement, target: HTMLDivElement | null) {
 }
 
 /** Layout preferences are local-only. This component never writes payroll data. */
-export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly = false, overlay, onOverlayClose, sortColumn, sortDirection, onSort }: Props) {
+export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly = false, selection, overlay, onOverlayClose, sortColumn, sortDirection, onSort }: Props) {
   const [widths, setWidths] = useState(defaultMutationWidths);
   const [loaded, setLoaded] = useState(false);
   const [selected, setSelected] = useState<MutationColumnId>('order');
@@ -37,7 +55,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
   const uid = useId();
   const tableId = `${uid}-table`, helpId = `${uid}-help`, headingId = `${uid}-heading`;
   const selectedColumn = mutationColumns.find(column => column.id === selected)!;
-  const totalWidth = mutationColumns.reduce((total, column) => total + widths[column.id], 0);
+  const totalWidth = mutationColumns.reduce((total, column) => total + widths[column.id], 0) + (selection ? selectionWidth : 0);
 
   useEffect(() => {
     try { setWidths(readMutationWidths(localStorage.getItem(mutationWidthsStorageKey))); }
@@ -120,8 +138,9 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
       const headers = clone.tHead?.rows[0]?.cells;
       if (!headers) return;
       const measured: Partial<MutationColumnWidths> = {};
-      mutationColumns.forEach((column, index) => {
-        if (!id || column.id === id) measured[column.id] = clampMutationWidth(column.id, Math.ceil(headers[index].getBoundingClientRect().width) + 4);
+      mutationColumns.forEach(column => {
+        const header = clone.querySelector<HTMLTableCellElement>(`th[data-column="${column.id}"]`);
+        if (header && (!id || column.id === id)) measured[column.id] = clampMutationWidth(column.id, Math.ceil(header.getBoundingClientRect().width) + 4);
       });
       setWidths(current => ({ ...current, ...measured }));
       setMessage(id ? `Lebar ${mutationColumns.find(column => column.id === id)!.label} disesuaikan dengan isi.` : 'Semua kolom disesuaikan dengan isi baris pada filter ini.');
@@ -156,6 +175,12 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         <button type="button" className="mutation-sheet-action" onClick={() => { setWidths(defaultMutationWidths()); setMessage('Lebar kolom kembali ke ukuran awal.'); }} disabled={readOnly}>Atur ulang lebar</button>
         <button type="button" ref={expanded ? undefined : expandButton} className="mutation-sheet-action mutation-sheet-primary" onClick={() => expanded ? closeExpanded() : setExpanded(true)} disabled={readOnly}>{expanded ? 'Kecilkan tabel' : 'Perbesar tabel'}</button>
       </div>
+      {selection ? <div className="mutation-sheet-selection" aria-label="Pilihan pesanan Mutasi">
+        <label><SelectAllCheckbox selection={selection} label="Pilih semua pesanan pada filter" />Pilih semua</label>
+        <span role="status" aria-live="polite">{selection.selectedCount.toLocaleString('id-ID')} dari {selection.totalCount.toLocaleString('id-ID')} pesanan pada filter dipilih{selection.hiddenCount ? ` · ${selection.hiddenCount.toLocaleString('id-ID')} pilihan di luar filter` : ''}</span>
+        <button type="button" className="mutation-sheet-action" disabled={selection.disabled || !(selection.selectedCount + selection.hiddenCount)} onClick={selection.onClear}>Batal pilih</button>
+        <small>Paket harian dipilih sebagai satu pesanan.</small>
+      </div> : null}
       <div className="mutation-sheet-controls">
         <label htmlFor={`${uid}-column`}>Pilih kolom<select id={`${uid}-column`} aria-label="Pilih kolom" className="mutation-sheet-control" value={selected} disabled={readOnly} onChange={event => setSelected(event.target.value as MutationColumnId)}>{mutationColumns.map(column => <option key={column.id} value={column.id}>{column.label}</option>)}</select></label>
         <label htmlFor={`${uid}-width`}>Lebar (px)<input id={`${uid}-width`} aria-label="Lebar (px)" className="mutation-sheet-control" type="number" min={selectedColumn.min} max={selectedColumn.max} step={1} value={draftWidth} disabled={readOnly} onChange={event => setDraftWidth(event.target.value)} onBlur={commitWidth} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); commitWidth(); } }} /></label>
@@ -168,8 +193,8 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         syncHorizontal(event.currentTarget, topScroll.current);
       }}>
         <table id={tableId} ref={table} className="cp-table mutation-sheet-table" aria-label="Daftar Mutasi" style={{ width: totalWidth, minWidth: totalWidth, tableLayout: 'fixed' }}>
-          <colgroup>{mutationColumns.map(column => <col key={column.id} style={{ width: widths[column.id] }} />)}</colgroup>
-          <thead><tr>{mutationColumns.map(column => {
+          <colgroup>{selection ? <col style={{ width: selectionWidth }} /> : null}{mutationColumns.map(column => <col key={column.id} style={{ width: widths[column.id] }} />)}</colgroup>
+          <thead><tr>{selection ? <th scope="col" data-column="selection"><SelectAllCheckbox selection={selection} label="Pilih semua pesanan di tabel" /></th> : null}{mutationColumns.map(column => {
             const sortable = column.id !== 'actions' && column.id !== 'day' && column.id !== 'distribution' && Boolean(onSort);
             const activeSort = sortable && sortColumn === column.id;
             return <th scope="col" key={column.id} data-column={column.id} data-selected={selected === column.id}
@@ -192,7 +217,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         </table>
         {!rowCount && <p style={{ padding: 20 }}>Tidak ada Mutasi sesuai filter.</p>}
       </div>
-      <div className="mutation-sheet-footer"><span>{rowCount.toLocaleString('id-ID')} baris mutasi · {mutationColumns.length} kolom · {filterLabel}</span><div role="status" aria-live="polite">{message || 'Pengaturan lebar disimpan di browser ini. Data pesanan dan hasil ekspor tidak berubah.'}</div></div>
+      <div className="mutation-sheet-footer"><span>{rowCount.toLocaleString('id-ID')} baris mutasi · {mutationColumns.length + (selection ? 1 : 0)} kolom · {filterLabel}</span><div role="status" aria-live="polite">{message || 'Pengaturan lebar disimpan di browser ini. Data pesanan dan hasil ekspor tidak berubah.'}</div></div>
       {overlay}
     </div>;
   return <>
