@@ -1,11 +1,14 @@
 "use client";
 
-import { payrollStorage } from "@/features/payroll/lib/workspace-store";
+import { getPayrollActor, payrollStorage } from "@/features/payroll/lib/workspace-store";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { orders as seedOrders } from "@/features/payroll/lib/demo-data";
-import type { Order } from "@/features/payroll/types/domain";
+import type { Order, InventoryStock, InventoryMovement } from "@/features/payroll/types/domain";
 import { activeSheetOrders } from "./sheet-sync-policy";
+import { applyBulkMutationAction, type BulkMutationAction, type BulkMutationContext } from "./bulk-mutation-actions";
+import { planBulkMutationInventory } from "./bulk-mutation-inventory";
+import { workspaceKeys } from "./workspace-model";
 
 const STORAGE_KEY = "cp-ofs-demo-user-orders-v3";
 const OLD_STORAGE_KEYS = ["cp-ofs-demo-user-orders-v2", "cp-ofs-demo-user-orders-v1"];
@@ -36,6 +39,32 @@ function mergeOrders(stored: Order[]) {
   return [...byRef.values()].sort((a, b) => new Date(b.orderedAt).getTime() - new Date(a.orderedAt).getTime());
 }
 
+function planBulkAction(ids: Iterable<string>, action: BulkMutationAction, context: BulkMutationContext, batchId: string) {
+  const orders = mergeOrders(readStoredOrders());
+  const actor = getPayrollActor();
+  const closings = JSON.parse(payrollStorage.getItem(workspaceKeys.closings) ?? "[]") as { orderRefs?: string[]; ordersSnapshot?: Order[] }[];
+  const movements = JSON.parse(payrollStorage.getItem(workspaceKeys.movements) ?? "[]") as InventoryMovement[];
+  const trustedContext: BulkMutationContext = { ...context, stockCompletionOrderIds: undefined,
+    now: context.now ?? new Date().toISOString(), actorName: actor?.name,
+    workspaceLocked: Boolean(JSON.parse(payrollStorage.getItem(workspaceKeys.lock) ?? "null")) || context.workspaceLocked,
+    closingReferences: closings.flatMap(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []]),
+    inventoryMovementReferences: movements.flatMap(movement => movement.orderReference ? [movement.orderReference] : []),
+  };
+  const selected = [...ids];
+  let result = applyBulkMutationAction(orders, selected, action, trustedContext);
+  if (action !== "complete") return { result };
+  const inventoryIds = new Set(result.skipped.filter(skip => skip.code === "inventory").map(skip => skip.orderId));
+  if (!inventoryIds.size) return { result };
+  const inventory = JSON.parse(payrollStorage.getItem(workspaceKeys.inventory) ?? "[]") as InventoryStock[];
+  const byId = new Map(orders.map(order => [order.id, order]));
+  const stockOrders = [...new Set(selected)].filter(id => inventoryIds.has(id)).map(id => byId.get(id)!);
+  const inventoryPlan = planBulkMutationInventory(inventory, movements, stockOrders, { now: trustedContext.now!, batchId });
+  result = applyBulkMutationAction(orders, selected, action, { ...trustedContext, stockCompletionOrderIds: inventoryPlan.stockCompletionOrderIds });
+  result.skipped = result.skipped.map(skip => skip.code === "inventory" && inventoryPlan.skippedOrderReasons[skip.orderId]
+    ? { ...skip, reason: inventoryPlan.skippedOrderReasons[skip.orderId] } : skip);
+  return { result, inventoryPlan };
+}
+
 export function useDemoOrders() {
   const [storedOrders, setStoredOrders] = useState<Order[]>([]);
 
@@ -52,9 +81,9 @@ export function useDemoOrders() {
   }, []);
 
   const allOrders = useMemo(() => activeSheetOrders(mergeOrders(storedOrders)), [storedOrders]);
-  const archivedOrders = useMemo(() => storedOrders.filter(order => order.sheetDeletedAt), [storedOrders]);
+  const archivedOrders = useMemo(() => storedOrders.filter(order => order.sheetDeletedAt || order.websiteDeletedAt), [storedOrders]);
   const userOrders = useMemo(() => storedOrders.filter((x) => x.id.startsWith("ord-user-")), [storedOrders]);
-  const changedSeedOrders = useMemo(() => storedOrders.filter((x) => !x.sheetDeletedAt && !x.id.startsWith("ord-user-")), [storedOrders]);
+  const changedSeedOrders = useMemo(() => storedOrders.filter((x) => !x.sheetDeletedAt && !x.websiteDeletedAt && !x.id.startsWith("ord-user-")), [storedOrders]);
 
   const addOrder = useCallback((order: Order) => {
     const existing = readStoredOrders();
@@ -81,6 +110,23 @@ export function useDemoOrders() {
     setStoredOrders([]);
   }, []);
 
+  const applyBulkAction = useCallback((ids: Iterable<string>, action: BulkMutationAction, context: BulkMutationContext = {}) => {
+    if ((action === "complete" || action === "delete") && !getPayrollActor()?.isAdmin) throw new Error("Hanya admin website yang dapat melakukan aksi ini.");
+    const { result, inventoryPlan } = planBulkAction(ids, action, context, crypto.randomUUID());
+    if (inventoryPlan?.stockCompletionOrderIds.length) {
+      payrollStorage.setItem(workspaceKeys.inventory, JSON.stringify(inventoryPlan.inventory));
+      payrollStorage.setItem(workspaceKeys.movements, JSON.stringify(inventoryPlan.movements));
+      window.dispatchEvent(new Event("cp-ofs-demo-inventory-changed"));
+    }
+    if (result.changedIds.length) {
+      writeStoredOrders(result.orders);
+      setStoredOrders(result.orders);
+    }
+    return result;
+  }, []);
+  const previewBulkAction = useCallback((ids: Iterable<string>, action: BulkMutationAction, context: BulkMutationContext = {}) =>
+    planBulkAction(ids, action, context, "preview").result, []);
+
   return {
     allOrders,
     archivedOrders,
@@ -89,5 +135,7 @@ export function useDemoOrders() {
     addOrder,
     updateOrder,
     clearUserOrders,
+    applyBulkAction,
+    previewBulkAction,
   };
 }

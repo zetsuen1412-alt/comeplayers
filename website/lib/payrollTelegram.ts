@@ -147,7 +147,7 @@ export async function payrollWorkspaceOrder(supabaseAdmin: SupabaseClient, order
   const state = data.payload as WorkspaceState;
   const orders = (state[workspaceKeys.orders] ?? []) as Order[];
   const ref = orderRef.trim().toLowerCase();
-  return orders.find(order => order.externalReference.trim().toLowerCase() === ref && !order.sheetDeletedAt) ?? null;
+  return orders.find(order => order.externalReference.trim().toLowerCase() === ref && !order.sheetDeletedAt && !order.websiteDeletedAt) ?? null;
 }
 
 export async function payrollWorkspaceEmployees(supabaseAdmin: SupabaseClient) {

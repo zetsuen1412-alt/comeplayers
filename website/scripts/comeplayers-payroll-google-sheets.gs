@@ -215,6 +215,19 @@ function comePlayersSignature_(value) {
   )).slice(0, 24);
 }
 
+function comePlayersRosterSignature_(roster) {
+  // Worker assignments depend on division/name, not payroll row position or TYPE.
+  // Keep display case so a renamed employee also refreshes the stored order name.
+  var identities = roster.sheets.map(function (sheet) {
+    return [sheet.sheetName, sheet.rows.map(function (row) {
+      return String(row.name).trim().replace(/\s+/g, ' ');
+    }).sort()];
+  }).sort(function (left, right) {
+    return left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0;
+  });
+  return comePlayersSignature_(identities);
+}
+
 function runComePlayersPayrollSync_(mode, event) {
   // Payroll only reads the source and writes CP_* state; the mirror writes its target/EGM_*.
   // A user lock serializes the installer's payroll triggers independently of the mirror lock.
@@ -302,7 +315,7 @@ function syncComePlayersPayrollRows_(mode, event) {
     });
   }
   var roster = config.CP_SYNC_ROSTER === 'true' ? comePlayersRoster_(spreadsheet) : undefined;
-  var rosterSignature = roster ? comePlayersSignature_(roster) : undefined;
+  var rosterSignature = roster ? comePlayersRosterSignature_(roster) : undefined;
   var rowCount = Math.max(0, endRow - firstRow + 1);
   var range = rowCount ? sheet.getRange(firstRow, 1, rowCount, lastColumn) : null;
   var values = range ? range.getValues() : [];
