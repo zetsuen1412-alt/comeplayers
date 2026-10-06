@@ -107,6 +107,17 @@ test("one explicit D1 on a recognized Hours Package stays one recorded DAY with 
   for (const scheduleTotalDays of [0, -1, 1.5, 367]) assert.throws(() => validateWorkspace({ ...result.state, [K.orders]: [{ ...order, scheduleTotalDays }] }));
 });
 
+test("explicit one-Day and Hours Package X1 bounds remain one DAY instead of being inferred upward", () => {
+  for (const title of ["1 Day Package (6 Hours/Day)", "12 Hours Package X1", "12 Hours Package ×1"]) {
+    const original = base(), result = imported(original, [row(3, "DAVA D1", { title })]), order = firstOrder(result.state);
+    assert.equal(result.added, 1, title); assert.equal(order.scheduleMode, "daily"); assert.equal(order.scheduleTotalDays, 1);
+    assert.deepEqual(order.dailyWork?.map(day => day.sequence), [1]); assert.equal(order.dailyWork?.[0].status, "pending");
+    validateWorkspaceEdit(original, result.state);
+    const outOfBounds = imported(original, [row(3, "DAVA D1", { title }), row(4, "DAVA D2", { title })]);
+    assert.equal(outOfBounds.added, 0, title); assert.equal(outOfBounds.skippedConflicts, 1, title); assert.deepEqual(outOfBounds.state[K.orders], []);
+  }
+});
+
 test("odd row TOTAL preserves every rupiah and each source DAY RATE across mixed rates", () => {
   const order = firstOrder(imported(base(), [row(3, "DAVA D1 D2", { quantity: 2, rate: 100, total: 201 }), row(4, "DAVA D3", { rate: 150, total: 150 })]).state);
   assert.deepEqual(order.dailyWork?.map(day => [day.sequence, day.rateMinor, day.grossMinor]), [[1, 100, 101], [2, 100, 100], [3, 150, 150]]);
