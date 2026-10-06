@@ -14,6 +14,7 @@ export const mutationColumns = [
   { id: 'region', label: 'Wilayah', width: 160, min: 120, max: 640 },
   { id: 'server', label: 'Server', width: 190, min: 120, max: 900 },
   { id: 'quantity', label: 'Jumlah', width: 140, min: 110, max: 640 },
+  { id: 'rate', label: 'Rate', width: 210, min: 180, max: 640 },
   { id: 'total', label: 'Total', width: 190, min: 180, max: 640 },
   { id: 'status', label: 'Status', width: 250, min: 240, max: 640 },
   { id: 'actions', label: 'Aksi', width: 430, min: 330, max: 1200 },

@@ -2,6 +2,7 @@ import type { Order } from '../types/domain';
 import { getOrderAssignments } from './order-workers';
 import type { MutationColumnId } from './mutation-table-layout';
 import { normalizeDivisionLabel } from './mutation-rows';
+import { getOrderRateMinor } from './price-anomaly';
 
 export type MutationSortColumn = Exclude<MutationColumnId, 'actions' | 'day' | 'distribution'>;
 export type MutationSortDirection = 'asc' | 'desc';
@@ -39,6 +40,7 @@ function stringValue(order: Order, column: MutationSortColumn): string {
     case 'server': return order.server ?? '';
     case 'status': return statusText(order);
     case 'quantity':
+    case 'rate':
     case 'total':
       return '';
   }
@@ -53,6 +55,13 @@ export function toggleMutationSort(current: MutationSortState, column: MutationS
 export function compareMutationOrders(a: Order, b: Order, sort: MutationSortState) {
   let result = 0;
   if (sort.column === 'quantity') result = a.quantity - b.quantity;
+  else if (sort.column === 'rate') {
+    const aRate = getOrderRateMinor(a);
+    const bRate = getOrderRateMinor(b);
+    if (aRate === undefined && bRate !== undefined) return 1;
+    if (aRate !== undefined && bRate === undefined) return -1;
+    result = (aRate ?? 0) - (bRate ?? 0);
+  }
   else if (sort.column === 'total') result = (a.grossMinor ?? 0) - (b.grossMinor ?? 0);
   else result = collator.compare(stringValue(a, sort.column), stringValue(b, sort.column));
 
@@ -62,13 +71,13 @@ export function compareMutationOrders(a: Order, b: Order, sort: MutationSortStat
 
 export function mutationSortLabel(sort: MutationSortState) {
   if (sort.column === 'date') return sort.direction === 'asc' ? 'Hari & tanggal: lama → baru' : 'Hari & tanggal: baru → lama';
-  if (sort.column === 'quantity' || sort.column === 'total') {
-    return `${sort.column === 'quantity' ? 'Jumlah' : 'Total'}: ${sort.direction === 'asc' ? 'kecil → besar' : 'besar → kecil'}`;
+  if (sort.column === 'quantity' || sort.column === 'rate' || sort.column === 'total') {
+    return `${sort.column === 'quantity' ? 'Jumlah' : sort.column === 'rate' ? 'Rate' : 'Total'}: ${sort.direction === 'asc' ? 'kecil → besar' : 'besar → kecil'}`;
   }
   const labels: Record<MutationSortColumn, string> = {
     date: 'Hari & tanggal', code: 'Kode', source: 'Sumber', type: 'Jenis', buyer: 'Pembeli',
     order: 'Nama pesanan', task: 'TASK', workers: 'Karyawan', division: 'Divisi', game: 'GAME', region: 'Wilayah', server: 'Server',
-    quantity: 'Jumlah', total: 'Total', status: 'Status',
+    quantity: 'Jumlah', rate: 'Rate', total: 'Total', status: 'Status',
   };
   return `${labels[sort.column]}: ${sort.direction === 'asc' ? 'A → Z' : 'Z → A'}`;
 }

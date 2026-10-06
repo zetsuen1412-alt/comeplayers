@@ -5,7 +5,7 @@ export type PriceDirection = "down" | "up";
 
 export type OrderPriceAssessment = {
   groupKey: string;
-  basis: "order" | "unit" | "day";
+  basis: "rate";
   priceMinor: number;
   lowestMinor: number;
   highestMinor: number;
@@ -56,7 +56,7 @@ function reduced(numerator: bigint, denominator: bigint): Rational {
   return { numerator: numerator / left, denominator: denominator / left };
 }
 
-/** Preserve the stored decimal quantity exactly, including scientific notation. */
+/** Preserve the stored decimal rate exactly, including scientific notation. */
 function rationalNumber(value: number): Rational {
   const [mantissa, exponentText] = value.toString().split(/[eE]/);
   const [whole, fraction = ""] = mantissa.split(".");
@@ -96,7 +96,8 @@ function displayNumber(value: Rational): number {
   const leadingNumerator = numeratorText.slice(0, 17);
   const leadingDenominator = denominatorText.slice(0, 17);
   const exponent = (numeratorText.length - leadingNumerator.length) - (denominatorText.length - leadingDenominator.length);
-  return Number(`${Number(leadingNumerator) / Number(leadingDenominator)}e${exponent}`);
+  const [mantissa, ratioExponent] = (Number(leadingNumerator) / Number(leadingDenominator)).toExponential(16).split("e");
+  return Number(`${mantissa}e${exponent + Number(ratioExponent)}`);
 }
 
 /** Normalize display differences without combining different scopes or quantities. */
@@ -127,45 +128,40 @@ function preciseService(order: Order): string | null {
     if (stated) {
       // Thousands separators, package durations and multipliers are ambiguous.
       if (/[.,]\d{3}$/.test(stated[1]) || /\b(?:hour|day|week|month|package|level|jam|hari|paket|x\d+)\b/.test(stated[3] ?? "")) return service;
-      const statedQuantity = Number(stated[1].replace(",", "."));
-      if (Math.abs(statedQuantity - order.quantity) > 0.000001) return null;
       return `${stated[2]}${stated[3] ? ` ${stated[3]}` : ""}`;
     }
   }
   return service;
 }
 
+/** Read only the stored Sheet RATE. Missing values never fall back to TOTAL. */
+export function getOrderRateMinor(order: Pick<Order, "rateMinor">): number | undefined {
+  const rate = order.rateMinor;
+  return typeof rate === "number" && Number.isFinite(rate) && rate >= 0 ? rate : undefined;
+}
+
 function observation(order: Order): Observation | null {
   if (order.sheetDeletedAt || order.operationalStatus === "cancelled") return null;
   if (!["boosting", "gold", "item"].includes(order.orderType ?? "")) return null;
-  if (!Number.isFinite(order.grossMinor) || order.grossMinor < 0) return null;
+  const priceMinor = getOrderRateMinor(order);
+  if (priceMinor === undefined) return null;
   const service = preciseService(order);
   const game = normalizeText(order.gameId || order.game || order.gameName);
   if (!service || !game || /^-+$/.test(game)) return null;
 
-  let basis: OrderPriceAssessment["basis"] = "order";
-  let exactPrice = rationalNumber(order.grossMinor);
+  const basis: OrderPriceAssessment["basis"] = "rate";
+  const exactPrice = rationalNumber(priceMinor);
   let dailyScope: (string | number)[] = [];
   if (order.scheduleMode === "daily") {
     const days = order.dailyWork;
-    if (!days?.length || days.some(day => !Number.isFinite(day.grossMinor) || day.grossMinor < 0)) return null;
-    const hours = order.dailyHours ?? days[0].hours;
+    const hours = order.dailyHours ?? days?.[0]?.hours;
     if (hours !== undefined && (!Number.isFinite(hours) || hours <= 0)) return null;
-    if (days.some(day => day.hours !== undefined && day.hours !== hours)) return null;
-    const totalDays = order.scheduleTotalDays ?? days.length;
-    if (!Number.isInteger(totalDays) || totalDays <= 0) return null;
-    basis = "day";
-    exactPrice = dividedBy(days.reduce((sum, day) => add(sum, rationalNumber(day.grossMinor)), ZERO_PRICE), rationalNumber(days.length));
-    dailyScope = [hours ?? "unknown-hours", totalDays];
-  } else if (order.orderType === "gold" || order.orderType === "item") {
-    if (!Number.isFinite(order.quantity) || order.quantity <= 0) return null;
-    basis = "unit";
-    exactPrice = dividedBy(exactPrice, rationalNumber(order.quantity));
+    const totalDays = order.scheduleTotalDays ?? days?.length;
+    if (totalDays !== undefined && (!Number.isInteger(totalDays) || totalDays <= 0)) return null;
+    dailyScope = ["daily", hours ?? "unknown-hours", totalDays ?? "unknown-days"];
   }
-  // Boosting JUMLAH can count workers. Its TOTAL remains the package price.
-  // Raw sheet week/month/xN titles are not evidence of a daily price basis.
-  const priceMinor = displayNumber(exactPrice);
-  if (!Number.isFinite(priceMinor) || priceMinor < 0) return null;
+  // Daily rows use the parent RATE once, just like single orders. TOTAL,
+  // JUMLAH and each day's financial amount never change this comparison.
   const groupKey = JSON.stringify([game, order.orderType, normalizeText(order.region), normalizeText(order.server), service, basis, ...dailyScope]);
   return {
     orderId: order.id,
@@ -177,7 +173,7 @@ function observation(order: Order): Observation | null {
 }
 
 function dropTier(price: Rational, peerTotal: Rational, peerCount: number): PriceTier | undefined {
-  // Exact cross-products protect 10/20/30 boundaries for unit and daily prices.
+  // Exact cross-products protect 10/20/30 boundaries for stored RATE values.
   const candidateTotal = times(price, peerCount * 100);
   const below = (percent: number) => compare(candidateTotal, times(peerTotal, 100 - percent)) <= ZERO;
   if (below(30)) return "30";
@@ -197,7 +193,7 @@ function riseTier(price: Rational, peerTotal: Rational, peerCount: number): Pric
 
 /**
  * Assess all active orders before applying table filters. Each parent/KODE is
- * one reference price, and its own price never contributes to its average.
+ * one stored RATE reference, and its own RATE never contributes to its average.
  * No financial data or stored import issues are changed.
  */
 export function buildOrderPriceAssessments(orders: readonly Order[]): Map<string, OrderPriceAssessment> {
