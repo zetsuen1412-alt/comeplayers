@@ -1,5 +1,5 @@
 import { parseBoostingPackagePlan } from "./boosting-package";
-import { parentDailyOperationalStatus } from "./daily-orders";
+import { getDailyAssignments, parentDailyOperationalStatus } from "./daily-orders";
 import type { Order, OrderDailyWork, OrderIssue, OrderWorkerAssignment } from "../types/domain";
 
 export type GoogleSheetDailyRecord = {
@@ -174,8 +174,16 @@ export function mergeGoogleSheetDailyOrder(existing: Order, incoming: Order): Or
   for (const day of oldDays.values()) if (isSettledGoogleSheetDay(day)) dailyWork.push(day);
   dailyWork.sort((a, b) => a.sequence - b.sequence);
   if (dailyWork.some(day => day.sequence > (incoming.scheduleTotalDays ?? 0))) throw new Error("Perubahan paket akan menghapus hari yang sudah selesai/digaji di luar durasi baru.");
-  return summarizeDays({ ...existing, ...incoming,
+  const merged = summarizeDays({ ...existing, ...incoming,
     id: existing.id, financeStatus: existing.financeStatus, matchedPaymentMinor: existing.matchedPaymentMinor,
     sheetDeletedAt: undefined, sheetSyncRefreshRequested: undefined,
   }, dailyWork);
+  const effectiveWorkers = (order: Order, day: OrderDailyWork) => JSON.stringify(getDailyAssignments(order, day));
+  for (const day of existing.dailyWork ?? []) {
+    if (isSettledGoogleSheetDay(day) && day.workerAssignments === undefined
+      && effectiveWorkers(existing, day) !== effectiveWorkers(merged, day)) {
+      throw new Error(`Sinkronisasi paket dibatalkan karena penugasan Hari ${day.sequence} yang sudah selesai/digaji masih mengikuti pesanan induk dan akan berubah.`);
+    }
+  }
+  return merged;
 }

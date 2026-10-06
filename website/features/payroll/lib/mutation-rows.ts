@@ -1,6 +1,7 @@
 import type { Order, OrderDailyWork, OrderWorkerAssignment } from "../types/domain";
 import { getOrderAssignments } from "./order-workers";
 import { hasQuantityDistribution, statedOrderQuantity } from "./order-quantity";
+import { getDailyAssignments } from "./daily-orders";
 
 export type MutationViewRow = {
   id: string;
@@ -28,7 +29,7 @@ export function expandMutationRows(orders: Order[]): MutationViewRow[] {
           orderedAt: dailyDateIso(day),
           quantity: day.quantity ?? 1,
           grossMinor: day.grossMinor,
-          assignments: day.workerAssignments?.length ? day.workerAssignments : getOrderAssignments(order),
+          assignments: getDailyAssignments(order, day),
         }));
     }
     return [{
@@ -98,7 +99,7 @@ export function mutationRowTitle(row: MutationViewRow) {
 
 export function mutationRowStatusText(row: MutationViewRow) {
   if (row.day) {
-    if (row.day.payrollClosedAt) return "Selesai · sudah digaji";
+    if (row.day.payrollClosedAt || row.day.payrollPeriodId) return "Selesai · sudah digaji";
     if (row.day.status === "verified") return "Selesai · masuk gaji";
     if (row.day.status === "on_hold") return "Bermasalah";
     if (row.day.status === "in_progress") return "Dikerjakan";

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applyBulkMutationAction, type BulkMutationAction } from "../features/payroll/lib/bulk-mutation-actions";
+import { applyBulkMutationAction, bulkMutationTargetId, type BulkMutationAction } from "../features/payroll/lib/bulk-mutation-actions";
 import { buildDailyWorkSchedule } from "../features/payroll/lib/daily-orders";
 import { validateWorkspaceEdit, workspaceKeys } from "../features/payroll/lib/workspace-model";
 import type { Order } from "../features/payroll/types/domain";
@@ -79,42 +79,140 @@ test("already consumed stock can complete without consuming it again or changing
   assert.deepEqual(result.orders[0].inventoryAllocations, source.inventoryAllocations);
 });
 
-test("daily completion deduplicates parents, verifies only unfinished days and preserves closed financial rows byte for byte", () => {
+test("daily completion targets one DAY and preserves closed and unselected sibling days byte for byte", () => {
   const source = dailyOrder("daily");
   source.dailyWork![0] = { ...source.dailyWork![0], status: "verified", completedAt: old, verifiedAt: old, payrollClosedAt: old, payrollPeriodId: "closing" };
   source.operationalStatus = "partially_completed";
   const snapshot = structuredClone(source);
-  const result = applyBulkMutationAction([source], [source.id, source.id, source.id], "complete", { now, closingReferences: [source.externalReference] });
+  const target = { orderId: source.id, dailyId: source.dailyWork![1].id };
+  const result = applyBulkMutationAction([source], [target, target], "complete", { now, closingReferences: [source.externalReference] });
   assert.deepEqual(result.changedIds, [source.id]);
+  assert.deepEqual(result.changedTargetIds, [bulkMutationTargetId(target)]);
   assert.deepEqual(result.orders[0].dailyWork![0], snapshot.dailyWork![0]);
-  assert.equal(result.orders[0].dailyWork!.slice(1).every(day => day.status === "verified" && day.verifiedAt === now), true);
-  assert.equal(result.orders[0].operationalStatus, "verified");
-  assert.equal(result.orders[0].verifiedAt, now);
+  assert.equal(result.orders[0].dailyWork![1].status, "verified");
+  assert.equal(result.orders[0].dailyWork![1].verifiedAt, now);
+  assert.deepEqual(result.orders[0].dailyWork![2], snapshot.dailyWork![2]);
+  assert.equal(result.orders[0].operationalStatus, "partially_completed");
+  assert.equal(result.orders[0].verifiedAt, undefined);
   assert.equal(result.orders[0].grossMinor, source.grossMinor);
   validateWorkspaceEdit({ [workspaceKeys.orders]: [source] }, { [workspaceKeys.orders]: result.orders });
   assert.deepEqual(source, snapshot);
 });
 
-test("daily status changes preserve completed days and update all unfinished days through existing daily semantics", () => {
+test("daily status actions affect only the selected DAY and leave completed and other unfinished DAYs untouched", () => {
   for (const [action, status] of [["problem", "on_hold"], ["working", "in_progress"], ["process", "pending"]] as const) {
     const source = dailyOrder("daily");
     source.dailyWork![0] = { ...source.dailyWork![0], status: "verified", verifiedAt: old, completedAt: old };
     source.dailyWork![1].status = "in_progress"; source.dailyWork![2].status = "on_hold";
     source.operationalStatus = "partially_completed";
-    const result = applyBulkMutationAction([source], [source.id], action, { now });
+    source.dailyWork![1].status = "pending";
+    const result = applyBulkMutationAction([source], [{ orderId: source.id, dailyId: source.dailyWork![2].id }], action, { now });
     assert.deepEqual(result.orders[0].dailyWork![0], source.dailyWork![0]);
-    assert.equal(result.orders[0].dailyWork!.slice(1).every(day => day.status === status), true);
+    assert.deepEqual(result.orders[0].dailyWork![1], source.dailyWork![1]);
+    assert.equal(result.orders[0].dailyWork![2].status, status);
     assert.equal(result.orders[0].operationalStatus, "partially_completed");
     assert.equal(result.orders[0].verifiedAt, undefined);
   }
 });
 
-test("daily completion skips the parent if any unfinished day lacks an assignment", () => {
+test("an unassigned sibling does not block a selected assigned DAY, and explicit empty DAY workers never inherit the parent", () => {
   const source = dailyOrder("daily"); source.workerAssignments = [];
   source.dailyWork![1].workerAssignments = [];
-  const result = applyBulkMutationAction([source], [source.id], "complete", { now });
+  const target = (index: number) => ({ orderId: source.id, dailyId: source.dailyWork![index].id });
+  const valid = applyBulkMutationAction([source], [target(0)], "complete", { now });
+  assert.equal(valid.orders[0].dailyWork![0].status, "verified");
+  assert.deepEqual(valid.orders[0].dailyWork!.slice(1), source.dailyWork!.slice(1));
+  source.workerAssignments = order("parent").workerAssignments;
+  const result = applyBulkMutationAction([source], [target(1)], "complete", { now });
   assert.equal(result.skipped[0].code, "no_workers");
   assert.deepEqual(result.orders, [source]);
+});
+
+test("a parent-only daily selection never expands to sibling days for any action", () => {
+  const source = dailyOrder("daily");
+  for (const action of ["complete", "problem", "process", "working", "delete"] as const) {
+    const result = applyBulkMutationAction([source], [source.id], action, { now });
+    assert.equal(result.skipped[0].code, "day_required");
+    assert.deepEqual(result.changedTargetIds, []);
+    assert.strictEqual(result.orders[0], source);
+  }
+});
+
+test("mixed DAY targets accumulate on one parent while counts retain each selected DAY", () => {
+  const source = dailyOrder("monthly"); source.scheduleTotalDays = 30;
+  const target = (index: number) => ({ orderId: source.id, dailyId: source.dailyWork![index].id });
+  const selected = [target(0), target(2), target(0)];
+  const result = applyBulkMutationAction([source], selected, "complete", { now });
+  assert.deepEqual(result.changedIds, [source.id]);
+  assert.deepEqual(result.changedTargetIds, [bulkMutationTargetId(target(0)), bulkMutationTargetId(target(2))]);
+  assert.equal(result.orders[0].dailyWork![0].status, "verified");
+  assert.equal(result.orders[0].dailyWork![2].status, "verified");
+  assert.strictEqual(result.orders[0].dailyWork![1], source.dailyWork![1]);
+  assert.equal(result.orders[0].operationalStatus, "partially_completed");
+  const repeated = applyBulkMutationAction(result.orders, selected, "complete", { now: old });
+  assert.deepEqual(repeated.changedTargetIds, []);
+  assert.deepEqual(repeated.unchangedTargetIds, result.changedTargetIds);
+  assert.deepEqual(repeated.orders, result.orders);
+});
+
+test("selected closed and already verified DAYs stay unchanged while an open sibling completes", () => {
+  const source = dailyOrder("daily");
+  source.dailyWork![0] = { ...source.dailyWork![0], status: "verified", verifiedAt: old, completedAt: old, payrollPeriodId: "closing" };
+  source.dailyWork![1] = { ...source.dailyWork![1], status: "verified", verifiedAt: old, completedAt: old };
+  const targets = source.dailyWork!.map(day => ({ orderId: source.id, dailyId: day.id }));
+  const result = applyBulkMutationAction([source], targets, "complete", { now });
+  assert.deepEqual(result.changedTargetIds, [bulkMutationTargetId(targets[2])]);
+  assert.deepEqual(result.unchangedTargetIds, [bulkMutationTargetId(targets[1])]);
+  assert.equal(result.skipped[0].dailyId, targets[0].dailyId);
+  assert.equal(result.skipped[0].reference, "DAILY · Hari 1");
+  assert.equal(result.skipped[0].code, "closed");
+  assert.deepEqual(result.orders[0].dailyWork!.slice(0, 2), source.dailyWork!.slice(0, 2));
+});
+
+test("legacy whole-package Closing references cannot repay DAYs while explicit partial Closing leaves siblings open", () => {
+  const source = dailyOrder("daily");
+  const target = { orderId: source.id, dailyId: source.dailyWork![1].id };
+  const blocked = applyBulkMutationAction([source], [target], "complete", { now, closingReferences: [" DAILY "] });
+  assert.equal(blocked.skipped[0].code, "closed");
+  assert.strictEqual(blocked.orders[0], source);
+  const partial = { ...source, dailyWork: source.dailyWork!.map((day, index) => index === 0
+    ? { ...day, status: "verified" as const, verifiedAt: old, payrollPeriodId: "old-closing" } : day) };
+  const allowed = applyBulkMutationAction([partial], [target], "complete", { now, closingReferences: ["daily"] });
+  assert.equal(allowed.changedTargetIds.length, 1);
+  assert.equal(allowed.orders[0].dailyWork![1].status, "verified");
+  assert.deepEqual(allowed.orders[0].dailyWork![0], partial.dailyWork![0]);
+  assert.deepEqual(allowed.orders[0].dailyWork![2], partial.dailyWork![2]);
+});
+
+test("a stale or cross-order DAY target cannot fall back to the parent", () => {
+  const source = dailyOrder("daily"), ordinary = order("ordinary");
+  const result = applyBulkMutationAction([source, ordinary], [
+    { orderId: source.id, dailyId: "missing" }, { orderId: ordinary.id, dailyId: source.dailyWork![0].id },
+  ], "complete", { now });
+  assert.deepEqual(result.skipped.map(row => row.code), ["not_found", "not_found"]);
+  assert.deepEqual(result.changedTargetIds, []);
+  assert.deepEqual(result.orders, [source, ordinary]);
+});
+
+test("DAY deletion never archives its parent or silently deletes other DAYs", () => {
+  const source = dailyOrder("daily");
+  const result = applyBulkMutationAction([source], [{ orderId: source.id, dailyId: source.dailyWork![1].id }], "delete", { now });
+  assert.equal(result.skipped[0].code, "daily_delete");
+  assert.strictEqual(result.orders[0], source);
+  assert.deepEqual(result.changedTargetIds, []);
+});
+
+test("a per-DAY action cannot consume the entire shared parent stock budget", () => {
+  const source = dailyOrder("daily");
+  source.inventoryAllocations = order("stock", { inventoryAllocations: [{ id: "allocation", inventoryStockId: "warehouse", stockType: "gold", game: "AION", itemName: "Gold", locationName: "Warehouse", employeeCode: "WORKER", employeeName: "Worker", team: "FH1", quantity: 1 }] }).inventoryAllocations;
+  const target = { orderId: source.id, dailyId: source.dailyWork![1].id };
+  const result = applyBulkMutationAction([source], [target], "complete", { now, stockCompletionOrderIds: [source.id] });
+  assert.equal(result.skipped[0].code, "daily_inventory");
+  assert.strictEqual(result.orders[0], source);
+  const consumed = { ...source, inventoryConsumedAt: old };
+  const accepted = applyBulkMutationAction([consumed], [target], "complete", { now });
+  assert.equal(accepted.orders[0].dailyWork![1].status, "verified");
+  assert.equal(accepted.orders[0].inventoryConsumedAt, old);
 });
 
 test("recoverable deletion preserves prices/assignments/provenance and locks only Sheet parents", () => {

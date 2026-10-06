@@ -18,8 +18,12 @@ function order(id: string, quantity: number, allocations = [allocation("stock", 
     operationalStatus: "assigned", financeStatus: "pending", orderedAt: now, dueAt: now,
     workerAssignments: [{ id: "worker", employeeCode: "W", employeeName: "Worker", team: "FH1", process: "MAIL", quantity }], inventoryAllocations: allocations };
 }
+function dailyOrder(id = "daily"): Order {
+  return { ...order(id, 2), orderType: "boosting", service: "12 Hours Package X2", scheduleMode: "daily", scheduleTotalDays: 2, dailyHours: 12,
+    dailyWork: [1, 2].map(sequence => ({ id: `day-${sequence}`, sequence, workDate: "2026-10-06", grossMinor: 2200, quantity: 1, hours: 12, status: "pending" as const })) };
+}
 
-test("shared stock completion aggregates accepted parents, deduplicates daily parent selections and records unique per-order movements", () => {
+test("shared stock completion aggregates accepted parents, deduplicates repeated selections and records unique per-order movements", () => {
   const inventory = [stock()], parents = [order("one", 3), order("two", 4)];
   const before = structuredClone({ inventory, parents });
   const plan = planBulkMutationInventory(inventory, [], [parents[0], parents[1], parents[0]], context);
@@ -32,6 +36,29 @@ test("shared stock completion aggregates accepted parents, deduplicates daily pa
   assert.equal(done.orders.every(row => row.operationalStatus === "verified" && row.inventoryConsumedAt === now), true);
   validateWorkspaceEdit({ [workspaceKeys.orders]: parents, [workspaceKeys.inventory]: inventory, [workspaceKeys.movements]: [] },
     { [workspaceKeys.orders]: done.orders, [workspaceKeys.inventory]: plan.inventory, [workspaceKeys.movements]: plan.movements });
+  assert.deepEqual({ inventory, parents }, before);
+});
+
+test("a daily parent's whole stock budget cannot be consumed by the ordinary completion planner", () => {
+  const inventory = [stock()], parent = dailyOrder(), before = structuredClone({ inventory, parent });
+  const plan = planBulkMutationInventory(inventory, [], [parent], context);
+  assert.deepEqual(plan.stockCompletionOrderIds, []);
+  assert.deepEqual(plan.inventory, inventory); assert.deepEqual(plan.movements, []);
+  assert.deepEqual(plan.skipped.map(row => row.orderId), [parent.id]);
+  assert.match(plan.skippedOrderReasons[parent.id], /stok induk/);
+  assert.deepEqual({ inventory, parent }, before);
+  assert.equal(parent.dailyWork?.every(day => day.status === "pending"), true);
+  assert.equal(parent.inventoryConsumedAt, undefined);
+});
+
+test("mixed ordinary and daily parents consume stock only for the ordinary orders", () => {
+  const inventory = [stock("stock", 5)], parents = [dailyOrder(), order("one", 3), order("two", 2)];
+  const before = structuredClone({ inventory, parents });
+  const plan = planBulkMutationInventory(inventory, [], parents, context);
+  assert.deepEqual(plan.stockCompletionOrderIds, ["one", "two"]);
+  assert.deepEqual(plan.skipped.map(row => row.orderId), ["daily"]);
+  assert.deepEqual(plan.movements.map(row => [row.orderReference, row.quantity]), [["ONE", 3], ["TWO", 2]]);
+  assert.deepEqual(plan.inventory[0], { ...inventory[0], onHand: 0, reserved: 0, sold: 5 });
   assert.deepEqual({ inventory, parents }, before);
 });
 

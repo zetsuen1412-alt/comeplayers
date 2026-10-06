@@ -176,11 +176,11 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         <button type="button" className="mutation-sheet-action" onClick={() => { setWidths(defaultMutationWidths()); setMessage('Lebar kolom kembali ke ukuran awal.'); }} disabled={readOnly}>Atur ulang lebar</button>
         <button type="button" ref={expanded ? undefined : expandButton} className="mutation-sheet-action mutation-sheet-primary" onClick={() => expanded ? closeExpanded() : setExpanded(true)} disabled={readOnly}>{expanded ? 'Kecilkan tabel' : 'Perbesar tabel'}</button>
       </div>
-      {selection ? <div className="mutation-sheet-selection" aria-label="Pilihan pesanan Mutasi">
-        <label><SelectAllCheckbox selection={selection} label="Pilih semua pesanan pada filter" />Pilih semua</label>
-        <span role="status" aria-live="polite">{selection.selectedCount.toLocaleString('id-ID')} dari {selection.totalCount.toLocaleString('id-ID')} pesanan pada filter dipilih{selection.hiddenCount ? ` · ${selection.hiddenCount.toLocaleString('id-ID')} pilihan di luar filter` : ''}</span>
+      {selection ? <div className="mutation-sheet-selection" aria-label="Pilihan baris Mutasi">
+        <label><SelectAllCheckbox selection={selection} label="Pilih semua baris pada filter" />Pilih semua</label>
+        <span role="status" aria-live="polite">{selection.selectedCount.toLocaleString('id-ID')} dari {selection.totalCount.toLocaleString('id-ID')} baris pada filter dipilih{selection.hiddenCount ? ` · ${selection.hiddenCount.toLocaleString('id-ID')} pilihan di luar filter` : ''}</span>
         <button type="button" className="mutation-sheet-action" disabled={selection.disabled || !(selection.selectedCount + selection.hiddenCount)} onClick={selection.onClear}>Batal pilih</button>
-        <small>Paket harian dipilih sebagai satu KODE; hari yang sudah tercatat ditampilkan terpisah.</small>
+        <small>Setiap hari paket dipilih dan diproses terpisah. Hari selesai masuk Gaji dengan nilai hari itu.</small>
         {selection.actions}
       </div> : null}
       <div className="mutation-sheet-controls">
@@ -196,7 +196,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
       }}>
         <table id={tableId} ref={table} className="cp-table mutation-sheet-table" aria-label="Daftar Mutasi" style={{ width: totalWidth, minWidth: totalWidth, tableLayout: 'fixed' }}>
           <colgroup>{selection ? <col style={{ width: selectionWidth }} /> : null}{mutationColumns.map(column => <col key={column.id} style={{ width: widths[column.id] }} />)}</colgroup>
-          <thead><tr>{selection ? <th scope="col" data-column="selection"><SelectAllCheckbox selection={selection} label="Pilih semua pesanan di tabel" /></th> : null}{mutationColumns.map(column => {
+          <thead><tr>{selection ? <th scope="col" data-column="selection"><SelectAllCheckbox selection={selection} label="Pilih semua baris di tabel" /></th> : null}{mutationColumns.map(column => {
             const sortable = column.id !== 'actions' && column.id !== 'day' && column.id !== 'distribution' && Boolean(onSort);
             const activeSort = sortable && sortColumn === column.id;
             return <th scope="col" key={column.id} data-column={column.id} data-selected={selected === column.id}

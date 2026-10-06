@@ -5,6 +5,7 @@ import type {
   OrderDailyWork,
   OrderWorkerAssignment,
 } from "@/features/payroll/types/domain";
+import { getOrderAssignments } from "./order-workers";
 
 const DAILY_STATUSES = new Set<OrderDailyStatus>([
   "pending",
@@ -18,7 +19,46 @@ function validDateInput(value: string) {
 }
 
 export function isDailySettlementOrder(order: Pick<Order, "scheduleMode" | "dailyWork">) {
-  return order.scheduleMode === "daily" && Array.isArray(order.dailyWork) && order.dailyWork.length > 0;
+  return order.scheduleMode === "daily";
+}
+
+/** An explicit empty DAY allocation never inherits workers from other DAYs. */
+export function getDailyAssignments(order: Order, day: OrderDailyWork): OrderWorkerAssignment[] {
+  if (day.workerAssignments !== undefined) return day.workerAssignments;
+  const assignments = getOrderAssignments(order);
+  const quantity = day.quantity ?? 1;
+  const assigned = assignments.reduce((sum, worker) => sum + worker.quantity, 0);
+  if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(assigned) || assigned <= 0
+    || assignments.some(worker => !Number.isFinite(worker.quantity) || worker.quantity <= 0)) return [];
+  // Legacy rows stored the package allocation on the parent. Preserve its
+  // proportions while limiting this DAY's units to the units actually recorded.
+  return assignments.map(worker => ({ ...worker, quantity: quantity * (worker.quantity / assigned) }));
+}
+
+export function getDailyPayrollValidationError(order: Order, day: OrderDailyWork): string | undefined {
+  if (order.inventoryAllocations?.length && !order.inventoryConsumedAt) {
+    return "Stok pesanan belum diproses. Periksa alokasi stok sebelum menyelesaikan DAY ini.";
+  }
+  const quantity = day.quantity ?? 1;
+  if (!Number.isFinite(quantity) || quantity <= 0) return `Jumlah kerja Hari ${day.sequence} harus lebih dari 0.`;
+  if (!Number.isSafeInteger(day.grossMinor) || day.grossMinor < 0) return `TOTAL Hari ${day.sequence} tidak valid.`;
+  const workers = getDailyAssignments(order, day);
+  if (!workers.length) return `Hari ${day.sequence} belum mempunyai karyawan. Periksa pembagian hari ini.`;
+  if (workers.some(worker => typeof worker.employeeCode !== "string" || !worker.employeeCode.trim()
+    || typeof worker.employeeName !== "string" || !worker.employeeName.trim()
+    || !Number.isFinite(worker.quantity) || worker.quantity <= 0)) return `Pembagian karyawan Hari ${day.sequence} tidak valid.`;
+  const assigned = workers.reduce((sum, worker) => sum + worker.quantity, 0);
+  const tolerance = Number.EPSILON * Math.max(Math.abs(assigned), Math.abs(quantity)) * 8;
+  if (!Number.isFinite(assigned) || Math.abs(assigned - quantity) > tolerance) {
+    return `Jumlah pembagian karyawan Hari ${day.sequence} harus sama dengan jumlah kerja hari ini (${quantity}).`;
+  }
+  return undefined;
+}
+
+export function hasCompleteDailySchedule(rows: readonly Pick<OrderDailyWork, "sequence">[], totalDays = rows.length) {
+  const recorded = new Set(rows.map(row => row.sequence));
+  return Number.isInteger(totalDays) && totalDays > 0 && rows.length === totalDays && recorded.size === totalDays
+    && rows.every(row => Number.isInteger(row.sequence) && row.sequence >= 1 && row.sequence <= totalDays);
 }
 
 type DailyScheduleOptions = {
@@ -76,7 +116,7 @@ export function dailyProgress(order: Pick<Order, "dailyWork" | "scheduleTotalDay
     total: order.scheduleTotalDays ?? rows.length,
     recorded: rows.length,
     verified: rows.filter((row) => row.status === "verified").length,
-    closed: rows.filter((row) => Boolean(row.payrollClosedAt)).length,
+    closed: rows.filter((row) => Boolean(row.payrollClosedAt || row.payrollPeriodId)).length,
     inProgress: rows.filter((row) => row.status === "in_progress").length,
     onHold: rows.filter((row) => row.status === "on_hold").length,
     pending: rows.filter((row) => row.status === "pending").length,
@@ -86,7 +126,7 @@ export function dailyProgress(order: Pick<Order, "dailyWork" | "scheduleTotalDay
 export function getDailyPayrollGrossMinor(order: Pick<Order, "dailyWork">, includeClosed = false) {
   return (order.dailyWork ?? []).reduce((sum, row) => {
     if (row.status !== "verified") return sum;
-    if (!includeClosed && row.payrollClosedAt) return sum;
+    if (!includeClosed && (row.payrollClosedAt || row.payrollPeriodId)) return sum;
     return sum + row.grossMinor;
   }, 0);
 }
@@ -101,7 +141,7 @@ export function getPayrollEligibleGrossMinor(order: Order, includeClosed = false
 export function dailySegmentsForPeriod(order: Order, from: number, to: number) {
   if (!isDailySettlementOrder(order)) return [];
   return (order.dailyWork ?? []).filter((row) => {
-    if (row.status !== "verified" || row.payrollClosedAt || !row.verifiedAt) return false;
+    if (row.status !== "verified" || row.payrollClosedAt || row.payrollPeriodId || !row.verifiedAt) return false;
     const verified = Date.parse(row.verifiedAt);
     return Number.isFinite(verified) && verified >= from && verified <= to;
   });
@@ -114,9 +154,24 @@ export function createDailyPayrollSlice(order: Order, segments: OrderDailyWork[]
     .filter((value): value is string => Boolean(value))
     .sort()
     .at(-1);
+  const workers = new Map<string, OrderWorkerAssignment>();
+  for (const day of segments) for (const worker of getDailyAssignments(order, day)) {
+    const key = JSON.stringify([worker.employeeCode, worker.employeeName, worker.team, worker.process]);
+    const old = workers.get(key);
+    workers.set(key, { ...worker, quantity: (old?.quantity ?? 0) + worker.quantity });
+  }
+  const workerAssignments = [...workers.values()];
+  const rates = segments.map(day => day.rateMinor ?? order.rateMinor);
+  const rateMinor = rates.length && rates[0] !== undefined && rates.every(rate => rate === rates[0]) ? rates[0] : undefined;
 
   return {
     ...order,
+    quantity: segments.reduce((sum, day) => sum + (day.quantity ?? 1), 0),
+    workerAssignments,
+    employeeCode: workerAssignments[0]?.employeeCode,
+    employeeName: workerAssignments[0]?.employeeName,
+    team: workerAssignments[0]?.team ?? order.team,
+    rateMinor,
     grossMinor,
     expectedPaymentMinor: grossMinor,
     matchedPaymentMinor: Math.min(order.matchedPaymentMinor, grossMinor),
@@ -125,15 +180,13 @@ export function createDailyPayrollSlice(order: Order, segments: OrderDailyWork[]
     verifiedAt: verifiedAt ?? order.verifiedAt,
     payrollClosedAt: undefined,
     payrollPeriodId: undefined,
-    dailyWork: segments.map((row) => ({ ...row, payrollClosedAt: undefined, payrollPeriodId: undefined })),
+    dailyWork: segments.map((row) => ({ ...row, workerAssignments: getDailyAssignments(order, row).map(worker => ({ ...worker })), payrollClosedAt: undefined, payrollPeriodId: undefined })),
   };
 }
 
 export function parentDailyOperationalStatus(rows: OrderDailyWork[], totalDays = rows.length): OperationalStatus {
   if (!rows.length) return "assigned";
-  const recorded = new Set(rows.map(row => row.sequence));
-  const completeSchedule = Number.isInteger(totalDays) && totalDays > 0 && rows.length === totalDays && recorded.size === totalDays
-    && rows.every(row => row.sequence >= 1 && row.sequence <= totalDays);
+  const completeSchedule = hasCompleteDailySchedule(rows, totalDays);
   if (completeSchedule && rows.every((row) => row.status === "verified")) return "verified";
   const verified = rows.filter((row) => row.status === "verified").length;
   if (verified > 0) return "partially_completed";
@@ -150,14 +203,24 @@ export function replaceDailyWorkStatus(
 ): Partial<Order> {
   if (!DAILY_STATUSES.has(status)) throw new Error("Status pekerjaan harian tidak valid.");
   if (!isDailySettlementOrder(order)) throw new Error("Pesanan ini bukan pesanan harian.");
+  if (!Number.isFinite(Date.parse(now))) throw new Error("Waktu aksi hari tidak valid.");
+  if (order.payrollClosedAt || order.payrollPeriodId || order.financeStatus === "closed") throw new Error("Pesanan sudah masuk Tutup Buku/Gaji dan tidak dapat diubah.");
+  const selected = (order.dailyWork ?? []).filter(day => day.id === dailyId);
+  if (selected.length !== 1) throw new Error(selected.length ? "Identitas hari terduplikat; muat ulang Mutasi." : "Hari pekerjaan tidak ditemukan.");
+  if (selected[0].payrollClosedAt || selected[0].payrollPeriodId) throw new Error("Hari ini sudah masuk Tutup Buku/Gaji dan tidak dapat diubah.");
+  if (selected[0].status === status) return {};
+  if (status === "verified") {
+    const error = getDailyPayrollValidationError(order, selected[0]);
+    if (error) throw new Error(error);
+  }
 
   let found = false;
   const dailyWork = (order.dailyWork ?? []).map((row) => {
     if (row.id !== dailyId) return row;
     found = true;
-    if (row.payrollClosedAt) throw new Error("Hari ini sudah masuk Tutup Buku/Gaji dan tidak dapat diubah.");
     if (status === "verified") {
-      return { ...row, status, completedAt: row.completedAt ?? now, verifiedAt: now };
+      return { ...row, workerAssignments: getDailyAssignments(order, row).map(worker => ({ ...worker })), status,
+        completedAt: row.completedAt ?? now, verifiedAt: now };
     }
     return {
       ...row,

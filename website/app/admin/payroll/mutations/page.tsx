@@ -4,7 +4,7 @@ import { adminLabel, adminText } from "@/lib/adminLocale";
 import { getPayrollActor, payrollStorage, withPayrollBatch, flushPayroll } from "@/features/payroll/lib/workspace-store";
 import { hasAutomaticSheetProtection, isSheetOrder } from "@/features/payroll/lib/sheet-sync-policy";
 import { canonical, workspaceKeys } from "@/features/payroll/lib/workspace-model";
-import { type BulkMutationAction, type BulkMutationContext, type BulkMutationResult } from "@/features/payroll/lib/bulk-mutation-actions";
+import { bulkMutationTargetId, type BulkMutationAction, type BulkMutationContext, type BulkMutationResult, type BulkMutationTarget } from "@/features/payroll/lib/bulk-mutation-actions";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -22,7 +22,7 @@ import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID, toJakartaDateInput, todayJakartaDateInput } from "@/features/payroll/lib/date";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
-import { getPayrollEligibleGrossMinor, replaceDailyWorkStatus } from "@/features/payroll/lib/daily-orders";
+import { getDailyAssignments, getDailyPayrollValidationError, getPayrollEligibleGrossMinor } from "@/features/payroll/lib/daily-orders";
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
@@ -40,7 +40,11 @@ import type { Order, OrderIssue, InventoryMovement } from "@/features/payroll/ty
 const bulkActionLabels: Record<BulkMutationAction, string> = {
   complete: "Pesanan selesai", delete: "Hapus pesanan", problem: "Bermasalah", process: "Proses", working: "Dikerjakan",
 };
-type BulkConfirmation = { action: "complete" | "delete"; ids: string[] };
+function bulkActionText(action: BulkMutationAction, targets: BulkMutationTarget[]) {
+  if (action === "complete" && targets.some(target => target.dailyId)) return targets.every(target => target.dailyId) ? "Hari selesai" : "Pilihan selesai";
+  return bulkActionLabels[action];
+}
+type BulkConfirmation = { action: "complete" | "delete"; targets: BulkMutationTarget[] };
 type BulkReport = { action: BulkMutationAction; changed: number; unchanged: number; skipped: BulkMutationResult["skipped"] };
 
 function readBulkContext(workspaceLocked: boolean): BulkMutationContext {
@@ -80,15 +84,15 @@ function BulkConfirmationModal({ confirmation, preview, saving, onClose, onConfi
       }
     }}>
     <section className="mutation-price-modal" aria-busy={saving}>
-      <header className="mutation-price-modal-header"><div><p className="mutation-price-modal-label">Aksi pilihan</p><h2 id={headingId}>{deleting ? "Hapus" : "Selesaikan"} {confirmation.ids.length} pesanan?</h2></div></header>
+      <header className="mutation-price-modal-header"><div><p className="mutation-price-modal-label">Aksi pilihan</p><h2 id={headingId}>{deleting ? "Hapus" : "Selesaikan"} {confirmation.targets.length} baris pilihan?</h2></div></header>
       <div className="mutation-price-modal-body">
-        <p>{deleting ? "Pesanan yang dapat dihapus akan dipindahkan ke Arsip pesanan. Riwayat dan KODE tetap tersimpan; admin dapat memulihkannya. Pesanan dari Sheet dikunci agar tidak muncul kembali saat sinkronisasi." : "Pesanan yang memenuhi syarat akan ditandai selesai dan masuk Gaji berikutnya. Stok yang dipakai akan dicatat bersama pesanan."}</p>
-        <p className="mutation-price-modal-note">Aksi berlaku untuk pilihan pada filter saat tombol diklik. Paket harian dihitung satu pesanan: semua hari yang belum selesai dan belum Closing akan diproses.</p>
-        <p><strong>{preview.changedIds.length}</strong> pesanan dapat diproses · {preview.unchangedIds.length} sudah sesuai · {preview.skipped.length} dilewati.</p>
-        {preview.skipped.length ? <details className="mutation-bulk-skips"><summary>Lihat alasan dilewati</summary><ul>{preview.skipped.map(skip => <li key={skip.orderId}><strong>{skip.reference}</strong>: {skip.reason}</li>)}</ul></details> : null}
+        <p>{deleting ? "Pesanan yang dapat dihapus akan dipindahkan ke Arsip pesanan. Riwayat dan KODE tetap tersimpan; admin dapat memulihkannya. Hari paket yang dipilih akan dilewati karena penghapusan per hari tidak tersedia." : "Baris yang memenuhi syarat akan ditandai selesai. Setiap hari yang dipilih masuk Gaji dengan nilai TOTAL hari itu. Stok pesanan biasa dicatat bersama pesanan."}</p>
+        <p className="mutation-price-modal-note">Aksi berlaku untuk pilihan pada filter saat tombol diklik. Setiap hari paket diproses terpisah; hari lain tetap mengikuti statusnya sendiri.</p>
+        <p><strong>{preview.changedTargetIds.length}</strong> baris dapat diproses · {preview.unchangedTargetIds.length} sudah sesuai · {preview.skipped.length} dilewati.</p>
+        {preview.skipped.length ? <details className="mutation-bulk-skips"><summary>Lihat alasan dilewati</summary><ul>{preview.skipped.map(skip => <li key={bulkMutationTargetId(skip)}><strong>{skip.reference}</strong>: {skip.reason}</li>)}</ul></details> : null}
         <div className="mutation-bulk-confirm-actions">
           <button type="button" ref={cancel} disabled={saving} onClick={onClose}>Batal</button>
-          <button type="button" data-bulk-action={confirmation.action} disabled={saving || !preview.changedIds.length} onClick={onConfirm}>{saving ? "Menyimpan…" : `${deleting ? "Hapus" : "Selesaikan"} ${preview.changedIds.length} pesanan`}</button>
+          <button type="button" data-bulk-action={confirmation.action} disabled={saving || !preview.changedTargetIds.length} onClick={onConfirm}>{saving ? "Menyimpan…" : `${deleting ? "Hapus" : "Selesaikan"} ${preview.changedTargetIds.length} baris`}</button>
         </div>
       </div>
     </section>
@@ -152,7 +156,7 @@ function monthStart(dateInput: string) {
 function workStatus(row: MutationViewRow, issues: OrderIssue[]) {
   if (hasBlockingOrderIssues(issues)) return { label: `Bermasalah · ${issues.length}`, cls: "bg-red-500 text-white" };
   if (row.day) {
-    if (row.day.payrollClosedAt) return { label: "Selesai · sudah digaji", cls: "bg-emerald-500 text-black" };
+    if (row.day.payrollClosedAt || row.day.payrollPeriodId || row.order.payrollClosedAt || row.order.payrollPeriodId) return { label: "Selesai · sudah digaji", cls: "bg-emerald-500 text-black" };
     if (row.day.status === "verified") return { label: "Selesai · masuk gaji", cls: "bg-emerald-500/20 text-emerald-200" };
     if (row.day.status === "on_hold") return { label: "Bermasalah", cls: "bg-red-500 text-white" };
     if (row.day.status === "in_progress") return { label: "Dikerjakan", cls: "bg-sky-500/15 text-sky-200" };
@@ -336,7 +340,7 @@ function PriceDetailModal({ row, price, onClose, onShowGroup }: {
 }
 
 export default function MutationsPage() {
-  const { allOrders, archivedOrders, updateOrder, applyBulkAction, previewBulkAction } = useDemoOrders();
+  const { allOrders, archivedOrders, updateOrder, applyBulkAction, previewBulkAction, withdrawDailyFromPayroll: withdrawStoredDailyFromPayroll } = useDemoOrders();
   const { employees } = useDemoEmployees();
   const { isLocked } = useDemoPeriodLock();
   const { consumeAllocations } = useDemoInventory();
@@ -359,7 +363,7 @@ export default function MutationsPage() {
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [savingSyncLocks, setSavingSyncLocks] = useState(false);
   const [bulkSaving, setBulkSaving] = useState(false);
   const [bulkConfirmation, setBulkConfirmation] = useState<BulkConfirmation | null>(null);
@@ -367,6 +371,8 @@ export default function MutationsPage() {
   const [telegramStatuses, setTelegramStatuses] = useState<Record<string, TelegramMutationStatus>>({});
   const [telegramEvidenceOrder, setTelegramEvidenceOrder] = useState<string | null>(null);
   const canManageSync = getPayrollActor()?.isAdmin === true;
+  const allMutationRows = useMemo(() => expandMutationRows(allOrders), [allOrders]);
+  const allRowsById = useMemo(() => new Map(allMutationRows.map(row => [row.id, row])), [allMutationRows]);
 
   useEffect(() => {
     let active = true;
@@ -394,7 +400,7 @@ export default function MutationsPage() {
       });
       await flushPayroll();
       const savedIds = new Set(eligible.map(order => order.id));
-      setSelectedOrderIds(selected => selected.filter(id => !savedIds.has(id)));
+      setSelectedRowIds(selected => selected.filter(id => !savedIds.has(allRowsById.get(id)?.order.id ?? id)));
       setNotice(restore ? "Pesanan dipulihkan dan dikunci dari spreadsheet." : `${eligible.length} pesanan ${locked ? "dikunci dari perubahan dan penghapusan spreadsheet" : "dibuka; perubahan terbaru akan diambil pada sinkronisasi berikutnya"}.`);
     } catch (error) { setNotice(error instanceof Error ? error.message : "Kunci sinkronisasi belum tersimpan."); }
     finally { setSavingSyncLocks(false); }
@@ -403,12 +409,12 @@ export default function MutationsPage() {
   const [taskOrder, setTaskOrder] = useState<Order | null>(null);
   const [issueRow, setIssueRow] = useState<{ row: MutationViewRow; issues: OrderIssue[] } | null>(null);
   const [priceDetailRow, setPriceDetailRow] = useState<MutationViewRow | null>(null);
-  const closePriceDetails = useCallback(() => setPriceDetailRow(null), []);
+  const closePriceDetails = useCallback(() => setPriceDetailRow(null), [setPriceDetailRow]);
 
   const sources = useMemo(() => [...new Set(allOrders.map((order) => order.source).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
   const buyers = useMemo(() => [...new Set(allOrders.map((order) => order.buyerName?.trim()).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
   const games = useMemo(() => [...new Set(allOrders.map((order) => (order.gameName ?? order.game).trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
-  const assignmentOptions = useMemo(() => expandMutationRows(allOrders).flatMap((row) => row.assignments), [allOrders]);
+  const assignmentOptions = useMemo(() => allMutationRows.flatMap((row) => row.assignments), [allMutationRows]);
   const employeeNames = useMemo(() => [...new Set(assignmentOptions.map((assignment) => assignment.employeeName).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [assignmentOptions]);
   const divisions = useMemo(() => [...new Set(assignmentOptions.map((assignment) => normalizeDivisionLabel(assignment.team)).filter(Boolean))].sort((a, b) => {
     const ai = divisionOrder.indexOf(a as (typeof divisionOrder)[number]);
@@ -513,41 +519,39 @@ export default function MutationsPage() {
     });
   }, [activePriceGroup, division, employee, employees, periodRows, priceAssessments, priceFilter, priceSort, problem, search, sortState, source]);
 
-  const visibleOrderIds = useMemo(() => [...new Set(rows.map(row => row.order.id))], [rows]);
-  const visibleOrderIdSet = useMemo(() => new Set(visibleOrderIds), [visibleOrderIds]);
-  const selectedOrderIdSet = useMemo(() => {
-    const activeIds = new Set(allOrders.map(order => order.id));
-    return new Set(selectedOrderIds.filter(id => activeIds.has(id)));
-  }, [allOrders, selectedOrderIds]);
-  const selectedVisibleCount = visibleOrderIds.filter(id => selectedOrderIdSet.has(id)).length;
-  const selectedVisibleIds = visibleOrderIds.filter(id => selectedOrderIdSet.has(id));
-  const bulkPreview = bulkConfirmation ? previewBulkAction(bulkConfirmation.ids, bulkConfirmation.action, readBulkContext(isLocked)) : null;
+  const visibleRowIds = useMemo(() => rows.map(row => row.id), [rows]);
+  const visibleRowIdSet = useMemo(() => new Set(visibleRowIds), [visibleRowIds]);
+  const selectedRowIdSet = useMemo(() => new Set(selectedRowIds.filter(id => allRowsById.has(id))), [allRowsById, selectedRowIds]);
+  const selectedVisibleRows = rows.filter(row => selectedRowIdSet.has(row.id));
+  const selectedVisibleCount = selectedVisibleRows.length;
+  const selectedVisibleTargets = selectedVisibleRows.map(row => ({ orderId: row.order.id, ...(row.day ? { dailyId: row.day.id } : {}) }));
+  const bulkPreview = bulkConfirmation ? previewBulkAction(bulkConfirmation.targets, bulkConfirmation.action, readBulkContext(isLocked)) : null;
 
-  async function runBulkAction(action: BulkMutationAction, ids: string[]) {
-    if (!ids.length || isLocked || bulkSaving || savingSyncLocks) return;
+  async function runBulkAction(action: BulkMutationAction, targets: BulkMutationTarget[]) {
+    if (!targets.length || isLocked || bulkSaving || savingSyncLocks) return;
     if ((action === "complete" || action === "delete") && !canManageSync) return;
     setBulkSaving(true);
     try {
       await flushPayroll();
-      const result = withPayrollBatch(() => applyBulkAction(ids, action, readBulkContext(isLocked)));
+      const result = withPayrollBatch(() => applyBulkAction(targets, action, readBulkContext(isLocked)));
       await flushPayroll();
-      const processed = new Set([...result.changedIds, ...result.unchangedIds]);
-      setSelectedOrderIds(current => current.filter(id => !processed.has(id)));
-      setBulkReport({ action, changed: result.changedIds.length, unchanged: result.unchangedIds.length, skipped: result.skipped });
+      const processed = new Set([...result.changedTargetIds, ...result.unchangedTargetIds]);
+      setSelectedRowIds(current => current.filter(id => !processed.has(id)));
+      setBulkReport({ action, changed: result.changedTargetIds.length, unchanged: result.unchangedTargetIds.length, skipped: result.skipped });
       setBulkConfirmation(null);
-      setNotice(`${bulkActionLabels[action]}: ${result.changedIds.length} diperbarui, ${result.unchangedIds.length} sudah sesuai, ${result.skipped.length} dilewati.`);
+      setNotice(`${bulkActionText(action, targets)}: ${result.changedTargetIds.length} baris diperbarui, ${result.unchangedTargetIds.length} sudah sesuai, ${result.skipped.length} dilewati.`);
     } catch (error) { setNotice(error instanceof Error ? error.message : "Aksi pilihan belum tersimpan. Muat ulang sebelum mencoba kembali."); }
     finally { setBulkSaving(false); }
   }
 
   function requestBulkAction(action: BulkMutationAction) {
-    if (!selectedVisibleIds.length || isLocked || bulkSaving || savingSyncLocks) return;
+    if (!selectedVisibleTargets.length || isLocked || bulkSaving || savingSyncLocks) return;
     setBulkReport(null);
     if (action === "complete" || action === "delete") {
       if (!canManageSync) return;
       setPriceDetailRow(null); setTaskOrder(null); setEditingRow(null); setIssueRow(null); setTelegramEvidenceOrder(null);
-      setBulkConfirmation({ action, ids: selectedVisibleIds });
-    } else void runBulkAction(action, selectedVisibleIds);
+      setBulkConfirmation({ action, targets: selectedVisibleTargets });
+    } else void runBulkAction(action, selectedVisibleTargets);
   }
 
   async function restoreWebsiteOrder(order: Order) {
@@ -562,23 +566,23 @@ export default function MutationsPage() {
     finally { setBulkSaving(false); }
   }
   const selectedSheetIds = useMemo(() => [...new Set(rows
-    .filter(row => selectedOrderIdSet.has(row.order.id) && isSheetOrder(row.order) && !hasAutomaticSheetProtection(row.order))
-    .map(row => row.order.id))], [rows, selectedOrderIdSet]);
+    .filter(row => selectedRowIdSet.has(row.id) && isSheetOrder(row.order) && !hasAutomaticSheetProtection(row.order))
+    .map(row => row.order.id))], [rows, selectedRowIdSet]);
 
   function toggleVisibleSelection(checked: boolean) {
-    setSelectedOrderIds(ids => checked
-      ? [...new Set([...ids, ...visibleOrderIds])]
-      : ids.filter(id => !visibleOrderIdSet.has(id)));
+    setSelectedRowIds(ids => checked
+      ? [...new Set([...ids, ...visibleRowIds])]
+      : ids.filter(id => !visibleRowIdSet.has(id)));
   }
 
-  function toggleOrderSelection(id: string, checked: boolean) {
-    setSelectedOrderIds(ids => checked ? [...new Set([...ids, id])] : ids.filter(selectedId => selectedId !== id));
+  function toggleRowSelection(id: string, checked: boolean) {
+    setSelectedRowIds(ids => checked ? [...new Set([...ids, id])] : ids.filter(selectedId => selectedId !== id));
   }
 
   const issuesByRow = useMemo(() => new Map(rows.map((row) => [row.id, analyzeOrderIssues(row.order, employees, row.day)])), [employees, rows]);
   const total = rows.reduce((sum, row) => sum + row.grossMinor, 0);
   const payrollReady = rows.reduce((sum, row) => {
-    if (row.day) return sum + (row.day.status === "verified" && !row.day.payrollClosedAt ? row.grossMinor : 0);
+    if (row.day) return sum + (row.day.status === "verified" && !row.day.payrollClosedAt && !row.day.payrollPeriodId && !row.order.payrollClosedAt && !row.order.payrollPeriodId ? row.grossMinor : 0);
     return sum + getPayrollEligibleGrossMinor(row.order);
   }, 0);
 
@@ -589,7 +593,7 @@ export default function MutationsPage() {
       current.rows += 1;
       current.total += row.grossMinor;
       const issues = analyzeOrderIssues(row.order, employees, row.day);
-      if (row.day ? Boolean(row.day.payrollClosedAt || row.day.status === "verified") : Boolean(row.order.payrollClosedAt || row.order.operationalStatus === "verified")) current.done += 1;
+      if (row.day ? Boolean(row.day.payrollClosedAt || row.day.payrollPeriodId || row.order.payrollClosedAt || row.order.payrollPeriodId || row.day.status === "verified") : Boolean(row.order.payrollClosedAt || row.order.operationalStatus === "verified")) current.done += 1;
       if (hasBlockingOrderIssues(issues) || (row.day ? row.day.status === "on_hold" : row.order.operationalStatus === "on_hold")) current.problem += 1;
       map.set(row.order.source, current);
     }
@@ -655,37 +659,33 @@ export default function MutationsPage() {
     setNotice(`↩ ${order.externalReference} ditarik dari Gaji. Silakan Edit Mutasi bila perlu, lalu klik Pesanan ini selesai untuk memasukkannya kembali.`);
   }
 
-  function pullDailyFromPayroll(row: MutationViewRow) {
-    if (bulkSaving) return;
+  async function pullDailyFromPayroll(row: MutationViewRow) {
+    if (bulkSaving || savingSyncLocks || isLocked || !canManageSync) return;
     if (!row.day) return;
-    if (row.day.payrollClosedAt) {
-      setNotice(`${row.order.externalReference} · Hari ${row.day.sequence} sudah Tutup Buku/Gajian dan tidak dapat ditarik kembali.`);
-      return;
-    }
-    if (row.day.status !== "verified") return;
-    setDailyMutationStatus(row, "in_progress");
-    setNotice(`↩ ${row.order.externalReference} · Hari ${row.day.sequence} ditarik dari Gaji. Setelah koreksi, klik Pesanan ini selesai untuk memasukkannya kembali.`);
+    setBulkSaving(true);
+    try {
+      await flushPayroll();
+      const changed = withPayrollBatch(() => withdrawStoredDailyFromPayroll(row.order.id, row.day!.id));
+      await flushPayroll();
+      setNotice(changed ? `↩ ${row.order.externalReference} · Hari ${row.day.sequence} ditarik dari Gaji. Setelah koreksi, klik Hari selesai untuk memasukkan hari ini kembali.` : `Status ${row.order.externalReference} · Hari ${row.day.sequence} sudah berubah. Muat ulang Mutasi untuk memeriksa.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Hari belum dapat ditarik dari Gaji.");
+    } finally { setBulkSaving(false); }
   }
 
   function setDailyMutationStatus(row: MutationViewRow, nextStatus: "pending" | "in_progress" | "on_hold" | "verified") {
-    if (bulkSaving) return;
+    if (bulkSaving || savingSyncLocks || isLocked) return;
     if (!row.day) return;
-    if (row.day.payrollClosedAt) {
+    if (row.day.payrollClosedAt || row.day.payrollPeriodId || row.order.payrollClosedAt || row.order.payrollPeriodId) {
       setNotice(`${row.order.externalReference} · Hari ${row.day.sequence} sudah masuk Tutup Buku/Gaji dan dikunci.`);
       return;
     }
-    try {
-      const patch = replaceDailyWorkStatus(row.order, row.day.id, nextStatus);
-      updateOrder(row.order.id, patch);
-      if (nextStatus === "verified") {
-        setNotice(`✓ ${row.order.externalReference} · Hari ${row.day.sequence} selesai. Nilai ${formatMoney(row.day.grossMinor)} sekarang masuk daftar Gaji berikutnya.`);
-      } else {
-        const label = nextStatus === "in_progress" ? "Dikerjakan" : nextStatus === "on_hold" ? "Bermasalah" : "Proses";
-        setNotice(`Status ${row.order.externalReference} · Hari ${row.day.sequence} menjadi ${label}.`);
-      }
-    } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
+    if (nextStatus === "verified" && !getDailyAssignments(row.order, row.day).length) {
+      setNotice(`${row.order.externalReference} · Hari ${row.day.sequence} belum mempunyai karyawan. Periksa Kelola Hari terlebih dahulu.`);
+      return;
     }
+    const action = nextStatus === "verified" ? "complete" : nextStatus === "in_progress" ? "working" : nextStatus === "on_hold" ? "problem" : "process";
+    void runBulkAction(action, [{ orderId: row.order.id, dailyId: row.day.id }]);
   }
 
   function setMutationStatus(order: Order, nextStatus: "assigned" | "in_progress" | "on_hold" | "verified") {
@@ -727,13 +727,15 @@ export default function MutationsPage() {
     setNotice(`Status ${order.externalReference} menjadi ${statusText}. Belum masuk Gaji.`);
   }
 
-  function saveMutationEdit(order: Order, patch: Partial<Order>, changes: import("@/features/payroll/lib/demo-mutation-history-store").MutationChange[], reason?: string) {
-    if (bulkSaving) return;
-    if (canonical(allOrders.find(current => current.id === order.id)) !== canonical(order)) {
+  function saveMutationEdit(order: Order, patch: Partial<Order>, changes: import("@/features/payroll/lib/demo-mutation-history-store").MutationChange[], reason?: string, day?: MutationViewRow["day"]) {
+    if (bulkSaving || savingSyncLocks || isLocked) throw new Error("Perubahan belum dapat disimpan karena ruang kerja sedang dikunci atau menyimpan aksi lain.");
+    const storedOrders = JSON.parse(payrollStorage.getItem(workspaceKeys.orders) ?? "[]") as Order[];
+    const currentOrder = storedOrders.find(current => current.id === order.id) ?? allOrders.find(current => current.id === order.id);
+    if (canonical(currentOrder) !== canonical(order)) {
       throw new Error('Pesanan ini telah diubah pengguna lain. Isian Anda tetap tersedia; salin perubahan yang diperlukan, lalu buka kembali Edit Mutasi untuk memakai data terbaru.');
     }
-    const wasCompleted = order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
-    const wasPayrollClosed = Boolean(order.payrollClosedAt);
+    const wasPayrollClosed = Boolean(order.payrollClosedAt || order.payrollPeriodId || day?.payrollClosedAt || day?.payrollPeriodId);
+    const wasCompleted = wasPayrollClosed || (day ? day.status === "verified" : order.operationalStatus === "verified");
     updateOrder(order.id, patch);
     addHistory({
       orderId: order.id,
@@ -810,9 +812,9 @@ export default function MutationsPage() {
       {canManageSync ? <section className="mt-4 rounded-xl border border-zinc-700 p-4" aria-label="Kunci sinkronisasi spreadsheet">
         <p className="text-sm text-zinc-300">Pesanan terbuka mengikuti perubahan dan penghapusan di Sheet. Kunci pesanan untuk mempertahankan data website. Gaji/Closing, stok, dan pembayaran tetap dilindungi otomatis.</p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <span className="text-sm text-zinc-400">Centang pesanan di tabel. Kunci hanya berlaku untuk pesanan dari Sheet pada filter ini yang belum dilindungi otomatis.</span>
-          <button disabled={!selectedSheetIds.length || isLocked || savingSyncLocks} onClick={() => void setSheetLocks(selectedSheetIds, true)} className="rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Kunci pilihan ({selectedSheetIds.length})</button>
-          <button disabled={!selectedSheetIds.length || isLocked || savingSyncLocks} onClick={() => void setSheetLocks(selectedSheetIds, false)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Buka kunci pilihan</button>
+          <span className="text-sm text-zinc-400">Centang baris di tabel. Kunci Sheet berlaku untuk seluruh pesanan dari hari yang dipilih, termasuk hari lainnya. Pesanan yang dilindungi otomatis dilewati.</span>
+          <button disabled={!selectedSheetIds.length || isLocked || savingSyncLocks || bulkSaving} onClick={() => void setSheetLocks(selectedSheetIds, true)} className="rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Kunci pesanan pilihan ({selectedSheetIds.length})</button>
+          <button disabled={!selectedSheetIds.length || isLocked || savingSyncLocks || bulkSaving} onClick={() => void setSheetLocks(selectedSheetIds, false)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Buka kunci pesanan pilihan</button>
         </div>
       </section> : null}
 
@@ -859,23 +861,23 @@ export default function MutationsPage() {
       </section>
 
       <MutationSpreadsheet rowCount={rows.length} filterLabel={periodLabel} readOnly={isLocked}
-        selection={{ totalCount: visibleOrderIds.length, selectedCount: selectedVisibleCount, hiddenCount: selectedOrderIdSet.size - selectedVisibleCount,
-          disabled: savingSyncLocks || bulkSaving, onToggleAll: toggleVisibleSelection, onClear: () => setSelectedOrderIds([]),
+        selection={{ totalCount: visibleRowIds.length, selectedCount: selectedVisibleCount, hiddenCount: selectedRowIdSet.size - selectedVisibleCount,
+          disabled: savingSyncLocks || bulkSaving || isLocked, onToggleAll: toggleVisibleSelection, onClear: () => setSelectedRowIds([]),
           actions: <>
-            {selectedVisibleCount > 0 ? <div className="mutation-bulk-toolbar" role="group" aria-label="Aksi pesanan terpilih" aria-busy={bulkSaving}>
+            {selectedVisibleCount > 0 ? <div className="mutation-bulk-toolbar" role="group" aria-label="Aksi baris terpilih" aria-busy={bulkSaving}>
               {(["complete", "delete", "problem", "process", "working"] as const).map(action => <button type="button" key={action} data-bulk-action={action}
                 disabled={isLocked || bulkSaving || savingSyncLocks || ((action === "complete" || action === "delete") && !canManageSync)}
                 title={(action === "complete" || action === "delete") && !canManageSync ? "Hanya admin website yang dapat melakukan aksi ini." : undefined}
-                onClick={() => requestBulkAction(action)}>{bulkActionLabels[action]}</button>)}
-              <small>{bulkSaving ? "Menyimpan pilihan…" : `Aksi berlaku pada ${selectedVisibleCount} pilihan dalam filter ini.`}</small>
+                onClick={() => requestBulkAction(action)}>{bulkActionText(action, selectedVisibleTargets)}</button>)}
+              <small>{bulkSaving ? "Menyimpan pilihan…" : `Aksi berlaku pada ${selectedVisibleCount} baris pilihan dalam filter ini.`}</small>
             </div> : null}
             {bulkReport ? <div className="mutation-bulk-report" role="status">
-              <strong>{bulkActionLabels[bulkReport.action]}</strong>: {bulkReport.changed} diperbarui · {bulkReport.unchanged} sudah sesuai · {bulkReport.skipped.length} dilewati.
-              {bulkReport.skipped.length ? <details className="mutation-bulk-skips"><summary>Alasan pesanan dilewati</summary><ul>{bulkReport.skipped.map(skip => <li key={skip.orderId}><strong>{skip.reference}</strong>: {skip.reason}</li>)}</ul></details> : null}
+              <strong>Hasil aksi pilihan</strong>: {bulkReport.changed} baris diperbarui · {bulkReport.unchanged} sudah sesuai · {bulkReport.skipped.length} dilewati.
+              {bulkReport.skipped.length ? <details className="mutation-bulk-skips"><summary>Alasan baris dilewati</summary><ul>{bulkReport.skipped.map(skip => <li key={bulkMutationTargetId(skip)}><strong>{skip.reference}</strong>: {skip.reason}</li>)}</ul></details> : null}
             </div> : null}
           </> }}
         sortColumn={priceSort ? undefined : sortState.column} sortDirection={sortState.direction} onSort={(column) => { setPriceSort(null); setSortState((current) => toggleMutationSort(current, column)); }}
-        overlay={bulkConfirmation && bulkPreview ? <BulkConfirmationModal confirmation={bulkConfirmation} preview={bulkPreview} saving={bulkSaving} onClose={() => { if (!bulkSaving) setBulkConfirmation(null); }} onConfirm={() => void runBulkAction(bulkConfirmation.action, bulkConfirmation.ids)} /> : currentPriceDetailRow && priceDetail ? <PriceDetailModal row={currentPriceDetailRow} price={priceDetail} onClose={closePriceDetails} onShowGroup={() => showPriceGroup(currentPriceDetailRow, priceDetail)} /> : taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : telegramEvidenceOrder ? <TelegramEvidenceModal orderRef={telegramEvidenceOrder} onClose={() => setTelegramEvidenceOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
+        overlay={bulkConfirmation && bulkPreview ? <BulkConfirmationModal confirmation={bulkConfirmation} preview={bulkPreview} saving={bulkSaving} onClose={() => { if (!bulkSaving) setBulkConfirmation(null); }} onConfirm={() => void runBulkAction(bulkConfirmation.action, bulkConfirmation.targets)} /> : currentPriceDetailRow && priceDetail ? <PriceDetailModal row={currentPriceDetailRow} price={priceDetail} onClose={closePriceDetails} onShowGroup={() => showPriceGroup(currentPriceDetailRow, priceDetail)} /> : taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : telegramEvidenceOrder ? <TelegramEvidenceModal orderRef={telegramEvidenceOrder} onClose={() => setTelegramEvidenceOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason, editingRow.day)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
         onOverlayClose={() => { if (bulkSaving) return; setBulkConfirmation(null); setPriceDetailRow(null); setTaskOrder(null); setTelegramEvidenceOrder(null); setEditingRow(null); setIssueRow(null); }}>
           <tbody>
             {rows.map((row) => {
@@ -885,34 +887,37 @@ export default function MutationsPage() {
               const changeLabel = price ? priceChangeLabel(price) : undefined;
               const issues = issuesByRow.get(row.id) ?? [];
               const telegram = telegramStatuses[order.externalReference.trim().toLowerCase()];
+              const rowTelegram = row.day ? undefined : telegram;
+              const dayClosed = Boolean(row.day && (row.day.payrollClosedAt || row.day.payrollPeriodId || order.payrollClosedAt || order.payrollPeriodId));
+              const dayCompletionError = row.day ? getDailyPayrollValidationError(order, row.day) : undefined;
               let status = workStatus(row, issues);
               const blocking = hasBlockingOrderIssues(issues);
               const quantityBlocked = !row.day && analyzeOrderQuantityIssues(order).length > 0;
-              const adminVerified = Boolean(row.day?.payrollClosedAt || (!row.day && order.payrollClosedAt) || row.day?.status === "verified" || (!row.day && order.operationalStatus === "verified"));
-              if (!blocking && !adminVerified && telegram) {
-                if (telegram.state === "problem") status = { label: "Telegram · Bermasalah", cls: "bg-red-500 text-white" };
-                else if (telegram.state === "done_pending_admin") status = { label: "Telegram · DONE · cek admin", cls: "bg-yellow-400 text-black" };
-                else if (telegram.state === "verified") status = { label: "Diverifikasi admin", cls: "bg-zinc-200 text-black" };
-                else if (telegram.dispatch_status === "waiting_division") status = { label: "Menunggu divisi", cls: "bg-zinc-700 text-zinc-200" };
-                else if (telegram.state === "paused") status = { label: "Telegram · PAUSE", cls: "bg-orange-500 text-black" };
-                else if (telegram.state === "in_progress") status = { label: "Telegram · START", cls: "bg-emerald-500 text-black" };
-                else if (telegram.state === "assigned") status = { label: "Telegram · Karyawan dipilih", cls: "bg-violet-500/30 text-violet-100" };
+              const adminVerified = Boolean(dayClosed || (!row.day && order.payrollClosedAt) || row.day?.status === "verified" || (!row.day && order.operationalStatus === "verified"));
+              if (!blocking && !adminVerified && rowTelegram) {
+                if (rowTelegram.state === "problem") status = { label: "Telegram · Bermasalah", cls: "bg-red-500 text-white" };
+                else if (rowTelegram.state === "done_pending_admin") status = { label: "Telegram · DONE · cek admin", cls: "bg-yellow-400 text-black" };
+                else if (rowTelegram.state === "verified") status = { label: "Diverifikasi admin", cls: "bg-zinc-200 text-black" };
+                else if (rowTelegram.dispatch_status === "waiting_division") status = { label: "Menunggu divisi", cls: "bg-zinc-700 text-zinc-200" };
+                else if (rowTelegram.state === "paused") status = { label: "Telegram · PAUSE", cls: "bg-orange-500 text-black" };
+                else if (rowTelegram.state === "in_progress") status = { label: "Telegram · START", cls: "bg-emerald-500 text-black" };
+                else if (rowTelegram.state === "assigned") status = { label: "Telegram · Karyawan dipilih", cls: "bg-violet-500/30 text-violet-100" };
               }
               const rowClass = adminVerified
                 ? ""
-                : blocking || row.day?.status === "on_hold" || order.operationalStatus === "on_hold" || telegram?.state === "problem"
+                : blocking || (row.day ? row.day.status === "on_hold" : order.operationalStatus === "on_hold") || rowTelegram?.state === "problem"
                   ? "bg-red-500/10"
-                  : telegram?.state === "done_pending_admin"
+                  : rowTelegram?.state === "done_pending_admin"
                     ? "bg-yellow-400/15"
-                    : telegram?.state === "paused"
+                    : rowTelegram?.state === "paused"
                       ? "bg-orange-500/15"
-                      : telegram?.state === "in_progress"
+                      : rowTelegram?.state === "in_progress"
                         ? "bg-emerald-500/15"
                         : "";
               return (
-                <tr key={row.id} className={rowClass} data-price-tier={price?.tier} data-price-direction={price?.direction} data-order-selected={selectedOrderIdSet.has(order.id)}>
-                  <td data-column="selection"><input type="checkbox" className="mutation-sheet-checkbox" aria-label={`Pilih pesanan ${order.externalReference}${row.day ? ` · Hari ${row.day.sequence}` : ""}`}
-                    checked={selectedOrderIdSet.has(order.id)} disabled={savingSyncLocks || bulkSaving} onChange={event => toggleOrderSelection(order.id, event.target.checked)} /></td>
+                <tr key={row.id} className={rowClass} data-price-tier={price?.tier} data-price-direction={price?.direction} data-order-selected={selectedRowIdSet.has(row.id)}>
+                  <td data-column="selection"><input type="checkbox" className="mutation-sheet-checkbox" aria-label={row.day ? `Pilih ${order.externalReference} · Hari ${row.day.sequence}` : `Pilih pesanan ${order.externalReference}`}
+                    checked={selectedRowIdSet.has(row.id)} disabled={savingSyncLocks || bulkSaving || isLocked} onChange={event => toggleRowSelection(row.id, event.target.checked)} /></td>
                   <td data-column="date" className="text-sm">{formatDateTimeID(row.orderedAt)}</td>
                   <td data-column="code" title={order.externalReference}><Link href={`/admin/payroll/orders/${encodeURIComponent(order.externalReference)}`} className="font-semibold hover:text-yellow-300">{order.externalReference}</Link></td>
                   <td data-column="source">{order.source}</td>
@@ -935,28 +940,30 @@ export default function MutationsPage() {
                   <td data-column="actions">
                     <div className="flex flex-wrap gap-2">
                       {canManageSync && isSheetOrder(order) && !hasAutomaticSheetProtection(order) ? <>
-                        <button disabled={isLocked || savingSyncLocks} onClick={() => void setSheetLocks([order.id], !order.sheetSyncLocked)} className="rounded-lg border border-amber-400/40 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{order.sheetSyncLocked ? "Buka kunci Sheet" : "Kunci dari Sheet"}</button>
+                        <button disabled={isLocked || savingSyncLocks || bulkSaving} onClick={() => void setSheetLocks([order.id], !order.sheetSyncLocked)} className="rounded-lg border border-amber-400/40 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{order.sheetSyncLocked ? "Buka kunci pesanan dari Sheet" : "Kunci pesanan dari Sheet"}</button>
                       </> : null}
                       {canManageSync && telegram ? <button onClick={() => setTelegramEvidenceOrder(order.externalReference)} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-bold text-sky-100">📎 Bukti Telegram</button> : null}
-                      <button onClick={() => setEditingRow(row)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black">✏️ Edit Mutasi</button>
+                      <button disabled={bulkSaving || savingSyncLocks || isLocked} onClick={() => setEditingRow(row)} className="rounded-lg bg-yellow-400 px-3 py-2 text-xs font-bold text-black disabled:opacity-40">✏️ Edit Mutasi</button>
                       {issues.length ? <button onClick={() => setIssueRow({ row, issues })} className="rounded-lg bg-red-500 px-3 py-2 text-xs font-bold text-white">⚠ Masalah ({issues.length})</button> : null}
                       {(countsByOrder.get(order.id) ?? 0) > 0 ? <Link href={`/admin/payroll/history?order=${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-200">Riwayat ({countsByOrder.get(order.id)})</Link> : null}
                       {row.day ? (
                         <>
                           <Link href={`/admin/payroll/orders/${encodeURIComponent(order.externalReference)}`} className="rounded-lg bg-sky-500 px-3 py-2 text-xs font-bold text-black">📅 Kelola Hari {row.day.sequence}</Link>
-                          {row.day.payrollClosedAt ? (
+                          {dayClosed ? (
                             <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span>
                           ) : row.day.status === "verified" ? (
                             <>
                               <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link>
-                              <button onClick={() => confirm(`Tarik ${order.externalReference} · Hari ${row.day?.sequence} dari Gaji untuk dikoreksi?`) && pullDailyFromPayroll(row)} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-200">↩ Tarik dari Gaji</button>
+                              <button disabled={bulkSaving || savingSyncLocks || isLocked || !canManageSync} onClick={() => { if (confirm(`Tarik ${order.externalReference} · Hari ${row.day?.sequence} dari Gaji untuk dikoreksi?`)) void pullDailyFromPayroll(row); }} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-200 disabled:opacity-40">↩ Tarik hari ini dari Gaji</button>
                             </>
                           ) : (
                             <button
                               onClick={() => confirm(`Tandai ${order.externalReference} · Hari ${row.day?.sequence} selesai? Nilai ${formatMoney(row.day?.grossMinor ?? 0)} akan masuk Gaji berikutnya.`) && setDailyMutationStatus(row, "verified")}
-                              className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black"
+                              disabled={bulkSaving || savingSyncLocks || isLocked || !canManageSync || Boolean(dayCompletionError)}
+                              title={dayCompletionError}
+                              className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-40"
                             >
-                              Pesanan ini selesai
+                              Hari selesai
                             </button>
                           )}
                         </>

@@ -12,7 +12,7 @@ import { buildLivePayrollRows, isPayrollEligible } from "@/features/payroll/lib/
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
-import { isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
+import { getDailyAssignments, getDailyPayrollValidationError, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
 import { exportPayrollSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 
 type TeamFilter = "SEMUA" | "FH1" | "FH2" | "FH3" | "ADMIN" | "BANDAR";
@@ -73,8 +73,8 @@ export default function PayrollPage() {
 
       if (isDailySettlementOrder(order)) {
         for (const day of order.dailyWork ?? []) {
-          if (day.status !== "verified" || day.payrollClosedAt) continue;
-          const assignments = day.workerAssignments?.length ? day.workerAssignments : getOrderAssignments(order);
+          if (day.status !== "verified" || day.payrollClosedAt || day.payrollPeriodId || getDailyPayrollValidationError(order, day)) continue;
+          const assignments = getDailyAssignments(order, day);
           const index = assignments.findIndex((assignment) => assignment.employeeCode === detailEmployeeCode);
           if (index < 0 || !assignments.length) continue;
 

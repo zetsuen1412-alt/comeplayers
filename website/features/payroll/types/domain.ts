@@ -44,7 +44,7 @@ export interface OrderDailyWork {
   quantity?: number;
   /** Jam kerja per hari yang terbaca dari nama paket, mis. 5 atau 12 jam/hari. */
   hours?: number;
-  /** Karyawan khusus hari ini. Jika kosong, gunakan workerAssignments pada parent order. */
+  /** Karyawan hari ini. Jika tidak tersedia, gunakan pembagian induk legacy; [] berarti belum ditugaskan. */
   workerAssignments?: OrderWorkerAssignment[];
   /** Jejak sumber spreadsheet untuk impor historis. */
   sourceRow?: number;
