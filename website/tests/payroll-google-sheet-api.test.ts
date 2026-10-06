@@ -121,3 +121,28 @@ test("API returns 409 after three concurrent revision conflicts without Closing 
   assert.equal(h.saves, 3);
   assert.equal(h.audits, 0);
 });
+
+test("API persists and audits roster-only changes, with an idempotent second reconciliation", async () => {
+  const h = harness();
+  const roster: NonNullable<sync.GoogleSheetSyncPayload["roster"]> = {
+    complete: true,
+    sheets: [
+      { sheetName: "PAYROLL-1", rows: [{ rowNumber: 3, name: "FIRST", type: "FULL" }] },
+      { sheetName: "PAYROLL-2", rows: [{ rowNumber: 3, name: "SECOND", type: "NEW" }] },
+      { sheetName: "PAYROLL-3", rows: [{ rowNumber: 3, name: "THIRD", type: "SHIFT" }] },
+    ],
+  };
+  const body = { ...payload, syncMode: "reconcile", rows: [], roster };
+  const first = await (await h.post(body)).json();
+  assert.equal(first.saved, true);
+  assert.equal(first.added, 0);
+  assert.equal(first.updated, 0);
+  assert.equal(first.rosterAdded, 3);
+  assert.equal(h.saves, 1);
+  assert.equal(h.audits, 1);
+  const second = await (await h.post(body)).json();
+  assert.equal(second.saved, false);
+  assert.equal(second.rosterAdded, 0);
+  assert.equal(second.rosterUpdated, 0);
+  assert.equal(h.saves, 1);
+});

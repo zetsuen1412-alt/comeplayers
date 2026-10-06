@@ -131,7 +131,8 @@ export async function POST(request: Request) {
       validateWorkspace(merged.state);
       validateWorkspaceEdit(currentState, merged.state);
 
-      const changed = merged.added + merged.updated + merged.archived;
+      const changed = merged.added + merged.updated + merged.archived
+        + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved;
       if (!changed) {
         return response({
           ok: true,
@@ -171,10 +172,14 @@ export async function POST(request: Request) {
           updated: merged.updated,
           archived: merged.archived,
           restored: merged.restored,
+          rosterAdded: merged.rosterAdded,
+          rosterUpdated: merged.rosterUpdated,
+          rosterRemoved: merged.rosterRemoved,
           unchanged: merged.unchanged,
           skippedProtected: merged.skippedProtected,
           skippedConflicts: merged.skippedConflicts,
           skippedInvalid: merged.skippedInvalid,
+          skippedHistorical: merged.skippedHistorical,
           telegramDispatched: telegramDispatch.sent,
         },
       });
@@ -188,11 +193,16 @@ export async function POST(request: Request) {
         updated: merged.updated,
         archived: merged.archived,
         restored: merged.restored,
+        rosterAdded: merged.rosterAdded,
+        rosterUpdated: merged.rosterUpdated,
+        rosterRemoved: merged.rosterRemoved,
         refreshReferences: merged.refreshReferences,
+        trackedRows: merged.trackedRows,
         unchanged: merged.unchanged,
         skippedProtected: merged.skippedProtected,
         skippedConflicts: merged.skippedConflicts,
         skippedInvalid: merged.skippedInvalid,
+        skippedHistorical: merged.skippedHistorical,
         telegramDispatched: telegramDispatch.sent,
         issues: merged.issues,
         rowResults: merged.rowResults,
