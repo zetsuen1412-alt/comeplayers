@@ -1,0 +1,49 @@
+{
+  "schema": "crwt.alexia_side_color_fade_independent_comparison.v1",
+  "source_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "diagnostic_v4_sha256": "278f7634713d600fc0f819d27a4620ac9628fb6ec688ded02de75224e2a97a21",
+  "candidate_v5_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "approved": false,
+  "gameIntegrated": false,
+  "passed": true,
+  "checks": {
+    "model_JSON_exact_between_v4_and_v5": true,
+    "membership_confidence_and_protected_array_checks": {
+      "allowed_color_indices": true,
+      "protected_color_indices": true,
+      "original_side_hair_indices": true,
+      "geometric_extension_indices": true,
+      "reference_qualified_extension_indices": true,
+      "extension_direct_lavender_confidence": true,
+      "extension_local_lavender_support": true,
+      "extension_profile_xy": true,
+      "protected_critical_color_indices": true,
+      "geometric_source_lavender_expansion_indices": true,
+      "reference_qualified_source_lavender_expansion_indices": true,
+      "source_lavender_expansion_direct_confidence": true,
+      "source_lavender_expansion_local_support": true,
+      "source_lavender_expansion_profile_xy": true
+    },
+    "all_membership_arrays_exact": true,
+    "membership_arrays_checked": 14,
+    "v4_to_v5_changed_colors": 8119,
+    "all_changes_in_added_source_lavender_set": true,
+    "original_and_upper_scope_colors_exact": true,
+    "alpha_exact": true,
+    "maximum_active_fade_weight_replay_error": 2.220446049250313e-16,
+    "active_fade_weights_replay_within_1e_12": true,
+    "all_stored_blend_weights_nonincreasing": true,
+    "source_palette_and_reference_margin_factor_range": [
+      6.64798059674372e-08,
+      1.0
+    ],
+    "rear_factor_range_in_added_set": [
+      0.65,
+      1.0
+    ]
+  },
+  "scope": "Read-only comparative audit; selected v5 portable recipe takes original a605 baseline/reference directly and has no v4 model build dependency.",
+  "limits": [
+    "Numerical fade replay is not visual acceptance."
+  ]
+}

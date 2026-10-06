@@ -1,0 +1,15 @@
+Portable reproduction of the faded lower/outer hair color refinement
+
+Requires Python 3, NumPy and Pillow. Run from the packaged review root:
+
+python evidence/selected-alexia/recipes/build_side_reference_colors_shell_faded.py --source evidence/selected-alexia/source/alexia-baseline.glb --reference references/alexia-blue-v2-turnaround.png --output-parent ../CRWT-side-colors-rebuilt --variant calibrated-lavender-shell-faded
+
+The suggested output-parent is outside the packaged review root, preserving its inventory and helper verification inputs. Any writable output-parent outside that review root can be used. Its calibrated-lavender-shell-faded child must not already exist. The recipe writes only that fresh child, containing alexia.glb, alexia.side-color-proof.json and color-masks.npz. Source, reference and recipe are read only and pinned input hashes are checked.
+
+Source SHA-256: a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4
+Original six-view reference SHA-256: 935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933
+Expected rebuilt alexia.glb SHA-256: aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000
+
+This standalone recipe requires no prior scratch model, helper script, renderer, Blender installation or edited reference raster. It appends one protected mesh0 COLOR_0 stream, keeping all source positions, normals, UVs, indices, materials, images, node transforms and whole meshes1/2 exact. Original alpha and colors outside the independently audited union hair mask stay byte-exact. Continuous palette/reference margins soften added-lavender boundaries; membership is unchanged from the broader-shell mask. Peripheral front hair can change. Core face, the actual ear/headphone region and outfit remain protected. Cup/temple paint, preserved white gaps and coarse merged shape remain limits.
+
+A fresh copied package-like directory and this exact relative/external-output command reproduced model and mask NPZ bytes. The copied review-root inventory, original/copy input hashes and helper verification inputs stayed unchanged. Numerical reproduction and actual visual approval have separate evidence receipts.

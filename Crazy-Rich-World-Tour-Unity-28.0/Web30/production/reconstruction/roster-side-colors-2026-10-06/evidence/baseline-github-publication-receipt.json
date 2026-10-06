@@ -1,0 +1,289 @@
+{
+  "schema": "crwt.alexia_hair_sculpt_github_publication.v1",
+  "repository": "https://github.com/zetsuen1412-alt/comeplayers",
+  "development_branch": "codex/crazy-rich-web-v30",
+  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-hair-sculpt-portable",
+  "commit": "7550673d37e385034eef33da07fce82a704001ae",
+  "tree_sha": "25cdefaade223a6ce05c888df0e2b455347d6201",
+  "parent_commit": "cae6727d66f806ec81fa2c8d5ad129d58a5adb95",
+  "baseline_source_commit": "cae6727d66f806ec81fa2c8d5ad129d58a5adb95",
+  "model_count": 10,
+  "manifest_sha256": "50408387c9f4319181b6327791938779bb5b8c779296c053aab9990530ebcdc4",
+  "review_manifest_sha256": "50408387c9f4319181b6327791938779bb5b8c779296c053aab9990530ebcdc4",
+  "changed_model_sha256": {
+    "alexia": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4"
+  },
+  "preserved_baseline_blobs": 4221,
+  "added_files": 155,
+  "total_source_blobs": 4376,
+  "overwrites": 0,
+  "deletions": 0,
+  "inventory_path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-hair-sculpt-2026-10-05/source-inventory.json",
+  "inventory_sha256": "22a2d4e51f4e4eb3bb71d3dd0ededcbe7c4b8c21ff1a6bc9c3843b18b8aab189",
+  "source_pins_sha256": "5dd57edb4288dd6dc6b1c228538a4cf892cabe9801a909304b0d8d0205d34767",
+  "native_workspace_sha256": "c06557dfe5f1a2417ed4029df47246e966bdf9b5b75ca7d5f2e6cd8ca58d29f7",
+  "native_reopen_proof_sha256": "b493be720fc9da6c824e7ebfa3a9795597eed493de287b4664163596aba28591",
+  "native_build_proof_sha256": "086e4e2ee8ea311b4c74ecf8697d2f2e9f2e351542a4c780947ee51cf171f9eb",
+  "native_selected_certificate_sha256": "e5fa9cbbb8f0e92dfd694b29565f1d1ad4987fc4ceaf6f9777f59f36879ea9a7",
+  "editable_scope": "Single Alexia native workspace. Other nine current GLBs remain available for import; the previous full-roster native remains in its older checkpoint.",
+  "actual_render_scope": "Five new selected Alexia 640px mesh renders. Forty-five other-character renders and proofs reused byte for byte.",
+  "offline_gallery_storage": {
+    "git_archive": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-hair-sculpt-2026-10-05/OFFLINE-GALLERY.zip",
+    "archive_sha256": "d4f3b75e88747294d6de61e1130fdecc016d872632b71d595ba1cedd44dcb293",
+    "archive_bytes": 39519210,
+    "html_sha256": "c42768fabdfd53106a145b679d6e6f4c8a2a9e4f1f40d536c93394f6b33b9a29",
+    "html_bytes": 54490805
+  },
+  "local_browser_verification_sha256": "bfaf0edcd4f5ea2a4436695fa1bab8ca81d4c5839585cc0bb0d044563c094565",
+  "independent_selected_chain_audit_sha256": "5cf180f0c7d4558f42e4f05fa7e762949c3631640864326ef060977efd5477ef",
+  "independent_visual_geometry_audit_sha256": "6710c6e052de26730848e3ac91aafc52ef2d11edf661e6ee8ccb21c8d2e086b3",
+  "local_source_verification_sha256": "fbb42d59c1d8f59ca078546c3af5166fb5a70312236e8ae3078a7580b73bbd80",
+  "snapshot_verified": true,
+  "refs_verified": [
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-visual-fidelity-portable",
+      "sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-pass2-portable",
+      "sha": "8ea9cb7b849d586de299d8042d8f7185c9c40d3e",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable",
+      "sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable",
+      "sha": "1c63379d02ef4fea211c963a18fed7e84a2c6494",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-profile-portable",
+      "sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-hair-strands-portable",
+      "sha": "cae6727d66f806ec81fa2c8d5ad129d58a5adb95",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-hair-sculpt-portable",
+      "sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "verified": true
+    },
+    {
+      "branch": "codex/crazy-rich-web-v30",
+      "sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "verified": true
+    }
+  ],
+  "ci_runs": [
+    {
+      "id": 37345248644,
+      "name": "Crazy Rich Unity Source Checks",
+      "event": "pull_request",
+      "head_sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37345248644",
+      "created_at": "2026-10-05T17:01:05Z",
+      "updated_at": "2026-10-05T17:05:07Z"
+    },
+    {
+      "id": 37345248662,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "pull_request",
+      "head_sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37345248662",
+      "created_at": "2026-10-05T17:01:05Z",
+      "updated_at": "2026-10-05T17:05:08Z"
+    },
+    {
+      "id": 37345232247,
+      "name": "CRWT Alexia Hair Sculpt 2026-10-05",
+      "event": "push",
+      "head_sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37345232247",
+      "created_at": "2026-10-05T17:00:58Z",
+      "updated_at": "2026-10-05T17:02:41Z"
+    },
+    {
+      "id": 37345232122,
+      "name": "CRWT Portable Character Workspace",
+      "event": "push",
+      "head_sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37345232122",
+      "created_at": "2026-10-05T17:00:58Z",
+      "updated_at": "2026-10-05T17:04:37Z"
+    },
+    {
+      "id": 37345232377,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "push",
+      "head_sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37345232377",
+      "created_at": "2026-10-05T17:00:58Z",
+      "updated_at": "2026-10-05T17:06:05Z"
+    }
+  ],
+  "all_started_ci_completed": true,
+  "completed_successful_ci_count": 5,
+  "ci_observation_time": "2026-10-05 17:08:50 UTC",
+  "pending_ci_scope": [],
+  "source_ci_jobs": [
+    {
+      "id": 111882015810,
+      "name": "verify-hair-sculpt-source",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Materialize raw exact HEAD blobs and actual prior Alexia comparison input",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify source pins, original attributes, protected core sculpt and existing local native certificates",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate all ten actual GLBs without generation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rebuild exact gallery into fresh external output and compare frozen JSON receipt",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify pinned one-entry gallery ZIP CRC and restore fresh external HTML",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save private hair-sculpt source and verification evidence",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "source_artifact": {
+    "id": 11359858272,
+    "node_id": "MDg6QXJ0aWZhY3QxMTM1OTg1ODI3Mg==",
+    "name": "CRWT-Alexia-Hair-Strands-2026-10-05-7550673d37e385034eef33da07fce82a704001ae",
+    "size_in_bytes": 229690767,
+    "url": "https://api.github.com/repos/zetsuen1412-alt/comeplayers/actions/artifacts/11359858272",
+    "archive_download_url": "https://api.github.com/repos/zetsuen1412-alt/comeplayers/actions/artifacts/11359858272/zip",
+    "expired": false,
+    "digest": "sha256:6dc9651fc28049b3ac70f3c827e414c5b9e0b3778812e239eea9c76b466b6567",
+    "created_at": "2026-10-05T17:02:37Z",
+    "updated_at": "2026-10-05T17:02:37Z",
+    "expires_at": "2026-10-12T17:02:26Z",
+    "workflow_run": {
+      "id": 37345232247,
+      "repository_id": 1365296560,
+      "head_repository_id": 1365296560,
+      "head_branch": "codex/crazy-rich-web-v30",
+      "head_sha": "7550673d37e385034eef33da07fce82a704001ae"
+    }
+  },
+  "pr": {
+    "number": 34,
+    "url": "https://github.com/zetsuen1412-alt/comeplayers/pull/34",
+    "title": "CRWT Web30: smoother Alexia hair surface and portable character checkpoint",
+    "state": "open",
+    "draft": true,
+    "base": "codex/crazy-rich-world-tour",
+    "head": "codex/crazy-rich-web-v30",
+    "head_sha": "7550673d37e385034eef33da07fce82a704001ae"
+  },
+  "models": [
+    {
+      "id": "alexia",
+      "sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4"
+    },
+    {
+      "id": "rindi",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "id": "kairo",
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915"
+    },
+    {
+      "id": "luna",
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509"
+    },
+    {
+      "id": "nox",
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f"
+    },
+    {
+      "id": "atlas",
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24"
+    },
+    {
+      "id": "zeno",
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc"
+    },
+    {
+      "id": "yuna",
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b"
+    },
+    {
+      "id": "mochi",
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+    },
+    {
+      "id": "pip",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "The selected change is a modest shallow rear hair surface improvement. The broad merged hair mass, original upper-band roughness and side color projection still need work.",
+    "Depth and S paths are manual reference-informed estimates; there is no visual precision percentage or claim of perfect 360-degree reconstruction.",
+    "The original low-quality triangles and near-degenerate faces are diagnosed; no new face flips or degenerate faces occur. This is not a global collision or manifold certificate.",
+    "Original GLB colors, UVs, materials, topology and nine other models are preserved. Native COLOR representation follows the Blender importer.",
+    "No new character rig, production approval or game integration.",
+    "CI verifies exact raw source, geometry preservation, gallery reconstruction/restoration and frozen local native certificates. Actual Blender and browser verification occurred locally.",
+    "The source artifact display label retains Hair-Strands from the predecessor; its exact head and source workflow bind the new Hair Sculpt payload.",
+    "This local publication receipt and local source-provenance copies are outside their own Git snapshot to avoid self-reference."
+  ]
+}

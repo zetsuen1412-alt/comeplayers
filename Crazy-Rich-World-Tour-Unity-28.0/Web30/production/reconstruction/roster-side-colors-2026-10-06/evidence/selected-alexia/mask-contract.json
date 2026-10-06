@@ -1,0 +1,446 @@
+{
+  "schema": "crwt.alexia.side_hair_reference_colors.v5",
+  "source_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "recipe_sha256": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+  "mask_parameters": {
+    "world_axis_signs": [
+      -1,
+      1,
+      -1
+    ],
+    "world_x_center": -0.006,
+    "world_y_min": -0.095,
+    "world_y_max": 0.455,
+    "world_z_min": -0.235,
+    "world_z_max": 0.035,
+    "world_abs_centered_x_min": 0.085,
+    "world_abs_centered_x_max": 0.35,
+    "original_world_normal_z_max": 0.55,
+    "original_world_abs_normal_x_min": 0.1,
+    "semantic_upper_y_min": 0.19,
+    "semantic_upper_z_max": -0.025,
+    "semantic_lower_z_max": -0.105,
+    "semantic_formula": "((worldY>.19 and worldZ<-.025) or worldZ<-.105)",
+    "protected_headphone_ellipse": {
+      "world_z_center": 0.077,
+      "world_y_center": 0.258,
+      "world_z_radius": 0.068,
+      "world_y_radius": 0.107,
+      "protected_radius_squared_max": 1.44
+    },
+    "reference_confidence_required": true,
+    "source_color_hair_membership_required": false,
+    "front_protection": "worldZ>=-.025 is protected except the explicitly reference-qualified upper lateral scalp extension y>.39, |normalX|>.35, normalZ<.35. The rear source-lavender expansion has no inherited-normal restriction but is wholly behind z=-.025 and requires source+reference lavender. Core face/temple/front, body and the original headphone ellipse remain outside the union; all outside-union colors and every original normal are byte-exact.",
+    "alpha_policy": "Original alpha retained byte-exact.",
+    "upper_extension": {
+      "world_y_min": 0.39,
+      "world_y_max": 0.455,
+      "world_z_min": -0.235,
+      "world_z_max": 0.055,
+      "world_abs_centered_x_min": 0.085,
+      "world_abs_centered_x_max": 0.35,
+      "original_world_normal_z_max": 0.35,
+      "original_world_abs_normal_x_min": 0.35,
+      "same_protected_headphone_ellipse": true,
+      "direct_lavender_confidence_min_exclusive": 0.9,
+      "local_lavender_support_min_exclusive": 0.6,
+      "reference_highlights_accepted": false,
+      "reference_kernel_radius_pixels": 6,
+      "reference_kernel_sigma_pixels": 2.8,
+      "reference_support_smoothstep": [
+        0.025,
+        0.2
+      ]
+    },
+    "source_lavender_expansion": {
+      "world_y_min": -0.095,
+      "world_y_max": 0.455,
+      "world_z_min": -0.235,
+      "world_z_max": -0.025,
+      "world_abs_centered_x_min": 0.075,
+      "world_abs_centered_x_max": 0.35,
+      "original_normal_gate_required": false,
+      "same_protected_headphone_ellipse": true,
+      "source_gamma_rgb_scale": 255,
+      "source_palette": {
+        "blue_minus_green_min_exclusive": 14,
+        "blue_minus_red_min_exclusive": 7,
+        "red_minus_green_min_exclusive": 3,
+        "minimum_channel_min_exclusive": 70
+      },
+      "direct_lavender_confidence_min_exclusive": 0.9,
+      "local_lavender_support_min_exclusive": 0.6,
+      "reference_highlights_accepted": false,
+      "reference_kernel_radius_pixels": 6,
+      "reference_kernel_sigma_pixels": 2.8,
+      "reference_support_smoothstep": [
+        0.025,
+        0.2
+      ],
+      "note": "Only existing source lavender colors qualify. Foreign black/gold source paint is not in this expansion."
+    },
+    "allowed_mask_formula": "original_side_hair_hardmask OR reference_qualified_upper_lateral_extension OR reference_qualified_source_lavender_expansion; the same original protected ear ellipse is excluded from all three. Both extensions require direct strict-lavender reference confidence>.90 and local support>.60.",
+    "protected_critical_formula": "(worldZ>=-.025 AND NOT reference_qualified_upper_extension) OR (original_worldNormalZ>=.55 AND NOT reference_qualified_source_lavender_expansion) OR protected_headphone_ellipse; all outside final allowed mask."
+  },
+  "calibration": {
+    "coordinate_frame": "glTF world +Y up +Z front, mesh0 local_to_world=(-X,+Y,-Z); existing transforms retained.",
+    "basis": "Ear/crown/sole registration retained from prior profile audit. Main broad rear lavender row anchors independently inspected in unchanged atlas; small restrained depth warp, not solved cameras or reference precision.",
+    "plus": {
+      "ear_pixel_x": 1268,
+      "ear_world_z": 0.092,
+      "scale": 484.69,
+      "top_pixel_y": 18,
+      "top_world_y": 0.479059,
+      "main_rear_pixel_rows": [
+        [
+          80,
+          1344
+        ],
+        [
+          120,
+          1351
+        ],
+        [
+          170,
+          1361
+        ],
+        [
+          225,
+          1374
+        ],
+        [
+          270,
+          1405
+        ]
+      ],
+      "model_rear_z_rows": [
+        [
+          0.0,
+          -0.1998032784461975
+        ],
+        [
+          0.06,
+          -0.20685966610908507
+        ],
+        [
+          0.12,
+          -0.18080335676670076
+        ],
+        [
+          0.18,
+          -0.14816372841596603
+        ],
+        [
+          0.24,
+          -0.13197525590658188
+        ],
+        [
+          0.3,
+          -0.12416128396987915
+        ],
+        [
+          0.36,
+          -0.09410329535603523
+        ],
+        [
+          0.42,
+          -0.05605357199907303
+        ]
+      ],
+      "reference_hair_envelope": [
+        [
+          30,
+          1282,
+          1336
+        ],
+        [
+          80,
+          1274,
+          1347
+        ],
+        [
+          120,
+          1295,
+          1356
+        ],
+        [
+          170,
+          1282,
+          1402
+        ],
+        [
+          225,
+          1280,
+          1422
+        ],
+        [
+          270,
+          1294,
+          1408
+        ],
+        [
+          305,
+          1310,
+          1390
+        ]
+      ],
+      "reference_headphone_ellipse": [
+        1268,
+        114,
+        38,
+        47
+      ]
+    },
+    "minus": {
+      "ear_pixel_x": 236,
+      "ear_world_z": 0.062,
+      "scale": 491.19,
+      "top_pixel_y": 507,
+      "top_world_y": 0.479059,
+      "main_rear_pixel_rows": [
+        [
+          570,
+          160
+        ],
+        [
+          610,
+          153
+        ],
+        [
+          660,
+          142
+        ],
+        [
+          715,
+          91
+        ],
+        [
+          760,
+          106
+        ]
+      ],
+      "model_rear_z_rows": [
+        [
+          0.0,
+          -0.20353180885314942
+        ],
+        [
+          0.06,
+          -0.21272525191307068
+        ],
+        [
+          0.12,
+          -0.19005887150764467
+        ],
+        [
+          0.18,
+          -0.15360261380672455
+        ],
+        [
+          0.24,
+          -0.1412310853600502
+        ],
+        [
+          0.3,
+          -0.14216101169586182
+        ],
+        [
+          0.36,
+          -0.10810166329145432
+        ],
+        [
+          0.42,
+          -0.06988078355789185
+        ]
+      ],
+      "reference_hair_envelope": [
+        [
+          525,
+          164,
+          245
+        ],
+        [
+          570,
+          149,
+          233
+        ],
+        [
+          610,
+          145,
+          220
+        ],
+        [
+          660,
+          97,
+          229
+        ],
+        [
+          715,
+          85,
+          225
+        ],
+        [
+          760,
+          101,
+          213
+        ],
+        [
+          800,
+          121,
+          205
+        ]
+      ],
+      "reference_headphone_ellipse": [
+        236,
+        615,
+        37,
+        48
+      ]
+    },
+    "depth_factor_clamp": [
+      0.8,
+      1.12
+    ],
+    "depth_factor_blend": 0.6,
+    "hair_palette_gamma_rgb": {
+      "blue_minus_green_min": 14,
+      "blue_minus_red_min": 7,
+      "red_minus_green_min": 3,
+      "minimum_channel_min": 70
+    },
+    "near_white_highlight_min_channel": 242,
+    "local_reference_kernel_radius_pixels": 6,
+    "local_reference_kernel_sigma_pixels": 2.8,
+    "local_support_smoothstep": [
+      0.025,
+      0.2
+    ],
+    "detail_sampling": {
+      "normalized_reference_filter_radius_pixels": 3,
+      "normalized_reference_filter_sigma_pixels": 1.05,
+      "broad_reference_filter_radius_pixels": 6,
+      "broad_reference_filter_sigma_pixels": 2.8,
+      "reference_detail_gain": 1.16,
+      "minimum_linear_sample_channel": 0.18,
+      "maximum_gamma_sample_rgb": [
+        0.965,
+        0.945,
+        0.995
+      ],
+      "kernel_note": "Read-only normalized accepted-hair reference samples; no edited raster is created. Narrow filter keeps illustrated strand flow; modest broad-relative gain and bounded highlights avoid isolated white islands."
+    }
+  },
+  "mask_npz_sha256": "92f2abb98e69d669edbc2ab48fe534cafd94ca5d12d5d70adb5136f0d3ebf8e6",
+  "allowed_color_vertices": 43777,
+  "base_allowed_color_vertices": 22879,
+  "geometric_extension_vertices": 1910,
+  "reference_qualified_extension_vertices": 966,
+  "geometric_source_lavender_expansion_vertices": 23693,
+  "reference_qualified_source_lavender_expansion_vertices": 19932,
+  "protected_critical_color_vertices": 176370,
+  "geometric_extension_npz_policy": "geometric_extension_indices are upper_lateral_geometric_gate excluding original_side_hair_indices. extension direct confidence/support/profile XY arrays use that same order. reference_qualified_extension_indices are exactly confidence>.90 AND support>.60 among those geometric indices. allowed_color_indices are original_side_hair_indices union reference_qualified_extension_indices.",
+  "source_lavender_expansion_npz_policy": "geometric_source_lavender_expansion_indices are spatial+source_gamma_palette qualified, excluding original_side_hair_indices and reference_qualified_extension_indices. The three source_lavender confidence/support/profile arrays have that order. reference_qualified_source_lavender_expansion_indices are exactly direct confidence>.90 AND support>.60. Allowed indices are the union of the original mask and both qualified extensions.",
+  "npz_array_names": [
+    "allowed_color_indices",
+    "changed_color_indices",
+    "protected_color_indices",
+    "changed_weights",
+    "changed_reference_support",
+    "changed_profile_xy",
+    "original_side_hair_indices",
+    "geometric_extension_indices",
+    "reference_qualified_extension_indices",
+    "extension_direct_lavender_confidence",
+    "extension_local_lavender_support",
+    "extension_profile_xy",
+    "protected_critical_color_indices",
+    "geometric_source_lavender_expansion_indices",
+    "reference_qualified_source_lavender_expansion_indices",
+    "source_lavender_expansion_direct_confidence",
+    "source_lavender_expansion_local_support",
+    "source_lavender_expansion_profile_xy"
+  ],
+  "hard_mask_unchanged_from_v4": true,
+  "variant_parameters": {
+    "base_weight": 0.91,
+    "foreign_color_repair_weight": 0.95,
+    "upper_extension_base_weight": 0.9,
+    "upper_extension_foreign_color_repair_weight": 0.95,
+    "source_lavender_expansion_base_weight": 0.9,
+    "source_lavender_blend_fade": {
+      "source_gamma_blue_minus_green": [
+        14,
+        25
+      ],
+      "source_gamma_blue_minus_red": [
+        7,
+        17
+      ],
+      "source_gamma_red_minus_green": [
+        3,
+        8
+      ],
+      "source_gamma_minimum_channel": [
+        70,
+        100
+      ],
+      "palette_fade_combine": "minimum",
+      "direct_reference_confidence": [
+        0.9,
+        0.99
+      ],
+      "local_reference_support": [
+        0.6,
+        1.0
+      ],
+      "rear_original_negative_normal_z": [
+        0.5,
+        0.85
+      ],
+      "rear_original_abs_normal_x": [
+        0.25,
+        0.65
+      ],
+      "maximum_rear_blend_reduction": 0.35
+    },
+    "spatial_fades": {
+      "centered_abs_x": [
+        0.085,
+        0.11
+      ],
+      "original_abs_normal_x": [
+        0.1,
+        0.22
+      ],
+      "radial_side_confidence": [
+        0.32,
+        0.62
+      ],
+      "upper_y_release": [
+        0.442,
+        0.455
+      ],
+      "upper_extension_lower_y": [
+        0.39,
+        0.405
+      ],
+      "upper_extension_z_release": [
+        0.035,
+        0.055
+      ],
+      "source_lavender_centered_abs_x": [
+        0.075,
+        0.105
+      ],
+      "source_lavender_front_z_release": [
+        -0.045,
+        -0.025
+      ],
+      "source_lavender_ear_radius": [
+        1.2,
+        1.4
+      ]
+    }
+  }
+}

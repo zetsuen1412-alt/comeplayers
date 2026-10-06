@@ -1,0 +1,58 @@
+{
+  "schema": "crwt.alexia.side_color_portable_reproduction.v3",
+  "passed": true,
+  "visual_approval": false,
+  "recipe_sha256": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+  "source_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "selected_recipe_proof_sha256": "df63f621a6e378e3fc089a0f4de6a23100d6fa046f5909e3d961af56a37bcdd7",
+  "mask_npz_sha256": "92f2abb98e69d669edbc2ab48fe534cafd94ca5d12d5d70adb5136f0d3ebf8e6",
+  "mask_parameters_exact_v4": true,
+  "variant": "calibrated-lavender-shell-faded",
+  "candidate_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "reproduced_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "candidate_bytes_identical": true,
+  "mask_npz_bytes_identical": true,
+  "runtime_dependencies": [
+    "Python 3",
+    "NumPy",
+    "Pillow"
+  ],
+  "historical_workspace_imports_required": false,
+  "all_cli_input_output_paths_relative": true,
+  "fresh_copied_package_layout": true,
+  "output_is_outside_portable_review_root": true,
+  "portable_review_root_inventory_and_hashes_before_after_identical": true,
+  "no_original_recipe_source_reference_writes": true,
+  "input_hashes_before": {
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\build_side_reference_colors_shell_faded.py": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\viewer\\models\\alexia.glb": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root\\evidence\\selected-alexia\\recipes\\build_side_reference_colors_shell_faded.py": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root\\evidence\\selected-alexia\\source\\alexia-baseline.glb": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root\\references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+  },
+  "input_hashes_after": {
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\build_side_reference_colors_shell_faded.py": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\viewer\\models\\alexia.glb": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root\\evidence\\selected-alexia\\recipes\\build_side_reference_colors_shell_faded.py": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root\\evidence\\selected-alexia\\source\\alexia-baseline.glb": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root\\references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+  },
+  "portable_review_root_inventory_before": {
+    "references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "evidence\\selected-alexia\\recipes\\build_side_reference_colors_shell_faded.py": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+    "evidence\\selected-alexia\\source\\alexia-baseline.glb": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4"
+  },
+  "portable_review_root_inventory_after": {
+    "references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "evidence\\selected-alexia\\recipes\\build_side_reference_colors_shell_faded.py": "2e6aad341127f1e52e27ace09ec261fcfcbc6ca9bdeb3ee58888adbdd736ef29",
+    "evidence\\selected-alexia\\source\\alexia-baseline.glb": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4"
+  },
+  "portable_command": "python evidence/selected-alexia/recipes/build_side_reference_colors_shell_faded.py --source evidence/selected-alexia/source/alexia-baseline.glb --reference references/alexia-blue-v2-turnaround.png --output-parent ../CRWT-side-colors-rebuilt --variant calibrated-lavender-shell-faded",
+  "actual_python_executable": "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+  "working_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\portable-review-root",
+  "reproduced_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\shell-faded-portable-reproduction-check\\CRWT-side-colors-rebuilt\\calibrated-lavender-shell-faded\\alexia.glb",
+  "scope": "Fresh copied package-like root and relative CLI inputs, with fresh output outside that root. Model and NPZ reproduced byte-for-byte; review-root inventory and all original/copied input hashes stayed unchanged. No helper or rejected-trial dependency. Visual acceptance is bound by independent actual-render receipts."
+}
