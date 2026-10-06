@@ -1,7 +1,7 @@
 import { manualOrderCode } from './manual-order-code';
 import { analyzeOrderQuantityIssues } from './order-quantity';
 import { buildLivePayrollRows, isPayrollEligible } from './payroll-live';
-import { createDailyPayrollSlice, dailySegmentsForPeriod, isDailySettlementOrder } from './daily-orders';
+import { createDailyPayrollSlice, dailySegmentsForPeriod, getDailyAssignments, getDailyPayrollValidationError, hasCompleteDailySchedule, isDailySettlementOrder } from './daily-orders';
 import { jakartaDateTimeInputToISO } from './date';
 import type { Order, Employee } from '../types/domain';
 import type { PayrollSettings } from './demo-payroll-settings-store';
@@ -21,6 +21,22 @@ export function canonical(value: unknown): string {
   if(Array.isArray(value)) return '['+value.map(canonical).join(',')+']';
   if(value && typeof value === 'object') return '{'+Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>JSON.stringify(k)+':'+canonical(v)).join(',')+'}';
   return JSON.stringify(value) ?? 'null';
+}
+function recordedClosingReferences(state: WorkspaceState) {
+  const references=new Set<string>();
+  for(const record of (state[workspaceKeys.closings]??[]) as Array<{orderRefs?:unknown;ordersSnapshot?:unknown}>) {
+    for(const reference of Array.isArray(record.orderRefs)?record.orderRefs:[]) {
+      if(typeof reference==='string') references.add(reference.trim().toLowerCase());
+    }
+    for(const snapshot of Array.isArray(record.ordersSnapshot)?record.ordersSnapshot:[]) {
+      if(snapshot&&typeof snapshot.externalReference==='string') references.add(snapshot.externalReference.trim().toLowerCase());
+    }
+  }
+  return references;
+}
+function hasLegacyWholeClosing(order: Order, references: Set<string>) {
+  return references.has(order.externalReference.trim().toLowerCase())
+    &&(!isDailySettlementOrder(order)||!(order.dailyWork??[]).some(day=>day.payrollClosedAt||day.payrollPeriodId));
 }
 export function validateWorkspace(value: unknown): WorkspaceState {
   if (!value || typeof value !== 'object' || Array.isArray(value)) payrollFailure('Data payroll tidak valid.');
@@ -76,8 +92,12 @@ export function validateWorkspace(value: unknown): WorkspaceState {
     if(row.scheduleTotalDays!==undefined&&(!Number.isInteger(row.scheduleTotalDays)||Number(row.scheduleTotalDays)<1||Number(row.scheduleTotalDays)>366)) payrollFailure('Jumlah hari paket tidak valid.');
     if(row.dailyHours!==undefined&&(typeof row.dailyHours!=='number'||row.dailyHours<=0||row.dailyHours>24)) payrollFailure('Jam kerja harian tidak valid.');
     if(row.dailyWork!==undefined&&!Array.isArray(row.dailyWork)) payrollFailure('Daftar pekerjaan harian tidak valid.');
+    const dailyIds=new Set<string>(), dailySequences=new Set<number>();
     for(const day of (row.dailyWork??[]) as Array<Record<string,unknown>>) {
       if(!day||typeof day.id!=='string'||!day.id||!Number.isInteger(day.sequence)||Number(day.sequence)<1||Number(day.sequence)>366) payrollFailure('Identitas hari pekerjaan tidak valid.');
+      if(dailyIds.has(day.id)||dailySequences.has(Number(day.sequence))
+        ||(row.scheduleTotalDays!==undefined&&Number(day.sequence)>Number(row.scheduleTotalDays))) payrollFailure('Identitas atau urutan hari pekerjaan duplikat/di luar paket.');
+      dailyIds.add(day.id); dailySequences.add(Number(day.sequence));
       if(typeof day.workDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(day.workDate)||!Number.isFinite(Date.parse(day.workDate+'T12:00:00+07:00'))) payrollFailure('Tanggal pekerjaan harian tidak valid.');
       if(typeof day.grossMinor!=='number'||day.grossMinor<0||!['pending','in_progress','verified','on_hold'].includes(String(day.status))) payrollFailure('Nilai atau status pekerjaan harian tidak valid.');
       if(day.quantity!==undefined&&(typeof day.quantity!=='number'||day.quantity<=0)) payrollFailure('Jumlah pekerjaan harian tidak valid.');
@@ -108,13 +128,21 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   }
   if(canonical(previous[workspaceKeys.closings]??[])!==canonical(next[workspaceKeys.closings]??[])) payrollFailure('Closing hanya dapat dibuat melalui proses tutup buku.',409);
   const oldOrders=(previous[workspaceKeys.orders]??[]) as Order[], newOrders=(next[workspaceKeys.orders]??[]) as Order[];
+  const closingReferences=recordedClosingReferences(previous);
+  for(const old of oldOrders) if(hasLegacyWholeClosing(old,closingReferences)
+    &&canonical(old)!==canonical(newOrders.find(order=>order.id===old.id))) payrollFailure('Pesanan sudah tercatat di Closing lama dan tidak dapat diubah atau dihapus.',409);
   for(const old of oldOrders.filter(o=>o.payrollClosedAt)) if(canonical(old)!==canonical(newOrders.find(o=>o.id===old.id))) payrollFailure('Order yang sudah Closing tidak dapat diubah atau dihapus.',409);
   for(const old of oldOrders) {
     const current=newOrders.find(o=>o.id===old.id);
-    if(!current) continue;
-    for(const closedDay of (old.dailyWork??[]).filter(day=>day.payrollClosedAt)) {
+    const closedDays=(old.dailyWork??[]).filter(day=>day.payrollClosedAt||day.payrollPeriodId);
+    if(!current) {
+      if(closedDays.length) payrollFailure('Pesanan dengan hari yang sudah masuk Closing tidak dapat dihapus.',409);
+      continue;
+    }
+    for(const closedDay of closedDays) {
       const nextDay=(current.dailyWork??[]).find(day=>day.id===closedDay.id);
       if(canonical(closedDay)!==canonical(nextDay)) payrollFailure('Hari pekerjaan yang sudah masuk Closing tidak dapat diubah atau dihapus.',409);
+      if(nextDay&&canonical(getDailyAssignments(old,closedDay))!==canonical(getDailyAssignments(current,nextDay))) payrollFailure('Karyawan hari yang sudah masuk Closing tidak dapat diubah.',409);
     }
   }
   for(const order of newOrders) {
@@ -128,7 +156,15 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   for(const order of newOrders) {
     const old=oldOrders.find(row=>row.id===order.id);
     if(order.operationalStatus==='verified' && canonical(old)!==canonical(order)) assertOrderQuantityReady(order);
-    for(const day of order.dailyWork??[]) if(day.payrollClosedAt&&!old?.dailyWork?.some(oldDay=>oldDay.id===day.id&&oldDay.payrollClosedAt===day.payrollClosedAt)) payrollFailure('Status Closing harian harus diproses di server.',409);
+    for(const day of order.dailyWork??[]) {
+      const oldDay=old?.dailyWork?.find(oldDay=>oldDay.id===day.id);
+      if(day.status==='verified' && canonical(oldDay)!==canonical(day)) {
+        const error=getDailyPayrollValidationError(order,day);
+        if(error) payrollFailure(`Pesanan ${order.externalReference}: ${error}`,409);
+      }
+      if((day.payrollClosedAt&&oldDay?.payrollClosedAt!==day.payrollClosedAt)
+        || (day.payrollPeriodId&&oldDay?.payrollPeriodId!==day.payrollPeriodId)) payrollFailure('Status Closing harian harus diproses di server.',409);
+    }
   }
 }
 export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOString()) {
@@ -136,14 +172,19 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
   if(!lock) payrollFailure('Kunci periode sebelum Closing.',409);
   const orders=(next[workspaceKeys.orders]??[]) as Order[], employees=(next[workspaceKeys.employees]??[]) as Employee[], advances=(next[workspaceKeys.advances]??[]) as KasbonRecord[];
   const settings=(next[workspaceKeys.settings]??{defaultSharePercent:50,employeeSharePercent:{},adjustments:{}}) as PayrollSettings;
+  const closingReferences=recordedClosingReferences(next);
   const from=Date.parse(jakartaDateTimeInputToISO(lock.from)), to=Date.parse(jakartaDateTimeInputToISO(lock.to));
   const eligible:Order[]=[];
   const dailyByOrder=new Map<string,ReturnType<typeof dailySegmentsForPeriod>>();
   for(const order of orders) {
-    if(order.sheetDeletedAt || order.websiteDeletedAt) continue;
+    if(order.sheetDeletedAt || order.websiteDeletedAt || hasLegacyWholeClosing(order,closingReferences)) continue;
     if(isDailySettlementOrder(order)) {
       const segments=dailySegmentsForPeriod(order,from,to);
       if(segments.length) {
+        for(const day of segments) {
+          const error=getDailyPayrollValidationError(order,day);
+          if(error) payrollFailure(`Pesanan ${order.externalReference}: ${error} Koreksi hari ini sebelum Closing.`,409);
+        }
         eligible.push(createDailyPayrollSlice(order,segments));
         dailyByOrder.set(order.id,segments);
       }
@@ -165,7 +206,8 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
     if(daily) {
       const closingIds=new Set(daily.map(day=>day.id));
       const dailyWork=(order.dailyWork??[]).map(day=>closingIds.has(day.id)?{...day,payrollClosedAt:now,payrollPeriodId:record.id}:day);
-      const fullyClosed=dailyWork.length>0&&dailyWork.every(day=>Boolean(day.payrollClosedAt));
+      const fullyClosed=hasCompleteDailySchedule(dailyWork,order.scheduleTotalDays??dailyWork.length)
+        &&dailyWork.every(day=>Boolean(day.payrollClosedAt||day.payrollPeriodId));
       return {...order,dailyWork,payrollClosedAt:fullyClosed?now:undefined,payrollPeriodId:fullyClosed?record.id:undefined,financeStatus:fullyClosed?'closed':order.financeStatus};
     }
     return ids.has(order.id)?{...order,payrollClosedAt:now,payrollPeriodId:record.id,financeStatus:'closed'}:order;

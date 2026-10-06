@@ -4,6 +4,7 @@ import { adminLabel, adminText } from "@/lib/adminLocale";
 import { useMemo, useState } from "react";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { getDailyAssignments } from "@/features/payroll/lib/daily-orders";
 import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import type { MutationChange } from "@/features/payroll/lib/demo-mutation-history-store";
@@ -26,7 +27,7 @@ function text(value: unknown) {
 export function MutationEditModal({ order, day, onClose, onSave }: Props) {
   const { employees } = useDemoEmployees();
   const originalAssignments = useMemo(() => day
-    ? (day.workerAssignments?.length ? day.workerAssignments : getOrderAssignments(order))
+    ? getDailyAssignments(order, day)
     : getOrderAssignments(order),
   [day, order]);
   const [source, setSource] = useState(order.source);
@@ -34,7 +35,8 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
   const [orderName, setOrderName] = useState(order.orderName ?? "");
   const [task, setTask] = useState(order.task ?? "");
   const [quantity, setQuantity] = useState(String(order.quantity));
-  const [rateMinor, setRateMinor] = useState(String(order.rateMinor ?? (order.quantity > 0 ? Math.round(order.grossMinor / order.quantity) : 0)));
+  const initialRate = order.rateMinor ?? (order.quantity > 0 ? Math.round(order.grossMinor / order.quantity) : 0);
+  const [rateMinor, setRateMinor] = useState(String(initialRate));
   const [assignments, setAssignments] = useState<OrderWorkerAssignment[]>(originalAssignments.map((row) => ({ ...row })));
   const [employeeTeam, setEmployeeTeam] = useState<"SEMUA" | OrderWorkerAssignment["team"]>("SEMUA");
   const [employeeCodeToAdd, setEmployeeCodeToAdd] = useState("");
@@ -43,10 +45,13 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const isPayrollClosed = Boolean(order.payrollClosedAt || order.payrollPeriodId || day?.payrollClosedAt || day?.payrollPeriodId);
   const isFinished = day
-    ? day.status === "verified" || Boolean(day.payrollClosedAt)
+    ? day.status === "verified" || isPayrollClosed
     : order.operationalStatus === "verified" || Boolean(order.payrollClosedAt);
-  const isPayrollClosed = day ? Boolean(day.payrollClosedAt) : Boolean(order.payrollClosedAt);
+  const sourceMoneyUnchanged = Number(quantity) === order.quantity && Number(rateMinor) === initialRate;
+  const showAssignmentQuantity = Boolean(day) || order.orderType !== "boosting";
+  const assignedQuantity = assignments.reduce((sum, row) => sum + Number(row.quantity || 0), 0);
   const stockLocksQuantity = Boolean(order.inventoryAllocations?.length);
   const quantityIssues = day ? [] : analyzeOrderQuantityIssues({
     ...order,
@@ -83,7 +88,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
     const count = Math.max(1, assignments.length);
     const total = day
       ? day.grossMinor
-      : Math.max(0, Math.round((Number(quantity) || 0) * (Number(rateMinor) || 0)));
+      : sourceMoneyUnchanged ? order.grossMinor : Math.max(0, Math.round((Number(quantity) || 0) * (Number(rateMinor) || 0)));
     const base = Math.floor(total / count);
     const remainder = total - (base * count);
     return base + (index < remainder ? 1 : 0);
@@ -96,7 +101,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
     if (!employee) return setError("Pilih karyawan yang ingin ditambahkan.");
     if (assignments.some((row) => row.employeeCode === employee.code)) return setError(employee.name + " sudah ada pada pesanan ini.");
 
-    const quantityValue = order.orderType === "boosting" ? 1 : Number(newEmployeeQuantity);
+    const quantityValue = !day && order.orderType === "boosting" ? 1 : Number(newEmployeeQuantity);
     if (!Number.isFinite(quantityValue) || quantityValue <= 0) return setError("Jumlah pembagian karyawan baru harus lebih dari 0.");
 
     const assignment: OrderWorkerAssignment = {
@@ -115,6 +120,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
 
   function save() {
     setError(null);
+    if (day && isPayrollClosed) return setError("Hari ini atau paketnya sudah Tutup Buku/Gajian. Data tidak dapat diubah.");
     const parsedQuantity = Number(quantity);
     const parsedRate = Math.round(Number(rateMinor));
     if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) return setError("Jumlah pesanan harus lebih dari 0.");
@@ -122,7 +128,16 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
     if (isFinished && !reason.trim()) return setError("Untuk pesanan yang sudah selesai, isi alasan perubahan agar riwayat jelas.");
     if (quantityIssues.length) return setError(quantityIssues.map((issue) => issue.description).join(" "));
 
-    if (order.orderType !== "boosting" && !stockLocksQuantity) {
+    if (day && !stockLocksQuantity) {
+      const dayQuantity = day.quantity ?? 1;
+      if (assignments.some(row => !Number.isFinite(Number(row.quantity)) || Number(row.quantity) <= 0)) {
+        return setError("Jumlah pembagian setiap karyawan hari ini harus lebih dari 0.");
+      }
+      if (!assignments.length && isFinished) return setError("Tarik hari ini dari Gaji sebelum menghapus seluruh karyawan.");
+      if (assignments.length && Math.abs(assignedQuantity - dayQuantity) > 0.0000001) {
+        return setError(`Total pembagian ${dayLabel} (${assignedQuantity.toLocaleString("id-ID")}) harus sama dengan jumlah hari ini (${dayQuantity.toLocaleString("id-ID")}). Ubah jumlah karyawan sesuai pembagian yang benar.`);
+      }
+    } else if (order.orderType !== "boosting" && !stockLocksQuantity) {
       const assigned = assignments.reduce((sum, row) => sum + Number(row.quantity || 0), 0);
       if (Math.abs(assigned - parsedQuantity) > 0.0000001) {
         return setError(`Total jumlah karyawan (${assigned.toLocaleString("id-ID")}) harus sama dengan jumlah pesanan (${parsedQuantity.toLocaleString("id-ID")}).`);
@@ -135,30 +150,34 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
       if (String(before ?? "") !== String(after ?? "")) changes.push({ field, label, before: text(before), after: text(after) });
     };
 
-    push("source", "Sumber", order.source, source);
-    push("buyerName", "Pembeli", order.buyerName ?? "", buyerName.trim());
-    if (order.orderType !== "gold") push("orderName", "Nama pesanan", order.orderName ?? "", orderName.trim());
-    push("task", "TASK", order.task ?? "", task.trim());
-    if (!stockLocksQuantity) push("quantity", "Jumlah pesanan", order.quantity, parsedQuantity);
-    push("rateMinor", "Tarif / harga per unit", formatMoney(order.rateMinor ?? 0), formatMoney(parsedRate));
-    push("grossMinor", "Total harga pesanan", formatMoney(order.grossMinor), formatMoney(nextGross));
+    if (!day) {
+      push("source", "Sumber", order.source, source);
+      push("buyerName", "Pembeli", order.buyerName ?? "", buyerName.trim());
+      if (order.orderType !== "gold") push("orderName", "Nama pesanan", order.orderName ?? "", orderName.trim());
+      push("task", "TASK", order.task ?? "", task.trim());
+    }
+    if (!day && !sourceMoneyUnchanged) {
+      if (!stockLocksQuantity) push("quantity", "Jumlah pesanan", order.quantity, parsedQuantity);
+      push("rateMinor", "Tarif / harga per unit", formatMoney(order.rateMinor ?? 0), formatMoney(parsedRate));
+      push("grossMinor", "Total harga pesanan", formatMoney(order.grossMinor), formatMoney(nextGross));
+    }
 
     assignments.forEach((row, index) => {
       const before = originalAssignments.find((item) => item.employeeCode === row.employeeCode);
       if (!before) {
-        const after = row.employeeName + " · " + row.team + " · " + row.process + (order.orderType === "boosting" ? "" : " · jumlah " + row.quantity);
+        const after = row.employeeName + " · " + row.team + " · " + row.process + (showAssignmentQuantity ? " · jumlah " + row.quantity : "");
         push("workerAssignments." + index, "Tambah karyawan " + row.employeeName, "", after);
         return;
       }
       push("workerAssignments." + index + ".process", "Proses " + row.employeeName, before.process, row.process);
-      if (order.orderType !== "boosting" && !stockLocksQuantity) {
+      if (showAssignmentQuantity && !stockLocksQuantity) {
         push("workerAssignments." + index + ".quantity", "Jumlah " + row.employeeName, before.quantity, row.quantity);
       }
     });
 
     originalAssignments.forEach((before, index) => {
       if (assignments.some((row) => row.employeeCode === before.employeeCode)) return;
-      const previous = before.employeeName + " · " + before.team + " · " + before.process + (order.orderType === "boosting" ? "" : " · jumlah " + before.quantity);
+      const previous = before.employeeName + " · " + before.team + " · " + before.process + (showAssignmentQuantity ? " · jumlah " + before.quantity : "");
       push("workerAssignments.removed." + index, "Hapus karyawan " + before.employeeName, previous, "");
     });
 
@@ -168,19 +187,21 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
       const original = originalAssignments.find((item) => item.employeeCode === row.employeeCode);
       return {
         ...row,
-        quantity: order.orderType === "boosting" || stockLocksQuantity ? original?.quantity ?? row.quantity : Number(row.quantity),
+        quantity: stockLocksQuantity || (!day && order.orderType === "boosting") ? original?.quantity ?? row.quantity : Number(row.quantity),
       };
     });
 
-    const patch: Partial<Order> = {
+    const patch: Partial<Order> = day ? {} : {
       source,
       buyerName: buyerName.trim() || undefined,
       orderName: order.orderType === "gold" ? order.orderName : (orderName.trim() || undefined),
       task: task.trim() || undefined,
-      quantity: stockLocksQuantity ? order.quantity : parsedQuantity,
-      rateMinor: parsedRate,
-      grossMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
-      expectedPaymentMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
+      ...(!sourceMoneyUnchanged ? {
+        quantity: stockLocksQuantity ? order.quantity : parsedQuantity,
+        rateMinor: parsedRate,
+        grossMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
+        expectedPaymentMinor: stockLocksQuantity ? Math.max(0, Math.round(order.quantity * parsedRate)) : nextGross,
+      } : {}),
     };
 
     if (day) {
@@ -214,7 +235,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
 
         {isFinished ? (
           <div className={`m-5 rounded-xl border p-4 text-sm leading-6 sm:m-6 ${isPayrollClosed ? "border-red-500/30 bg-red-500/10 text-red-100" : "border-amber-500/30 bg-amber-500/10 text-amber-100"}`}>
-            <strong>{isPayrollClosed ? `${dayLabel ?? "Pesanan ini"} sudah Tutup Buku/Gajian.` : `${dayLabel ?? "Pesanan ini"} sudah selesai.`}</strong> Edit tetap diizinkan dan akan ditandai khusus di Riwayat Perubahan.{isPayrollClosed ? " Data gaji Tutup Buku lama tidak dihitung ulang otomatis; perubahan setelah Tutup Buku menjadi catatan koreksi." : ""}
+            <strong>{isPayrollClosed ? `${dayLabel ?? "Pesanan ini"} sudah Tutup Buku/Gajian.` : `${dayLabel ?? "Pesanan ini"} sudah selesai.`}</strong>{day && isPayrollClosed ? " Data hari ini dikunci dan tidak dapat diubah." : <> Edit tetap diizinkan dan akan ditandai khusus di Riwayat Perubahan.{isPayrollClosed ? " Data gaji Tutup Buku lama tidak dihitung ulang otomatis; perubahan setelah Tutup Buku menjadi catatan koreksi." : ""}</>}
           </div>
         ) : null}
 
@@ -226,19 +247,21 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
         ) : null}
 
         <div className="grid gap-4 p-5 pt-0 sm:grid-cols-2 sm:p-6 sm:pt-0">
+          {!day ? <>
           <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3">{[...new Set([...sourceOptions, order.source])].map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
           <label className="text-sm">Pembeli<input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
           {order.orderType !== "gold" ? <label className="text-sm sm:col-span-2">Nama pesanan<input value={orderName} onChange={(e) => setOrderName(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label> : null}
           <label className="text-sm sm:col-span-2">TASK<textarea value={task} onChange={(e) => setTask(e.target.value)} rows={5} placeholder="Keterangan TASK / pekerjaan" className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
-          <label className="text-sm">Jumlah pesanan<input type="number" step="any" value={quantity} disabled={stockLocksQuantity} onChange={(e) => setQuantity(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3 disabled:opacity-50" />{stockLocksQuantity ? <span className="mt-1 block text-xs text-zinc-500">Dikunci karena jumlah terkait stok Gudang.</span> : null}</label>
-          <label className="text-sm">Tarif / harga per unit<input type="number" min="0" value={rateMinor} onChange={(e) => setRateMinor(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
+          </> : null}
+          <label className="text-sm">{day ? "Jumlah hari ini" : "Jumlah pesanan"}<input type="number" step="any" value={day ? day.quantity ?? 1 : quantity} disabled={Boolean(day) || stockLocksQuantity} onChange={(e) => setQuantity(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3 disabled:opacity-50" />{stockLocksQuantity ? <span className="mt-1 block text-xs text-zinc-500">Dikunci karena jumlah terkait stok Gudang.</span> : null}</label>
+          <label className="text-sm">{day ? "RATE hari ini" : "Tarif / harga per unit"}<input type="number" min="0" step="any" value={day ? day.rateMinor ?? order.rateMinor ?? "" : rateMinor} disabled={Boolean(day)} onChange={(e) => setRateMinor(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3 disabled:opacity-50" />{day ? <span className="mt-1 block text-xs text-zinc-500">Perubahan karyawan mempertahankan RATE dan TOTAL hari maupun paket.</span> : null}</label>
         </div>
 
         <div className="border-t border-zinc-800 p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className="font-semibold">Karyawan & proses</h3>
-              {dayLabel ? <div className="mt-1 text-xs text-sky-300">Karyawan di bawah ini khusus untuk {dayLabel}. Hari lain tidak ikut berubah. Nilai hari: <strong>{formatMoney(day?.grossMinor ?? 0)}</strong>.</div> : null}
+              {dayLabel ? <div className="mt-1 text-xs text-sky-300">Karyawan di bawah ini khusus untuk {dayLabel}. Hari lain tidak ikut berubah. Nilai hari: <strong>{formatMoney(day?.grossMinor ?? 0)}</strong>. Total pembagian {assignedQuantity.toLocaleString("id-ID")} dari {Number(day?.quantity ?? 1).toLocaleString("id-ID")}; isi jumlah sesuai pembagian karyawan, termasuk pecahan bila diperlukan.</div> : null}
             </div>
             <span className="text-xs text-zinc-500">{assignments.length} karyawan pada pesanan</span>
           </div>
@@ -255,12 +278,13 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
                     <label className="text-sm">Proses
                       <input value={row.process} onChange={(e) => updateAssignment(index, { process: e.target.value })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2" />
                     </label>
-                    {order.orderType !== "boosting" ? (
+                    {showAssignmentQuantity ? (
                       <label className="text-sm">Jumlah
                         <input type="number" step="any" disabled={stockLocksQuantity} value={row.quantity} onChange={(e) => updateAssignment(index, { quantity: Number(e.target.value) })} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
+                        {day && order.orderType === "boosting" ? <span className="mt-1 block text-xs text-zinc-500">Nilai kerja {formatMoney(assignmentWorkValue(index))}, dibagi rata dari TOTAL hari ini.</span> : null}
                       </label>
                     ) : (
-                      <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold text-yellow-300">{formatMoney(assignmentWorkValue(index))}</div><div className="mt-1 text-xs text-zinc-500">Dibagi rata dari {formatMoney(day?.grossMinor ?? Math.max(0, Math.round((Number(quantity) || 0) * (Number(rateMinor) || 0))))}</div></div>
+                      <div className="text-sm"><div className="text-zinc-500">Nilai kerja</div><div className="mt-2 font-semibold text-yellow-300">{formatMoney(assignmentWorkValue(index))}</div><div className="mt-1 text-xs text-zinc-500">Dibagi rata dari {formatMoney(day?.grossMinor ?? (sourceMoneyUnchanged ? order.grossMinor : Math.max(0, Math.round((Number(quantity) || 0) * (Number(rateMinor) || 0)))))}</div></div>
                     )}
                   </div>
                   <div className="mt-3 flex justify-end">
@@ -293,7 +317,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
               <label className="text-sm">Proses
                 <input value={newEmployeeProcess} onChange={(e) => setNewEmployeeProcess(e.target.value)} disabled={stockLocksQuantity} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
               </label>
-              {order.orderType !== "boosting" ? (
+              {showAssignmentQuantity ? (
                 <label className="text-sm">Jumlah
                   <input type="number" step="any" min="0" value={newEmployeeQuantity} onChange={(e) => setNewEmployeeQuantity(e.target.value)} disabled={stockLocksQuantity} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-2 disabled:opacity-50" />
                 </label>
@@ -312,7 +336,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
         <div className="border-t border-zinc-800 p-5 sm:p-6">
           <label className="text-sm">Alasan / catatan perubahan {isFinished ? <strong className="text-amber-300">(wajib karena pesanan sudah selesai)</strong> : <span className="text-zinc-500">(opsional)</span>}<textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={"Contoh: Salah input tarif saat pesanan dibuat"} className="mt-2 w-full rounded-xl border border-zinc-700 bg-black px-3 py-3" /></label>
           {error ? <div className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{adminText(error)}</div> : null}
-          <div className="mt-4 flex flex-wrap justify-end gap-3"><button onClick={onClose} className="rounded-xl bg-zinc-800 px-5 py-3 text-sm font-semibold">Batal</button><button onClick={save} className="rounded-xl bg-yellow-400 px-5 py-3 text-sm font-bold text-black">Simpan Perubahan</button></div>
+          <div className="mt-4 flex flex-wrap justify-end gap-3"><button onClick={onClose} className="rounded-xl bg-zinc-800 px-5 py-3 text-sm font-semibold">Batal</button><button onClick={save} disabled={Boolean(day && isPayrollClosed)} className="rounded-xl bg-yellow-400 px-5 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">Simpan Perubahan</button></div>
         </div>
       </div>
     </div>

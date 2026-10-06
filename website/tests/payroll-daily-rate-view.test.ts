@@ -40,6 +40,7 @@ test("all recorded days verified cannot complete a sparse or invalid schedule", 
 
 test("finishing the last recorded DAY keeps sparse parent partial while its verified DAY remains payroll eligible", () => {
   const order = daily([{ ...day(1), status: "verified", verifiedAt: "2026-10-06T00:00:00Z" }, day(2)], 30);
+  order.dailyWork![1].workerAssignments = [{ id: "day-worker", employeeCode: "TEGUH3", employeeName: "TEGUH3", team: "FH3", process: "JOKI", quantity: 1 }];
   const patch = replaceDailyWorkStatus(order, "d2", "verified", "2026-10-07T00:00:00Z");
   const updated = { ...order, ...patch };
   assert.equal(updated.operationalStatus, "partially_completed");

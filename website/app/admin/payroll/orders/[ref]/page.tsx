@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
@@ -8,15 +9,21 @@ import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
-import { dailyProgress, getPayrollEligibleGrossMinor, isDailySettlementOrder, replaceDailyWorkStatus } from "@/features/payroll/lib/daily-orders";
+import { dailyProgress, getDailyAssignments, getDailyPayrollValidationError, getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
+import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
+import { flushPayroll, getPayrollActor, withPayrollBatch } from "@/features/payroll/lib/workspace-store";
 import { formatMoney as formatDailyMoney } from "@/features/payroll/lib/money";
 import { analyzeOrderIssues } from "@/features/payroll/lib/order-issues";
 import { formatMutationDistribution, type MutationViewRow } from "@/features/payroll/lib/mutation-rows";
 
 export default function OrderDetailPage() {
   const params = useParams<{ ref: string }>();
-  const { allOrders, updateOrder } = useDemoOrders();
+  const { allOrders, applyBulkAction, withdrawDailyFromPayroll } = useDemoOrders();
   const { employees } = useDemoEmployees();
+  const { isLocked } = useDemoPeriodLock();
+  const [dailySaving, setDailySaving] = useState(false);
+  const [dailyNotice, setDailyNotice] = useState<string | null>(null);
+  const canVerify = getPayrollActor()?.isAdmin === true;
   const ref = decodeURIComponent(params.ref ?? "");
   const order = allOrders.find((x) => x.externalReference.toLowerCase() === ref.toLowerCase());
 
@@ -29,18 +36,42 @@ export default function OrderDetailPage() {
   const progress = dailyProgress(currentOrder);
   const dailyPayrollReady = getPayrollEligibleGrossMinor(currentOrder);
 
-  function setDailyStatus(dailyId: string, status: "pending" | "in_progress" | "verified" | "on_hold") {
+  async function setDailyStatus(dailyId: string, status: "pending" | "in_progress" | "verified" | "on_hold") {
+    if (dailySaving || isLocked || (status === "verified" && !canVerify)) return;
+    setDailySaving(true);
     try {
-      const patch = replaceDailyWorkStatus(currentOrder, dailyId, status);
-      updateOrder(currentOrder.id, patch);
+      await flushPayroll();
+      const action = status === "verified" ? "complete" : status === "in_progress" ? "working" : status === "on_hold" ? "problem" : "process";
+      const result = withPayrollBatch(() => applyBulkAction([{ orderId: currentOrder.id, dailyId }], action, { workspaceLocked: isLocked }));
+      await flushPayroll();
+      const skipped = result.skipped[0];
+      const sequence = currentOrder.dailyWork?.find(day => day.id === dailyId)?.sequence;
+      setDailyNotice(skipped ? `${skipped.reference}: ${skipped.reason}` : result.changedTargetIds.length
+        ? `${currentOrder.externalReference} · Hari ${sequence} ${status === "verified" ? "selesai dan masuk Gaji dengan nilai hari ini" : "diperbarui"}.`
+        : `${currentOrder.externalReference} · Hari ${sequence} sudah sesuai.`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
-    }
+      setDailyNotice(error instanceof Error ? error.message : "Status harian tidak dapat diperbarui.");
+    } finally { setDailySaving(false); }
+  }
+
+  async function withdrawDaily(dailyId: string) {
+    if (dailySaving || isLocked || !canVerify) return;
+    setDailySaving(true);
+    try {
+      await flushPayroll();
+      const changed = withPayrollBatch(() => withdrawDailyFromPayroll(currentOrder.id, dailyId));
+      await flushPayroll();
+      const sequence = currentOrder.dailyWork?.find(day => day.id === dailyId)?.sequence;
+      setDailyNotice(changed ? `${currentOrder.externalReference} · Hari ${sequence} ditarik dari Gaji untuk dikoreksi.` : "Status hari sudah berubah. Muat ulang pesanan untuk memeriksa.");
+    } catch (error) {
+      setDailyNotice(error instanceof Error ? error.message : "Hari belum dapat ditarik dari Gaji.");
+    } finally { setDailySaving(false); }
   }
 
   const issues = analyzeOrderIssues(order, employees);
   const assignments = getOrderAssignments(order);
   const inPayroll = order.operationalStatus === "verified";
+  const showPayrollLink = inPayroll || (isDaily && dailyPayrollReady > 0);
   const alreadyPaid = Boolean(order.payrollClosedAt);
 
   return (
@@ -114,19 +145,21 @@ export default function OrderDetailPage() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold">Penyelesaian Harian</h2>
-              <p className="mt-1 text-sm text-zinc-400">Hanya hari berstatus <strong className="text-emerald-300">Selesai</strong> yang masuk Gaji. Hari yang sudah masuk Tutup Buku terkunci dan tidak dapat diubah.</p>
+              <p className="mt-1 text-sm text-zinc-400">Setiap hari diproses terpisah. Hari berstatus <strong className="text-emerald-300">Selesai</strong> masuk Gaji dengan nilai dan karyawan hari itu. Hari yang sudah masuk Tutup Buku terkunci.</p>
             </div>
             <div className="rounded-xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
               {progress.verified}/{progress.total} hari selesai · {formatDailyMoney(dailyPayrollReady)} menunggu gaji
             </div>
           </div>
+          {dailyNotice ? <p className="mt-4 rounded-xl border border-yellow-500/25 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100" role="status">{dailyNotice}</p> : null}
           <div className="mt-5 overflow-x-auto">
             <table className="cp-table">
               <thead><tr><th>Hari</th><th>Tanggal</th><th>Jam/hari</th><th>Karyawan</th><th>Pembagian</th><th>Nilai hari</th><th>Status</th><th>Gaji</th><th>Tindakan</th></tr></thead>
               <tbody>
                 {(order.dailyWork ?? []).map((day) => {
-                  const closed = Boolean(day.payrollClosedAt);
-                  const dayAssignments = day.workerAssignments?.length ? day.workerAssignments : assignments;
+                  const closed = Boolean(day.payrollClosedAt || day.payrollPeriodId || order.payrollClosedAt || order.payrollPeriodId);
+                  const dayAssignments = getDailyAssignments(order, day);
+                  const completionError = getDailyPayrollValidationError(order, day);
                   const dayIssues = analyzeOrderIssues(order, employees, day);
                   const dayRow: MutationViewRow = { id: `${order.id}::${day.id}`, order, day, orderedAt: day.sourceOrderedAt ?? `${day.workDate}T12:00:00+07:00`, quantity: day.quantity ?? 1, grossMinor: day.grossMinor, assignments: dayAssignments };
                   const statusLabel = closed ? "Sudah digaji" : day.status === "verified" ? "Selesai" : day.status === "in_progress" ? "Dikerjakan" : day.status === "on_hold" ? "Bermasalah" : "Belum mulai";
@@ -140,11 +173,11 @@ export default function OrderDetailPage() {
                     <td><span className={closed ? "text-emerald-300" : day.status === "verified" ? "text-emerald-300" : day.status === "on_hold" || dayIssues.length ? "text-red-300" : day.status === "in_progress" ? "text-sky-300" : "text-zinc-400"}>{dayIssues.length ? `Bermasalah (${dayIssues.length})` : statusLabel}</span>{dayIssues.length ? <div className="mt-2 space-y-1 text-xs text-red-200">{dayIssues.slice(0, 2).map((item, index) => <div key={`${item.code}-${index}`}>• {item.title}</div>)}</div> : null}</td>
                     <td>{closed ? <span className="font-semibold text-emerald-300">✓ Sudah masuk closing</span> : day.status === "verified" ? <span className="font-semibold text-emerald-300">Siap dicairkan</span> : <span className="text-zinc-500">Belum bisa dicairkan</span>}</td>
                     <td>
-                      {closed ? <span className="text-xs text-zinc-500">Dikunci</span> : <div className="flex flex-wrap gap-2">
-                        <button onClick={() => setDailyStatus(day.id, "pending")} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold">Belum</button>
-                        <button onClick={() => setDailyStatus(day.id, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-100">Dikerjakan</button>
-                        <button onClick={() => setDailyStatus(day.id, "on_hold")} className="rounded-lg bg-red-500/20 px-3 py-2 text-xs font-semibold text-red-100">Bermasalah</button>
-                        <button onClick={() => confirm(`Tandai hari ke-${day.sequence} selesai? Nilai ${formatMoney(day.grossMinor)} akan masuk Gaji berikutnya.`) && setDailyStatus(day.id, "verified")} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Selesai</button>
+                      {closed ? <span className="text-xs text-zinc-500">Dikunci</span> : day.status === "verified" ? <button disabled={dailySaving || isLocked || !canVerify} onClick={() => { if (confirm(`Tarik Hari ${day.sequence} dari Gaji untuk dikoreksi?`)) void withdrawDaily(day.id); }} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-semibold text-amber-100 disabled:opacity-40">↩ Tarik hari ini dari Gaji</button> : <div className="flex flex-wrap gap-2">
+                        <button disabled={dailySaving || isLocked} onClick={() => void setDailyStatus(day.id, "pending")} className="rounded-lg bg-zinc-800 px-3 py-2 text-xs font-semibold disabled:opacity-40">Proses</button>
+                        <button disabled={dailySaving || isLocked} onClick={() => void setDailyStatus(day.id, "in_progress")} className="rounded-lg bg-sky-500/20 px-3 py-2 text-xs font-semibold text-sky-100 disabled:opacity-40">Dikerjakan</button>
+                        <button disabled={dailySaving || isLocked} onClick={() => void setDailyStatus(day.id, "on_hold")} className="rounded-lg bg-red-500/20 px-3 py-2 text-xs font-semibold text-red-100 disabled:opacity-40">Bermasalah</button>
+                        <button disabled={dailySaving || isLocked || !canVerify || Boolean(completionError)} title={completionError} onClick={() => { if (confirm(`Tandai Hari ${day.sequence} selesai? Nilai ${formatMoney(day.grossMinor)} akan masuk Gaji berikutnya.`)) void setDailyStatus(day.id, "verified"); }} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-black disabled:opacity-40">✓ Hari selesai</button>
                       </div>}
                     </td>
                   </tr>;
@@ -162,7 +195,7 @@ export default function OrderDetailPage() {
             <div key={text} className="flex items-center gap-3"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-sm font-bold text-emerald-300">{index + 1}</div><div className="text-sm">{text}</div></div>
           ))}
         </div>
-        <div className="mt-5 flex flex-wrap gap-2"><Link href="/admin/payroll/mutations" className="inline-flex rounded-xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-black">Lihat Mutasi</Link>{inPayroll ? <Link href="/admin/payroll/gaji" className="inline-flex rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black">Lihat di Gaji</Link> : null}</div>
+        <div className="mt-5 flex flex-wrap gap-2"><Link href="/admin/payroll/mutations" className="inline-flex rounded-xl bg-yellow-400 px-4 py-2.5 text-sm font-semibold text-black">Lihat Mutasi</Link>{showPayrollLink ? <Link href="/admin/payroll/gaji" className="inline-flex rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black">Lihat di Gaji</Link> : null}</div>
       </section>
 
       {issues.length ? (

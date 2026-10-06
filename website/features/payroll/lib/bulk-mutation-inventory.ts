@@ -41,6 +41,12 @@ export function planBulkMutationInventory(
   for (const order of parents.values()) {
     const allocations = order.inventoryAllocations ?? [];
     if (!allocations.length || order.inventoryConsumedAt) continue;
+    // These allocations belong to the entire parent, not to an individual DAY.
+    // Never let a daily target reach the ordinary whole-order stock planner.
+    if (order.scheduleMode === "daily" || order.dailyWork?.length) {
+      result.skippedOrderReasons[order.id] = "Pesanan harian memakai alokasi stok induk. Periksa alokasi stok sebelum menyelesaikan DAY.";
+      continue;
+    }
     if (priorOut.has(key(order.externalReference))) {
       result.skippedOrderReasons[order.id] = "Stok keluar pesanan sudah tercatat, tetapi penanda konsumsi belum ada. Periksa pesanan satu per satu."; continue;
     }

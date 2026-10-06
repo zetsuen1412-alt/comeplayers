@@ -1,7 +1,7 @@
 import type { Employee, Order, OrderWorkerAssignment } from "@/features/payroll/types/domain";
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
-import { getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
+import { getDailyAssignments, getDailyPayrollValidationError, getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
 
 export type PayrollAdjustmentInput = {
   operationalMinor?: number;
@@ -44,19 +44,16 @@ export type PayrollBuildOptions = {
 
 function eligibleDailyRows(order: Order, includeClosed = false) {
   return (order.dailyWork ?? []).filter((row) =>
-    row.status === "verified" && (includeClosed || !row.payrollClosedAt),
+    row.status === "verified" && (includeClosed || !(row.payrollClosedAt || row.payrollPeriodId))
+      && !getDailyPayrollValidationError(order, row),
   );
-}
-
-function dailyAssignments(order: Order, day: NonNullable<Order["dailyWork"]>[number]) {
-  return day.workerAssignments?.length ? day.workerAssignments : getOrderAssignments(order);
 }
 
 export function isPayrollEligible(order: Order, includeClosed = false) {
   if (order.sheetDeletedAt || order.websiteDeletedAt) return false;
   if (getPayrollEligibleGrossMinor(order, includeClosed) <= 0) return false;
   if (isDailySettlementOrder(order)) {
-    return eligibleDailyRows(order, includeClosed).some((day) => dailyAssignments(order, day).length > 0);
+    return eligibleDailyRows(order, includeClosed).length > 0;
   }
   return getOrderAssignments(order).length > 0;
 }
@@ -98,13 +95,13 @@ export function buildLivePayrollRows(orders: Order[], options: PayrollBuildOptio
 
     if (isDailySettlementOrder(order)) {
       for (const day of eligibleDailyRows(order, options.includeClosed)) {
-        const assignments = dailyAssignments(order, day);
+        const assignments = getDailyAssignments(order, day);
         if (!assignments.length) continue;
         const base = Math.floor(day.grossMinor / assignments.length);
         const remainder = day.grossMinor - base * assignments.length;
         for (const [index, assignment] of assignments.entries()) {
           const gross = base + (index < remainder ? 1 : 0);
-          addWork(order, assignment, gross, day.quantity ?? 1, `${order.externalReference} D${day.sequence}`);
+          addWork(order, assignment, gross, assignment.quantity, `${order.externalReference} D${day.sequence}`);
         }
       }
       continue;

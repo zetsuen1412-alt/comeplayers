@@ -254,6 +254,21 @@ test("locks, admin archives, whole Closing, payment, stock and finance protectio
   assert.equal(imported(initial.state, [row(3, "DAVA D1"), row(4, "DAVA D2")]).skippedProtected, 1);
 });
 
+test("a settled legacy DAY never inherits a different worker when source refresh rebuilds its parent", () => {
+  const initial = imported(base(), [row(3, "DAVA D1"), row(4, "DAVA D2")]);
+  const old = firstOrder(initial.state), closed = old.dailyWork![0];
+  delete closed.workerAssignments;
+  Object.assign(closed, { status: "verified", verifiedAt: "2026-09-23T16:00:00Z", payrollClosedAt: "2026-09-24T16:00:00Z", payrollPeriodId: "closing-1" });
+  old.operationalStatus = "partially_completed";
+  initial.state[K.closings] = [{ id: "closing-1", orderRefs: [old.externalReference] }];
+  const before = structuredClone(initial.state);
+  const result = imported(initial.state, [row(3, "DAVA D1"), row(4, "HUDA D2")]);
+  assert.equal(result.skippedConflicts, 1); assert.equal(result.updated, 0);
+  assert.match(result.issues[0].message, /penugasan Hari 1.*akan berubah/);
+  assert.deepEqual(result.state, before); assert.deepEqual(initial.state, before);
+  validateWorkspaceEdit(initial.state, result.state);
+});
+
 test("returning source archives restore a valid complete package but manual/foreign identities cannot be replaced", () => {
   const initial = imported(base(), [row(3, "DAVA D1")]); firstOrder(initial.state).sheetDeletedAt = "2026-10-06T00:00:00Z";
   const result = imported(initial.state, [row(3, "DAVA D1")]); assert.equal(result.restored, 1); assert.equal(firstOrder(result.state).sheetDeletedAt, undefined);

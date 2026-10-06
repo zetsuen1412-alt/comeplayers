@@ -6,9 +6,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { orders as seedOrders } from "@/features/payroll/lib/demo-data";
 import type { Order, InventoryStock, InventoryMovement } from "@/features/payroll/types/domain";
 import { activeSheetOrders } from "./sheet-sync-policy";
-import { applyBulkMutationAction, type BulkMutationAction, type BulkMutationContext } from "./bulk-mutation-actions";
+import { applyBulkMutationAction, type BulkMutationAction, type BulkMutationContext, type BulkMutationTarget } from "./bulk-mutation-actions";
 import { planBulkMutationInventory } from "./bulk-mutation-inventory";
 import { workspaceKeys } from "./workspace-model";
+import { isDailySettlementOrder, replaceDailyWorkStatus } from "./daily-orders";
 
 const STORAGE_KEY = "cp-ofs-demo-user-orders-v3";
 const OLD_STORAGE_KEYS = ["cp-ofs-demo-user-orders-v2", "cp-ofs-demo-user-orders-v1"];
@@ -39,7 +40,7 @@ function mergeOrders(stored: Order[]) {
   return [...byRef.values()].sort((a, b) => new Date(b.orderedAt).getTime() - new Date(a.orderedAt).getTime());
 }
 
-function planBulkAction(ids: Iterable<string>, action: BulkMutationAction, context: BulkMutationContext, batchId: string) {
+function planBulkAction(targets: Iterable<string | BulkMutationTarget>, action: BulkMutationAction, context: BulkMutationContext, batchId: string) {
   const orders = mergeOrders(readStoredOrders());
   const actor = getPayrollActor();
   const closings = JSON.parse(payrollStorage.getItem(workspaceKeys.closings) ?? "[]") as { orderRefs?: string[]; ordersSnapshot?: Order[] }[];
@@ -50,14 +51,14 @@ function planBulkAction(ids: Iterable<string>, action: BulkMutationAction, conte
     closingReferences: closings.flatMap(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []]),
     inventoryMovementReferences: movements.flatMap(movement => movement.orderReference ? [movement.orderReference] : []),
   };
-  const selected = [...ids];
+  const selected = [...targets];
   let result = applyBulkMutationAction(orders, selected, action, trustedContext);
   if (action !== "complete") return { result };
   const inventoryIds = new Set(result.skipped.filter(skip => skip.code === "inventory").map(skip => skip.orderId));
   if (!inventoryIds.size) return { result };
   const inventory = JSON.parse(payrollStorage.getItem(workspaceKeys.inventory) ?? "[]") as InventoryStock[];
   const byId = new Map(orders.map(order => [order.id, order]));
-  const stockOrders = [...new Set(selected)].filter(id => inventoryIds.has(id)).map(id => byId.get(id)!);
+  const stockOrders = [...inventoryIds].map(id => byId.get(id)!).filter(order => !isDailySettlementOrder(order));
   const inventoryPlan = planBulkMutationInventory(inventory, movements, stockOrders, { now: trustedContext.now!, batchId });
   result = applyBulkMutationAction(orders, selected, action, { ...trustedContext, stockCompletionOrderIds: inventoryPlan.stockCompletionOrderIds });
   result.skipped = result.skipped.map(skip => skip.code === "inventory" && inventoryPlan.skippedOrderReasons[skip.orderId]
@@ -110,7 +111,7 @@ export function useDemoOrders() {
     setStoredOrders([]);
   }, []);
 
-  const applyBulkAction = useCallback((ids: Iterable<string>, action: BulkMutationAction, context: BulkMutationContext = {}) => {
+  const applyBulkAction = useCallback((ids: Iterable<string | BulkMutationTarget>, action: BulkMutationAction, context: BulkMutationContext = {}) => {
     if ((action === "complete" || action === "delete") && !getPayrollActor()?.isAdmin) throw new Error("Hanya admin website yang dapat melakukan aksi ini.");
     const { result, inventoryPlan } = planBulkAction(ids, action, context, crypto.randomUUID());
     if (inventoryPlan?.stockCompletionOrderIds.length) {
@@ -124,8 +125,31 @@ export function useDemoOrders() {
     }
     return result;
   }, []);
-  const previewBulkAction = useCallback((ids: Iterable<string>, action: BulkMutationAction, context: BulkMutationContext = {}) =>
+  const previewBulkAction = useCallback((ids: Iterable<string | BulkMutationTarget>, action: BulkMutationAction, context: BulkMutationContext = {}) =>
     planBulkAction(ids, action, context, "preview").result, []);
+
+  const withdrawDailyFromPayroll = useCallback((orderId: string, dailyId: string) => {
+    if (!getPayrollActor()?.isAdmin) throw new Error("Hanya admin website yang dapat menarik hari dari Gaji.");
+    if (JSON.parse(payrollStorage.getItem(workspaceKeys.lock) ?? "null")) throw new Error("Sistem dikunci. Buka kunci sebelum mengedit.");
+    const existing = readStoredOrders();
+    const current = mergeOrders(existing).find(order => order.id === orderId);
+    const day = current?.dailyWork?.find(row => row.id === dailyId);
+    if (!current || !isDailySettlementOrder(current) || !day) throw new Error("Hari pekerjaan tidak ditemukan; muat ulang Mutasi.");
+    const closings = JSON.parse(payrollStorage.getItem(workspaceKeys.closings) ?? "[]") as { orderRefs?: string[]; ordersSnapshot?: Order[] }[];
+    const legacyClosing = !current.dailyWork?.some(row => row.payrollClosedAt || row.payrollPeriodId)
+      && closings.some(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []]
+        .some(reference => reference.trim().toLowerCase() === current.externalReference.trim().toLowerCase()));
+    if (current.websiteDeletedAt || current.sheetDeletedAt || current.payrollClosedAt || current.payrollPeriodId
+      || current.financeStatus === "closed" || day.payrollClosedAt || day.payrollPeriodId || legacyClosing) {
+      throw new Error("Hari ini sudah diarsipkan atau masuk Tutup Buku/Gaji dan tidak dapat ditarik.");
+    }
+    if (day.status !== "verified") return false;
+    const updated = { ...current, ...replaceDailyWorkStatus(current, dailyId, "in_progress") };
+    const next = [updated, ...existing.filter(order => order.id !== orderId)];
+    writeStoredOrders(next);
+    setStoredOrders(next);
+    return true;
+  }, []);
 
   return {
     allOrders,
@@ -137,5 +161,6 @@ export function useDemoOrders() {
     clearUserOrders,
     applyBulkAction,
     previewBulkAction,
+    withdrawDailyFromPayroll,
   };
 }
