@@ -47,9 +47,19 @@ const sheetOwnedOrderFields = [
 export function attributeWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState, actor: {id:string;name:string;isAdmin?:boolean}, now: string) {
   const result = structuredClone(next);
   const oldOrders = new Map(((previous[K.orders] ?? []) as Order[]).map(order => [order.id, order]));
+  const nextOrders = new Map(((result[K.orders] ?? []) as Order[]).map(order => [order.id, order]));
   const nextOrderIds = new Set(((result[K.orders] ?? []) as Order[]).map(order => order.id));
   for (const old of oldOrders.values()) if (old.websiteDeletedAt && !nextOrderIds.has(old.id)) {
     payrollFailure("Arsip pesanan website tidak dapat dihapus permanen.", 409);
+  }
+  if (!actor.isAdmin) for (const old of oldOrders.values()) {
+    const current = nextOrders.get(old.id);
+    for (const day of old.dailyWork ?? []) {
+      if ((day.status === "verified" || day.verifiedAt || day.payrollClosedAt || day.payrollPeriodId)
+        && !current?.dailyWork?.some(nextDay => nextDay.id === day.id)) {
+        payrollFailure("Hanya admin website yang dapat menarik atau menghapus hari yang sudah masuk Gaji.", 403);
+      }
+    }
   }
   const closingReferences = new Set(((previous[K.closings] ?? []) as { orderRefs?: string[]; ordersSnapshot?: Order[] }[])
     .flatMap(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []])
@@ -95,6 +105,17 @@ export function attributeWorkspaceEdit(previous: WorkspaceState, next: Workspace
       || ((order.financeStatus === "closed" || old?.financeStatus === "closed") && order.financeStatus !== old?.financeStatus)
       || ["verifiedAt", "payrollClosedAt", "payrollPeriodId"].some(key => order[key as keyof Order] !== old?.[key as keyof Order]))) {
       payrollFailure("Hanya admin website yang dapat memverifikasi pesanan atau melakukan Closing.", 403);
+    }
+    if (!actor.isAdmin) {
+      const oldDays = new Map((old?.dailyWork ?? []).map(day => [day.id, day]));
+      for (const day of order.dailyWork ?? []) {
+        const previousDay = oldDays.get(day.id);
+        if (((day.status === "verified" || previousDay?.status === "verified") && day.status !== previousDay?.status)
+          || ["verifiedAt", "payrollClosedAt", "payrollPeriodId"].some(key =>
+            day[key as keyof typeof day] !== previousDay?.[key as keyof typeof day])) {
+          payrollFailure("Hanya admin website yang dapat memverifikasi atau menarik hari dari Gaji.", 403);
+        }
+      }
     }
     if (Boolean(old?.sheetSyncLocked) !== Boolean(order.sheetSyncLocked)) {
       if (!actor.isAdmin || !old || !order.id.startsWith("gsheet:")) payrollFailure("Hanya admin website yang dapat mengunci sinkronisasi pesanan spreadsheet.", 403);

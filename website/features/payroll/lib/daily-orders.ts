@@ -132,9 +132,9 @@ export function getDailyPayrollGrossMinor(order: Pick<Order, "dailyWork">, inclu
 }
 
 export function getPayrollEligibleGrossMinor(order: Order, includeClosed = false) {
+  if (!includeClosed && (order.payrollClosedAt || order.payrollPeriodId || order.financeStatus === "closed")) return 0;
   if (isDailySettlementOrder(order)) return getDailyPayrollGrossMinor(order, includeClosed);
   if (order.operationalStatus !== "verified") return 0;
-  if (!includeClosed && order.payrollClosedAt) return 0;
   return order.grossMinor;
 }
 

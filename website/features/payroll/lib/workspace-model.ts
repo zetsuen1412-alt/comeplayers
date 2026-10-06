@@ -131,7 +131,7 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   const closingReferences=recordedClosingReferences(previous);
   for(const old of oldOrders) if(hasLegacyWholeClosing(old,closingReferences)
     &&canonical(old)!==canonical(newOrders.find(order=>order.id===old.id))) payrollFailure('Pesanan sudah tercatat di Closing lama dan tidak dapat diubah atau dihapus.',409);
-  for(const old of oldOrders.filter(o=>o.payrollClosedAt)) if(canonical(old)!==canonical(newOrders.find(o=>o.id===old.id))) payrollFailure('Order yang sudah Closing tidak dapat diubah atau dihapus.',409);
+  for(const old of oldOrders.filter(o=>o.payrollClosedAt||o.payrollPeriodId||o.financeStatus==='closed')) if(canonical(old)!==canonical(newOrders.find(o=>o.id===old.id))) payrollFailure('Order yang sudah Closing tidak dapat diubah atau dihapus.',409);
   for(const old of oldOrders) {
     const current=newOrders.find(o=>o.id===old.id);
     const closedDays=(old.dailyWork??[]).filter(day=>day.payrollClosedAt||day.payrollPeriodId);
@@ -177,7 +177,8 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
   const eligible:Order[]=[];
   const dailyByOrder=new Map<string,ReturnType<typeof dailySegmentsForPeriod>>();
   for(const order of orders) {
-    if(order.sheetDeletedAt || order.websiteDeletedAt || hasLegacyWholeClosing(order,closingReferences)) continue;
+    if(order.sheetDeletedAt || order.websiteDeletedAt || order.payrollClosedAt || order.payrollPeriodId
+      || order.financeStatus==='closed' || hasLegacyWholeClosing(order,closingReferences)) continue;
     if(isDailySettlementOrder(order)) {
       const segments=dailySegmentsForPeriod(order,from,to);
       if(segments.length) {

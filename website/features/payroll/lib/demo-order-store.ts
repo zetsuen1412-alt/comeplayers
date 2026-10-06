@@ -9,7 +9,8 @@ import { activeSheetOrders } from "./sheet-sync-policy";
 import { applyBulkMutationAction, type BulkMutationAction, type BulkMutationContext, type BulkMutationTarget } from "./bulk-mutation-actions";
 import { planBulkMutationInventory } from "./bulk-mutation-inventory";
 import { workspaceKeys } from "./workspace-model";
-import { isDailySettlementOrder, replaceDailyWorkStatus } from "./daily-orders";
+import { isDailySettlementOrder } from "./daily-orders";
+import { applyPayrollWithdrawal, type PayrollWithdrawalTarget } from "./payroll-withdrawal";
 
 const STORAGE_KEY = "cp-ofs-demo-user-orders-v3";
 const OLD_STORAGE_KEYS = ["cp-ofs-demo-user-orders-v2", "cp-ofs-demo-user-orders-v1"];
@@ -64,6 +65,16 @@ function planBulkAction(targets: Iterable<string | BulkMutationTarget>, action: 
   result.skipped = result.skipped.map(skip => skip.code === "inventory" && inventoryPlan.skippedOrderReasons[skip.orderId]
     ? { ...skip, reason: inventoryPlan.skippedOrderReasons[skip.orderId] } : skip);
   return { result, inventoryPlan };
+}
+
+function planPayrollWithdrawal(target: PayrollWithdrawalTarget) {
+  if (!getPayrollActor()?.isAdmin) throw new Error("Hanya admin website yang dapat menarik pesanan dari Gaji.");
+  const orders = mergeOrders(readStoredOrders());
+  const closings = JSON.parse(payrollStorage.getItem(workspaceKeys.closings) ?? "[]") as { orderRefs?: string[]; ordersSnapshot?: Order[] }[];
+  return applyPayrollWithdrawal(orders, target, {
+    workspaceLocked: Boolean(JSON.parse(payrollStorage.getItem(workspaceKeys.lock) ?? "null")),
+    closingReferences: closings.flatMap(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []]),
+  });
 }
 
 export function useDemoOrders() {
@@ -128,28 +139,17 @@ export function useDemoOrders() {
   const previewBulkAction = useCallback((ids: Iterable<string | BulkMutationTarget>, action: BulkMutationAction, context: BulkMutationContext = {}) =>
     planBulkAction(ids, action, context, "preview").result, []);
 
-  const withdrawDailyFromPayroll = useCallback((orderId: string, dailyId: string) => {
-    if (!getPayrollActor()?.isAdmin) throw new Error("Hanya admin website yang dapat menarik hari dari Gaji.");
-    if (JSON.parse(payrollStorage.getItem(workspaceKeys.lock) ?? "null")) throw new Error("Sistem dikunci. Buka kunci sebelum mengedit.");
-    const existing = readStoredOrders();
-    const current = mergeOrders(existing).find(order => order.id === orderId);
-    const day = current?.dailyWork?.find(row => row.id === dailyId);
-    if (!current || !isDailySettlementOrder(current) || !day) throw new Error("Hari pekerjaan tidak ditemukan; muat ulang Mutasi.");
-    const closings = JSON.parse(payrollStorage.getItem(workspaceKeys.closings) ?? "[]") as { orderRefs?: string[]; ordersSnapshot?: Order[] }[];
-    const legacyClosing = !current.dailyWork?.some(row => row.payrollClosedAt || row.payrollPeriodId)
-      && closings.some(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []]
-        .some(reference => reference.trim().toLowerCase() === current.externalReference.trim().toLowerCase()));
-    if (current.websiteDeletedAt || current.sheetDeletedAt || current.payrollClosedAt || current.payrollPeriodId
-      || current.financeStatus === "closed" || day.payrollClosedAt || day.payrollPeriodId || legacyClosing) {
-      throw new Error("Hari ini sudah diarsipkan atau masuk Tutup Buku/Gaji dan tidak dapat ditarik.");
-    }
-    if (day.status !== "verified") return false;
-    const updated = { ...current, ...replaceDailyWorkStatus(current, dailyId, "in_progress") };
-    const next = [updated, ...existing.filter(order => order.id !== orderId)];
-    writeStoredOrders(next);
-    setStoredOrders(next);
+  const previewWithdrawal = useCallback((orderId: string, dailyId?: string) =>
+    planPayrollWithdrawal({ orderId, ...(dailyId === undefined ? {} : { dailyId }) }), []);
+  const withdrawFromPayroll = useCallback((orderId: string, dailyId?: string) => {
+    const result = planPayrollWithdrawal({ orderId, ...(dailyId === undefined ? {} : { dailyId }) });
+    if (!result.changed) return false;
+    writeStoredOrders(result.orders);
+    setStoredOrders(result.orders);
     return true;
   }, []);
+  const withdrawDailyFromPayroll = useCallback((orderId: string, dailyId: string) =>
+    withdrawFromPayroll(orderId, dailyId), [withdrawFromPayroll]);
 
   return {
     allOrders,
@@ -161,6 +161,8 @@ export function useDemoOrders() {
     clearUserOrders,
     applyBulkAction,
     previewBulkAction,
+    previewWithdrawal,
+    withdrawFromPayroll,
     withdrawDailyFromPayroll,
   };
 }

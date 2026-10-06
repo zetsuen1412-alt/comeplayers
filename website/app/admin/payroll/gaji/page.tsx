@@ -1,13 +1,15 @@
 "use client";
 
 import { adminLabel } from "@/lib/adminLocale";
-import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoPayrollSettings } from "@/features/payroll/lib/demo-payroll-settings-store";
 import { useDemoAdvances } from "@/features/payroll/lib/demo-advance-store";
+import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
+import { flushPayroll, usePayrollActor, withPayrollBatch } from "@/features/payroll/lib/workspace-store";
 import { buildLivePayrollRows, isPayrollEligible } from "@/features/payroll/lib/payroll-live";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { formatDateTimeID } from "@/features/payroll/lib/date";
@@ -16,6 +18,34 @@ import { getDailyAssignments, getDailyPayrollValidationError, isDailySettlementO
 import { exportPayrollSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 
 type TeamFilter = "SEMUA" | "FH1" | "FH2" | "FH3" | "ADMIN" | "BANDAR";
+type WithdrawalTarget = { orderId: string; dailyId?: string; orderReference: string; label: string };
+
+function PayrollDialog({ children, headingId, saving, onClose, focusFallbackId, compact = false }: {
+  children: ReactNode; headingId: string; saving: boolean; onClose: () => void; focusFallbackId: string; compact?: boolean;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current;
+    if (!element) return;
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    if (!element.open) element.showModal();
+    element.querySelector<HTMLElement>("[data-dialog-initial-focus]")?.focus({ preventScroll: true });
+    return () => {
+      if (element.open) element.close();
+      document.body.style.overflow = overflow;
+      const target = trigger?.isConnected ? trigger : document.getElementById(focusFallbackId);
+      target?.focus({ preventScroll: true });
+    };
+  }, [focusFallbackId]);
+  return <dialog ref={dialog} tabIndex={-1} aria-modal="true" aria-labelledby={headingId} aria-busy={saving}
+    className={`fixed inset-0 m-auto max-h-[86vh] w-[calc(100%-2rem)] overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-950 p-0 text-white shadow-2xl backdrop:bg-black/75 ${compact ? "max-w-lg" : "max-w-2xl"}`}
+    onCancel={event => { event.preventDefault(); if (!saving) onClose(); }}
+    onMouseDown={event => { if (event.target === event.currentTarget && !saving) { event.preventDefault(); onClose(); } }}>
+    {children}
+  </dialog>;
+}
 
 function statusClass(status: string) {
   if (status === "SAKIT" || status === "IJIN") return "bg-amber-500/15 text-amber-200";
@@ -26,14 +56,26 @@ function statusClass(status: string) {
 }
 
 export default function PayrollPage() {
-  const { allOrders } = useDemoOrders();
+  const { allOrders, previewWithdrawal, withdrawFromPayroll } = useDemoOrders();
   const { employees } = useDemoEmployees();
   const { settings, setEmployeeSharePercent, updateEmployeeAdjustment, resetPayrollSettings } = useDemoPayrollSettings();
   const { outstandingByEmployee } = useDemoAdvances();
+  const { isLocked } = useDemoPeriodLock();
+  const actor = usePayrollActor();
   const [team, setTeam] = useState<TeamFilter>("SEMUA");
   const [detailEmployeeCode, setDetailEmployeeCode] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [draggingTable, setDraggingTable] = useState(false);
+  const [withdrawalTarget, setWithdrawalTarget] = useState<WithdrawalTarget | null>(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawalError, setWithdrawalError] = useState<string | null>(null);
+  const [withdrawalNotice, setWithdrawalNotice] = useState<string | null>(null);
+  const withdrawingRef = useRef(false);
+  const detailHeadingId = useId();
+  const withdrawalHeadingId = useId();
+  const detailCloseId = useId();
+  const exportButtonId = useId();
+  const canWithdraw = actor?.isAdmin === true;
   const topScrollRef = useRef<HTMLDivElement | null>(null);
   const tableScrollRef = useRef<HTMLDivElement | null>(null);
   const tableDragRef = useRef<{ pointerId: number; startX: number; startScrollLeft: number } | null>(null);
@@ -54,12 +96,14 @@ export default function PayrollPage() {
   const waitingCheck = allOrders.filter((x) => x.operationalStatus === "completed" && getOrderAssignments(x).length > 0).length;
 
   const detailRow = detailEmployeeCode ? liveRows.find((row) => row.employeeCode === detailEmployeeCode) : undefined;
+  const detailEmployeeName = detailRow?.employee ?? employees.find(employee => employee.code === detailEmployeeCode)?.name ?? detailEmployeeCode;
   const detailItems = useMemo(() => {
     if (!detailEmployeeCode) return [];
 
     const items: Array<{
       key: string;
       orderId: string;
+      dailyId?: string;
       orderReference: string;
       source: string;
       game: string;
@@ -83,6 +127,7 @@ export default function PayrollPage() {
           items.push({
             key: `${order.id}::${day.id}::${detailEmployeeCode}`,
             orderId: order.id,
+            dailyId: day.id,
             orderReference: order.externalReference,
             source: order.source,
             game: order.gameName ?? order.game,
@@ -114,6 +159,40 @@ export default function PayrollPage() {
 
     return items.sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt) || a.orderReference.localeCompare(b.orderReference, "id", { numeric: true }));
   }, [allOrders, detailEmployeeCode]);
+
+  const withdrawalPreview = (() => {
+    if (!withdrawalTarget) return null;
+    try { return { result: previewWithdrawal(withdrawalTarget.orderId, withdrawalTarget.dailyId), error: null }; }
+    catch (error) { return { result: null, error: error instanceof Error ? error.message : "Pekerjaan ini belum dapat ditarik dari Gaji." }; }
+  })();
+
+  function openWithdrawal(item: WithdrawalTarget) {
+    if (withdrawingRef.current || !canWithdraw || isLocked) return;
+    setWithdrawalError(null);
+    setWithdrawalNotice(null);
+    setWithdrawalTarget({ orderId: item.orderId, dailyId: item.dailyId, orderReference: item.orderReference, label: item.label });
+  }
+
+  async function confirmWithdrawal() {
+    if (!withdrawalTarget || withdrawingRef.current || !canWithdraw || isLocked) return;
+    const target = withdrawalTarget;
+    withdrawingRef.current = true;
+    setWithdrawing(true);
+    setWithdrawalError(null);
+    try {
+      await flushPayroll();
+      const preview = previewWithdrawal(target.orderId, target.dailyId);
+      const changed = withPayrollBatch(() => withdrawFromPayroll(target.orderId, target.dailyId));
+      await flushPayroll();
+      const label = `${preview.orderReference} · ${preview.label}`;
+      setWithdrawalNotice(changed
+        ? `${label} ditarik dari Gaji. Status ${preview.nextStatus === "in_progress" ? "Dikerjakan" : "Selesai, belum masuk Gaji"}; daftar dan nilai Gaji telah diperbarui.`
+        : `${label} sudah tidak masuk Gaji. Daftar telah diperbarui.`);
+      setWithdrawalTarget(null);
+    } catch (error) {
+      setWithdrawalError(error instanceof Error ? error.message : "Penarikan belum tersimpan. Muat ulang untuk memeriksa hasilnya.");
+    } finally { withdrawingRef.current = false; setWithdrawing(false); }
+  }
 
   function isInteractiveDragTarget(target: EventTarget | null) {
     return target instanceof Element && Boolean(target.closest("button, input, select, textarea, a, label"));
@@ -151,6 +230,8 @@ export default function PayrollPage() {
   return (
     <>
       <PageHeader title="Gaji" description={"Persentase gaji diatur per karyawan. Pesanan yang sudah Tutup Buku tidak akan dihitung lagi pada gajian berikutnya."} />
+      {withdrawalNotice ? <p role="status" className="mb-5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{withdrawalNotice}</p> : null}
+      {withdrawalError && !withdrawalTarget ? <p role="alert" className="mb-5 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-100">{withdrawalError}</p> : null}
 
       <section className="mb-5 rounded-2xl border border-yellow-500/25 bg-yellow-500/10 p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -175,7 +256,7 @@ export default function PayrollPage() {
             ))}
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={async () => { setExporting(true); try { await exportPayrollSpreadsheet(rows, team); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor Gaji (${rows.length})`}</button>
+            <button id={exportButtonId} onClick={async () => { setExporting(true); try { await exportPayrollSpreadsheet(rows, team); } finally { setExporting(false); } }} disabled={exporting} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor Gaji (${rows.length})`}</button>
             <Link href="/admin/payroll/advances" className="rounded-xl bg-violet-500 px-4 py-2 text-sm font-bold text-white">Kelola Kasbon →</Link>
           </div>
         </div>
@@ -292,22 +373,26 @@ export default function PayrollPage() {
       <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 text-sm leading-6 text-zinc-400">Rumus: <strong className="text-white">Nilai pekerjaan × persentase karyawan + Bonus/Uang Tip − Operasional − Denda − Kasbon = Gaji Bersih.</strong> Jika hasil di bawah Rp0, angka tampil <span className="font-semibold text-red-300">merah dan minus</span>.</div>
 
       {detailEmployeeCode ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" onMouseDown={() => setDetailEmployeeCode(null)}>
-          <section className="flex max-h-[86vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-950 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
+        <PayrollDialog headingId={detailHeadingId} saving={withdrawing} focusFallbackId={exportButtonId} onClose={() => { if (!withdrawing) { setWithdrawalTarget(null); setDetailEmployeeCode(null); } }}>
+          <section className="flex max-h-[86vh] flex-col overflow-hidden">
             <div className="flex items-start justify-between gap-4 border-b border-zinc-800 p-5">
               <div>
                 <div className="text-sm text-zinc-500">Pesanan selesai</div>
-                <h2 className="mt-1 text-xl font-semibold">{detailRow?.employee ?? detailEmployeeCode}</h2>
+                <h2 id={detailHeadingId} className="mt-1 text-xl font-semibold">{detailEmployeeName}</h2>
                 <div className="mt-1 text-xs text-zinc-500">
                   Menampilkan <strong className="text-white">{detailItems.length}</strong> dari <strong className="text-white">{detailRow?.orderRefs.length ?? detailItems.length}</strong> pekerjaan yang masuk Gaji.
                 </div>
               </div>
-              <button onClick={() => setDetailEmployeeCode(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Tutup</button>
+              <button id={detailCloseId} data-dialog-initial-focus disabled={withdrawing} onClick={() => setDetailEmployeeCode(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Tutup</button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto p-5">
+              {!canWithdraw ? <p className="mb-4 text-xs text-zinc-400">Penarikan dari Gaji hanya dapat dilakukan admin website.</p> : isLocked ? <p role="status" className="mb-4 text-xs text-amber-200">Payroll sedang dikunci. Buka kunci sebelum menarik pekerjaan dari Gaji.</p> : null}
+              {withdrawalNotice ? <p role="status" className="mb-4 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">{withdrawalNotice}</p> : null}
+              {withdrawalError && !withdrawalTarget ? <p role="alert" className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-100">{withdrawalError}</p> : null}
               <div className="space-y-2">
                 {detailItems.map((item) => (
-                  <Link key={item.key} href={`/admin/payroll/orders/${encodeURIComponent(item.orderReference)}`} className="block rounded-xl border border-zinc-800 bg-black/40 p-4 hover:border-yellow-500/40">
+                  <article key={item.key} className="rounded-xl border border-zinc-800 bg-black/40 p-4">
+                  <Link href={`/admin/payroll/orders/${encodeURIComponent(item.orderReference)}`} className="block rounded-lg hover:text-yellow-200">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <strong>{item.orderReference}</strong>
@@ -317,13 +402,30 @@ export default function PayrollPage() {
                     </div>
                     <div className="mt-1 text-xs text-zinc-500">{item.source} · {item.game} · selesai {formatDateTimeID(item.completedAt)}</div>
                   </Link>
+                  <div className="mt-3 flex justify-end border-t border-zinc-800 pt-3">
+                    <button type="button" disabled={withdrawing || !canWithdraw || isLocked} aria-label={`Tarik ${item.orderReference} · ${item.label} dari Gaji`} onClick={() => openWithdrawal(item)} className="rounded-lg border border-amber-500/30 bg-amber-500/15 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/25 disabled:cursor-not-allowed disabled:opacity-40">↩ Tarik dari Gaji</button>
+                  </div>
+                  </article>
                 ))}
                 {!detailItems.length ? <div className="rounded-xl border border-zinc-800 bg-black/40 p-6 text-center text-sm text-zinc-500">Tidak ada pekerjaan selesai yang sedang masuk Gaji.</div> : null}
               </div>
             </div>
           </section>
-        </div>
+        </PayrollDialog>
       ) : null}
+      {withdrawalTarget ? <PayrollDialog headingId={withdrawalHeadingId} saving={withdrawing} focusFallbackId={detailCloseId} compact onClose={() => { if (!withdrawing) setWithdrawalTarget(null); }}>
+        <section className="p-5 sm:p-6">
+          <h2 id={withdrawalHeadingId} className="text-xl font-semibold">Tarik {withdrawalTarget.orderReference} · {withdrawalTarget.label} dari Gaji?</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-300">Penarikan mengeluarkan {withdrawalTarget.dailyId ? "hari yang dipilih" : "pesanan ini"} dari Gaji semua karyawan yang mengerjakannya. Status kembali menjadi <strong className="text-white">{withdrawalPreview?.result?.nextStatus === "in_progress" || withdrawalTarget.dailyId ? "Dikerjakan" : "Selesai, belum masuk Gaji"}</strong>.</p>
+          {withdrawalTarget.dailyId ? <p className="mt-2 text-sm text-zinc-400">Hari lain pada paket tetap mengikuti statusnya sendiri.</p> : null}
+          {withdrawalPreview?.result?.affectedWorkers.length ? <p className="mt-3 text-sm text-amber-100">Karyawan terdampak: {withdrawalPreview.result.affectedWorkers.map(worker => worker.employeeName).join(", ")}.</p> : null}
+          {withdrawalError || withdrawalPreview?.error ? <p role="alert" className="mt-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-100">{withdrawalError ?? withdrawalPreview?.error}</p> : withdrawalPreview?.result && !withdrawalPreview.result.changed ? <p role="status" className="mt-4 text-sm text-zinc-400">Pekerjaan ini sudah tidak masuk Gaji.</p> : null}
+          <div className="mt-5 flex flex-wrap justify-end gap-3">
+            <button type="button" data-dialog-initial-focus disabled={withdrawing} onClick={() => setWithdrawalTarget(null)} className="rounded-lg bg-zinc-800 px-4 py-2 text-sm font-semibold disabled:opacity-40">Batal</button>
+            <button type="button" disabled={withdrawing || !canWithdraw || isLocked || !withdrawalPreview?.result?.changed} onClick={() => void confirmWithdrawal()} className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{withdrawing ? "Menyimpan…" : "Tarik dari Gaji"}</button>
+          </div>
+        </section>
+      </PayrollDialog> : null}
     </>
   );
 }
