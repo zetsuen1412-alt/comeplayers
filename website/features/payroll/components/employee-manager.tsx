@@ -35,13 +35,15 @@ export function EmployeeManager() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [teamFilter, setTeamFilter] = useState<"SEMUA" | Employee["team"]>("SEMUA");
   const [statusFilter, setStatusFilter] = useState<"SEMUA" | EmployeeWorkStatus>("SEMUA");
+  const [showMissing, setShowMissing] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const rows = useMemo(() => employees.filter((employee) => {
+    if (employee.sheetRosterMissingAt && !showMissing) return false;
     if (teamFilter !== "SEMUA" && employee.team !== teamFilter) return false;
     if (statusFilter !== "SEMUA" && employee.workforceStatus !== statusFilter) return false;
     return true;
-  }), [employees, statusFilter, teamFilter]);
+  }), [employees, statusFilter, teamFilter, showMissing]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -96,7 +98,7 @@ export function EmployeeManager() {
   return (
     <>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="text-sm text-zinc-500">Total karyawan: <strong className="text-white">{employees.length}</strong> · ditampilkan <strong className="text-white">{rows.length}</strong></div>
+        <div className="text-sm text-zinc-500">Karyawan aktif: <strong className="text-white">{employees.filter(employee => !employee.sheetRosterMissingAt).length}</strong> · ditampilkan <strong className="text-white">{rows.length}</strong></div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => setShowForm((value) => !value)} className="rounded-xl bg-yellow-400 px-4 py-2.5 text-sm font-bold text-black">{showForm ? "Tutup Form" : "+ Tambah Karyawan"}</button>
           <button type="button" onClick={() => confirm("Kosongkan semua data karyawan? Data yang dihapus tidak dapat dikembalikan melalui tombol ini.") && resetEmployees()} className="rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-semibold">Kosongkan Karyawan</button>
@@ -107,6 +109,7 @@ export function EmployeeManager() {
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
           <label className="text-sm">Bagian / FH<select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value as "SEMUA" | Employee["team"])} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua</option><option value={"FH1"}>FH1</option><option value={"FH2"}>FH2</option><option value={"FH3"}>FH3</option><option value={"ADMIN"}>ADMIN</option><option value={"BANDAR"}>BANDAR</option></select></label>
           <label className="text-sm">Status<select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as "SEMUA" | EmployeeWorkStatus)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua</option>{statuses.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+          <label className="flex items-end gap-2 pb-3 text-sm"><input type="checkbox" checked={showMissing} onChange={(event) => setShowMissing(event.target.checked)} />Tampilkan karyawan yang tidak ada di Sheet</label>
           <div className="flex items-end"><button type="button" onClick={async () => { setExporting(true); try { await exportEmployeesSpreadsheet(rows, settings.defaultSharePercent, settings.employeeSharePercent, `${teamFilter}_${statusFilter}`); } finally { setExporting(false); } }} disabled={exporting} className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-50">{exporting ? "Membuat Excel..." : `⬇ Ekspor Karyawan (${rows.length})`}</button></div>
         </div>
         <div className="mt-2 text-xs text-zinc-500">Excel hanya berisi karyawan sesuai FH dan status yang sedang dipilih.</div>
@@ -151,6 +154,7 @@ export function EmployeeManager() {
               <div>
                 <h2 className="text-xl font-semibold">{employee.name}</h2>
                 <div className="mt-1 text-sm text-zinc-500">{employee.team} · {employee.code}</div>
+                {employee.sheetRosterMissingAt ? <p className="mt-2 text-xs text-amber-300">Tidak ada di Sheet · riwayat tetap tersimpan</p> : null}
               </div>
               <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(employee.workforceStatus)}`}>{adminLabel(employee.workforceStatus)}</span>
             </div>

@@ -7,7 +7,7 @@ Sinkronisasi ini menghubungkan workbook Google Sheets **EVO GAMING 2026** langsu
 ## Alur
 
 1. Google Apps Script terpasang pada workbook sumber.
-2. Trigger **installable onEdit** menjalankan `onComePlayersPayrollEdit` ketika pengguna mengedit nilai di **MUTASI FH**. Satu edit mengirim baris tersebut; paste beberapa baris mengirim semua baris terdampak yang berubah. Event memakai rentang, bukan `event.value`, sehingga paste/clear didukung.
+2. Trigger **installable onEdit** menjalankan `onComePlayersPayrollEdit` ketika pengguna mengedit nilai di **MUTASI FH**. Satu edit mengirim baris tersebut; paste beberapa baris mengirim semua baris terdampak yang berubah. Event memakai rentang, bukan `event.value`, sehingga paste/clear didukung. Jika sinkronisasi roster diaktifkan, edit pada **PAYROLL-1/2/3** menjalankan rekonsiliasi nama dan TYPE karyawan.
 3. Trigger clock menjalankan `syncComePlayersPayroll` dengan `.timeBased().everyMinutes(1).create()`. Trigger ini membaca seluruh baris berkode dan mengirim hanya signature yang berubah/belum berhasil disinkronkan. Perubahan formula, warna BOOSTER, pengurutan, API/script, atau edit yang terlewat dipulihkan oleh rekonsiliasi.
 4. Data dikirim ke endpoint privat `POST /api/integrations/payroll-sheet`.
 5. Server memvalidasi secret, memastikan actor adalah akun ADMIN ComePlayers, memetakan karyawan/game, lalu menyimpan perubahan ke `cp_payroll_workspace` dengan revision guard dan audit yang sudah digunakan Payroll.
@@ -20,26 +20,32 @@ Installable onEdit memerlukan izin `UrlFetchApp`, sehingga jangan menggantinya d
 
 Admin website dapat menekan **Kunci dari Sheet** pada satu order, atau mencentang beberapa order lalu **Kunci pilihan**. Kunci melindungi seluruh data order dari pembaruan maupun penghapusan oleh Sheet. Anggota biasa tidak dapat mengganti kunci melalui UI maupun endpoint. Identitas dan waktu penguncian dicatat server. **Buka kunci** meminta pembacaan ulang walaupun isi Sheet tidak berubah; pembaruan mengikuti pemeriksaan berikutnya (biasanya 1–2 siklus menit).
 
-`presence` hanya diterima sebagai rekonsiliasi terpisah dengan `rows: []`, `complete: true`, `startRow`, dan seluruh daftar `references`. Daftar ini mencakup KODE sebelum batas periode juga, sehingga pemindahan baris ke bagian lain tidak disalahartikan sebagai penghapusan. Apps Script membacanya ulang setelah pengiriman; perubahan daftar di tengah proses, batch tertunda, kegagalan HTTP, header rusak atau sheet hilang tidak boleh memicu arsip. Order manual, sumber lain, periode lama, pesanan yang dikunci, Gaji/Closing, stok dan pembayaran tetap dilindungi.
+`presence` hanya diterima sebagai rekonsiliasi terpisah dengan `rows: []`, `complete: true`, `startRow`, dan seluruh daftar `references`. Daftar ini mencakup KODE sebelum batas periode juga, sehingga pemindahan baris ke bagian lain tidak disalahartikan sebagai penghapusan. Apps Script membacanya ulang sebelum pemeriksaan awal dan setelah pengiriman; snapshot yang berubah tidak dikirim sebagai daftar lengkap. Penghapusan tidak disimpulkan dari batch sebagian. Order manual, sumber lain, pesanan yang dikunci, Gaji/Closing, stok dan pembayaran tetap dilindungi. Mode lama membatasi arsip menurut `startRow`; mode semua pesanan terdaftar memakai awal data setelah header.
 
-Respons menambahkan `archived`, `restored`, dan `refreshReferences`. Arsip disimpan sebagai `sheetDeletedAt`, disembunyikan dari daftar aktif dan perhitungan Gaji, serta tersedia di panel **Dihapus dari Sheet**. Tidak ada penghapusan permanen atau pembayaran otomatis. Audit dan revision guard yang sama tetap berlaku; lock yang tersimpan bersamaan menyebabkan API membaca ulang sebelum menerapkan perubahan.
+Respons menambahkan `archived`, `restored`, `refreshReferences`, dan `trackedRows` yang hanya berisi KODE serta nomor baris pesanan dari sumber yang sama. Arsip disimpan sebagai `sheetDeletedAt`, disembunyikan dari daftar aktif dan perhitungan Gaji, serta tersedia di panel **Dihapus dari Sheet**. Tidak ada penghapusan permanen atau pembayaran otomatis. Audit dan revision guard yang sama tetap berlaku; lock yang tersimpan bersamaan menyebabkan API membaca ulang sebelum menerapkan perubahan.
 
 Untuk instalasi mirror EVO → OTOMATIS, setelah deployment endpoint dan penggantian file Apps Script, jalankan **`activateComePlayersSourceSync()`**. Helper menggunakan `EGM_CONFIG` yang sudah ada untuk membaca EVO secara langsung dan memasang trigger pada sumber tersebut. `CP_SYNC_NAMESPACE_ID` mempertahankan identitas target lama agar tidak menduplikasi order; secret tetap dipakai tanpa dicetak. Helper mengaktifkan `CP_SYNC_DELETIONS=true` dan `CP_START_AFTER_CLOSING=true`. Pada mode ini batas aktif mengikuti penanda **CLOSING** terakhir di kolom A meskipun nomor baris bergeser. Jika penandanya hilang, sync berhenti dengan error, bukan mengarsipkan seluruh data.
 
+Untuk memperbarui semua pesanan website yang belum dilindungi, termasuk yang terletak sebelum CLOSING terbaru, jalankan **`activateComePlayersAllUnlockedSync()`** setelah endpoint dan file Apps Script terbaru dipasang. Helper mempertahankan workbook sumber, namespace, secret, dan actor yang sudah dikonfigurasi. Helper mengaktifkan `CP_SYNC_ALL_EXISTING=true`, `CP_SYNC_ROSTER=true`, serta `CP_SYNC_DELETIONS=true`, memasang ulang trigger milik pemasang, dan menjalankan pemeriksaan pertama.
+
+Mode ini membaca sejak baris setelah header. Pesanan baru hanya dibuat dari baris setelah CLOSING terakhir (`newOrdersStartRow`). Baris sebelum batas hanya memperbarui pesanan yang sudah berasal dari sumber tersebut. Pemeriksaan awal mengembalikan `trackedRows`, sehingga ribuan pesanan historis yang belum terdaftar tidak diberi signature atau diunggah. Jika KODE muncul beberapa kali dalam riwayat, hanya nomor baris yang tercatat pada pesanan website yang dipertimbangkan; kemunculan di periode aktif dengan nomor baris lain juga ditolak agar tidak mengambil alih riwayat. KODE yang hanya muncul sekali dapat mengikuti perpindahan baris. Duplikat dalam periode CLOSING yang sama tetap ditolak; kasus identitas yang ambigu tidak memilih baris pertama. Pesanan periode aktif diprioritaskan jika unggahan membutuhkan beberapa batch. Jika `CP_SYNC_DELETIONS=false` dipasang secara eksplisit, pemeriksaan awal tetap mengambil identitas dan roster tetapi tidak mengirim `presence` atau mengarsipkan pesanan.
+
+Roster lengkap mengambil kolom **B (NAMA)** dan **E (TYPE)** dari PAYROLL-1 → FH1, PAYROLL-2 → FH2, serta PAYROLL-3 → FH3. Nama tanpa nomor karyawan dan TYPE seperti OFF tetap disertakan; header, total, dan label FH dikecualikan. Ketiga tab dan header NAMA harus valid sebelum snapshot dikirim. Roster diterapkan sebelum pencocokan pekerja pesanan. Perubahan nama atau TYPE membatalkan signature pesanan agar alokasi dibaca ulang. Karyawan lama yang masih direferensikan riwayat keuangan dipertahankan dengan penanda tidak ada di roster; entri lama tanpa referensi dapat dihapus. Pemeriksaan roster tetap berjalan walaupun tidak ada perubahan pesanan.
+
 Trigger **onChange** menangani insert/delete baris; onEdit menangani edit/paste/clear; clock satu menit menangkap perubahan formula/API dan event yang terlewat. Semuanya berjalan di Google, termasuk ketika browser/komputer/Codex ditutup. Jadwal aktif sepanjang hari, tetapi bukan jaminan uptime 100%: kuota Apps Script, gangguan Google/Vercel, izin pemasang, dan jaringan tetap dapat menunda eksekusi. Periksa Executions serta `CP_LAST_SYNC_AT/RESULT`; tidak ada otomatisasi Codex tambahan.
 
-- Semua handler memakai `LockService.getScriptLock()`. Lock meliputi pembacaan, HTTP, dan penyimpanan signature serta selalu dilepas melalui `finally`.
-- Jika lock sibuk, edit dilewati tanpa menandainya berhasil; rekonsiliasi berikutnya membaca ulang nilai terbaru. Tidak ada dua penulisan Apps Script bersamaan. Revision guard database tetap menangani penulisan dari admin atau project script lain.
-- Signature SHA-256 (144 bit) mencakup header, nilai asli, tampilan, warna hitam BOOSTER, nomor baris, dan penanda duplikat. Signature disimpan dalam shard **Script Properties** (`CP_ROW_HASH_*`, 100 baris/shard), tidak di sel. Ini juga melakukan deduplikasi event edit berulang tanpa menunda edit pertama.
+- Handler payroll memakai `LockService.getUserLock()`, terpisah dari ScriptLock milik mirror. Payroll hanya membaca sumber dan mengelola properti `CP_*`; mirror mengelola target serta properti `EGM_*`. Lock payroll meliputi pembacaan, HTTP, dan penyimpanan signature serta selalu dilepas melalui `finally`. UserLock menserialkan eksekusi untuk akun pemasang yang sama; pemasang lain tetap dilindungi revision guard server. Lihat [dokumentasi LockService Google](https://developers.google.com/apps-script/reference/lock/lock-service).
+- Edit menunggu lock hingga 1 detik dan rekonsiliasi hingga 25 detik. Jika tetap sibuk, edit dilewati tanpa menandainya berhasil; rekonsiliasi berikutnya membaca ulang nilai terbaru. Revision guard database juga menangani penulisan dari admin atau project script lain.
+- Signature SHA-256 (144 bit) mencakup header, nilai asli, tampilan, warna hitam BOOSTER, nomor baris, penanda duplikat, batas pembuatan pesanan baru, jumlah kemunculan KODE, dan hash roster ketika aktif. Signature disimpan dalam shard **Script Properties** (`CP_ROW_HASH_*`, 100 baris/shard), tidak di sel. Ini juga melakukan deduplikasi event edit berulang tanpa menunda edit pertama.
 - Hanya acknowledgement API yang memperbarui cache. Baris berhasil/unchanged tidak dikirim lagi selama input sama. Baris protected/conflict/invalid yang tidak berubah diberi jeda retry **15 menit** agar order historis tidak diunggah berulang tiap menit. Perubahan isi langsung mengabaikan jeda tersebut. Kegagalan HTTP tidak menandai baris berhasil dan dicoba lagi oleh trigger berikutnya.
-- Saat edit, hanya baris terdampak dibaca penuh. Kolom KODE dalam rentang aktif saja dipindai untuk mendeteksi kode duplikat di luar rentang edit; seluruh spreadsheet tidak diunggah.
+- Saat edit, hanya baris terdampak dibaca penuh. Pada mode lama kolom KODE dalam rentang aktif dipindai; pada mode semua pesanan terdaftar kolom KODE dan penanda CLOSING seluruh Sheet menentukan identitas historis serta duplikat per periode. Hanya baris yang relevan dan berubah diunggah.
 - Maksimal 100 baris/request, 10.000 baris data aktif per sheet. Satu batch tetap dikirim jika persiapan sheet memakan lebih dari 45 detik, agar sinkronisasi tidak terus tertunda tanpa kemajuan. Batch berikutnya ditunda ke rekonsiliasi berikutnya; batch yang sudah diakui tidak diulang. Header default tetap baris 2, data mulai baris 3 kecuali `CP_START_ROW` diatur.
 - Baris tanpa KODE tidak aktif. Jika `CP_SYNC_DELETIONS=true`, daftar KODE lengkap dikirim setelah batch berhasil; order yang hilang diarsipkan dari daftar aktif. Record dan audit tetap disimpan.
 - Cache memantau perubahan spreadsheet. Setelah perubahan master game/karyawan atau untuk rekonsiliasi paksa, jalankan `reinstallComePlayersPayrollRealtimeSync()` lalu `syncComePlayersPayroll()`; helper menghapus cache signature, bukan data payroll.
 
 ## Pemetaan
 
-- Kolom tanggal/jam (A) → `orderedAt` dalam WIB.
+- Kolom tanggal/jam (A) → `orderedAt` dan batas waktu turunan `dueAt` dalam WIB.
 - `KODE` → kode pesanan / external reference.
 - `GATE` → sumber.
 - `NAMA BUYER` → nama pembeli.
@@ -54,6 +60,8 @@ Trigger **onChange** menangani insert/delete baris; onEdit menangani edit/paste/
 - `STATUS` **tidak** otomatis mengubah status operasional pesanan.
 
 Header dicari berdasarkan nama. Jika header lama belum lengkap, fallback A–M tetap didukung.
+
+Angka asli dari `getValues()` diprioritaskan. Teks rupiah dengan pecahan Indonesia atau Inggris, misalnya `2.200,0`, `2,200.0`, dan `2200.0`, dibaca sebagai 2200; pemisah yang rusak tidak digabung menjadi angka lain. Pemeriksaan perbedaan harga menggunakan kolom RATE yang tersimpan langsung.
 
 ## Pemeriksaan jumlah di Mutasi
 
@@ -70,7 +78,7 @@ Untuk alur mirror, koreksi angka pada spreadsheet **sumber EVO GAMING 2026** set
 - Pesanan hasil sinkronisasi yang sudah `verified` atau sudah Closing tidak diubah.
 - Perlindungan juga mencakup `payrollPeriodId`, pekerjaan harian verified/Closing, dan KODE yang tercantum dalam catatan Closing.
 - KODE adalah identitas order. Sort/insert tidak membuat duplikat; mengganti KODE membuat draft baru dan mengarsipkan KODE lama yang tidak lagi ada jika tidak dikunci. ID lama tetap dipertahankan saat KODE cocok.
-- Semua kemunculan KODE duplikat dilewati, bukan memilih baris pertama. Order dari sumber spreadsheet lain tidak diambil alih.
+- Semua kemunculan KODE duplikat dalam periode CLOSING yang sama dilewati, bukan memilih baris pertama. Riwayat dengan KODE berulang di periode lain dibatasi menurut identitas baris yang telah terdaftar. Order dari sumber spreadsheet lain tidak diambil alih.
 - Baris yang tidak dapat memetakan game/karyawan diberi `importNeedsReview`; identitas karyawan tidak ditebak.
 - Pesanan baru masuk sebagai `draft` + finance `pending`, sehingga sinkronisasi tidak otomatis membayar gaji atau melakukan Closing.
 - Menghapus baris/KODE mengarsipkan pesanan yang tidak dikunci dan tidak dilindungi. Tidak ada hard delete. Record dapat dipulihkan admin melalui **Dihapus dari Sheet → Pulihkan & kunci**, atau otomatis ketika KODE valid muncul kembali.
@@ -114,9 +122,11 @@ ScriptApp.newTrigger("syncComePlayersPayroll")
   .timeBased().everyMinutes(1).create();
 ```
 
-Trigger yang tidak berhubungan dengan ComePlayers tidak dihapus. Google tidak mengizinkan akun melihat/menghapus trigger milik akun lain; gunakan **akun pemasang lama**, dan minta pemilik lain menghapus trigger ComePlayers duplikat bila ada. Lock script tetap melindungi antar-eksekusi dalam project yang sama.
+Trigger yang tidak berhubungan dengan ComePlayers tidak dihapus. Google tidak mengizinkan akun melihat/menghapus trigger milik akun lain; gunakan **akun pemasang lama**, dan minta pemilik lain menghapus trigger ComePlayers duplikat bila ada. UserLock melindungi eksekusi payroll milik pemasang yang sama; revision guard melindungi penyimpanan antar-pemasang.
 
 ### Mulai data setelah Closing
+
+Pengaturan bagian ini berlaku pada mode lama ketika `CP_SYNC_ALL_EXISTING` tidak bernilai `true`. Untuk instalasi yang sudah memiliki pesanan dan perlu mengikuti koreksi di seluruh Sheet, gunakan `activateComePlayersAllUnlockedSync()`.
 
 Atur Script Property **`CP_START_ROW`** ke nomor baris order pertama setelah blok CLOSING, misalnya `4908`. Header tetap dibaca dari **`CP_HEADER_ROW`**; untuk header gabungan baris 1–2 yang judulnya berada di baris 1, gunakan `CP_HEADER_ROW=1`.
 
@@ -166,7 +176,11 @@ Pada eksekusi berikutnya, data yang tidak berubah akan dihitung sebagai `unchang
 
 Endpoint tetap `POST /api/integrations/payroll-sheet`, dengan autentikasi Bearer yang sama. Payload versi 1 menerima `syncMode: "incremental" | "reconcile"` (default `reconcile` untuk klien lama). Kedua mode bersifat upsert saja; baris yang tidak disertakan tidak dihapus.
 
-Setiap baris membawa `rowNumber`, `values`, `display`, `boosterBlack`, serta `duplicateCode` jika KODE muncul lebih dari sekali dalam sheet. Respons berhasil, termasuk tanpa perubahan, selalu mengembalikan `added`, `updated`, `unchanged`, `skippedProtected`, `skippedConflicts`, `skippedInvalid`, serta `rowResults: [{ rowNumber, status }]` untuk acknowledgement per baris. Mode tidak dikenal atau nomor baris berulang ditolak dengan HTTP 400.
+Setiap baris membawa `rowNumber`, `values`, `display`, `boosterBlack`, serta `duplicateCode` jika KODE berulang dalam periode yang sama. Mode semua pesanan terdaftar juga mengirim `codeOccurrences` dari seluruh Sheet dan `newOrdersStartRow`. Baris sebelum batas tidak membuat pesanan baru; pembaruan harus cocok dengan nomor baris sumber tersimpan atau KODE yang terbukti unik.
+
+Payload dapat membawa `roster: { complete: true, sheets: [{ sheetName, rows: [{ rowNumber, name, type? }] }] }` dengan tepat tiga tab PAYROLL-1/2/3. Snapshot tidak lengkap atau nama ambigu dalam FH yang sama ditolak. `rosterAdded`, `rosterUpdated`, dan `rosterRemoved` memicu penyimpanan serta audit meskipun `rows` kosong.
+
+Respons berhasil, termasuk tanpa perubahan, selalu mengembalikan `added`, `updated`, `unchanged`, `skippedProtected`, `skippedConflicts`, `skippedInvalid`, `skippedHistorical`, `trackedRows: [{ reference, rowNumber? }]`, serta `rowResults: [{ rowNumber, status }]` untuk acknowledgement per baris. `trackedRows` hanya mengungkap identitas sumber, tanpa nilai keuangan, dan mencakup arsip yang dapat dipulihkan. Mode tidak dikenal, metadata kemunculan/batas tidak valid, atau nomor baris berulang ditolak dengan HTTP 400.
 
 Jika revision database berubah saat request, API membaca ulang dan menghitung merge ulang sampai tiga percobaan; order yang baru diverifikasi/manual tetap dilindungi. Jika terus bertabrakan, API mengembalikan 409 untuk retry. API selalu memakai aksi workspace `save`; tidak ada aksi Closing atau pembayaran.
 

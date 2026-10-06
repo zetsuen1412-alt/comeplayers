@@ -374,3 +374,254 @@ test("black BOOSTER worker list also parses when Google Sheets only visually wra
     ["Sem", 1],
   ]);
 });
+
+function monetaryPayload(rate: unknown, total: unknown, displayRate = String(rate ?? ""), displayTotal = String(total ?? "")) {
+  const source = payload();
+  source.rows[0].values[11] = rate;
+  source.rows[0].values[12] = total;
+  source.rows[0].display![11] = displayRate;
+  source.rows[0].display![12] = displayTotal;
+  return source;
+}
+
+test("numeric Sheet RATE/TOTAL take precedence over formatted decimal display", () => {
+  const source = monetaryPayload(2200, 44000, "Rp 2.200,0", "Rp 44.000,0");
+  const snapshot = structuredClone(source);
+  const result = mergeGoogleSheetPayroll(base(), source);
+  const order = (result.state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(order.rateMinor, 2200);
+  assert.equal(order.grossMinor, 44000);
+  assert.equal(order.quantity, 20);
+  assert.deepEqual(source, snapshot);
+});
+
+test("text RATE/TOTAL preserve decimals in Indonesian and English currency formats", () => {
+  const formats = [
+    ["2200.0", "44000.0"], ["2200,0", "44000,0"],
+    ["2.200,0", "44.000,0"], ["2,200.0", "44,000.0"],
+    ["Rp 2.200,00", "Rp 44.000,00"], ["Rp. 2.200,00", "Rp. 44.000,00"],
+    ["IDR 2,200.00", "IDR 44,000.00"], ["$2,200.0", "$44,000.0"],
+    ["2.200", "44.000"], ["2,200", "44,000"],
+    ["2\u00a0200,0", "44\u00a0000,0"], ["2200.000", "44000.000"],
+  ];
+  for (const [rate, total] of formats) {
+    const order = (mergeGoogleSheetPayroll(base(), monetaryPayload(rate, total)).state[workspaceKeys.orders] as Order[])[0];
+    assert.equal(order.rateMinor, 2200, rate);
+    assert.equal(order.grossMinor, 44000, total);
+    assert.equal(order.expectedPaymentMinor, 44000, total);
+  }
+});
+
+test("formatted money rounds decimal rupiah and validates repeated thousands groups", () => {
+  for (const [rate, total, expectedRate, expectedTotal] of [
+    ["Rp 2.200,49", "Rp 44.000,50", 2200, 44001],
+    ["2,200.50", "44,000.49", 2201, 44000],
+    ["1.234.567,00", "24.691.340,00", 1234567, 24691340],
+    ["1,234,567.00", "24,691,340.00", 1234567, 24691340],
+    ["1.234.567", "24.691.340", 1234567, 24691340],
+    ["1,234,567", "24,691,340", 1234567, 24691340],
+  ] as const) {
+    const order = (mergeGoogleSheetPayroll(base(), monetaryPayload(rate, total)).state[workspaceKeys.orders] as Order[])[0];
+    assert.equal(order.rateMinor, expectedRate, rate);
+    assert.equal(order.grossMinor, expectedTotal, total);
+  }
+});
+
+test("zero and blank money stay distinct and decimal display remains a valid fallback", () => {
+  const zero = (mergeGoogleSheetPayroll(base(), monetaryPayload(0, 0, "2.200,0", "44.000,0")).state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(zero.rateMinor, 0);
+  assert.equal(zero.grossMinor, 0);
+  const blank = (mergeGoogleSheetPayroll(base(), monetaryPayload("", "")).state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(blank.rateMinor, undefined);
+  assert.equal(blank.grossMinor, 0);
+  const displayed = (mergeGoogleSheetPayroll(base(), monetaryPayload(null, undefined, "2.200,0", "44.000,0")).state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(displayed.rateMinor, 2200);
+  assert.equal(displayed.grossMinor, 44000);
+  const totalFromRate = (mergeGoogleSheetPayroll(base(), monetaryPayload("2.200,0", "")).state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(totalFromRate.rateMinor, 2200);
+  assert.equal(totalFromRate.grossMinor, 44000);
+});
+
+test("negative formatted amounts preserve their sign and stay marked for review", () => {
+  for (const [rate, total] of [["Rp -2.200,0", "Rp -44.000,0"], ["-Rp 2.200,0", "-Rp 44.000,0"], ["(Rp 2.200,0)", "(Rp 44.000,0)"]]) {
+    const order = (mergeGoogleSheetPayroll(base(), monetaryPayload(rate, total)).state[workspaceKeys.orders] as Order[])[0];
+    assert.equal(order.rateMinor, -2200, rate);
+    assert.equal(order.grossMinor, -44000, total);
+    assert.equal(order.importIssues?.some(issue => issue.code === "sheet_amount_review"), true, total);
+  }
+});
+
+test("malformed or unsafe money never silently combines unrelated digits", () => {
+  for (const invalid of ["2.200.0", "2,200,0", "2.20.000,0", "2,20,000.0", "Rp 2?200", "2$200", "Rp 2€200", "2 2 00", "amount 2200", "2.2e3", "9007199254740992", Number.POSITIVE_INFINITY]) {
+    const source = monetaryPayload(invalid, invalid);
+    const order = (mergeGoogleSheetPayroll(base(), source).state[workspaceKeys.orders] as Order[])[0];
+    assert.equal(order.rateMinor, undefined, String(invalid));
+    assert.equal(order.grossMinor, 0, String(invalid));
+    assert.equal(order.importIssues?.some(issue => issue.code === "sheet_amount_review"), true, String(invalid));
+  }
+});
+
+test("a decimal-text price correction updates Sheet-owned financial fields without bypassing locks", () => {
+  const before = mergeGoogleSheetPayroll(base(), monetaryPayload(22000, 440000));
+  const corrected = monetaryPayload("2.200,0", "44.000,0");
+  const result = mergeGoogleSheetPayroll(before.state, corrected);
+  const order = (result.state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(result.updated, 1);
+  assert.equal(order.rateMinor, 2200);
+  assert.equal(order.grossMinor, 44000);
+  assert.equal(order.expectedPaymentMinor, 44000);
+  assert.equal(mergeGoogleSheetPayroll(result.state, corrected).unchanged, 1);
+  const locked = structuredClone(before.state);
+  (locked[workspaceKeys.orders] as Order[])[0].sheetSyncLocked = true;
+  const skipped = mergeGoogleSheetPayroll(locked, corrected);
+  assert.equal(skipped.skippedProtected, 1);
+  assert.deepEqual(skipped.state, locked);
+});
+
+test("all-period sync refreshes a tracked historical order but never imports unrelated history", () => {
+  const before = mergeGoogleSheetPayroll(base(), payload());
+  const source = monetaryPayload(2200, 44000);
+  source.newOrdersStartRow = 6000;
+  source.rows[0].codeOccurrences = 1;
+  const unknown = structuredClone(source.rows[0]);
+  unknown.rowNumber = 1000; unknown.values[0] = unknown.display![0] = "invalid old date";
+  unknown.values[1] = unknown.display![1] = "HISTORY";
+  const current = structuredClone(source.rows[0]);
+  current.rowNumber = 6001; current.values[1] = current.display![1] = "NEW";
+  source.rows = [unknown, source.rows[0], current];
+  const result = mergeGoogleSheetPayroll(before.state, source);
+  assert.equal(result.updated, 1);
+  assert.equal(result.added, 1);
+  assert.equal(result.skippedHistorical, 1);
+  assert.equal(result.skippedInvalid, 0);
+  const orders = result.state[workspaceKeys.orders] as Order[];
+  assert.deepEqual(orders.map(order => order.externalReference), ["X2821", "NEW"]);
+  assert.equal(orders[0].rateMinor, 2200);
+  assert.equal(orders[0].grossMinor, 44000);
+});
+
+test("an unrelated occurrence before Closing cannot block the tracked row or a new current order", () => {
+  const before = mergeGoogleSheetPayroll(base(), payload());
+  const source = monetaryPayload(2200, 44000); source.newOrdersStartRow = 6000;
+  source.rows[0].codeOccurrences = 2;
+  const otherPeriod = structuredClone(source.rows[0]); otherPeriod.rowNumber = 1000;
+  otherPeriod.values[11] = 999; otherPeriod.display![11] = "999";
+  source.rows = [otherPeriod, source.rows[0]];
+  const result = mergeGoogleSheetPayroll(before.state, source);
+  assert.equal(result.updated, 1);
+  assert.equal(result.skippedHistorical, 1);
+  assert.equal(result.skippedConflicts, 0);
+  assert.equal((result.state[workspaceKeys.orders] as Order[])[0].rateMinor, 2200);
+  const active = structuredClone(source.rows[1]); active.rowNumber = 6001;
+  active.values[1] = active.display![1] = "CURRENT";
+  const old = structuredClone(active); old.rowNumber = 900;
+  const created = mergeGoogleSheetPayroll(base(), { ...source, rows: [old, active] });
+  assert.equal(created.added, 1);
+  assert.equal(created.skippedHistorical, 1);
+  assert.equal((created.state[workspaceKeys.orders] as Order[])[0].importSourceRow, 6001);
+});
+
+test("a unique historical KODE may move while ambiguous or unproven moved rows are ignored", () => {
+  const before = mergeGoogleSheetPayroll(base(), payload());
+  const source = monetaryPayload(2200, 44000); source.newOrdersStartRow = 6000;
+  source.rows[0].rowNumber = 5100;
+  for (const occurrences of [undefined, 2]) {
+    source.rows[0].codeOccurrences = occurrences;
+    const result = mergeGoogleSheetPayroll(before.state, source);
+    assert.equal(result.skippedHistorical, 1);
+    assert.deepEqual(result.state, before.state);
+  }
+  source.rows[0].codeOccurrences = 1;
+  const result = mergeGoogleSheetPayroll(before.state, source);
+  assert.equal(result.updated, 1);
+  assert.equal((result.state[workspaceKeys.orders] as Order[])[0].importSourceRow, 5100);
+  assert.equal((result.state[workspaceKeys.orders] as Order[])[0].rateMinor, 2200);
+});
+
+test("same-period duplicate and all financial locks still protect historical refreshes", () => {
+  const source = monetaryPayload(2200, 44000); source.newOrdersStartRow = 6000;
+  source.rows[0].codeOccurrences = 1;
+  for (const patch of [{ sheetSyncLocked: true }, { operationalStatus: "verified" as const }, { matchedPaymentMinor: 1 },
+    { payrollPeriodId: "closed-period" }, { inventoryConsumedAt: "2026-10-06T00:00:00Z" }]) {
+    const before = mergeGoogleSheetPayroll(base(), payload());
+    Object.assign((before.state[workspaceKeys.orders] as Order[])[0], patch);
+    const result = mergeGoogleSheetPayroll(before.state, source);
+    assert.equal(result.skippedProtected, 1);
+    assert.deepEqual(result.state, before.state);
+  }
+  const before = mergeGoogleSheetPayroll(base(), payload());
+  source.rows[0].duplicateCode = true;
+  const result = mergeGoogleSheetPayroll(before.state, source);
+  assert.equal(result.skippedConflicts, 1);
+  assert.deepEqual(result.state, before.state);
+});
+
+test("all-period complete presence archives missing unprotected history and keeps Closing protected orders", () => {
+  const before = mergeGoogleSheetPayroll(base(), payload());
+  const complete = { ...payload(), newOrdersStartRow: 6000, rows: [], syncMode: "reconcile" as const,
+    presence: { complete: true as const, startRow: 3, references: [] as string[] } };
+  assert.equal(mergeGoogleSheetPayroll(before.state, complete).archived, 1);
+  before.state[workspaceKeys.closings] = [{ id: "closed", orderRefs: ["X2821"] }];
+  assert.equal(mergeGoogleSheetPayroll(before.state, complete).archived, 0);
+});
+
+test("historical boundaries and global KODE counts reject invalid types and bounds", () => {
+  for (const value of [0, 1, 2.5, 50002, "6000", Number.POSITIVE_INFINITY]) {
+    assert.throws(() => validateGoogleSheetSyncPayload({ ...payload(), newOrdersStartRow: value }), /Batas pesanan/);
+  }
+  const source = payload(); source.headerRow = 2; source.newOrdersStartRow = 2;
+  assert.throws(() => validateGoogleSheetSyncPayload(source), /Batas pesanan/);
+  for (const value of [0, -1, 1.5, 50001, "1", Number.NaN]) {
+    const input = payload(); (input.rows[0] as unknown as { codeOccurrences: unknown }).codeOccurrences = value;
+    assert.throws(() => validateGoogleSheetSyncPayload(input), /kemunculan KODE/);
+  }
+});
+
+test("tracked row manifests expose only same-source identities and retain archived restoration candidates", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload());
+  const orders = initial.state[workspaceKeys.orders] as Order[];
+  orders[0].sheetDeletedAt = "2026-10-05T00:00:00Z";
+  const manual = { ...orders[0], id: "manual:order", externalReference: "MANUAL" };
+  const otherSource = { ...orders[0], id: "gsheet:other:MUTASI_FH:OTHER", externalReference: "OTHER" };
+  const legacy = { ...orders[0], id: sheetOrderId(payload(), 9900), externalReference: "LEGACY", importSourceRow: undefined };
+  initial.state[workspaceKeys.orders] = [...orders, manual, otherSource, legacy];
+  const result = mergeGoogleSheetPayroll(initial.state, { ...payload(), rows: [], newOrdersStartRow: 6000 });
+  assert.deepEqual(result.trackedRows, [{ reference: "X2821", rowNumber: 5057 }, { reference: "LEGACY" }]);
+  assert.deepEqual(result.state, initial.state);
+});
+
+test("a reused current-period KODE cannot overwrite a tracked historical identity across separate batches", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload());
+  const correct = monetaryPayload(2200, 44000);
+  correct.newOrdersStartRow = 6000; correct.rows[0].codeOccurrences = 2;
+  const reused = structuredClone(correct.rows[0]); reused.rowNumber = 6001;
+  reused.values[11] = 999; reused.display![11] = "999";
+  const together = mergeGoogleSheetPayroll(initial.state, { ...correct, rows: [reused, correct.rows[0]] });
+  assert.equal(together.updated, 1); assert.equal(together.skippedConflicts, 1);
+  assert.equal((together.state[workspaceKeys.orders] as Order[])[0].importSourceRow, 5057);
+  assert.equal((together.state[workspaceKeys.orders] as Order[])[0].rateMinor, 2200);
+  const historic = mergeGoogleSheetPayroll(initial.state, correct);
+  const laterBatch = mergeGoogleSheetPayroll(historic.state, { ...correct, rows: [reused] });
+  assert.equal(laterBatch.skippedConflicts, 1);
+  assert.deepEqual(laterBatch.state, historic.state);
+});
+test("Sheet date edits synchronize the derived deadline while locked dates remain unchanged", () => {
+  const initial = mergeGoogleSheetPayroll(base(), payload());
+  const snapshot = structuredClone(initial.state);
+  const corrected = payload();
+  corrected.rows[0].values[0] = corrected.rows[0].display![0] = "26/09/2026 1:30";
+  const result = mergeGoogleSheetPayroll(initial.state, corrected);
+  const order = (result.state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(result.updated, 1);
+  assert.equal(order.orderedAt, "2026-09-25T18:30:00.000Z");
+  assert.equal(order.dueAt, order.orderedAt);
+  assert.equal(mergeGoogleSheetPayroll(result.state, corrected).unchanged, 1);
+  assert.deepEqual(initial.state, snapshot);
+
+  const locked = structuredClone(initial.state);
+  (locked[workspaceKeys.orders] as Order[])[0].sheetSyncLocked = true;
+  const protectedResult = mergeGoogleSheetPayroll(locked, corrected);
+  assert.equal(protectedResult.skippedProtected, 1);
+  assert.deepEqual(protectedResult.state, locked);
+});
+

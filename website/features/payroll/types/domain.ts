@@ -79,6 +79,15 @@ export interface Employee {
   workforceStatus: EmployeeWorkStatus;
   utilization: number;
   earningsMinor: number;
+  /** Stable website identity linked to an authoritative Payroll sheet roster. */
+  sheetRosterSource?: {
+    spreadsheetId: string;
+    sheetName: "PAYROLL-1" | "PAYROLL-2" | "PAYROLL-3";
+    rowNumber: number;
+    type?: string;
+  };
+  /** Retained identity when a referenced employee disappears from the Sheet. */
+  sheetRosterMissingAt?: string;
 }
 
 export interface OrderWorkerAssignment {

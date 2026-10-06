@@ -99,7 +99,7 @@ function removeComePlayersPayrollSyncTriggers() {
 }
 
 function reinstallComePlayersPayrollRealtimeSync() {
-  var lock = LockService.getScriptLock();
+  var lock = LockService.getUserLock();
   lock.waitLock(30000);
   try {
     var props = PropertiesService.getScriptProperties();
@@ -130,6 +130,12 @@ function syncComePlayersPayroll() { return runComePlayersPayrollSync_("reconcile
 // Installable trigger only: a simple onEdit cannot authorize UrlFetchApp.
 function onComePlayersPayrollEdit(event) {
   if (!event || !event.range || !event.source) return { ok: true, skipped: "no_edit_event" };
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('CP_SYNC_ROSTER') === 'true'
+    && /^PAYROLL-[123]$/.test(event.range.getSheet().getName())) {
+    if (event.source.getId() !== props.getProperty('CP_SPREADSHEET_ID')) return { ok: true, skipped: 'other_sheet' };
+    return runComePlayersPayrollSync_('reconcile', null);
+  }
   return runComePlayersPayrollSync_("incremental", event);
 }
 
@@ -156,6 +162,45 @@ function activateComePlayersSourceSync() {
   return syncComePlayersPayroll();
 }
 
+/** Refresh existing unlocked orders across every period without importing old history. */
+function activateComePlayersAllUnlockedSync() {
+  var props = PropertiesService.getScriptProperties();
+  var id = props.getProperty('CP_SPREADSHEET_ID');
+  if (!id) throw new Error('Sumber payroll belum dikonfigurasi.');
+  var spreadsheet = SpreadsheetApp.openById(id);
+  var sheet = spreadsheet.getSheetByName(props.getProperty('CP_SHEET_NAME') || 'MUTASI FH');
+  if (!sheet) throw new Error('Sheet MUTASI FH sumber tidak ditemukan.');
+  comePlayersClosingStart_(sheet);
+  comePlayersRoster_(spreadsheet); // Validate every payroll tab before enabling its snapshot.
+  props.setProperties({ CP_SYNC_ALL_EXISTING: 'true', CP_SYNC_ROSTER: 'true', CP_SYNC_DELETIONS: 'true' }, false);
+  reinstallComePlayersPayrollRealtimeSync();
+  return syncComePlayersPayroll();
+}
+
+function comePlayersRoster_(spreadsheet) {
+  var sheets = ['PAYROLL-1', 'PAYROLL-2', 'PAYROLL-3'].map(function (sheetName) {
+    var sheet = spreadsheet.getSheetByName(sheetName);
+    if (!sheet) throw new Error('Sheet ' + sheetName + ' tidak ditemukan; daftar karyawan tidak dikirim.');
+    if (String(sheet.getRange(2, 2).getDisplayValues()[0][0] || '').trim().toUpperCase() !== 'NAMA') {
+      throw new Error('Header NAMA pada ' + sheetName + ' tidak valid.');
+    }
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 5000) throw new Error('Daftar karyawan ' + sheetName + ' terlalu besar.');
+    var values = lastRow > 2 ? sheet.getRange(3, 2, lastRow - 2, 4).getDisplayValues() : [];
+    var rows = [];
+    values.forEach(function (cells, index) {
+      var name = String(cells[0] || '').trim().replace(/\s+/g, ' ');
+      if (!name || /^(?:NAMA|TOTAL(?:\s.*)?|GOLD ALL GAME|GOLD PAYROLL|SELISIH|FH[123])$/i.test(name)) return;
+      var row = { rowNumber: index + 3, name: name };
+      var type = String(cells[3] || '').trim();
+      if (type) row.type = type;
+      rows.push(row);
+    });
+    return { sheetName: sheetName, rows: rows };
+  });
+  return { complete: true, sheets: sheets };
+}
+
 function comePlayersClosingStart_(sheet) {
   var dates = sheet.getRange(1, 1, Math.max(1, sheet.getLastRow()), 1).getDisplayValues();
   for (var i = dates.length - 1; i >= 0; i--) {
@@ -171,9 +216,11 @@ function comePlayersSignature_(value) {
 }
 
 function runComePlayersPayrollSync_(mode, event) {
-  var lock = LockService.getScriptLock();
+  // Payroll only reads the source and writes CP_* state; the mirror writes its target/EGM_*.
+  // A user lock serializes the installer's payroll triggers independently of the mirror lock.
+  var lock = LockService.getUserLock();
   // A missed edit is picked up by reconciliation; never advance its signature.
-  if (!lock.tryLock(1000)) return { ok: true, saved: false, skipped: "busy" };
+  if (!lock.tryLock(mode === 'reconcile' ? 25000 : 1000)) return { ok: true, saved: false, skipped: "busy" };
   try { return syncComePlayersPayrollRows_(mode, event); }
   finally { lock.releaseLock(); }
 }
@@ -200,8 +247,13 @@ function syncComePlayersPayrollRows_(mode, event) {
   if (!actorEmail) throw new Error("CP_ACTOR_EMAIL belum dikonfigurasi.");
   if (!Number.isInteger(headerRow) || headerRow < 1) throw new Error("CP_HEADER_ROW tidak valid.");
   // Keep header mapping independent from the first open-period data row.
+  var allExisting = config.CP_SYNC_ALL_EXISTING === 'true';
+  var newOrdersStartRow;
   var dataStartRow = Number(config.CP_START_ROW || (headerRow + 1));
-  if (config.CP_START_AFTER_CLOSING === 'true') dataStartRow = comePlayersClosingStart_(sheet);
+  if (allExisting) {
+    newOrdersStartRow = comePlayersClosingStart_(sheet);
+    dataStartRow = headerRow + 1;
+  } else if (config.CP_START_AFTER_CLOSING === 'true') dataStartRow = comePlayersClosingStart_(sheet);
   if (!Number.isSafeInteger(dataStartRow) || dataStartRow <= headerRow) {
     throw new Error("CP_START_ROW harus berupa nomor baris setelah header.");
   }
@@ -213,7 +265,8 @@ function syncComePlayersPayrollRows_(mode, event) {
   var syncDeletions = config.CP_SYNC_DELETIONS === 'true';
   var namespaceId = config.CP_SYNC_NAMESPACE_ID || spreadsheet.getId();
   var summary = { ok: true, saved: false, syncMode: mode, added: 0, updated: 0, archived: 0, restored: 0, unchanged: 0,
-    skippedProtected: 0, skippedConflicts: 0, skippedInvalid: 0, sent: 0, deferred: 0 };
+    skippedProtected: 0, skippedConflicts: 0, skippedInvalid: 0, skippedHistorical: 0,
+    rosterAdded: 0, rosterUpdated: 0, rosterRemoved: 0, sent: 0, deferred: 0 };
   if (event && event.range.getLastRow() < dataStartRow) return summary;
   if (endRow < firstRow && !syncDeletions) return summary;
   if (lastRow - dataStartRow + 1 > 10000) throw new Error("Batas sinkronisasi 10000 baris aktif terlampaui.");
@@ -221,16 +274,35 @@ function syncComePlayersPayrollRows_(mode, event) {
   var headers = sheet.getRange(headerRow, 1, 1, lastColumn).getDisplayValues()[0];
   var codeColumn = findComePlayersHeader_(headers, ["KODE", "CODE", "ORDER CODE"], 1);
   var boosterColumn = findComePlayersHeader_(headers, ["BOOSTER", "KARYAWAN", "PEKERJA"], 5);
-  if (syncDeletions && ['KODE', 'CODE', 'ORDERCODE'].indexOf(normalizeComePlayersHeader_(headers[codeColumn])) < 0) throw new Error('Header KODE tidak valid; tidak ada penghapusan yang diproses.');
+  if ((syncDeletions || allExisting) && ['KODE', 'CODE', 'ORDERCODE'].indexOf(normalizeComePlayersHeader_(headers[codeColumn])) < 0) throw new Error('Header KODE tidak valid; tidak ada penghapusan yang diproses.');
   if (lastRow > 50000) throw new Error('Batas pemeriksaan KODE lengkap terlampaui.');
-  var allCodeValues = syncDeletions && lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
-  // Scan KODE only in the configured period; earlier closed periods are excluded.
+  var allCodeValues = (syncDeletions || allExisting) && lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
+  // Legacy mode scans the configured period; all-existing mode scans complete history.
   var codeValues = lastRow >= dataStartRow ? sheet.getRange(dataStartRow, codeColumn + 1, lastRow - dataStartRow + 1, 1).getDisplayValues() : [];
   var codeCounts = Object.create(null);
-  codeValues.forEach(function (row) {
-    var key = String(row[0] || "").trim().toLowerCase();
-    if (key) codeCounts[key] = (codeCounts[key] || 0) + 1;
-  });
+  var globalCodeCounts = Object.create(null);
+  var periods = Object.create(null);
+  if (allExisting) {
+    var dateValues = lastRow > headerRow ? sheet.getRange(headerRow + 1, 1, lastRow - headerRow, 1).getDisplayValues() : [];
+    var period = headerRow;
+    allCodeValues.forEach(function (row, index) {
+      var number = headerRow + 1 + index;
+      if (String(dateValues[index][0] || '').trim().toUpperCase() === 'CLOSING') period = number;
+      periods[number] = period;
+      var key = String(row[0] || '').trim().toLowerCase();
+      if (!key) return;
+      globalCodeCounts[key] = (globalCodeCounts[key] || 0) + 1;
+      var scoped = period + ':' + key;
+      codeCounts[scoped] = (codeCounts[scoped] || 0) + 1;
+    });
+  } else {
+    codeValues.forEach(function (row) {
+      var key = String(row[0] || "").trim().toLowerCase();
+      if (key) codeCounts[key] = (codeCounts[key] || 0) + 1;
+    });
+  }
+  var roster = config.CP_SYNC_ROSTER === 'true' ? comePlayersRoster_(spreadsheet) : undefined;
+  var rosterSignature = roster ? comePlayersSignature_(roster) : undefined;
   var rowCount = Math.max(0, endRow - firstRow + 1);
   var range = rowCount ? sheet.getRange(firstRow, 1, rowCount, lastColumn) : null;
   var values = range ? range.getValues() : [];
@@ -247,6 +319,53 @@ function syncComePlayersPayrollRows_(mode, event) {
     try { buckets[key] = JSON.parse(config[key]); } catch (error) { buckets[key] = {}; }
   });
   function cacheKey(rowNumber) { return cachePrefix + Math.floor(rowNumber / 100); }
+  function inventoryUnchanged() {
+    var currentCodes = lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
+    var currentDates = allExisting && lastRow > headerRow ? sheet.getRange(headerRow + 1, 1, lastRow - headerRow, 1).getDisplayValues() : [];
+    return sheet.getLastRow() === lastRow && JSON.stringify(currentCodes) === JSON.stringify(allCodeValues)
+      && (!allExisting || JSON.stringify(currentDates) === JSON.stringify(dateValues));
+  }
+  function sendPresence(requireTrackedRows) {
+    var payload = { version: 1, syncMode: 'reconcile', spreadsheetId: namespaceId,
+      spreadsheetName: spreadsheet.getName(), sheetName: sheetName, headers: headers,
+      sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: [],
+      roster: roster, newOrdersStartRow: newOrdersStartRow, headerRow: headerRow };
+    if (syncDeletions) payload.presence = { complete: true, startRow: dataStartRow,
+      references: allCodeValues.map(function (r) { return String(r[0] || '').trim(); }).filter(Boolean) };
+    var response = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json',
+      headers: { Authorization: 'Bearer ' + secret }, payload: JSON.stringify(payload), muteHttpExceptions: true });
+    var status = response.getResponseCode();
+    props.setProperty('CP_LAST_SYNC_STATUS', String(status));
+    if (status < 200 || status >= 300) throw new Error('Pemeriksaan pesanan Sheet gagal (HTTP ' + status + '); dicoba lagi menit berikutnya.');
+    var result = JSON.parse(response.getContentText());
+    if (result.ok !== true || !Array.isArray(result.refreshReferences)
+      || (requireTrackedRows && (!Array.isArray(result.trackedRows) || result.trackedRows.some(function (row) {
+        return !row || typeof row.reference !== 'string' || !row.reference.trim()
+          || (row.rowNumber !== undefined && (!Number.isSafeInteger(row.rowNumber) || row.rowNumber <= headerRow || row.rowNumber > 50000));
+      })))) throw new Error('Respons pemeriksaan pesanan Sheet tidak valid.');
+    ['archived', 'skippedProtected', 'rosterAdded', 'rosterUpdated', 'rosterRemoved'].forEach(function (key) { summary[key] += Number(result[key] || 0); });
+    summary.saved = summary.saved || result.saved === true;
+    // A requested unlock/restoration invalidates the prior signature immediately.
+    var refresh = Object.create(null);
+    result.refreshReferences.forEach(function (ref) { refresh[String(ref).trim().toLowerCase()] = true; });
+    codeValues.forEach(function (r, index) {
+      if (!refresh[String(r[0] || '').trim().toLowerCase()]) return;
+      var number = dataStartRow + index, key = cacheKey(number);
+      if (buckets[key]) { delete buckets[key][number]; dirtyBuckets[key] = true; }
+    });
+    return result;
+  }
+  var tracked = Object.create(null);
+  if (allExisting) {
+    // The identity preflight also applies roster before resolving order workers.
+    // Recheck KODE so no deletion or upload is based on a partially moved inventory.
+    if (!inventoryUnchanged()) throw new Error('Daftar KODE atau penanda CLOSING berubah saat dibaca; dicoba lagi menit berikutnya.');
+    sendPresence(true).trackedRows.forEach(function (row) {
+      var key = row.reference.trim().toLowerCase();
+      if (!tracked[key]) tracked[key] = [];
+      tracked[key].push(row.rowNumber);
+    });
+  }
   // Prune signatures for removed/blank rows, never ComePlayers orders.
   if (mode === "reconcile") {
     Object.keys(buckets).forEach(function (key) {
@@ -262,14 +381,21 @@ function syncComePlayersPayrollRows_(mode, event) {
   for (var i = 0; i < rowCount; i++) {
     var code = String(display[i][codeColumn] || values[i][codeColumn] || "").trim();
     if (!code) continue;
+    var rowNumber = firstRow + i;
+    var historical = allExisting && rowNumber < newOrdersStartRow;
+    if (historical && (!tracked[code.toLowerCase()] || (globalCodeCounts[code.toLowerCase()] !== 1
+      && tracked[code.toLowerCase()].indexOf(rowNumber) < 0))) {
+      summary.skippedHistorical++; continue;
+    }
     var row = {
-      rowNumber: firstRow + i,
+      rowNumber: rowNumber,
       values: values[i].map(comePlayersJsonValue_),
       display: display[i],
       boosterBlack: isComePlayersBlack_(backgrounds[i][boosterColumn]),
-      duplicateCode: codeCounts[code.toLowerCase()] > 1
+      duplicateCode: codeCounts[(allExisting ? periods[firstRow + i] + ':' : '') + code.toLowerCase()] > 1
     };
-    var signature = comePlayersSignature_([url, actorEmail, sheetName, headers, row]);
+    if (allExisting) row.codeOccurrences = globalCodeCounts[code.toLowerCase()];
+    var signature = comePlayersSignature_([url, actorEmail, sheetName, headers, row, newOrdersStartRow, rosterSignature]);
     var bucket = buckets[cacheKey(row.rowNumber)] || {};
     var cached = String(bucket[row.rowNumber] || "");
     var retryMinute = cached.indexOf(":") >= 0 ? parseInt(cached.split(":")[1], 36) : 0;
@@ -279,6 +405,11 @@ function syncComePlayersPayrollRows_(mode, event) {
     signatures[row.rowNumber] = signature;
     rows.push(row);
   }
+  // Current orders make progress first if history needs several batches.
+  if (allExisting) rows.sort(function (left, right) {
+    return Number(left.rowNumber < newOrdersStartRow) - Number(right.rowNumber < newOrdersStartRow)
+      || left.rowNumber - right.rowNumber;
+  });
 
   function saveSignatures() {
     var changed = {};
@@ -296,7 +427,8 @@ function syncComePlayersPayrollRows_(mode, event) {
     var batch = rows.slice(offset, offset + COMEPLAYERS_PAYROLL_BATCH_SIZE);
     var payload = { version: 1, syncMode: mode, spreadsheetId: namespaceId,
       spreadsheetName: spreadsheet.getName(), sheetName: sheet.getName(), headerRow: headerRow,
-      headers: headers, sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: batch };
+      headers: headers, sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: batch,
+      newOrdersStartRow: newOrdersStartRow, roster: roster };
     var response = UrlFetchApp.fetch(url, {
       method: "post", contentType: "application/json", headers: { Authorization: "Bearer " + secret },
       payload: JSON.stringify(payload), muteHttpExceptions: true
@@ -309,11 +441,11 @@ function syncComePlayersPayrollRows_(mode, event) {
     if (result.ok !== true || !Array.isArray(result.rowResults)) throw new Error("Respons sync tidak valid; signature tidak disimpan.");
     summary.sent += batch.length;
     summary.saved = summary.saved || result.saved === true;
-    ["added", "updated", "archived", "restored", "unchanged", "skippedProtected", "skippedConflicts", "skippedInvalid"].forEach(function (key) {
+    ["added", "updated", "archived", "restored", "unchanged", "skippedProtected", "skippedConflicts", "skippedInvalid", "skippedHistorical", "rosterAdded", "rosterUpdated", "rosterRemoved"].forEach(function (key) {
       summary[key] += Number(result[key] || 0);
     });
     result.rowResults.forEach(function (ack) {
-      var applied = ["added", "updated", "unchanged"].indexOf(ack.status) >= 0;
+      var applied = ["added", "updated", "unchanged", "skippedHistorical"].indexOf(ack.status) >= 0;
       if (!applied && ["skippedProtected", "skippedConflicts", "skippedInvalid"].indexOf(ack.status) < 0) return;
       if (!batch.some(function (row) { return row.rowNumber === ack.rowNumber; })) return;
       var key = cacheKey(ack.rowNumber);
@@ -329,33 +461,26 @@ function syncComePlayersPayrollRows_(mode, event) {
   // Presence is never inferred from a partial row batch. Recheck the complete KODE
   // inventory after all writes; a concurrent row move/clear defers deletion.
   if (syncDeletions && !summary.deferred) {
-    var currentCodes = lastRow > headerRow ? sheet.getRange(headerRow + 1, codeColumn + 1, lastRow - headerRow, 1).getDisplayValues() : [];
-    if (sheet.getLastRow() !== lastRow || JSON.stringify(currentCodes) !== JSON.stringify(allCodeValues)) {
+    if (!inventoryUnchanged()) {
       summary.deletionsDeferred = true;
     } else {
-      var presencePayload = { version: 1, syncMode: 'reconcile', spreadsheetId: namespaceId,
-        spreadsheetName: spreadsheet.getName(), sheetName: sheetName, headers: headers,
-        sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: [],
-        presence: { complete: true, startRow: dataStartRow, references: allCodeValues.map(function (r) { return String(r[0] || '').trim(); }).filter(Boolean) } };
-      var presenceResponse = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json',
-        headers: { Authorization: 'Bearer ' + secret }, payload: JSON.stringify(presencePayload), muteHttpExceptions: true });
-      var presenceStatus = presenceResponse.getResponseCode();
-      if (presenceStatus < 200 || presenceStatus >= 300) throw new Error('Pemeriksaan penghapusan gagal (HTTP ' + presenceStatus + '); dicoba lagi menit berikutnya.');
-      var presenceResult = JSON.parse(presenceResponse.getContentText());
-      if (presenceResult.ok !== true || !Array.isArray(presenceResult.refreshReferences)) throw new Error('Respons pemeriksaan KODE tidak valid.');
-      summary.archived += Number(presenceResult.archived || 0);
-      summary.skippedProtected += Number(presenceResult.skippedProtected || 0);
-      summary.saved = summary.saved || presenceResult.saved === true;
-      // Unlocking/restoring must work even when the spreadsheet value did not change.
-      var refresh = Object.create(null);
-      presenceResult.refreshReferences.forEach(function (ref) { refresh[String(ref).trim().toLowerCase()] = true; });
-      codeValues.forEach(function (r, index) {
-        if (!refresh[String(r[0] || '').trim().toLowerCase()]) return;
-        var number = dataStartRow + index, key = cacheKey(number);
-        if (buckets[key]) { delete buckets[key][number]; dirtyBuckets[key] = true; }
-      });
+      sendPresence(false);
       saveSignatures();
     }
+  } else if (roster && !allExisting && !summary.deferred) {
+    // The roster must reach the server even if every order signature was unchanged.
+    var rosterPayload = { version: 1, syncMode: 'reconcile', spreadsheetId: namespaceId,
+      spreadsheetName: spreadsheet.getName(), sheetName: sheetName, headerRow: headerRow,
+      headers: headers, sentAt: new Date().toISOString(), actor: { email: actorEmail }, rows: [],
+      roster: roster, newOrdersStartRow: newOrdersStartRow };
+    var rosterResponse = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json',
+      headers: { Authorization: 'Bearer ' + secret }, payload: JSON.stringify(rosterPayload), muteHttpExceptions: true });
+    var rosterStatus = rosterResponse.getResponseCode();
+    if (rosterStatus < 200 || rosterStatus >= 300) throw new Error('Pembaruan daftar karyawan gagal (HTTP ' + rosterStatus + ').');
+    var rosterResult = JSON.parse(rosterResponse.getContentText());
+    if (rosterResult.ok !== true) throw new Error('Respons daftar karyawan tidak valid.');
+    summary.saved = summary.saved || rosterResult.saved === true;
+    ['rosterAdded', 'rosterUpdated', 'rosterRemoved'].forEach(function (key) { summary[key] += Number(rosterResult[key] || 0); });
   }
   props.setProperties({ CP_LAST_SYNC_AT: new Date().toISOString(), CP_LAST_SYNC_RESULT: JSON.stringify(summary) }, false);
   console.log(JSON.stringify(summary));

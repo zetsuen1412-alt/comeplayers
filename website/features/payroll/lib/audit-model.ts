@@ -1,4 +1,5 @@
 import { canonical, payrollFailure, workspaceKeys as K, type WorkspaceState } from "./workspace-model";
+import { hasAutomaticSheetProtection, isSheetOrder } from "./sheet-sync-policy";
 import type { Order } from "../types/domain";
 
 export const auditSections: Record<string,string> = {
@@ -34,12 +35,25 @@ export function diffWorkspace(before: WorkspaceState, after: WorkspaceState): Au
   }
   return changes;
 }
+// Keep this set aligned with the source fields merged by google-sheet-sync.
+const sheetOwnedOrderFields = [
+  "orderNumber", "externalReference", "source", "buyerName", "orderName", "orderType", "task",
+  "game", "gameId", "gameName", "service", "process", "employeeCode", "employeeName", "team",
+  "quantity", "rateMinor", "grossMinor", "workerAssignments", "expectedPaymentMinor", "orderedAt", "dueAt",
+  "importIssues", "importNeedsReview", "importSourceRow",
+] as const satisfies readonly (keyof Order)[];
+
 // Client annotations may supply a reason, but never the identity or clock of the editor.
 export function attributeWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState, actor: {id:string;name:string;isAdmin?:boolean}, now: string) {
   const result = structuredClone(next);
   const oldOrders = new Map(((previous[K.orders] ?? []) as Order[]).map(order => [order.id, order]));
+  const closingReferences = new Set(((previous[K.closings] ?? []) as { orderRefs?: string[] }[])
+    .flatMap(closing => closing.orderRefs ?? []).map(reference => reference.trim().toLowerCase()));
   for (const order of (result[K.orders] ?? []) as Order[]) {
     const old = oldOrders.get(order.id);
+    if (old && isSheetOrder(old) && (order.externalReference !== old.externalReference || order.orderNumber !== old.orderNumber)) {
+      payrollFailure("KODE pesanan dari Sheet harus diubah di Sheet.", 409);
+    }
     if (!actor.isAdmin && (((order.operationalStatus === "verified" || old?.operationalStatus === "verified") && order.operationalStatus !== old?.operationalStatus)
       || ((order.financeStatus === "closed" || old?.financeStatus === "closed") && order.financeStatus !== old?.financeStatus)
       || ["verifiedAt", "payrollClosedAt", "payrollPeriodId"].some(key => order[key as keyof Order] !== old?.[key as keyof Order]))) {
@@ -57,6 +71,17 @@ export function attributeWorkspaceEdit(previous: WorkspaceState, next: Workspace
     }
     if (order.sheetDeletedAt !== old?.sheetDeletedAt) {
       if (!actor.isAdmin || !old?.sheetDeletedAt || order.sheetDeletedAt || !order.sheetSyncLocked) payrollFailure("Arsip spreadsheet hanya dapat dipulihkan admin dengan mengunci pesanannya.", 403);
+    }
+    // Request an acknowledged source replay after a website override. The source
+    // row hash may be unchanged, so presence reconciliation clears that cached hash.
+    // Validate client metadata above before stamping this server-owned flag.
+    if (old && isSheetOrder(old) && !old.sheetSyncLocked && !order.sheetSyncLocked
+      && !old.sheetDeletedAt && !order.sheetDeletedAt
+      && !hasAutomaticSheetProtection(order)
+      && !closingReferences.has(old.externalReference.trim().toLowerCase())
+      && (hasAutomaticSheetProtection(old)
+        || sheetOwnedOrderFields.some(field => canonical(old[field]) !== canonical(order[field])))) {
+      order.sheetSyncRefreshRequested = true;
     }
   }
   const oldRows = (previous[K.history] ?? []) as Record<string,unknown>[];

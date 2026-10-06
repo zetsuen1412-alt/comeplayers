@@ -9,19 +9,26 @@ import type { Order } from "../features/payroll/types/domain";
 
 const script = readFileSync(new URL("../scripts/comeplayers-payroll-google-sheets.gs", import.meta.url), "utf8");
 const headers = ["TANGGAL", "KODE", "GATE", "NAMA BUYER", "NAMA ORDER", "BOOSTER", "FH", "STATUS", "GAME", "PROSES", "JUMLAH", "RATE", "TOTAL", "TASK"];
-type Summary = { sent: number; unchanged: number; deferred: number; skipped?: string; skippedConflicts: number };
+type Summary = { saved: boolean; sent: number; unchanged: number; deferred: number; skipped?: string; skippedConflicts: number; skippedHistorical: number };
 type Trigger = { handler: string; kind?: string; minutes?: number; getHandlerFunction(): string };
 
 function harness(count = 3, digestDelayMs = 0) {
   const cells: unknown[][] = [[], headers, ...Array.from({ length: count }, (_, i) =>
     ["25/09/2026 00:24", `CODE-${i}`, "G2G", "Buyer", "40M SKADI", "", "2", "START", "RO", "F2F", 20, 1000, 20000, "Task"])];
   const colors = new Map<number, string>();
+  const rosterCells: Record<string, unknown[][]> = {
+    "PAYROLL-1": [[], ["", "NAMA"], [1, "FH1 Worker", "BOOST", "", "OFF"], ["", "Unnumbered", "BOOST", "", "∞"], ["", "TOTAL"], ["", "FH1"]],
+    "PAYROLL-2": [[], ["", "NAMA"], [1, "Irwan", "BOOST", "", "SHIFT"]],
+    "PAYROLL-3": [[], ["", "NAMA"], [1, "FH3 Worker", "BOOST", "", "NEW"]],
+  };
+  const lockTimeouts: number[] = [];
   const properties: Record<string, string> = { CP_SYNC_SECRET: "a".repeat(30), CP_ACTOR_EMAIL: "admin@example.com",
     CP_SPREADSHEET_ID: "test-book", CP_SHEET_NAME: "MUTASI FH", CP_HEADER_ROW: "2" };
   let locked = false;
   let status = 200;
   let duringFetch: (() => void) | undefined;
   let afterFetch: (() => void) | undefined;
+  let responseTransform: ((response: Record<string, unknown>) => Record<string, unknown>) | undefined;
   let requests = 0;
   const posts: GoogleSheetSyncPayload[] = [];
   const reads: { row: number; column: number; rows: number; columns: number }[] = [];
@@ -49,13 +56,20 @@ function harness(count = 3, digestDelayMs = 0) {
   }
   const sheet = { getName: () => "MUTASI FH", getSheetId: () => 123, getLastRow: () => cells.length,
     getLastColumn: () => headers.length, getRange: range };
-  const spreadsheet = { getId: () => "test-book", getName: () => "Workbook", getSheetByName: (name: string) => name === "MUTASI FH" ? sheet : null };
+  function rosterSheet(name: string) {
+    if (!rosterCells[name]) return null;
+    return { getName: () => name, getSheetId: () => 200 + Number(name.slice(-1)), getLastRow: () => rosterCells[name].length,
+      getRange: (row: number, column: number, rows = 1, columns = 1) => ({
+        getDisplayValues: () => Array.from({ length: rows }, (_, r) => Array.from({ length: columns }, (_, c) => String(rosterCells[name][row - 1 + r]?.[column - 1 + c] ?? ""))),
+      }) };
+  }
+  const spreadsheet = { getId: () => "test-book", getName: () => "Workbook", getSheetByName: (name: string) => name === "MUTASI FH" ? sheet : rosterSheet(name) };
   const context = createContext({
     Date: ScriptDate,
     PropertiesService: { getScriptProperties: () => propertyStore },
     SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet, openById: () => spreadsheet },
-    LockService: { getScriptLock: () => ({
-      tryLock: () => { if (locked) return false; locked = true; return true; },
+    LockService: { getScriptLock: () => { throw new Error("Payroll must not contend with the mirror script lock"); }, getUserLock: () => ({
+      tryLock: (timeout: number) => { lockTimeouts.push(timeout); if (locked) return false; locked = true; return true; },
       waitLock: () => { if (locked) throw new Error("busy"); locked = true; },
       releaseLock: () => { locked = false; },
     }) },
@@ -92,21 +106,26 @@ function harness(count = 3, digestDelayMs = 0) {
       const merged = mergeGoogleSheetPayroll(state, payload);
       state = merged.state;
       afterFetch?.();
-      return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ ...merged, state: undefined, ok: true, saved: merged.added + merged.updated > 0 }) };
+      const result = { ...merged, state: undefined, ok: true,
+        saved: merged.added + merged.updated + merged.archived + merged.restored + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved > 0 };
+      return { getResponseCode: () => 200, getContentText: () => JSON.stringify(responseTransform ? responseTransform(result) : result) };
     } },
     console: { log: () => {} },
   });
   runInContext(script, context);
   const api = context as Record<string, (...args: unknown[]) => Summary>;
   return {
-    cells, colors, properties, posts, reads, triggers,
+    cells, colors, properties, posts, reads, triggers, rosterCells, lockTimeouts,
     edit: (row: number, rows = 1, column = 4) => api.onComePlayersPayrollEdit({ source: spreadsheet, range: range(row, column, rows) }),
     otherSheet: () => api.onComePlayersPayrollEdit({ source: spreadsheet, range: { ...range(3, 1), getSheet: () => ({ getSheetId: () => 456 }) } }),
     reconcile: () => api.syncComePlayersPayroll(), reinstall: () => api.reinstallComePlayersPayrollRealtimeSync(),
+    activateAll: () => api.activateComePlayersAllUnlockedSync(),
+    rosterEdit: (name: string) => api.onComePlayersPayrollEdit({ source: spreadsheet, range: { getSheet: () => rosterSheet(name) } }),
     change: () => api.onComePlayersPayrollChange({ source: spreadsheet, changeType: "REMOVE_ROW" }),
     fail: (code: number) => { status = code; }, setLocked: (value: boolean) => { locked = value; },
     duringFetch: (callback: () => void) => { duringFetch = callback; },
     afterFetch: (callback: () => void) => { afterFetch = callback; },
+    transformResponse: (callback: (response: Record<string, unknown>) => Record<string, unknown>) => { responseTransform = callback; },
     get locked() { return locked; }, get requests() { return requests; }, get state() { return state; },
   };
 }
@@ -316,4 +335,219 @@ test("slow preparation still sends a batch and subsequent runs finish instead of
   assert.equal(h.reconcile().sent, 0);
   assert.equal((h.state[workspaceKeys.orders] as Order[]).length, 205);
   assert.deepEqual(h.posts.map(p => p.rows.length), [100, 100, 5]);
+});
+
+test("all-existing mode refreshes orders before latest Closing without importing unknown history", () => {
+  const h = harness(); h.reconcile();
+  h.cells[2][11] = 2200; h.cells[2][12] = 44000;
+  const historical = [...h.cells[2]]; historical[1] = "UNIMPORTED-HISTORY";
+  const current = [...h.cells[2]]; current[1] = "CURRENT";
+  h.cells.push(historical, ["CLOSING"], current);
+  h.properties.CP_SYNC_ALL_EXISTING = "true"; h.properties.CP_SYNC_DELETIONS = "true";
+  const result = h.reconcile();
+  assert.equal(result.skippedHistorical, 1);
+  const order = (h.state[workspaceKeys.orders] as Order[]).find(row => row.externalReference === "CODE-0")!;
+  assert.equal(order.rateMinor, 2200); assert.equal(order.grossMinor, 44000);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).length, 4);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).some(row => row.externalReference === "UNIMPORTED-HISTORY"), false);
+  assert.equal(h.posts.find(post => post.newOrdersStartRow)?.newOrdersStartRow, 8);
+  assert.equal(h.posts.at(-1)?.presence?.startRow, 3);
+  const firstRequests = h.requests;
+  assert.equal(h.reconcile().unchanged, 4);
+  assert.equal(h.requests, firstRequests + 2, "preflight and final presence run without uploading ignored history");
+  assert.equal(h.posts.filter(post => post.newOrdersStartRow).flatMap(post => post.rows).some(row => row.values[1] === "UNIMPORTED-HISTORY"), false);
+});
+
+test("Closing-period duplicate counts permit a new code with unrelated unimported history", () => {
+  const h = harness(1);
+  const current = [...h.cells[2]];
+  h.cells.push(["CLOSING"], current);
+  h.properties.CP_SYNC_ALL_EXISTING = "true";
+  h.reconcile();
+  const uploaded = h.posts.flatMap(post => post.rows);
+  assert.equal(uploaded.length, 1);
+  assert.equal(uploaded.every(row => row.duplicateCode === false), true);
+  assert.equal(uploaded.every(row => row.codeOccurrences === 2), true);
+  const orders = h.state[workspaceKeys.orders] as Order[];
+  assert.equal(orders.length, 1);
+  assert.equal(orders[0].importSourceRow, 5);
+});
+
+test("a same-period duplicate still blocks a tracked historical order", () => {
+  const h = harness(2); h.reconcile();
+  h.cells[3][1] = "CODE-0"; h.cells[2][11] = 2200;
+  h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true";
+  const result = h.reconcile();
+  assert.equal(result.skippedConflicts, 1);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).find(row => row.externalReference === "CODE-0")?.rateMinor, 1000);
+});
+
+test("a unique historical order moves by KODE and edits before Closing are sent immediately", () => {
+  const h = harness(1); h.reconcile();
+  h.cells.splice(2, 0, []); h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true";
+  h.reconcile();
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].importSourceRow, 4);
+  h.cells[3][11] = 2200; h.cells[3][12] = 44000; h.edit(4);
+  assert.deepEqual(h.posts.at(-1)?.rows.map(row => row.rowNumber), [4]);
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].rateMinor, 2200);
+});
+
+test("complete rosters retain OFF and unnumbered names and send even when orders are unchanged", () => {
+  const h = harness(); h.properties.CP_SYNC_ROSTER = "true"; h.properties.CP_SYNC_DELETIONS = "true";
+  h.reconcile();
+  const roster = h.posts[0].roster!;
+  assert.deepEqual(roster.sheets[0].rows.map(row => [row.rowNumber, row.name, row.type]), [[3, "FH1 Worker", "OFF"], [4, "Unnumbered", "∞"]]);
+  const before = h.requests;
+  h.reconcile();
+  assert.equal(h.requests, before + 1);
+  assert.equal(h.posts.at(-1)?.rows.length, 0);
+  assert.ok(h.posts.at(-1)?.roster?.complete);
+});
+
+test("a payroll-tab edit reconciles workers after roster changes even with no Mutasi edit", () => {
+  const h = harness(); h.properties.CP_SYNC_ROSTER = "true"; h.cells[2][5] = "Irwan";
+  h.reconcile();
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].employeeName, "Irwan");
+  h.rosterCells["PAYROLL-2"][2][1] = "Irwan2";
+  h.rosterCells["PAYROLL-2"][2][4] = "FULL";
+  const before = h.posts.length;
+  h.rosterEdit("PAYROLL-2");
+  assert.equal(h.posts[before].syncMode, "reconcile");
+  assert.equal(h.posts[before].rows.length, 3, "roster signature invalidates cached worker assignments");
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].employeeName, "Irwan2");
+  assert.equal((h.state[workspaceKeys.employees] as { name: string; workforceStatus: string }[]).find(employee => employee.name === "Irwan2")?.workforceStatus, "FULL");
+});
+
+test("missing or invalid roster sheets fail before sending an incomplete employee snapshot", () => {
+  for (const missing of [false, true]) {
+    const h = harness(); h.properties.CP_SYNC_ROSTER = "true";
+    if (missing) delete h.rosterCells["PAYROLL-3"];
+    else h.rosterCells["PAYROLL-3"][1][1] = "wrong header";
+    assert.throws(() => h.reconcile(), /PAYROLL-3/);
+    assert.equal(h.requests, 0);
+    assert.equal(h.locked, false);
+  }
+});
+
+test("activation preserves source, namespace and secrets while enabling all-existing and rosters", () => {
+  const h = harness(); h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_NAMESPACE_ID = "old-mirror-namespace";
+  const originalSecret = h.properties.CP_SYNC_SECRET;
+  h.activateAll();
+  assert.equal(h.properties.CP_SPREADSHEET_ID, "test-book");
+  assert.equal(h.properties.CP_SYNC_NAMESPACE_ID, "old-mirror-namespace");
+  assert.equal(h.properties.CP_SYNC_SECRET, originalSecret);
+  assert.equal(h.properties.CP_SYNC_ALL_EXISTING, "true");
+  assert.equal(h.properties.CP_SYNC_ROSTER, "true");
+  assert.equal(h.posts[0].spreadsheetId, "old-mirror-namespace");
+  assert.equal(h.triggers.filter(trigger => trigger.kind === "clock").length, 1);
+  assert.ok(h.posts.at(-1)?.roster?.complete);
+});
+
+test("payroll uses its user lock with a longer reconciliation wait and releases on failed HTTP", () => {
+  const h = harness(); h.edit(3); h.reconcile();
+  assert.deepEqual(h.lockTimeouts, [1000, 25000]);
+  h.fail(503); h.cells[2][11] = 2200;
+  assert.throws(() => h.reconcile(), /503/);
+  assert.equal(h.locked, false);
+  h.setLocked(true);
+  assert.equal(h.edit(4).skipped, "busy");
+  assert.equal(h.reconcile().skipped, "busy");
+});
+
+test("all-existing preflight excludes thousands of unknown historical rows before signing or posting", () => {
+  const h = harness(1, 300); h.reconcile();
+  const historical = Array.from({ length: 1200 }, (_, i) => { const row = [...h.cells[2]]; row[1] = `OLD-${i}`; return row; });
+  h.cells.push(...historical, ["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true";
+  h.properties.CP_SYNC_DELETIONS = "true";
+  h.cells[2][11] = 2200;
+  const before = h.posts.length;
+  const result = h.reconcile();
+  const posts = h.posts.slice(before);
+  assert.equal(posts.length, 3, "one preflight, one relevant batch, one final complete inventory");
+  assert.ok(posts[0].presence?.complete);
+  assert.equal(result.sent, 1);
+  assert.equal(result.deferred, 0);
+  assert.equal(result.skippedHistorical, 1200);
+  assert.deepEqual(posts.flatMap(post => post.rows).map(row => row.rowNumber), [3]);
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].rateMinor, 2200);
+});
+
+test("all-existing preflight fails closed on a concurrently moved KODE inventory", () => {
+  const h = harness(1); h.reconcile();
+  h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true";
+  const before = h.posts.length;
+  let reads = 0;
+  // A cell value changes between the initial inventory and the preflight recheck.
+  Object.defineProperty(h.cells[2], 1, { get() { return ++reads >= 5 ? "MOVED-CODE" : "CODE-0"; } });
+  assert.throws(() => h.reconcile(), /Daftar KODE .* berubah/);
+  assert.equal(h.posts.length, before);
+  assert.equal(h.locked, false);
+});
+
+test("all-existing preflight applies roster renames before refreshing tracked historical workers", () => {
+  const h = harness(1); h.properties.CP_SYNC_ROSTER = "true"; h.cells[2][5] = "Irwan";
+  h.reconcile(); h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true"; h.properties.CP_SYNC_DELETIONS = "true";
+  h.rosterCells["PAYROLL-2"][2][1] = "Irwan2";
+  const before = h.posts.length;
+  h.rosterEdit("PAYROLL-2");
+  assert.ok(h.posts[before].presence?.complete);
+  assert.equal(h.posts[before].rows.length, 0);
+  assert.equal(h.posts[before + 1].rows.length, 1);
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].employeeName, "Irwan2");
+});
+
+test("a current reused KODE is rejected before the tracked historical row refreshes in its later batch", () => {
+  const h = harness(101); h.reconcile();
+  h.cells[2][11] = 2200;
+  const reused = [...h.cells[2]]; reused[11] = 999;
+  h.cells.push(["CLOSING"], reused);
+  h.properties.CP_SYNC_ALL_EXISTING = "true";
+  const before = h.posts.length;
+  const result = h.reconcile();
+  const batches = h.posts.slice(before).filter(post => post.rows.length);
+  assert.equal(batches[0].rows[0].rowNumber, 105, "current orders are considered first");
+  assert.equal(result.skippedConflicts, 1);
+  const order = (h.state[workspaceKeys.orders] as Order[]).find(row => row.externalReference === "CODE-0")!;
+  assert.equal(order.importSourceRow, 3);
+  assert.equal(order.rateMinor, 2200);
+});
+
+test("all-existing preflight stops without uploading rows when identity manifests are missing or invalid", () => {
+  for (const trackedRows of [undefined, [{ reference: "CODE-0", rowNumber: 0 }], [{ reference: 123, rowNumber: 3 }]]) {
+    const h = harness(1); h.reconcile(); h.cells.push(["CLOSING"]);
+    h.properties.CP_SYNC_ALL_EXISTING = "true";
+    h.transformResponse(response => ({ ...response, trackedRows }));
+    const before = h.posts.length;
+    assert.throws(() => h.reconcile(), /Respons pemeriksaan pesanan Sheet tidak valid/);
+    assert.equal(h.posts.length, before + 1);
+    assert.equal(h.posts.at(-1)?.rows.length, 0);
+    assert.equal(h.locked, false);
+  }
+});
+
+test("a concurrent Closing move defers final presence even when every KODE stays unchanged", () => {
+  const h = harness(2); h.reconcile();
+  h.cells.push(["CLOSING"]); h.cells[2][11] = 2200;
+  h.properties.CP_SYNC_ALL_EXISTING = "true"; h.properties.CP_SYNC_DELETIONS = "true";
+  const before = h.posts.length;
+  h.afterFetch(() => { if (h.posts.at(-1)?.rows.length) h.cells[4][0] = "CLOSED ELSEWHERE"; });
+  h.reconcile();
+  assert.equal(h.posts.slice(before).filter(post => post.presence).length, 1, "only the stable initial presence is sent");
+  assert.equal(JSON.parse(h.properties.CP_LAST_SYNC_RESULT).deletionsDeferred, true);
+});
+
+test("all-existing identity preflight respects an explicit deletion disable", () => {
+  const h = harness(2); h.reconcile();
+  h.cells[3][1] = ""; h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true"; h.properties.CP_SYNC_DELETIONS = "false";
+  const before = h.posts.length;
+  h.reconcile();
+  assert.equal(h.posts.slice(before).some(post => post.presence), false);
+  assert.equal((h.state[workspaceKeys.orders] as Order[]).some(order => order.sheetDeletedAt), false);
 });
