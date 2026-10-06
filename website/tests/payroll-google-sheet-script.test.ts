@@ -502,6 +502,63 @@ test("all-existing preflight applies roster renames before refreshing tracked hi
   assert.equal((h.state[workspaceKeys.orders] as Order[])[0].employeeName, "Irwan2");
 });
 
+test("payroll sorting and TYPE changes update the roster without replaying cached orders", () => {
+  const h = harness(1); h.properties.CP_SYNC_ROSTER = "true"; h.cells[2][5] = "Irwan";
+  h.reconcile(); h.cells.push(["CLOSING"]);
+  h.properties.CP_SYNC_ALL_EXISTING = "true"; h.properties.CP_SYNC_DELETIONS = "true";
+  h.reconcile(); // Cache the all-existing boundary before changing roster metadata.
+  const originalOrders = structuredClone(h.state[workspaceKeys.orders]);
+  const before = h.posts.length;
+  [h.rosterCells["PAYROLL-1"][2], h.rosterCells["PAYROLL-1"][3]] = [h.rosterCells["PAYROLL-1"][3], h.rosterCells["PAYROLL-1"][2]];
+  h.rosterCells["PAYROLL-2"][2][4] = "FULL";
+  const result = h.rosterEdit("PAYROLL-2");
+  assert.equal(result.sent, 0);
+  assert.equal(result.deferred, 0);
+  assert.equal(h.posts.slice(before).every(post => post.rows.length === 0), true);
+  assert.deepEqual(h.state[workspaceKeys.orders], originalOrders);
+  const employees = h.state[workspaceKeys.employees] as { name: string; workforceStatus: string; sheetRosterSource: { rowNumber: number } }[];
+  assert.equal(employees.find(employee => employee.name === "Irwan")?.workforceStatus, "FULL");
+  assert.equal(employees.find(employee => employee.name === "FH1 Worker")?.sheetRosterSource.rowNumber, 4);
+  assert.equal(employees.find(employee => employee.name === "Unnumbered")?.sheetRosterSource.rowNumber, 3);
+  const after = h.posts.length;
+  h.reconcile();
+  assert.equal(h.posts.slice(after).every(post => post.rows.length === 0), true, "metadata changes do not cause repeated order uploads");
+});
+
+test("roster name whitespace is normalized without replaying unchanged worker identities", () => {
+  const h = harness(1); h.properties.CP_SYNC_ROSTER = "true"; h.cells[2][5] = "Irwan";
+  h.reconcile();
+  h.rosterCells["PAYROLL-1"][2][1] = "  FH1   Worker  ";
+  h.rosterCells["PAYROLL-2"][2][1] = "  Irwan  ";
+  const before = h.posts.length;
+  assert.equal(h.rosterEdit("PAYROLL-2").sent, 0);
+  assert.equal(h.posts.slice(before).every(post => post.rows.length === 0), true);
+});
+
+test("display-name case changes refresh cached order employee names", () => {
+  const h = harness(1); h.properties.CP_SYNC_ROSTER = "true"; h.cells[2][5] = "Irwan";
+  h.reconcile(); h.rosterCells["PAYROLL-2"][2][1] = "IRWAN";
+  assert.equal(h.rosterEdit("PAYROLL-2").sent, 1);
+  assert.equal((h.state[workspaceKeys.orders] as Order[])[0].employeeName, "IRWAN");
+});
+
+test("roster additions, removals and division moves invalidate worker-resolution signatures", () => {
+  for (const change of ["add", "remove", "move"] as const) {
+    const h = harness(1); h.properties.CP_SYNC_ROSTER = "true"; h.cells[2][5] = "Irwan";
+    h.reconcile();
+    if (change === "add") h.rosterCells["PAYROLL-2"].push(["", "New Worker", "BOOST", "", "NEW"]);
+    else {
+      const [worker] = h.rosterCells["PAYROLL-2"].splice(2, 1);
+      if (change === "move") h.rosterCells["PAYROLL-1"].splice(2, 0, worker);
+    }
+    const before = h.posts.length;
+    assert.equal(h.rosterEdit("PAYROLL-2").sent, 1, change);
+    assert.deepEqual(h.posts.slice(before).flatMap(post => post.rows).map(row => row.rowNumber), [3]);
+    const order = (h.state[workspaceKeys.orders] as Order[])[0];
+    assert.equal(order.employeeName, change === "add" ? "Irwan" : undefined);
+  }
+});
+
 test("a current reused KODE is rejected before the tracked historical row refreshes in its later batch", () => {
   const h = harness(101); h.reconcile();
   h.cells[2][11] = 2200;
