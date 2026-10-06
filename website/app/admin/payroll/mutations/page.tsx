@@ -26,7 +26,7 @@ import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-e
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
 import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
-import { buildOrderPriceAssessments, type OrderPriceAssessment, type PriceTier } from "@/features/payroll/lib/price-anomaly";
+import { buildOrderPriceAssessments, getOrderRateMinor, type OrderPriceAssessment, type PriceTier } from "@/features/payroll/lib/price-anomaly";
 import {
   expandMutationRows,
   formatMutationDistribution,
@@ -41,23 +41,28 @@ type TypeFilter = "SEMUA" | "gold" | "item" | "boosting";
 type ProblemFilter = "SEMUA" | "BERMASALAH" | "NORMAL";
 type PriceFilter = "SEMUA" | "TURUN" | "NAIK" | PriceTier | `NAIK_${PriceTier}`;
 type ActivePriceGroup = { key: string; label: string };
-type SortMode = "newest" | "oldest" | "highest" | "lowest" | "source_az" | "buyer_az" | "game_az" | "employee_az" | "employee_za" | "division_az" | "division_za";
+type SortMode = "newest" | "oldest" | "highest" | "lowest" | "rate_highest" | "rate_lowest" | "source_az" | "buyer_az" | "game_az" | "employee_az" | "employee_za" | "division_az" | "division_za";
 type PriceSortMode = SortMode | "price_drop" | "price_rise";
 
 const priceFilterLabels: Record<PriceFilter, string> = {
-  SEMUA: "Semua harga",
-  TURUN: "Semua penurunan ≥10%",
-  "10": "Turun 10–<20% · biru muda",
-  "20": "Turun 20–<30% · pink",
-  "30": "Turun ≥30% · coklat",
-  NAIK: "Semua kenaikan ≥10%",
-  NAIK_10: "Naik 10–<20% · hijau muda",
-  NAIK_20: "Naik 20–<30% · ungu",
-  NAIK_30: "Naik ≥30% · emas",
+  SEMUA: "Semua rate",
+  TURUN: "Semua rate turun ≥10%",
+  "10": "Rate turun 10–<20% · biru muda",
+  "20": "Rate turun 20–<30% · pink",
+  "30": "Rate turun ≥30% · coklat",
+  NAIK: "Semua rate naik ≥10%",
+  NAIK_10: "Rate naik 10–<20% · hijau muda",
+  NAIK_20: "Rate naik 20–<30% · ungu",
+  NAIK_30: "Rate naik ≥30% · emas",
 };
 
-const priceBasisLabels = { order: "Harga pesanan", unit: "Harga per unit", day: "Harga per hari" } as const;
+const priceBasisLabels = { rate: "Rate Sheet" } as const;
 const pricePercentFormat = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
+const rateMoneyFormat = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 12, minimumFractionDigits: 0 });
+
+function formatRate(rate: number) {
+  return rateMoneyFormat.format(rate);
+}
 
 function priceChangeLabel(price: OrderPriceAssessment) {
   if (!price.tier || !price.direction) return undefined;
@@ -153,6 +158,8 @@ const sortPresets: Record<SortMode, MutationSortState> = {
   oldest: { column: "date", direction: "asc" },
   highest: { column: "total", direction: "desc" },
   lowest: { column: "total", direction: "asc" },
+  rate_highest: { column: "rate", direction: "desc" },
+  rate_lowest: { column: "rate", direction: "asc" },
   source_az: { column: "source", direction: "asc" },
   buyer_az: { column: "buyer", direction: "asc" },
   game_az: { column: "game", direction: "asc" },
@@ -240,7 +247,7 @@ function PriceDetailModal({ row, price, onClose, onShowGroup }: {
       <section className="mutation-price-modal">
         <header className="mutation-price-modal-header">
           <div>
-            <p className="mutation-price-modal-label">{price.tier ? "Perbedaan harga" : "Detail harga"}</p>
+            <p className="mutation-price-modal-label">{price.tier ? "Perbedaan rate" : "Detail rate"}</p>
             <h2 id={headingId}>{order.externalReference}{row.day ? ` · Hari ${row.day.sequence}` : ""}</h2>
             <p>{order.orderName ?? order.service}</p>
           </div>
@@ -248,19 +255,18 @@ function PriceDetailModal({ row, price, onClose, onShowGroup }: {
         </header>
         <div className="mutation-price-modal-body">
           <div className="mutation-price-modal-summary" data-price-tier={price.tier} data-price-direction={price.direction}>
-            <strong>{changeLabel ? `${changeLabel} dari rata-rata pembanding` : hasPeers ? "Tidak ada perbedaan harga ≥10%." : "Pembanding belum cukup untuk menandai harga."}</strong>
-            <div>{priceBasisLabels[price.basis]}{price.basis === "day" ? " (rata-rata paket)" : row.day ? " (paket induk)" : ""}: <b>{formatMoney(price.priceMinor)}</b></div>
-            {row.day ? <div>Total Hari {row.day.sequence}: {formatMoney(row.grossMinor)}</div> : null}
+            <strong>{changeLabel ? `${changeLabel} dari rata-rata rate pembanding` : hasPeers ? "Tidak ada perbedaan rate ≥10%." : "Pembanding belum cukup untuk menandai rate."}</strong>
+            <div>{priceBasisLabels[price.basis]}{row.day ? " (pesanan induk)" : ""}: <b>{formatRate(price.priceMinor)}</b></div>
           </div>
           <dl className="mutation-price-modal-stats">
-            <div><dt>Rata-rata pesanan sejenis</dt><dd>{formatMoney(price.groupAverageMinor)}</dd></div>
+            <div><dt>Rata-rata rate pesanan sejenis</dt><dd>{formatRate(price.groupAverageMinor)}</dd></div>
             <div><dt>Jumlah pesanan sejenis</dt><dd>{price.sampleCount.toLocaleString("id-ID")}</dd></div>
-            <div><dt>Harga terendah</dt><dd>{formatMoney(price.lowestMinor)}</dd></div>
-            <div><dt>Harga tertinggi</dt><dd>{formatMoney(price.highestMinor)}</dd></div>
+            <div><dt>Rate terendah</dt><dd>{formatRate(price.lowestMinor)}</dd></div>
+            <div><dt>Rate tertinggi</dt><dd>{formatRate(price.highestMinor)}</dd></div>
           </dl>
-          <p className="mutation-price-modal-note">Ringkasan ini mencakup pesanan yang sedang dilihat.</p>
+          <p className="mutation-price-modal-note">Ringkasan Rate Sheet ini mencakup pesanan yang sedang dilihat.</p>
           <div className="mutation-price-modal-reference">
-            {hasPeers ? <><strong>Rata-rata pembanding: {formatMoney(price.averageMinor!)}</strong><p>{price.peerCount.toLocaleString("id-ID")} pesanan lain, tanpa pesanan ini.</p></> : <><strong>Pembanding tersedia: {price.peerCount} dari minimal 3 pesanan lain.</strong><p>Warna harga muncul setelah pembanding mencukupi.</p></>}
+            {hasPeers ? <><strong>Rata-rata rate pembanding: {formatRate(price.averageMinor!)}</strong><p>{price.peerCount.toLocaleString("id-ID")} pesanan lain, tanpa pesanan ini.</p></> : <><strong>Pembanding tersedia: {price.peerCount} dari minimal 3 pesanan lain.</strong><p>Warna rate muncul setelah pembanding mencukupi.</p></>}
           </div>
           <button type="button" className="mutation-price-modal-group" onClick={onShowGroup}>Lihat pesanan sejenis</button>
         </div>
@@ -494,10 +500,10 @@ export default function MutationsPage() {
     `Karyawan: ${employee === "SEMUA" ? "Semua" : employee}`,
     `Divisi: ${division === "SEMUA" ? "Semua" : division}`,
     `Masalah: ${problem === "SEMUA" ? "Semua" : problem === "BERMASALAH" ? "Bermasalah" : "Tidak bermasalah"}`,
-    `Harga: ${priceFilterLabels[priceFilter]}`,
-    `Kelompok harga: ${activePriceGroup?.label ?? "Semua"}`,
+    `Rate: ${priceFilterLabels[priceFilter]}`,
+    `Kelompok rate: ${activePriceGroup?.label ?? "Semua"}`,
     search.trim() ? `Pencarian: ${search.trim()}` : "Pencarian: Semua",
-    `Urutan: ${priceSort === "down" ? "Penurunan harga terbesar" : priceSort === "up" ? "Kenaikan harga terbesar" : mutationSortLabel(sortState)}`,
+    `Urutan: ${priceSort === "down" ? "Penurunan rate terbesar" : priceSort === "up" ? "Kenaikan rate terbesar" : mutationSortLabel(sortState)}`,
   ].join(" • ");
 
   function resetFilters() {
@@ -668,14 +674,14 @@ export default function MutationsPage() {
             <label className="text-sm">Karyawan<select value={employee} onChange={(e) => setEmployee(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua karyawan</option>{employeeNames.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <label className="text-sm">Divisi<select value={division} onChange={(e) => setDivision(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua divisi</option>{divisions.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
             <label className="text-sm">Masalah<select value={problem} onChange={(e) => setProblem(e.target.value as ProblemFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua status</option><option value="BERMASALAH">Hanya Bermasalah</option><option value="NORMAL">Tidak bermasalah</option></select></label>
-            <label className="text-sm">Harga<select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value as PriceFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{(["SEMUA", "TURUN", "10", "20", "30", "NAIK", "NAIK_10", "NAIK_20", "NAIK_30"] as PriceFilter[]).map(value => <option key={value} value={value}>{priceFilterLabels[value]}</option>)}</select></label>
+            <label className="text-sm">Rate<select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value as PriceFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{(["SEMUA", "TURUN", "10", "20", "30", "NAIK", "NAIK_10", "NAIK_20", "NAIK_30"] as PriceFilter[]).map(value => <option key={value} value={value}>{priceFilterLabels[value]}</option>)}</select></label>
             <label className="text-sm">Cari kode / nama / divisi / masalah<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151, ANGGA, FH2, bermasalah" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as PriceSortMode; setPriceSort(value === "price_drop" ? "down" : value === "price_rise" ? "up" : null); if (value !== "price_drop" && value !== "price_rise" && sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Nilai terbesar</option><option value="lowest">Nilai terkecil</option><option value="price_drop">Penurunan harga terbesar</option><option value="price_rise">Kenaikan harga terbesar</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
+            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as PriceSortMode; setPriceSort(value === "price_drop" ? "down" : value === "price_rise" ? "up" : null); if (value !== "price_drop" && value !== "price_rise" && sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Total terbesar</option><option value="lowest">Total terkecil</option><option value="rate_highest">Rate tertinggi</option><option value="rate_lowest">Rate terendah</option><option value="price_drop">Penurunan rate terbesar</option><option value="price_rise">Kenaikan rate terbesar</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
             <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
           </div>
           {activePriceGroup ? <div className="mutation-price-active-group" role="status">
             <span>Pesanan sejenis: <strong>{activePriceGroup.label}</strong></span>
-            <button type="button" onClick={() => setActivePriceGroup(null)} aria-label="Tampilkan semua kelompok harga">Keluar kelompok</button>
+            <button type="button" onClick={() => setActivePriceGroup(null)} aria-label="Tampilkan semua kelompok rate">Keluar kelompok</button>
           </div> : null}
         </div>
 
@@ -726,17 +732,17 @@ export default function MutationsPage() {
         <strong>Paket harian:</strong> contoh 12 Hours Package X6 dibuat menjadi Hari 1–6; 1 Week menjadi 7 hari; 1 Month menjadi 30 hari; dan X2 mengalikan jumlah harinya. <strong className="text-red-300">Status Bermasalah dapat diklik</strong> untuk melihat penyebab seperti karyawan tidak ditemukan, pembagian jumlah tidak cocok, atau input paket harian tidak konsisten.
       </section>
 
-      <section className="mutation-price-guide" aria-label="Panduan pemeriksaan harga">
-        <strong>Cek harga otomatis</strong>
-        <p>Klik warna untuk memfilter harga yang turun atau naik dari rata-rata minimal 3 pesanan lain dengan jenis, game, paket, wilayah dan server yang sama. Klik Perbedaan harga atau Detail harga pada kolom Total untuk melihat rata-rata, terendah dan tertinggi. Filter tidak mengubah pembanding; baris harian mengikuti pesanan induk.</p>
-        <div className="mutation-price-legend" role="group" aria-label="Filter harga berdasarkan warna">
-          <button type="button" onClick={() => setPriceFilter("SEMUA")} aria-pressed={priceFilter === "SEMUA"}>Semua harga</button>
-          <button type="button" data-price-direction="down" data-price-tier="10" onClick={() => setPriceFilter("10")} aria-pressed={priceFilter === "10"}>Turun 10–&lt;20% · biru muda</button>
-          <button type="button" data-price-direction="down" data-price-tier="20" onClick={() => setPriceFilter("20")} aria-pressed={priceFilter === "20"}>Turun 20–&lt;30% · pink</button>
-          <button type="button" data-price-direction="down" data-price-tier="30" onClick={() => setPriceFilter("30")} aria-pressed={priceFilter === "30"}>Turun ≥30% · coklat</button>
-          <button type="button" data-price-direction="up" data-price-tier="10" onClick={() => setPriceFilter("NAIK_10")} aria-pressed={priceFilter === "NAIK_10"}>Naik 10–&lt;20% · hijau muda</button>
-          <button type="button" data-price-direction="up" data-price-tier="20" onClick={() => setPriceFilter("NAIK_20")} aria-pressed={priceFilter === "NAIK_20"}>Naik 20–&lt;30% · ungu</button>
-          <button type="button" data-price-direction="up" data-price-tier="30" onClick={() => setPriceFilter("NAIK_30")} aria-pressed={priceFilter === "NAIK_30"}>Naik ≥30% · emas</button>
+      <section className="mutation-price-guide" aria-label="Panduan pemeriksaan rate">
+        <strong>Cek Rate otomatis</strong>
+        <p>Pemeriksaan memakai RATE yang tersimpan dari Sheet. Klik warna untuk memfilter rate yang turun atau naik dari rata-rata minimal 3 pesanan lain dengan jenis, game, paket, wilayah dan server yang sama. Klik Perbedaan rate atau Detail rate pada kolom Rate untuk melihat rata-rata, terendah dan tertinggi. Rate kosong ditampilkan —. Filter tidak mengubah pembanding; baris harian memakai Rate pesanan induk.</p>
+        <div className="mutation-price-legend" role="group" aria-label="Filter rate berdasarkan warna">
+          <button type="button" onClick={() => setPriceFilter("SEMUA")} aria-pressed={priceFilter === "SEMUA"}>Semua rate</button>
+          <button type="button" data-price-direction="down" data-price-tier="10" onClick={() => setPriceFilter("10")} aria-pressed={priceFilter === "10"}>Rate turun 10–&lt;20% · biru muda</button>
+          <button type="button" data-price-direction="down" data-price-tier="20" onClick={() => setPriceFilter("20")} aria-pressed={priceFilter === "20"}>Rate turun 20–&lt;30% · pink</button>
+          <button type="button" data-price-direction="down" data-price-tier="30" onClick={() => setPriceFilter("30")} aria-pressed={priceFilter === "30"}>Rate turun ≥30% · coklat</button>
+          <button type="button" data-price-direction="up" data-price-tier="10" onClick={() => setPriceFilter("NAIK_10")} aria-pressed={priceFilter === "NAIK_10"}>Rate naik 10–&lt;20% · hijau muda</button>
+          <button type="button" data-price-direction="up" data-price-tier="20" onClick={() => setPriceFilter("NAIK_20")} aria-pressed={priceFilter === "NAIK_20"}>Rate naik 20–&lt;30% · ungu</button>
+          <button type="button" data-price-direction="up" data-price-tier="30" onClick={() => setPriceFilter("NAIK_30")} aria-pressed={priceFilter === "NAIK_30"}>Rate naik ≥30% · emas</button>
         </div>
       </section>
 
@@ -749,6 +755,7 @@ export default function MutationsPage() {
           <tbody>
             {rows.map((row) => {
               const order = row.order;
+              const rate = getOrderRateMinor(order);
               const price = priceAssessments.get(order.id);
               const changeLabel = price ? priceChangeLabel(price) : undefined;
               const issues = issuesByRow.get(row.id) ?? [];
@@ -794,10 +801,11 @@ export default function MutationsPage() {
                   <td data-column="division">{mutationDivisions(row).length ? <div className="flex flex-wrap gap-1.5">{mutationDivisions(row).map((division) => <span key={division} className="inline-flex rounded-full border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-xs font-bold text-violet-200">{division}</span>)}</div> : <span className="text-zinc-600">—</span>}</td>
                   <td data-column="game">{order.gameName ?? order.game}</td><td data-column="region">{order.region ?? "—"}</td><td data-column="server">{order.server ?? "—"}</td>
                   <td data-column="quantity">{row.quantity.toLocaleString("id-ID")}</td>
-                  <td data-column="total">
-                    {formatMoney(row.grossMinor)}
-                    {price ? <div className="mutation-price-check"><button type="button" className="mutation-price-detail-button" aria-haspopup="dialog" aria-label={`${changeLabel ? `Perbedaan harga · ${changeLabel.toLowerCase()}` : "Detail harga"} ${order.externalReference}${row.day ? ` · Hari ${row.day.sequence}` : ""}`} onClick={() => openPriceDetails(row)}>{changeLabel ? `Perbedaan harga · ${changeLabel.toLowerCase()}` : "Detail harga"}</button></div> : null}
+                  <td data-column="rate">
+                    {rate === undefined ? "—" : formatRate(rate)}
+                    {price ? <div className="mutation-price-check"><button type="button" className="mutation-price-detail-button" aria-haspopup="dialog" aria-label={`${changeLabel ? `Perbedaan rate · ${changeLabel.toLowerCase()}` : "Detail rate"} ${order.externalReference}${row.day ? ` · Hari ${row.day.sequence}` : ""}`} onClick={() => openPriceDetails(row)}>{changeLabel ? `Perbedaan rate · ${changeLabel.toLowerCase()}` : "Detail rate"}</button></div> : null}
                   </td>
+                  <td data-column="total">{formatMoney(row.grossMinor)}</td>
                   <td data-column="status">{issues.length ? <button type="button" onClick={() => setIssueRow({ row, issues })} className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</button> : <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span>}</td>
                   <td data-column="actions">
                     <div className="flex flex-wrap gap-2">

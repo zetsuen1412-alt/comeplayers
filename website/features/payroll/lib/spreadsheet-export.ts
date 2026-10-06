@@ -1,6 +1,7 @@
 import type { Employee, FinanceIssue, InventoryMovement, InventoryStock, Order } from "@/features/payroll/types/domain";
 import type { LivePayrollRow } from "@/features/payroll/lib/payroll-live";
 import { getAssignmentGrossMinor, getOrderAssignments } from "@/features/payroll/lib/order-workers";
+import { getOrderRateMinor } from "@/features/payroll/lib/price-anomaly";
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
 import { formatDateTimeID, formatJakartaDateTimeInput, toJakartaDateInput } from "@/features/payroll/lib/date";
 import { expandMutationRows, formatMutationDistribution, mutationDayLabel, mutationRowStatusText, normalizeDivisionLabel, type MutationViewRow } from "@/features/payroll/lib/mutation-rows";
@@ -122,7 +123,7 @@ function mutationAssignmentGross(row: MutationViewRow, assignmentIndex: number) 
 
 function mutationRow(row: MutationViewRow): ExportRecord {
   const order = row.order;
-  const rate = order.rateMinor ?? (row.quantity ? Math.round(row.grossMinor / row.quantity) : row.grossMinor);
+  const rate = getOrderRateMinor(order) ?? "";
   return {
     "HARI & TANGGAL": formatDateTimeID(row.orderedAt),
     KODE: order.externalReference,
