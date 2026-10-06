@@ -32,10 +32,14 @@
 .evocp-payroll .cp-table.mutation-sheet-table th[data-column="selection"] { background: #1a1d24; z-index: 4; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-order-selected=true] td { box-shadow: inset 0 2px #f5c54266, inset 0 -2px #f5c54266; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-order-selected=true] td[data-column="selection"] { background: var(--mutation-price-bg, #323020); }
-.evocp-payroll [data-price-tier="10"] { --mutation-price-bg: #ccecff; --mutation-price-text: #172a3a; --mutation-price-accent: #4b2c6c; }
-.evocp-payroll [data-price-tier="20"] { --mutation-price-bg: #f6c3d4; --mutation-price-text: #36212b; --mutation-price-accent: #542564; }
-.evocp-payroll [data-price-tier="30"] { --mutation-price-bg: #85563c; --mutation-price-text: #fff5ec; --mutation-price-accent: #f4dcff; }
+.evocp-payroll [data-price-tier="10"]:not([data-price-direction="up"]) { --mutation-price-bg: #ccecff; --mutation-price-text: #172a3a; --mutation-price-accent: #4b2c6c; }
+.evocp-payroll [data-price-tier="20"]:not([data-price-direction="up"]) { --mutation-price-bg: #f6c3d4; --mutation-price-text: #36212b; --mutation-price-accent: #542564; }
+.evocp-payroll [data-price-tier="30"]:not([data-price-direction="up"]) { --mutation-price-bg: #85563c; --mutation-price-text: #fff5ec; --mutation-price-accent: #f4dcff; }
+.evocp-payroll [data-price-direction="up"][data-price-tier="10"] { --mutation-price-bg: #cdf4d5; --mutation-price-text: #173d25; --mutation-price-accent: #4c2c6b; }
+.evocp-payroll [data-price-direction="up"][data-price-tier="20"] { --mutation-price-bg: #7653b8; --mutation-price-text: #fffaff; --mutation-price-accent: #f4dcff; }
+.evocp-payroll [data-price-direction="up"][data-price-tier="30"] { --mutation-price-bg: #f1cb58; --mutation-price-text: #3b2a08; --mutation-price-accent: #6d2c51; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td { background: var(--mutation-price-bg); color: var(--mutation-price-text); }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="code"] a:hover { color: inherit; text-decoration: underline; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td:not([data-column="status"]):not([data-column="actions"]) :is(.text-zinc-500, .text-zinc-600, .text-amber-300, .text-sky-300) { color: inherit; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="division"] span { color: var(--mutation-price-accent); border-color: currentColor; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="status"] [class~="bg-emerald-500/20"] { background: #064e3b; color: #ecfdf5; }
@@ -47,10 +51,14 @@
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="bg-sky-500/20"] { background: #0c4a6e; color: #f0f9ff; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="bg-violet-500/20"] { background: #4c1d95; color: #f5f3ff; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] td[data-column="actions"] [class~="bg-emerald-500/15"] { background: #064e3b; color: #ecfdf5; }
+.evocp-payroll .cp-table.mutation-sheet-table tr[data-price-direction="up"][data-price-tier="30"] .mutation-sheet-checkbox { accent-color: #674817; }
 .evocp-payroll .mutation-price-guide { margin-top: 20px; padding: 16px; border: 1px solid #292d35; border-radius: 14px; font-size: 13px; line-height: 1.6; }
 .evocp-payroll .mutation-price-guide p { margin: 6px 0 12px; color: #a1a1aa; }
 .evocp-payroll .mutation-price-legend { display: flex; flex-wrap: wrap; gap: 8px; }
-.evocp-payroll .mutation-price-legend span { padding: 6px 10px; border-radius: 7px; color: var(--mutation-price-text); background: var(--mutation-price-bg); font-weight: 600; }
+.evocp-payroll .mutation-price-legend button { min-height: 36px; padding: 6px 10px; border: 1px solid #45464f; border-radius: 7px; color: var(--mutation-price-text, #f4f4f5); background: var(--mutation-price-bg, #1a1d24); font: inherit; font-weight: 600; cursor: pointer; }
+.evocp-payroll .mutation-price-legend button:hover { text-decoration: underline; }
+.evocp-payroll .mutation-price-legend button[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: -4px; }
+.evocp-payroll .mutation-price-legend button:focus-visible { outline: 3px solid #f5c542; outline-offset: 3px; box-shadow: 0 0 0 2px #111318; }
 .evocp-payroll .mutation-price-check { margin-top: 6px; font-size: 11px; line-height: 1.5; color: #c7c7cf; white-space: normal; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] .mutation-price-check { color: inherit; }
 .evocp-payroll .mutation-price-detail-button { max-width: 100%; min-height: 28px; padding: 4px 8px; border: 1px solid currentColor; border-radius: 7px; background: transparent; color: inherit; font: inherit; font-weight: 600; text-align: left; white-space: normal; cursor: pointer; }
