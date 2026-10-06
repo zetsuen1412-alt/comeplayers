@@ -133,13 +133,31 @@ function mapTeam(value: unknown): Employee["team"] | undefined {
   return aliases[compact];
 }
 
-function employeeLookup(employees: Employee[]) {
-  const map = new Map<string, Employee>();
+function employeeLookup(employees: Employee[], team?: Employee["team"]) {
+  const codes = new Map<string, Employee>();
+  const names = new Map<string, Employee[]>();
+  const aliases = new Map<string, Employee[]>();
+  const suffix = /^FH([123])$/.exec(team ?? "")?.[1];
+  const addName = (map: Map<string, Employee[]>, name: string, employee: Employee) => {
+    map.set(name, [...(map.get(name) ?? []), employee]);
+  };
   for (const employee of employees) {
-    map.set(folded(employee.code), employee);
-    map.set(folded(employee.name), employee);
+    if (team && employee.team !== team) continue;
+    codes.set(folded(employee.code), employee);
+    const name = folded(employee.name);
+    addName(names, name, employee);
+    // Older MUTASI rows omit the payroll FH suffix. Never guess without a known FH.
+    if (suffix && name.endsWith(suffix) && /\p{L}$/u.test(name.slice(0, -1))) {
+      addName(aliases, name.slice(0, -1), employee);
+    }
   }
-  return map;
+  return (value: string) => {
+    const key = folded(value);
+    const code = codes.get(key);
+    if (code) return { employee: code, ambiguous: false };
+    const matches = names.get(key) ?? aliases.get(key) ?? [];
+    return { employee: matches.length === 1 ? matches[0] : undefined, ambiguous: matches.length > 1 };
+  };
 }
 
 function gameLookup(games: ProductGame[]) {
@@ -164,11 +182,11 @@ function workerAssignment(employee: Employee, process: string, quantity: number,
   };
 }
 
-function parseWorkerList(status: string, process: string, employees: Employee[], rowNumber: number) {
-  const lookup = employeeLookup(employees);
+function parseWorkerList(status: string, process: string, employees: Employee[], rowNumber: number, team?: Employee["team"]) {
+  const lookup = employeeLookup(employees, team);
   const assignments: OrderWorkerAssignment[] = [];
   const missing: string[] = [];
-  const quantityPattern = /(\d+(?:[.,]\d+)?)\s*(?:K|M|B|G)?/gi;
+  const quantityPattern = /(?<![\p{L}\p{N}_.])(\d+(?:[.,]\d+)?)[ \t]*(?:[KMGB](?![\p{L}\p{N}_]))?/giu;
   let cursor = 0;
   let assignmentIndex = 0;
   let match: RegExpExecArray | null;
@@ -178,13 +196,21 @@ function parseWorkerList(status: string, process: string, employees: Employee[],
       .slice(cursor, match.index)
       .replace(/^[\s,;|/+&\-:=>]+|[\s,;|/+&\-:=>]+$/g, "")
       .trim();
+    const identityPrefix = status.slice(cursor, match.index + match[1].length)
+      .replace(/^[\s,;|/+&\-:=>]+|[\s,;|/+&\-:=>]+$/g, "").trim();
+    // EMP-0123 is an identity; its digits are not the quantity after the hyphen.
+    if (lookup(identityPrefix).employee) continue;
     cursor = quantityPattern.lastIndex;
     if (!rawName) continue;
+    if (/[\s,;|/+&\-:=>]-[ \t]*$/.test(status.slice(0, match.index))) {
+      missing.push(`${rawName} -${match[0].trim()} (jumlah negatif)`);
+      continue;
+    }
 
-    const employee = lookup.get(folded(rawName));
+    const { employee, ambiguous } = lookup(rawName);
     const quantity = parseUnit(match[1]);
     if (!employee || quantity == null) {
-      missing.push(`${rawName} ${match[0].trim()}`);
+      missing.push(`${rawName} ${match[0].trim()}${ambiguous ? " (nama ambigu; isi FH)" : ""}`);
       continue;
     }
     assignments.push(workerAssignment(employee, process, quantity, rowNumber, assignmentIndex++));
@@ -270,23 +296,25 @@ function parseIncomingOrder(input: {
   const game = gamesByName.get(folded(gameText));
   if (gameText && !game) issues.push(importIssue("sheet_game_unmatched", "Game belum cocok", `Game “${gameText}” belum ditemukan di Produk / Game.`));
 
-  const employeesByName = employeeLookup(employees);
+  const sheetTeam = mapTeam(displayAt(row, columns.team)) ?? mapTeam(booster);
+  const employeesByName = employeeLookup(employees, sheetTeam);
   let assignments: OrderWorkerAssignment[] = [];
   if (row.boosterBlack === true) {
-    const parsed = parseWorkerList(status, process, employees, row.rowNumber);
+    const parsed = parseWorkerList(status, process, employees, row.rowNumber, sheetTeam);
     assignments = parsed.assignments;
     if (parsed.missing.length) issues.push(importIssue("sheet_workers_review", "Daftar karyawan perlu diperiksa", `Belum cocok: ${parsed.missing.join(", ")}`));
     if (status && !assignments.length) issues.push(importIssue("sheet_workers_empty", "Karyawan belum ditemukan", "BOOSTER hitam tetapi STATUS belum dapat dipetakan ke karyawan payroll."));
   } else if (booster && !mapTeam(booster)) {
-    const employee = employeesByName.get(folded(booster));
+    const { employee, ambiguous } = employeesByName(booster);
     if (employee) assignments = [workerAssignment(employee, process, quantity, row.rowNumber, 0)];
-    else issues.push(importIssue("sheet_booster_unmatched", "Booster belum cocok", `BOOSTER “${booster}” belum ditemukan di daftar karyawan.`));
+    else issues.push(importIssue("sheet_booster_unmatched", "Booster belum cocok", ambiguous
+      ? `BOOSTER “${booster}” cocok dengan beberapa karyawan. Isi FH untuk menentukan karyawan yang benar.`
+      : `BOOSTER “${booster}” belum ditemukan di daftar karyawan.`));
   }
 
-  const sheetTeam = mapTeam(displayAt(row, columns.team)) ?? mapTeam(booster);
   const explicitType = folded(displayAt(row, columns.orderType));
   const namedGoldDistribution = Boolean(status.trim()) && status.split(/[\r\n;|]+/).filter(part => part.trim())
-    .every(part => /^[\p{L}][\p{L} .'-]*\s*:?\s*\d+(?:[.,]\d+)?\s*[KMGB]$/iu.test(part.trim()));
+    .every(part => /^[\p{L}][\p{L}\p{N} .'-]*\s*:?\s*\d+(?:[.,]\d+)?\s*[KMGB]$/iu.test(part.trim()));
   const typeAliases: Record<string, Order["orderType"]> = {
     GOLD: "gold", KOIN: "gold", COIN: "gold", BOOSTING: "boosting", BOOST: "boosting",
     JOKI: "boosting", "JASA BOOSTING": "boosting", ITEM: "item", "ITEM GAME": "item",
@@ -503,3 +531,4 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   state[workspaceKeys.orders] = orders;
   return { state, added, updated, archived, restored, refreshReferences, unchanged, skippedProtected, skippedConflicts, skippedInvalid, issues: issues.slice(0, 100), rowResults };
 }
+
