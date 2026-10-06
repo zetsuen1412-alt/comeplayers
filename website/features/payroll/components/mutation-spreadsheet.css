@@ -51,13 +51,31 @@
 .evocp-payroll .mutation-price-guide p { margin: 6px 0 12px; color: #a1a1aa; }
 .evocp-payroll .mutation-price-legend { display: flex; flex-wrap: wrap; gap: 8px; }
 .evocp-payroll .mutation-price-legend span { padding: 6px 10px; border-radius: 7px; color: var(--mutation-price-text); background: var(--mutation-price-bg); font-weight: 600; }
-.evocp-payroll .mutation-price-check { margin-top: 6px; font-size: 11px; line-height: 1.7; color: #a1a1aa; white-space: normal; overflow-wrap: anywhere; }
-.evocp-payroll .mutation-price-check small { font-size: inherit; }
+.evocp-payroll .mutation-price-check { margin-top: 6px; font-size: 11px; line-height: 1.5; color: #c7c7cf; white-space: normal; }
 .evocp-payroll .cp-table.mutation-sheet-table tr[data-price-tier] .mutation-price-check { color: inherit; }
-.evocp-payroll .mutation-price-badge { display: inline-block; margin-bottom: 3px; padding: 1px 6px; border: 1px solid currentColor; border-radius: 5px; font-size: 11px; }
-.evocp-payroll .mutation-price-group-link { display: block; margin-top: 5px; padding: 4px 7px; min-height: 30px; border: 1px solid currentColor; border-radius: 5px; background: transparent; color: inherit; font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
-.evocp-payroll .mutation-price-group-link:hover { text-decoration: underline; }
-.evocp-payroll .mutation-price-group-link:focus-visible, .evocp-payroll .mutation-price-active-group button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.evocp-payroll .mutation-price-detail-button { max-width: 100%; min-height: 28px; padding: 4px 8px; border: 1px solid currentColor; border-radius: 7px; background: transparent; color: inherit; font: inherit; font-weight: 600; text-align: left; white-space: normal; cursor: pointer; }
+.evocp-payroll .mutation-price-detail-button:hover { background: #ffffff12; }
+.evocp-payroll .mutation-price-detail-button:focus-visible, .evocp-payroll .mutation-price-active-group button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.evocp-payroll .mutation-price-modal-screen { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; overflow-y: auto; background: #000c; }
+.evocp-payroll .mutation-price-modal { width: 100%; max-width: 620px; margin: auto 0; border: 1px solid #45464f; border-radius: 14px; background: #09090b; color: #f4f4f5; box-shadow: 0 16px 48px #0008; }
+.evocp-payroll .mutation-price-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px; border-bottom: 1px solid #292d35; }
+.evocp-payroll .mutation-price-modal-header>div { min-width: 0; }
+.evocp-payroll .mutation-price-modal-header h2 { margin: 5px 0; font-size: 21px; font-weight: 700; overflow-wrap: anywhere; }
+.evocp-payroll .mutation-price-modal-header p { margin: 0; font-size: 13px; line-height: 1.6; color: #a1a1aa; overflow-wrap: anywhere; }
+.evocp-payroll .mutation-price-modal-header .mutation-price-modal-label { color: #fde68a; font-weight: 700; }
+.evocp-payroll .mutation-price-modal-close { flex-shrink: 0; min-height: 36px; padding: 7px 12px; border: 1px solid #45464f; border-radius: 7px; background: #27272a; color: #f4f4f5; font-size: 13px; font-weight: 600; cursor: pointer; }
+.evocp-payroll .mutation-price-modal-body { padding: 20px; font-size: 13px; line-height: 1.6; }
+.evocp-payroll .mutation-price-modal-summary { padding: 12px 14px; border: 1px solid #45464f; border-radius: 9px; background: var(--mutation-price-bg, #18181b); color: var(--mutation-price-text, #f4f4f5); }
+.evocp-payroll .mutation-price-modal-summary strong { display: block; margin-bottom: 5px; }
+.evocp-payroll .mutation-price-modal-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 8px; }
+.evocp-payroll .mutation-price-modal-stats>div { padding: 12px; border: 1px solid #292d35; border-radius: 8px; background: #18181b; }
+.evocp-payroll .mutation-price-modal-stats dt { color: #a1a1aa; font-size: 12px; }
+.evocp-payroll .mutation-price-modal-stats dd { margin: 4px 0 0; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.evocp-payroll .mutation-price-modal-note { margin: 8px 0 16px; font-size: 12px; color: #a1a1aa; }
+.evocp-payroll .mutation-price-modal-reference { margin-bottom: 16px; padding: 12px 14px; border: 1px solid #292d35; border-radius: 9px; color: #d4d4d8; }
+.evocp-payroll .mutation-price-modal-reference p { margin: 3px 0 0; color: #a1a1aa; font-size: 12px; }
+.evocp-payroll .mutation-price-modal-group { min-height: 36px; padding: 7px 12px; border: 1px solid #f5c542; border-radius: 7px; background: #f5c542; color: #171717; font-size: 13px; font-weight: 700; cursor: pointer; }
+.evocp-payroll .mutation-price-modal :is(button):focus-visible { outline: 2px solid #fde68a; outline-offset: 3px; }
 .evocp-payroll .mutation-price-active-group { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 1px solid #6e6c41; border-radius: 9px; background: #27251a; color: #fef3c7; font-size: 13px; }
 .evocp-payroll .mutation-price-active-group span { flex: 1 1 280px; overflow-wrap: anywhere; }
 .evocp-payroll .mutation-price-active-group button { min-height: 34px; padding: 5px 10px; border: 1px solid currentColor; border-radius: 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
@@ -89,4 +107,6 @@
   .evocp-payroll .mutation-sheet-controls { padding: 10px 12px; }
   .evocp-payroll .mutation-sheet-dialog { width: calc(100vw - 8px); height: calc(100dvh - 8px); }
   .evocp-payroll .mutation-sheet-resizer { width: 22px; }
+  .evocp-payroll .mutation-price-modal-screen { padding: 12px; }
+  .evocp-payroll .mutation-price-modal-header, .evocp-payroll .mutation-price-modal-body { padding: 16px; }
 }

@@ -5,7 +5,7 @@ import { getPayrollActor, withPayrollBatch, flushPayroll } from "@/features/payr
 import { hasAutomaticSheetProtection, isSheetOrder } from "@/features/payroll/lib/sheet-sync-policy";
 import { canonical } from "@/features/payroll/lib/workspace-model";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { MutationSpreadsheet } from "@/features/payroll/components/mutation-spreadsheet";
@@ -26,7 +26,7 @@ import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-e
 import { useDemoMutationHistory } from "@/features/payroll/lib/demo-mutation-history-store";
 import { analyzeOrderIssues, hasBlockingOrderIssues } from "@/features/payroll/lib/order-issues";
 import { analyzeOrderQuantityIssues } from "@/features/payroll/lib/order-quantity";
-import { buildOrderPriceAssessments, type PriceTier } from "@/features/payroll/lib/price-anomaly";
+import { buildOrderPriceAssessments, type OrderPriceAssessment, type PriceTier } from "@/features/payroll/lib/price-anomaly";
 import {
   expandMutationRows,
   formatMutationDistribution,
@@ -181,6 +181,83 @@ function TaskDetailModal({ order, onClose }: { order: Order; onClose: () => void
   );
 }
 
+function PriceDetailModal({ row, price, onClose, onShowGroup }: {
+  row: MutationViewRow;
+  price: OrderPriceAssessment;
+  onClose: () => void;
+  onShowGroup: () => void;
+}) {
+  const headingId = useId();
+  const modal = useRef<HTMLDivElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const order = row.order;
+  const hasPeers = price.peerCount >= 3 && price.averageMinor !== undefined;
+
+  useEffect(() => {
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButton.current?.focus({ preventScroll: true });
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    };
+  }, []);
+
+  return (
+    <div className="mutation-price-modal-screen" ref={modal} role="dialog" aria-modal="true" aria-labelledby={headingId}
+      onMouseDown={(event) => { if (event.target === event.currentTarget) { event.preventDefault(); onClose(); } }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          onClose();
+        } else if (event.key === "Tab") {
+          const buttons = modal.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)");
+          if (!buttons?.length) return;
+          const first = buttons[0];
+          const last = buttons[buttons.length - 1];
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      }}>
+      <section className="mutation-price-modal">
+        <header className="mutation-price-modal-header">
+          <div>
+            <p className="mutation-price-modal-label">{price.tier ? "Perbedaan harga" : "Detail harga"}</p>
+            <h2 id={headingId}>{order.externalReference}{row.day ? ` · Hari ${row.day.sequence}` : ""}</h2>
+            <p>{order.orderName ?? order.service}</p>
+          </div>
+          <button type="button" ref={closeButton} onClick={onClose} className="mutation-price-modal-close">Tutup</button>
+        </header>
+        <div className="mutation-price-modal-body">
+          <div className="mutation-price-modal-summary" data-price-tier={price.tier}>
+            <strong>{price.tier && price.dropPercent !== undefined ? `Turun ${pricePercentFormat.format(price.dropPercent)}% dari rata-rata pembanding` : hasPeers ? "Tidak ada penurunan harga ≥10%." : "Pembanding belum cukup untuk menandai harga."}</strong>
+            <div>{priceBasisLabels[price.basis]}{price.basis === "day" ? " (rata-rata paket)" : row.day ? " (paket induk)" : ""}: <b>{formatMoney(price.priceMinor)}</b></div>
+            {row.day ? <div>Total Hari {row.day.sequence}: {formatMoney(row.grossMinor)}</div> : null}
+          </div>
+          <dl className="mutation-price-modal-stats">
+            <div><dt>Rata-rata pesanan sejenis</dt><dd>{formatMoney(price.groupAverageMinor)}</dd></div>
+            <div><dt>Jumlah pesanan sejenis</dt><dd>{price.sampleCount.toLocaleString("id-ID")}</dd></div>
+            <div><dt>Harga terendah</dt><dd>{formatMoney(price.lowestMinor)}</dd></div>
+            <div><dt>Harga tertinggi</dt><dd>{formatMoney(price.highestMinor)}</dd></div>
+          </dl>
+          <p className="mutation-price-modal-note">Ringkasan ini mencakup pesanan yang sedang dilihat.</p>
+          <div className="mutation-price-modal-reference">
+            {hasPeers ? <><strong>Rata-rata pembanding: {formatMoney(price.averageMinor!)}</strong><p>{price.peerCount.toLocaleString("id-ID")} pesanan lain, tanpa pesanan ini.</p></> : <><strong>Pembanding tersedia: {price.peerCount} dari minimal 3 pesanan lain.</strong><p>Warna harga muncul setelah pembanding mencukupi.</p></>}
+          </div>
+          <button type="button" className="mutation-price-modal-group" onClick={onShowGroup}>Lihat pesanan sejenis</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function MutationsPage() {
   const { allOrders, archivedOrders, updateOrder } = useDemoOrders();
   const { employees } = useDemoEmployees();
@@ -245,6 +322,8 @@ export default function MutationsPage() {
   const [editingRow, setEditingRow] = useState<MutationViewRow | null>(null);
   const [taskOrder, setTaskOrder] = useState<Order | null>(null);
   const [issueRow, setIssueRow] = useState<{ row: MutationViewRow; issues: OrderIssue[] } | null>(null);
+  const [priceDetailRow, setPriceDetailRow] = useState<MutationViewRow | null>(null);
+  const closePriceDetails = useCallback(() => setPriceDetailRow(null), []);
 
   const sources = useMemo(() => [...new Set(allOrders.map((order) => order.source).filter(Boolean))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
   const buyers = useMemo(() => [...new Set(allOrders.map((order) => order.buyerName?.trim()).filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b, "id")), [allOrders]);
@@ -261,6 +340,27 @@ export default function MutationsPage() {
   }), [assignmentOptions]);
 
   const priceAssessments = useMemo(() => buildOrderPriceAssessments(allOrders), [allOrders]);
+  const currentPriceDetailRow = useMemo(() => {
+    if (!priceDetailRow) return null;
+    const currentOrder = allOrders.find((order) => order.id === priceDetailRow.order.id);
+    return currentOrder ? expandMutationRows([currentOrder]).find((row) => row.id === priceDetailRow.id) ?? null : null;
+  }, [allOrders, priceDetailRow]);
+  const priceDetail = currentPriceDetailRow ? priceAssessments.get(currentPriceDetailRow.order.id) : undefined;
+
+  function openPriceDetails(row: MutationViewRow) {
+    setTaskOrder(null);
+    setTelegramEvidenceOrder(null);
+    setEditingRow(null);
+    setIssueRow(null);
+    setPriceDetailRow(row);
+  }
+
+  function showPriceGroup(row: MutationViewRow, price: OrderPriceAssessment) {
+    const order = row.order;
+    setPriceDetailRow(null);
+    resetFilters();
+    setActivePriceGroup({ key: price.groupKey, label: [order.gameName ?? order.game, order.orderName ?? order.service, order.region, order.server].filter(Boolean).join(" · ") });
+  }
 
   const filteredOrders = useMemo(() => allOrders.filter((order) => {
     if (type !== "SEMUA" && order.orderType !== type) return false;
@@ -609,7 +709,7 @@ export default function MutationsPage() {
 
       <section className="mutation-price-guide" aria-label="Panduan pemeriksaan harga">
         <strong>Cek harga otomatis</strong>
-        <p>Harga dibandingkan dengan rata-rata minimal 3 pesanan lain yang serupa. Acuan mengikuti jenis, game, paket, wilayah dan server; filter tabel tidak mengubah rata-rata. Baris harian mengikuti pemeriksaan pesanan induk. Kolom Total menampilkan rata-rata, terendah dan tertinggi seluruh pesanan sejenis, termasuk pesanan ini. Rata-rata pembanding untuk penanda warna memakai pesanan lain. Klik Lihat pesanan sejenis untuk membandingkan seluruh kelompok.</p>
+        <p>Klik tombol Perbedaan harga atau Detail harga pada kolom Total untuk melihat rata-rata, harga terendah dan tertinggi pesanan sejenis. Warna menandai penurunan dari rata-rata minimal 3 pesanan lain dengan jenis, game, paket, wilayah dan server yang sama. Filter tabel tidak mengubah pembanding; baris harian mengikuti pesanan induk.</p>
         <div className="mutation-price-legend">
           <span data-price-tier="10">Turun 10–&lt;20% · biru muda</span>
           <span data-price-tier="20">Turun 20–&lt;30% · pink</span>
@@ -621,8 +721,8 @@ export default function MutationsPage() {
         selection={{ totalCount: visibleOrderIds.length, selectedCount: selectedVisibleCount, hiddenCount: selectedOrderIdSet.size - selectedVisibleCount,
           disabled: savingSyncLocks, onToggleAll: toggleVisibleSelection, onClear: () => setSelectedOrderIds([]) }}
         sortColumn={sortByPriceDrop ? undefined : sortState.column} sortDirection={sortState.direction} onSort={(column) => { setSortByPriceDrop(false); setSortState((current) => toggleMutationSort(current, column)); }}
-        overlay={taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : telegramEvidenceOrder ? <TelegramEvidenceModal orderRef={telegramEvidenceOrder} onClose={() => setTelegramEvidenceOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
-        onOverlayClose={() => { setTaskOrder(null); setTelegramEvidenceOrder(null); setEditingRow(null); setIssueRow(null); }}>
+        overlay={currentPriceDetailRow && priceDetail ? <PriceDetailModal row={currentPriceDetailRow} price={priceDetail} onClose={closePriceDetails} onShowGroup={() => showPriceGroup(currentPriceDetailRow, priceDetail)} /> : taskOrder ? <TaskDetailModal order={taskOrder} onClose={() => setTaskOrder(null)} /> : telegramEvidenceOrder ? <TelegramEvidenceModal orderRef={telegramEvidenceOrder} onClose={() => setTelegramEvidenceOrder(null)} /> : editingRow ? <MutationEditModal order={editingRow.order} day={editingRow.day} onClose={() => setEditingRow(null)} onSave={(patch, changes, reason) => saveMutationEdit(editingRow.order, patch, changes, reason)} /> : issueRow ? <MutationIssueModal order={issueRow.row.order} day={issueRow.row.day} issues={issueRow.issues} onClose={() => setIssueRow(null)} /> : null}
+        onOverlayClose={() => { setPriceDetailRow(null); setTaskOrder(null); setTelegramEvidenceOrder(null); setEditingRow(null); setIssueRow(null); }}>
           <tbody>
             {rows.map((row) => {
               const order = row.order;
@@ -672,16 +772,7 @@ export default function MutationsPage() {
                   <td data-column="quantity">{row.quantity.toLocaleString("id-ID")}</td>
                   <td data-column="total">
                     {formatMoney(row.grossMinor)}
-                    {price ? <div className="mutation-price-check">
-                      {price.tier && price.dropPercent !== undefined ? <strong className="mutation-price-badge">Turun {pricePercentFormat.format(price.dropPercent)}%</strong> : null}
-                      {price.basis !== "order" || row.day ? <div>{price.basis === "order" ? "Harga paket" : priceBasisLabels[price.basis]}: {formatMoney(price.priceMinor)}</div> : null}
-                      <div>Rata-rata: {formatMoney(price.groupAverageMinor)}</div>
-                      <div>Terendah: {formatMoney(price.lowestMinor)}</div>
-                      <div>Tertinggi: {formatMoney(price.highestMinor)}</div>
-                      <small>{price.sampleCount.toLocaleString("id-ID")} pesanan sejenis</small>
-                      {price.peerCount >= 3 && price.averageMinor !== undefined ? <><div>Rata-rata pembanding: {formatMoney(price.averageMinor)}</div><small>{price.peerCount.toLocaleString("id-ID")} pesanan lain</small></> : <div>Pembanding belum cukup ({price.peerCount}/3 pesanan lain)</div>}
-                      <button type="button" className="mutation-price-group-link" onClick={() => { resetFilters(); setActivePriceGroup({ key: price.groupKey, label: [order.gameName ?? order.game, order.orderName ?? order.service, order.region, order.server].filter(Boolean).join(" · ") }); }} aria-label={`Lihat pesanan sejenis ${order.externalReference}`}>Lihat pesanan sejenis</button>
-                    </div> : null}
+                    {price ? <div className="mutation-price-check"><button type="button" className="mutation-price-detail-button" aria-haspopup="dialog" aria-label={`${price.tier ? "Perbedaan harga" : "Detail harga"} ${order.externalReference}${row.day ? ` · Hari ${row.day.sequence}` : ""}`} onClick={() => openPriceDetails(row)}>{price.tier && price.dropPercent !== undefined ? <>Perbedaan harga · {pricePercentFormat.format(price.dropPercent)}%</> : "Detail harga"}</button></div> : null}
                   </td>
                   <td data-column="status">{issues.length ? <button type="button" onClick={() => setIssueRow({ row, issues })} className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</button> : <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.cls}`}>{status.label}</span>}</td>
                   <td data-column="actions">
