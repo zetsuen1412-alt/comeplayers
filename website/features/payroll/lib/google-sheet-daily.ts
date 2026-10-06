@@ -95,8 +95,18 @@ export function buildGoogleSheetDailyOrder(records: GoogleSheetDailyRecord[]): O
   if (!records.length || records.length > 366) throw new Error("Paket harian harus berisi 1–366 baris sumber.");
   const ordered = [...records].sort((a, b) => a.sourceRow - b.sourceRow);
   const first = ordered[0].order;
-  const plan = parseBoostingPackagePlan(first.orderName ?? first.service);
-  if (first.orderType !== "boosting" || !plan.isDaily || plan.totalDays < 2
+  const title = first.orderName ?? first.service;
+  let plan = parseBoostingPackagePlan(title);
+  // A complete Sheet group can explicitly record several DAYs for an Hours
+  // Package without Xn. Its known schedule ends at the last recorded marker;
+  // explicit week/month/day and Xn bounds still come from their package title.
+  const lastRecordedDay = ordered.reduce((last, record) => record.days.reduce((current, day) => Math.max(current, day), last), 0);
+  if (!plan.isDaily && plan.basis === "single" && plan.dailyHours !== undefined
+    && /\d+(?:[.,]\d+)?\s*(?:hours?|jam)\s*(?:package|paket)\b/i.test(title)
+    && Number.isInteger(lastRecordedDay) && lastRecordedDay >= 1 && lastRecordedDay <= 366) {
+    plan = { ...plan, isDaily: true, totalDays: lastRecordedDay };
+  }
+  if (first.orderType !== "boosting" || !plan.isDaily || plan.totalDays < 1
     || (plan.dailyHours !== undefined && (!Number.isFinite(plan.dailyHours) || plan.dailyHours <= 0 || plan.dailyHours > 24))) {
     throw new Error("KODE berulang hanya dapat digabung sebagai paket Boosting berjangka yang jelas.");
   }

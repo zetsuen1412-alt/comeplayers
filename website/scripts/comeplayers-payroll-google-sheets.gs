@@ -280,8 +280,7 @@ function comePlayersHeaders_(sheet, configuredRow, columns) {
 function comePlayersDailyPackageTitle_(value) {
   var title = String(value || '').trim();
   return /\b\d+\s*(?:weeks?|months?|days?|minggu|bulan|hari)\b/i.test(title)
-    || (/\b\d+(?:[.,]\d+)?\s*hours?\s*package\b/i.test(title)
-      && /\b[x×]\s*(?:[2-9]|[1-9]\d+)\b/i.test(title));
+    || /\b\d+(?:[.,]\d+)?\s*(?:hours?|jam)\s*(?:package|paket)\b/i.test(title);
 }
 
 function comePlayersBoosterDaySuffix_(value) {

@@ -156,6 +156,27 @@ test('complete DAY packages recover historical records across Closing periods as
   assert.equal(h.reconcile().sent, 0, 'the complete package signature is acknowledged once');
 });
 
+test('Hours Package DAY markers are complete source days even without an X multiplier', () => {
+  const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
+  const first = dailySource('HOURS-DAY', 'D1', '25/09/2026 00:24', 300000); first[4] = '24 Hours Package Piloting All Activities';
+  const second = dailySource('HOURS-DAY', 'D2', '26/09/2026 00:24', 300000); second[4] = first[4];
+  const only = dailySource('ONLY-DAY', 'D1', '27/09/2026 00:24', 160000); only[4] = '6 Hours Package Piloting All Activities';
+  h.cells.push(first, ['CLOSING'], second, only, ['CLOSING']);
+  h.reconcile();
+  const orders = h.state[workspaceKeys.orders] as Order[];
+  const two = orders.find(order => order.externalReference === 'HOURS-DAY')!;
+  assert.deepEqual(two.dailyWork?.map(day => day.sequence), [1, 2]);
+  assert.equal(two.scheduleTotalDays, 2);
+  assert.equal(two.grossMinor, 600000);
+  assert.equal(two.dailyWork?.every(day => day.rateMinor === 300000), true);
+  const single = orders.find(order => order.externalReference === 'ONLY-DAY')!;
+  assert.equal(single.scheduleMode, 'daily');
+  assert.equal(single.scheduleTotalDays, 1);
+  assert.equal(single.dailyWork?.length, 1);
+  assert.equal(single.dailyWork?.[0]?.sequence, 1);
+  assert.equal(single.dailyWork?.[0]?.workerAssignments?.[0]?.employeeName, 'Irwan');
+});
+
 test('editing one historical DAY uploads its entire package and preserves a settled DAY', () => {
   const h = harness(0); h.properties.CP_SYNC_ALL_EXISTING = 'true'; h.properties.CP_SYNC_ROSTER = 'true';
   h.cells.push(dailySource('DAILY', 'D1'), dailySource('DAILY', 'D2', '26/09/2026 00:24'), ['CLOSING']);

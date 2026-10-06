@@ -60,6 +60,53 @@ test("X2184 records only D1–D17 and splits the D7 D8 row TOTAL exactly", () =>
   assert.equal(parentDailyOperationalStatus(order.dailyWork!.map(day => ({ ...day, status: "verified" })), order.scheduleTotalDays), "partially_completed");
 });
 
+test("complete Hours Package DAY markers recover two real days without an Xn title", () => {
+  for (const code of ["EGX9207", "EGX9706"]) {
+    const rows = [row(355, "DAVA D1", { code, title: "⭐24 Hours Package⭐ Piloting All Activities", rate: 300000, total: 300000 }),
+      row(434, "HUDA D2", { code, title: "⭐24 Hours Package⭐ Piloting All Activities", rate: 300000, total: 300000 })];
+    const original = base(), result = imported(original, rows), order = firstOrder(result.state);
+    assert.equal(result.added, 1); assert.equal(result.skippedConflicts, 0); assert.equal(result.skippedHistorical, 0);
+    assert.equal(order.scheduleTotalDays, 2); assert.equal(order.dailyHours, 24); assert.equal(order.quantity, 2);
+    assert.equal(order.rateMinor, 300000); assert.equal(order.grossMinor, 600000); assert.equal(order.expectedPaymentMinor, 600000);
+    assert.deepEqual(order.dailyWork?.map(day => [day.sequence, day.hours, day.rateMinor, day.grossMinor, day.workerAssignments?.[0].employeeName]),
+      [[1, 24, 300000, 300000, "DAVA"], [2, 24, 300000, 300000, "HUDA"]]);
+    assert.ok(order.dailyWork?.every(day => day.status === "pending" && !day.verifiedAt && !day.payrollClosedAt));
+    validateWorkspaceEdit(original, result.state);
+    assert.equal(imported(result.state, rows).unchanged, 1);
+    order.sheetSyncLocked = true;
+    const before = structuredClone(result.state[K.orders]);
+    const locked = imported(result.state, [rows[0], row(434, "HUDA D2", { code, title: rows[0].values[4] as string, rate: 9, total: 9 })]);
+    assert.equal(locked.skippedProtected, 1); assert.deepEqual(locked.state[K.orders], before); assert.deepEqual(result.state[K.orders], before);
+  }
+});
+
+test("Hours Package inference ends at its last explicit DAY and never expands known package bounds", () => {
+  const sparse = firstOrder(imported(base(), [row(3, "DAVA D1 D3", { title: "12 Hours Package", quantity: 2 })]).state);
+  assert.equal(sparse.scheduleTotalDays, 3); assert.deepEqual(sparse.dailyWork?.map(day => day.sequence), [1, 3]);
+  for (const [title, booster] of [["1 Week Package (6 Hours/Day)", "DAVA D8"], ["1 Month Package (6 Hours/Day)", "DAVA D31"],
+    ["2 Days Package (6 Hours/Day)", "DAVA D3"], ["12 Hours Package X2", "DAVA D3"],
+    ["25 Hours Package", "DAVA D1 D2"], ["Custom Order 12 Hours/Day", "DAVA D1 D2"]]) {
+    const result = imported(base(), [row(3, booster, { title, quantity: booster.endsWith("D2") ? 2 : 1 })]);
+    assert.equal(result.added, 0, title); assert.equal(result.skippedConflicts, 1, title);
+  }
+});
+
+test("one explicit D1 on a recognized Hours Package stays one recorded DAY with a valid workspace", () => {
+  const original = base(), result = imported(original, [row(3, "DAVA D1", { title: "12 Hours Package" })]), order = firstOrder(result.state);
+  assert.equal(result.added, 1); assert.equal(order.scheduleMode, "daily"); assert.equal(order.scheduleTotalDays, 1);
+  assert.equal(order.dailyWork?.length, 1); assert.equal(order.dailyWork?.[0].sequence, 1);
+  assert.equal(order.dailyWork?.[0].status, "pending"); assert.notEqual(order.operationalStatus, "verified"); assert.equal(order.financeStatus, "pending");
+  assert.equal(order.dailyWork?.[0].workerAssignments?.[0].employeeName, "DAVA");
+  assert.equal(order.quantity, 1); assert.equal(order.rateMinor, 160000); assert.equal(order.grossMinor, 160000);
+  validateWorkspace(result.state); validateWorkspaceEdit(original, result.state);
+  assert.equal(parentDailyOperationalStatus([{ ...order.dailyWork![0], status: "verified" }], order.scheduleTotalDays), "verified");
+  const onlyD2 = imported(original, [row(3, "DAVA D2", { title: "12 Hours Package" })]), sparse = firstOrder(onlyD2.state);
+  assert.equal(sparse.scheduleTotalDays, 2); assert.deepEqual(sparse.dailyWork?.map(day => day.sequence), [2]);
+  assert.equal(parentDailyOperationalStatus([{ ...sparse.dailyWork![0], status: "verified" }], sparse.scheduleTotalDays), "partially_completed");
+  validateWorkspaceEdit(original, onlyD2.state);
+  for (const scheduleTotalDays of [0, -1, 1.5, 367]) assert.throws(() => validateWorkspace({ ...result.state, [K.orders]: [{ ...order, scheduleTotalDays }] }));
+});
+
 test("odd row TOTAL preserves every rupiah and each source DAY RATE across mixed rates", () => {
   const order = firstOrder(imported(base(), [row(3, "DAVA D1 D2", { quantity: 2, rate: 100, total: 201 }), row(4, "DAVA D3", { rate: 150, total: 150 })]).state);
   assert.deepEqual(order.dailyWork?.map(day => [day.sequence, day.rateMinor, day.grossMinor]), [[1, 100, 101], [2, 100, 100], [3, 150, 150]]);

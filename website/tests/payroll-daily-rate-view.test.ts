@@ -77,3 +77,20 @@ test("package grammar recognizes explicit day counts, plurals and Indonesian dur
   assert.equal(parseBoostingPackagePlan("12 Hours Package").isDaily, false);
   assert.equal(parseBoostingPackagePlan("1.5 Weeks Package").isDaily, false);
 });
+
+test("an x immediately introducing the explicit DAY count does not multiply that same count twice", () => {
+  for (const title of ["Custom Order 7H x 5 days", "Custom Order 7H X5 days", "Custom Order 7H x 5 hari"]) {
+    const plan = parseBoostingPackagePlan(title);
+    assert.equal(plan.isDaily, true, title);
+    assert.equal(plan.totalDays, 5, title);
+    assert.equal(plan.multiplier, 1, title);
+  }
+  assert.equal(parseBoostingPackagePlan("3 Days Package X2").totalDays, 6);
+  assert.equal(parseBoostingPackagePlan("1 Month Package X2").totalDays, 60);
+  assert.equal(parseBoostingPackagePlan("Custom Order 7H x2weeks").totalDays, 14);
+  assert.equal(parseBoostingPackagePlan("Custom Order 7H x 2 weeks").totalDays, 14);
+  assert.equal(parseBoostingPackagePlan("Custom Order 7H x2months").totalDays, 60);
+  assert.equal(parseBoostingPackagePlan("Custom Order 7H x 2 months").totalDays, 60);
+  assert.equal(parseBoostingPackagePlan("1 Week Package X2").totalDays, 14);
+  assert.equal(parseBoostingPackagePlan("Custom Order 7H x 2 weeks X2").totalDays, 28);
+});

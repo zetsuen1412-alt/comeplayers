@@ -34,33 +34,44 @@ export function parseBoostingPackagePlan(title: string | undefined | null): Boos
   const genericHoursMatch = clean.match(/(\d+(?:[.,]\d+)?)\s*(?:hours?|jam)\s*(?:package|paket)\b/i);
   const dailyHoursText = hoursPerDayMatch?.[1] ?? genericHoursMatch?.[1];
   const dailyHours = dailyHoursText ? Number(dailyHoursText.replace(",", ".")) : undefined;
+  function durationMultiplier(duration: RegExpMatchArray) {
+    const start = duration.index ?? 0, end = start + duration[0].length;
+    // A leading x introduces the stated duration once. Only a separate xN,
+    // such as "1 Week Package X2", multiplies that duration.
+    const separate = [...clean.matchAll(/\b[x×]\s*(\d+)\b/gi)]
+      .find(match => match.index !== undefined && (match.index < start || match.index >= end));
+    return positiveInt(separate?.[1], 1);
+  }
 
-  const weekMatch = clean.match(/(?<![\p{L}\p{N}.,])(\d+)\s*(?:weeks?|minggu)\b/iu);
+  const weekMatch = clean.match(/(?<![\p{L}\p{N}.,])(?:[x×]\s*)?(\d+)\s*(?:weeks?|minggu)\b/iu);
   if (weekMatch) {
+    const weekMultiplier = durationMultiplier(weekMatch);
     return {
       isDaily: true,
-      totalDays: Math.min(366, positiveInt(weekMatch[1]) * 7 * multiplier),
+      totalDays: Math.min(366, positiveInt(weekMatch[1]) * 7 * weekMultiplier),
       dailyHours,
-      multiplier,
+      multiplier: weekMultiplier,
       basis: "week",
     };
   }
 
-  const monthMatch = clean.match(/(?<![\p{L}\p{N}.,])(\d+)\s*(?:months?|bulan)\b/iu);
+  const monthMatch = clean.match(/(?<![\p{L}\p{N}.,])(?:[x×]\s*)?(\d+)\s*(?:months?|bulan)\b/iu);
   if (monthMatch) {
+    const monthMultiplier = durationMultiplier(monthMatch);
     return {
       isDaily: true,
-      totalDays: Math.min(366, positiveInt(monthMatch[1]) * 30 * multiplier),
+      totalDays: Math.min(366, positiveInt(monthMatch[1]) * 30 * monthMultiplier),
       dailyHours,
-      multiplier,
+      multiplier: monthMultiplier,
       basis: "month",
     };
   }
 
-  const dayMatch = clean.match(/(?<![\p{L}\p{N}.,])(\d+)\s*(?:days?|hari)\b/iu);
+  const dayMatch = clean.match(/(?<![\p{L}\p{N}.,])(?:[x×]\s*)?(\d+)\s*(?:days?|hari)\b/iu);
   if (dayMatch) {
-    const totalDays = Math.min(366, positiveInt(dayMatch[1]) * multiplier);
-    return { isDaily: totalDays > 1, totalDays, dailyHours, multiplier, basis: "day" };
+    const dayMultiplier = durationMultiplier(dayMatch);
+    const totalDays = Math.min(366, positiveInt(dayMatch[1]) * dayMultiplier);
+    return { isDaily: totalDays > 1, totalDays, dailyHours, multiplier: dayMultiplier, basis: "day" };
   }
 
   if (genericHoursMatch && multiplier > 1) {
