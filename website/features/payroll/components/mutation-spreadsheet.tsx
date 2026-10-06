@@ -12,6 +12,7 @@ type Selection = {
   disabled?: boolean;
   onToggleAll: (checked: boolean) => void;
   onClear: () => void;
+  actions?: ReactNode;
 };
 type Props = { children: ReactNode; rowCount: number; filterLabel: string; readOnly?: boolean; selection?: Selection; overlay?: ReactNode; onOverlayClose?: () => void; sortColumn?: MutationSortColumn; sortDirection?: MutationSortDirection; onSort?: (column: MutationSortColumn) => void };
 type Drag = { id: MutationColumnId; pointer: number; startX: number; width: number; target: HTMLButtonElement };
@@ -180,6 +181,7 @@ export function MutationSpreadsheet({ children, rowCount, filterLabel, readOnly 
         <span role="status" aria-live="polite">{selection.selectedCount.toLocaleString('id-ID')} dari {selection.totalCount.toLocaleString('id-ID')} pesanan pada filter dipilih{selection.hiddenCount ? ` · ${selection.hiddenCount.toLocaleString('id-ID')} pilihan di luar filter` : ''}</span>
         <button type="button" className="mutation-sheet-action" disabled={selection.disabled || !(selection.selectedCount + selection.hiddenCount)} onClick={selection.onClear}>Batal pilih</button>
         <small>Paket harian dipilih sebagai satu pesanan.</small>
+        {selection.actions}
       </div> : null}
       <div className="mutation-sheet-controls">
         <label htmlFor={`${uid}-column`}>Pilih kolom<select id={`${uid}-column`} aria-label="Pilih kolom" className="mutation-sheet-control" value={selected} disabled={readOnly} onChange={event => setSelected(event.target.value as MutationColumnId)}>{mutationColumns.map(column => <option key={column.id} value={column.id}>{column.label}</option>)}</select></label>

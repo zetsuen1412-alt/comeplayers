@@ -161,6 +161,9 @@ export interface Order {
   sheetSyncRefreshRequested?: boolean;
   /** Recoverable archive marker: KODE absent from a complete source snapshot. */
   sheetDeletedAt?: string;
+  /** Recoverable deletion by a website admin; source sync must preserve it. */
+  websiteDeletedAt?: string;
+  websiteDeletedBy?: string;
   id: string;
   orderNumber: string;
   externalReference: string;

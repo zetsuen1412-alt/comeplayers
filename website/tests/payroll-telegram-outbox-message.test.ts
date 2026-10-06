@@ -34,7 +34,7 @@ class Query {
 
 const source = readFileSync(resolve(process.cwd(), "lib/payrollTelegram.ts"), "utf8");
 const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText;
-function fixture(options: { state?: string; messageId?: number | null; notice?: Row; eventKey?: string; orderRef?: string | null; allowed?: boolean; session?: Row; failure?: "unchanged" | "deleted" | "network" } = {}) {
+function fixture(options: { state?: string; messageId?: number | null; notice?: Row; eventKey?: string; orderRef?: string | null; allowed?: boolean; session?: Row; failure?: "unchanged" | "deleted" | "network"; websiteDeletedAt?: string; sheetDeletedAt?: string } = {}) {
   const outbox: Row = { id: 1, event_key: options.eventKey ?? "update:123", order_ref: options.orderRef === undefined ? "X3092" : options.orderRef,
     chat_id: -100300, status: "pending", payload: options.notice ?? { text: "PAUSE — X3092", keyboard: "boosting", orderId: 31 } };
   const route = { order_ref: "X3092", division: "FH3", chat_id: -100300, message_id: options.messageId === undefined ? 42 : options.messageId };
@@ -42,7 +42,8 @@ function fixture(options: { state?: string; messageId?: number | null; notice?: 
     cp_payroll_telegram_outbox: [outbox],
     cp_payroll_telegram_order_chats: [route],
     cp_payroll_telegram_orders: [{ order_ref: "X3092", callback_id: 31, order_type: "boosting", state: options.state ?? "paused", division: "FH3", target_quantity: 1, delivered_quantity: 0 }],
-    cp_payroll_workspace: [{ id: 1, payload: { "cp-ofs-demo-user-orders-v3": [{ externalReference: "X3092", orderName: "1 Week Package", game: "AION", team: "FH3", task: "Daily quests", workerAssignments: [{ employeeName: "ASTRI" }] }] } }],
+    cp_payroll_workspace: [{ id: 1, payload: { "cp-ofs-demo-user-orders-v3": [{ externalReference: "X3092", orderName: "1 Week Package", game: "AION", team: "FH3", task: "Daily quests", workerAssignments: [{ employeeName: "ASTRI" }], websiteDeletedAt: options.websiteDeletedAt, sheetDeletedAt: options.sheetDeletedAt }] } }],
+    cp_payroll_telegram_evidence: [],
     cp_payroll_telegram_sessions: options.session ? [{ order_ref: "X3092", chat_id: -100300, closed_at: null, expires_at: new Date(Date.now() + 3600000).toISOString(), ...options.session }] : [],
   };
   const database = {
@@ -79,8 +80,9 @@ function fixture(options: { state?: string; messageId?: number | null; notice?: 
   const api = exported as unknown as {
     flushPayrollTelegramOutbox(db: typeof database): Promise<{ sent: number }>;
     restorePayrollTelegramOrder(db: typeof database, orderId: string, chatId: number): Promise<boolean>;
+    payrollWorkspaceOrder(db: typeof database, reference: string): Promise<Row | null>;
   };
-  return { api, database, calls, outbox, route };
+  return { api, database, calls, outbox, route, rows };
 }
 
 test("real outbox flusher edits the canonical order card, preserving employee and details", async () => {
@@ -95,6 +97,27 @@ test("real outbox flusher edits the canonical order card, preserving employee an
   assert.equal(f.outbox.status, "sent");
   assert.equal(f.outbox.message_id, 42);
   assert.equal(f.route.message_id, 42);
+});
+
+test("website-deleted orders are inactive in lookup, callback navigation and queued initial delivery", async () => {
+  const f = fixture({ websiteDeletedAt: "2026-10-06T12:00:00Z", eventKey: "dispatch:X3092", state: "assigned" });
+  assert.equal(await f.api.payrollWorkspaceOrder(f.database, " x3092 "), null);
+  assert.equal(await f.api.restorePayrollTelegramOrder(f.database, "31", -100300), false);
+  assert.equal((await f.api.flushPayrollTelegramOutbox(f.database)).sent, 0);
+  assert.equal(f.outbox.status, "cancelled");
+  assert.equal(f.calls.length, 0);
+  assert.equal(f.rows.cp_payroll_telegram_orders[0].state, "assigned", "an archive must not mark the workflow verified");
+});
+
+test("explicit website restoration resumes the same canonical card without changing its workflow state", async () => {
+  const f = fixture({ websiteDeletedAt: "2026-10-06T12:00:00Z", state: "paused" });
+  const payload = f.rows.cp_payroll_workspace[0].payload as Record<string, Row[]>;
+  delete payload["cp-ofs-demo-user-orders-v3"][0].websiteDeletedAt;
+  assert.ok(await f.api.payrollWorkspaceOrder(f.database, " X3092 "));
+  assert.equal(await f.api.restorePayrollTelegramOrder(f.database, "31", -100300), true);
+  assert.deepEqual(f.calls.map(call => call.method), ["editMessageText"]);
+  assert.equal(f.calls[0].body.message_id, 42);
+  assert.equal(f.rows.cp_payroll_telegram_orders[0].state, "paused");
 });
 
 test("real flusher replaces picker buttons in the existing order", async () => {

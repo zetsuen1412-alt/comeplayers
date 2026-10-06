@@ -141,7 +141,7 @@ export function getOrderRateMinor(order: Pick<Order, "rateMinor">): number | und
 }
 
 function observation(order: Order): Observation | null {
-  if (order.sheetDeletedAt || order.operationalStatus === "cancelled") return null;
+  if (order.sheetDeletedAt || order.websiteDeletedAt || order.operationalStatus === "cancelled") return null;
   if (!["boosting", "gold", "item"].includes(order.orderType ?? "")) return null;
   const priceMinor = getOrderRateMinor(order);
   if (priceMinor === undefined) return null;

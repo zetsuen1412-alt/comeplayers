@@ -57,7 +57,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
   const dayTotal = order.scheduleTotalDays ?? order.dailyWork?.length ?? day?.sequence ?? 1;
   const dayLabel = day ? `Hari ${day.sequence}/${dayTotal}` : null;
   const availableEmployees = useMemo(() => employees
-    .filter((employee) => employee.workforceStatus !== "RESIGN")
+    .filter((employee) => employee.workforceStatus !== "RESIGN" && !employee.sheetRosterMissingAt)
     .filter((employee) => !assignments.some((assignment) => assignment.employeeCode === employee.code))
     .filter((employee) => employeeTeam === "SEMUA" || employee.team === employeeTeam)
     .sort((a, b) => a.team.localeCompare(b.team, "id") || a.name.localeCompare(b.name, "id")),
@@ -92,7 +92,7 @@ export function MutationEditModal({ order, day, onClose, onSave }: Props) {
   function addAssignment() {
     setError(null);
     if (stockLocksQuantity) return setError("Karyawan tidak dapat ditambah pada pesanan yang jumlahnya terkunci oleh Stok/Gudang.");
-    const employee = employees.find((row) => row.code === employeeCodeToAdd);
+    const employee = availableEmployees.find((row) => row.code === employeeCodeToAdd);
     if (!employee) return setError("Pilih karyawan yang ingin ditambahkan.");
     if (assignments.some((row) => row.employeeCode === employee.code)) return setError(employee.name + " sudah ada pada pesanan ini.");
 

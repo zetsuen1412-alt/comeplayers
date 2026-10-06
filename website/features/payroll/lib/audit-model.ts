@@ -47,10 +47,47 @@ const sheetOwnedOrderFields = [
 export function attributeWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState, actor: {id:string;name:string;isAdmin?:boolean}, now: string) {
   const result = structuredClone(next);
   const oldOrders = new Map(((previous[K.orders] ?? []) as Order[]).map(order => [order.id, order]));
-  const closingReferences = new Set(((previous[K.closings] ?? []) as { orderRefs?: string[] }[])
-    .flatMap(closing => closing.orderRefs ?? []).map(reference => reference.trim().toLowerCase()));
+  const nextOrderIds = new Set(((result[K.orders] ?? []) as Order[]).map(order => order.id));
+  for (const old of oldOrders.values()) if (old.websiteDeletedAt && !nextOrderIds.has(old.id)) {
+    payrollFailure("Arsip pesanan website tidak dapat dihapus permanen.", 409);
+  }
+  const closingReferences = new Set(((previous[K.closings] ?? []) as { orderRefs?: string[]; ordersSnapshot?: Order[] }[])
+    .flatMap(closing => [...closing.orderRefs ?? [], ...closing.ordersSnapshot?.map(order => order.externalReference) ?? []])
+    .map(reference => reference.trim().toLowerCase()));
+  const inventoryReferences = new Set(((previous[K.movements] ?? []) as { orderReference?: string }[])
+    .flatMap(movement => movement.orderReference ? [movement.orderReference.trim().toLowerCase()] : []));
   for (const order of (result[K.orders] ?? []) as Order[]) {
     const old = oldOrders.get(order.id);
+    const archiveChanged = Boolean(old?.websiteDeletedAt) !== Boolean(order.websiteDeletedAt);
+    if (archiveChanged) {
+      if (!actor.isAdmin || !old) payrollFailure("Hanya admin website yang dapat menghapus atau memulihkan pesanan.", 403);
+      if (order.websiteDeletedAt) {
+        const reference = old.externalReference.trim().toLowerCase();
+        if (hasAutomaticSheetProtection(old) || ["verified", "reconciled", "ready_to_close"].includes(old.financeStatus)
+          || closingReferences.has(reference) || inventoryReferences.has(reference)) {
+          payrollFailure("Pesanan terkait verifikasi, Gaji/Closing, pembayaran, atau stok tidak dapat dihapus.", 409);
+        }
+        const preserved = { ...order, websiteDeletedAt: old.websiteDeletedAt, websiteDeletedBy: old.websiteDeletedBy,
+          sheetSyncLocked: old.sheetSyncLocked };
+        if (canonical(preserved) !== canonical({ ...old, websiteDeletedAt: old.websiteDeletedAt,
+          websiteDeletedBy: old.websiteDeletedBy, sheetSyncLocked: old.sheetSyncLocked })) {
+          payrollFailure("Penghapusan harus mempertahankan seluruh rincian pesanan.", 409);
+        }
+        order.websiteDeletedAt = now;
+        order.websiteDeletedBy = actor.name;
+        if (isSheetOrder(old)) order.sheetSyncLocked = true;
+      } else {
+        const preserved = { ...order, websiteDeletedAt: old.websiteDeletedAt, websiteDeletedBy: old.websiteDeletedBy };
+        if (canonical(preserved) !== canonical({ ...old, websiteDeletedBy: old.websiteDeletedBy })) payrollFailure("Pemulihan harus mempertahankan seluruh rincian pesanan.", 409);
+        delete order.websiteDeletedAt;
+        delete order.websiteDeletedBy;
+      }
+    } else {
+      if (order.websiteDeletedAt !== old?.websiteDeletedAt || order.websiteDeletedBy !== old?.websiteDeletedBy) {
+        payrollFailure("Metadata arsip website tidak boleh diubah langsung.", 403);
+      }
+      if (old?.websiteDeletedAt && canonical(old) !== canonical(order)) payrollFailure("Pulihkan pesanan dari arsip sebelum mengubahnya.", 409);
+    }
     if (old && isSheetOrder(old) && (order.externalReference !== old.externalReference || order.orderNumber !== old.orderNumber)) {
       payrollFailure("KODE pesanan dari Sheet harus diubah di Sheet.", 409);
     }
