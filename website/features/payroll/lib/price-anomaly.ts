@@ -1,6 +1,7 @@
 import type { Order } from "../types/domain";
 
 export type PriceTier = "10" | "20" | "30";
+export type PriceDirection = "down" | "up";
 
 export type OrderPriceAssessment = {
   groupKey: string;
@@ -13,6 +14,8 @@ export type OrderPriceAssessment = {
   averageMinor?: number;
   peerCount: number;
   dropPercent?: number;
+  risePercent?: number;
+  direction?: PriceDirection;
   tier?: PriceTier;
 };
 
@@ -183,6 +186,15 @@ function dropTier(price: Rational, peerTotal: Rational, peerCount: number): Pric
   return undefined;
 }
 
+function riseTier(price: Rational, peerTotal: Rational, peerCount: number): PriceTier | undefined {
+  const candidateTotal = times(price, peerCount * 100);
+  const above = (percent: number) => compare(candidateTotal, times(peerTotal, 100 + percent)) >= ZERO;
+  if (above(30)) return "30";
+  if (above(20)) return "20";
+  if (above(10)) return "10";
+  return undefined;
+}
+
 /**
  * Assess all active orders before applying table filters. Each parent/KODE is
  * one reference price, and its own price never contributes to its average.
@@ -244,7 +256,15 @@ export function buildOrderPriceAssessments(orders: readonly Order[]): Map<string
     if (peerCount >= MINIMUM_PEERS && peerTotal.numerator > ZERO) {
       const difference = subtract(peerTotal, times(item.exactPrice, peerCount));
       assessment.dropPercent = difference.numerator > ZERO ? displayNumber(times(dividedBy(difference, peerTotal), 100)) : 0;
-      assessment.tier = dropTier(item.exactPrice, peerTotal, peerCount);
+      const increase = subtract(times(item.exactPrice, peerCount), peerTotal);
+      assessment.risePercent = increase.numerator > ZERO ? displayNumber(times(dividedBy(increase, peerTotal), 100)) : 0;
+      if (difference.numerator > ZERO) {
+        assessment.tier = dropTier(item.exactPrice, peerTotal, peerCount);
+        if (assessment.tier) assessment.direction = "down";
+      } else if (increase.numerator > ZERO) {
+        assessment.tier = riseTier(item.exactPrice, peerTotal, peerCount);
+        if (assessment.tier) assessment.direction = "up";
+      }
     }
     result.set(item.orderId, assessment);
   }

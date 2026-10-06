@@ -20,6 +20,8 @@ test("exact 10/20/30 boundaries and immediately adjacent integer prices use the 
     assert.equal(assessment.averageMinor, 320_000);
     assert.equal(assessment.peerCount, 3);
     assert.equal(assessment.tier, tier, String(price));
+    assert.equal(assessment.direction, tier ? "down" : undefined, String(price));
+    assert.equal(assessment.risePercent, 0);
   }
 });
 
@@ -27,9 +29,94 @@ test("zero candidate is brown against positive peers, but never lowers another o
   const assessment = buildOrderPriceAssessments([...peers(), order("zero", 0), order("normal", 320_000)]);
   assert.equal(assessment.get("zero")?.tier, "30");
   assert.equal(assessment.get("zero")?.dropPercent, 100);
+  assert.equal(assessment.get("zero")?.risePercent, 0);
+  assert.equal(assessment.get("zero")?.direction, "down");
   assert.equal(assessment.get("zero")?.peerCount, 4);
   assert.equal(assessment.get("normal")?.averageMinor, 320_000);
   assert.equal(assessment.get("normal")?.peerCount, 3);
+});
+
+test("exact rise 10/20/30 boundaries and one rupiah below retain the proper direction and tier", () => {
+  const examples = [[351_999, undefined], [352_000, "10"], [383_999, "10"], [384_000, "20"], [415_999, "20"], [416_000, "30"], [480_000, "30"]] as const;
+  for (const [price, tier] of examples) {
+    const assessment = buildOrderPriceAssessments([...peers(), order("candidate", price)]).get("candidate")!;
+    assert.equal(assessment.averageMinor, 320_000);
+    assert.equal(assessment.peerCount, 3);
+    assert.equal(assessment.tier, tier, String(price));
+    assert.equal(assessment.direction, tier ? "up" : undefined, String(price));
+    assert.equal(assessment.dropPercent, 0);
+    assert.ok(assessment.risePercent! > 0);
+  }
+  const equal = buildOrderPriceAssessments([...peers(), order("candidate", 320_000)]).get("candidate")!;
+  assert.equal(equal.direction, undefined);
+  assert.equal(equal.tier, undefined);
+  assert.equal(equal.risePercent, 0);
+  assert.equal(equal.dropPercent, 0);
+});
+
+test("fractional unit and daily rises classify exact boundaries while one minor unit below stays lower", () => {
+  for (const denominator of [3, 7, 19, 31, 999]) {
+    const scope = { orderType: "gold" as const, orderName: `${denominator}M`, quantity: denominator };
+    const references = peers(1_000, scope);
+    for (const [gross, tier, belowTier] of [[1_100, "10", undefined], [1_200, "20", "10"], [1_300, "30", "20"]] as const) {
+      const exact = buildOrderPriceAssessments([...references, order("candidate", gross, scope)]).get("candidate")!;
+      const below = buildOrderPriceAssessments([...references, order("candidate", gross - 1, scope)]).get("candidate")!;
+      assert.equal(exact.tier, tier, `${gross}/${denominator}`);
+      assert.equal(exact.direction, "up");
+      assert.equal(below.tier, belowTier, `${gross - 1}/${denominator}`);
+      assert.equal(below.direction, belowTier ? "up" : undefined);
+    }
+  }
+  const daily = (id: string, gross: number) => order(id, gross, {
+    orderName: "12 Hours Package x3", scheduleMode: "daily", scheduleTotalDays: 3, dailyHours: 12,
+    dailyWork: [Math.floor(gross / 3), Math.floor(gross / 3), gross - 2 * Math.floor(gross / 3)].map((amount, index) => ({ id: `${id}-${index}`, sequence: index + 1, workDate: "2026-10-06", grossMinor: amount, status: "pending" })),
+  });
+  const references = [1, 2, 3].map(index => daily(`day-${index}`, 1_000));
+  const exact = buildOrderPriceAssessments([...references, daily("candidate", 1_300)]).get("candidate")!;
+  const below = buildOrderPriceAssessments([...references, daily("candidate", 1_299)]).get("candidate")!;
+  assert.equal(exact.basis, "day");
+  assert.equal(exact.tier, "30");
+  assert.equal(exact.direction, "up");
+  assert.equal(exact.risePercent, 30);
+  assert.equal(below.tier, "20");
+});
+
+test("decimal/scientific quantities preserve rise boundaries and one rupiah differences at large totals", () => {
+  for (const quantity of [0.3, 0.0000003, 3e7]) {
+    const scope = { orderType: "gold" as const, orderName: "Spiritvale currency", quantity };
+    const references = peers(3_000_000_000_000_000, scope);
+    for (const [gross, tier, belowTier] of [[3_300_000_000_000_000, "10", undefined], [3_600_000_000_000_000, "20", "10"], [3_900_000_000_000_000, "30", "20"]] as const) {
+      const exact = buildOrderPriceAssessments([...references, order("candidate", gross, scope)]).get("candidate")!;
+      const below = buildOrderPriceAssessments([...references, order("candidate", gross - 1, scope)]).get("candidate")!;
+      assert.equal(exact.tier, tier);
+      assert.equal(exact.direction, "up");
+      assert.equal(below.tier, belowTier);
+      assert.equal(below.direction, belowTier ? "up" : undefined);
+    }
+  }
+});
+
+test("rises require three other positive parents and leave whole-group statistics and input unchanged", () => {
+  const high = order("candidate", 416_000);
+  const short = buildOrderPriceAssessments([...peers().slice(0, 2), high]).get("candidate")!;
+  assert.equal(short.averageMinor, 320_000);
+  assert.equal(short.direction, undefined);
+  assert.equal(short.tier, undefined);
+  assert.equal(short.risePercent, undefined);
+  const rows = [...peers(), high, order("zero", 0)];
+  const before = structuredClone(rows);
+  const assessed = buildOrderPriceAssessments(rows).get("candidate")!;
+  assert.equal(assessed.averageMinor, 320_000);
+  assert.equal(assessed.peerCount, 3);
+  assert.equal(assessed.lowestMinor, 0);
+  assert.equal(assessed.highestMinor, 416_000);
+  assert.equal(assessed.sampleCount, 5);
+  assert.equal(assessed.groupAverageMinor, 275_200);
+  assert.equal(assessed.direction, "up");
+  assert.equal(assessed.risePercent, 30);
+  assert.equal(assessed.dropPercent, 0);
+  assert.deepEqual(rows, before);
+  assert.equal(buildOrderPriceAssessments([...peers(), { ...high, grossMinor: 320_000 }]).get("candidate")?.direction, undefined);
 });
 
 test("fractional unit and daily prices retain exact tier boundaries without swallowing one minor unit above", () => {
