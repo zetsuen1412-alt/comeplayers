@@ -1,0 +1,65 @@
+name: CRWT Alexia Texture Motion 2026-10-06
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/crazy-rich-web-v30
+    paths:
+      - .github/workflows/crwt-alexia-texture-motion-2026-10-06.yml
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-texture-motion-2026-10-06/**
+      - CRWT_ALEXIA_TEXTURE_MOTION_RESUME_ID.md
+permissions:
+  contents: read
+env:
+  ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-texture-motion-2026-10-06
+  BASELINE_ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-colors-2026-10-06
+jobs:
+  verify-texture-motion-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Materialize raw exact HEAD blobs, split gallery parts and prior comparison input
+        run: >-
+          python3 -B "$ROSTER/tools/materialize_texture_motion_source.py" --repo-root .
+          --out-dir crwt-texture-motion-raw --expected-commit "$GITHUB_SHA"
+          --receipt crwt-texture-motion-materialization.json
+      - name: Verify source pins, preserved streams, weighted neutral pose and actual skeletal clips and existing local native certificates
+        working-directory: crwt-texture-motion-raw
+        run: >-
+          python3 -B "$ROSTER/tools/verify_texture_motion_source.py" --roster "$ROSTER"
+          --baseline-roster "$BASELINE_ROSTER" --inventory "$ROSTER/source-inventory.json"
+          --pins "$ROSTER/source-pins.json" --receipt ../crwt-texture-motion-source-verification.json
+      - name: Validate all ten actual GLBs without generation
+        working-directory: crwt-texture-motion-raw
+        run: >-
+          python3 -B "$ROSTER/tools/validate_roster_candidate.py" "$ROSTER/review-manifest.json"
+          --receipt ../crwt-texture-motion-roster-validation.json
+      - name: Rebuild exact gallery into fresh external output and compare frozen JSON receipt
+        working-directory: crwt-texture-motion-raw
+        run: >-
+          python3 -B "$ROSTER/tools/rebuild_texture_motion_gallery.py" --roster "$ROSTER"
+          --build-dir ../crwt-texture-motion-gallery-build --receipt ../crwt-texture-motion-gallery-verification.json
+      - name: Verify concatenated bounded-part ZIP SHA and one-entry CRC then restore fresh HTML
+        working-directory: crwt-texture-motion-raw
+        run: >-
+          python3 -B "$ROSTER/tools/restore_offline_gallery.py" --archive "$ROSTER/OFFLINE-GALLERY.zip"
+          --pins "$ROSTER/source-pins.json" --out ../crwt-texture-motion-gallery-restore/BUKA-REVIEW-MODEL.html
+          --receipt ../crwt-texture-motion-gallery-restore.json
+      - name: Save private texture-motion source and verification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Alexia-Texture-Motion-2026-10-06-${{ github.sha }}
+          path: |
+            crwt-texture-motion-raw/Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-texture-motion-2026-10-06
+            crwt-texture-motion-gallery-build
+            crwt-texture-motion-gallery-restore
+            crwt-texture-motion-materialization.json
+            crwt-texture-motion-source-verification.json
+            crwt-texture-motion-roster-validation.json
+            crwt-texture-motion-gallery-verification.json
+            crwt-texture-motion-gallery-restore.json
+          retention-days: 7
+          if-no-files-found: error

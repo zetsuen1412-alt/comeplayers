@@ -1,0 +1,24 @@
+{
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "actual_stats": {
+    "faces": 456896,
+    "vertices": 261299,
+    "meshes": 3,
+    "mesh_definitions": 3,
+    "default_scene": 0,
+    "default_scene_nodes": 24,
+    "skins": 2,
+    "clips": 2,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [
+      "IdleBreath",
+      "Walk"
+    ],
+    "bin_sha256": "b1193172522e6446c6cf700c5178c27625058db5083da86baeae7575f8512b41",
+    "accessors_checked": 87,
+    "buffer_views_checked": 89
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

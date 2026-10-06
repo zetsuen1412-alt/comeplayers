@@ -1,0 +1,62 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\motion\\selected-soft-volume-exact-closure\\alexia.glb",
+  "input_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "bytes": 45516820,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 3,
+  "vertices": 261299,
+  "polygons": 456896,
+  "bounds_blender_z_up": [
+    [
+      -0.3544307351112366,
+      -0.25528788566589355,
+      -0.4452480673789978
+    ],
+    [
+      0.3424137830734253,
+      0.22469192743301392,
+      0.47905898094177246
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 0,
+  "view_transform": "Standard",
+  "solid_accessory_lights": {
+    "world_strength": 0.25,
+    "key_power_factor": 120,
+    "fill_power_factor": 56,
+    "rim_power_factor": 100
+  },
+  "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+}

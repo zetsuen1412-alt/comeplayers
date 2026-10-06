@@ -1,0 +1,356 @@
+{
+  "schema": "crwt.alexia.semantic_palette_polish.v4_spatial_soft_volume",
+  "passed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "diagnostic_overlay_only": false,
+  "variant": "soft-volume-protected",
+  "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\geometry\\soft-volume-protected\\alexia.glb",
+  "candidate_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+  "candidate_bytes": 39220068,
+  "recipe_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\geometry\\build_semantic_palette_soft_volume.py",
+  "recipe_sha256": "78d7d8612e51a8fb763dcc30fab79e22af38c44115fbc08ec6d7c81528a41ebb",
+  "recipe_helpers": [],
+  "mask_parameters": {
+    "world_axis_signs": [
+      -1,
+      1,
+      -1
+    ],
+    "world_x_center": -0.006,
+    "mandatory_face_core": {
+      "y_min": 0.135,
+      "z_min": 0.035,
+      "abs_world_x_max": 0.12
+    },
+    "face_core": {
+      "y_min": 0.135,
+      "z_min": 0.035,
+      "abs_x_max": 0.12
+    },
+    "face_cheek": {
+      "y_min": 0.145,
+      "z_min": 0.12,
+      "abs_x_max": 0.17
+    },
+    "central_shirt": {
+      "y_min": -0.065,
+      "y_max": 0.145,
+      "z_min": 0.11,
+      "abs_x_max": 0.1
+    },
+    "hands": {
+      "y_max": -0.065,
+      "abs_x_min": 0.215,
+      "z_min": -0.01
+    },
+    "inner_hands": {
+      "y_min": -0.24,
+      "y_max": -0.065,
+      "abs_x_min": 0.155,
+      "z_min": 0.02
+    },
+    "head_skin": {
+      "y_min": 0.13,
+      "y_max": 0.39,
+      "source_gamma_r_min": 0.65,
+      "source_gamma_blue_min": 0.4,
+      "r_minus_g_min": 0.04,
+      "g_minus_b_min": 0.015
+    },
+    "hair_seed": {
+      "y_min": -0.12,
+      "y_max": 0.478,
+      "z_max": 0.08,
+      "abs_x_min": 0.045,
+      "abs_x_max": 0.31,
+      "source_blue_minus_green_min": 0.025,
+      "source_blue_minus_red_min": 0.014,
+      "source_red_minus_green_min": 0.006,
+      "source_minimum_channel": 0.28
+    },
+    "hair_near_cup": {
+      "y_min": 0.13,
+      "y_max": 0.4,
+      "z_max": 0.055,
+      "abs_x_min": 0.105,
+      "abs_x_max": 0.31
+    },
+    "upper_hair": {
+      "y_min": 0.3,
+      "y_max": 0.478,
+      "z_max": 0.05,
+      "abs_x_min": 0.1,
+      "abs_x_max": 0.31
+    },
+    "hair_reference_extension": {
+      "y_min": -0.12,
+      "y_max": 0.478,
+      "z_min": -0.235,
+      "z_max": 0.08,
+      "abs_x_min": 0.06,
+      "abs_x_max": 0.31,
+      "confidence_min": 0.6
+    },
+    "central_rear_hair": {
+      "y_min": -0.1,
+      "y_max": 0.478,
+      "z_max": -0.08,
+      "abs_x_max": 0.31,
+      "any_source_above_y": 0.12,
+      "otherwise_source_lavender_or_reference_confidence_min": 0.55
+    },
+    "cup": {
+      "plus_z_center": 0.092,
+      "minus_z_center": 0.062,
+      "y_center": 0.258,
+      "z_radius": 0.039,
+      "y_radius": 0.054,
+      "abs_x_min": 0.13,
+      "radius_max": 1.12
+    },
+    "jacket_body": {
+      "y_min": -0.15,
+      "y_max": 0.12,
+      "abs_x_min": 0.08,
+      "abs_x_max": 0.185,
+      "z_min": -0.035,
+      "z_max": 0.16
+    },
+    "jacket_sleeve": {
+      "y_min": -0.065,
+      "y_max": 0.1,
+      "abs_x_min": 0.185,
+      "abs_x_max": 0.32,
+      "z_min": 0.015,
+      "z_max": 0.195
+    },
+    "jacket_reference_confidence_min": 0.35,
+    "cuff": {
+      "y_min": -0.065,
+      "y_max": 0.01,
+      "abs_x_min": 0.16,
+      "abs_x_max": 0.32,
+      "z_min": 0.02,
+      "reference_white_confidence_min": 0.35
+    },
+    "priority": "protected > cup > hair > cuff > jacket; jacket is never allowed to paint selected/source-lavender/reference-hair vertices",
+    "alpha_policy": "Original alpha byte-exact."
+  },
+  "calibration": {
+    "plus": {
+      "ear_pixel_x": 1268,
+      "ear_world_z": 0.092,
+      "scale": 484.69,
+      "top_pixel_y": 18,
+      "top_world_y": 0.479059,
+      "hair_envelope": [
+        [
+          30,
+          1282,
+          1336
+        ],
+        [
+          80,
+          1274,
+          1347
+        ],
+        [
+          120,
+          1295,
+          1356
+        ],
+        [
+          170,
+          1282,
+          1402
+        ],
+        [
+          225,
+          1280,
+          1422
+        ],
+        [
+          270,
+          1294,
+          1408
+        ],
+        [
+          305,
+          1310,
+          1390
+        ]
+      ],
+      "garment_envelope": [
+        [
+          178,
+          1205,
+          1305
+        ],
+        [
+          225,
+          1205,
+          1310
+        ],
+        [
+          270,
+          1190,
+          1310
+        ],
+        [
+          325,
+          1210,
+          1300
+        ]
+      ]
+    },
+    "minus": {
+      "ear_pixel_x": 236,
+      "ear_world_z": 0.062,
+      "scale": 491.19,
+      "top_pixel_y": 507,
+      "top_world_y": 0.479059,
+      "hair_envelope": [
+        [
+          525,
+          164,
+          245
+        ],
+        [
+          570,
+          149,
+          233
+        ],
+        [
+          610,
+          145,
+          220
+        ],
+        [
+          660,
+          97,
+          229
+        ],
+        [
+          715,
+          85,
+          225
+        ],
+        [
+          760,
+          101,
+          213
+        ],
+        [
+          800,
+          121,
+          205
+        ]
+      ],
+      "garment_envelope": [
+        [
+          672,
+          214,
+          295
+        ],
+        [
+          715,
+          204,
+          305
+        ],
+        [
+          760,
+          210,
+          310
+        ],
+        [
+          815,
+          220,
+          305
+        ]
+      ]
+    },
+    "reference_kernel_radius_pixels": 2,
+    "reference_kernel_sigma_pixels": 1.0,
+    "basis": "Manual profile ear/crown registration, semantic confidence only; no exact camera/fidelity claim."
+  },
+  "variant_parameters": {
+    "hair": 0.97,
+    "jacket": 0.97,
+    "cuff": 0.98,
+    "cup": 0.98
+  },
+  "hair_color_field": {
+    "normal_filter_policy": "continuous trilinear Gaussian-weighted 3D voxel average of source normals; temporary COLOR lighting only",
+    "normal_voxel_cell_size": 0.025,
+    "normal_grid_kernel_radius": 2,
+    "normal_grid_kernel_sigma": 1.05,
+    "volume_light_world": [
+      -0.35,
+      0.75,
+      0.45
+    ],
+    "gamma_base": 0.835,
+    "gamma_diffuse_scale": 0.07,
+    "gamma_up_normal_scale": 0.02,
+    "ribbon_azimuth_frequency": 4.0,
+    "ribbon_y_swing_amplitude": 0.22,
+    "ribbon_y_frequency": 8.0,
+    "gamma_highlight_amplitude": 0.03,
+    "gamma_shadow_amplitude": 0.035,
+    "gamma_clip": [
+      0.69,
+      0.94
+    ],
+    "source_normal_stream_changes": 0
+  },
+  "mask_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "allowed_color_vertices": 108728,
+  "changed_color_vertices": 108728,
+  "protected_critical_vertices": 56148,
+  "semantic_layer_vertices": {
+    "hair": 99032,
+    "cup": 1875,
+    "jacket": 6798,
+    "cuff": 1023
+  },
+  "source_BIN_byte_prefix_identical": true,
+  "original_accessors_and_bufferViews_identical": true,
+  "positions_normals_uv_indices_materials_images_nodes_rig_clips_exact": true,
+  "whole_mesh1_mesh2_exact": true,
+  "alpha_byte_exact": true,
+  "protected_face_skin_shirt_hands_colors_exact": true,
+  "mandatory_face_box_vertices": 17742,
+  "mandatory_face_box_color_byte_exact": true,
+  "protected_hands_vertices": 30010,
+  "protected_hands_bounds_world": [
+    [
+      -0.27751386165618896,
+      -0.4313845932483673,
+      -0.009995222091674805
+    ],
+    [
+      0.3169748783111572,
+      -0.0650065541267395,
+      0.18063944578170776
+    ]
+  ],
+  "protected_hands_color_byte_exact": true,
+  "reference_pixels_unchanged": true,
+  "original_core_vertices": 252943,
+  "mesh_count_before_after": [
+    3,
+    3
+  ],
+  "added_geometry": 0,
+  "scope": "Procedural vertex-COLOR semantic hair/cup/jacket/cuff cleanup from pinned current baseline. Existing mesh shape and all other attributes remain source-exact. No raster edit, texture image replacement, fake image plane or rig change.",
+  "limits": [
+    "Manual geometry/reference semantic classification; actual overlays and matched views must be independently inspected before selection.",
+    "Source merged geometry may make semantic boundaries ambiguous; central face/shirt/skin/hands stay protected.",
+    "Fine reference embroidery, separated strands, leather seams and anatomy cannot be recovered fully from the coarse merged source mesh by a palette change.",
+    "Suitcase, legs/shoes and residual protected detail are outside this first palette cleanup.",
+    "Overlay artificial colors are analysis-only and must never be selected."
+  ]
+}

@@ -1,0 +1,2250 @@
+{
+  "schema": "crwt.alexia_exact_hair_position_closure_proposal.v1",
+  "source_candidate_sha256": "ba1b640eff940b504e9a1cba0d1f677eef1adca065e6fbab5abde301bef4f631",
+  "static_source_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+  "semantic_masks_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "construction": "Group original mesh0 POSITION rows by exactly the 12 bytes of little-endian float32 XYZ; select every cohort containing an accepted semantic hair index. Never round or enlarge by distance.",
+  "semantic_hair_vertices": 99032,
+  "all_exact_cohort_closure_vertices": 99250,
+  "extra_vertices": 218,
+  "extra_actually_requiring_head_pin": 105,
+  "extra_world_bounds": [
+    [
+      -0.2590370774269104,
+      -0.0993151068687439,
+      -0.15558934211730957
+    ],
+    [
+      0.24837416410446167,
+      0.4735218286514282,
+      0.07999414205551147
+    ]
+  ],
+  "changed_extra_world_bounds": [
+    [
+      -0.2590370774269104,
+      -0.0993151068687439,
+      -0.07525047659873962
+    ],
+    [
+      0.22146084904670715,
+      0.15202176570892334,
+      0.07999414205551147
+    ]
+  ],
+  "semantic_overlap": {
+    "protected_critical_indices": {
+      "all_extra_overlap": 0,
+      "changed_extra_overlap": 0
+    },
+    "mandatory_face_indices": {
+      "all_extra_overlap": 0,
+      "changed_extra_overlap": 0
+    },
+    "hands_indices": {
+      "all_extra_overlap": 0,
+      "changed_extra_overlap": 0
+    },
+    "cup_indices": {
+      "all_extra_overlap": 0,
+      "changed_extra_overlap": 0
+    },
+    "cuff_indices": {
+      "all_extra_overlap": 1,
+      "changed_extra_overlap": 1
+    },
+    "jacket_indices": {
+      "all_extra_overlap": 24,
+      "changed_extra_overlap": 9
+    }
+  },
+  "extra_vertex_records": [
+    {
+      "vertex": 7221,
+      "world_position": [
+        -0.2587321400642395,
+        -0.06230773776769638,
+        -0.07057572156190872
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7433,
+      "world_position": [
+        -0.172160804271698,
+        -0.07148098945617676,
+        -0.04537022113800049
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7434,
+      "world_position": [
+        -0.15581971406936646,
+        -0.0745171308517456,
+        -0.0358814001083374
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7435,
+      "world_position": [
+        -0.15803265571594238,
+        -0.08026140928268433,
+        -0.04785656929016113
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7567,
+      "world_position": [
+        -0.14567017555236816,
+        -0.08076202869415283,
+        -0.038423240184783936
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7569,
+      "world_position": [
+        -0.13685250282287598,
+        -0.0850975513458252,
+        -0.03416985273361206
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7570,
+      "world_position": [
+        -0.13713955879211426,
+        -0.08158302307128906,
+        -0.042526066303253174
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7648,
+      "world_position": [
+        -0.09706276655197144,
+        -0.08965116739273071,
+        -0.043331801891326904
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7657,
+      "world_position": [
+        -0.08053803443908691,
+        -0.09898877143859863,
+        -0.0429496169090271
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7825,
+      "world_position": [
+        0.05075225979089737,
+        -0.07422726601362228,
+        -0.07252872735261917
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7826,
+      "world_position": [
+        0.05075225979089737,
+        -0.07422726601362228,
+        -0.07252872735261917
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7832,
+      "world_position": [
+        0.03954566270112991,
+        -0.09599947184324265,
+        -0.05594580993056297
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 7849,
+      "world_position": [
+        0.051876604557037354,
+        -0.09478259086608887,
+        -0.04263198375701904
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8165,
+      "world_position": [
+        0.18031442165374756,
+        -0.08727985620498657,
+        -0.035066187381744385
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8257,
+      "world_position": [
+        0.19801247119903564,
+        -0.09161543846130371,
+        -0.022194743156433105
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8279,
+      "world_position": [
+        0.2195662260055542,
+        -0.08724522590637207,
+        -0.02816540002822876
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8280,
+      "world_position": [
+        0.2220923900604248,
+        -0.0857887864112854,
+        -0.0214231014251709
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8283,
+      "world_position": [
+        0.20898377895355225,
+        -0.0903664231300354,
+        -0.007325172424316406
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8284,
+      "world_position": [
+        0.19801247119903564,
+        -0.09161543846130371,
+        -0.022194743156433105
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8294,
+      "world_position": [
+        0.20898377895355225,
+        -0.0903664231300354,
+        -0.007325172424316406
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8623,
+      "world_position": [
+        -0.20261427760124207,
+        -0.04615526646375656,
+        -0.15558934211730957
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8624,
+      "world_position": [
+        -0.19738519191741943,
+        -0.04784319922327995,
+        -0.15161021053791046
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 8714,
+      "world_position": [
+        -0.21510541439056396,
+        -0.040351152420043945,
+        0.02714717388153076
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 8728,
+      "world_position": [
+        -0.21713697910308838,
+        -0.05203092098236084,
+        0.06049710512161255
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 9487,
+      "world_position": [
+        0.13597619533538818,
+        -0.0720246434211731,
+        0.03532177209854126
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10511,
+      "world_position": [
+        -0.05585503578186035,
+        0.005364179611206055,
+        -0.022831201553344727
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10678,
+      "world_position": [
+        0.044754572212696075,
+        0.011153715662658215,
+        -0.07525047659873962
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10682,
+      "world_position": [
+        0.05157199129462242,
+        -0.005443533416837454,
+        -0.07340652495622635
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10683,
+      "world_position": [
+        0.044754572212696075,
+        0.011153715662658215,
+        -0.07525047659873962
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10685,
+      "world_position": [
+        0.05157199129462242,
+        -0.005443533416837454,
+        -0.07340652495622635
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10692,
+      "world_position": [
+        0.04290076345205307,
+        0.012636330910027027,
+        -0.07330498844385147
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10706,
+      "world_position": [
+        0.04338890314102173,
+        -0.007365822792053223,
+        -0.022680342197418213
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10711,
+      "world_position": [
+        0.04645813629031181,
+        0.01353099662810564,
+        -0.07172351330518723
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10712,
+      "world_position": [
+        0.04290076345205307,
+        0.012636330910027027,
+        -0.07330498844385147
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10737,
+      "world_position": [
+        0.045318424701690674,
+        -0.009615063667297363,
+        -0.02266329526901245
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 10740,
+      "world_position": [
+        0.045318424701690674,
+        -0.009615063667297363,
+        -0.02266329526901245
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 11562,
+      "world_position": [
+        -0.198900043964386,
+        0.02181529998779297,
+        0.03966343402862549
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 11648,
+      "world_position": [
+        -0.17375057935714722,
+        0.06313008069992065,
+        0.04319298267364502
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 11662,
+      "world_position": [
+        -0.18511086702346802,
+        0.0438997745513916,
+        0.04604041576385498
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 11664,
+      "world_position": [
+        -0.18564987182617188,
+        0.041841208934783936,
+        0.04587197303771973
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 12982,
+      "world_position": [
+        -0.15764296054840088,
+        0.075539231300354,
+        0.04809463024139404
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 13114,
+      "world_position": [
+        -0.14186853170394897,
+        0.0903434157371521,
+        0.07999414205551147
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 13344,
+      "world_position": [
+        0.05093342065811157,
+        0.0800473690032959,
+        -0.04428994655609131
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 13360,
+      "world_position": [
+        0.05093342065811157,
+        0.0800473690032959,
+        -0.04428994655609131
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 14066,
+      "world_position": [
+        -0.11945849657058716,
+        0.12989681959152222,
+        0.06336039304733276
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 14069,
+      "world_position": [
+        -0.13065356016159058,
+        0.15202176570892334,
+        0.07806998491287231
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 14743,
+      "world_position": [
+        -0.15632468461990356,
+        0.19758224487304688,
+        0.05521672964096069
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 18387,
+      "world_position": [
+        -0.10576093196868896,
+        0.44744396209716797,
+        0.0250435471534729
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 18451,
+      "world_position": [
+        -0.09885793924331665,
+        0.45202207565307617,
+        0.025184214115142822
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 18453,
+      "world_position": [
+        -0.08838707208633423,
+        0.4638742208480835,
+        0.01815885305404663
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 18454,
+      "world_position": [
+        -0.08791619539260864,
+        0.46375977993011475,
+        0.017644643783569336
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 19029,
+      "world_position": [
+        0.07746702432632446,
+        0.4733710289001465,
+        0.005581557750701904
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 19030,
+      "world_position": [
+        0.07726943492889404,
+        0.47308123111724854,
+        0.00490880012512207
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21045,
+      "world_position": [
+        -0.1434209942817688,
+        -0.08535081148147583,
+        -0.04463750123977661
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21047,
+      "world_position": [
+        -0.172160804271698,
+        -0.07148098945617676,
+        -0.04537022113800049
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21114,
+      "world_position": [
+        -0.09706276655197144,
+        -0.08965116739273071,
+        -0.043331801891326904
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21115,
+      "world_position": [
+        -0.0862562507390976,
+        -0.09439748525619507,
+        -0.06688409298658371
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21214,
+      "world_position": [
+        0.18031442165374756,
+        -0.08727985620498657,
+        -0.035066187381744385
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21243,
+      "world_position": [
+        0.19801247119903564,
+        -0.09161543846130371,
+        -0.022194743156433105
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21309,
+      "world_position": [
+        -0.21713697910308838,
+        -0.05203092098236084,
+        0.06049710512161255
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21311,
+      "world_position": [
+        -0.21713697910308838,
+        -0.05203092098236084,
+        0.06049710512161255
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21767,
+      "world_position": [
+        0.04645813629031181,
+        0.01353099662810564,
+        -0.07172351330518723
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21769,
+      "world_position": [
+        0.044754572212696075,
+        0.011153715662658215,
+        -0.07525047659873962
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21787,
+      "world_position": [
+        0.04338890314102173,
+        -0.007365822792053223,
+        -0.022680342197418213
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21790,
+      "world_position": [
+        0.045318424701690674,
+        -0.009615063667297363,
+        -0.02266329526901245
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21791,
+      "world_position": [
+        0.04338890314102173,
+        -0.007365822792053223,
+        -0.022680342197418213
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 21992,
+      "world_position": [
+        -0.17375057935714722,
+        0.06313008069992065,
+        0.04319298267364502
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 22515,
+      "world_position": [
+        0.05093342065811157,
+        0.0800473690032959,
+        -0.04428994655609131
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 23420,
+      "world_position": [
+        0.07118856906890869,
+        0.47197985649108887,
+        0.016710937023162842
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 23421,
+      "world_position": [
+        0.07746702432632446,
+        0.4733710289001465,
+        0.005581557750701904
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 36901,
+      "world_position": [
+        -0.1414048671722412,
+        -0.08117252588272095,
+        -0.040474653244018555
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 36902,
+      "world_position": [
+        -0.14454558491706848,
+        -0.08305642008781433,
+        -0.04153037071228027
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 36904,
+      "world_position": [
+        -0.13699603080749512,
+        -0.08334028720855713,
+        -0.03834795951843262
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 37028,
+      "world_position": [
+        -0.0939411148428917,
+        -0.08992525935173035,
+        -0.06684236228466034
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 37083,
+      "world_position": [
+        -0.07557922601699829,
+        -0.09920632839202881,
+        -0.04539099335670471
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 37422,
+      "world_position": [
+        0.05395907163619995,
+        -0.09373149275779724,
+        -0.04316243529319763
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 37905,
+      "world_position": [
+        0.17396724224090576,
+        -0.06840395927429199,
+        -0.02584978938102722
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 38112,
+      "world_position": [
+        0.20574283599853516,
+        -0.09648489952087402,
+        -0.036053746938705444
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 38131,
+      "world_position": [
+        0.2208293080329895,
+        -0.08651700615882874,
+        -0.02479425072669983
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 38138,
+      "world_position": [
+        0.20349812507629395,
+        -0.09099093079566956,
+        -0.014759957790374756
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 38253,
+      "world_position": [
+        0.24837416410446167,
+        -0.07309368252754211,
+        -0.015142351388931274
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 42404,
+      "world_position": [
+        0.0481632798910141,
+        0.0028550911229103804,
+        -0.07432849705219269
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 44148,
+      "world_position": [
+        -0.18556588888168335,
+        0.04218760132789612,
+        0.046917736530303955
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 44150,
+      "world_position": [
+        -0.18538036942481995,
+        0.04287049174308777,
+        0.045956194400787354
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 44159,
+      "world_position": [
+        -0.17127349972724915,
+        0.06468021869659424,
+        0.041608452796936035
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 46546,
+      "world_position": [
+        -0.14922496676445007,
+        0.08046448230743408,
+        0.07667538523674011
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 46744,
+      "world_position": [
+        -0.1393212080001831,
+        0.09671926498413086,
+        0.07278472185134888
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 47220,
+      "world_position": [
+        0.04447972774505615,
+        0.07833641767501831,
+        -0.04433944821357727
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 47233,
+      "world_position": [
+        0.05344465374946594,
+        0.08191943168640137,
+        -0.04346725344657898
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 47248,
+      "world_position": [
+        0.05338737368583679,
+        0.07650372385978699,
+        -0.011653870344161987
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 57289,
+      "world_position": [
+        -0.10230943560600281,
+        0.44973301887512207,
+        0.02511388063430786
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 57292,
+      "world_position": [
+        -0.08815738558769226,
+        0.4635927677154541,
+        0.018348217010498047
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 58325,
+      "world_position": [
+        -0.09005850553512573,
+        0.46526676416397095,
+        0.01528659462928772
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 58605,
+      "world_position": [
+        0.07736822962760925,
+        0.4732261300086975,
+        0.005245178937911987
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 58606,
+      "world_position": [
+        0.07759013772010803,
+        0.4735078811645508,
+        0.00552484393119812
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64017,
+      "world_position": [
+        -0.1507268249988556,
+        -0.08280611038208008,
+        -0.04624703526496887
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64020,
+      "world_position": [
+        -0.15756285190582275,
+        -0.07224828004837036,
+        -0.033041685819625854
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64023,
+      "world_position": [
+        -0.17280051112174988,
+        -0.07068765163421631,
+        -0.04440590739250183
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64045,
+      "world_position": [
+        -0.16593000292778015,
+        -0.06505361199378967,
+        0.010655373334884644
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64145,
+      "world_position": [
+        -0.14914900064468384,
+        -0.07905229926109314,
+        -0.03297582268714905
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64190,
+      "world_position": [
+        -0.08491095900535583,
+        -0.09621690958738327,
+        -0.06344810873270035
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64200,
+      "world_position": [
+        -0.07175411283969879,
+        -0.09736882150173187,
+        -0.06426987797021866
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64201,
+      "world_position": [
+        -0.08131898939609528,
+        -0.09759421646595001,
+        -0.06335438787937164
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64651,
+      "world_position": [
+        0.21199476718902588,
+        -0.09354889392852783,
+        -0.026588350534439087
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64654,
+      "world_position": [
+        0.20671552419662476,
+        -0.0912662148475647,
+        -0.021649658679962158
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64869,
+      "world_position": [
+        -0.2108118236064911,
+        -0.047293804585933685,
+        -0.1504783034324646
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 64948,
+      "world_position": [
+        -0.2164859175682068,
+        -0.04402017593383789,
+        0.022425562143325806
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 66432,
+      "world_position": [
+        0.045606352388858795,
+        0.012342356145381927,
+        -0.07348699867725372
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 66454,
+      "world_position": [
+        0.051648713648319244,
+        0.009751928970217705,
+        -0.05966850742697716
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 66468,
+      "world_position": [
+        0.0443536639213562,
+        -0.008490443229675293,
+        -0.022671818733215332
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 68465,
+      "world_position": [
+        -0.05233508348464966,
+        0.07209789752960205,
+        -0.03827035427093506
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 68515,
+      "world_position": [
+        0.04568931460380554,
+        0.07333433628082275,
+        -0.027031630277633667
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 68517,
+      "world_position": [
+        0.04928293824195862,
+        0.0772145688533783,
+        -0.033985018730163574
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 69014,
+      "world_position": [
+        -0.11686253547668457,
+        0.13216277956962585,
+        0.0668913722038269
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 72301,
+      "world_position": [
+        -0.08629056811332703,
+        0.46160322427749634,
+        -0.006868928670883179
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 72387,
+      "world_position": [
+        0.07759535312652588,
+        0.4735218286514282,
+        0.005554139614105225
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 72388,
+      "world_position": [
+        0.07432779669761658,
+        0.4726754426956177,
+        0.011146247386932373
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 72389,
+      "world_position": [
+        0.074456125497818,
+        0.4728262424468994,
+        0.011118829250335693
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 114541,
+      "world_position": [
+        -0.2590370774269104,
+        -0.06238498538732529,
+        -0.06732857972383499
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 115608,
+      "world_position": [
+        -0.1615646928548813,
+        -0.07806630432605743,
+        -0.04723498225212097
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 115614,
+      "world_position": [
+        -0.1686287671327591,
+        -0.07367609441280365,
+        -0.04599180817604065
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 115633,
+      "world_position": [
+        -0.15502174198627472,
+        -0.07522349059581757,
+        -0.03379315137863159
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 115647,
+      "world_position": [
+        -0.15342579782009125,
+        -0.07663621008396149,
+        -0.02961665391921997
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 115665,
+      "world_position": [
+        -0.1760866641998291,
+        -0.06351058185100555,
+        0.013877585530281067
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 116360,
+      "world_position": [
+        -0.1435375213623047,
+        -0.08096727728843689,
+        -0.039448946714401245
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 116361,
+      "world_position": [
+        -0.14510788023471832,
+        -0.08190922439098358,
+        -0.039976805448532104
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 116366,
+      "world_position": [
+        -0.1370677947998047,
+        -0.0824616551399231,
+        -0.040437012910842896
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 116369,
+      "world_position": [
+        -0.13692426681518555,
+        -0.08421891927719116,
+        -0.03625890612602234
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 116945,
+      "world_position": [
+        -0.0780586302280426,
+        -0.09909754991531372,
+        -0.044170305132865906
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 116950,
+      "world_position": [
+        -0.07309982180595398,
+        -0.0993151068687439,
+        -0.04661168158054352
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 117947,
+      "world_position": [
+        0.05202240124344826,
+        -0.07084473222494125,
+        -0.07344800233840942
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 117963,
+      "world_position": [
+        0.04978115111589432,
+        -0.0756673812866211,
+        -0.07300243526697159
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 118051,
+      "world_position": [
+        0.05291783809661865,
+        -0.09425704181194305,
+        -0.04289720952510834
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 119128,
+      "world_position": [
+        0.14429718255996704,
+        -0.09004302322864532,
+        0.07967878878116608
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 119738,
+      "world_position": [
+        0.18331828713417053,
+        -0.08850902318954468,
+        -0.03346677124500275
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120297,
+      "world_position": [
+        0.2043287754058838,
+        -0.09663695096969604,
+        -0.038044556975364685
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120300,
+      "world_position": [
+        0.20715689659118652,
+        -0.096332848072052,
+        -0.034062936902046204
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120356,
+      "world_position": [
+        0.22146084904670715,
+        -0.08615289628505707,
+        -0.023108676075935364
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120358,
+      "world_position": [
+        0.22273024916648865,
+        -0.08383165299892426,
+        -0.022573918104171753
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120359,
+      "world_position": [
+        0.22019776701927185,
+        -0.0868811160326004,
+        -0.026479825377464294
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120379,
+      "world_position": [
+        0.2007552981376648,
+        -0.09130318462848663,
+        -0.01847735047340393
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120382,
+      "world_position": [
+        0.2062409520149231,
+        -0.09067867696285248,
+        -0.011042565107345581
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 120442,
+      "world_position": [
+        0.21059247851371765,
+        -0.09050406515598297,
+        -0.010770022869110107
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 122292,
+      "world_position": [
+        -0.1986924707889557,
+        -0.04742121696472168,
+        -0.15260499715805054
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 122800,
+      "world_position": [
+        -0.2169433981180191,
+        -0.03515651822090149,
+        0.02192133665084839
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 122805,
+      "world_position": [
+        -0.215718075633049,
+        -0.03861960768699646,
+        0.02540522813796997
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 123843,
+      "world_position": [
+        -0.1360185295343399,
+        -0.042617492377758026,
+        -0.15519799292087555
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 127156,
+      "world_position": [
+        0.13453295826911926,
+        -0.0706070065498352,
+        0.036429181694984436
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 130701,
+      "world_position": [
+        -0.22772106528282166,
+        -0.008733391761779785,
+        0.06114257872104645
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 3
+    },
+    {
+      "vertex": 134360,
+      "world_position": [
+        0.04986763745546341,
+        -0.0012942211469635367,
+        -0.07386751472949982
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 134366,
+      "world_position": [
+        0.04645892605185509,
+        0.007004403509199619,
+        -0.07478948682546616
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 134550,
+      "world_position": [
+        0.05024716258049011,
+        -0.011184021830558777,
+        -0.020604729652404785
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 140055,
+      "world_position": [
+        -0.1856078803539276,
+        0.04201440513134003,
+        0.04639485478401184
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 140057,
+      "world_position": [
+        -0.1855151206254959,
+        0.04235585033893585,
+        0.04591408371925354
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 140063,
+      "world_position": [
+        -0.18524561822414398,
+        0.043385133147239685,
+        0.04599830508232117
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 140089,
+      "world_position": [
+        -0.1700349599123001,
+        0.06545528769493103,
+        0.04081618785858154
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 140092,
+      "world_position": [
+        -0.17251203954219818,
+        0.06390514969825745,
+        0.04240071773529053
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 147812,
+      "world_position": [
+        -0.1451096087694168,
+        0.09322245419025421,
+        0.0421917587518692
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 148386,
+      "world_position": [
+        -0.1414995640516281,
+        0.09776546061038971,
+        0.04229559004306793
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 148515,
+      "world_position": [
+        -0.14059486985206604,
+        0.09353134036064148,
+        0.07638943195343018
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 149493,
+      "world_position": [
+        -0.057869523763656616,
+        0.07448670268058777,
+        -0.027217760682106018
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 150076,
+      "world_position": [
+        0.04125288128852844,
+        0.07748094201087952,
+        -0.04436419904232025
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 150082,
+      "world_position": [
+        0.04770657420158386,
+        0.0791918933391571,
+        -0.04431469738483429
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 150122,
+      "world_position": [
+        0.05218903720378876,
+        0.08098340034484863,
+        -0.043878600001335144
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 150167,
+      "world_position": [
+        0.05077274143695831,
+        0.07532255351543427,
+        -0.01567833125591278
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 179240,
+      "world_position": [
+        -0.16928589344024658,
+        0.3723304271697998,
+        0.0785723328590393
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 183164,
+      "world_position": [
+        -0.10403518378734589,
+        0.448588490486145,
+        0.02507871389389038
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 183166,
+      "world_position": [
+        -0.10058368742465973,
+        0.4508775472640991,
+        0.025149047374725342
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 183175,
+      "world_position": [
+        -0.08827222883701324,
+        0.4637334942817688,
+        0.01825353503227234
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 186624,
+      "world_position": [
+        -0.08886963129043579,
+        0.46448466181755066,
+        0.016337066888809204
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 186634,
+      "world_position": [
+        -0.09089422225952148,
+        0.4659630358219147,
+        0.013850465416908264
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 187570,
+      "world_position": [
+        0.07738038897514343,
+        0.47322210669517517,
+        0.005048632621765137
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 187571,
+      "world_position": [
+        0.07731883227825165,
+        0.473153680562973,
+        0.005076989531517029
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 187574,
+      "world_position": [
+        0.07741762697696686,
+        0.473298579454422,
+        0.005413368344306946
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 187575,
+      "world_position": [
+        0.07752858102321625,
+        0.47343945503234863,
+        0.005553200840950012
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212417,
+      "world_position": [
+        -0.14398328959941864,
+        -0.08420361578464508,
+        -0.04308393597602844
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212419,
+      "world_position": [
+        -0.154379740357399,
+        -0.0815337598323822,
+        -0.047051802277565
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212422,
+      "world_position": [
+        -0.1470739096403122,
+        -0.08407846093177795,
+        -0.04544226825237274
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212433,
+      "world_position": [
+        -0.1566912829875946,
+        -0.07338270545005798,
+        -0.03446154296398163
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212444,
+      "world_position": [
+        -0.17312036454677582,
+        -0.07029098272323608,
+        -0.0439237505197525
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212447,
+      "world_position": [
+        -0.17248065769672394,
+        -0.07108432054519653,
+        -0.04488806426525116
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212533,
+      "world_position": [
+        -0.1620318442583084,
+        -0.06602711975574493,
+        0.008790120482444763
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212534,
+      "world_position": [
+        -0.16215306520462036,
+        -0.06619317829608917,
+        0.009952887892723083
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212959,
+      "world_position": [
+        -0.13464856147766113,
+        -0.08372645080089569,
+        -0.04248057305812836
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 212968,
+      "world_position": [
+        -0.15088841319084167,
+        -0.0781974345445633,
+        -0.030252113938331604
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 213182,
+      "world_position": [
+        -0.09820356965065002,
+        -0.08860163390636444,
+        -0.04919900745153427
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 213193,
+      "world_position": [
+        -0.08558360487222672,
+        -0.09530720114707947,
+        -0.06516610085964203
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 213235,
+      "world_position": [
+        -0.07541321218013763,
+        -0.09726046025753021,
+        -0.06548325717449188
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 213240,
+      "world_position": [
+        -0.08019565045833588,
+        -0.09737315028905869,
+        -0.06502551585435867
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 214377,
+      "world_position": [
+        0.13418607413768768,
+        -0.0699242651462555,
+        0.03130920231342316
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 215288,
+      "world_position": [
+        0.2110670506954193,
+        -0.09109160304069519,
+        -0.021377116441726685
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 215291,
+      "world_position": [
+        0.2023639976978302,
+        -0.0914408266544342,
+        -0.021922200918197632
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 215326,
+      "world_position": [
+        0.2202443778514862,
+        -0.086506187915802,
+        -0.03167252242565155
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 216262,
+      "world_position": [
+        -0.21499399840831757,
+        -0.04631350189447403,
+        -0.1511584371328354
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 216611,
+      "world_position": [
+        -0.21579566597938538,
+        -0.04218566417694092,
+        0.024786368012428284
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 216690,
+      "world_position": [
+        -0.22248439490795135,
+        -0.05535922944545746,
+        0.0625838190317154
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 223411,
+      "world_position": [
+        0.045180462300777435,
+        0.011748036369681358,
+        -0.07436873763799667
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 223417,
+      "world_position": [
+        0.046032246202230453,
+        0.012936675921082497,
+        -0.07260525226593018
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 223500,
+      "world_position": [
+        0.04905342310667038,
+        0.01164146326482296,
+        -0.06569600850343704
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 223542,
+      "world_position": [
+        0.043871283531188965,
+        -0.007928133010864258,
+        -0.022676080465316772
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 223545,
+      "world_position": [
+        0.04483604431152344,
+        -0.009052753448486328,
+        -0.02266755700111389
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 226775,
+      "world_position": [
+        -0.18227079510688782,
+        0.048707351088523865,
+        0.04532855749130249
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 226798,
+      "world_position": [
+        -0.18291617929935455,
+        0.04392044246196747,
+        0.0401822030544281
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 226799,
+      "world_position": [
+        -0.18252277374267578,
+        0.045883700251579285,
+        0.0413544625043869
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 232083,
+      "world_position": [
+        -0.14472928643226624,
+        0.08797173202037811,
+        0.07646958529949188
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 4
+    },
+    {
+      "vertex": 232613,
+      "world_position": [
+        -0.05689924955368042,
+        0.07343757152557373,
+        -0.038006484508514404
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 232892,
+      "world_position": [
+        0.0466608852148056,
+        0.07385805249214172,
+        -0.025355860590934753
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 232894,
+      "world_position": [
+        0.04845769703388214,
+        0.0757981687784195,
+        -0.028832554817199707
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 232905,
+      "world_position": [
+        0.052558913826942444,
+        0.07701480388641357,
+        -0.02020154893398285
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 235325,
+      "world_position": [
+        -0.11556455492973328,
+        0.13329575955867767,
+        0.06865686178207397
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 235328,
+      "world_position": [
+        -0.11816051602363586,
+        0.13102979958057404,
+        0.06512588262557983
+      ],
+      "old_head_weight": 0.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 240416,
+      "world_position": [
+        -0.15610097348690033,
+        0.2002151906490326,
+        0.0764155238866806
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 250593,
+      "world_position": [
+        -0.09612537920475006,
+        0.4548443853855133,
+        0.023522555828094482
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 252791,
+      "world_position": [
+        0.07608990371227264,
+        0.4732494354248047,
+        0.00832277536392212
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 252792,
+      "world_position": [
+        0.07753118872642517,
+        0.47344642877578735,
+        0.0055678486824035645
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 252793,
+      "world_position": [
+        0.07589741051197052,
+        0.4730232357978821,
+        0.008363902568817139
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 252796,
+      "world_position": [
+        0.07275818288326263,
+        0.47232764959335327,
+        0.013928592205047607
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    },
+    {
+      "vertex": 252797,
+      "world_position": [
+        0.07282234728336334,
+        0.47240304946899414,
+        0.013914883136749268
+      ],
+      "old_head_weight": 1.0,
+      "old_layer_code": 0
+    }
+  ],
+  "approximate_cohort_assignment_allowed": false,
+  "all_extra_coincident_with_accepted_hair": true,
+  "all_colors_positions_normals_must_remain_exact": true,
+  "new_weight_scope": "accepted semantic hair plus exact source-position closure only; every other weight/joint row must remain source-exact.",
+  "visual_fit": "All extra positions coincide exactly with accepted hair. Existing actual five expanded-mask overlays show visible hair-only scope; protected mandatory face/hands/shirt geometry cannot be admitted by this positional closure. Direct new motion evidence remains required.",
+  "approved": false,
+  "gameIntegrated": false
+}

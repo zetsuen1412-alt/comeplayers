@@ -1,0 +1,45 @@
+{
+  "schema": "crwt.alexia_texture_portable_reproduction.v1",
+  "passed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "candidate_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+  "recipe_sha256": "78d7d8612e51a8fb763dcc30fab79e22af38c44115fbc08ec6d7c81528a41ebb",
+  "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "actual_reproduced_candidate_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+  "actual_reproduced_candidate_bytes": 39220068,
+  "actual_reproduced_mask_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "candidate_byte_identical": true,
+  "mask_npz_byte_identical": true,
+  "source_reference_recipe_content_and_mtime_unchanged": true,
+  "copied_review_input_tree_unchanged": true,
+  "copied_review_inputs": {
+    "recipes\\build_semantic_palette_soft_volume.py": "78d7d8612e51a8fb763dcc30fab79e22af38c44115fbc08ec6d7c81528a41ebb",
+    "references\\alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "source\\alexia-baseline.glb": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000"
+  },
+  "copied_review_root": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\geometry\\portable-soft-volume-check\\review-inputs",
+  "output_parent": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\geometry\\portable-soft-volume-check\\rebuilt",
+  "output_outside_copied_review_root": true,
+  "command": [
+    "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "recipes/build_semantic_palette_soft_volume.py",
+    "--source",
+    "source/alexia-baseline.glb",
+    "--reference",
+    "references/alexia-blue-v2-turnaround.png",
+    "--output-parent",
+    "../rebuilt",
+    "--variant",
+    "soft-volume-protected"
+  ],
+  "working_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\geometry\\portable-soft-volume-check\\review-inputs",
+  "runtime": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "pillow": "12.3.0"
+  },
+  "no_historical_recipe_imports": true,
+  "scope": "Actual direct baseline recipe execution using copied relative inputs and an external sibling output parent. Original published source/reference and frozen recipe only read."
+}

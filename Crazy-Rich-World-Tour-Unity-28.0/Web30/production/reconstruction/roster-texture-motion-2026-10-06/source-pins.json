@@ -1,0 +1,314 @@
+{
+  "schema": "crwt.alexia_texture_motion_source_pins.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "prefix": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-texture-motion-2026-10-06",
+  "baseline": {
+    "prefix": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-colors-2026-10-06",
+    "manifest_sha256": "a1074ce0ee43c861a60318cf77669876878c4f91f81661d4e241f081633b70c4",
+    "alexia_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+    "commit": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+    "tree": "f6f8de0cbf2d9258f09f52950b69ef5e62f89ded",
+    "repository_blobs_preserved_by_parent": 4536
+  },
+  "review": {
+    "path": "review-manifest.json",
+    "sha256": "669ae9378a2504ad3e9100a0814a3f4ee77f0aadc71c7893c298246c865d648b",
+    "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+    "schema": "crwt.alexia_texture_motion_review.v1"
+  },
+  "gallery": {
+    "archive": "OFFLINE-GALLERY.zip",
+    "entry": "BUKA-REVIEW-MODEL.html",
+    "receipt": "BUKA-REVIEW-MODEL.viewer-receipt.json",
+    "archive_storage": "split",
+    "archive_bytes": 45817858,
+    "archive_sha256": "c55ba0adae50e2912ba1fe752094b6b6f313b3516f9eac32c8cba50a41415d03",
+    "archive_parts": [
+      {
+        "path": "OFFLINE-GALLERY.zip.part-01",
+        "bytes": 22000000,
+        "sha256": "c109a092f6735782c08b4bd02cc9d328687742eaa93f533a231834ed07e1320b"
+      },
+      {
+        "path": "OFFLINE-GALLERY.zip.part-02",
+        "bytes": 22000000,
+        "sha256": "6b59cdd3c21a99361ed6a6661ca343a375e520ac80a7b4508ef9a7aeed72c061"
+      },
+      {
+        "path": "OFFLINE-GALLERY.zip.part-03",
+        "bytes": 1817858,
+        "sha256": "cd7d6f115af296a2308e2e2451c0ea94d8e4eff96b413debe441a5cad077c4fa"
+      }
+    ],
+    "html_sha256": "54a56f163c1664704dc7f6eac98741159883d0074007655a2a2f1277eeaac57f",
+    "html_bytes": 62832509,
+    "receipt_sha256": "4a2420d723015a6c8a7a6472c2ec1c9acc7bbbb1dc128c269210a38232fea22a"
+  },
+  "model_storage": {
+    "codec": "gzip",
+    "path": "viewer/models/alexia.glb.gz",
+    "sha256": "0779c3477663f592551d4dadfc0bc2133b5b91d13a25f19457552b5165ecc6b4",
+    "bytes": 28517825,
+    "raw_path": "viewer/models/alexia.glb",
+    "raw_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+    "raw_bytes": 45516820
+  },
+  "source_gate": {
+    "path": "tools/verify_texture_motion.py",
+    "sha256": "90291af8b3ac7fd25a79071679bce8605d8baed9d5995d19aabe2df677d5b20d"
+  },
+  "native": {
+    "blend": {
+      "path": "editable/Alexia-texture-motion-review.blend",
+      "sha256": "a43162e6e3d6cfe62017e233c7865e0a16e6e4d392594a77376adb32d6cc1dbc"
+    },
+    "editable_manifest": {
+      "path": "alexia-editable-manifest.json",
+      "sha256": "49250bae519b0d9296c691ecdef6f6ab1fdd7981c29689906097fbbb549a7ec3"
+    }
+  },
+  "render_selection": {
+    "path": "evidence/render-selection-receipt.json",
+    "schema": "crwt.texture_motion_render_selection.v1",
+    "sha256": "f0e39b1261eeb5222bdd3211b97ebf21cfa25747a4f83f3ca46ac049ced80f72"
+  },
+  "proofs": {
+    "selected": {
+      "path": "evidence/selected-alexia/selected-preservation-proof.json",
+      "schema": "crwt.alexia_texture_motion_source_gate.v3_exact_hair_closure",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/baseline_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/all_inputs_unchanged": true,
+        "/source_alpha_exact": true,
+        "/original_bin_accessors_views_exact": true,
+        "/shape_normals_uv_indices_materials_images_exact": true,
+        "/actual_model/skins": 2,
+        "/actual_model/clips": 2,
+        "/all_semantic_hair_rigid_head": true,
+        "/semantic_hair_head_rigid_vertices": 99032,
+        "/exact_hair_position_closure_vertices": 99250,
+        "/shared_position_extra_vertices": 218,
+        "/all_exact_hair_position_closure_rigid_head": true
+      },
+      "sha256": "9bcee89f91bcb8db6dd583be243ee437dbfaebd6e39c7e0277733df5e051cf06",
+      "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+      "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+      "bound_files": [
+        {
+          "path": "evidence/selected-alexia/semantic-masks.npz",
+          "sha_pointer": "/semantic_mask_sha256"
+        }
+      ]
+    },
+    "independent": {
+      "path": "evidence/selected-alexia/independent-candidate-audit.json",
+      "schema": "crwt.alexia_exact_hair_rig_closure_independent_audit.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/visual_accepted": true,
+        "/visual_motion_accepted": true,
+        "/checks/all_three_original_meshes_preserved": true
+      },
+      "sha256": "0907155450191c00da5b8bd11a7e368067278cff6420aed556c9a7856f6bb125",
+      "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+      "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+      "bound_files": [
+        {
+          "path": "evidence/selected-alexia/accepted-static-texture-audit.json",
+          "sha_pointer": "/accepted_texture_audit_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/motion-build-proof.json",
+          "sha_pointer": "/motion_proof_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/rig-weight-regions.npz",
+          "sha_pointer": "/rig_weight_regions_npz_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/motion-frames/motion-render-proof.json",
+          "sha_pointer": "/actual_motion_render_proof_sha256"
+        }
+      ]
+    },
+    "native_build": {
+      "path": "editable/Alexia-texture-motion-review.workspace-proof.json",
+      "schema": "crwt.alexia_animated_native_build.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "blend_sha_pointer": "/output_blend_sha256",
+      "manifest_sha_pointer": "/manifest_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/source_inputs_unchanged": true,
+        "/manifest_relative_source": true,
+        "/armature_weights_rest_hierarchy_actions_and_NLA_preserved": true,
+        "/new_rig_or_clip_created_by_packaging": false,
+        "/approved": false,
+        "/gameIntegrated": false
+      },
+      "bound_files": [
+        {
+          "path": "tools/build_animated_alexia_native.py",
+          "sha_pointer": "/build_helper_sha256"
+        },
+        {
+          "path": "tools/animated_native_fingerprints.py",
+          "sha_pointer": "/fingerprint_helper_sha256"
+        }
+      ],
+      "sha256": "d7a8e2fdfd0b5cf6013678c081cff8fb738c2eaa2e1c2df802ff252d3651ab29"
+    },
+    "native_reopen": {
+      "path": "evidence/native-reopen.json",
+      "schema": "crwt.alexia_animated_native_reopen.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "blend_sha_pointer": "/blend_sha256",
+      "manifest_sha_pointer": "/manifest_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/all_mesh_normals_uv_material_COLOR_fingerprints_equal": true,
+        "/all_vertex_group_weights_equal": true,
+        "/all_bone_rest_and_hierarchy_equal": true,
+        "/all_action_fcurves_durations_and_NLA_bindings_equal": true,
+        "/manifest_relative_source": true,
+        "/historical_absolute_source_paths_used": false,
+        "/read_only": true,
+        "/no_source_blend_manifest_or_build_proof_writes": true,
+        "/approved": false,
+        "/gameIntegrated": false
+      },
+      "bound_files": [
+        {
+          "path": "tools/reopen_animated_alexia_native_v2.py",
+          "sha_pointer": "/reopen_helper_sha256"
+        },
+        {
+          "path": "tools/animated_native_fingerprints.py",
+          "sha_pointer": "/fingerprint_helper_sha256"
+        }
+      ],
+      "sha256": "b57b39a279f690086f2942460373bc28fad4195f3a34ecaa964b89d0f8f37ac8"
+    },
+    "native_certificate": {
+      "path": "evidence/selected-alexia-native-certificate.json",
+      "schema": "crwt.selected_alexia_native.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "blend_sha_pointer": "/blend_sha256",
+      "manifest_sha_pointer": "/editable_manifest_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/all_file_images_packed": true,
+        "/read_only_reopen": true,
+        "/native_color_attributes_preserved": true,
+        "/native_armature_weights_actions_and_NLA_preserved": true,
+        "/approved": false,
+        "/gameIntegrated": false
+      },
+      "sha256": "e7939412146034e925fc44b97a9da5c5027da03d9dfd1b187215b78f0732f4b3"
+    },
+    "texture": {
+      "schema": "crwt.alexia.semantic_palette_polish.v4_spatial_soft_volume",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "candidate_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+      "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+      "expected_fields": {
+        "/passed": true,
+        "/diagnostic_overlay_only": false,
+        "/alpha_byte_exact": true,
+        "/mandatory_face_box_color_byte_exact": true,
+        "/protected_hands_color_byte_exact": true,
+        "/positions_normals_uv_indices_materials_images_nodes_rig_clips_exact": true
+      },
+      "bound_files": [
+        {
+          "path": "evidence/selected-alexia/recipes/build_semantic_palette_soft_volume.py",
+          "sha_pointer": "/recipe_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/semantic-masks.npz",
+          "sha_pointer": "/mask_npz_sha256"
+        },
+        {
+          "path": "references/alexia-blue-v2-turnaround.png",
+          "sha_pointer": "/reference_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/source/alexia-baseline.glb",
+          "sha_pointer": "/source_sha256"
+        }
+      ],
+      "path": "evidence/selected-alexia/texture-palette-proof.json",
+      "sha256": "ecadafc9f3f0b4d49e6e66131acad35edcfb36bfdedf5f09528aa38c1a29bbe2"
+    },
+    "motion": {
+      "schema": "crwt.alexia_manual_motion_prototype.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+      "source_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+      "expected_fields": {
+        "/passed": true,
+        "/joint_count": 19,
+        "/skin_count": 2,
+        "/original_BIN_prefix_exact": true,
+        "/original_POSITION_NORMAL_UV_COLOR_index_material_image_bytes_preserved": true,
+        "/semantic_hair_count": 99032,
+        "/semantic_hair_all_actual_head_weight_one": true,
+        "/outside_exact_hair_position_closure_weights_preserved": true,
+        "/exact_hair_position_closure_vertices": 99250,
+        "/shared_position_extra_vertices": 218,
+        "/all_exact_hair_position_closure_rigid_head": true,
+        "/semantic_hair_rig/newly_split_exact_position_weight_groups": 0
+      },
+      "bound_files": [
+        {
+          "path": "evidence/selected-alexia/recipes/build_alexia_motion.py",
+          "sha_pointer": "/recipe_sha256"
+        },
+        {
+          "path": "evidence/selected-alexia/semantic-masks.npz",
+          "sha_pointer": "/semantic_mask_npz_sha256"
+        }
+      ],
+      "path": "evidence/selected-alexia/motion-build-proof.json",
+      "sha256": "720dc3765dec4c2df25cadc70d97951b44fecfab6931d594391fd4504f78220e"
+    },
+    "motion_cpu": {
+      "schema": "crwt.alexia_serialized_motion_audit.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+      "source_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+      "expected_fields": {
+        "/passed": true,
+        "/real_alternating_walk_limb_motion": true,
+        "/neutral_at_both_clip_endpoints": true,
+        "/joint_count": 19,
+        "/skin_count": 2
+      },
+      "bound_files": [],
+      "path": "evidence/selected-alexia/serialized-motion-audit.json",
+      "sha256": "872ca0fc0efd4ac0fe7875490fb7c60deb40e323a2ad90cdb6e2b4d4c539ff7e"
+    },
+    "texture_audit": {
+      "schema": "crwt.alexia_texture_semantic_independent_audit.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "candidate_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+      "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+      "expected_fields": {
+        "/passed": true,
+        "/visual_accepted": true
+      },
+      "bound_files": [],
+      "path": "evidence/selected-alexia/accepted-static-texture-audit.json",
+      "sha256": "d65b74ccb5c905419144bb609a6c1bcd359da2e57f69afa55283281c6efd2387"
+    }
+  }
+}

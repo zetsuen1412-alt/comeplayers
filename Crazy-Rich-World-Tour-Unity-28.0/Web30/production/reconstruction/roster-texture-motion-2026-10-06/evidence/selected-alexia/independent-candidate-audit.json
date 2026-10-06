@@ -1,0 +1,447 @@
+{
+  "schema": "crwt.alexia_exact_hair_rig_closure_independent_audit.v1",
+  "numeric_passed": true,
+  "passed": true,
+  "visual_accepted": true,
+  "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "static_texture_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "accepted_texture_audit_sha256": "d65b74ccb5c905419144bb609a6c1bcd359da2e57f69afa55283281c6efd2387",
+  "motion_proof_sha256": "720dc3765dec4c2df25cadc70d97951b44fecfab6931d594391fd4504f78220e",
+  "motion_recipe_sha256": "8baac7e1ea44097f934cc192748275b26c5560d0eeb548c14d91c84f2facf506",
+  "rig_weight_regions_npz_sha256": "499b1c6bfbdb53d28da2faaf00f625b65958d81620780f08f818a7603a2d86da",
+  "audit_script_sha256": "1bdf502876581aea59a083b549652b364215179ce6c4cde8030cd5d2f1257191",
+  "checks": {
+    "complete_static_BIN_prefix_exact": true,
+    "all_static_accessors_views_exact": true,
+    "all_source_active_POSITION_NORMAL_UV_COLOR_index_material_image_streams_exact": true,
+    "all_three_original_meshes_preserved": true,
+    "source_mesh_node_world_transforms_exact": true,
+    "nineteen_added_shared_joints_two_skins": true,
+    "all_ten_primitives_actually_weighted": true,
+    "maximum_weight_sum_error": 4.842877388000488e-08,
+    "maximum_rest_bind_matrix_error": 1.4305114759416426e-08,
+    "maximum_serialized_rest_world_error": 2.5728223440601994e-08,
+    "all_eighteen_sampled_mesh_states_finite": true,
+    "neutral_actual_mesh_clip_endpoints": true,
+    "Walk_thighs_opposite_and_alternating_at_quarter_phases": true,
+    "all_accepted_semantic_hair_head_rigid": true,
+    "exact_source_POSITION_cohort_closure_only": true,
+    "all_weights_outside_exact_closure_byte_exact": true,
+    "no_new_split_exact_cohorts": true,
+    "eighteen_sampled_exact_cohort_trajectory_gaps_zero": true,
+    "all_static_colors_geometry_clips_and_inversebind_bytes_exact": true
+  },
+  "primitives": [
+    {
+      "mesh": 0,
+      "primitive": 0,
+      "vertices": 252943,
+      "weight_sum_error": 4.842877388000488e-08,
+      "rest_world_error": 2.5728223440601994e-08
+    },
+    {
+      "mesh": 1,
+      "primitive": 0,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 1,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 2,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 3,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 4,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 5,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 6,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 1,
+      "primitive": 7,
+      "vertices": 720,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    },
+    {
+      "mesh": 2,
+      "primitive": 0,
+      "vertices": 2596,
+      "weight_sum_error": 0.0,
+      "rest_world_error": 2.384185793236071e-09
+    }
+  ],
+  "clips": [
+    {
+      "name": "IdleBreath",
+      "duration_seconds": 3.6,
+      "channels": [
+        {
+          "joint": "AlexiaPrototype_Chest",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_Chest",
+          "path": "translation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_Neck",
+          "path": "rotation",
+          "keys": 49
+        }
+      ],
+      "actual_serialized_samples": [
+        {
+          "time_seconds": 0.0,
+          "maximum_world_displacement": 2.7035553287405162e-08,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 0.45,
+          "maximum_world_displacement": 0.00494312628695969,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 0.9,
+          "maximum_world_displacement": 0.006993412061782414,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 1.35,
+          "maximum_world_displacement": 0.004943125806930642,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 1.8,
+          "maximum_world_displacement": 2.7035553287405162e-08,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 2.25,
+          "maximum_world_displacement": 0.004933567117348945,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 2.7,
+          "maximum_world_displacement": 0.006974287270836182,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 3.15,
+          "maximum_world_displacement": 0.004933566159309633,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        },
+        {
+          "time_seconds": 3.6,
+          "maximum_world_displacement": 2.7035553287405162e-08,
+          "minimum_world_y": -0.44524805450439453,
+          "below_rest_floor": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Walk",
+      "duration_seconds": 1.2,
+      "channels": [
+        {
+          "joint": "AlexiaPrototype_ThighL",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_ShinL",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_FootL",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_ThighR",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_ShinR",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_FootR",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_UpperArmL",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_ForearmL",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_UpperArmR",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_Chest",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_Pelvis",
+          "path": "rotation",
+          "keys": 49
+        },
+        {
+          "joint": "AlexiaPrototype_Pelvis",
+          "path": "translation",
+          "keys": 49
+        }
+      ],
+      "actual_serialized_samples": [
+        {
+          "time_seconds": 0.0,
+          "maximum_world_displacement": 3.937418019228722e-08,
+          "minimum_world_y": -0.4452480688305115,
+          "below_rest_floor": 1.4515136870230094e-09
+        },
+        {
+          "time_seconds": 0.15,
+          "maximum_world_displacement": 0.041770240658709205,
+          "minimum_world_y": -0.44773575240320235,
+          "below_rest_floor": 0.0024876850242045445
+        },
+        {
+          "time_seconds": 0.3,
+          "maximum_world_displacement": 0.05941444548894751,
+          "minimum_world_y": -0.44929441853772023,
+          "below_rest_floor": 0.004046351158722428
+        },
+        {
+          "time_seconds": 0.44999999999999996,
+          "maximum_world_displacement": 0.04177024063675581,
+          "minimum_world_y": -0.44773575246348035,
+          "below_rest_floor": 0.0024876850844825493
+        },
+        {
+          "time_seconds": 0.6,
+          "maximum_world_displacement": 4.04285518727328e-08,
+          "minimum_world_y": -0.4452480690935875,
+          "below_rest_floor": 1.7145896924475323e-09
+        },
+        {
+          "time_seconds": 0.75,
+          "maximum_world_displacement": 0.04109532893553431,
+          "minimum_world_y": -0.44625988140959866,
+          "below_rest_floor": 0.001011814030600855
+        },
+        {
+          "time_seconds": 0.8999999999999999,
+          "maximum_world_displacement": 0.05842468086487772,
+          "minimum_world_y": -0.4482134448703234,
+          "below_rest_floor": 0.0029653774913255826
+        },
+        {
+          "time_seconds": 1.05,
+          "maximum_world_displacement": 0.041095337043218765,
+          "minimum_world_y": -0.4462598812687012,
+          "below_rest_floor": 0.0010118138897033946
+        },
+        {
+          "time_seconds": 1.2,
+          "maximum_world_displacement": 4.4465367272536665e-08,
+          "minimum_world_y": -0.44524806943506423,
+          "below_rest_floor": 2.0560664282243124e-09
+        }
+      ]
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "limits": [
+    "Palette remains flatter and simpler; coarse merged hair, gaps, cup/cap slabs, garment islands and shoe paint remain.",
+    "The218 exact-cohort extras retain shared-position ties;24 have jacket-color labels and1a cuff label (9+1effectiveweights change). They are not certified hair semantic labels.",
+    "Sampled Walk reaches approximately 0.004046 world units below source rest floor; no IK, root-motion locomotion, secondary hair simulation, full-cycle collision or contact guarantee.",
+    "Only Alexia is changed and animated here. Production approval and game integration remain false.",
+    "Native save/reopen and browser playback integrity require separate actual receipts."
+  ],
+  "previous_rig_sha256": "ba1b640eff940b504e9a1cba0d1f677eef1adca065e6fbab5abde301bef4f631",
+  "semantic_mask_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "exact_closure_proposal_sha256": "54bdc181d74888765967ad9927da9a4fae322e16461a8b4330feb3ca69f66514",
+  "exact_closure_proposal_npz_sha256": "6ae9e64bb8b8233a025b018a6df9d64bac4e34f34d9c3f10d20c3d6d8991640f",
+  "exact_hair_closure_rule": "Original12-byte little-endian float32 POSITION rows only; close every cohort containing a frozen semantic hair index. Approximate position matching is never used for assignment.",
+  "accepted_semantic_hair_vertices": 99032,
+  "head_rigid_exact_closure_vertices": 99250,
+  "coincident_closure_extra_vertices": 218,
+  "all_semantic_hair_rigid_head": true,
+  "all_exact_closure_rigid_head": true,
+  "outside_closure_weights_joints_byte_exact": true,
+  "all_static_colors_geometry_and_all_clip_inversebind_bytes_exact": true,
+  "changed_weight_or_joint_rows": 15467,
+  "changed_effective_weight_rows": 15467,
+  "coincident_extra_semantic_ambiguity": {
+    "jacket_indices": {
+      "closure_extras": 24,
+      "effective_weight_changed_extras": 9
+    },
+    "cuff_indices": {
+      "closure_extras": 1,
+      "effective_weight_changed_extras": 1
+    },
+    "protected_critical_indices": {
+      "closure_extras": 0,
+      "effective_weight_changed_extras": 0
+    },
+    "mandatory_face_indices": {
+      "closure_extras": 0,
+      "effective_weight_changed_extras": 0
+    },
+    "hands_indices": {
+      "closure_extras": 0,
+      "effective_weight_changed_extras": 0
+    },
+    "cup_indices": {
+      "closure_extras": 0,
+      "effective_weight_changed_extras": 0
+    }
+  },
+  "maximum_old_exact_cohort_effective_weight_spread": 0.0,
+  "maximum_new_exact_cohort_effective_weight_spread": 0.0,
+  "new_split_exact_cohorts": 0,
+  "visual_motion_accepted": true,
+  "review_scope": "One Alexia: accepted semantic COLOR cleanup plus a manually weighted in-place IdleBreath/Walk prototype, with exact shared-position closure for head-rigid accepted hair.",
+  "numeric_audit_sha256": "8aee22894b7c0d927294d046abb0ece5ed8219f4cafb7c76d0c0de1b86fc73b2",
+  "exact_cohort_trajectory_audit_sha256": "e219c462740347c94b8bdb9d6effc7de529ca0886aeb0284942c23753ee9ebe6",
+  "texture_audit_sha256": "d65b74ccb5c905419144bb609a6c1bcd359da2e57f69afa55283281c6efd2387",
+  "texture_recipe_sha256": "78d7d8612e51a8fb763dcc30fab79e22af38c44115fbc08ec6d7c81528a41ebb",
+  "texture_proof_sha256": "ecadafc9f3f0b4d49e6e66131acad35edcfb36bfdedf5f09528aa38c1a29bbe2",
+  "texture_mask_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "portable_two_step_reproduction_proof_sha256": "007a4bcf93a1a690d6d9f037a4628ba0ef98a53dca096b0a18e2db37450e68f4",
+  "portable_actual_generated_and_copied_files_independently_hashed": {
+    "generated/soft-volume-protected/alexia.glb": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+    "generated/soft-volume-protected/semantic-masks.npz": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+    "generated/alexia-texture-motion/alexia.glb": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+    "copied-review/references/alexia-blue-v2-turnaround.png": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "copied-review/evidence/selected-alexia/source/alexia-baseline.glb": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+    "copied-review/evidence/selected-alexia/recipes/build_semantic_palette_soft_volume.py": "78d7d8612e51a8fb763dcc30fab79e22af38c44115fbc08ec6d7c81528a41ebb",
+    "copied-review/evidence/selected-alexia/recipes/build_alexia_motion_exact_closure_v2.py": "8baac7e1ea44097f934cc192748275b26c5560d0eeb548c14d91c84f2facf506"
+  },
+  "render_proof_sha256": "4adf959625862637e8554b666a8b7f8e0954dd6ba80b1bdfb4694521a93c5c31",
+  "actual_png_sha256": {
+    "front": "85c25ecce6bca2f10fa50db6e196483767c2501ef9bc6fecc137ba4d0e941d3f",
+    "three-quarter": "221eae81c29c6048b7e614bb496cf2a654aed12705f3573e5c9ac2ebdee2e880",
+    "left": "1b654cacb9a182dd5b59077ce5d4f83d1d2ff619be0ea02708175611c175adeb",
+    "right": "9b7d34ceb6aa5ae6bc4acf5836a70d5fe3833c7a6a46d97cdfd8d38eb6295f3e",
+    "back": "17f251cfc1a61588f31ef1878a18948532c8fa57a1dd538c1431756eb362b2be"
+  },
+  "actual_png_resolution": {
+    "front": [
+      640,
+      640
+    ],
+    "three-quarter": [
+      640,
+      640
+    ],
+    "left": [
+      640,
+      640
+    ],
+    "right": [
+      640,
+      640
+    ],
+    "back": [
+      640,
+      640
+    ]
+  },
+  "actual_views_inspected": [
+    "front",
+    "three-quarter",
+    "left",
+    "right",
+    "back"
+  ],
+  "actual_motion_render_proof_sha256": "6ab9b6d05ca1841d1363fde3399ac2a14768ca190b1aa80961a8df022094cb9e",
+  "actual_motion_png_sha256": {
+    "neutral-front": "2cd2b34ecf66aec2873307a2f436ad40ed91693f2c0c9c9e39ed24344018e4b5",
+    "walk-quarter": "84bfd5179472ac55dad12a62cf8a40bcdb69f4298eb95fedeb23df6eb9145c5d",
+    "walk-threequarter": "875378d3d962893431cbc88804e7ed85b6e6558c7fcd71f37ba47ab895696aa4",
+    "idle-quarter": "cb5044433ac85af6ba2cc974dd5593d737aee6f49f9fa8a1b9a6f66a101a81d6"
+  },
+  "actual_motion_views_inspected": [
+    "neutral-front",
+    "walk-quarter",
+    "walk-threequarter",
+    "idle-quarter"
+  ],
+  "visual_assessment": {
+    "palette": {
+      "accepted_gain": "Visible, bounded cleanup of cloudy side/rear hair into coherent pale lavender, smoother broad volume and deliberate cup-ring colors; edited jacket/cuff regions are more coherent.",
+      "preserved_identity": "Central face, eyes, front identity and protected hands remain source-exact; original geometry, NORMAL, UV, index, materials and all mesh1/2 streams remain exact.",
+      "tradeoff": "The coherent palette is flatter and stylized. It removes much inherited fragmented strand/highlight detail and is not a precise recreation of reference shading.",
+      "remaining_limits": [
+        "Merged coarse hair shape, silhouette gaps, cup/cap slab artifacts and garment gold/white islands remain visible.",
+        "This does not recover embroidery, separated strands, anatomy or physical material response.",
+        "Only the static palette is accepted here; no animation, production readiness or game integration is certified."
+      ]
+    },
+    "new_neutral_views": "All five actual640 views retain accepted palette, source identity, equipment and rest silhouette. No visible rest-pose regression from revised weights.",
+    "new_sampled_motion": "Actual new Walk quarter/opposite phase shows small alternating legs/free-arm motion. Hair, cups and suitcase stay coherently attached in all four inspected frames, with no gross new boundary tear. Idle remains restrained.",
+    "exact_closure_rationale": "Closing exact source-position cohorts preserves pre-existing duplicate weight ties while making all99,032 accepted semantic hair vertices head-rigid.218 extras are boundary tie preservation;24 jacket-color and1 cuff labels remain explicitly ambiguous.",
+    "prototype_scope": "These two real skeletal clips are editable in-place manual prototypes. Foot contact, locomotion control and production deformation remain future work."
+  },
+  "maximum_sampled_walk_below_source_floor_world_units": 0.004046351158722428
+}

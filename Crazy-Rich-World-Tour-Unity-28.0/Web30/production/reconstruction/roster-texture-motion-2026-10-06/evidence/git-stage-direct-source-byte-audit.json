@@ -1,0 +1,81 @@
+{
+  "schema": "crwt.texture_motion_git_stage_direct_source_audit.v1",
+  "passed": true,
+  "source_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "actual_byte_and_geometry_gate": {
+    "schema": "crwt.alexia_texture_motion_source_gate.v3_exact_hair_closure",
+    "passed": true,
+    "baseline_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+    "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+    "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+    "semantic_hair_head_rigid_vertices": 99032,
+    "all_semantic_hair_rigid_head": true,
+    "exact_hair_position_closure_vertices": 99250,
+    "shared_position_extra_vertices": 218,
+    "all_exact_hair_position_closure_rigid_head": true,
+    "original_bin_accessors_views_exact": true,
+    "shape_normals_uv_indices_materials_images_exact": true,
+    "source_alpha_exact": true,
+    "central_face_vertices_protected": 17742,
+    "inner_hand_vertices_protected": 18546,
+    "changed_core_color_vertices": 108728,
+    "weighted_vertices": 261299,
+    "max_weight_sum_error": 4.842877388000488e-08,
+    "max_rest_bind_matrix_error": 1.4305114759416426e-08,
+    "actual_model": {
+      "faces": 456896,
+      "vertices": 261299,
+      "meshes": 3,
+      "mesh_definitions": 3,
+      "default_scene": 0,
+      "default_scene_nodes": 24,
+      "skins": 2,
+      "clips": 2,
+      "images": 2,
+      "normal_present_on_every_primitive": true,
+      "clip_names": [
+        "IdleBreath",
+        "Walk"
+      ],
+      "bin_sha256": "b1193172522e6446c6cf700c5178c27625058db5083da86baeae7575f8512b41",
+      "accessors_checked": 87,
+      "buffer_views_checked": 89
+    },
+    "clips": [
+      {
+        "name": "IdleBreath",
+        "duration_seconds": 3.5999999046325684,
+        "rotating_joints": [
+          "AlexiaPrototype_Chest",
+          "AlexiaPrototype_Neck"
+        ]
+      },
+      {
+        "name": "Walk",
+        "duration_seconds": 1.2000000476837158,
+        "rotating_joints": [
+          "AlexiaPrototype_ThighL",
+          "AlexiaPrototype_ShinL",
+          "AlexiaPrototype_FootL",
+          "AlexiaPrototype_ThighR",
+          "AlexiaPrototype_ShinR",
+          "AlexiaPrototype_FootR",
+          "AlexiaPrototype_UpperArmL",
+          "AlexiaPrototype_ForearmL",
+          "AlexiaPrototype_UpperArmR",
+          "AlexiaPrototype_Chest",
+          "AlexiaPrototype_Pelvis"
+        ]
+      }
+    ],
+    "all_inputs_unchanged": true,
+    "approved": false,
+    "gameIntegrated": false,
+    "limits": [
+      "Manual prototype. Numerical integrity does not certify appearance, gait, foot contact, retopology or production approval."
+    ]
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

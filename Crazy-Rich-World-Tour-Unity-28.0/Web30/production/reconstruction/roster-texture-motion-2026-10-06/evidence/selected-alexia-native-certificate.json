@@ -1,0 +1,23 @@
+{
+  "schema": "crwt.selected_alexia_native.v1",
+  "passed": true,
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "blend_sha256": "a43162e6e3d6cfe62017e233c7865e0a16e6e4d392594a77376adb32d6cc1dbc",
+  "build_proof_sha256": "d7a8e2fdfd0b5cf6013678c081cff8fb738c2eaa2e1c2df802ff252d3651ab29",
+  "reopen_proof_sha256": "b57b39a279f690086f2942460373bc28fad4195f3a34ecaa964b89d0f8f37ac8",
+  "all_file_images_packed": true,
+  "read_only_reopen": true,
+  "native_color_attributes_preserved": true,
+  "native_armature_weights_actions_and_NLA_preserved": true,
+  "native_mesh_count": 3,
+  "native_armature_count": 1,
+  "native_action_count": 2,
+  "native_COLOR_attribute_count": 2,
+  "packed_active_image_count": 0,
+  "single_character": "alexia",
+  "approved": false,
+  "gameIntegrated": false,
+  "editable_manifest_sha256": "49250bae519b0d9296c691ecdef6f6ab1fdd7981c29689906097fbbb549a7ec3",
+  "native_reopen_proof_path": "evidence/native-reopen.json",
+  "native_build_proof_path": "editable/Alexia-texture-motion-review.workspace-proof.json"
+}
