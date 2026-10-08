@@ -1,0 +1,344 @@
+{
+  "schema": "crwt.independent_alexia_strand_shape_guide.v1",
+  "date": "2026-10-05",
+  "source_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "source_bytes": 24823152,
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "reference_dimensions": [
+    1536,
+    1024
+  ],
+  "render_proof_sha256": "78d590bfc906ccf2b2290a16d6523de4f78d198653ad3a32ba6604e8fcf14699",
+  "actual_views": [
+    {
+      "view": "front",
+      "path_at_assessment": "outputs/model-review-2026-10-05-profile-pass/renders/alexia/front.png",
+      "sha256": "a03ae2b337b17e402f41338175165da8c0e817012aa0b16e74c8b01e4dbb8a01",
+      "bytes": 593441,
+      "visually_inspected": true
+    },
+    {
+      "view": "back",
+      "path_at_assessment": "outputs/model-review-2026-10-05-profile-pass/renders/alexia/back.png",
+      "sha256": "92de9debeab596dc56f5049e92eb922b4f334db9d12e527b7dd6bc7854e1b16d",
+      "bytes": 556633,
+      "visually_inspected": true
+    },
+    {
+      "view": "left",
+      "path_at_assessment": "outputs/model-review-2026-10-05-profile-pass/renders/alexia/left.png",
+      "sha256": "06b0fe76a67326c2d45160738ae935061e0b7bc2affc524466d1a29543fd5183",
+      "bytes": 513668,
+      "visually_inspected": true
+    },
+    {
+      "view": "right",
+      "path_at_assessment": "outputs/model-review-2026-10-05-profile-pass/renders/alexia/right.png",
+      "sha256": "99755d0cf84294c9bba6412853b716f235829e937e40f4f9d129f75418bffc7e",
+      "bytes": 527286,
+      "visually_inspected": true
+    },
+    {
+      "view": "three-quarter",
+      "path_at_assessment": "outputs/model-review-2026-10-05-profile-pass/renders/alexia/three-quarter.png",
+      "sha256": "ee62edfd918b4ce61af8db23710a8ef2477adc4c39b1632f11aa42e7ea92c1c4",
+      "bytes": 591233,
+      "visually_inspected": true
+    }
+  ],
+  "coordinate_frame": "glTF world +Y up, +Z character front. Back-view image left corresponds to world positiveX. Source local root is 180deg aroundY.",
+  "registration": {
+    "back_atlas_center_x": 1287,
+    "crown_y": 503,
+    "sole_y": 960,
+    "world_center_X": -0.00600847601890564,
+    "world_crown_Y": 0.47905898094177246,
+    "world_per_back_pixel": 0.0020225537162380093,
+    "formula": "worldX=cx-(atlasX-1287)*scale; worldY=top-(atlasY-503)*scale",
+    "uncertainty": "About4-6pixels/.01-.015world. Manual crown/sole registration, not a solved camera or exact anatomy."
+  },
+  "reference_observations": [
+    "Back shows about5-7 dominant broad flattened S locks with staggered tapered ends. Finer flyaways exist but are not the dominant lower hair form.",
+    "Profiles show fall behind the earcup, outward middle wave, then inward lower return; six-view atlas supplies both visible profile silhouettes.",
+    "Current model remains a broad merged lower bulb despite painted curls. Appending curves alone cannot remove that source base or create all reference valleys."
+  ],
+  "tip_anchors": [
+    {
+      "name": "outer-back-viewer-left",
+      "atlas_px": [
+        1158,
+        764
+      ],
+      "world_XY_approx": [
+        0.25490095337579755,
+        -0.04882753899634795
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    },
+    {
+      "name": "inner-back-viewer-left",
+      "atlas_px": [
+        1192,
+        778
+      ],
+      "world_XY_approx": [
+        0.18613412702370524,
+        -0.07714329102368012
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    },
+    {
+      "name": "center-back-viewer-left",
+      "atlas_px": [
+        1253,
+        785
+      ],
+      "world_XY_approx": [
+        0.06275835033318668,
+        -0.09130116703734614
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    },
+    {
+      "name": "center",
+      "atlas_px": [
+        1280,
+        791
+      ],
+      "world_XY_approx": [
+        0.008149399994760425,
+        -0.10343648933477423
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    },
+    {
+      "name": "center-back-viewer-right",
+      "atlas_px": [
+        1307,
+        791
+      ],
+      "world_XY_approx": [
+        -0.04645955034366583,
+        -0.10343648933477423
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    },
+    {
+      "name": "inner-back-viewer-right",
+      "atlas_px": [
+        1351,
+        773
+      ],
+      "world_XY_approx": [
+        -0.13545191385813823,
+        -0.06703052244249008
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    },
+    {
+      "name": "outer-back-viewer-right",
+      "atlas_px": [
+        1391,
+        765
+      ],
+      "world_XY_approx": [
+        -0.2163540625076586,
+        -0.050850092712586004
+      ],
+      "basis": "Previously measured manual tip landmark, visually checked against unchanged back illustration."
+    }
+  ],
+  "provisional_center_paths": [
+    {
+      "name": "center-left-first-pilot",
+      "atlas_centerline_px": [
+        [
+          1255,
+          640
+        ],
+        [
+          1230,
+          682
+        ],
+        [
+          1218,
+          725
+        ],
+        [
+          1257,
+          760
+        ],
+        [
+          1253,
+          785
+        ]
+      ],
+      "world_XY_approx": [
+        [
+          0.05871324290071066,
+          0.2019691218171652
+        ],
+        [
+          0.10927708580666089,
+          0.11702186573516882
+        ],
+        [
+          0.133547730401517,
+          0.030052055936934385
+        ],
+        [
+          0.05466813546823464,
+          -0.04073732413139597
+        ],
+        [
+          0.06275835033318668,
+          -0.09130116703734614
+        ]
+      ],
+      "status": "Provisional manually traced broad-clump guide. Intermediate knots approximate visible flow and are less certain than terminal tip anchors; must be compared against actual source contact/profile.",
+      "use": "Use the lower subset/adjust attachment inside existing rear hair. These are not intended as floating full-length overlay strands."
+    },
+    {
+      "name": "center-right-first-pilot",
+      "atlas_centerline_px": [
+        [
+          1280,
+          642
+        ],
+        [
+          1309,
+          684
+        ],
+        [
+          1328,
+          728
+        ],
+        [
+          1295,
+          764
+        ],
+        [
+          1307,
+          791
+        ]
+      ],
+      "world_XY_approx": [
+        [
+          0.008149399994760425,
+          0.19792401438468915
+        ],
+        [
+          -0.05050465777614185,
+          0.11297675830269277
+        ],
+        [
+          -0.08893317838466402,
+          0.023984394788220398
+        ],
+        [
+          -0.022188905748809714,
+          -0.04882753899634795
+        ],
+        [
+          -0.04645955034366583,
+          -0.10343648933477423
+        ]
+      ],
+      "status": "Provisional manually traced broad-clump guide. Intermediate knots approximate visible flow and are less certain than terminal tip anchors; must be compared against actual source contact/profile.",
+      "use": "Use the lower subset/adjust attachment inside existing rear hair. These are not intended as floating full-length overlay strands."
+    },
+    {
+      "name": "inner-right-optional-third",
+      "atlas_centerline_px": [
+        [
+          1340,
+          650
+        ],
+        [
+          1380,
+          700
+        ],
+        [
+          1370,
+          736
+        ],
+        [
+          1342,
+          758
+        ],
+        [
+          1351,
+          773
+        ]
+      ],
+      "world_XY_approx": [
+        [
+          -0.11320382297952013,
+          0.18174358465478507
+        ],
+        [
+          -0.1941059716290405,
+          0.08061589884288461
+        ],
+        [
+          -0.1738804344666604,
+          0.00780396505831632
+        ],
+        [
+          -0.11724893041199615,
+          -0.036692216698919866
+        ],
+        [
+          -0.13545191385813823,
+          -0.06703052244249008
+        ]
+      ],
+      "status": "Provisional manually traced broad-clump guide. Intermediate knots approximate visible flow and are less certain than terminal tip anchors; must be compared against actual source contact/profile.",
+      "use": "Use the lower subset/adjust attachment inside existing rear hair. These are not intended as floating full-length overlay strands."
+    }
+  ],
+  "safe_first_scope": {
+    "count": 2,
+    "optional_after_review": 1,
+    "location": "Rear/lower hair, no front bangs/crown/headphones/face or body edits. Preserve existing source scene nodes, geometry/accessors, images and BIN bytes.",
+    "full_width_world_approx": [
+      0.036,
+      0.05
+    ],
+    "depth_full_world_approx": [
+      0.008,
+      0.014
+    ],
+    "shape": "Flattened lenticular closed ribbon with smooth broad S centerline and tapered tip. Width/thickness are inferred pilot values, not calibrated exact measurements.",
+    "middle_rear_Z_envelope_approx": [
+      -0.24,
+      -0.21
+    ],
+    "current_model_rear_bound_Z": -0.21906018257141113,
+    "terminal_Z_caution": "Curl return toward-.15 may bury into the existing source hair; actual attachment/contact and occlusion must be checked, not guessed as approved.",
+    "tip_world_Y_range": [
+      -0.105,
+      -0.049
+    ],
+    "avoid": [
+      "4-6 thin round noodle tubes in first pilot.",
+      "Duplicating reference-painted curls with dense raised overlays across front/shoulders.",
+      "Another uniform bulk expansion, a larger lower balloon, or uniform end shortening.",
+      "Pretending additive locks erase original merged surface or establish perfect hair fidelity."
+    ]
+  },
+  "review_requirements": [
+    "Actual same-camera front/back/both profiles andthree-quarter, plus gray/clay geometry views to distinguish 3D silhouette from painted highlights.",
+    "Reject clear front silhouette/face/headphone regression, conspicuous floating or detached crescent tips, extra lower balloon or hair covering preserved hands/body.",
+    "Byte proof for untouched source and appended-only meshes, complete closed-cap/finite-normal/winding tests, and explicit attachment/contact limitations.",
+    "Document colors sampled from unchanged references as baked shading, not new bitmap textures or verified physical relighting."
+  ],
+  "remaining_inference": [
+    "Hidden strand joins/scalp attachment and thickness are not fully specified by the provided views.",
+    "Reference poses/proportions differ slightly, so matching every projected pixel simultaneously is not assumed.",
+    "Closed mesh tests do not themselves prove collision-free attachment or visual approval."
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "perfect_reference_match": false
+}

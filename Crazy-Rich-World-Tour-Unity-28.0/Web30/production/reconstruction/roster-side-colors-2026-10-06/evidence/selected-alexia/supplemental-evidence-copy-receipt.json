@@ -1,0 +1,85 @@
+{
+  "schema": "crwt.alexia_side_colors_supplemental_evidence_copy.v1",
+  "candidate_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "source_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "approved": false,
+  "gameIntegrated": false,
+  "files": [
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\renders\\alexia\\front.png",
+      "destination": "evidence/selected-alexia/baseline-source-renders/front.png",
+      "sha256": "38f2ab61fbd0db36f20c91f2f4ee7d1816bd68496d3420d2f8180fa6963c2e69",
+      "bytes": 593533
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\renders\\alexia\\three-quarter.png",
+      "destination": "evidence/selected-alexia/baseline-source-renders/three-quarter.png",
+      "sha256": "3e551f0e2c0b85b3f3099b62195983e1e2c3a39f0b15e2d7621259382898d80d",
+      "bytes": 591238
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\renders\\alexia\\left.png",
+      "destination": "evidence/selected-alexia/baseline-source-renders/left.png",
+      "sha256": "184397b5ed0e6973e0cefdd9dd75e34c92af353bccf42485440dd024b2cb79fc",
+      "bytes": 514410
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\renders\\alexia\\right.png",
+      "destination": "evidence/selected-alexia/baseline-source-renders/right.png",
+      "sha256": "8b06d6f4433b27af7ac4cdf771355456ab60c505386187645da51916794807d8",
+      "bytes": 528838
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\renders\\alexia\\back.png",
+      "destination": "evidence/selected-alexia/baseline-source-renders/back.png",
+      "sha256": "4cd5f584a90e641f2c0b6ac56b9f6137a0982e2fcb6d6d24e3e2e6e01f7ac5de",
+      "bytes": 554557
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\renders\\alexia\\render-evidence.json",
+      "destination": "evidence/selected-alexia/baseline-source-renders/render-evidence.json",
+      "sha256": "2aee84882d67df549d74f04e1d5a5a72683158f5255607561fcce2d1defdc532",
+      "bytes": 1457
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\independent\\calibrated-lavender-shell-faded-numeric-audit.json",
+      "destination": "evidence/selected-alexia/independent/calibrated-lavender-shell-faded-numeric-audit.json",
+      "sha256": "5d938395ba6121ce0cbfcb2bc592ec544ed35314cc3285d61e26113a6e2e5648",
+      "bytes": 13937
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\independent\\v4-to-v5-independent-fade-audit.json",
+      "destination": "evidence/selected-alexia/independent/v4-to-v5-independent-fade-audit.json",
+      "sha256": "ecdd77ef0d92dc94067e6606b9ea2d780945a0ae6f54536847c2c2a34beaf790",
+      "bytes": 2103
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\independent\\audit_side_colors.py",
+      "destination": "evidence/selected-alexia/independent/audit_side_colors.py",
+      "sha256": "977edb6913d75006044631e35345cfcfa313bc7b85d9b33196ea4b461c6cf791",
+      "bytes": 21046
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\independent\\independent_reference_sampling.py",
+      "destination": "evidence/selected-alexia/independent/independent_reference_sampling.py",
+      "sha256": "d51e9fc0c4c8e641d5d63906e070ac834cba6acd4df17aebbb53a9b860f2c742",
+      "bytes": 3871
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\render_side_comparison.py",
+      "destination": "evidence/selected-alexia/render-recipes/render_side_comparison.py",
+      "sha256": "03fc220268fd5a0a415b8a05d1bc6947e6158e4850c366984e69ba1ad13152fb",
+      "bytes": 7339
+    },
+    {
+      "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\render_final_style.py",
+      "destination": "evidence/selected-alexia/render-recipes/render_final_style.py",
+      "sha256": "1a7c09cb0f4c4fcfc57b749b9fdd25d4319d634eca4031242555fd5a34b629df",
+      "bytes": 4940
+    }
+  ],
+  "scope": "Exact original baseline five-view PNG/proof and frozen independent numeric/fade checks plus provenance scripts. Preserved audit/render recipes retain their original proof paths; packaged source verification and selected portable reconstruction have their own portable helpers.",
+  "passed": true,
+  "input_content_and_mtime_unchanged": true,
+  "selected_root_unchanged": true
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "crwt.high_visual_actual_final_gallery_browser_review.v1",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "gallery_sha256": "9209f1ad62b7b1d0cab4626b5edcec808c52cfc32dc2ac022741fad8a74d2122",
+  "manifest_sha256": "6e73c675d287710cb391c610b9f1dae51b0bcfb4ca537560538bf6b8dfaa0805",
+  "URL": "http://127.0.0.1:8787/BUKA-REVIEW-MODEL.html",
+  "ten_roster_controls_visible": true,
+  "Rindi_baseline_select_and_Alexia_return_passed": true,
+  "actual_selected_source_identity_full_SHA_visible": true,
+  "console_warn_error_entries": 0,
+  "single_actor_five_views_two_lights_clip_control_proof": "evidence/browser/selected-webgl-review.json",
+  "screenshots": [
+    {
+      "path": "evidence/browser/alexia-final-quarter.jpg",
+      "sha256": "7d8ebf0bc96b433dbb2ffabc09995c03baec956f731a2f38c5fc9a39ebcbd54a",
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence/browser/rindi-baseline-roundtrip.jpg",
+      "sha256": "a0b60f81ac9668f936851a9d5bc2a4e336d832d0342c0bf17daaeefaed8963a9",
+      "format": "JPEG"
+    }
+  ],
+  "selected_for_review": true,
+  "production_approved": false,
+  "Aniimo_equivalent_or_perfect_claimed": false,
+  "gameIntegrated": false
+}

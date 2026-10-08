@@ -1,0 +1,64 @@
+{
+  "schema": "crwt.character-art-reference.v1",
+  "record_date": "2026-10-08",
+  "status": "ready_reference_for_next_character_polish",
+  "source": {
+    "selected_by": "user",
+    "url": "https://www.youtube.com/watch?v=QMVrBG6EZr4",
+    "video_id": "QMVrBG6EZr4",
+    "title": "Aniimo's Character Customization! 💋 | Thinking Out Loud 💬",
+    "author": "Sarah Sunstone",
+    "duration_seconds": 912,
+    "identity_verification": "Root agent opened the actual YouTube page via CUA and reported title, author and duration.",
+    "kind": "third_party_beta_customization_commentary_and_demonstration",
+    "tutorial_for_mesh_uv_texture_or_rig": false,
+    "official_developer_source": false,
+    "current_release_feature_verification": false,
+    "transcript": {
+      "language": "en",
+      "captions": "auto_generated",
+      "sha256": "d7e1dc3dd525a932a285a66345cc381ae3069ab6fdc85a606a7ab1d0ec97ff45",
+      "export_path": "C:/Users/ADMINI~1/AppData/Local/Temp/browser-use/exports/youtube-QMVrBG6EZr4-5e704879-6c43-4fce-a578-c6020f313a1c.txt",
+      "read_in_full": true,
+      "copied_to_project": false,
+      "verbatim_transcript_words_in_brief": 0,
+      "limitations": ["Automatic caption spelling can differ from the verified game/video title.", "Narration does not identify exact engine shaders, texture resolution, topology or rig implementation."]
+    }
+  },
+  "project_application": {
+    "project": "Crazy Rich World Tour",
+    "focus_character": "Alexia",
+    "intent": "Use the selected video as a visual-quality and character-design reference for subsequent actual 3D revisions.",
+    "preserve_identity": ["chibi proportions", "lavender hair", "blue eyes", "headphones", "dark jacket with gold details", "white shoes", "blue travel case"],
+    "customization_editor_required_for_this_request": false,
+    "completed_model_changes_from_this_reference_record": false,
+    "frozen_review_zip_or_models_edited": false
+  },
+  "transcript_facts": [
+    {"id": "face_shape", "start_seconds": 38, "end_seconds": 141, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=38s", "evidence_type": "narrator_report_in_automatic_transcript", "summary_id": "Pembuat video membahas pengaturan bentuk wajah dan fitur alis, mata, hidung, mulut serta telinga secara terpisah."},
+    {"id": "eyes_and_makeup", "start_seconds": 181, "end_seconds": 257, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=181s", "evidence_type": "narrator_report_in_automatic_transcript", "summary_id": "Pembuat video menjelaskan pilihan mata kiri/kanan dan efek pupil, serta warna, kilap dan transparansi rias."},
+    {"id": "skin", "start_seconds": 301, "end_seconds": 337, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=301s", "evidence_type": "narrator_report_in_automatic_transcript", "summary_id": "Warna, undertone, tekstur dan kilap kulit dijelaskan; warna berlaku pada tubuh, bukan hanya wajah."},
+    {"id": "body_proportions", "start_seconds": 340, "end_seconds": 383, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=340s", "evidence_type": "narrator_report_in_automatic_transcript", "summary_id": "Pengaturan lengan, tangan, dada, pinggang, pinggul, paha dan betis dijelaskan."},
+    {"id": "hair", "start_seconds": 411, "end_seconds": 521, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=411s", "evidence_type": "narrator_report_in_automatic_transcript", "summary_id": "Volume, panjang, arah, poni, ujung, warna dan sorotan rambut dibahas; perakitan bagian hanya dicoba pada salah satu gaya beta."},
+    {"id": "outfits", "start_seconds": 525, "end_seconds": 600, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=525s", "evidence_type": "narrator_report_and_opinion_in_automatic_transcript", "summary_id": "Outfit dan kategori pakaian ditampilkan/dijelaskan; penilaian rapi dan bermutu adalah opini pembuat video, bukan ukuran teknis."},
+    {"id": "accessories", "start_seconds": 637, "end_seconds": 756, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=637s", "evidence_type": "narrator_report_in_automatic_transcript", "summary_id": "Aksesori pada kepala, telinga, leher, badan, punggung dan bahu dibahas."}
+  ],
+  "direct_video_frame_observations": [
+    {"seconds": 273, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=273s", "observer": "root_agent", "method": "Root inspected the actual YouTube video frame via CUA and reported observations to this agent.", "observations_id": ["Mata biru besar terbaca bersih.", "Kulit lembut, bentuk bibir dan rias halus.", "Rambut samping mempunyai arah helai yang jelas.", "Kontrol kilap dan kekasaran rias terlihat terpisah."], "technical_measurements_inferred": false},
+    {"seconds": 438, "timestamp_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4&t=438s", "observer": "root_agent", "method": "Root inspected the actual YouTube video frame via CUA and reported observations to this agent.", "observations_id": ["Kuncir dengan profil samping yang rapi.", "Rompi pendek biru-abu dengan tepian oranye.", "Volume tubuh dan pakaian terbaca terpisah."], "technical_measurements_inferred": false}
+  ],
+  "actual_project_image_observations": {
+    "image": "C:/Users/Administrator/Documents/Codex/2026-10-04/lan/outputs/CRWT-Alexia-high-visual-preview-2026-10-08.jpg",
+    "method": "Inspected actual local image using view_image.",
+    "view": "three_quarter",
+    "observations_id": ["Identitas jaket gelap, sepatu putih, koper biru dan rambut lavender terbaca.", "Massa rambut belakang tampak seperti cangkang besar dengan batas antarlapisan.", "Detail baju tengah dan area dekat headphone tampak lebih bercampur daripada permukaan jaket baru.", "Gambar tunggal tidak membuktikan mutu semua sisi maupun animasi."]
+  },
+  "art_direction_inferences": [
+    {"priority": 0, "id": "clean_multiview_hair", "source_fact_ids": ["hair", "body_proportions"], "action_id": "Bentuk rambut sebagai kelompok gelombang berakar dan berujung jelas; rapikan sambungan kepala, headphone dan telinga di samping/belakang.", "is_game_implementation_claim": false},
+    {"priority": 1, "id": "coherent_face_skin_eyes", "source_fact_ids": ["face_shape", "eyes_and_makeup", "skin"], "action_id": "Bersihkan tepi wajah dan pemetaan warna, samakan kulit seluruh tubuh, pisahkan detail iris/pupil/pantulan, pertahankan wajah Alexia.", "is_game_implementation_claim": false},
+    {"priority": 1, "id": "finished_outfit_accessory_surfaces", "source_fact_ids": ["outfits", "accessories"], "action_id": "Selesaikan kerah, manset, saku, tepian jaket, sole sepatu, gagang koper dan headphone; bedakan respons kain, emas, kulit dan koper.", "is_game_implementation_claim": false},
+    {"priority": 2, "id": "game_motion_and_expressions", "source_fact_ids": ["face_shape", "body_proportions", "accessories"], "action_id": "Rapikan bobot rig, uji idle/walk multiview, kemudian tambahkan kedipan dan ekspresi terencana; rig/fisika video tidak diketahui.", "is_game_implementation_claim": false}
+  ],
+  "acceptance_checks": ["front_back_left_right_three_quarter_equal_scale", "neutral_and_warm_lighting", "close_face_and_head_shoulder_views", "idle_walk_multiphase_side_and_back_frames", "no_obvious_floating_surfaces_detached_joints_or_accessory_penetration", "original_2d_character_identity_retained", "remaining_defects_listed_in_checkpoint"],
+  "claims_not_supported": ["Exact Aniimo shader parameters", "Exact Aniimo topology or skinning", "Aniimo facial rig or hair physics method", "Current released Aniimo feature list", "Alexia already equals Aniimo production quality", "All ten CRWT characters were upgraded by creating this reference record"]
+}

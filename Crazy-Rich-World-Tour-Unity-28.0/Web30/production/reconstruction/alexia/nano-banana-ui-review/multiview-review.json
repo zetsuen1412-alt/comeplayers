@@ -1,0 +1,160 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "reviewed_on": "2026-10-03",
+  "reviewer": "roster_specs",
+  "review_type": "Independent visual inspection of four actual Gemini UI captures, their full UI proof screenshots, and active Alexia V2",
+  "status": "reviewed-raster-candidates-revise-before-multiview-reconstruction",
+  "reference": {
+    "file": "../../references/alexia-approved-v2-blue.png",
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "hash_independently_verified": true,
+    "image_visually_inspected": true,
+    "note": "Active project V2 reference. Its drafted hidden surfaces are not independent source observations or approval of a generated 3D mesh."
+  },
+  "provenance": {
+    "file": "capture-provenance.json",
+    "full_ui_proofs_visually_inspected": true,
+    "capture_content_matches_visible_ui_images": true,
+    "capture_dimensions_reported": [
+      584,
+      584
+    ],
+    "capture_format": "JPEG",
+    "original_full_resolution_gemini_png": false,
+    "image_regeneration_during_capture_reported": false,
+    "source_description": "Actual Nano Banana raster visible in Gemini image editor UI, extracted as a rectangle from CUA JPEG screenshots and re-encoded as JPEG.",
+    "limitation": "This inspection confirms matching visible images and UI proofs; it does not turn screen-resolution JPEGs into original full-resolution exports."
+  },
+  "views": [
+    {
+      "file_label": "front",
+      "capture": "nano-banana-front-capture.jpg",
+      "proof": "nano-banana-front-review.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "hash_independently_verified": true,
+      "gemini_turn_container": "4bca68acb91fd063",
+      "actual_view": "Straight front; both blue eyes, frontal shirt and belt visible.",
+      "observations": [
+        "Recognizable blue-eyed chibi Alexia with silver-lavender hair, black/white/gold headphones and costume.",
+        "Arms extended down/out in an A-pose-like reconstruction draft; empty hands and no suitcase.",
+        "Head-to-shoe image span is visibly larger than the other three captures.",
+        "Neutral medium-gray background, without visible floor plane, pedestal or contact shadow.",
+        "Visible face/costume retain broad V2 identity, but small jewelry, trim and hair-lock details are not exact duplicates."
+      ]
+    },
+    {
+      "file_label": "back",
+      "capture": "nano-banana-back-capture.jpg",
+      "proof": "nano-banana-back-review.jpg",
+      "sha256": "b731761320b2bdc1f3fb1291efe40f510250cd2efd83871087d1f3a43870a8cf",
+      "hash_independently_verified": true,
+      "gemini_turn_container": "183ad99d7462869e",
+      "actual_view": "Straight back; rear hair, jacket tails and shoe heels visible; no frontal face.",
+      "observations": [
+        "Chibi body and long layered silver-lavender rear hair are recognizable.",
+        "Arms are down/out; no suitcase or remnant handle/wheel is visible.",
+        "Image subject span is smaller than front and similar to side captures.",
+        "Rear hair curl distribution and exposed jacket-tail shapes are draft continuations rather than exact V2 reproduction.",
+        "Light lavender-gray background differs from the front's neutral medium gray; no visible floor/contact shadow."
+      ]
+    },
+    {
+      "file_label": "left",
+      "capture": "nano-banana-left-capture.jpg",
+      "proof": "nano-banana-left-review.jpg",
+      "sha256": "cd3db64d55252aa93e4327e9fe6254db3f036a695c115a2621d9665da879d22b",
+      "hash_independently_verified": true,
+      "gemini_turn_container": "6ad02da5b2600a2e",
+      "actual_view": "Side profile facing image-RIGHT.",
+      "observed_face_direction": "image-right",
+      "observations": [
+        "Only one blue eye is visible in a clear side profile.",
+        "Upper sleeve is plain/dark where the corresponding V2 profile shows a framed gold star patch and sleeve trim.",
+        "Visible hair is a smoother long swept mass; the high tied-root volume does not match the opposite side/V2 construction consistently.",
+        "Headphone gold cup center is simplified; the source's small center/ring detail is not consistently discernible at this screen resolution.",
+        "Hand sits close to hip/belt level; the same full A-pose as front/back is not established by this projection.",
+        "A gold star motif appears on the sock/ankle area; its parity with V2 is not established.",
+        "No suitcase, pedestal, floor or contact-shadow remnant is visible."
+      ]
+    },
+    {
+      "file_label": "right",
+      "capture": "nano-banana-right-capture.jpg",
+      "proof": "nano-banana-right-review.jpg",
+      "sha256": "20c4e4aaceb04f2b3e508fab4992311cc546e915e5336850709444233c8e1f1f",
+      "hash_independently_verified": true,
+      "gemini_turn_container": "9615a9e1eb0f2c55",
+      "actual_view": "Side profile facing image-LEFT.",
+      "observed_face_direction": "image-left",
+      "request_label_reported": "LEFT",
+      "output_saved_as": "right",
+      "provider_request_output_label_mismatch": true,
+      "request_label_evidence_note": "Request label supplied from root's observed Gemini history; face direction independently confirmed by image inspection. Full UI proof shows the resulting image, not the request text.",
+      "observations": [
+        "Only one blue eye is visible in a clear side profile.",
+        "Large blue-gray/gold star on upper sleeve differs from the smaller gold star inside a bordered patch in V2; horizontal source sleeve details are simplified.",
+        "A conspicuous separately tied/twisted-looking hair lock descends beside the headphone; this root/lock construction differs from the smoother opposite-side mass and V2.",
+        "Hand position near the hip does not establish identical arm pose across the four views.",
+        "Sock/ankle star ornament is not established as matching the V2 side design.",
+        "No suitcase, pedestal, floor or contact-shadow remnant is visible."
+      ]
+    }
+  ],
+  "cross_view_checks": {
+    "four_distinct_directions_visible": true,
+    "side_direction_assignment": {
+      "left_capture_faces": "image-right",
+      "right_capture_faces": "image-left"
+    },
+    "actual_camera_projection_parameters_available": false,
+    "strict_orthographic_projection_verified": false,
+    "anatomical_patch_side_parity_verified": false,
+    "view_assignment_note": "File labels follow the project's captured-view convention; face directions above are the directly observed facts. Asymmetric sleeve/hair parity still needs reconciliation with V2.",
+    "blue_eyes_preserved_in_visible_faces": true,
+    "props_absent_visually": true,
+    "floor_pedestal_and_contact_shadow_absent_visually": true,
+    "each_background_visually_flat": true,
+    "same_background_color_across_views": false,
+    "same_subject_scale_across_views": false,
+    "same_pose_established": false,
+    "hair_roots_and_lock_volume_consistent": false,
+    "sleeve_star_patch_parity_with_v2": false,
+    "costume_and_shoe_fine_detail_parity_verified": false,
+    "approximate_manual_image_span_estimate": {
+      "front_px_range": [
+        545,
+        555
+      ],
+      "back_and_sides_px_range": [
+        485,
+        505
+      ],
+      "method": "Visual estimate from inspected 584x584 captures, not pixel segmentation or exact measured body scale.",
+      "finding": "Front is roughly ten percent larger in the raster frame than back/sides.",
+      "limitation": "Cannot infer true world scale or exact proportions from these images alone."
+    }
+  },
+  "blocking_drift": [
+    "Normalize subject scale/framing between front and remaining views without changing anatomy.",
+    "Reconcile V2 upper-sleeve framed-star patches, straps/trim and new sock-star details across both profiles.",
+    "Resolve side hair tied roots/strand masses against one coherent V2 hair construction.",
+    "Verify a single unchanged neutral arm/hand pose in all views.",
+    "Use the same flat background color; current front/background family differs from other views."
+  ],
+  "verdict": "REVISE AND REINSPECT BEFORE FOUR-VIEW RECONSTRUCTION",
+  "multiviewApproved": false,
+  "identityFullyMatchedToV2": false,
+  "visualFinalApproved": false,
+  "productionMeshApproved": false,
+  "gameAssetsReplaced": false,
+  "raster_is_not_glb_or_rig": true,
+  "front_only_diagnostic_note": "A separately labeled front-only controlled reconstruction may be examined as a diagnostic, but it does not establish multiview consistency or approval of these four captures.",
+  "next_actions": [
+    "Keep all four current captures and their UI provenance as actual raster evidence.",
+    "Correct the documented scale, pose, hair and patch inconsistencies against V2, one discrepancy at a time.",
+    "Inspect corrected actual outputs again before combining four views.",
+    "Continue to label original full-resolution PNG export as unavailable unless a genuine export is obtained.",
+    "Any eventual 3D acceptance requires actual mesh renders, materials, deformation, six clips, hash identity and in-game evidence."
+  ]
+}

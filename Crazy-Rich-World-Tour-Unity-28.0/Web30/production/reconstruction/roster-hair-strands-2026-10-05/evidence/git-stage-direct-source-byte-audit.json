@@ -1,0 +1,25 @@
+{
+  "schema": "crwt.hair_strands_git_stage_direct_source_audit.v1",
+  "passed": true,
+  "source_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "candidate_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "actual_byte_and_geometry_gate": {
+    "original_BIN_prefix_exact": true,
+    "original_mesh_attributes_positions_normals_UV_colors_indices_exact": true,
+    "original_materials_images_records_exact": true,
+    "original_nodes_only_parent_children_appended": true,
+    "scenes_default_roots_exact": true,
+    "original_vertices_deformed": 0,
+    "added_vertices": 2596,
+    "added_triangles": 5184,
+    "closed_oriented_added_components": 2,
+    "minimum_added_triangle_area": 2.96455299559482e-08,
+    "signed_component_volumes": [
+      0.00010719847742003638,
+      0.00013020764517820475
+    ],
+    "global_collision_certificate": false
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

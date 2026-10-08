@@ -1,0 +1,539 @@
+{
+  "schema": "crwt.independent-packed-roster-reopen.v1",
+  "passed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "blend_sha256": "ae7874ae464059792cd5065d82c58c503dace95fc51812ea209b49194ce6e839",
+  "manifest_sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+  "workspace_proof_sha256": "be68da96c3e7d87d20c85ce87de4e0d8de07988954ff66aa398d65a40be479dc",
+  "character_count": 10,
+  "characters": [
+    {
+      "id": "alexia",
+      "source_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "mesh_count": 1,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "rindi",
+      "source_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "mesh_count": 1,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "kairo",
+      "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "mesh_count": 1,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "luna",
+      "source_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+      "mesh_count": 13,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "nox",
+      "source_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+      "mesh_count": 2,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "atlas",
+      "source_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "mesh_count": 1,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "zeno",
+      "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "mesh_count": 1,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "yuna",
+      "source_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+      "mesh_count": 2,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "mochi",
+      "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "mesh_count": 1,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    },
+    {
+      "id": "pip",
+      "source_sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "mesh_count": 195,
+      "geometry_topology_uv_material_slot_fingerprints_identical": true,
+      "review_translation_identical": true
+    }
+  ],
+  "packed_file_images": 18,
+  "images": {
+    "Image_0": {
+      "sha256": "ea8d803146c3a08c6e792c33f9fe2c323aab0ac64fec727e2e07a84c5ac7cbc5",
+      "bytes": 409284,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.001": {
+      "sha256": "f0b20657ef22bf7cb5eb7b33fc466eefd36d4b04a7488cf3bc542e3bbd2eed9e",
+      "bytes": 390876,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.002": {
+      "sha256": "b98010c97f4300a65273e583f38420e60ec750f2149e46ccf9365e78953b1ae2",
+      "bytes": 151312,
+      "colorspace": "sRGB",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "Image_0.003": {
+      "sha256": "c864d8c0a4cf05acfaa5cbf7e9fa29c41c332fae6332984f019be1deb50d258d",
+      "bytes": 405908,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.004": {
+      "sha256": "c6e0447263cd0121fa574639fa50023795e3527e4fe8858e06e96e748b9ac6a7",
+      "bytes": 381984,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.005": {
+      "sha256": "c96a08d6b6ccea731be1f890bca02178cf1c152a0a68ccbf3d90937886355832",
+      "bytes": 415080,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.006": {
+      "sha256": "7871117c2bf0cd6445d1f6a9f7f4f6ba50c9e81f68bb470f7141ef0d1dcd5ae6",
+      "bytes": 413680,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.007": {
+      "sha256": "9629d434f6ac35d48d1c406b1ea644a7a3fa202d374160db743e18d001979c94",
+      "bytes": 392732,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_0.008": {
+      "sha256": "308f88e5a2c8dd7fd62ed031573c5ad3981515f8a8f2e2596fe2fdab453d03ef",
+      "bytes": 307008,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1": {
+      "sha256": "0003381f67d04442bc3e2662808714ff73156a37967fe98bb56c9d0ce1ebefc0",
+      "bytes": 451396,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.001": {
+      "sha256": "7c8cb4626938baa3dbedfa3c40280d7a68abc835aa692b71978ef4a96da4b70f",
+      "bytes": 441568,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.002": {
+      "sha256": "fce8646d8c20f3e16bf982a41c1db4cc75af032bef2b15e7ae58db8fc0205e9b",
+      "bytes": 157360,
+      "colorspace": "Non-Color",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "Image_1.003": {
+      "sha256": "0a5c44321403e714444c2ec90abe384a361e25b3e338221a687cd9ccf8a64197",
+      "bytes": 486840,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.004": {
+      "sha256": "c910883ebe88b36c9b67b5231dff7d95dc24bbeb03a9703ca25392786a07ffaf",
+      "bytes": 461168,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.005": {
+      "sha256": "59b1c0af9b978b95d770e9bb4ecb7c1533b3b6de8b86c89f31d447026107e9aa",
+      "bytes": 470056,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.006": {
+      "sha256": "00253f70f6c64428ff16c0f469b749dde37ae414251ddde7bd59824e926046c6",
+      "bytes": 450888,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.007": {
+      "sha256": "71a36e3b64a6c3bea6feb9591b79b3928eb3ceabf2e0be073312a46b12eaa341",
+      "bytes": 422084,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    "Image_1.008": {
+      "sha256": "cce11850e96ed8c8b9c784d649784ca61ccbf28cdff43e13c5cee817483ee16a",
+      "bytes": 363984,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    }
+  },
+  "packed_image_bytes_match_selected_glbs": true,
+  "material_graph_fingerprints": {
+    "Luna polished sapphire globe": "d5764768ce5e99950616d7585f2f94e07e2af5d35c83d062a0bed554d012bbd0",
+    "Luna staff warm gold, reference-guided": "13b23d74a4931a35df63c4620b55f8c8f96a440b624cd3c0a5436a91bab7974d",
+    "Material_0": "955498444efb55c47b65669a0f964cfc54897b38a6509f07d1760155e9369f3d",
+    "Material_0.001": "85c68287b0956bc0de6ea108f96ab0576e0b648146ec609b4883f8e9743d459b",
+    "Material_0.002": "9696dbc65b6578927f38eae01e3afbf6c976efaab627aa4992bca6401f52ecb5",
+    "Material_0.003": "0f0cf9ef403e7733dd769d1adcff7ebcf7f19f36f69ae1fa43721259bea5aaa0",
+    "Material_0.004": "8132d00c8119e1244875ed69b920c100c6d9d6d49071104b81b16017b9577f23",
+    "Material_0.005": "34334f72d0dcbdfb99eca4a2753624c244504c996e8db134c541f2392e9848c8",
+    "Material_0.006": "72e2de80a2bfa38d61049d4105b25a26ec5c151b27a3c6dae3fd037666758426",
+    "Material_0.007": "02c36580d5158a7c7de3cd927ac250e8b4fa9b6b04c305b6d8f11db6ddcdeb0e",
+    "Material_0.008": "50d22e8894bca9cc1e61f2a1bd62d33b67fe3f67defedf56ca9599e3c29e0330",
+    "Nox new hip card black corner pips": "8702597e7550f229aabe199cbf09fb16660cc2b35001d3b6352e157f5ff7c475",
+    "Nox new hip card crimson geometric ink": "17f726da6f641f33cbddeb175b62584229ef6ba7379ed89c3db983f90e251cba",
+    "Nox new hip card warm white": "708ca9edd00fc0ab457fd5f112d305068eadbf597117e86a5a4f78e2daad33d9",
+    "PipReview | blue": "2efb8972a5ebb28ba6f0ea823b40ee8940e7a7c9df05efa145fe75e57681b551",
+    "PipReview | coral": "2abcaa66934ecd2b7c195e46d837814828bc104628c10f4836e46c61f58e005c",
+    "PipReview | gold": "fb3695c56c7709cd128291264baa9b2ce513d851e8d5bdf139ab7542b4b51c55",
+    "PipReview | gold enamel": "a5f09bb69362ebbec7857e1140e4d8b54c136180aaa642ecfa58bb78d14006e1",
+    "PipReview | ivory": "7dbe0cc58fbe6730771cb871c97e05d4bbd2fb6ace1fa00d40608eb40d685e4c",
+    "PipReview | navy": "b191329c3d069af89b24cbb0ff2c26ac7f36ad693ec2931296c3bd03df94caa1",
+    "PipReview | pixels": "f981ccc1309831966ccb97bd7e9c00da927d6baac470d239d87695141bbc89e5",
+    "PipReview | rubber": "bdf240ac09cc1f3639eca450867d14e58a6c1b18a4e2ca1255f50563b6e2a038",
+    "PipReview | screen": "944a10aea553824497c05d8796c176d72b52ef2e878acc61a4d678d5af864b8c",
+    "PipReview | sky": "63a7141dfe8eb00778bf7d770d8e97fdd4154b456792ee22dfe5539c3a9529c9",
+    "PipReview | steel": "bb3eacb4358848ef89877d67a880b4c6a4d0afe08ce1623d8c9fe1cc31f053de",
+    "PipReview | turquoise": "97a5ae5017f25dd37a226d82a9f6d0a32da65bed920ef9b8725894127772c656",
+    "Yuna accessory detail \u00b7 Brush ferrule satin brass": "23e1a763160564a8beb07340d76d1c97f4773a5b3bf761225c8902a9d9241542",
+    "Yuna accessory detail \u00b7 Palette blue paint": "e3b5a84fc6c76ec7fb9119f19c74160034e646bc58fec5090a78d4abd324372d",
+    "Yuna accessory detail \u00b7 Palette coral paint": "b21cb96ba13c660a02691db4493bc7e0ae555575044a2c5be9028aecaaf29bca",
+    "Yuna accessory detail \u00b7 Palette golden paint": "8ce01c36d6c76776623675800a3626f0aaaf61677bd9543a105da8a07c8c2d9f",
+    "Yuna accessory detail \u00b7 Palette mint paint": "3e0e8e6d3b12ae71f800ede3c972b0d17df255a18ef48300ef1a3f19f51626ce",
+    "Yuna accessory detail \u00b7 Palette pale blue paint": "52bc5d54f2198f53ded9690b3e213fbc561dd507213dcb77619f7c3a6e5c6959",
+    "Yuna accessory detail \u00b7 Palette red paint": "8b6d4f1c398f6df7ecf171a92644c6fbc08ba60bf4e79938ecda78f6f0a017a1",
+    "Yuna accessory detail \u00b7 Warm wood edge": "25cf24db555e826850f887e418e3aec394b25b51c0173fa70f9949ee57ddf277"
+  },
+  "saved_material_graphs_identical_to_fresh_selected_imports": true,
+  "pip": {
+    "armature_objects": 1,
+    "joint_count": 13,
+    "clip_names": [
+      "Idle",
+      "Jump",
+      "Lose",
+      "Skill",
+      "Walk",
+      "Win"
+    ],
+    "action_count": 6,
+    "rest_bone_matrices": {
+      "Root": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Body": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.12999999523162842,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Handle": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.06499999761581421,
+        0.0,
+        0.0,
+        1.0,
+        1.0799999237060547,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.LB": [
+        1.0,
+        0.0,
+        0.0,
+        -0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        0.09199999272823334,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.LF": [
+        1.0,
+        0.0,
+        0.0,
+        -0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        -0.09199997782707214,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.RB": [
+        1.0,
+        0.0,
+        0.0,
+        0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        0.09199999272823334,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Wheel.RF": [
+        1.0,
+        0.0,
+        0.0,
+        0.2696399688720703,
+        0.0,
+        1.0,
+        0.0,
+        -0.09199997782707214,
+        0.0,
+        0.0,
+        1.0,
+        0.06400001049041748,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Companion": [
+        1.0,
+        0.0,
+        0.0,
+        -0.4699999690055847,
+        0.0,
+        1.0,
+        0.0,
+        -0.08000001311302185,
+        0.0,
+        0.0,
+        1.0,
+        0.060999996960163116,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionHandle": [
+        1.0,
+        0.0,
+        0.0,
+        -0.4699999690055847,
+        0.0,
+        1.0,
+        0.0,
+        -0.046159982681274414,
+        0.0,
+        0.0,
+        1.0,
+        0.5350000262260437,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.LB": [
+        1.0,
+        0.0,
+        0.0,
+        -0.5967308282852173,
+        0.0,
+        1.0,
+        0.0,
+        -0.03675999492406845,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.LF": [
+        1.0,
+        0.0,
+        0.0,
+        -0.5967308282852173,
+        0.0,
+        1.0,
+        0.0,
+        -0.12323999404907227,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.RB": [
+        1.0,
+        0.0,
+        0.0,
+        -0.3432691693305969,
+        0.0,
+        1.0,
+        0.0,
+        -0.03675999492406845,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "CompanionWheel.RF": [
+        1.0,
+        0.0,
+        0.0,
+        -0.3432691693305969,
+        0.0,
+        1.0,
+        0.0,
+        -0.12323999404907227,
+        0.0,
+        0.0,
+        1.0,
+        0.030079998075962067,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "pip_rest_bones_and_six_clip_inventory_identical_to_fresh_selected_import": true,
+  "read_only_blend_reopen": true,
+  "no_blend_or_source_writes": true,
+  "blender_version": "5.2.2 LTS",
+  "limits": "Native geometry/UV/material and portability checks; no new visual, choreography, rig or gameplay approval."
+}

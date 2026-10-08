@@ -1,0 +1,19 @@
+{
+  "schema": "crwt.selected_alexia_native.v1",
+  "passed": true,
+  "candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "blend_sha256": "c06557dfe5f1a2417ed4029df47246e966bdf9b5b75ca7d5f2e6cd8ca58d29f7",
+  "build_proof_sha256": "086e4e2ee8ea311b4c74ecf8697d2f2e9f2e351542a4c780947ee51cf171f9eb",
+  "reopen_proof_sha256": "b493be720fc9da6c824e7ebfa3a9795597eed493de287b4664163596aba28591",
+  "all_file_images_packed": true,
+  "read_only_reopen": true,
+  "native_color_attributes_preserved": true,
+  "single_character": "alexia",
+  "packed_active_image_count": 0,
+  "representation_limit": "Native COLOR uses Blender importer representation; packaged GLB bytes remain exact.",
+  "approved": false,
+  "gameIntegrated": false,
+  "editable_manifest_sha256": "74df7e4ca917fa8dbc4b2fd65c2b57cae38a2b8cf9cadca823d1e2f58bebda53",
+  "native_reopen_proof_path": "evidence/native-reopen.json",
+  "native_build_proof_path": "editable/Alexia-hair-sculpt-review.workspace-proof.json"
+}

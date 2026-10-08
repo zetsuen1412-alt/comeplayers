@@ -1,0 +1,9 @@
+{
+  "map_id": "tropical_paradise",
+  "city": "Bali",
+  "style": "temple",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tropical_paradise/bali.glb",
+  "fallback": true
+}

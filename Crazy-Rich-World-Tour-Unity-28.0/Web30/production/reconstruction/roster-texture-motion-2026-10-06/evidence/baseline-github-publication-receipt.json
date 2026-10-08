@@ -1,0 +1,308 @@
+{
+  "schema": "crwt.alexia_side_colors_github_publication.v1",
+  "repository": "https://github.com/zetsuen1412-alt/comeplayers",
+  "development_branch": "codex/crazy-rich-web-v30",
+  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-06-alexia-side-colors-portable",
+  "commit": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+  "tree_sha": "f6f8de0cbf2d9258f09f52950b69ef5e62f89ded",
+  "parent_commit": "7550673d37e385034eef33da07fce82a704001ae",
+  "baseline_source_commit": "7550673d37e385034eef33da07fce82a704001ae",
+  "model_count": 10,
+  "manifest_sha256": "a1074ce0ee43c861a60318cf77669876878c4f91f81661d4e241f081633b70c4",
+  "review_manifest_sha256": "a1074ce0ee43c861a60318cf77669876878c4f91f81661d4e241f081633b70c4",
+  "changed_model_sha256": {
+    "alexia": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000"
+  },
+  "preserved_baseline_blobs": 4376,
+  "added_files": 160,
+  "total_source_blobs": 4536,
+  "overwrites": 0,
+  "deletions": 0,
+  "inventory_path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-colors-2026-10-06/source-inventory.json",
+  "inventory_sha256": "c79d4a822c668fbae95ba20ac6b0e51fb218e00c7dd062346cc8dce195d06da9",
+  "source_pins_sha256": "33b70e6c225d756c10477b47002d3d6244b2c86aeb244f84c7d2f5d9df12d0ea",
+  "native_workspace_sha256": "0ef2bbea2f28505db1217c778562c1658d2e36902c1a2e3a14ea84d49ed8424c",
+  "native_reopen_proof_sha256": "adbb4cbe891ee3b99496f336be9eb3af501cc3235c2797e249b90875a0536774",
+  "native_build_proof_sha256": "27ad9e35226b626704ed00e1cefea3950e4db3a06a62cf16d6463a23a4955654",
+  "native_selected_certificate_sha256": "18c0c174b7558fdb0a419f618d8bc6f6477f4ad77684cda15727519fb3b6e4f3",
+  "editable_scope": "One selected Alexia native workspace; nine other GLBs remain byte-exact.",
+  "actual_render_scope": "Five selected Alexia 640px actual mesh renders; 45 other-character renders reused byte-for-byte.",
+  "offline_gallery_storage": {
+    "archive_storage": "split",
+    "logical_archive": "OFFLINE-GALLERY.zip",
+    "logical_archive_restored_from_parts": true,
+    "archive_sha256": "b829454a5c3f7734262044574727b00851aa8fe3d45fe6c14d59da9e1bee3c40",
+    "archive_bytes": 42424850,
+    "html_sha256": "d40934e341522069d5b07a194e1410de289fe06ac7c9955b1e8eb441cffe5bf4",
+    "html_bytes": 58333384,
+    "git_archive_parts": [
+      {
+        "path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-colors-2026-10-06/OFFLINE-GALLERY.zip.part-01",
+        "bytes": 22000000,
+        "sha256": "8ee233e9f6276e82976ac4edb4e0cb17741c38b2fc16488e5022f75665a5d35d"
+      },
+      {
+        "path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-colors-2026-10-06/OFFLINE-GALLERY.zip.part-02",
+        "bytes": 20424850,
+        "sha256": "844e5918c2a2a93e51072d884b7d7692211d44cfaddca886832a2baaad8cbadf"
+      }
+    ]
+  },
+  "local_browser_verification_sha256": "f05d162e34a66c86e39d7d935a8c84cf4b38f2b32300c38f66b83928742a832e",
+  "independent_visual_color_audit_sha256": "9ea7493380f2823bc4f029893e4a0c7eb71017f8985bd3d1d55b20d083c9616d",
+  "local_source_verification_sha256": "e183cf044e3a454220ae15b45b9581d296f77a5d77a713917c45540afb8ed6bf",
+  "snapshot_verified": true,
+  "refs_verified": [
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-visual-fidelity-portable",
+      "sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-pass2-portable",
+      "sha": "8ea9cb7b849d586de299d8042d8f7185c9c40d3e",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable",
+      "sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable",
+      "sha": "1c63379d02ef4fea211c963a18fed7e84a2c6494",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-profile-portable",
+      "sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-hair-strands-portable",
+      "sha": "cae6727d66f806ec81fa2c8d5ad129d58a5adb95",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-hair-sculpt-portable",
+      "sha": "7550673d37e385034eef33da07fce82a704001ae",
+      "verified": true
+    },
+    {
+      "branch": "codex/crazy-rich-web-v30",
+      "sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-06-alexia-side-colors-portable",
+      "sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "verified": true
+    }
+  ],
+  "ci_runs": [
+    {
+      "id": 37393503574,
+      "name": "Crazy Rich Unity Source Checks",
+      "event": "pull_request",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37393503574",
+      "created_at": "2026-10-06T00:20:42Z",
+      "updated_at": "2026-10-06T00:22:36Z"
+    },
+    {
+      "id": 37393503710,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "pull_request",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37393503710",
+      "created_at": "2026-10-06T00:20:42Z",
+      "updated_at": "2026-10-06T00:24:56Z"
+    },
+    {
+      "id": 37393491274,
+      "name": "CRWT Alexia Side Colors 2026-10-06",
+      "event": "push",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37393491274",
+      "created_at": "2026-10-06T00:20:34Z",
+      "updated_at": "2026-10-06T00:22:43Z"
+    },
+    {
+      "id": 37393491944,
+      "name": "CRWT Portable Character Workspace",
+      "event": "push",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37393491944",
+      "created_at": "2026-10-06T00:20:34Z",
+      "updated_at": "2026-10-06T00:23:40Z"
+    },
+    {
+      "id": 37393491701,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "push",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37393491701",
+      "created_at": "2026-10-06T00:20:34Z",
+      "updated_at": "2026-10-06T00:24:45Z"
+    }
+  ],
+  "all_started_ci_completed": true,
+  "completed_successful_ci_count": 5,
+  "ci_observation_time": "2026-10-06 02:08:08 UTC",
+  "pending_ci_scope": [],
+  "pr": {
+    "number": 34,
+    "url": "https://github.com/zetsuen1412-alt/comeplayers/pull/34",
+    "title": "CRWT Web30: soften Alexia lower and outer hair colors",
+    "state": "open",
+    "draft": true,
+    "base": "codex/crazy-rich-world-tour",
+    "head": "codex/crazy-rich-web-v30",
+    "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04"
+  },
+  "models": [
+    {
+      "id": "alexia",
+      "sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000"
+    },
+    {
+      "id": "rindi",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "id": "kairo",
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915"
+    },
+    {
+      "id": "luna",
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509"
+    },
+    {
+      "id": "nox",
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f"
+    },
+    {
+      "id": "atlas",
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24"
+    },
+    {
+      "id": "zeno",
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc"
+    },
+    {
+      "id": "yuna",
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b"
+    },
+    {
+      "id": "mochi",
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+    },
+    {
+      "id": "pip",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Modest lower/outer hair COLOR cleanup; upper cup/temple paint, white gaps, merged coarse shape and garment smears remain.",
+    "Positions, normals, UVs, indices, materials, node transforms, existing rig/animation data and whole meshes1/2 are source-exact; nine other GLBs remain unchanged.",
+    "Peripheral front/back hair colors can change; complete front/back pixel identity is not claimed.",
+    "No new rig, production approval, exact six-view match or game integration.",
+    "Git stores two bounded parts that restore the exact original logical gallery ZIP and HTML.",
+    "Remote metadata is supplied explicitly by root; this assembler performs no network or Git operations.",
+    "This publication receipt is outside its own Git snapshot to avoid self-reference."
+  ],
+  "source_ci_jobs": [
+    {
+      "id": 112043835726,
+      "name": "verify-side-colors-source",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Materialize raw exact HEAD blobs, split gallery parts and prior comparison input",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify source pins, unchanged geometry, protected front colors and existing local native certificates",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate all ten actual GLBs without generation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rebuild exact gallery into fresh external output and compare frozen JSON receipt",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify concatenated two-part ZIP SHA and one-entry CRC then restore fresh HTML",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save private side-colors source and verification evidence",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "source_artifact": {
+    "id": 11382585187,
+    "node_id": "MDg6QXJ0aWZhY3QxMTM4MjU4NTE4Nw==",
+    "name": "CRWT-Alexia-Side-Colors-2026-10-06-fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04",
+    "size_in_bytes": 251311568,
+    "url": "https://api.github.com/repos/zetsuen1412-alt/comeplayers/actions/artifacts/11382585187",
+    "archive_download_url": "https://api.github.com/repos/zetsuen1412-alt/comeplayers/actions/artifacts/11382585187/zip",
+    "expired": false,
+    "digest": "sha256:375496bbf45ec4ac213a629ff69d9dde4fd61998cb3c42a9aa4f6a067b436909",
+    "created_at": "2026-10-06T00:22:41Z",
+    "updated_at": "2026-10-06T00:22:41Z",
+    "expires_at": "2026-10-13T00:22:28Z",
+    "workflow_run": {
+      "id": 37393491274,
+      "repository_id": 1365296560,
+      "head_repository_id": 1365296560,
+      "head_branch": "codex/crazy-rich-web-v30",
+      "head_sha": "fac3b16fc5c7f1a6603c8dee46c6ffb27ce9db04"
+    }
+  },
+  "independent_selected_chain_audit_sha256": "181d5a01bf762c5e6a5b56ab6dda27deee3f5dea3589631cebea7f6b8e942f44"
+}

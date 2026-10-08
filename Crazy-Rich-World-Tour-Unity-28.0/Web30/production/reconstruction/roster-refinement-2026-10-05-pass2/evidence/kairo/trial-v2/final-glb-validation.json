@@ -1,0 +1,24 @@
+{
+  "valid": true,
+  "id": "kairo",
+  "candidate_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+  "actual": {
+    "faces": 27820,
+    "vertices": 20492,
+    "meshes": 3,
+    "mesh_definitions": 3,
+    "default_scene": 0,
+    "default_scene_nodes": 5,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "cf866d33bfe0367ae9c77d6ec967caf8bd05dceb495f58147c464286913ee09d",
+    "accessors_checked": 10,
+    "buffer_views_checked": 12
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

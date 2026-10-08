@@ -1,0 +1,38 @@
+{
+  "blend_sha256": "c58639582c0da106312391b3548720c2d8b0a03536804b30892c1ba4730a251f",
+  "candidate_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "native_meshes_equal_fresh_glb_import": true,
+  "mesh_fingerprints": [
+    {
+      "name": "geometry_0",
+      "vertices": 23425,
+      "triangles": 27512,
+      "uv_layers": 1,
+      "materials": 1,
+      "mesh_uv_material_transform_sha256": "608ea43f5a2a6392a9395d8ca2054930fe2ca596f94c5ebcdc373ab601f5e586"
+    },
+    {
+      "name": "Alexia original cup face precision details",
+      "vertices": 5760,
+      "triangles": 11520,
+      "uv_layers": 0,
+      "materials": 4,
+      "mesh_uv_material_transform_sha256": "a648d9103dca27bd776bd86d0212f90b953b069eafa3f03a26c8fb456804977e"
+    }
+  ],
+  "packed_images": [
+    {
+      "name": "Image_0",
+      "bytes": 409284,
+      "sha256": "ea8d803146c3a08c6e792c33f9fe2c323aab0ac64fec727e2e07a84c5ac7cbc5"
+    },
+    {
+      "name": "Image_1",
+      "bytes": 451396,
+      "sha256": "0003381f67d04442bc3e2662808714ff73156a37967fe98bb56c9d0ce1ebefc0"
+    }
+  ],
+  "file_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false
+}

@@ -1,0 +1,9 @@
+{
+  "map_id": "candy_world",
+  "city": "Royal Truffle",
+  "style": "candy_castle",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/candy_world/royal_truffle.glb",
+  "fallback": true
+}

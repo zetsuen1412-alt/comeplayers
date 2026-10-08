@@ -1,0 +1,747 @@
+{
+  "schema": "crwt.alexia_manual_motion_prototype.v1",
+  "passed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-texture-polish-2026-10-06\\geometry\\soft-volume-protected\\alexia.glb",
+  "source_sha256": "a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b",
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "candidate_bytes": 45516820,
+  "recipe_sha256": "8baac7e1ea44097f934cc192748275b26c5560d0eeb548c14d91c84f2facf506",
+  "semantic_mask_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "semantic_mask_geometry_signature_sha256": "ca325e4fd577d9004942918f1b0dd970e6458f8263169eb286f31db1b41ed5de",
+  "semantic_hair_count": 99032,
+  "semantic_hair_all_actual_head_weight_one": true,
+  "semantic_hair_protected_hands_and_critical_disjoint": true,
+  "outside_exact_hair_position_closure_weights_preserved": true,
+  "exact_hair_position_closure_vertices": 99250,
+  "shared_position_extra_vertices": 218,
+  "all_exact_hair_position_closure_rigid_head": true,
+  "semantic_hair_rig": {
+    "hair_vertex_count": 99032,
+    "all_hair_head_rigid": true,
+    "exact_position_closure_vertex_count": 99250,
+    "head_joint_index": 5,
+    "byte_changed_weight_vertices": 15467,
+    "effective_head_influence_changed_vertices": 15467,
+    "effective_hair_head_influence_changed_vertices": 15362,
+    "effective_extra_head_influence_changed_vertices": 105,
+    "old_exact_position_split_weight_groups": 0,
+    "new_exact_position_split_weight_groups": 0,
+    "newly_split_exact_position_weight_groups": 0,
+    "corrected_weight_vertices": 15467,
+    "corrected_hair_weight_vertices": 15362,
+    "corrected_extra_weight_vertices": 105,
+    "all_other_weight_rows_exact": true,
+    "changed_weights_only_in_hair_and_exact_position_closure": true,
+    "closure_extra_vertex_count": 218,
+    "jacket_color_layer_extra_vertices": 24,
+    "cuff_color_layer_extra_vertices": 1
+  },
+  "semantic_mask_content_and_mtime_unchanged": true,
+  "original_BIN_prefix_exact": true,
+  "original_accessors_and_bufferViews_exact_prefix": true,
+  "original_POSITION_NORMAL_UV_COLOR_index_material_image_bytes_preserved": true,
+  "original_node_transforms_preserved": true,
+  "three_original_meshes_preserved": true,
+  "joint_count": 19,
+  "skin_count": 2,
+  "joints": [
+    {
+      "name": "Root",
+      "parent": null,
+      "world_rest_position": [
+        -0.006,
+        -0.4452480674,
+        0
+      ]
+    },
+    {
+      "name": "Pelvis",
+      "parent": "Root",
+      "world_rest_position": [
+        -0.006,
+        -0.11,
+        0.055
+      ]
+    },
+    {
+      "name": "Spine",
+      "parent": "Pelvis",
+      "world_rest_position": [
+        -0.006,
+        0.015,
+        0.035
+      ]
+    },
+    {
+      "name": "Chest",
+      "parent": "Spine",
+      "world_rest_position": [
+        -0.006,
+        0.09,
+        0.035
+      ]
+    },
+    {
+      "name": "Neck",
+      "parent": "Chest",
+      "world_rest_position": [
+        -0.01,
+        0.157,
+        0.04
+      ]
+    },
+    {
+      "name": "Head",
+      "parent": "Neck",
+      "world_rest_position": [
+        -0.014,
+        0.25,
+        0.065
+      ]
+    },
+    {
+      "name": "UpperArmL",
+      "parent": "Chest",
+      "world_rest_position": [
+        -0.13,
+        0.067,
+        0.04
+      ]
+    },
+    {
+      "name": "ForearmL",
+      "parent": "UpperArmL",
+      "world_rest_position": [
+        -0.191,
+        -0.014,
+        0.07
+      ]
+    },
+    {
+      "name": "HandL",
+      "parent": "ForearmL",
+      "world_rest_position": [
+        -0.25,
+        -0.105,
+        0.083
+      ]
+    },
+    {
+      "name": "UpperArmR",
+      "parent": "Chest",
+      "world_rest_position": [
+        0.13,
+        0.067,
+        0.04
+      ]
+    },
+    {
+      "name": "ForearmR",
+      "parent": "UpperArmR",
+      "world_rest_position": [
+        0.202,
+        -0.017,
+        0.067
+      ]
+    },
+    {
+      "name": "HandR",
+      "parent": "ForearmR",
+      "world_rest_position": [
+        0.26,
+        -0.105,
+        0.085
+      ]
+    },
+    {
+      "name": "ThighL",
+      "parent": "Pelvis",
+      "world_rest_position": [
+        -0.072,
+        -0.151,
+        0.064
+      ]
+    },
+    {
+      "name": "ShinL",
+      "parent": "ThighL",
+      "world_rest_position": [
+        -0.092,
+        -0.265,
+        0.073
+      ]
+    },
+    {
+      "name": "FootL",
+      "parent": "ShinL",
+      "world_rest_position": [
+        -0.118,
+        -0.374,
+        0.115
+      ]
+    },
+    {
+      "name": "ThighR",
+      "parent": "Pelvis",
+      "world_rest_position": [
+        0.073,
+        -0.151,
+        0.068
+      ]
+    },
+    {
+      "name": "ShinR",
+      "parent": "ThighR",
+      "world_rest_position": [
+        0.1,
+        -0.265,
+        0.078
+      ]
+    },
+    {
+      "name": "FootR",
+      "parent": "ShinR",
+      "world_rest_position": [
+        0.123,
+        -0.374,
+        0.12
+      ]
+    },
+    {
+      "name": "Suitcase",
+      "parent": "HandR",
+      "world_rest_position": [
+        0.246,
+        -0.287,
+        0.105
+      ]
+    }
+  ],
+  "weight_primitives": [
+    {
+      "mesh": 0,
+      "primitive": 0,
+      "vertices": 252943,
+      "JOINTS_accessor": 49,
+      "WEIGHTS_accessor": 50,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 1.1920928955078125e-07,
+      "rigid_head_vertices": 114982,
+      "rigid_suitcase_vertices": 20119,
+      "world_bind_max_error": 1.3936545584236626e-08
+    },
+    {
+      "mesh": 1,
+      "primitive": 0,
+      "vertices": 720,
+      "JOINTS_accessor": 52,
+      "WEIGHTS_accessor": 53,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 1,
+      "vertices": 720,
+      "JOINTS_accessor": 54,
+      "WEIGHTS_accessor": 55,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 2,
+      "vertices": 720,
+      "JOINTS_accessor": 56,
+      "WEIGHTS_accessor": 57,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 3,
+      "vertices": 720,
+      "JOINTS_accessor": 58,
+      "WEIGHTS_accessor": 59,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 4,
+      "vertices": 720,
+      "JOINTS_accessor": 60,
+      "WEIGHTS_accessor": 61,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 5,
+      "vertices": 720,
+      "JOINTS_accessor": 62,
+      "WEIGHTS_accessor": 63,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 6,
+      "vertices": 720,
+      "JOINTS_accessor": 64,
+      "WEIGHTS_accessor": 65,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 7,
+      "vertices": 720,
+      "JOINTS_accessor": 66,
+      "WEIGHTS_accessor": 67,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 720,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    },
+    {
+      "mesh": 2,
+      "primitive": 0,
+      "vertices": 2596,
+      "JOINTS_accessor": 68,
+      "WEIGHTS_accessor": 69,
+      "nonnegative_finite": true,
+      "max_weight_sum_error": 0.0,
+      "rigid_head_vertices": 2596,
+      "rigid_suitcase_vertices": 0,
+      "world_bind_max_error": 0.0
+    }
+  ],
+  "clips": [
+    {
+      "name": "IdleBreath",
+      "duration": 3.6,
+      "channels": 3,
+      "interpolation": "LINEAR",
+      "in_place": true,
+      "neutral_at_t0": true
+    },
+    {
+      "name": "Walk",
+      "duration": 1.2,
+      "channels": 12,
+      "interpolation": "LINEAR",
+      "in_place": true,
+      "neutral_at_t0": true
+    }
+  ],
+  "actual_CPU_deformation_samples": [
+    {
+      "clip": "IdleBreath",
+      "time": 0,
+      "max_world_displacement": 1.544305317708145e-08,
+      "mean_world_displacement": 8.184030247835597e-10,
+      "world_bounds_min": [
+        -0.3544307351112366,
+        -0.4452480673789978,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3424137830734253,
+        0.47905898094177246,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737245459143143e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "IdleBreath",
+      "time": 0.9,
+      "max_world_displacement": 0.006993415847269228,
+      "mean_world_displacement": 0.002368264784563866,
+      "world_bounds_min": [
+        -0.3537128897374982,
+        -0.4452480673789978,
+        -0.21432169827947814
+      ],
+      "world_bounds_max": [
+        0.3428787127362486,
+        0.4812369661604344,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737245459143143e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "IdleBreath",
+      "time": 1.8,
+      "max_world_displacement": 1.544305317708145e-08,
+      "mean_world_displacement": 8.184030247996631e-10,
+      "world_bounds_min": [
+        -0.3544307351112366,
+        -0.4452480673789978,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3424137830734253,
+        0.47905898094177246,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737245459143143e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "IdleBreath",
+      "time": 2.7,
+      "max_world_displacement": 0.006974284510597974,
+      "mean_world_displacement": 0.0023680919184591895,
+      "world_bounds_min": [
+        -0.3551399697345362,
+        -0.4452480673789978,
+        -0.21326585987497626
+      ],
+      "world_bounds_max": [
+        0.34194004308438003,
+        0.4768071949039079,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737245459143143e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "IdleBreath",
+      "time": 3.6,
+      "max_world_displacement": 1.544305317708145e-08,
+      "mean_world_displacement": 8.184030248461435e-10,
+      "world_bounds_min": [
+        -0.3544307351112366,
+        -0.4452480673789978,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3424137830734253,
+        0.47905898094177246,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737245459143143e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "Walk",
+      "time": 0,
+      "max_world_displacement": 1.544305317708145e-08,
+      "mean_world_displacement": 8.184030247835597e-10,
+      "world_bounds_min": [
+        -0.3544307351112366,
+        -0.4452480673789978,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3424137830734253,
+        0.47905898094177246,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737245459143143e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "Walk",
+      "time": 0.3,
+      "max_world_displacement": 0.05941446077994552,
+      "mean_world_displacement": 0.010125984880264918,
+      "world_bounds_min": [
+        -0.3558971094718177,
+        -0.44929443880678427,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.34031115571951864,
+        0.4760955604434845,
+        0.2509587683443227
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            0.0036921567407838048,
+            -0.003513113061871142,
+            0.01638675292001067
+          ],
+          "min_Y": -0.44929443880678427
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            0.0037803380100371498,
+            -0.011100929483230288,
+            -0.0516606932204997
+          ],
+          "min_Y": -0.4483907006528355
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "Walk",
+      "time": 0.6,
+      "max_world_displacement": 1.5443053177483057e-08,
+      "mean_world_displacement": 8.184030252482556e-10,
+      "world_bounds_min": [
+        -0.3544307351112366,
+        -0.4452480673789978,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3424137830734253,
+        0.47905898094177246,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718299504006413e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.273728474246277e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "Walk",
+      "time": 0.8999999999999999,
+      "max_world_displacement": 0.05842469109559668,
+      "mean_world_displacement": 0.00996920909807623,
+      "world_bounds_min": [
+        -0.3529141873268848,
+        -0.4482134655195983,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3444662394446254,
+        0.4739375779646938,
+        0.2714405743796191
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -0.003770647695591026,
+            -0.008716996118762995,
+            -0.05146468359030869
+          ],
+          "min_Y": -0.4482134655195983
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -0.0036685490048503837,
+            -0.003048751283869411,
+            0.01642341501129192
+          ],
+          "min_Y": -0.44619759273637205
+        }
+      },
+      "finite": true
+    },
+    {
+      "clip": "Walk",
+      "time": 1.2,
+      "max_world_displacement": 1.5443053177282254e-08,
+      "mean_world_displacement": 8.184030255372159e-10,
+      "world_bounds_min": [
+        -0.3544307351112366,
+        -0.4452480673789978,
+        -0.21380719542503357
+      ],
+      "world_bounds_max": [
+        0.3424137830734253,
+        0.47905898094177246,
+        0.25528788566589355
+      ],
+      "foot_groups": {
+        "L": {
+          "count": 7620,
+          "mean_delta": [
+            -1.5318440584969886e-11,
+            -3.8665639551311436e-11,
+            7.718281135060504e-12
+          ],
+          "min_Y": -0.4452480673789978
+        },
+        "R": {
+          "count": 8235,
+          "mean_delta": [
+            -2.9712380906191324e-12,
+            2.6718711612081026e-11,
+            -3.2737244921968423e-12
+          ],
+          "min_Y": -0.4421502351760864
+        }
+      },
+      "finite": true
+    }
+  ],
+  "source_content_and_mtime_unchanged": true,
+  "head_cups_and_rear_locks_share_rigid_head_joint": true,
+  "suitcase_is_rigid_right_hand_accessory": true,
+  "visual_motion_accepted": false,
+  "specification": "https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#skins",
+  "limits": [
+    "Exact-position seam closure adds 218 shared-point vertices to the 99,032 hair mask, including 24 jacket-color and one cuff-color vertex; these extras are seam members, not an unambiguous hair classification.",
+    "Manual approximate anatomical landmarks and smooth spatial weighting on a merged chibi mesh; no retopology or production rig certification.",
+    "Walk is an in-place alternating limb step prototype, with no root travel, foot IK, collision or exact ground-contact guarantee.",
+    "Coat, hands, hair and suitcase originate in merged geometry; limited angles reduce but do not certify against intersections.",
+    "Original static face and baked lighting remain; no facial rig or dynamic hair simulation."
+  ]
+}

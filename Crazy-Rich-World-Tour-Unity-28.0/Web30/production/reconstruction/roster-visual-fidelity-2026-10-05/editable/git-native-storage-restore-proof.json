@@ -1,0 +1,14 @@
+{
+  "schema": "crwt.native_archive_restore.v1",
+  "passed": true,
+  "output_archive": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\git-native-parts-test\\CRWT-fidelity-editable-roster.zip",
+  "sha256": "966c135bd63115bbec746c21d30ef6f1ff33d4e6bf5d195c4975da57d470199a",
+  "bytes": 65915347,
+  "zip_crc_passed": true,
+  "zip_entries": 31,
+  "storage_receipt_sha256": "b6542bdf313828e89f375635d14e81a244972a5081fcef26a60e8fa4ac3ca171",
+  "part_count": 2,
+  "source_parts_and_receipt_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false
+}

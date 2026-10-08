@@ -1,0 +1,15 @@
+ALEXIA HAIR SCULPT — NATIVE PORTABLE
+Native hanya berisi Alexia, bukan workspace seluruh roster. Buka
+Alexia-hair-sculpt-review.blend langsung untuk edit. Tidak memerlukan cloud.
+Jumlah image FILE aktif dibaca dari native proof, dapat nol untuk vertex colors.
+Image sumber tidak aktif tetap tersimpan persis di GLB.
+
+Proof native membandingkan representasi BYTE_COLOR importer Blender;
+float COLOR_0 GLB tidak diubah. Reopen tidak membuktikan presisi visual sempurna.
+
+Dari root folder review/hasil ekstrak, dengan Blender 5.2.2:
+blender --background --factory-startup --disable-autoexec --python-exit-code 3 --python tools/reopen_alexia_portable.py -- --blend editable/Alexia-hair-sculpt-review.blend --manifest alexia-editable-manifest.json --out ../alexia-hair-sculpt-native-reopen-new.json
+
+Output receipt harus baru dan berada di luar folder ekstrak yang diperiksa
+verifier, agar inventory paket tetap murni. Helper membaca GLB manifest-relative
+dan tidak memakai path source absolut historis di build proof.

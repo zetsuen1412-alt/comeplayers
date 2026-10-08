@@ -1,0 +1,599 @@
+{
+  "schema": "crwt.independent_roster_visual_review.v1",
+  "reviewed_utc": "2026-10-04T11:54:23.458410+00:00",
+  "reviewer": "independent read-only subagent",
+  "initial_scope_character_count": 8,
+  "supplemental_alexia_count": 1,
+  "total_reviewed_count": 9,
+  "automatic_approvals": false,
+  "gpu_generation_calls_by_reviewer": 0,
+  "source_mesh_texture_mutations_by_reviewer": 0,
+  "summary_id": "Semua delapan kandidat utama mempertahankan identitas/pose front yang terbaca, tanpa pertukaran identitas atau mirror yang terlihat. Ini masih basis rekonstruksi, belum cocok persis/siap rig. Alexia V2 baru ditinjau tambahan melalui MGL.",
+  "renderer_diagnosis_id": [
+    "Seluruh sembilan GLB yang tersedia mempunyai atribut NORMAL eksplisit. Hipotesis missing NORMAL ditolak.",
+    "Grid/banding Rindi ada langsung di embedded baseColor, yang diperiksa sebagai piksel atlas asli. Normal map-nya juga mengandung facet per segitiga. MGL tidak memakai normal map tetapi tetap menampilkan grid; material normal saja tidak dapat menghapus cacat albedo.",
+    "Blender menunjukkan facet/bercak specular jauh lebih kuat daripada MGL. Pencahayaan berbeda, sehingga perubahan brightness/saturation saja tidak merupakan kegagalan identitas. Kontribusi normal map, albedo dan bentuk harus dipisahkan lewat render diagnostik.",
+    "Kairo raw-generation lama memakai -Z front dan mempunyai label front/back lama yang terbalik. Review ini memakai GLB/Blender normalized +Z dan memeriksa front yang benar."
+  ],
+  "exact_embedded_texture_evidence": [
+    {
+      "path": "visual-qa-assets\\rindi-baseColor-embedded.png",
+      "sha256": "f0b20657ef22bf7cb5eb7b33fc466eefd36d4b04a7488cf3bc542e3bbd2eed9e",
+      "bytes": 390876
+    },
+    {
+      "path": "visual-qa-assets\\rindi-normal-embedded.png",
+      "sha256": "7c8cb4626938baa3dbedfa3c40280d7a68abc835aa692b71978ef4a96da4b70f",
+      "bytes": 441568
+    }
+  ],
+  "prioritized_next_work_id": [
+    "Buat salinan diagnostik material: normal-strength 0, albedo-emission, dan smooth-clay tanpa tekstur. Bandingkan front/back dengan baseline sebelum mengubah geometri.",
+    "Bersihkan albedo belakang berpola kotak; pertahankan mata, wajah, warna kostum dan aksesori front. Pengurangan normal strength hanya menangani sebagian tampilan.",
+    "Tinjau fragmen oranye Mochi dan kartu Nox secara semantik. Kartu melayang Nox disengaja oleh referensi, sehingga aturan hapus-island-kecil tidak tepat.",
+    "Perbaiki detail tangan, grip dan aksesori per karakter pada salinan; lakukan review siluet front dan profil sebelum retopologi/rig.",
+    "Validasi permukaan belakang dengan referensi yang disetujui. Kecocokan front tunggal tidak membuktikan bagian tersembunyi sesuai desain."
+  ],
+  "characters": [
+    {
+      "id": "rindi",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\rindi-canonical-crop.png",
+        "sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6"
+      },
+      "normalized_glb": {
+        "path": "normalized\\rindi\\rindi-reference-candidate.glb",
+        "sha256": "8cac7f3db409dbfd3581b8118817586c696da4c1234c7c244ee3516e88afb3ed",
+        "bytes": 1737152
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\rindi\\rindi-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "db4de2d97d3db5c8eae7902367a1f8e5e65f3f6ef072b24aac864975064090e3",
+        "bytes": 1098090
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\rindi\\rindi-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "f1da6bdc3f98486988a32ab6348be4d226e09556ecb4db9585bcbfbbec159cae",
+        "bytes": 6232
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 24376,
+        "vertices": 19068
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut pink dua ikatan/pita merah, mata berkedip, jaket putih-pink, rok gelap, tas pink dan pose satu kaki terangkat terbaca. Arah tangan terbuka serta tas sesuai referensi.",
+      "defects_id": [
+        "Pada belakang dan profil, rambut dan jaket memuat pola kotak/garis silang besar. Pola itu terlihat di MGL, Blender, dan piksel atlas baseColor asli; bukan gangguan pratinjau semata.",
+        "Tangan yang mengarah ke depan menjadi gumpalan jari pendek; sela jari dan bentuk telapak tidak setajam referensi.",
+        "Boneka kelinci kecil di dada/lengan, tepi tas, tali tas, dan ujung rambut melebur menjadi volume lunak pada profil.",
+        "Render Blender menunjukkan facet/bercak terang pada wajah, pita, lengan dan rambut; normal map asli mempunyai perubahan warna per segitiga yang kuat. Penyebab kontribusi material versus bentuk harus diisolasi sebelum mengubah mesh."
+      ],
+      "next_fixes_id": [
+        "Uji normal-strength 0 pada salinan render untuk mengukur facet; perbaiki albedo belakang yang bergaris tanpa menyentuh tekstur mata dan muka.",
+        "Rapikan jari depan, boneka kelinci, batas tas/tali, dan kelompok ujung rambut pada salinan lokal; pertahankan pose dan pita."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\rindi\\actual-mesh-renders\\front.png",
+          "sha256": "6deb57e68532ef1655affb11158bfde1b806af29124777017c959a034586f5ec",
+          "bytes": 552591
+        },
+        {
+          "path": "normalized\\rindi\\actual-mesh-renders\\back.png",
+          "sha256": "bdfd7b71df4573d2f58a5b7448696f13a036051458031736285bae6771fd034b",
+          "bytes": 517659
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\rindi\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "bc360b63688472368850ef046890961cb71305bd46ce54326800758f79824515",
+        "bytes": 1348
+      }
+    },
+    {
+      "id": "kairo",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\kairo-canonical-crop.png",
+        "sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8"
+      },
+      "normalized_glb": {
+        "path": "normalized\\kairo\\kairo-reference-candidate.glb",
+        "sha256": "dfadbc4590d9893cb4bf2a3138edd63322cef8a78f562b1128eb751c486c3289",
+        "bytes": 1128240
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\kairo\\kairo-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "ea790c99ad3ce71aaa04ad521bc3a42f9ac754eebe4cf1c62e5c789031121998",
+        "bytes": 1037845
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\kairo\\kairo-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "db0c1b1b8202678ab063cdd95165a8da3f07d10be9bbda4e5d4531f8020f4985",
+        "bytes": 6233
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 21676,
+        "vertices": 17420
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut biru, goggles, jaket putih-biru, celana pendek, sarung tangan mengepal, pose melompat dan koper biru kecil sesuai sumber; berbeda jelas dari Zeno yang memakai syal kuning.",
+      "defects_id": [
+        "Belakang kepala, hoodie dan celana memiliki banding/kotak dan detail yang kabur; tampak pada kedua renderer.",
+        "Goggles dan tonjolan rambut membulat; pemisahan frame, lensa, poni dan telinga tidak setajam gambar acuan.",
+        "Detail jari sarung tangan, tali sepatu, saku/tas dan handle koper melebur. Koper bawah dan sepatu terlihat saling berdekatan/menumpang; hubungan objek perlu inspeksi mesh sebelum rig.",
+        "Facet normal/specular pada wajah, rambut, jaket dan sepatu sangat tampak di Blender. Geometri tersembunyi dibuat dari satu gambar, belum mempunyai acuan belakang yang disetujui."
+      ],
+      "next_fixes_id": [
+        "Pisahkan diagnosis normal-map dari albedo belakang, kemudian rapikan albedo hoodie/rambut yang berpola kotak.",
+        "Perjelas goggles, sarung tangan, sepatu dan handle koper; periksa apakah koper perlu dipisahkan sebagai objek untuk rig tanpa mengubah pose tampak depan."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\kairo\\actual-mesh-renders\\front.png",
+          "sha256": "355ea3cb21bcd59b38313a5ac715c26c8316440fd0f23b7b50ac6505a0df200f",
+          "bytes": 542022
+        },
+        {
+          "path": "normalized\\kairo\\actual-mesh-renders\\back.png",
+          "sha256": "410c041ae89f88594e35012f0e2eb6387863c89655c155af6a8ff8e2baa48226",
+          "bytes": 504694
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\kairo\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "cf17cc43f133ed60239c664a247b7b7b7906efae0c3187306343f4c7f082c95c",
+        "bytes": 1346
+      }
+    },
+    {
+      "id": "atlas",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\atlas-canonical-crop.png",
+        "sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f"
+      },
+      "normalized_glb": {
+        "path": "normalized\\atlas\\atlas-reference-candidate.glb",
+        "sha256": "8a8f2d188921f1ba70b297300ea317ac47092b9e641b0413fbf7510633a0c632",
+        "bytes": 2175720
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\atlas\\atlas-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "cb91c5c19f2b1dd5405a55eadf99afc51ad3f8dcc6b6aafdacfc04d2bbfee625",
+        "bytes": 1570291
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\atlas\\atlas-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "034efe12dea6d5b1b2b0f75b3337946e8c5c5e9ce6b19b7b4ef564819462a5b3",
+        "bytes": 6231
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 35556,
+        "vertices": 26934
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut cokelat, mata tersenyum, pakaian oranye, sarung tangan gelap, peta gulung, ransel, gulungan hijau dan koper biru terbaca pada sisi yang sama dengan referensi.",
+      "defects_id": [
+        "Bagian belakang ransel membentuk blok besar dengan pola kotak; batas kantong, ikatan dan kompartemen belum rapi.",
+        "Peta gulung sangat tebal dan tulisan/garis petanya kabur. Tangan yang memberi gestur serta pegangan peta berbentuk gumpalan.",
+        "Ujung rambut, lipatan celana, sepatu dan detail kait koper kehilangan ketajaman sumber.",
+        "Blender memperlihatkan facet/bercak specular kuat pada wajah, rambut, peta, baju dan ransel. Tampak belakang adalah hasil inferensi; isi dan susunan ransel belakang belum divalidasi artistik."
+      ],
+      "next_fixes_id": [
+        "Perbaiki albedo ransel belakang dan uji pengurangan normal strength terpisah dari perubahan bentuk.",
+        "Bangun peta gulung dan tali/kantong ransel lebih jelas pada salinan lokal; pertahankan gulungan hijau, koper dan gestur utama."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\atlas\\actual-mesh-renders\\front.png",
+          "sha256": "01a81e9f3be9b1456f1b862aeb66d630d3e0a32723838b62820dde53280a9b37",
+          "bytes": 633159
+        },
+        {
+          "path": "normalized\\atlas\\actual-mesh-renders\\back.png",
+          "sha256": "3cc3945c2211afc5136a31c9f430632d2e57636dcc8aa89e4c0d17cd24faf767",
+          "bytes": 571962
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\atlas\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "c0d08ca59e5aa8f13dbbcf3ac784efc5bac925d095a1d821a787b84100238a76",
+        "bytes": 1349
+      }
+    },
+    {
+      "id": "luna",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\luna-canonical-crop.png",
+        "sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8"
+      },
+      "normalized_glb": {
+        "path": "normalized\\luna\\luna-reference-candidate.glb",
+        "sha256": "faa4fceba0bc4db8b6c86cee2bb5638fe73f54c2ea321e28e63a64c02a01e9f2",
+        "bytes": 2198368
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\luna\\luna-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "be0625676d140e6fc32beab023d04d451e0808ab9f958498e7ef406dc1cb4454",
+        "bytes": 1255522
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\luna\\luna-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "424bd7e564688b63536a93c54e707a356f0ed2f9d4035df58c9aaac17e2b8a47",
+        "bytes": 6229
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 33620,
+        "vertices": 28130
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut dan kostum ungu, topi penyihir dengan bintang, mantel, buku serta tongkat lingkaran/bola biru dan bulan sabit emas terbaca; tangan terbuka dan tongkat tidak tertukar sisi.",
+      "defects_id": [
+        "Rambut belakang menjadi tirai volume padat yang menyatu secara visual dengan mantel; untaian pada profil kurang terpisah.",
+        "Permukaan belakang rambut/mantel memiliki pola silang/kotak. Facet muncul pada rambut dan tepi topi di Blender.",
+        "Lingkaran tongkat, bagian bulan sabit, bintang topi, jari terbuka dan tepi halaman buku berubah menjadi bentuk tidak rata/lunak pada profil.",
+        "Bentuk belakang topi, mantel dan susunan rambut belum mempunyai referensi belakang dalam input ini; tidak dapat disetujui hanya dari kecocokan front."
+      ],
+      "next_fixes_id": [
+        "Pisahkan secara lokal rambut dan mantel serta rapikan untaian dengan acuan front; volume belakang tetap perlu review artistik.",
+        "Perjelas lingkaran tongkat dan bulan sabit memakai bentuk keras yang bersih; bersihkan albedo belakang, lalu uji normal strength sebelum perubahan mesh besar."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\luna\\actual-mesh-renders\\front.png",
+          "sha256": "6fabd5d1b1fd3d21fcfde06a8f1fcab65dd64a476014fedf993878a471b4b5b6",
+          "bytes": 611044
+        },
+        {
+          "path": "normalized\\luna\\actual-mesh-renders\\back.png",
+          "sha256": "88855413ec06f45345e3730106088dd40ad057efaa21468356cf1deeff0d6494",
+          "bytes": 536659
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\luna\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "599f91526808b5f0d40141abc61b1e735f7457c653b169323334e5333e0186a8",
+        "bytes": 1347
+      }
+    },
+    {
+      "id": "yuna",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\yuna-canonical-crop.png",
+        "sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4"
+      },
+      "normalized_glb": {
+        "path": "normalized\\yuna\\yuna-reference-candidate.glb",
+        "sha256": "bbd1adc18d9312c085031aed14734744a3094c90eb6156d2a35b77eaff419b83",
+        "bytes": 1807316
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\yuna\\yuna-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "1eb0639727d4597622500db0dc127bbcf9ea0785652294360cc750052e910864",
+        "bytes": 1206864
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\yuna\\yuna-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "cafe8c89a84ccdd708744720ea7bc1fcb29a913607d10e4483ed3847f3a21be7",
+        "bytes": 6233
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 25716,
+        "vertices": 21309
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut oranye, beret biru, mata cokelat, overall biru bercak cat, kuas pelangi, palet dan tas pinggang sesuai sumber serta sisi tangan yang sama.",
+      "defects_id": [
+        "Beret, rambut belakang, baju belakang dan tas memiliki banding/kotak serta warna kabur. Ini juga tampak pada Blender.",
+        "Palet sangat tebal pada profil; lubang palet serta genggaman tangan belum terbaca sebagai bentuk bersih. Kuas dan jari menyatu secara visual.",
+        "Lengan baju dan overall bagian belakang tampak sebagai volume yang melebur; batas strap, tas dan lipatan lutut tidak jelas.",
+        "Render Blender memperlihatkan facet/bercak terang pada wajah, beret, rambut dan baju. Penilaian bentuk dan tekstur belakang masih terbatas oleh input satu front."
+      ],
+      "next_fixes_id": [
+        "Rapikan palet tipis, lubang palet, jari pegangan dan kuas pada salinan lokal tanpa mengubah gestur.",
+        "Perbaiki albedo beret/rambut/overall belakang, perjelas strap dan tas, dan uji normal map terpisah."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\yuna\\actual-mesh-renders\\front.png",
+          "sha256": "cbef873160d03bdf4f3e807750a583fd9734113fd39459607f3e8f2645146bff",
+          "bytes": 572269
+        },
+        {
+          "path": "normalized\\yuna\\actual-mesh-renders\\back.png",
+          "sha256": "a74b66e3f08a38f955ff88dcc1958f79ece67519a15a9999d972e4d76e2b2499",
+          "bytes": 534195
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\yuna\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "1da6b1d4f1097c2a94e8916521d04a6fa0b9c764962f729d46fa6cc3730a33d5",
+        "bytes": 1348
+      }
+    },
+    {
+      "id": "nox",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\nox-canonical-crop.png",
+        "sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1"
+      },
+      "normalized_glb": {
+        "path": "normalized\\nox\\nox-reference-candidate.glb",
+        "sha256": "82ac3e1a76565dd149947dbe27bbfb562cf0079b8aaec6dba711a32a11389f44",
+        "bytes": 1806884
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\nox\\nox-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "bcc498a28e80d9f8edfcb458f6da61830a8e12953e5ba7ce45ae8b0a07123867",
+        "bytes": 956783
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\nox\\nox-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "ac2201515bc4e788ebb335d79ff7e2ba47dca88b91e770b4aea80edf596ca814",
+        "bytes": 6230
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 24412,
+        "vertices": 20899
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut ungu, topi hitam-pita merah, mata berkedip, jas hitam-merah, kelinci putih di tangan dan kartu melayang terbaca; kelinci dan gestur sesuai sisi referensi.",
+      "defects_id": [
+        "Kartu yang terlihat di kanan dekat pinggul pada referensi tidak terlihat sebagai kartu lengkap pada front kandidat; kartu lain menjadi shard tipis pada profil dan punggung kartu tampak hitam di Blender.",
+        "Kelinci, jari penyangga dan mini-topinya melebur/lunak. Detail muka kelinci tidak setajam referensi.",
+        "Belakang jas dan rambut berpola kotak; ujung coat-tail berubah menjadi tepi tipis tidak rata.",
+        "Facet/specular kuat terlihat pada topi, rambut, wajah dan jas. Kartu merupakan bagian desain yang memang melayang; keterpisahannya tidak otomatis merupakan sampah mesh."
+      ],
+      "next_fixes_id": [
+        "Pulihkan jumlah/posisi/siluet kartu menurut gambar acuan, dengan sisi belakang kartu yang masuk akal; jangan hapus semua komponen kecil karena ukurannya.",
+        "Rapikan kelinci dan jari pegangan, tepi jas, serta albedo belakang; uji normal-strength terpisah."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\nox\\actual-mesh-renders\\front.png",
+          "sha256": "558b9981a72c4ae93338a6dccdf719df73184306f34632d2774c8883a191602a",
+          "bytes": 557093
+        },
+        {
+          "path": "normalized\\nox\\actual-mesh-renders\\back.png",
+          "sha256": "652521cd03a9984f00704e5500aa275d8ce9a307215bfba27bd90d9fd75d0eb9",
+          "bytes": 526252
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\nox\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "892dc470261d3f398c856231b24658c3e963a91fd267329d96c89fb83b631d58",
+        "bytes": 1345
+      }
+    },
+    {
+      "id": "zeno",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\zeno-canonical-crop.png",
+        "sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb"
+      },
+      "normalized_glb": {
+        "path": "normalized\\zeno\\zeno-reference-candidate.glb",
+        "sha256": "96c58e7e048a4edd8d42526061a06e51fdb323572ca00ae51af2bb18aece827c",
+        "bytes": 1883884
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\zeno\\zeno-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "9c74e13aa55910ab919058c03098b1a0581fb9c2029f2650b9a36dbffbfd0569",
+        "bytes": 1166277
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\zeno\\zeno-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "6aa601da7af94d2e9b1529637d8f483999704d297d9c5498eb6744894926b262",
+        "bytes": 6234
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 27156,
+        "vertices": 21607
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Rambut mint, goggles, jaket cokelat, celana putih, syal kuning dan satu tangan menyentuh goggles sesuai sumber. Pose/syal membedakannya dari Kairo; tidak terlihat pertukaran identitas.",
+      "defects_id": [
+        "Belakang kepala, jaket, celana dan koper memiliki banding/kotak serta detail yang kabur.",
+        "Jari tangan pada goggles menyatu dengan frame; tepi lensa, strap goggles dan batas poni kurang tajam.",
+        "Ujung syal dan rumbai menjadi tepi lembaran yang tidak rapi; detail strap, sepatu dan koper tersembunyi melebur.",
+        "Blender memperlihatkan facet/specular kuat pada muka, rambut, syal dan jaket. Detail belakang tubuh/koper dihasilkan dari inferensi."
+      ],
+      "next_fixes_id": [
+        "Perjelas jari yang menyentuh goggles, bentuk frame/lensa dan rumbai syal; pertahankan sisi dan gestur.",
+        "Bersihkan albedo belakang jaket/rambut/koper dan uji normal map sebelum mengubah volume tubuh."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\zeno\\actual-mesh-renders\\front.png",
+          "sha256": "ca4d158cf33f4cae2a084f942b69d1b3ea7d615c02d66730b4812846f156357c",
+          "bytes": 584371
+        },
+        {
+          "path": "normalized\\zeno\\actual-mesh-renders\\back.png",
+          "sha256": "4892985622b8bad136b803996a96f083eed234a675f5ddca823163cf48f4a25a",
+          "bytes": 537471
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\zeno\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "3253744f5aa992e00e42f8958dc4d0c72555d177c42afe3e754d060b7a2ea4be",
+        "bytes": 1345
+      }
+    },
+    {
+      "id": "mochi",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\inputs\\mochi-canonical-crop.png",
+        "sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b"
+      },
+      "normalized_glb": {
+        "path": "normalized\\mochi\\mochi-reference-candidate.glb",
+        "sha256": "19cc6a8c6a8ff08518ab3bc2f29de1a5f77056daa00bf400400837285e2b372b",
+        "bytes": 1422928
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\mochi\\mochi-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "10f4294f925afcfd2c8ec0aad6286c78266dfb0cc980a4ce7eb522bd8aa4b913",
+        "bytes": 1003504
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\mochi\\mochi-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "2c686d90e2843ac35ca265f3b0c564f5061950f373296154ed397935c4dc14a2",
+        "bytes": 6230
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 23044,
+        "vertices": 14794
+      },
+      "new_rig_or_animation_verified": false,
+      "identity_preserved_id": "Kucing oranye-putih, topi gelap, mata amber, paw terangkat dengan bantalan pink, tas cokelat dan ekor besar terlihat sesuai sumber; orientasi paw dan tas sesuai front.",
+      "defects_id": [
+        "Fragmen oranye/bulu berbentuk bulat melayang terpisah di kanan tubuh pada front; pada back fragmen itu mempunyai bagian gelap/hitam. Terlihat pada MGL dan Blender, sehingga bukan label kamera atau gangguan satu renderer.",
+        "Bagian bulu/ekor di kanan acuan tampak tertutup/menempel di belakang badan, sedangkan kandidat memberi celah udara jelas. Makna dan sambungannya perlu review, tanpa penghapusan otomatis.",
+        "Tepi bulu pipi, jari kecil di atas tas, gesper dan emblem topi tidak setajam sumber; belakang badan menjadi volume oranye yang relatif rata tanpa detail bulu.",
+        "Blender memberi bercak putih/specular sangat keras pada topi, telinga, tubuh dan tas walaupun MGL lebih bersih; ini memerlukan diagnosis material/normal, bukan kesimpulan bahwa semua bentuk badan salah."
+      ],
+      "next_fixes_id": [
+        "Inspeksi komponen fragmen oranye dan rekonstruksi sambungan/posisinya berdasarkan acuan; jangan membuat ekor baru atau menghapusnya hanya karena kecil.",
+        "Uji normal strength dan roughness pada salinan material, lalu rapikan bulu pipi, paw, gesper tas dan emblem topi."
+      ],
+      "blender_front_back_reviewed": true,
+      "blender_views": [
+        {
+          "path": "normalized\\mochi\\actual-mesh-renders\\front.png",
+          "sha256": "84d4eb8bc75c0c3812590899d4586400d25897bdc989fa413d75511326138593",
+          "bytes": 558315
+        },
+        {
+          "path": "normalized\\mochi\\actual-mesh-renders\\back.png",
+          "sha256": "6275435a41015154b6dd9dd52bade5d8d2c5650afd9e5fcb8c42f60ae01ba1ca",
+          "bytes": 501305
+        }
+      ],
+      "blender_render_evidence": {
+        "path": "normalized\\mochi\\actual-mesh-renders\\render-evidence.json",
+        "sha256": "afdef54e5ee6ac7b46d0590aa2c2ac58035fc6325dc8ac911281e5dadc82c2df",
+        "bytes": 1346
+      }
+    },
+    {
+      "id": "alexia",
+      "status": "UNAPPROVED_REFERENCE_MATCHED_RECONSTRUCTION_BASE",
+      "identity_recognizable": true,
+      "identity_swap_observed": false,
+      "horizontal_identity_flip_observed": false,
+      "exact_design_match_approved": false,
+      "game_ready_approved": false,
+      "source_crop": {
+        "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\free-3d-preflight\\alexia-reconviagen-once\\front.png",
+        "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69"
+      },
+      "normalized_glb": {
+        "path": "normalized\\alexia\\alexia-reference-candidate.glb",
+        "sha256": "f23928f8b1127e9158b37d16e4e93a7772f36063b46a6127baf597410e167260",
+        "bytes": 1942444
+      },
+      "front_convention": "normalized +Z front; reviewed labels correspond to canonical front",
+      "mgl_contact_sheet": {
+        "path": "normalized\\alexia\\alexia-reference-candidate-textured-review\\albedo-contact-sheet.png",
+        "sha256": "2f66e73616869d02ab45714af0e4e21970debfc8edb735fd39062cb2b7e05617",
+        "bytes": 1105712
+      },
+      "mgl_render_evidence": {
+        "path": "normalized\\alexia\\alexia-reference-candidate-textured-review\\render-evidence.json",
+        "sha256": "20008ef646f91ac8c494822049b744c58a33e8e17676fb84cc9881f21635541c",
+        "bytes": 6235
+      },
+      "mgl_limit": "Albedo/simple lighting; normalTexture/PBR specular not evaluated by this preview.",
+      "geometry_counts_from_preview": {
+        "faces": 27512,
+        "vertices": 23425
+      },
+      "new_rig_or_animation_verified": false,
+      "supplemental_after_initial_eight": true,
+      "identity_preserved_id": "Kandidat baru memakai approved Alexia V2: rambut lavender panjang, headphone hitam-emas, mata biru, jaket hitam-emas, celana pendek, sepatu putih-emas dan koper navy berbintang. Pose kedua tangan turun sesuai V2, bukan pose hand-on-head dari lineup lama.",
+      "defects_id": [
+        "Bagian belakang rambut menjadi tirai padat dengan pola kotak/gelombang; tepi untaian dan rambut/headphone terlihat lunak pada profil.",
+        "Jari, genggaman dan handle koper belum terpisah jelas; detail tali sepatu dan ornamen emas kabur.",
+        "Tampak samping tubuh/jaket dan koper memiliki banding. Bintang koper sudah terbaca, tetapi bentuk roda dan tepi koper belum setajam V2.",
+        "Saat review ini selesai, hanya MGL albedo kandidat Alexia yang ditinjau; penilaian material penuh menunggu render Blender. Back V2 belum digunakan oleh SF3D single-front ini."
+      ],
+      "next_fixes_id": [
+        "Pertahankan kandidat V2 terpisah dari Alexia V11; bandingkan rambut belakang dengan panel back V2 sebelum revisi volume.",
+        "Perjelas tangan/handle koper, roda, headphone, tepi rambut dan tali sepatu; lakukan diagnosis material/normal ketika render Blender tersedia."
+      ],
+      "blender_front_back_reviewed": false
+    }
+  ]
+}

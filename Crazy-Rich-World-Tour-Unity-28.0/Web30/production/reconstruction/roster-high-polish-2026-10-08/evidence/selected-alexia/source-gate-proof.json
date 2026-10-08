@@ -1,0 +1,193 @@
+{
+  "schema": "crwt.alexia_high_polish_source_gate.v3_rear_coat_three_exact_deltas",
+  "passed": true,
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "descriptor_sha256": "6156bd912385c2e9bc6f576d93219e171299c0ab14fffb8f3b2b666f181110d8",
+  "actual_delta_scopes": {
+    "hair": {
+      "original_e88_BIN_and_arrays_exact": true,
+      "all_nonhair_primitives_materials_rig_clips_images_exact": true,
+      "authored_closed_hair": {
+        "vertices": 118674,
+        "triangles": 237280,
+        "exact_position_welded_vertices": 118674,
+        "face_normal_disagreements": 0,
+        "closed_exact_position_edges_two_and_opposed": true,
+        "signed_volume": 0.03766043249901236,
+        "normalized_valid_weights": true
+      }
+    },
+    "temple": {
+      "original_source_BIN_arrays_rig_clips_other_primitives_materials_exact": true,
+      "source_core_triangles": 68277,
+      "routed_original_triangles": 2671,
+      "compact_original_vertices": 1617,
+      "original_triangle_union_membership_order_winding_exact": true,
+      "compact_POSITION_NORMAL_JOINTS_WEIGHTS_bits_exact": true,
+      "upper_lateral_non_skin_Head1_mask_and_NPZ_exact": true,
+      "textureless_PBR_hair_median_material_exact": true,
+      "open_inherited_surface_not_closed_new_volume": true,
+      "geometric_source_triangles_added_or_deleted": 0
+    },
+    "shirt": {
+      "original_whole_BIN_prefix_exact": true,
+      "original_accessor_bufferView_prefix_exact": true,
+      "original_core_attributes_and_other_primitives_exact": true,
+      "other_meshes_and_nonhair_materials_exact": true,
+      "nodes_skins_IBM_clips_images_default_scene_exact": true,
+      "removed_original_core_triangles": 20271,
+      "removed_protected_face_cup_suitcase_or_Hand_triangles": 0,
+      "Hand_weight_protection_threshold": 0.25,
+      "allowed_chest_vertices": 27265,
+      "allowed_cuff_vertices": 10753,
+      "allowed_rear_litter_vertices": 60785,
+      "allowed_rear_coat_vertices": 4397,
+      "hair": {
+        "vertices": 118674,
+        "triangles": 237280,
+        "exact_position_welded_vertices": 118674,
+        "face_normal_disagreements": 0,
+        "closed_exact_position_edges_two_and_opposed": true,
+        "signed_volume": 0.03766043249901236,
+        "normalized_valid_weights": true
+      },
+      "new_tailored_primitives": [
+        {
+          "vertices": 2050,
+          "triangles": 4096,
+          "exact_position_welded_vertices": 2050,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 0.003813191887691038,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 36,
+          "triangles": 12,
+          "exact_position_welded_vertices": 8,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 6.895997008363209e-06,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 38,
+          "triangles": 72,
+          "exact_position_welded_vertices": 38,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 1.9952137410245272e-07,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 36,
+          "triangles": 12,
+          "exact_position_welded_vertices": 8,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 6.89599769009115e-06,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 38,
+          "triangles": 72,
+          "exact_position_welded_vertices": 38,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 2.132639385278778e-07,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 66,
+          "triangles": 128,
+          "exact_position_welded_vertices": 66,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 7.052963248505318e-07,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 66,
+          "triangles": 128,
+          "exact_position_welded_vertices": 66,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 7.007610039586551e-07,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 266,
+          "triangles": 528,
+          "exact_position_welded_vertices": 266,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 5.470824062305714e-07,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 362,
+          "triangles": 720,
+          "exact_position_welded_vertices": 362,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 3.580525336787558e-07,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 114,
+          "triangles": 224,
+          "exact_position_welded_vertices": 114,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 3.981563395930055e-08,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 114,
+          "triangles": 224,
+          "exact_position_welded_vertices": 114,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 3.9815640757488305e-08,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 114,
+          "triangles": 224,
+          "exact_position_welded_vertices": 114,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 3.9815657604292664e-08,
+          "normalized_valid_weights": true
+        },
+        {
+          "vertices": 114,
+          "triangles": 224,
+          "exact_position_welded_vertices": 114,
+          "face_normal_disagreements": 0,
+          "closed_exact_position_edges_two_and_opposed": true,
+          "signed_volume": 3.981565454882182e-08,
+          "normalized_valid_weights": true
+        }
+      ]
+    }
+  },
+  "shirt_mask_npz_sha256": "e8c175666daaad9fb253e8004431219e7f47fdeaf26b640d89885b9bf7a67710",
+  "temple_mask_npz_sha256": "4e82dd5bda947eabc754a7e4938d12f7d13aab7aabb72996ba6958ce9196189a",
+  "independent_actual_masks_exact": true,
+  "actual_three_deltas_byte_replayed": true,
+  "actual_delta_steps": 3,
+  "old_nine_stage_chain_replayed": false,
+  "delta_reproduction_proof_sha256": "7c13ff8308d9e9a6441f0aef8d33d9d0863755703b30db877e593204cd2a5e18",
+  "actual_tested_runtime": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "platform": "win32"
+  },
+  "all_input_SHA_mtime_unchanged": true,
+  "runtime_limits": "This receipt records only the actual tested runtime; other runtimes require their own exact SHA checks. No hosted CI success inferred.",
+  "visual_accepted": false,
+  "approved": false,
+  "gameIntegrated": false
+}

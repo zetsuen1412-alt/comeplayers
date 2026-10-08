@@ -1,0 +1,35 @@
+CRAZY RICH WORLD TOUR — REVIEW FIDELITY REFERENSI, 05 OKTOBER 2026
+
+Buka BUKA-REVIEW-MODEL.html di Chrome/Edge dengan WebGL2 aktif. Seluruh
+model, referensi, vendor dan penampil embedded; tidak membutuhkan internet.
+Model bisa diputar. Bandingkan dengan gambar referensi 2D pada tombol Bandingkan.
+
+Delapan kandidat berubah: Alexia mengikuti kandidat final yang dipilih,
+tujuh model lain memakai warna tekstur asli tanpa lighting kedua. Rindi dan
+Pip tetap memakai GLB pass2; Rindi menjaga shading volume tangan, Pip PBR
+serta 13 joints/enam clip. Warna lebih dekat bukan bukti geometri sempurna.
+Sisi belakang, tekstur blur dan bentuk yang tidak terlihat masih perlu review.
+
+Folder renders memuat sepuluh gambar depan dari GLB aktual ditambah profil
+kiri/kanan, belakang dan 3/4 Alexia terpilih. Proof asal model lain dapat
+mencatat sudut historis yang tidak ikut tahap awal ini. Bukti tambahan root
+dapat disertakan setelah staging, dengan receipt/hashes yang terpisah.
+Pencahayaan viewer baru lebih lembut untuk aksesori solid; PNG diagnostik
+sebagian memakai studio lama dan bukan klaim identik dengan lighting viewer.
+
+Checkpoint lama tetap utuh. Status publikasi Git, branch/commit dan CI untuk
+checkpoint ini dicatat pada receipt publikasi dan guide restore final yang
+ditambahkan setelah staging. Model belum approved dan belum terintegrasi
+runtime game. Paket model tidak memuat penuh Unity/game/save/backend.
+
+FULL REPO GIT PADA KOMPUTER LAIN:
+Repo sumber: https://github.com/zetsuen1412-alt/comeplayers.git
+Gunakan snapshot_branch/commit dari evidence/github-publication-receipt.json
+untuk checkout review ini setelah publikasi terverifikasi. Guide baseline
+historis disertakan sebagai evidence/pass2-baseline-full-repo-guide.txt;
+branch lama di guide itu memulihkan pass2, bukan review fidelity baru ini.
+
+Editable Blender dipaketkan oleh root terpisah bila sudah siap. Jangan menganggap
+native lama sebagai source identik kandidat baru; pakai proof/hash native baru.
+Rebuild HTML ke nama fresh: python viewer/build_offline_gallery.py --manifest
+review-manifest.json --output BUKA-REVIEW-MODEL-REBUILD.html

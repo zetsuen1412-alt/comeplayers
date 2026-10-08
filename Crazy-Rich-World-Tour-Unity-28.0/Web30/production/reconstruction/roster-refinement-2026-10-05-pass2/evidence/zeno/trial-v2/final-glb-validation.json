@@ -1,0 +1,16 @@
+{
+  "faces": 33300,
+  "vertices": 24679,
+  "meshes": 3,
+  "mesh_definitions": 3,
+  "default_scene": 0,
+  "default_scene_nodes": 5,
+  "skins": 0,
+  "clips": 0,
+  "images": 2,
+  "normal_present_on_every_primitive": true,
+  "clip_names": [],
+  "bin_sha256": "a5fe009f9f9f0609e07a88af46999e5d27ec186967a069e96fd40be4b708a00f",
+  "accessors_checked": 10,
+  "buffer_views_checked": 12
+}

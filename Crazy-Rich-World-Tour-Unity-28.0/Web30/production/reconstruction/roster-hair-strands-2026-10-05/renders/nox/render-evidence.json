@@ -1,0 +1,62 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\nox.glb",
+  "input_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+  "bytes": 1885916,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 2,
+  "vertices": 23535,
+  "polygons": 25472,
+  "bounds_blender_z_up": [
+    [
+      -0.2940416932106018,
+      -0.22302556037902832,
+      -0.4637373089790344
+    ],
+    [
+      0.29017889499664307,
+      0.19497370719909668,
+      0.4689217805862427
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 0,
+  "view_transform": "Standard",
+  "solid_accessory_lights": {
+    "world_strength": 0.25,
+    "key_power_factor": 120,
+    "fill_power_factor": 56,
+    "rim_power_factor": 100
+  },
+  "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+}

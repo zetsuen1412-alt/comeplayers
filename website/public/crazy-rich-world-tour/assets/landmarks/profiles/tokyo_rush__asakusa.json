@@ -1,0 +1,9 @@
+{
+  "map_id": "tokyo_rush",
+  "city": "Asakusa",
+  "style": "pagoda",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/tokyo_rush/asakusa.glb",
+  "fallback": true
+}

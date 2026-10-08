@@ -1,0 +1,65 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\yuna\\yuna-reference-surface-candidate.glb",
+  "input_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+  "bytes": 1807316,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 1,
+  "vertices": 21309,
+  "polygons": 25716,
+  "bounds_blender_z_up": [
+    [
+      -0.3930493891239166,
+      -0.2391263246536255,
+      -0.44736167788505554
+    ],
+    [
+      0.37436389923095703,
+      0.22648870944976807,
+      0.44999802112579346
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ],
+    [
+      "top",
+      0,
+      89.9
+    ],
+    [
+      "bottom",
+      0,
+      -89.9
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 24,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

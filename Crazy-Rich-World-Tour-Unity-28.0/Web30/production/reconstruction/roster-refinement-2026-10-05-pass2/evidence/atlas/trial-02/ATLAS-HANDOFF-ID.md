@@ -1,0 +1,9 @@
+# Atlas — relief gulungan, pass2 05 Oktober 2026
+
+Kandidat trial-02 menambahkan rim dan spiral dangkal yang ber-volume pada satu ujung gulungan alas tidur olive yang terlihat dalam referensi. Semua 35.556 segitiga dan seluruh posisi/UV/normal/material/gambar/node sumber tetap identik, dengan BIN sumber dipertahankan sebagai prefix. Tidak ada face sumber dihapus atau vertex sumber dipindah. Tambahan 4.738 vertex/9.472 face menghasilkan 45.028 face/31.672 vertex aktif; statis tanpa rig.
+
+Root telah memeriksa referensi dan render depan/profil, lalu memilih kandidat untuk review dengan approved=false/gameIntegrated=false. Relief lebih terbaca, tetapi material gulungan masih terlalu pucat dan ransel belakang masih blur/grid. Perubahan tidak memperbaiki warna keseluruhan, panel/strap ransel atau peta kertas di tangan. Detail sisi tersembunyi tetap sumber lama.
+
+Audit terpisah membaca GLB aktual: semua byte/struktur sumber tetap identik; dua komponen tube baru tertutup, edge incidence 2 dengan winding berlawanan, tanpa face baru berluas nol. Centerline 448 sample diproyeksikan pada mesh asli dalam ROI sempit, dan semua titik triangle baru mempunyai batas proximity sekitar 0,00512 unit dari permukaan sumber. Ini bukti kedekatan/support, bukan union welded, sertifikat global manifold, self-intersection atau deformasi. Tube sengaja sebagian masuk permukaan gulungan.
+
+Workspace .blend berhasil dibuka ulang secara read-only di Blender 5.2.2. Kedua image 2048x2048 packed, byte image sama dengan sumber. Render aktual mencakup 7 view dan 24 frame orbit; tidak memakai billboard/gambar referensi sebagai geometri. HANDOFF.json memuat hash lengkap/source/candidate/native/proof/recipe/render. Mulai edit dari .blend packed pada salinan baru; scripts adalah provenance dengan path default mesin asal, bukan klaim rebuild satu command portabel.

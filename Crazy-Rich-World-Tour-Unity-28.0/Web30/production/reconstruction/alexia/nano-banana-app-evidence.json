@@ -1,0 +1,169 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "date": "2026-10-03",
+  "provider": "Gemini Apps image generation",
+  "familyShownOnImagesPage": "Nano Banana 2",
+  "modePicker": "Pro",
+  "exactBackendModelId": "not disclosed by the UI; not asserted",
+  "source": {
+    "file": "../references/alexia-approved-v2-blue.png",
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+  },
+  "attempts": [
+    {
+      "request": "Four-view body-only reconstruction sheet; preserve blue eyes, layered silver-lavender hair and source costume; remove suitcase and floor",
+      "status": "The app displayed Creating your image, then returned to a new draft/home page without a recoverable output",
+      "cause": "not disclosed; no quota/capacity cause is asserted"
+    },
+    {
+      "request": "One orthographic FRONT body-only view, mild A-pose; preserve blue eyes and fixed costume star patches; remove suitcase only",
+      "status": "Image generated and visibly rendered in the Gemini conversation",
+      "width": 1024,
+      "height": 1024,
+      "conversation": "https://gemini.google.com/app/463f62a84b89b00c",
+      "observed": "Blue eyes, silver-lavender hair, headphones, black/white/gold outfit, separated arms, no suitcase. Ground/contact shadow is still visible and must be removed before reconstruction. Back and side consistency is unverified.",
+      "export": "Download full size image and documented downloadMedia failed to return a local file; Copy image returned no transferable clipboard data",
+      "localRasterSaved": false,
+      "acceptedForReconstruction": false
+    },
+    {
+      "request": "Edit FRONT background only; remove every floor/contact shadow",
+      "turnContainer": "4bca68acb91fd063",
+      "status": "Image generated and visibly inspected; body-only chibi front with blue eyes and flat gray background",
+      "capture": "nano-banana-ui-review/nano-banana-front-capture.jpg",
+      "proof": "nano-banana-ui-review/nano-banana-front-review.jpg",
+      "originalPngSaved": false,
+      "screenRasterSaved": true,
+      "diagnosticInputUsed": true,
+      "productionReferenceApproved": false
+    },
+    {
+      "request": "True BACK of the corrected front",
+      "turnContainer": "3b94bcc5748adeaf",
+      "status": "Generated but rejected: tall 2D anime proportions, long split coat tails and knee socks unlike source",
+      "acceptedForReconstruction": false
+    },
+    {
+      "request": "Correct BACK to source 3D chibi proportions and short costume",
+      "turnContainer": "89cf67bdaeac530a",
+      "status": "Generated; source chibi proportions restored, but wide canvas, arms down and floor shadow remained",
+      "acceptedForReconstruction": false
+    },
+    {
+      "request": "Match BACK mild A-pose and square flat background to FRONT",
+      "turnContainer": "183ad99d7462869e",
+      "status": "Generated and visibly inspected; body-only chibi back, pose/background improved; scale/hair consistency remains unapproved",
+      "capture": "nano-banana-ui-review/nano-banana-back-capture.jpg",
+      "proof": "nano-banana-ui-review/nano-banana-back-review.jpg",
+      "originalPngSaved": false,
+      "screenRasterSaved": true,
+      "acceptedForReconstruction": false
+    },
+    {
+      "request": "LEFT anatomical profile facing image-right",
+      "turnContainer": "9615a9e1eb0f2c55",
+      "status": "Generated facing image-left; relabeled according to actual orientation as RIGHT draft",
+      "actualView": "right",
+      "capture": "nano-banana-ui-review/nano-banana-right-capture.jpg",
+      "proof": "nano-banana-ui-review/nano-banana-right-review.jpg",
+      "originalPngSaved": false,
+      "screenRasterSaved": true,
+      "acceptedForReconstruction": false
+    },
+    {
+      "request": "Opposite LEFT anatomical profile with nose pointing image-right",
+      "turnContainer": "6ad02da5b2600a2e",
+      "status": "Generated and visibly inspected, correct facing direction; clothing patch/hair-root drift remains",
+      "actualView": "left",
+      "capture": "nano-banana-ui-review/nano-banana-left-capture.jpg",
+      "proof": "nano-banana-ui-review/nano-banana-left-review.jpg",
+      "originalPngSaved": false,
+      "screenRasterSaved": true,
+      "acceptedForReconstruction": false
+    }
+  ],
+  "billingEnabledOrChanged": false,
+  "creditsOrSubscriptionPurchased": false,
+  "meshGeneratedFromNanoBananaOutput": true,
+  "rigged": false,
+  "gameAssetsReplaced": false,
+  "productionMeshApproved": false,
+  "rasterCapture": {
+    "method": "Supported CUA UI JPEG screenshot preserved through a loopback-only form; generated-image rectangle extracted for diagnostics",
+    "captureResolution": [
+      584,
+      584
+    ],
+    "fullProofResolution": [
+      1254,
+      884
+    ],
+    "originalFullSizePngExported": false,
+    "captureProvenance": "nano-banana-ui-review/capture-provenance.json",
+    "multiviewReview": "nano-banana-ui-review/multiview-review.json",
+    "fourViewConsistencyApproved": false,
+    "limitations": [
+      "Reduced resolution and JPEG compression",
+      "Scale/background/hair-root/costume patch drift across views",
+      "Small Gemini sparkle visible near the lower-right background; not certified mark-free"
+    ],
+    "views": [
+      "front",
+      "back",
+      "left",
+      "right"
+    ]
+  },
+  "meshInputWasOriginalExportedPng": false,
+  "meshInputWasCapturedScreenRaster": true,
+  "actualMesh": {
+    "attempt": "v11-hunyuan21-standard-front-diagnostic",
+    "inputCaptureSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "meshSha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+    "faces": 449582,
+    "vertices": 224713,
+    "geometryReview": "v11-hunyuan21-diagnostic/geometry-review.json",
+    "verdict": "eligible-for-controlled-texture-inspection",
+    "productionApproved": false
+  },
+  "actualMeshHistory": [
+    {
+      "attempt": "v10-nano-banana-front-capture-controlled-diagnostic",
+      "inputCaptureSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "meshSha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+      "geometryReview": "v10-nano-banana-front-diagnostic/geometry-review.json",
+      "verdict": "rebuild-before-texture-or-rig"
+    },
+    {
+      "attempt": "v11-hunyuan21-standard-front-diagnostic",
+      "inputCaptureSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "meshSha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "faces": 449582,
+      "vertices": 224713,
+      "geometryReview": "v11-hunyuan21-diagnostic/geometry-review.json",
+      "verdict": "eligible-for-controlled-texture-inspection",
+      "productionApproved": false
+    }
+  ],
+  "textureAttempt": {
+    "attempt": "v12-hunyuan21-controlled-texture-diagnostic",
+    "evidence": "v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json",
+    "status": "provider-rejected-requested-gpu-duration-on-free-access",
+    "requestedGpuDurationSeconds": 270,
+    "meshReturned": false,
+    "textureReturned": false,
+    "automaticRetry": false,
+    "billingOrSubscriptionChanged": false
+  },
+  "textureAlternativePreflight": {
+    "attempt": "v13-hunyuan2-texture-preflight",
+    "status": "not-submitted-configured-texture-generation-unavailable",
+    "declaredCombinedGpuDurationSeconds": 90,
+    "configuredTextureGeneration": "Unavailable",
+    "providerGenerationSubmitted": false,
+    "newMeshOrTextureProduced": false,
+    "remainingQuotaChecked": false,
+    "evidence": "v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+  }
+}

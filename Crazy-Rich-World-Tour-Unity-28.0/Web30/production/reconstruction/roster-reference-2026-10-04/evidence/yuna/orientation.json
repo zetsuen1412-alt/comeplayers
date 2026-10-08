@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-yuna\\yuna-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "d8159fdf12f72affefa1c727c8c09fe43ef9e83673f8ce5b2f955c07b2b6d437",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\yuna\\yuna-reference-candidate.glb",
+  "output_sha256": "bbd1adc18d9312c085031aed14734744a3094c90eb6156d2a35b77eaff419b83",
+  "bytes": 1807316,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

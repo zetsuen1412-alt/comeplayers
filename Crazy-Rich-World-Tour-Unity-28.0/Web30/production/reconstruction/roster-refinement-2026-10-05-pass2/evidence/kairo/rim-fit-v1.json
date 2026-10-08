@@ -1,0 +1,9 @@
+{
+  "id": "kairo",
+  "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+  "coordinate_system": "world glTF +Y up, +Z front; original Y180 root applied for ray anchors only",
+  "rims": [
+    {"name":"viewer-left upper lens rim","center_xy_gltf":[0.0755,0.3415],"ellipse_radii":[0.0510,0.0365],"angle_degrees":-12,"tube_radius":0.00165,"surface_lift":0.00075,"segments":128,"tube_sides":12},
+    {"name":"viewer-right lower lens rim","center_xy_gltf":[0.1910,0.3035],"ellipse_radii":[0.0330,0.0390],"angle_degrees":21,"tube_radius":0.00165,"surface_lift":0.00075,"segments":128,"tube_sides":12}
+  ]
+}

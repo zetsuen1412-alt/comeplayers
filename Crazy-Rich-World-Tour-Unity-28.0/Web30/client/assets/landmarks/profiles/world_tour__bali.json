@@ -1,0 +1,9 @@
+{
+  "map_id": "world_tour",
+  "city": "Bali",
+  "style": "temple",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/world_tour/bali.glb",
+  "fallback": true
+}

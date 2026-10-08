@@ -1,0 +1,25 @@
+{
+  "schema": "crwt.fidelity_portable_restore_addon.v1",
+  "native_zip_sha256": "966c135bd63115bbec746c21d30ef6f1ff33d4e6bf5d195c4975da57d470199a",
+  "fresh_zip_extraction_tested": true,
+  "portable_manifest_relative_sources": true,
+  "historical_absolute_source_paths_used": false,
+  "native_archive_direct_edit_supported": true,
+  "portable_helper_distribution": "fresh helper next to original build helper in overall model-review checkpoint; for native-only ZIP, copy this helper as described in REOPEN-PORTABLE-ID.txt",
+  "files": {
+    "editable/tools/reopen_fidelity_workspace_portable.py": {
+      "sha256": "8e4bb9f35a3116837dd1900c36cda1d99494b9b9a62cf44f4b437ab2180065a1",
+      "bytes": 5116
+    },
+    "editable/REOPEN-PORTABLE-ID.txt": {
+      "sha256": "8d0f70e9c4123c3f71d42c4200c27f5fd06708f1ad3b43d5e970faebb7bd2969",
+      "bytes": 1359
+    },
+    "evidence/portable-native-reopen.json": {
+      "sha256": "1556fef214d5abb68496d9b2573aaf9bf54034f8044e4627fcb83e9532459cc4",
+      "bytes": 8338
+    }
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

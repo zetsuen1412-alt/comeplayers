@@ -1,0 +1,141 @@
+{
+  "schema": "crwt.alexia-side-colors-actual-render-comparison.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "render_source": "Actual imported volumetric GLB meshes and original embedded materials; reference PNG not used in scene.",
+  "camera_contract": "All models use identical baseline bounds, orthographic framing, camera transforms and lighting.",
+  "camera_center_blender": [
+    -0.00600847601890564,
+    -0.01529797911643982,
+    0.01690545678138733
+  ],
+  "extent": 0.9243070483207703,
+  "resolution": [
+    512,
+    512
+  ],
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "samples": 16,
+  "view_transform": "Standard",
+  "all_input_files_unchanged": true,
+  "models": [
+    {
+      "label": "candidate-1",
+      "input_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\geometry\\calibrated-lavender-shell-faded\\alexia.glb",
+      "input_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+      "views": [
+        {
+          "name": "front",
+          "azimuth": 0,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\front.png",
+          "sha256": "3b08d409ae22cad1a17c843a2fcd441ace721e72dad123deea754c69405aa815",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "left",
+          "azimuth": 90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\left.png",
+          "sha256": "4b81bdb3dcd8f61df2d327091b44118faf5334a0656f5951a6c720ae3c788ad6",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "right",
+          "azimuth": -90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\right.png",
+          "sha256": "e97d85b1c442bbd9a317bb861c710df5dd37c88035b6f8085bce7c85a909fac7",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "back",
+          "azimuth": 180,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\back.png",
+          "sha256": "4536b9318bf9ebd5f7b24d17c92b5a0b0747aecd160fa5971cb9c3f58a549eef",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "three-quarter",
+          "azimuth": -30,
+          "elevation": 10,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\three-quarter.png",
+          "sha256": "9c4fb3b01be1e6f12e61e74a23e706b70421e2b7fa64e466169bb84e1391cd92",
+          "resolution": [
+            512,
+            512
+          ]
+        }
+      ],
+      "mesh_objects": 3,
+      "vertices": 261299,
+      "polygons": 456896,
+      "gray_geometry_inspection_views": [],
+      "gray_material_is_render_copy_override_only": true,
+      "fixed_camera_hair_closeups": [
+        {
+          "name": "hair-left",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\hair-left.png",
+          "sha256": "433ae815ade655dee6f35131537319f4cb843314f369aaa8a8e39cfd6820dabf",
+          "resolution": [
+            512,
+            512
+          ],
+          "azimuth": 90,
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        },
+        {
+          "name": "hair-right",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\hair-right.png",
+          "sha256": "4d983c920df41c0f8a4d534836c106dace2eed922c9f6fd9a382223481b18fa9",
+          "resolution": [
+            512,
+            512
+          ],
+          "azimuth": -90,
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        },
+        {
+          "name": "hair-back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\lavender-shell-faded-review\\candidate-1\\hair-back.png",
+          "sha256": "9b8f8f993cb67546c625ee57c66045fdb6ffe6cf8b1636e2b0e688f95031c2b8",
+          "resolution": [
+            512,
+            512
+          ],
+          "azimuth": 180,
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        }
+      ]
+    }
+  ]
+}

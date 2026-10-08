@@ -1,0 +1,43 @@
+{
+  "schema": "crwt.alexia_profile_native_reopen.v1",
+  "passed": true,
+  "blend_sha256": "0ef2bbea2f28505db1217c778562c1658d2e36902c1a2e3a14ea84d49ed8424c",
+  "manifest_sha256": "51a46f5f4e005d490c849c07449171d53b67b73d3e6df17296d3819af8106ffb",
+  "candidate_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "character_count": 1,
+  "all_mesh_normal_uv_material_fingerprints_equal": true,
+  "color_attribute_fingerprints_equal": true,
+  "native_color_attributes": [
+    [
+      {
+        "name": "Color",
+        "domain": "CORNER",
+        "data_type": "BYTE_COLOR",
+        "float32_color_sha256": "6aeaa567bb596d89efef025b621d13e2132df9ef64b9f28418a622405a34829b"
+      }
+    ],
+    [],
+    [
+      {
+        "name": "Color",
+        "domain": "CORNER",
+        "data_type": "BYTE_COLOR",
+        "float32_color_sha256": "885eb79d2646c2ac683fd74ab0e2450439db87f034597ab0b5b1420ab08e5951"
+      }
+    ]
+  ],
+  "packed_active_image_count": 0,
+  "images": {},
+  "all_file_images_packed": true,
+  "portable_manifest_relative_sources": true,
+  "historical_absolute_source_paths_used": false,
+  "read_only": true,
+  "no_source_or_blend_writes": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Blender imported BYTE_COLOR is preserved across save/reopen; packaged GLB keeps its exact float32 COLOR_0.",
+    "Unused source image bytes remain in GLB even when no FILE images are active in the editable scene.",
+    "Reopen integrity does not certify geometric or visual perfection."
+  ]
+}

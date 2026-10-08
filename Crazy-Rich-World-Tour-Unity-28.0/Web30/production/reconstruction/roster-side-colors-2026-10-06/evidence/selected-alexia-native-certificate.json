@@ -1,0 +1,19 @@
+{
+  "schema": "crwt.selected_alexia_native.v1",
+  "passed": true,
+  "candidate_sha256": "aa2a57b3e8c15535d0b29914fdfe0b7da18289f91dbf99fce515346795394000",
+  "blend_sha256": "0ef2bbea2f28505db1217c778562c1658d2e36902c1a2e3a14ea84d49ed8424c",
+  "build_proof_sha256": "27ad9e35226b626704ed00e1cefea3950e4db3a06a62cf16d6463a23a4955654",
+  "reopen_proof_sha256": "adbb4cbe891ee3b99496f336be9eb3af501cc3235c2797e249b90875a0536774",
+  "all_file_images_packed": true,
+  "read_only_reopen": true,
+  "native_color_attributes_preserved": true,
+  "single_character": "alexia",
+  "packed_active_image_count": 0,
+  "representation_limit": "Native COLOR uses Blender importer representation; packaged GLB bytes remain exact.",
+  "approved": false,
+  "gameIntegrated": false,
+  "editable_manifest_sha256": "51a46f5f4e005d490c849c07449171d53b67b73d3e6df17296d3819af8106ffb",
+  "native_reopen_proof_path": "evidence/native-reopen.json",
+  "native_build_proof_path": "editable/Alexia-side-colors-review.workspace-proof.json"
+}

@@ -1,0 +1,242 @@
+{
+  "schema": "crwt.alexia_hair_strands_source_pins.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "prefix": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-hair-strands-2026-10-05",
+  "baseline": {
+    "prefix": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05",
+    "manifest_sha256": "f04487f660a5ac3b1f537fb620785cdb82ae6e4fbd6266120e0218e18f9a2063",
+    "commit": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+    "tree": "a65bc1181edb5a4f7a83964a8b8cdd65b1c6501c",
+    "repository_blobs_preserved_by_parent": 4090,
+    "alexia_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3"
+  },
+  "review": {
+    "path": "review-manifest.json",
+    "sha256": "02b7cffa243f3f28f8e0a559092d447fb583b3a4f2cba70fdd8483ad0c3bdc91",
+    "schema": "crwt.alexia_hair_strands_review.v1",
+    "candidate_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24"
+  },
+  "gallery": {
+    "archive": "OFFLINE-GALLERY.zip",
+    "archive_sha256": "83c9aa2730a646c58b6ff1a88f5e8213d7e91053a8fe9d11f4c2bf25395c7b72",
+    "entry": "BUKA-REVIEW-MODEL.html",
+    "html_sha256": "5f0c7df580af183aed6968c2418431c44c7f44872cbd012f61e089165a2592ec",
+    "html_bytes": 47630903,
+    "receipt": "BUKA-REVIEW-MODEL.viewer-receipt.json",
+    "receipt_sha256": "a201de8b83762c9f6250d012609741092e83f5a684cf1a78c7d24ed8853067c1"
+  },
+  "geometry": {
+    "parent_node_index": 0,
+    "added_meshes": 1,
+    "added_nodes": 1,
+    "added_materials": 1,
+    "added_vertices": 2596,
+    "added_triangles": 5184,
+    "closed_locks": 2
+  },
+  "native": {
+    "blend": {
+      "path": "editable/Alexia-hair-strands-review.blend",
+      "sha256": "332598c36d589b8868cc1e03b6d4dd957de0d2a5ec0b1d0a790affe7bba07895"
+    },
+    "editable_manifest": {
+      "path": "alexia-editable-manifest.json",
+      "sha256": "51602ecb973e3a1a7029d38f6da970f2c8e4826c76be95a55564cc4d62811a0f"
+    },
+    "build_fingerprint_pointer": "/characters/0/native_imported_mesh_material_slot_uv_fingerprints",
+    "reopen_color_pointer": "/native_color_attributes",
+    "active_image_count_pointer": "/packed_active_image_count",
+    "active_FILE_images": 0,
+    "mesh_fingerprints": {
+      "Two genuine flattened lower rear S curl locks": {
+        "vertices": 2596,
+        "polygons": 5184,
+        "loops": 15552,
+        "position_float32_sha256": "929e329a6ea84cd88e100efc781a22a2d4c6f2f40b3db6dba5be6a5bd6c3c012",
+        "loop_vertex_indices_sha256": "caf8453496b56a9b33760cf2dd678b1c24d9984770d115fcdd8403107182ed4f",
+        "polygon_starts_sizes_sha256": "0110823d451ab0b75c6dc7cc0852b6521119b46214b57f078f768c9c46b6bbdb",
+        "polygon_material_indices_sha256": "92e3526074bf8e81011b4d0e3c4f91ae99dddafd62b216c28087afdbee919c34",
+        "material_slot_names": [
+          "Alexia rear curl locks - original reference sampled colors"
+        ],
+        "uv_layers": [
+          {
+            "name": "UVMap",
+            "float32_uv_sha256": "b942f9b55745f2cb0b053bea14bef053c661e296927a3a7a079269b6ebd1957d"
+          }
+        ],
+        "corner_normal_float32_sha256": "a39b3710ac0cef5d9a21b4bdd388810ea4d68765edfd659dc93cac5fed362551",
+        "color_attributes": [
+          {
+            "name": "Color",
+            "domain": "CORNER",
+            "data_type": "BYTE_COLOR",
+            "float32_color_sha256": "6aeaa567bb596d89efef025b621d13e2132df9ef64b9f28418a622405a34829b"
+          }
+        ]
+      },
+      "Alexia V2 conforming headphone rim and diaphragm candidate": {
+        "vertices": 5760,
+        "polygons": 11520,
+        "loops": 34560,
+        "position_float32_sha256": "29a7ff877a109d26f332fda598467dfdc29965c54e94011db860209dcaa19726",
+        "loop_vertex_indices_sha256": "740f2f757885aa0da107655291c8d4dd53628f046ac20caf48668ed92d6b5270",
+        "polygon_starts_sizes_sha256": "002653c9e0445468643f3f9ad57f330c6f8c18a055d12e9cc030b6bd4fb9ffee",
+        "polygon_material_indices_sha256": "8d01c36eb6b38891205ef005228b7520dd2e714a37ea638e13bf8e7545a11c4c",
+        "material_slot_names": [
+          "Graphite headphone precision rim",
+          "Silver headphone face rim",
+          "Gold headphone diaphragm",
+          "Headphone black center"
+        ],
+        "uv_layers": [],
+        "corner_normal_float32_sha256": "6fa8e1e16f779c33a5e269826bd40bafec05f6fa73138931bba2430d0fedd3aa",
+        "color_attributes": []
+      },
+      "geometry_0": {
+        "vertices": 252943,
+        "polygons": 440192,
+        "loops": 1320576,
+        "position_float32_sha256": "1120460e95e963cfba98b77ac2f0b2b643e073054f153d28ea2ba605d3f65bbc",
+        "loop_vertex_indices_sha256": "bad53b8d9e9d78cbc8a8ea72e02ee9f014d63acbcc9ae85d8f05255922c5efe6",
+        "polygon_starts_sizes_sha256": "6fe177b3ad1ba1418610d82d7d977a2ec45697e1b07fe840866061266c055dff",
+        "polygon_material_indices_sha256": "896c01eba1265b508e477c3d8e95a42d4af760e0d3cde64703ff52f4dd6556ab",
+        "material_slot_names": [
+          "Alexia smooth reference colors on volumetric surface"
+        ],
+        "uv_layers": [
+          {
+            "name": "UVMap",
+            "float32_uv_sha256": "dda06bc490569abc477a27dce3fe5b8cf12500277ef0ddd7b2cdb6065b89300b"
+          }
+        ],
+        "corner_normal_float32_sha256": "e52651cdea09e9c626642df53d45677b3d717eaf19fdf175a6be8350af2ad7d1",
+        "color_attributes": [
+          {
+            "name": "Color",
+            "domain": "CORNER",
+            "data_type": "BYTE_COLOR",
+            "float32_color_sha256": "678aecabd29b9b35150938337350a35a9eabfc4356ab1ac421f81590e40c1d25"
+          }
+        ]
+      }
+    }
+  },
+  "render_selection": {
+    "path": "evidence/render-selection-receipt.json",
+    "sha256": "ede9c2757f5193f4deb1032a4cc7bd25bee4e668660417aa5344811a2ad445da",
+    "schema": "crwt.hair_strands_render_selection.v1"
+  },
+  "proofs": {
+    "selected": {
+      "path": "evidence/selected-alexia/selected-preservation-proof.json",
+      "sha256": "5370b9927bbccddb59c666d4410b84b590f1bc28883d4721f5e0b72abcfd8ef9",
+      "schema": "crwt.alexia.hair_locks_smooth_colors.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/source_sha256",
+      "source_sha256": "9f0dcfb88e10fab3859602d4d197de45444e3fbb2acf53d9a4fec023e3f2153f",
+      "expected_fields": {
+        "/approved": false,
+        "/gameIntegrated": false,
+        "/source_BIN_byte_prefix_identical": true,
+        "/original_7ad_BIN_byte_prefix_identical": true,
+        "/all_positions_normals_uv_indices_images_materials_nodes_skins_animations_identical": true,
+        "/all_original_accessors_bufferViews_and_existing_color_bytes_identical": true,
+        "/changed_geometry_vertices": 0,
+        "/changed_triangles": 0,
+        "/reference_pixels_unchanged": true,
+        "/raster_images_edited": false
+      }
+    },
+    "geometry": {
+      "path": "evidence/selected-alexia/mild-geometry-proof.json",
+      "sha256": "defc3d0f80262c959b5f60250b93d4a23242dd920832b0ce01c47c3363e880b9",
+      "schema": "crwt.alexia.appended_rear_hair_locks.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "candidate_sha256": "9f0dcfb88e10fab3859602d4d197de45444e3fbb2acf53d9a4fec023e3f2153f",
+      "source_sha_pointer": "/source_sha256",
+      "expected_fields": {
+        "/source_BIN_byte_prefix_identical": true,
+        "/all_original_positions_normals_uv_colors_indices_images_materials_byte_identical": true,
+        "/all_original_mesh_records_identical": true,
+        "/original_accessors_and_bufferViews_identical": true,
+        "/original_mesh_vertices_changed": 0,
+        "/original_mesh_triangles_changed": 0,
+        "/approved": false,
+        "/gameIntegrated": false
+      }
+    },
+    "independent": {
+      "path": "evidence/selected-alexia/mild-smooth-independent-byte-audit.json",
+      "sha256": "0777238895c2fb1a1d70d341bad699945e0f0705669f84fee4a7c1a5123b788a",
+      "schema": "crwt.independent.selected-mild-smooth-byte-audit.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "source_sha_pointer": "/original_source_sha256",
+      "expected_fields": {
+        "/approved": false,
+        "/gameIntegrated": false,
+        "/whole_original_7ad_BIN_prefix_identical": true,
+        "/all_original_positions_normals_uv_colors_indices_images_materials_records_identical": true,
+        "/final_geometry_exactly_mild9f": true,
+        "/all2596newcolors_float32_exactly_reconstructed": true,
+        "/all5184_new_face_average_normal_directions_positive": true,
+        "/geometry/closed_components": 2,
+        "/geometry/all_edges_have_two_oppositely_directed_faces": true,
+        "/source_hashes_unchanged_after_audit": true
+      }
+    },
+    "native_build": {
+      "path": "editable/Alexia-hair-strands-review.workspace-proof.json",
+      "sha256": "a2ae972fad62b666f4b77404156cc98e5cc244f14f51d2d0f3b5d813bd677722",
+      "schema": "crwt.editable_roster_review_workspace.v1",
+      "candidate_sha_pointer": "/characters/0/source_sha256",
+      "blend_sha_pointer": "/output_blend_sha256",
+      "manifest_sha_pointer": "/manifest_sha256",
+      "expected_fields": {
+        "/accepted": false,
+        "/production_ready": false,
+        "/all_source_files_unchanged": true,
+        "/imported_material_graphs_unchanged": true,
+        "/all_file_images_packed": true,
+        "/geometry_uv_texture_or_rig_edits_performed": false
+      }
+    },
+    "native_reopen": {
+      "path": "evidence/native-reopen.json",
+      "sha256": "52d175fe4ad0cf63467937a873749b29e32bfa215d06e131a529d4a2d3eea9f5",
+      "schema": "crwt.alexia_profile_native_reopen.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "blend_sha_pointer": "/blend_sha256",
+      "manifest_sha_pointer": "/manifest_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/all_mesh_normal_uv_material_fingerprints_equal": true,
+        "/color_attribute_fingerprints_equal": true,
+        "/all_file_images_packed": true,
+        "/portable_manifest_relative_sources": true,
+        "/historical_absolute_source_paths_used": false,
+        "/read_only": true,
+        "/no_source_or_blend_writes": true,
+        "/approved": false,
+        "/gameIntegrated": false
+      }
+    },
+    "native_certificate": {
+      "path": "evidence/selected-alexia-native-certificate.json",
+      "sha256": "de49b8754b2274e65091a43d67fc8b2ed0ff977b4d08467667f6b51596d52809",
+      "schema": "crwt.selected_alexia_native.v1",
+      "candidate_sha_pointer": "/candidate_sha256",
+      "blend_sha_pointer": "/blend_sha256",
+      "manifest_sha_pointer": "/editable_manifest_sha256",
+      "expected_fields": {
+        "/passed": true,
+        "/all_file_images_packed": true,
+        "/read_only_reopen": true,
+        "/native_color_attributes_preserved": true,
+        "/approved": false,
+        "/gameIntegrated": false
+      }
+    }
+  }
+}

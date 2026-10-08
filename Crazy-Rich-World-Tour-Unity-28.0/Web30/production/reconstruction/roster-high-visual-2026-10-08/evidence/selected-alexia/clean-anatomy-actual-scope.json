@@ -1,0 +1,199 @@
+{
+  "schema": "crwt.alexia_high_visual_visible_anatomy_actual_scope.v1",
+  "passed": true,
+  "source_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "checks": {
+    "source_BIN_prefix_exact": true,
+    "core_all_original_attributes_routing_exact": true,
+    "core_all_original_attribute_bytes_exact": true,
+    "actual_retained_source_indices_exact": true,
+    "all_preexisting_authored_components_exact": true,
+    "nodes_skins_actual_animations_materials_images_exact": true,
+    "no_protected_face_cup_shirt_hair_incidence": true,
+    "all_new_hand_components_finite_closed_valid": true
+  },
+  "removed_original_core_triangles": 32176,
+  "remaining_original_core_triangles": 68277,
+  "new_hand_component_checks": [
+    {
+      "vertices": 482,
+      "triangles": 960,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 5.834499799455593e-07,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        7,
+        8
+      ]
+    },
+    {
+      "vertices": 482,
+      "triangles": 960,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 9.667900967935918e-07,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        7,
+        8
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001165497568627e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        8
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001165497568627e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        8
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001079303530486e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        8
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5000999244470885e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        8
+      ]
+    },
+    {
+      "vertices": 62,
+      "triangles": 120,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 2.472122818851227e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        7,
+        8
+      ]
+    },
+    {
+      "vertices": 482,
+      "triangles": 960,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 5.834499799455593e-07,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        10,
+        11
+      ]
+    },
+    {
+      "vertices": 482,
+      "triangles": 960,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 9.667900967935918e-07,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        10,
+        11
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001065214401949e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        11
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001143904994112e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        11
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001079303530486e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        11
+      ]
+    },
+    {
+      "vertices": 66,
+      "triangles": 128,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 1.5001165497568627e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        11
+      ]
+    },
+    {
+      "vertices": 62,
+      "triangles": 120,
+      "finite": true,
+      "edge_incidence_all_two": true,
+      "min_area": 2.472122818851227e-06,
+      "max_normal_error": 5.960464477539063e-08,
+      "max_weight_sum_error": 0.0,
+      "actual_positive_joint_slots": [
+        10,
+        11
+      ]
+    }
+  ],
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "scope_note": "New visible hands and legs intentionally replace original visible skin triangles. Source original arrays remain stored exactly. No old warm-skin-preservation claim applies to active triangles."
+}

@@ -1,0 +1,22 @@
+CRWT — HAIR SCULPT ALEXIA
+Buka BUKA-REVIEW-MODEL.html untuk review offline 10 karakter. Hanya Alexia berubah
+dari checkpoint baseline terbaru. Sembilan GLB lain dan referensi sama persis.
+Render Alexia lima view berasal dari kandidat baru; 45 render karakter lain
+digunakan kembali dari baseline dengan proof source SHA, bukan render baru.
+
+Untuk edit: buka editable/Alexia-hair-sculpt-review.blend di Blender kompatibel.
+Native ini hanya Alexia. Workspace native lengkap 10 karakter dan arsip source
+Pip tetap berada pada checkpoint reference-fidelity terdahulu; tidak digandakan.
+Sembilan GLB lain dapat diimpor dari viewer/models bila diperlukan. Pip tetap
+memakai rig/clip GLB lama; native Alexia statis. Native COLOR_0 memakai representasi
+importer Blender; float COLOR_0 dalam GLB dikemas persis.
+
+Seluruh model masih kandidat belum disetujui dan belum gameIntegrated. Profil/sisi
+yang tidak terlihat pada referensi memiliki ketidakpastian 3D; periksa scope
+dan limits di manifest. Receipt Git baseline bersifat historis. Status publikasi
+baru hanya dari evidence/github-publication-receipt.json yang cocok dengan
+manifest baru; jika tidak ada, paket ini lokal dengan scope model saja. Source
+full game dan Git history tidak diklaim berada dalam ZIP ini.
+
+Paket ZIP akhir menyertakan verify_hair_sculpt_checkpoint.py pada root. Jalankan
+python verify_hair_sculpt_checkpoint.py . dari folder ekstrak untuk SHA semua file.

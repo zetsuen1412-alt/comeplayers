@@ -1,0 +1,20 @@
+{
+  "schema": "crwt.pip-saved-native-preservation.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "source_sha256": "c2ceab85a941585bf5d6189b250646a7647893e1fe3063d80fa7faa649c4dea4",
+  "blend_sha256": "a985e301590403a548f46d748123f0448f859f4be80ac8dc70d43ae83872d367",
+  "blender_version": "5.2.2 LTS",
+  "saved_original_objects_fingerprints_identical": true,
+  "original_objects": 28,
+  "original_actions": 60,
+  "original_action_names_preserved": true,
+  "native_candidate_parts": 194,
+  "native_joints": 13,
+  "native_all_vertices_weighted": true,
+  "file_image_count": 10,
+  "all_file_images_packed": true,
+  "candidate_scene": "Pip Reference Review Candidate",
+  "active_scene": "Pip Reference Review Candidate",
+  "limits": "Editable blend/source preservation only; visual, choreography and gameplay approval remain false."
+}

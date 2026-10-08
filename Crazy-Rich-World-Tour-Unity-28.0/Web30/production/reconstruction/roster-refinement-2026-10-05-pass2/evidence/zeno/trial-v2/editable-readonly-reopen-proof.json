@@ -1,0 +1,41 @@
+{
+  "schema": "crwt.packed-editable-readonly-reopen.v1",
+  "id": "zeno",
+  "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+  "candidate_sha256": "7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88",
+  "blend_sha256": "fcb80134f9e9ee9ae3cf1e50ba42db294aa6961cbcc6feb991cb6ff14cd2529c",
+  "saved_geometry_normal_uv_transform_material_image_fingerprints_identical": true,
+  "mesh_count": 3,
+  "triangles": 33300,
+  "vertices": 24679,
+  "images": [
+    {
+      "name": "Image_0",
+      "sha256": "7871117c2bf0cd6445d1f6a9f7f4f6ba50c9e81f68bb470f7141ef0d1dcd5ae6",
+      "bytes": 413680,
+      "colorspace": "sRGB",
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "Image_1",
+      "sha256": "00253f70f6c64428ff16c0f469b749dde37ae414251ddde7bd59824e926046c6",
+      "bytes": 450888,
+      "colorspace": "Non-Color",
+      "size": [
+        2048,
+        2048
+      ]
+    }
+  ],
+  "armatures": 0,
+  "actions": 0,
+  "all_file_images_packed": true,
+  "packed_images_byte_identical_to_glb": true,
+  "no_source_or_blend_writes": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "blender_version": "5.2.2 LTS"
+}

@@ -1,0 +1,182 @@
+{
+  "schema": "crwt.alexia_exact_hair_closure_weight_delta.v1",
+  "passed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "old_candidate_sha256": "ba1b640eff940b504e9a1cba0d1f677eef1adca065e6fbab5abde301bef4f631",
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "semantic_mask_npz_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "document_and_all_clip_data_exact": true,
+  "binary_changes_only_mesh0_JOINTS_WEIGHTS": true,
+  "all_other_actual_accessor_bytes_exact": true,
+  "semantic_hair_vertices": 99032,
+  "exact_position_closure_vertices": 99250,
+  "shared_position_extra_vertices": 218,
+  "changed_joint_row_count": 15467,
+  "changed_weight_row_count": 14790,
+  "changed_joint_or_weight_row_count": 15467,
+  "changed_hair_joint_or_weight_row_count": 15362,
+  "changed_extra_joint_or_weight_row_count": 105,
+  "jacket_color_extra_vertices": 24,
+  "cuff_color_extra_vertices": 1,
+  "changed_jacket_color_extra_vertices": 9,
+  "changed_cuff_color_extra_vertices": 1,
+  "protected_critical_and_hands_overlap": 0,
+  "all_closure_actual_head_weight_one": true,
+  "all_outside_closure_JOINTS_WEIGHTS_byte_exact": true,
+  "old_exact_split_groups": 0,
+  "new_exact_split_groups": 0,
+  "newly_split_exact_groups": 0,
+  "actual_serialized_18_timestamp_seam_samples": [
+    {
+      "clip": "IdleBreath",
+      "fraction": 0,
+      "time": 0.0,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 1.4106598455157842e-08
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.125,
+      "time": 0.44999998807907104,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.0037763428672765885
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.25,
+      "time": 0.8999999761581421,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.00534124346470047
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.375,
+      "time": 1.3499999642372131,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.0037763430266875403
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.5,
+      "time": 1.7999999523162842,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 1.4177780963410112e-08
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.625,
+      "time": 2.2499999403953552,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.0037738617552564766
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.75,
+      "time": 2.6999999284744263,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.005336279885637367
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.875,
+      "time": 3.1499999165534973,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.003773862714606061
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 1,
+      "time": 3.5999999046325684,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 1.3966703443099642e-08
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0,
+      "time": 0.0,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 1.4106598562440299e-08
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.125,
+      "time": 0.15000000596046448,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.014942963116536798
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.25,
+      "time": 0.30000001192092896,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.021126716433948905
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.375,
+      "time": 0.45000001788139343,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.0149429606404045
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.5,
+      "time": 0.6000000238418579,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 1.4260744877281065e-08
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.625,
+      "time": 0.7500000298023224,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.010466435931630486
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.75,
+      "time": 0.9000000357627869,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.014747656969105722
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.875,
+      "time": 1.0500000417232513,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 0.010466430956818418
+    },
+    {
+      "clip": "Walk",
+      "fraction": 1,
+      "time": 1.2000000476837158,
+      "old_max_exact_cohort_gap_m": 0.0,
+      "new_max_exact_cohort_gap_m": 0.0,
+      "maximum_changed_trajectory_m": 1.3838999808037521e-08
+    }
+  ],
+  "all_inputs_hash_and_mtime_unchanged": true,
+  "limits": [
+    "218 closure extras are shared-point seam vertices, including24 jacket-color and1 cuff-color vertex; they are not all unambiguous semantic hair.",
+    "No rounded-coordinate closure, collision certification, IK or guaranteed floor contact."
+  ]
+}

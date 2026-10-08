@@ -1,0 +1,56 @@
+{
+  "status": "controlled-attempt-failed",
+  "provider": "victor/pixal3d-studio",
+  "runtime_revision": "ef1cb838893269417b3eaa81dd8fc635f65a5180",
+  "input_provenance": {
+    "source_relative_path": "turnarounds\\alexia\\turnaround-blue-imagegen-v2.png",
+    "source_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "source_front_crop": {
+      "view": "front",
+      "file": "front.png",
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+      "source_pixel_box": [
+        0,
+        0,
+        510,
+        488
+      ],
+      "size": [
+        510,
+        488
+      ]
+    },
+    "cached_preprocess": {
+      "file": "processed-image-cache\\front.png",
+      "sha256": "d25669c20d2f0ea544f693370f92592bbd9c873fbec585806ce8400a6e0d7dc1",
+      "size": [
+        518,
+        518
+      ],
+      "saved_server_url": "https://stable-x-reconviagen.hf.space/gradio_api/file=/tmp/gradio/af64ff6e354add49a33186f350e764fa3b8cf03d763aa05c417d79a65ef1b161/image.png"
+    },
+    "preprocess_result_sha256": "8a3391a5e054a20821304d5304384a1b8d05b4681da9ef3fc07a24dd8f2c2f3a",
+    "operation": "Reuse actual provider RGBA preprocessing of lossless approved V2 front crop. Provider resized and removed background; no new generated image or repaint."
+  },
+  "params": {
+    "prompt": "Alexia approved V2 blue front reconstruction diagnostic",
+    "seed": 1412,
+    "resolution": 1024,
+    "quality": "balanced",
+    "manual_fov": -1.0,
+    "share_to_community": false
+  },
+  "declared_gpu_duration_seconds": 120,
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "automatic_retry": false,
+  "authentication": "anonymous; token lookup disabled",
+  "production_approved": false,
+  "provider_persistence_note": "Sharing flag false prevents community-feed publication. Provider may retain unlisted uploaded input/model files.",
+  "scope": "Actual single-image new PBR mesh from approved reference. Hidden surfaces inferred; not an existing-mesh texturing endpoint.",
+  "provider_generation_submission_status": "client call attempted; job start not observed",
+  "failed_stage": "one-generation-export-call",
+  "error_class": "AppError",
+  "error": "You have exceeded your ZeroGPU quota (120s requested vs. 0s left). Try again in 0:00:00. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens",
+  "ended_utc": "2026-10-04T11:45:50.150957+00:00"
+}

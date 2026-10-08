@@ -1,0 +1,99 @@
+{
+  "schema": "crwt.editable_roster_review_workspace.v1",
+  "manifest_sha256": "eb9ee459333b070ab9c719772ea721250b43f3ab72712e93473153e330a26aef",
+  "blender_version": "5.2.2 LTS",
+  "layout": "none",
+  "grid_spacing": 1.8,
+  "character_count": 1,
+  "characters": [
+    {
+      "id": "alexia",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-profile-refinement-next\\native\\viewer\\models\\alexia.glb",
+      "source_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.3544307351112366,
+          -0.25528788566589355,
+          -0.4452480673789978
+        ],
+        "maximum": [
+          0.3424137830734253,
+          0.21906018257141113,
+          0.47905898094177246
+        ],
+        "size": [
+          0.6968445181846619,
+          0.4743480682373047,
+          0.9243070483207703
+        ]
+      },
+      "review_translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "imported_objects": 4,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "Alexia V2 conforming headphone rim and diaphragm candidate": {
+          "vertices": 5760,
+          "polygons": 11520,
+          "loops": 34560,
+          "position_float32_sha256": "29a7ff877a109d26f332fda598467dfdc29965c54e94011db860209dcaa19726",
+          "loop_vertex_indices_sha256": "740f2f757885aa0da107655291c8d4dd53628f046ac20caf48668ed92d6b5270",
+          "polygon_starts_sizes_sha256": "002653c9e0445468643f3f9ad57f330c6f8c18a055d12e9cc030b6bd4fb9ffee",
+          "polygon_material_indices_sha256": "8d01c36eb6b38891205ef005228b7520dd2e714a37ea638e13bf8e7545a11c4c",
+          "material_slot_names": [
+            "Graphite headphone precision rim",
+            "Silver headphone face rim",
+            "Gold headphone diaphragm",
+            "Headphone black center"
+          ],
+          "uv_layers": [],
+          "corner_normal_float32_sha256": "6fa8e1e16f779c33a5e269826bd40bafec05f6fa73138931bba2430d0fedd3aa",
+          "color_attributes": []
+        },
+        "geometry_0": {
+          "vertices": 252943,
+          "polygons": 440192,
+          "loops": 1320576,
+          "position_float32_sha256": "1120460e95e963cfba98b77ac2f0b2b643e073054f153d28ea2ba605d3f65bbc",
+          "loop_vertex_indices_sha256": "bad53b8d9e9d78cbc8a8ea72e02ee9f014d63acbcc9ae85d8f05255922c5efe6",
+          "polygon_starts_sizes_sha256": "6fe177b3ad1ba1418610d82d7d977a2ec45697e1b07fe840866061266c055dff",
+          "polygon_material_indices_sha256": "896c01eba1265b508e477c3d8e95a42d4af760e0d3cde64703ff52f4dd6556ab",
+          "material_slot_names": [
+            "Alexia smooth reference colors on volumetric surface"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "dda06bc490569abc477a27dce3fe5b8cf12500277ef0ddd7b2cdb6065b89300b"
+            }
+          ],
+          "corner_normal_float32_sha256": "e52651cdea09e9c626642df53d45677b3d717eaf19fdf175a6be8350af2ad7d1",
+          "color_attributes": [
+            {
+              "name": "Color",
+              "domain": "CORNER",
+              "data_type": "BYTE_COLOR",
+              "float32_color_sha256": "678aecabd29b9b35150938337350a35a9eabfc4356ab1ac421f81590e40c1d25"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "accepted": false,
+  "production_ready": false,
+  "all_source_files_unchanged": true,
+  "imported_material_graphs_unchanged": true,
+  "all_file_images_packed": true,
+  "geometry_uv_texture_or_rig_edits_performed": false,
+  "limitation": "Blender imports glTF into its native representation; fidelity checks compare immediately imported data to the saved workspace, not byte identity of Blender's representation with GLB. Raw glTF JSON and input hashes are retained for provenance. Grid parents only place models for review. Visual/model approval remains pending.",
+  "output_blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-profile-refinement-next\\native\\Alexia-profile-review.blend",
+  "output_blend_sha256": "910c03cdeca5589f87824b141b97215245306f4287a52a7ac5d811dfce887b5e"
+}

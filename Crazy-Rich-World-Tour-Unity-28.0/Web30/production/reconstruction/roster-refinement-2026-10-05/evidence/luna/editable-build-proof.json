@@ -1,0 +1,769 @@
+{
+  "schema": "crwt.luna-packed-editable-build.v1",
+  "mode": "create",
+  "approved": false,
+  "gameIntegrated": false,
+  "source_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+  "candidate_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+  "blend_sha256": "cb88358bcc3ddeb4cd21ac2578bdb7430ff9666253426e1994d4e73246045c23",
+  "blend_bytes": 2456174,
+  "candidate_glb_bytes_unchanged": true,
+  "embedded_glb_images": [
+    {
+      "sha256": "c864d8c0a4cf05acfaa5cbf7e9fa29c41c332fae6332984f019be1deb50d258d",
+      "bytes": 405908,
+      "mimeType": "image/jpeg"
+    },
+    {
+      "sha256": "0a5c44321403e714444c2ec90abe384a361e25b3e338221a687cd9ccf8a64197",
+      "bytes": 486840,
+      "mimeType": "image/jpeg"
+    }
+  ],
+  "all_images_packed": true,
+  "packed_image_bytes_match_glb": true,
+  "native_fingerprint": {
+    "meshes": {
+      "geometry_0": {
+        "mesh_position_topology_corner_normal_uv_sha256": "241799f6a5ff4bf0dafd049c8d79f778dd638ebe5732b865c4597d076a09a68f",
+        "vertices": 26938,
+        "triangles": 32530,
+        "matrix_world": [
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Material_0"
+        ]
+      },
+      "Armillary rivet 0": {
+        "mesh_position_topology_corner_normal_uv_sha256": "0f11695e1ea5b323d4bb55f2270ada9d13c2892cf298292e802e31759bb046fe",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.3255663812160492,
+          0.0,
+          1.0,
+          0.0,
+          -0.1190376728773117,
+          0.0,
+          0.0,
+          1.0,
+          0.2016514539718628,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Armillary rivet 1": {
+        "mesh_position_topology_corner_normal_uv_sha256": "d2e24b3a0ed5714c3cecc6e8e36c2fc67514a58dd1e699dd510bd7bb93e31c75",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.23403805494308472,
+          0.0,
+          1.0,
+          0.0,
+          -0.10539339482784271,
+          0.0,
+          0.0,
+          1.0,
+          0.2007695585489273,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Armillary rivet 2": {
+        "mesh_position_topology_corner_normal_uv_sha256": "d9f48091443670d5fb9eefa2e62470b22f2ea9de2f6b509e28946cef12b68462",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.2344336062669754,
+          0.0,
+          1.0,
+          0.0,
+          -0.11296232789754868,
+          0.0,
+          0.0,
+          1.0,
+          0.1263485550880432,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Armillary rivet 3": {
+        "mesh_position_topology_corner_normal_uv_sha256": "5ead678bdbff5b0116302511f309b3ad0b03c8e962d635027e67c6960328e20a",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.3259619474411011,
+          0.0,
+          1.0,
+          0.0,
+          -0.12660659849643707,
+          0.0,
+          0.0,
+          1.0,
+          0.1272304505109787,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Cross meridian": {
+        "mesh_position_topology_corner_normal_uv_sha256": "b14639f99c19cca7089de06091acda07e6e90d4f16a91a370ac3d41470a0dcf3",
+        "vertices": 1152,
+        "triangles": 2304,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Inclined equatorial orbit": {
+        "mesh_position_topology_corner_normal_uv_sha256": "a06abf51de14ed438091bfdf73b37d860633991f56c70d4ebea4b1da53049f0f",
+        "vertices": 1152,
+        "triangles": 2304,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Orb pivot": {
+        "mesh_position_topology_corner_normal_uv_sha256": "0462f0c9a55cd5484791acc19b10d4213523a3abd71ee9de2ddbc21df3aa8ac0",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.27799999713897705,
+          0.0,
+          1.0,
+          0.0,
+          -0.11599999666213989,
+          0.0,
+          0.0,
+          1.0,
+          0.10999999940395355,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Outer armillary meridian": {
+        "mesh_position_topology_corner_normal_uv_sha256": "27e22a71322724bc355b8c9aefe8dacc0697e7c0e167019c7a91d84d3bdcb776",
+        "vertices": 1152,
+        "triangles": 2304,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Raised neck support": {
+        "mesh_position_topology_corner_normal_uv_sha256": "b821b55a9d77a9e6f37f1f2f81916561dcf1d31dcae0705150f6529ac4389f22",
+        "vertices": 194,
+        "triangles": 188,
+        "matrix_world": [
+          0.38074997067451477,
+          -0.8785443902015686,
+          0.2884255051612854,
+          0.2695000171661377,
+          0.9246780872344971,
+          0.3617537021636963,
+          -0.11876361072063446,
+          -0.11249999701976776,
+          9.579292026273833e-08,
+          0.3119199573993683,
+          0.9501084089279175,
+          0.0820000022649765,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Rounded flared neck collar": {
+        "mesh_position_topology_corner_normal_uv_sha256": "3463ebb5edbddf987ca2e6834e419a4f7e45ec407f6ace1af9064cd5ba820a31",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.26100000739097595,
+          0.0,
+          1.0,
+          0.0,
+          -0.10899999737739563,
+          0.0,
+          0.0,
+          1.0,
+          0.052000001072883606,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      },
+      "Sapphire globe, full volume": {
+        "mesh_position_topology_corner_normal_uv_sha256": "dc34cce02cc0e0ddadd1b9ebe7ca42553aa8bbed69d84469c1aba207b9f1ba0e",
+        "vertices": 1223,
+        "triangles": 2208,
+        "matrix_world": [
+          1.0,
+          0.0,
+          0.0,
+          0.2800000011920929,
+          0.0,
+          1.0,
+          0.0,
+          -0.11599999666213989,
+          0.0,
+          0.0,
+          1.0,
+          0.164000004529953,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna polished sapphire globe"
+        ]
+      },
+      "Upper orbit finial": {
+        "mesh_position_topology_corner_normal_uv_sha256": "157a0f9175112366f76ef6ab57ab00ea31236d45050087c8708b5b451ccdc743",
+        "vertices": 194,
+        "triangles": 188,
+        "matrix_world": [
+          -1.1248454256929108e-07,
+          -0.9615238904953003,
+          0.27472174167633057,
+          0.2839999794960022,
+          1.0000001192092896,
+          -7.448663552622747e-08,
+          1.3565326639763953e-07,
+          -0.11599999666213989,
+          -1.3565326639763953e-07,
+          0.27472174167633057,
+          0.9615237712860107,
+          0.22949999570846558,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "materials": [
+          "Luna staff warm gold, reference-guided"
+        ]
+      }
+    },
+    "mesh_count": 13,
+    "triangles": 55274,
+    "vertices": 39343,
+    "materials": {
+      "Luna polished sapphire globe": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.026241222396492958,
+                0.12213877588510513,
+                0.715693473815918,
+                1.0
+              ],
+              "Metallic": 0.11999999731779099,
+              "Roughness": 0.20000000298023224,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Luna staff warm gold, reference-guided": {
+        "nodes": [
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.7230551242828369,
+                0.33716362714767456,
+                0.026241222396492958,
+                1.0
+              ],
+              "Metallic": 0.44999998807907104,
+              "Roughness": 0.28999999165534973,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      },
+      "Material_0": {
+        "nodes": [
+          {
+            "name": "Image Texture",
+            "type": "ShaderNodeTexImage",
+            "image": "Image_0",
+            "inputs": {
+              "Vector": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "Image Texture.001",
+            "type": "ShaderNodeTexImage",
+            "image": "Image_1",
+            "inputs": {
+              "Vector": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "image": null,
+            "inputs": {
+              "Displacement": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Thickness": 0.0
+            }
+          },
+          {
+            "name": "Normal Map",
+            "type": "ShaderNodeNormalMap",
+            "image": null,
+            "inputs": {
+              "Strength": 0.0,
+              "Color": [
+                0.5,
+                0.5,
+                1.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "image": null,
+            "inputs": {
+              "Base Color": [
+                0.800000011920929,
+                0.800000011920929,
+                0.800000011920929,
+                1.0
+              ],
+              "Metallic": 0.3096466064453125,
+              "Roughness": 0.550000011920929,
+              "IOR": 1.5,
+              "Alpha": 1.0,
+              "Thin Wall": false,
+              "Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Weight": 0.0,
+              "Diffuse Roughness": 0.0,
+              "Subsurface Weight": 0.0,
+              "Subsurface Radius": [
+                1.0,
+                0.20000000298023224,
+                0.10000000149011612
+              ],
+              "Subsurface Scale": 0.004999999888241291,
+              "Subsurface IOR": 1.399999976158142,
+              "Subsurface Anisotropy": 0.0,
+              "Specular IOR Level": 0.5,
+              "Specular Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Anisotropic": 0.0,
+              "Anisotropic Rotation": 0.0,
+              "Tangent": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Transmission Weight": 0.0,
+              "Coat Weight": 0.0,
+              "Coat Roughness": 0.029999999329447746,
+              "Coat IOR": 1.5,
+              "Coat Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Coat Normal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Sheen Weight": 0.0,
+              "Sheen Roughness": 0.5,
+              "Sheen Tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Color": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "Emission Strength": 0.0,
+              "Thin Film Thickness": 0.0,
+              "Thin Film IOR": 1.3300000429153442
+            }
+          }
+        ],
+        "links": [
+          [
+            "Image Texture",
+            "Color",
+            "Principled BSDF",
+            "Base Color"
+          ],
+          [
+            "Image Texture.001",
+            "Color",
+            "Normal Map",
+            "Color"
+          ],
+          [
+            "Normal Map",
+            "Normal",
+            "Principled BSDF",
+            "Normal"
+          ],
+          [
+            "Principled BSDF",
+            "BSDF",
+            "Material Output",
+            "Surface"
+          ]
+        ]
+      }
+    },
+    "images": [
+      {
+        "name": "Image_0",
+        "sha256": "c864d8c0a4cf05acfaa5cbf7e9fa29c41c332fae6332984f019be1deb50d258d",
+        "bytes": 405908,
+        "colorspace": "sRGB",
+        "size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "name": "Image_1",
+        "sha256": "0a5c44321403e714444c2ec90abe384a361e25b3e338221a687cd9ccf8a64197",
+        "bytes": 486840,
+        "colorspace": "Non-Color",
+        "size": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "armatures": 0,
+    "actions": 0
+  },
+  "blender_version": "5.2.2 LTS",
+  "scope": "Faithful editable import of the reviewed GLB; no geometry/material edits and no rig or clips added."
+}

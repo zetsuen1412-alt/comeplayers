@@ -1,0 +1,259 @@
+{
+  "id": "atlas",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\models\\atlas.glb",
+  "source_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\references\\atlas.png",
+  "reference_sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\atlas-roll-rim-spiral-candidate.glb",
+  "candidate_sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+  "candidate_bytes": 2442104,
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\atlas-roll-rim-spiral-candidate.blend",
+  "blend_sha256": "e880c936ffc313c4f8b6f1f3d011905bb5c73fc0d33acc9e1ad1ab6d28b30e6f",
+  "blend_bytes": 2521168,
+  "render_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\actual-mesh-renders",
+  "preservation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\independent-preservation-topology-audit.json",
+  "reopen_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\native-reopen-proof.json",
+  "geometry_recipe_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\trial-02\\roll-preservation-proof.json",
+  "recipe_paths": [
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\inspect_roll.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\locate_roll_surface.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\pick_roll_center.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\refine_roll_blender.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\audit_and_reopen.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\finalize_handoff.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\render_review_blender.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\tools\\validate_roster_candidate.py"
+  ],
+  "recipe_hashes": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\inspect_roll.py",
+      "sha256": "05cfb5e179b3670947418b319de40275d4db47d274167bee71f90f187cbab3a8"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\locate_roll_surface.py",
+      "sha256": "62be16b375e973c766332bc2310ffddcf310691a76b55a42e629a7ca6e48844f"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\pick_roll_center.py",
+      "sha256": "c38344b1cc0d3818152cb67ed3a0c76e80ca5ce7655dde0abfa075fa321da81b"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\refine_roll_blender.py",
+      "sha256": "d7e3ada07de48c3cd59e2b7d4d99d6b8d3c00c44079b018abc01eeb374c29fd4"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\audit_and_reopen.py",
+      "sha256": "a29e00650eb00941d1ac9a927b4a002a37a546f9f42a7346bb4ce56e5af7fe73"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\atlas\\finalize_handoff.py",
+      "sha256": "c30bd622eb07727fb3eea7a2e30e2c932f3cd6f285e6d61553a822225b0a9594"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\render_review_blender.py",
+      "sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\tools\\validate_roster_candidate.py",
+      "sha256": "72ef5252320ffe045415287e1101c61af032fc6574580e3c245aa4820a30a942"
+    }
+  ],
+  "render_evidence_sha256": "4f93c4cb148ed1eb83de35790c3eb612ac95744077b9dbddeca949557942a801",
+  "renders": [
+    {
+      "path": "front.png",
+      "sha256": "7babb3359a188301420797b5f521786070ce70a3d27f2518bf733e3a5e75a842",
+      "bytes": 598088
+    },
+    {
+      "path": "three-quarter.png",
+      "sha256": "21ae54380255fb655314a9d1030b1a93ab3f0bc14144f8ca82df69987107e1fb",
+      "bytes": 589422
+    },
+    {
+      "path": "left.png",
+      "sha256": "7e74dd91ec3d00fc9fd5e9ed91aa692f5b78235c889c913b5eecf2e45246fb09",
+      "bytes": 535038
+    },
+    {
+      "path": "right.png",
+      "sha256": "9e56771ab94689e5bd23721ea97c2cc27d26a94734d5a81d340ce9e50f30f04b",
+      "bytes": 543498
+    },
+    {
+      "path": "back.png",
+      "sha256": "96f551c9ac4a9042846f131e27ec579b511e9589068d4ffee051b4cad04a1f3b",
+      "bytes": 534599
+    },
+    {
+      "path": "top.png",
+      "sha256": "2f94370a2e0f59ba16f60f25b4c76bc008071dd290ccdd5a8dc4dac3fbfa5730",
+      "bytes": 486703
+    },
+    {
+      "path": "bottom.png",
+      "sha256": "fa86aa6575f7538b22dc63ebce78ae52e7d1514bcc57f3dff47b4f9220687d5f",
+      "bytes": 506531
+    },
+    {
+      "path": "orbit/frame-000.png",
+      "sha256": "62125b3befe9344a08d36b21866f1191179b30657ffed1298df602d74d895dc6",
+      "bytes": 171248
+    },
+    {
+      "path": "orbit/frame-015.png",
+      "sha256": "3c40c29dfd91641415e4334017bcd4f1b8f9737dd398e70cc2282fdf273b601e",
+      "bytes": 170893
+    },
+    {
+      "path": "orbit/frame-030.png",
+      "sha256": "ea891d13787c47f119aa034b9b99e19ff19edae28c06bc75c8146aa479ce86b8",
+      "bytes": 168218
+    },
+    {
+      "path": "orbit/frame-045.png",
+      "sha256": "82a18d3ceb7752717de4a492d6b4cd81fadbe65465d127ec8709574f852af363",
+      "bytes": 163862
+    },
+    {
+      "path": "orbit/frame-060.png",
+      "sha256": "27efc8f9def330f9db5e2e79ee94e7243cd6a2b2c81db80308be7d66d99ac047",
+      "bytes": 158364
+    },
+    {
+      "path": "orbit/frame-075.png",
+      "sha256": "937f50528f8e358032a902880e4474daaf11791b03dfbb97ba1bb0f11d542c3a",
+      "bytes": 153645
+    },
+    {
+      "path": "orbit/frame-090.png",
+      "sha256": "e627343b60a9a099ab6c02d4dcaf32f01f494fdabcd83399e89662862b0affaf",
+      "bytes": 150794
+    },
+    {
+      "path": "orbit/frame-105.png",
+      "sha256": "5c729ed50591edce38c98d32290fd2c54ec8ce73be1600644b3e8c9b83c41c69",
+      "bytes": 149176
+    },
+    {
+      "path": "orbit/frame-120.png",
+      "sha256": "4705fe969871bc635497eb3f70a354d42ebd483f1056622d92ddf10e32f19d7c",
+      "bytes": 147802
+    },
+    {
+      "path": "orbit/frame-135.png",
+      "sha256": "c18f1f88cd955232f57c7caa309e2e2660926e17c1285dc88b164df0ffd50831",
+      "bytes": 144985
+    },
+    {
+      "path": "orbit/frame-150.png",
+      "sha256": "2a47c871b9a27621a867c59769df94498b6409c811277ae33b4c1cb62e8631df",
+      "bytes": 145918
+    },
+    {
+      "path": "orbit/frame-165.png",
+      "sha256": "43a4b0096b50cf53eca1018249365afe564c72bdd5fbb03e58bb8ce07809f685",
+      "bytes": 148782
+    },
+    {
+      "path": "orbit/frame-180.png",
+      "sha256": "aa4b786ad389cf96699bd34ecaac7a5873d565f9421e7835d1110cab4029d20e",
+      "bytes": 152328
+    },
+    {
+      "path": "orbit/frame-195.png",
+      "sha256": "1bb5afbdbf7702eb43d1433e6f86e7da1a63629a5e8b83cba9a21675144f0323",
+      "bytes": 154245
+    },
+    {
+      "path": "orbit/frame-210.png",
+      "sha256": "c6010323337d4411ba3c71efab9612b9f6a2173882c2813541d0a0037b9d36d4",
+      "bytes": 153538
+    },
+    {
+      "path": "orbit/frame-225.png",
+      "sha256": "df76576a5e8958b43b3dbd1de6b923fd325cdba2b8488c751aeb42dc15288691",
+      "bytes": 152528
+    },
+    {
+      "path": "orbit/frame-240.png",
+      "sha256": "b50d73bae5dd1130e6fe6c263843cbbaafb8a1b70953fbab781821d3ef853b38",
+      "bytes": 151613
+    },
+    {
+      "path": "orbit/frame-255.png",
+      "sha256": "e4beb41bc1da68bf942d427d09d86a44f92f188eb81f9d640bc0da2f2da91e8d",
+      "bytes": 151501
+    },
+    {
+      "path": "orbit/frame-270.png",
+      "sha256": "961a10d1e90ef1dd5842c92ae8be406076c50de01567490cc3ced6f85ae12f8f",
+      "bytes": 154347
+    },
+    {
+      "path": "orbit/frame-285.png",
+      "sha256": "940054116af4f877586ea2cf5ef1efc7d01ed88362b7a749f0d20790ceb181bf",
+      "bytes": 159025
+    },
+    {
+      "path": "orbit/frame-300.png",
+      "sha256": "6a22b2d1c1bd2b32337b4407f54f8c962b872689dcf37288479c9b6c5921a383",
+      "bytes": 162635
+    },
+    {
+      "path": "orbit/frame-315.png",
+      "sha256": "33cffdf944f803458c1f8062eeca7687c85c776f2df9eb267c0a06513082448e",
+      "bytes": 164866
+    },
+    {
+      "path": "orbit/frame-330.png",
+      "sha256": "88fad8e54a07b23c72b56f7b21b131e2a361baba490583fe863a52a8f9d78396",
+      "bytes": 168036
+    },
+    {
+      "path": "orbit/frame-345.png",
+      "sha256": "0303c9ebd3d6b47b820a669d93455b4135839bb6947cb6d1c345ffcae8b78277",
+      "bytes": 169758
+    }
+  ],
+  "stats": {
+    "faces": 45028,
+    "vertices": 31672,
+    "meshes": 1,
+    "mesh_definitions": 1,
+    "default_scene": 0,
+    "default_scene_nodes": 3,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "bd345cdf87f42e88a27693a34e11344c655a447e25acd586bdae89a1fa40cec2",
+    "accessors_checked": 8,
+    "buffer_views_checked": 10
+  },
+  "scope": {
+    "operation": "Additive source-conforming rim and shallow spiral relief on the one reference-visible olive sleeping-mat roll end.",
+    "source_faces_retained": 35556,
+    "source_faces_removed": 0,
+    "source_vertex_deltas": 0,
+    "added_vertices": 4738,
+    "added_faces": 9472,
+    "original_bin_prefix_primitive_attributes_images_materials_nodes_exact": true,
+    "new_closed_components": 2,
+    "new_topology_boundary_nonmanifold_inconsistent_winding_zeroarea": 0,
+    "all_added_triangle_points_source_proximity_upper_bound": 0.005119288566145782,
+    "packed_original_images_byte_identical": true,
+    "root_visual_review": "Root inspected reference/front/left and selected as unapproved scoped candidate; pastel material/backpack gaps explicitly remain."
+  },
+  "limits": [
+    "Original olive roll/material remains too pale versus reference; highlights/studio lighting differ.",
+    "Backpack rear grid, blurred panel/straps, held paper-map detail and overall colors remain original.",
+    "New closed rim/spiral intentionally intersect/support existing roll; they are not a welded body union and no full global manifold/self-intersection/deformation certificate is claimed.",
+    "Reference constrains one visible roll end; hidden back/end geometry is unchanged, not newly validated.",
+    "Static and unrigged candidate; no game integration or final visual/perfection approval.",
+    "Packed blend is the portable editing entry. Recipes retain historical workspace defaults; use source/reference overrides for generation or normalize dependencies when rebuilding elsewhere."
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

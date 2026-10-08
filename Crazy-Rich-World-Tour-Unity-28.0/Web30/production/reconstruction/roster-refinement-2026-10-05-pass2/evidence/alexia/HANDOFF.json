@@ -1,0 +1,23 @@
+{
+  "id": "alexia",
+  "source_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\trial-v1\\alexia-headphone-candidate.glb",
+  "candidate_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\trial-v1\\alexia-headphone-editable.blend",
+  "blend_sha256": "c58639582c0da106312391b3548720c2d8b0a03536804b30892c1ba4730a251f",
+  "render_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\trial-v1\\actual-renders",
+  "preservation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\trial-v1\\alexia-headphone-candidate.preservation-proof.json",
+  "reopen_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\trial-v1\\alexia-headphone-editable.reopen-proof.json",
+  "recipe_paths": [
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\build_headphone_detail.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\alexia\\editable_headphone.py"
+  ],
+  "scope": "Lingkaran perak, bingkai hitam, diafragma emas dan titik tengah headphone mengikuti permukaan earcup sumber.",
+  "limits": [
+    "Rambut belakang masih berbentuk massa lembut dengan pola tekstur grid; belum cocok sempurna dengan turnaround V2.",
+    "Tangan, pakaian, koper dan seluruh 27.512 face sumber dipertahankan, masih perlu detail.",
+    "Sembilan model statis. Coating headphone tertutup secara individual; kontak antarbagian tidak disertifikasi global."
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

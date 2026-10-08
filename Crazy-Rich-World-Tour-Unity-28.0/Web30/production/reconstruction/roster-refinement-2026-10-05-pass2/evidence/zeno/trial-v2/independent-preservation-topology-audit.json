@@ -1,0 +1,66 @@
+{
+  "schema": "crwt.zeno-independent-additive-audit.v1",
+  "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+  "candidate_sha256": "7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88",
+  "reference_sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+  "source_bin_prefix_byte_identical": true,
+  "source_json_records_preserved": {
+    "accessors": true,
+    "bufferViews": true,
+    "meshes": true,
+    "nodes": true,
+    "materials": true,
+    "textures": true,
+    "images": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true
+  },
+  "source_vertex_deltas": 0,
+  "source_faces_removed": 0,
+  "source_faces_retained": 27156,
+  "added_vertices": 3072,
+  "added_faces": 6144,
+  "new_parts": [
+    {
+      "name": "zeno existing viewer-left upper lens rim fitted thin bead",
+      "vertices": 1536,
+      "faces": 3072,
+      "edge_incidence_two": true,
+      "opposite_edge_winding": true,
+      "minimum_triangle_area": 4.887679903274014e-07,
+      "signed_volume": 2.458755534960146e-06
+    },
+    {
+      "name": "zeno existing viewer-right touched lens rim fitted thin bead",
+      "vertices": 1536,
+      "faces": 3072,
+      "edge_incidence_two": true,
+      "opposite_edge_winding": true,
+      "minimum_triangle_area": 7.496165748265145e-07,
+      "signed_volume": 2.0850981328005086e-06
+    }
+  ],
+  "actual": {
+    "faces": 33300,
+    "vertices": 24679,
+    "meshes": 3,
+    "mesh_definitions": 3,
+    "default_scene": 0,
+    "default_scene_nodes": 5,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "a5fe009f9f9f0609e07a88af46999e5d27ec186967a069e96fd40be4b708a00f",
+    "accessors_checked": 10,
+    "buffer_views_checked": 12
+  },
+  "limits": [
+    "Independent audit certifies preserved source channels and each new bead closure/winding/nonzero area. It does not certify source or bead contacts, global manifold union, self-intersections, aesthetics, or deformation.",
+    "Fitted-plane bead segment behind retained touching fingers is manual inferred, not an exact all-surface seat certificate."
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

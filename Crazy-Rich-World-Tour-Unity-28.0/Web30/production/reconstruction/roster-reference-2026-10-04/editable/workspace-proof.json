@@ -1,0 +1,3935 @@
+{
+  "schema": "crwt.editable_roster_review_workspace.v1",
+  "manifest_sha256": "d6ffe663221340bdf158cb6d549deaf53ebb65aa4fd9df108fa9f3d3271898ff",
+  "blender_version": "5.2.2 LTS",
+  "layout": "grid",
+  "grid_spacing": 3.849999785423279,
+  "character_count": 10,
+  "characters": [
+    {
+      "id": "alexia",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\alexia.glb",
+      "source_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.3544307351112366,
+          -0.25528788566589355,
+          -0.4452480673789978
+        ],
+        "maximum": [
+          0.3424137830734253,
+          0.15626996755599976,
+          0.47905898094177246
+        ],
+        "size": [
+          0.6968445181846619,
+          0.4115578532218933,
+          0.9243070483207703
+        ]
+      },
+      "review_translation": [
+        -5.774999618530273,
+        -3.8499999046325684,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0": {
+          "vertices": 23425,
+          "polygons": 27512,
+          "loops": 82536,
+          "position_float32_sha256": "eed37883ec57f2eaed5f4030502cb8e5d2ec13febacdbbbfaa32f26b19c6aa6c",
+          "loop_vertex_indices_sha256": "a1155d3bae43d4d28967b08e372877277bd4b4129a4fc4cd0b5c8f14b6f3c37f",
+          "polygon_starts_sizes_sha256": "54b7db36cc80e0612d799fdf461a361db6865fac4a7d8f59ea76240257392dd4",
+          "polygon_material_indices_sha256": "3025f030e0104ea34e808ef4f2a7061c0c16ffe9c4567781ccf21421cd776722",
+          "material_slot_names": [
+            "Material_0"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "6360eec252d4025d59808ef951a13880509b5a671e78ba44c353cf158f5930d1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "rindi",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\rindi.glb",
+      "source_sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.321225643157959,
+          -0.3109402656555176,
+          -0.47531992197036743
+        ],
+        "maximum": [
+          0.34069669246673584,
+          0.2540126442909241,
+          0.45940887928009033
+        ],
+        "size": [
+          0.6619223356246948,
+          0.5649529099464417,
+          0.9347288012504578
+        ]
+      },
+      "review_translation": [
+        -1.9249999523162842,
+        -3.8499999046325684,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.001": {
+          "vertices": 19068,
+          "polygons": 24376,
+          "loops": 73128,
+          "position_float32_sha256": "f8b83e4716e1d31c4f32c3dcb58421070a0b3b0f81d670eb71593bf4cc2267b9",
+          "loop_vertex_indices_sha256": "f8f349632f2f2d3ad0a8fbf14e18de4925e07f5e6e712e3743009cdcc24156b4",
+          "polygon_starts_sizes_sha256": "d0d17827887b2591dc6d7ae193c942be1f821468558149e7c03fb5e492b1c976",
+          "polygon_material_indices_sha256": "078da2377acd8a8f11d1d6c6fc3f3eecdbc0169567367d5508895940404371d2",
+          "material_slot_names": [
+            "Material_0.001"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "0958306d5b7e94249fde4eaa109eb402ee35047231813b55c6cd10f6cb21ebfb"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "kairo",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\kairo.glb",
+      "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.2610214948654175,
+          -0.3367205858230591,
+          -0.4717593491077423
+        ],
+        "maximum": [
+          0.269461989402771,
+          0.27254462242126465,
+          0.4527919292449951
+        ],
+        "size": [
+          0.5304834842681885,
+          0.6092652082443237,
+          0.9245512783527374
+        ]
+      },
+      "review_translation": [
+        1.9249999523162842,
+        -3.8499999046325684,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.002": {
+          "vertices": 17420,
+          "polygons": 21676,
+          "loops": 65028,
+          "position_float32_sha256": "8a5f3352470f80fab728dc13680a1810d3c0db4534b8c3b0fd153234e12a7bfa",
+          "loop_vertex_indices_sha256": "d797bf7d5085b2b6d0b3d5bf02663e9a009fd9dea5d5b27f9d3f171610ce7adf",
+          "polygon_starts_sizes_sha256": "f219b1e461c8df22fab9104f0c382035e6c55f65d1156febba57441e17cd620c",
+          "polygon_material_indices_sha256": "f484176bb043e5e87f982068204ae1144fb4a7a08cb5df5a38c3cf9b46db7c37",
+          "material_slot_names": [
+            "Material_0.002"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "880192dfaa37af3e06583d899be2e76a521c1ec13945be5d69b730577dc8dcdb"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "luna",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\luna.glb",
+      "source_sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.35823315382003784,
+          -0.2434784173965454,
+          -0.45660412311553955
+        ],
+        "maximum": [
+          0.3859109878540039,
+          0.26031482219696045,
+          0.4785662889480591
+        ],
+        "size": [
+          0.7441441416740417,
+          0.5037932395935059,
+          0.9351704120635986
+        ]
+      },
+      "review_translation": [
+        5.774999618530273,
+        -3.8499999046325684,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.003": {
+          "vertices": 28130,
+          "polygons": 33620,
+          "loops": 100860,
+          "position_float32_sha256": "9bca2576f6aca3b20fc35a599ead139587bcd11948972e6c2fc691b9351dd81f",
+          "loop_vertex_indices_sha256": "a06f1fe73f8ec84f30c7afa29d2e41c1bf7253805d5e00414b2806c437e08178",
+          "polygon_starts_sizes_sha256": "2681af9b49d91bf41ff1c289d848c47b0da987b28cca4a3b4b8758833d5d9a82",
+          "polygon_material_indices_sha256": "bb105c1d75555f6fdd909b2913d0d078f763b9864dcf589ee7ed5016a3fca927",
+          "material_slot_names": [
+            "Material_0.003"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ff12422403df57f039b8dcf34d08b6a12e2efae8ddea36d00f964e59b0462419"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "nox",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\nox.glb",
+      "source_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.2940416932106018,
+          -0.22302556037902832,
+          -0.4637373089790344
+        ],
+        "maximum": [
+          0.29017889499664307,
+          0.19497370719909668,
+          0.4689217805862427
+        ],
+        "size": [
+          0.5842205882072449,
+          0.417999267578125,
+          0.9326590895652771
+        ]
+      },
+      "review_translation": [
+        -5.774999618530273,
+        0.0,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.004": {
+          "vertices": 20899,
+          "polygons": 24412,
+          "loops": 73236,
+          "position_float32_sha256": "804c83110b9026df583e8948fce1e6c10b879e52f84ef055abe07d58c34c2684",
+          "loop_vertex_indices_sha256": "b460c96c181f70059bc39cc5c4fa70570c60e3693c9cd8ef7bf8b63c2e0fb362",
+          "polygon_starts_sizes_sha256": "4f0622c02121ef043989699dabe615bf96f2b18ed609fe7ebf0c9c6c0910b92e",
+          "polygon_material_indices_sha256": "9cfdc04d52ac11a1831059e8586d5aed16da2b0aca5b947d7ad8301fe8d6e6f5",
+          "material_slot_names": [
+            "Material_0.004"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "c01a03e1d5b03a52132ce30e2f17b5ed6054de6c6dcdf638d4dbec6317c82cab"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "atlas",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\atlas.glb",
+      "source_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.35188794136047363,
+          -0.32148730754852295,
+          -0.43873992562294006
+        ],
+        "maximum": [
+          0.3991994857788086,
+          0.33618468046188354,
+          0.446677565574646
+        ],
+        "size": [
+          0.7510874271392822,
+          0.6576719880104065,
+          0.8854174911975861
+        ]
+      },
+      "review_translation": [
+        -1.9249999523162842,
+        0.0,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.005": {
+          "vertices": 26934,
+          "polygons": 35556,
+          "loops": 106668,
+          "position_float32_sha256": "fa0ec3bc6047c612d33a7fbd1b4c6e88b7f2288f06382c8bcf74b06c3903fa57",
+          "loop_vertex_indices_sha256": "07e5fd21a8d5e9dfa28f65c0c99be34cf268bd1b45bd5804c6c2b4d19bb57e98",
+          "polygon_starts_sizes_sha256": "13654e1b50f0de3491a2bda7331f6bea12cf30124ca0a95a275bcccf1f7dc8aa",
+          "polygon_material_indices_sha256": "6f48a28c15e38f88a070d3b632afac0ea1c3f5bae3e14b1ab23e4677b350f6ba",
+          "material_slot_names": [
+            "Material_0.005"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1455a652515e2d1d8a36560fe72835a892a4af59446c5106431c9a6722edf332"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "zeno",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\zeno.glb",
+      "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.36024004220962524,
+          -0.2622412443161011,
+          -0.46155357360839844
+        ],
+        "maximum": [
+          0.3413287401199341,
+          0.19784015417099,
+          0.46520423889160156
+        ],
+        "size": [
+          0.7015687823295593,
+          0.46008139848709106,
+          0.9267578125
+        ]
+      },
+      "review_translation": [
+        1.9249999523162842,
+        0.0,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.006": {
+          "vertices": 21607,
+          "polygons": 27156,
+          "loops": 81468,
+          "position_float32_sha256": "bbf3855dbfd42dc699484d4cbaa72ee31edd8a1b17a02670321af33edfc8b7ce",
+          "loop_vertex_indices_sha256": "3b93a7b27eec20245fc8007dd70ee47f7b84dc120d07b60aec4b23d3d34a28a1",
+          "polygon_starts_sizes_sha256": "82d983b522f6328877fe9052670b4640f32b6cf8af544b69dbe761995a8100ae",
+          "polygon_material_indices_sha256": "c5b35e6687f21868c821c4e471e3a9c9ec6d7510e6112d86d9938890adb55557",
+          "material_slot_names": [
+            "Material_0.006"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "6a2a11da0429d3e84f6ab83eea7aeaf7e14d0f779565b95763f33278b0b32e15"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "yuna",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\yuna.glb",
+      "source_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.3930493891239166,
+          -0.2391263246536255,
+          -0.44736167788505554
+        ],
+        "maximum": [
+          0.37436389923095703,
+          0.22648870944976807,
+          0.44999802112579346
+        ],
+        "size": [
+          0.7674132883548737,
+          0.46561503410339355,
+          0.897359699010849
+        ]
+      },
+      "review_translation": [
+        5.774999618530273,
+        0.0,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.007": {
+          "vertices": 21309,
+          "polygons": 25716,
+          "loops": 77148,
+          "position_float32_sha256": "83c4be5be60629bc3b1301960f5579bd65a2b6d57b4d614826a5be6f39af1855",
+          "loop_vertex_indices_sha256": "0ea1e14eb7e7bfc86c8f6d67c98b87599f3025478a2eea8316ee1bccf66937a8",
+          "polygon_starts_sizes_sha256": "d0d8b5ed6a08eeaaaa118b427c48ca97da8c989e14a4294a1708bd9270559698",
+          "polygon_material_indices_sha256": "c24e35be8de472395495340a44e5610cd4a8f0adfaad2b809ed3d24c062a57d5",
+          "material_slot_names": [
+            "Material_0.007"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "750e4a696505abf57c1a05318401c6234bda4e440fce4b3b7ce94637d9caa370"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "mochi",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\mochi.glb",
+      "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.3799600601196289,
+          -0.2640906572341919,
+          -0.4316798150539398
+        ],
+        "maximum": [
+          0.4034651517868042,
+          0.1486000418663025,
+          0.4643700122833252
+        ],
+        "size": [
+          0.7834252119064331,
+          0.4126906991004944,
+          0.896049827337265
+        ]
+      },
+      "review_translation": [
+        -5.774999618530273,
+        3.8499999046325684,
+        0.0
+      ],
+      "imported_objects": 3,
+      "imported_armatures": 0,
+      "imported_actions": 0,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "geometry_0.008": {
+          "vertices": 14896,
+          "polygons": 23260,
+          "loops": 69780,
+          "position_float32_sha256": "cda483bd8c69669ea5de6c018e05036b0be14adafb7c8760e246d7a78eb1c5cf",
+          "loop_vertex_indices_sha256": "6cc963e06253074efe54312325556951deafcb321f6eec684a5a265a7b0c1150",
+          "polygon_starts_sizes_sha256": "fa5a0e7860488d53f4b3fb1776b38e0a3ef63dd16ea125741a7d6ede167d6a92",
+          "polygon_material_indices_sha256": "8a92e79cb479417af8fa8cfc175a1cbc3bb001cb5ec4b5bcc534f4e9644faa0b",
+          "material_slot_names": [
+            "Material_0.008"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "0cee8c1c4d6103bb7123d7e7e464d331fd7b97293b6d8e0ef2229e260a34cdeb"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "pip",
+      "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\pip.glb",
+      "source_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+      "status": "UNAPPROVED_REVIEW_CANDIDATE",
+      "accepted": false,
+      "native_imported_bounds": {
+        "minimum": [
+          -0.9510578513145447,
+          -0.9999999403953552,
+          -1.0
+        ],
+        "maximum": [
+          0.9510578513145447,
+          0.9999999403953552,
+          1.3345223665237427
+        ],
+        "size": [
+          1.9021157026290894,
+          1.9999998807907104,
+          2.3345223665237427
+        ]
+      },
+      "review_translation": [
+        -1.9249999523162842,
+        3.8499999046325684,
+        0.0
+      ],
+      "imported_objects": 198,
+      "imported_armatures": 1,
+      "imported_actions": 6,
+      "rig_added": false,
+      "native_imported_mesh_material_slot_uv_fingerprints": {
+        "Icosphere": {
+          "vertices": 42,
+          "polygons": 80,
+          "loops": 240,
+          "position_float32_sha256": "6a46b8216ee826d01a26612877cae0267201bd1301346dd6b32a3e6376875a20",
+          "loop_vertex_indices_sha256": "b0a9e2c896da3091e187d1b2c1b8221462ba551ec4adc708c38053dac81b4885",
+          "polygon_starts_sizes_sha256": "461d92ea2f8b5ec2a6c4349781d04c0686451efad4dcaf68a631a21c11b1ca74",
+          "polygon_material_indices_sha256": "7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61",
+          "material_slot_names": [],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1917750558146767e7df1ddee6cf309f1dbc4d1681cea08c908cb0f922e52b78"
+            }
+          ]
+        },
+        "Cube.049": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "d9ad55916a0e6593c77d356511d706c13f226ade052e7adbd9b193d7a748be55",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b369f8027e2a4921bebb109e50222335fb81fcc4e12fe0288c2f9b91de5f89f3"
+            }
+          ]
+        },
+        "PipReview | Companion blue rounded airplane patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "c2505264ad40e17115faf9fef729ba6a715dcde269c878b6167af5dc29bd8270",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | blue"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion broad cyan lower right armor": {
+          "vertices": 75,
+          "polygons": 96,
+          "loops": 288,
+          "position_float32_sha256": "d41d10e395394d5371bc8a89da6a363d2ad7f896500b938b9577d62125227a27",
+          "loop_vertex_indices_sha256": "8afe8c54f74efc6e45c663249aa7303b2372bbfdfa072a6dbe21056d00dc794e",
+          "polygon_starts_sizes_sha256": "f0e4c4ce73c0f590c9a9cf4c89dacd6da9625088438bd75b14e88f77c4a7476e",
+          "polygon_material_indices_sha256": "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1c9bf22d16828f872cac9746aea4dd601844ef8b8b832956bc3201cdfd75b629"
+            }
+          ]
+        },
+        "Cube.050": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "8fc2b1bda3bc7c4ff00c7e8580eb8dbdd8c26a075a5fed4fd1a34343be71d626",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "eeca51e8dd02e98591e2cc6a0380df9c32f68d0d1d5d2dd352488b5e2deb6632"
+            }
+          ]
+        },
+        "PipReview | Companion central gold compass badge": {
+          "vertices": 48,
+          "polygons": 28,
+          "loops": 84,
+          "position_float32_sha256": "4d9f0a059c3b9ef44bac627e24f7e20ce406fb95beeb64cb2972eb572bb0b6ba",
+          "loop_vertex_indices_sha256": "6d8f904511bebca98198614ee55d3ef853687f275c0fa514ccfaf26933516dd9",
+          "polygon_starts_sizes_sha256": "30e7aef1cb1b32ce3e87afa90eb3be1e78024177b9dfe800457576b0e96118c8",
+          "polygon_material_indices_sha256": "b5fdab78d8947eacc864bfeecb4d2100780e5afe1cd8efafb124887913ac49fa",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": []
+        },
+        "Cylinder.049": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "adc9fda6bdb0d23747c8358b039416df985907c9a7f5427f400c5c0679fd9fab",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1988d95644a95acd31dc51827c64dbed091c094e9cb8e8afcb3f69f68bfc2386"
+            }
+          ]
+        },
+        "Cylinder.050": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "ece8de20bf6c8a3b1c32081716ea1aea60e2d44e0920aa0fe9c33b7cdec52ab3",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.048": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "73921370767189eb387e697b31200daf41e051623893e9296f7b410314b7e988",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "516749aef32b244f21fb9b394f7129668b430d628ded7d01944a26c70b0184c0"
+            }
+          ]
+        },
+        "Cylinder.052": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "c9a7c3017432c791ae90d0d981268353011f26586b49f722bb35f990f82ee01f",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1988d95644a95acd31dc51827c64dbed091c094e9cb8e8afcb3f69f68bfc2386"
+            }
+          ]
+        },
+        "Cylinder.053": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "b948e785f896bb600ce6647c17636e3f012dd95094e29733ca4a2810f9fd5cb6",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.051": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "a05246defac632c8fbbf90cf2a86142a4ba44e106ab9b66cbd2f2c449e0a3ad2",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ac31df1f7e5c2139686b577cc2d656bc1c82a08b717fe66a27f1937274151b63"
+            }
+          ]
+        },
+        "Cube.063": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "55ab11dc531d798c9aa5a71f142fdd90d627ada83ec5312ec25c8c84b2297b8d",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "5bd6876eaeb3968883d1a88c6542860fd6492ed9b3bad7bf3c9a2a1ee0713886"
+            }
+          ]
+        },
+        "Cylinder.047": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "c67c63aa28624b8c266d5a2519195f1291a7ecc876f3a3c5c2ba08659066b4c9",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a0757064223182edaaa20d147c7f4f74387de83de934153f2b6c7acb25efd067"
+            }
+          ]
+        },
+        "Cylinder.042": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "3d5838db6480fabfa8c8fba2b5555272f45f65765379d444da78b643bd49d405",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1988d95644a95acd31dc51827c64dbed091c094e9cb8e8afcb3f69f68bfc2386"
+            }
+          ]
+        },
+        "Cylinder.043": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "67ca45f7639f2aa63ff3d2a5da14365deb5ba56d09033f75a1f6839cb875fae1",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.041": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "06ac69637ba911097cc57acb0caf6dc05e405af8d677a5a251e9a15fbbd0ae4f",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "516749aef32b244f21fb9b394f7129668b430d628ded7d01944a26c70b0184c0"
+            }
+          ]
+        },
+        "Cylinder.045": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "21fb3eb7334bd21f78c16a011f81152887672b60799d9dcac55f92294bffd765",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1c2b2bc8da53e90b9ac580799ef9f7f67579f97c8073110e7bf18acf2d08cea3"
+            }
+          ]
+        },
+        "Cylinder.046": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "e6461874e262e76e57eb74a79fe976709b90d394be20f459af07965093fa7344",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.044": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "3ce141bafa7ba502d57a0819fa6b29ae2ead82f127697ab80d6cf316db9e641d",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ac31df1f7e5c2139686b577cc2d656bc1c82a08b717fe66a27f1937274151b63"
+            }
+          ]
+        },
+        "Cube.062": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "d795604fc77634c0e6b8e09f458f5ecd1f6d9e5b969287c83fea679451307f57",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e448bf5d6df0f3891f4f92b84a533fa9bccffc4942cce544bf7890a0a799c871"
+            }
+          ]
+        },
+        "Cylinder.040": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "048d7c4a88fc16d8c2311bda0ed835c521c55ea69b050067b8f1f4f902e969d8",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a0757064223182edaaa20d147c7f4f74387de83de934153f2b6c7acb25efd067"
+            }
+          ]
+        },
+        "Cylinder.063": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "517cec175e73a30f5d336a255bdd8e8f76922a00a5c1c9d93000201ba65f4944",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1988d95644a95acd31dc51827c64dbed091c094e9cb8e8afcb3f69f68bfc2386"
+            }
+          ]
+        },
+        "Cylinder.064": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "61a0186f28e270c97fbf3fd02f92fa7ab0b270d2cd118f8d63278b4288c21fde",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.062": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "24f5a921b667e74759ac3be6d839e88a41642c87cd3f2d828fbb887a5a8596f4",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "89496095a1fd295ef5a7224cf90b05367ed9518e09250b221dc8f3ecdecbc60f"
+            }
+          ]
+        },
+        "Cylinder.066": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "a273cbc2788b17dc0e28e87d333e433a8b45b5322e570dcb447b75a659c8e50e",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "4cb8fb2401ac664e225c94de5609b4697a1691cb39a38ab3bef653046965532c"
+            }
+          ]
+        },
+        "Cylinder.067": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "9991b6ea4db533bce9aa93beb4c8c342e3335196f4b5f07829bbe3a616623a88",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.065": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "11778e443beaed96dfe1a0aa4df405662934ee60e8658cd9a41fb313cee26fe1",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ac31df1f7e5c2139686b577cc2d656bc1c82a08b717fe66a27f1937274151b63"
+            }
+          ]
+        },
+        "Cube.065": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "d5453c4911f0aa9bd6758b40ec68cff93a1dcf2b1297e0dfbe438a99f36554f3",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "5bd6876eaeb3968883d1a88c6542860fd6492ed9b3bad7bf3c9a2a1ee0713886"
+            }
+          ]
+        },
+        "Cylinder.061": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "6f2dca72ac9aacfa2744705f82b9898826c56e23af41654ea17f38c736861bb8",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a0757064223182edaaa20d147c7f4f74387de83de934153f2b6c7acb25efd067"
+            }
+          ]
+        },
+        "Cylinder.056": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "b35a93e35d7de2e62b695957583ea85f060a378e9900d51a618b2ee12194f728",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1988d95644a95acd31dc51827c64dbed091c094e9cb8e8afcb3f69f68bfc2386"
+            }
+          ]
+        },
+        "Cylinder.057": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "55ac303883948766feb338210b6676dea8ada5ce30a651f82c0eca30a1bb4de8",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.055": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "9e3405021a218b80a266150d422d512c2e322698de9c68dbe514a4e444bf1c17",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ee39aef09a3386c92ba980fb8a55263e9799a597ca12ae21c8894395727afecc"
+            }
+          ]
+        },
+        "Cylinder.059": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "b4522007d2718319e33f3cccce59793bff025f25904b62b9a7ee8e655fa41d26",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "4cb8fb2401ac664e225c94de5609b4697a1691cb39a38ab3bef653046965532c"
+            }
+          ]
+        },
+        "Cylinder.060": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "9d1107a997082364eb557301b2afa360ad663fc296b0e59f8b5214ab64dfdda1",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f3a7968fd48d0ac7fccdceb49e8c83a612a8fa8f4d516119e3de1f86af320820"
+            }
+          ]
+        },
+        "Cylinder.058": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "0d9c82b211ffc3892ff3b500bbc3f708f53231ac9238507b55d4ff81831dac8a",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "beb7e23806adfbe77d2608779af728aefc28badf864dd786c8c773a6792f1e09"
+            }
+          ]
+        },
+        "Cube.064": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "61db2cd6fd17a9fde2e84861175289ce9ac7c9b727177bbe90ffecf1c0408b3c",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "5bd6876eaeb3968883d1a88c6542860fd6492ed9b3bad7bf3c9a2a1ee0713886"
+            }
+          ]
+        },
+        "Cylinder.054": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "8cd0ac303b080a51b27c477662502a03de0872bd09d1d8bf51cf8be189eea624",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a0757064223182edaaa20d147c7f4f74387de83de934153f2b6c7acb25efd067"
+            }
+          ]
+        },
+        "PipReview | Companion dark closure gasket": {
+          "vertices": 583,
+          "polygons": 1040,
+          "loops": 3120,
+          "position_float32_sha256": "d18560e62419e183c095d4c4d45b2c6fe81d7bedabfb8c5bd4aa494383937731",
+          "loop_vertex_indices_sha256": "954cb1f98fd7d9f32ed3c8671f409fd013ae860c0a6bbb59f322a93272abdfc3",
+          "polygon_starts_sizes_sha256": "ba3223c45e4f0719419206179114b0c50babffb88de8e8c69cb3989effb7480a",
+          "polygon_material_indices_sha256": "b7de02dad947996e55b72749abf9a096d96e824ad109f9cc0d77d801a175b4ba",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "11778273658f340db646e8c458139a7726f8818274344417689e578c2ba6b1b5"
+            }
+          ]
+        },
+        "PipReview | Companion east blue globe land stamp": {
+          "vertices": 60,
+          "polygons": 36,
+          "loops": 108,
+          "position_float32_sha256": "60ea1461d2f7e16749d5b1da2d56708bfab7c530d5d688b0a16910d59e169b1a",
+          "loop_vertex_indices_sha256": "822d928cb32644772fa71e70208463885a4479cf6d640fececc38aa6f02305cc",
+          "polygon_starts_sizes_sha256": "45265973e5cb24c404761ef103251893ea698bc78ac6345ff7dcece406e12e17",
+          "polygon_material_indices_sha256": "81c611f35bff79491538b2f7cf201c7597a661a5c549633541c62bdc8af1613f",
+          "material_slot_names": [
+            "PipReview | blue"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion emissive U smile": {
+          "vertices": 295,
+          "polygons": 496,
+          "loops": 1488,
+          "position_float32_sha256": "78590bef583e21a7c6961564400c868da2aa17b7d67addfc7925a685b5498998",
+          "loop_vertex_indices_sha256": "df64aee045ba0fd45d9de026e25e738b9597dc432b000ac10c63f8c2f3e54593",
+          "polygon_starts_sizes_sha256": "82247ff724169f08e8091ac097926eddb73b3dbc1bb5e4d07a339342d3b42876",
+          "polygon_material_indices_sha256": "5b4a97decc57a48382234b6f23e27a26357ea1855d3c052ff4db94e6f91e37ee",
+          "material_slot_names": [
+            "PipReview | pixels"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ebb59372b1ff02e9b84dddf18e7041b4fbaa0df3e1378d3257d16475cbe8c283"
+            }
+          ]
+        },
+        "PipReview | Companion gold inset front frame": {
+          "vertices": 583,
+          "polygons": 1040,
+          "loops": 3120,
+          "position_float32_sha256": "ae96335288db9aeb5edc189532790b41a7a1783aa6b79ea9d7deadcab4b64ac2",
+          "loop_vertex_indices_sha256": "954cb1f98fd7d9f32ed3c8671f409fd013ae860c0a6bbb59f322a93272abdfc3",
+          "polygon_starts_sizes_sha256": "ba3223c45e4f0719419206179114b0c50babffb88de8e8c69cb3989effb7480a",
+          "polygon_material_indices_sha256": "b7de02dad947996e55b72749abf9a096d96e824ad109f9cc0d77d801a175b4ba",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "11778273658f340db646e8c458139a7726f8818274344417689e578c2ba6b1b5"
+            }
+          ]
+        },
+        "PipReview | Companion gold screen surround": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "5a62f6d80b946a51014289504d6822b835c38c79f133f85870904a0739b9af9a",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": []
+        },
+        "Cube.051": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "22af2d8a8ab9669b05c2918fceab451785755b5b555760eb9a9fdae32ed8f674",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e15bb4e35937fb770ee5571fef81094fafb88de582394e510d562545e2ac84f9"
+            }
+          ]
+        },
+        "Cylinder.039": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "1d0539d0362ebbdb304b3cc5c8737939229a0a9401e0a20a1664b7f6b28f655b",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ad842de1a571e3fee322db6065d28510ff2e8fa9cb5f928a9570f1c8f48b283f"
+            }
+          ]
+        },
+        "Cylinder.038": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "b6b82546cfd7da215c2b865daea4bee16ce5bcb86e30ecb9262b44ffd547440e",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ad842de1a571e3fee322db6065d28510ff2e8fa9cb5f928a9570f1c8f48b283f"
+            }
+          ]
+        },
+        "PipReview | Companion ivory front face": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "b318553a00900bcaf945d59efefa1d09ae0bf5574d79f78cc07a56d0706f9b13",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": []
+        },
+        "Cube.044": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "f24ccf6eebd23c3e5c5d8bee0d74a3965251c6d4ccf26c111782caa9ec4b188c",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "15cc9e96ab71883e8b52883696560a502e66f703dadbde3abec931f0d274a99f"
+            }
+          ]
+        },
+        "Sphere.002": {
+          "vertices": 323,
+          "polygons": 528,
+          "loops": 1584,
+          "position_float32_sha256": "be1955032f54469b69d0724dfb0db69f4afd304790c9f6888ceb6ee30ca589e2",
+          "loop_vertex_indices_sha256": "40ddccb9956199ac29714a5a94a13de80c4de117f3a9b6f99e63489b8828395f",
+          "polygon_starts_sizes_sha256": "6170cf3280db77abe8ae035bfdc8c712c7dafd554825a9e7da30a8aefc193e46",
+          "polygon_material_indices_sha256": "80b67b115f8e28f3b67fddcd4cd1daac24a054603d1dd0cb13793a299a5dadfc",
+          "material_slot_names": [
+            "PipReview | pixels"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "7f75a7a2c25fd062d63df120e2fa81dbcd26a97b1bef8a5b9ed7fca03ec4a8d2"
+            }
+          ]
+        },
+        "Cube.043": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "ee2ee058a13b38a21f45bf4841933c68960f24d3bcae78cad534c9055b667959",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "69ba85dcbabd50f94f53fe17ed881783742f505d554978080d38f5cf859c3cef"
+            }
+          ]
+        },
+        "PipReview | Companion left gold armor rail": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "2819b57853c10174520ba1e2ea181805169916eec3a65c11c4d3efa8cea7c6c9",
+          "loop_vertex_indices_sha256": "6ce2a0fd5f7b93d76a02c2ae91fd981b2d8dbe1b8df7be8b679c296930acbc90",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e7ceb332b6497bfd9e218d6c047323bfcd237706006d793a3f78050e104bd7b8"
+            }
+          ]
+        },
+        "Cube.041": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "4d3d9429268d41b1c0e3c9a827f704852181b7ae9c49cd53a865f28b9c1ba2b0",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "2a08f4ef9454587798664ce39ccc0f94819cec0ea1b4895a49e06f1452e9db03"
+            }
+          ]
+        },
+        "Cylinder.035": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "2d4ad25473cefc592c7c2329a5b1d5dae3fa3ee156c77cd1199a8d1209d22172",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8ec42a76bf74a63f5710436ab65956572b432c2ad0d60c7bd7ac610d0e53aa8e"
+            }
+          ]
+        },
+        "Cube.036": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "8651c8fd0a86715c234a60a75d7a7393300f0fc726603816e6a05428fc8f622e",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e0c356c7c3ca68ae4791f698df94c6fe90d81ae68cf82843125a2ad0c69b0fba"
+            }
+          ]
+        },
+        "PipReview | Companion left lower panel fine tile seam": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "17f8b0eac01293aba7eb0887558096c32b62b325f1c13d428a70f58f852e42a4",
+          "loop_vertex_indices_sha256": "4117eb3dce2900814e832215e8c4bac9615fd1bf7a8035de49df12e224042d15",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a518b8895dab72b5671284c164fd75e2c856f0daff1f42f2e7e39fb78619865b"
+            }
+          ]
+        },
+        "Cube.042": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "2f959122862177969965cdd85b877f00f42a8890b17a818fc557d66842f7c047",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "262dd6c13cdfb5409cd240884a48fae14d374f1606b08cb6cc9c6ae45274f2b5"
+            }
+          ]
+        },
+        "Cylinder.034": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "c4fc135c146c63e3197992a9c049e0206c639c8eff9cbbad3d6202f0cdf1822d",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8ec42a76bf74a63f5710436ab65956572b432c2ad0d60c7bd7ac610d0e53aa8e"
+            }
+          ]
+        },
+        "Cube.052": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "97add9dbef75e278b8bc861db077bcfb9d0d5fa1ad717176b7af1aa27d94aaca",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "95d174302fbd6a1b4e888ee9e3c49374c63b5e3c6b5b2ac7429b7ce4b07fd2f2"
+            }
+          ]
+        },
+        "Cube.035": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "e870957b833f87b18a42cdf391569886be8d9ae3612da1ecfe587115caee0e95",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e0c356c7c3ca68ae4791f698df94c6fe90d81ae68cf82843125a2ad0c69b0fba"
+            }
+          ]
+        },
+        "Cube.053": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "3f958f2e453294dce5fe33f3ef336873979646ec03b7f6d558f4f71ed0c81544",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f986577ef84c679559affbc84364b0c0949ce9e0bd7f0772a1fcbee257060ecb"
+            }
+          ]
+        },
+        "Cube.054": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "c8076da798ff35271de7c17b27608922f2e3c15cf5338ac7f1992f66f53e61be",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f986577ef84c679559affbc84364b0c0949ce9e0bd7f0772a1fcbee257060ecb"
+            }
+          ]
+        },
+        "Cube.055": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "f38610abc7f7944f2558f53bcb583f1ed17fdc4a18c989e64fbe56cccb71ba9e",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f986577ef84c679559affbc84364b0c0949ce9e0bd7f0772a1fcbee257060ecb"
+            }
+          ]
+        },
+        "PipReview | Companion lower left hollow star icon": {
+          "vertices": 121,
+          "polygons": 200,
+          "loops": 600,
+          "position_float32_sha256": "a052b2332540823fa36a71911c331e9b67114b1c192ed68966e011410a399fdc",
+          "loop_vertex_indices_sha256": "41509cbfe87497b699f8a02e40fc209afe533a1c0921a8b8a7e879be5209c228",
+          "polygon_starts_sizes_sha256": "60926219a0268a1625819214c7ef62f4c995c2811ecbb7b6e187826eac656ce4",
+          "polygon_material_indices_sha256": "67042dfda5683aead81b6055d19c4dba238341f9dd82f49c0e7cc0c19c5f10d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc593011dc72245ca8ed670859f30c83f822d17db0e90df8ae69f361a36358e"
+            }
+          ]
+        },
+        "PipReview | Companion lower left rounded patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "2bf20c1b67d663dede1d55825b95310b5f707630072fa505667c88478ff1e26b",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion middle lower panel fine tile seam": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "5da1795e55c7900485ac09b899722d0e893a005844e7198a9aed1fc355e4018c",
+          "loop_vertex_indices_sha256": "9bfed5462f77e0ba206e40455d923f9b1c5d169bfd3959d48a735bccb8f79640",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "999db426b677071cb5ff736aea8c298cac30ff8fdbb9ded30ade463b83e5ca7c"
+            }
+          ]
+        },
+        "PipReview | Companion plain rear lid": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "beb7c7dcc1886b41a579829a6f386c398c09a6327c684322e6d1b5603be52bcd",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion recessed black glass screen": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "1c96d53b6daff6b8129588fd03ca98da00eed1a2b566d9200ade740dee0d2754",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | screen"
+          ],
+          "uv_layers": []
+        },
+        "Cube.048": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "3a65cf4a05764ca06a79c241433c5ae4508a2b0099d7519c345899c503b742f2",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d3ece953fbc750d43234f7000df2166161870dc78b6883f421826fe54d07c5f1"
+            }
+          ]
+        },
+        "PipReview | Companion right cyan corner rail": {
+          "vertices": 75,
+          "polygons": 96,
+          "loops": 288,
+          "position_float32_sha256": "f64b362500b113ae0d8ec2e49b0ac29a8b9c70247932acb41ba7dc89170cc85e",
+          "loop_vertex_indices_sha256": "43b62ec7c0dbc0928dc3d6cc0d49e0fdea0adb4ebe4cb5494979877614a17beb",
+          "polygon_starts_sizes_sha256": "f0e4c4ce73c0f590c9a9cf4c89dacd6da9625088438bd75b14e88f77c4a7476e",
+          "polygon_material_indices_sha256": "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a6cecaa171da35c82ce736ea2a9afd9f5bd922d63e90e4eb64750d5da3596d6b"
+            }
+          ]
+        },
+        "Sphere.003": {
+          "vertices": 323,
+          "polygons": 528,
+          "loops": 1584,
+          "position_float32_sha256": "846a9bcfc2ae4a70a548aebff426eafe17162bfb3be54ec3fbb359ecc69fb79f",
+          "loop_vertex_indices_sha256": "88d890a5cdfef0fd6b321095939bb9c4bc2141eeb1d8da768489699809cdd4ef",
+          "polygon_starts_sizes_sha256": "6170cf3280db77abe8ae035bfdc8c712c7dafd554825a9e7da30a8aefc193e46",
+          "polygon_material_indices_sha256": "80b67b115f8e28f3b67fddcd4cd1daac24a054603d1dd0cb13793a299a5dadfc",
+          "material_slot_names": [
+            "PipReview | pixels"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "ebf09912b79bc0c39cc722d9ae26fcc4bb7ae1c69ca0292470b9c59cb139c7b2"
+            }
+          ]
+        },
+        "Cube.047": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "df7e969a1d188b79edfb3d33caf09ade2ad9aad5dea966a89f5f5538eda52b02",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "7eb6ade8e9f5eeb66ad1b3bcb06fa2e1ea0e953374e82b376e46c3b39d68422e"
+            }
+          ]
+        },
+        "Cube.045": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "37170cb3729451c5582db692b3c6e85ab0b42806917fe01003f194303a0d29ad",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "c652a1746656b0a483caf49748c6fc182e4aa335bfc08b8d263e356d5c0d1de0"
+            }
+          ]
+        },
+        "Cylinder.037": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "7827d53714e726f424a6a26c0ae6e0e23270e11ddb032a64d2b1a3cd4cbb58ae",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8ec42a76bf74a63f5710436ab65956572b432c2ad0d60c7bd7ac610d0e53aa8e"
+            }
+          ]
+        },
+        "Cube.038": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "87974eb82ab570ccde417831d7fae9bfb04663e9af9dc8dbd43ee6cf31d84317",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e0f52914ed2b0848a6853a689ccad4d0957230000b8d7d3529bbc656ba16b968"
+            }
+          ]
+        },
+        "PipReview | Companion right lower panel fine tile seam": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "7debb952904890518b23a767045a7e1e3bab337634208a365341870b8b6d3984",
+          "loop_vertex_indices_sha256": "6ce2a0fd5f7b93d76a02c2ae91fd981b2d8dbe1b8df7be8b679c296930acbc90",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e7ceb332b6497bfd9e218d6c047323bfcd237706006d793a3f78050e104bd7b8"
+            }
+          ]
+        },
+        "Cube.046": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "5bcdc9e01bfb0b022fad396d8e751458ea5bf6e33a54cbce4f7bd83760bf1611",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "262dd6c13cdfb5409cd240884a48fae14d374f1606b08cb6cc9c6ae45274f2b5"
+            }
+          ]
+        },
+        "Cylinder.036": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "ada72f095131d2544f8365c13815278d5492816e77895025dba7e10ea1acb531",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8ec42a76bf74a63f5710436ab65956572b432c2ad0d60c7bd7ac610d0e53aa8e"
+            }
+          ]
+        },
+        "Cube.056": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "00143c94ef897eb24f355842bcd571716d23944298df4a30277918d03fd88e08",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "95d174302fbd6a1b4e888ee9e3c49374c63b5e3c6b5b2ac7429b7ce4b07fd2f2"
+            }
+          ]
+        },
+        "Cube.037": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "fe21b4fca0d5652794f821dd8a571667d98ebf77d796d70f9e5218e6b9df0e4c",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e0f52914ed2b0848a6853a689ccad4d0957230000b8d7d3529bbc656ba16b968"
+            }
+          ]
+        },
+        "Cube.057": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "703ff4b6d80a9f332e16c92bd96d1d24cf137a36038ebc8c8ac9d06dd1cce31e",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f986577ef84c679559affbc84364b0c0949ce9e0bd7f0772a1fcbee257060ecb"
+            }
+          ]
+        },
+        "Cube.058": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "de69e69db0737812bb22251a04fba5803878acac68e4f6a1c4571b4ffcdf586b",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f986577ef84c679559affbc84364b0c0949ce9e0bd7f0772a1fcbee257060ecb"
+            }
+          ]
+        },
+        "Cube.059": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "1ae7aed9c405d50cac6ef17f4a553fd7fd184525e01fa1e65c5cd7e6e1bd14e1",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f986577ef84c679559affbc84364b0c0949ce9e0bd7f0772a1fcbee257060ecb"
+            }
+          ]
+        },
+        "Cube.034": {
+          "vertices": 784,
+          "polygons": 1452,
+          "loops": 4356,
+          "position_float32_sha256": "0bdce58a45c1b719d79285a16e3ccb6951de0c2d64a4d7420790fe84d0694ea9",
+          "loop_vertex_indices_sha256": "000648c0ebbd08e822c83f8d3651124d2614942ed3fec3f69fb11e252692c86d",
+          "polygon_starts_sizes_sha256": "926a0fca1d974b0af62236b14d52b0a79e1074d68e6ae57142763e02fc21be55",
+          "polygon_material_indices_sha256": "ae30239640bbf39a3c862e109e405d064fec1a2ff740f4967a1a6bae73822593",
+          "material_slot_names": [
+            "PipReview | turquoise"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9947c30611e8bfd7abe09f3d7f48277ab60412ddd716f2954c8351daf5c53f32"
+            }
+          ]
+        },
+        "PipReview | Companion short top carrying handle": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "28a0da27b6d1dcc565b8854125a13122029f6095ed9d362913f1917f20a556c4",
+          "loop_vertex_indices_sha256": "9bfed5462f77e0ba206e40455d923f9b1c5d169bfd3959d48a735bccb8f79640",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "999db426b677071cb5ff736aea8c298cac30ff8fdbb9ded30ade463b83e5ca7c"
+            }
+          ]
+        },
+        "PipReview | Companion side black carrying grip": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "8641397ceaf1e5ffdf7335e210526044e40395a134959bd389b0a5972db77dbe",
+          "loop_vertex_indices_sha256": "6ce2a0fd5f7b93d76a02c2ae91fd981b2d8dbe1b8df7be8b679c296930acbc90",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e7ceb332b6497bfd9e218d6c047323bfcd237706006d793a3f78050e104bd7b8"
+            }
+          ]
+        },
+        "Cube.061": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "57ed6bb5cdd4de2332c6d9ef9112f1f20ee24ac3841aa21f5a800abf206bc964",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "33b79e9cb21eba283272fd7ecbdfd100c77bdd555c1b3941f95dea1205f84139"
+            }
+          ]
+        },
+        "Cube.060": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "7fe401740582be3667f1f214ac277310d7034ac24b97a8aaedeff60a1641ed78",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "33b79e9cb21eba283272fd7ecbdfd100c77bdd555c1b3941f95dea1205f84139"
+            }
+          ]
+        },
+        "Cube.040": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "30535330a42122a8c700e5af985b8241bdb35751a68c228a0cc3e0b0ed677abb",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "db1b0ca54239d9c76b4a1bf770f60064c2980e2b03a76c1a196ef9de7858a86a"
+            }
+          ]
+        },
+        "Cube.039": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "9b0d6fdd5da6f99b01f613ee0de8bb053585e138eb4012e3edc87f1d1a6156a4",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "04d926c5eb8fc0ff5fd661ef99b35c8479979ac2399247895cf7f18ade0c8d9e"
+            }
+          ]
+        },
+        "PipReview | Companion source-guided gold angular lower panel": {
+          "vertices": 78,
+          "polygons": 48,
+          "loops": 144,
+          "position_float32_sha256": "d78551de03d5c5e0b33bd529bd90fdaab90b4d0665a31b092c64ae558427fe3d",
+          "loop_vertex_indices_sha256": "b3b5ffb7b32a79e8b3d15d3e3294fe80ed82da6a8d03c74cbcc258c01ffb5dfb",
+          "polygon_starts_sizes_sha256": "4e2fffa8e33e40429ca327fab3d5ddda79bd05fe234c8e40cf2065cfc0309e25",
+          "polygon_material_indices_sha256": "5d89f056865052bcb89c910d2d62872e029fb273c3db03f8968a52a41593c1b5",
+          "material_slot_names": [
+            "PipReview | gold enamel"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion subtle lower panel seam": {
+          "vertices": 53,
+          "polygons": 56,
+          "loops": 168,
+          "position_float32_sha256": "a0bf77c7d335188831bd27c98d19fac846501fc81304d2f1d22f4896e32f519c",
+          "loop_vertex_indices_sha256": "7e33f932ba349b725e9488bf53d637c31596d18c0587e93759a990c068bb10c3",
+          "polygon_starts_sizes_sha256": "49dfc1af5029ecf0943c43bd57ac560132f0d10d89325caaf8bbd4d49865fd3a",
+          "polygon_material_indices_sha256": "6eb69e26de2a26eda48af77d4cec893aa0cf4748a64cbefcfe11a22c1e680ad9",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "3665bb09f0c9305ac51fcae649f10e7dfbc8986075b27d7d41cec9a4b594df28"
+            }
+          ]
+        },
+        "PipReview | Companion subtle upper panel seam": {
+          "vertices": 53,
+          "polygons": 56,
+          "loops": 168,
+          "position_float32_sha256": "4daa7de5689c100586794a3b647de1a6267beb4afbc2963f6603bbfdc42f826d",
+          "loop_vertex_indices_sha256": "7e33f932ba349b725e9488bf53d637c31596d18c0587e93759a990c068bb10c3",
+          "polygon_starts_sizes_sha256": "49dfc1af5029ecf0943c43bd57ac560132f0d10d89325caaf8bbd4d49865fd3a",
+          "polygon_material_indices_sha256": "6eb69e26de2a26eda48af77d4cec893aa0cf4748a64cbefcfe11a22c1e680ad9",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "3665bb09f0c9305ac51fcae649f10e7dfbc8986075b27d7d41cec9a4b594df28"
+            }
+          ]
+        },
+        "PipReview | Companion upper left hollow star icon": {
+          "vertices": 121,
+          "polygons": 200,
+          "loops": 600,
+          "position_float32_sha256": "cb6a1d05beef187a93a2ac21a73acd7e41055f2643ef021fd3b6e46bc582645c",
+          "loop_vertex_indices_sha256": "41509cbfe87497b699f8a02e40fc209afe533a1c0921a8b8a7e879be5209c228",
+          "polygon_starts_sizes_sha256": "60926219a0268a1625819214c7ef62f4c995c2811ecbb7b6e187826eac656ce4",
+          "polygon_material_indices_sha256": "67042dfda5683aead81b6055d19c4dba238341f9dd82f49c0e7cc0c19c5f10d1",
+          "material_slot_names": [
+            "PipReview | gold enamel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc593011dc72245ca8ed670859f30c83f822d17db0e90df8ae69f361a36358e"
+            }
+          ]
+        },
+        "PipReview | Companion upper left rounded patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "be4fe7dafd10d0dcced41e17e393a76f330c9bb943ff2da89a7ad9b6c593c493",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion upper right hollow star icon": {
+          "vertices": 121,
+          "polygons": 200,
+          "loops": 600,
+          "position_float32_sha256": "90485b72634d5f058785052fed355941cd3befe8a883b64862cf38c10c49984e",
+          "loop_vertex_indices_sha256": "41509cbfe87497b699f8a02e40fc209afe533a1c0921a8b8a7e879be5209c228",
+          "polygon_starts_sizes_sha256": "60926219a0268a1625819214c7ef62f4c995c2811ecbb7b6e187826eac656ce4",
+          "polygon_material_indices_sha256": "67042dfda5683aead81b6055d19c4dba238341f9dd82f49c0e7cc0c19c5f10d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc593011dc72245ca8ed670859f30c83f822d17db0e90df8ae69f361a36358e"
+            }
+          ]
+        },
+        "PipReview | Companion upper right rounded patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "5122332a567c7bd44973c6523dcb2dc6ce7ae1c020c41c8752870bb972ee6cb0",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | coral"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion west blue globe land stamp": {
+          "vertices": 54,
+          "polygons": 32,
+          "loops": 96,
+          "position_float32_sha256": "e1c0182b503afe2d9e5d51212d7a891634fa1d1d6e48d2ed4e75d666e38a3a35",
+          "loop_vertex_indices_sha256": "8110ef66569fb640c9b186cc1ee591cddae54a67456444e2ee93159df57ff5c9",
+          "polygon_starts_sizes_sha256": "c34270371a4323d1e2010701caaa7b775719de7779a6599ab8923b0027f1a074",
+          "polygon_material_indices_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+          "material_slot_names": [
+            "PipReview | blue"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion white airplane patch silhouette": {
+          "vertices": 96,
+          "polygons": 60,
+          "loops": 180,
+          "position_float32_sha256": "4de90a75bdd7eba565bdb9cbf6fae91be1e176781f144af92dbc8b535d0ee712",
+          "loop_vertex_indices_sha256": "fb9a7f4eeaaf35a95231d6a7f0d9ba03bf7749befdc2294fceb1e90658bb7ff9",
+          "polygon_starts_sizes_sha256": "5c19f966e2cf5599b09e0e6e3f99c331ac3e18749ea87020811b11aefba268a6",
+          "polygon_material_indices_sha256": "2dfba633817046c7f559ed4b93076048435f7e1a90f14eb8035c04b9ebae2537",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Companion white screen bezel": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "64eb583019913051c0fdee11d705a42c0e2f93adc3681827a694a4b32bfd19a4",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": []
+        },
+        "Cube.017": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "27352eb658c726c68ffbd33923ca8f7fd6f4f22c877734203a0dc7a46a6c4f9a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9c1055a1972eb887b7fa3c85ebc4b94e94da52c1bd29379d8e7eaa22ba557148"
+            }
+          ]
+        },
+        "PipReview | Main blue rounded airplane patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "d0e0003d72467297fc05a1d3f83cc7d9706105831fdef0ce9c3ca4d553c72825",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | blue"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main broad cyan lower right armor": {
+          "vertices": 75,
+          "polygons": 96,
+          "loops": 288,
+          "position_float32_sha256": "610ade6e3c5c748e67cafcfa1dec18aa5788c799369703e7101c7edbd011a5bf",
+          "loop_vertex_indices_sha256": "8afe8c54f74efc6e45c663249aa7303b2372bbfdfa072a6dbe21056d00dc794e",
+          "polygon_starts_sizes_sha256": "f0e4c4ce73c0f590c9a9cf4c89dacd6da9625088438bd75b14e88f77c4a7476e",
+          "polygon_material_indices_sha256": "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "1c9bf22d16828f872cac9746aea4dd601844ef8b8b832956bc3201cdfd75b629"
+            }
+          ]
+        },
+        "Cube.018": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "ea35a8d03b6df1a6579e30dc693cbcaea324b446bb8f30c80dc112ddc3949e8e",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b882ab28eb351ca3cfc747e97c29be2d90e5694b7f31b1169238c153e37b7bb9"
+            }
+          ]
+        },
+        "PipReview | Main central gold compass badge": {
+          "vertices": 48,
+          "polygons": 28,
+          "loops": 84,
+          "position_float32_sha256": "8d7596ea146e66989925b8439f2de026881a24472e7c17e89d229099b6e548a4",
+          "loop_vertex_indices_sha256": "6d8f904511bebca98198614ee55d3ef853687f275c0fa514ccfaf26933516dd9",
+          "polygon_starts_sizes_sha256": "30e7aef1cb1b32ce3e87afa90eb3be1e78024177b9dfe800457576b0e96118c8",
+          "polygon_material_indices_sha256": "b5fdab78d8947eacc864bfeecb4d2100780e5afe1cd8efafb124887913ac49fa",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main dark closure gasket": {
+          "vertices": 583,
+          "polygons": 1040,
+          "loops": 3120,
+          "position_float32_sha256": "2b756164a657786c8c56b775bc0dccd6d55bdb77ad288448e484a641d4b28bd3",
+          "loop_vertex_indices_sha256": "954cb1f98fd7d9f32ed3c8671f409fd013ae860c0a6bbb59f322a93272abdfc3",
+          "polygon_starts_sizes_sha256": "ba3223c45e4f0719419206179114b0c50babffb88de8e8c69cb3989effb7480a",
+          "polygon_material_indices_sha256": "b7de02dad947996e55b72749abf9a096d96e824ad109f9cc0d77d801a175b4ba",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "11778273658f340db646e8c458139a7726f8818274344417689e578c2ba6b1b5"
+            }
+          ]
+        },
+        "PipReview | Main east blue globe land stamp": {
+          "vertices": 60,
+          "polygons": 36,
+          "loops": 108,
+          "position_float32_sha256": "2d3cbf773ffb14ad156406f7549dd950e5accbe0ae8f1944d561b355b01cef67",
+          "loop_vertex_indices_sha256": "822d928cb32644772fa71e70208463885a4479cf6d640fececc38aa6f02305cc",
+          "polygon_starts_sizes_sha256": "45265973e5cb24c404761ef103251893ea698bc78ac6345ff7dcece406e12e17",
+          "polygon_material_indices_sha256": "81c611f35bff79491538b2f7cf201c7597a661a5c549633541c62bdc8af1613f",
+          "material_slot_names": [
+            "PipReview | blue"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main emissive U smile": {
+          "vertices": 295,
+          "polygons": 496,
+          "loops": 1488,
+          "position_float32_sha256": "c67c8cb2342cc45f92759df436a31f8bbcf11ddb5dd5c348bf9c7a2a9bc6722e",
+          "loop_vertex_indices_sha256": "08cc1de3f6ce279088c8d3088ca0bc2f24115d15f016e0def68d04ef5b9053f2",
+          "polygon_starts_sizes_sha256": "82247ff724169f08e8091ac097926eddb73b3dbc1bb5e4d07a339342d3b42876",
+          "polygon_material_indices_sha256": "5b4a97decc57a48382234b6f23e27a26357ea1855d3c052ff4db94e6f91e37ee",
+          "material_slot_names": [
+            "PipReview | pixels"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "02cb3a9bfad8832308f71436deb26b731957644846e45b6a92b703bcf8e1057a"
+            }
+          ]
+        },
+        "PipReview | Main gold inset front frame": {
+          "vertices": 583,
+          "polygons": 1040,
+          "loops": 3120,
+          "position_float32_sha256": "360c0394f747efc76c469feea2d64aa596708252f654a0da2e287153adebb171",
+          "loop_vertex_indices_sha256": "954cb1f98fd7d9f32ed3c8671f409fd013ae860c0a6bbb59f322a93272abdfc3",
+          "polygon_starts_sizes_sha256": "ba3223c45e4f0719419206179114b0c50babffb88de8e8c69cb3989effb7480a",
+          "polygon_material_indices_sha256": "b7de02dad947996e55b72749abf9a096d96e824ad109f9cc0d77d801a175b4ba",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "11778273658f340db646e8c458139a7726f8818274344417689e578c2ba6b1b5"
+            }
+          ]
+        },
+        "PipReview | Main gold screen surround": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "3bc087a6eb775279631686b2bc08a69cf141bbb83787e57b8beca35259ac5057",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": []
+        },
+        "Cube.019": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "01726692a3851fdeb0f77442d416ca65a2fa02ca0d909550855fbff0ec7b6b32",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8316dab32b4f09a59104d2ce5c061f1816e0871debe3aacc92090da62ab6c89d"
+            }
+          ]
+        },
+        "Cylinder.005": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "f43838af8ce62a8cc6c5e64dcaf9b47e4999f5ff99af617ef5c48c28193347c7",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc41a95a68026e86749e4ae1884659c67ad2212169f3e9ab449affc2b622ddc"
+            }
+          ]
+        },
+        "Cylinder.004": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "bf183afc413ae98100b9bf9c59eb51f7aea291daf2ad707beb7a039bfa1164d2",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "0670f5de7c6ed95ac731e740711d7086fbdb122efc912d3176e7aa72f11d29aa"
+            }
+          ]
+        },
+        "PipReview | Main ivory front face": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "469d6c7a94e10e45713bfc92bbfa6bca3367afd76ccca221af046d2a3432d80d",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": []
+        },
+        "Cube.012": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "a5ac60f2cb50ec3c3cc9e3a9989ebecdf531f6e3cf946650551209044884f1f0",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "5cd5737c17776b63e0126a1b5c4ff25ec06e91f67a53f126e820a993fa39210e"
+            }
+          ]
+        },
+        "Sphere": {
+          "vertices": 323,
+          "polygons": 528,
+          "loops": 1584,
+          "position_float32_sha256": "2d811f04a62032c0a26347155a817706ddcb213d9f5c3663b0ed40b41ea6a358",
+          "loop_vertex_indices_sha256": "9067a086a75dce7df91641bfe3a285418bfa829251d16cec2c479ad839479c1c",
+          "polygon_starts_sizes_sha256": "6170cf3280db77abe8ae035bfdc8c712c7dafd554825a9e7da30a8aefc193e46",
+          "polygon_material_indices_sha256": "80b67b115f8e28f3b67fddcd4cd1daac24a054603d1dd0cb13793a299a5dadfc",
+          "material_slot_names": [
+            "PipReview | pixels"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "0dedb8ca2f93c629418dce29ccb6e991881c2c7d94685d6672a937a5f9d8ec0f"
+            }
+          ]
+        },
+        "Cube.011": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "3a78e38ca73aa4c3b0e20339671815eae81486d32e32b89155b07547131cc459",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b5ef243c3cc03d8b6f3568c86fdfc2feaa9d0bca9f37b875fff9ccee79d18a5e"
+            }
+          ]
+        },
+        "PipReview | Main left gold armor rail": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "cf1296a592b82d911a0f3580ebd27151839b58edc17cc8cb9b6fc6be2cefef82",
+          "loop_vertex_indices_sha256": "64a87085a13838df7c025a2b1842f71bfbe6fbe1e6d3d2a50359e7f0f40d0ee7",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "552ec1a7968ea351d51eab122062b9fc293cf8541c323507c86bfda498893af3"
+            }
+          ]
+        },
+        "Cube.009": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "9409a6a6f89c6384f769f63bf9e2a4ce5c41be012815886c5051c2f86cf2677a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "26d7b20cc64cbdf4594235ed66e5b661cd30d5d685eb83907ac6e9849bc53750"
+            }
+          ]
+        },
+        "Cylinder.001": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "5f3ee1456bacc24a7a4ebf6f3d24219b49de3c872f8f0544f9984ed85b934658",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "967d3e75237d30b9508e10d4b152f52259df11b348e4c1ad2b9efb06e1c2b5b7"
+            }
+          ]
+        },
+        "Cube.004": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "7fab425a3f2e033e2724f0966a90221fad69a0b12cc30acd73e737ffabe91e67",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8b01afb5e1a2e4045f031a770ddb84527c1fe9d4aafe871d9099bdffb7fdec14"
+            }
+          ]
+        },
+        "PipReview | Main left lower panel fine tile seam": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "539b731b461f811e2f5002c0be177ac2da960d8a1ad3c9f7687038dc5b6c8322",
+          "loop_vertex_indices_sha256": "4117eb3dce2900814e832215e8c4bac9615fd1bf7a8035de49df12e224042d15",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a518b8895dab72b5671284c164fd75e2c856f0daff1f42f2e7e39fb78619865b"
+            }
+          ]
+        },
+        "Cube.010": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "fdb3e1d5d43c811cc79322f4a36d30d3e730b67e8b5af951b7855effad0f1579",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "0467e97e0351114b7bc30650b91776716f7b5b514bd26e4bf7a8d6459c82c52b"
+            }
+          ]
+        },
+        "Cylinder": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "433bcf683ea56dcf36720b4a3b279238def2835005b3d7a9cd7abe5d13dd1861",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e1a2f5a39de9ff90e0448aaeb2a3f9d8892d47afcbdb0563b7ca03fa70ac24df"
+            }
+          ]
+        },
+        "Cube.020": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "bb970b43e2c129a61d771c2cbd2a0e967caf3e6de4d9b8a5a7593caed194ad12",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b9246f73f64be663d92ca43962707492f0853992626ea5008f3f86d6b6104e17"
+            }
+          ]
+        },
+        "Cube.003": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "da91e00fba06cb07fa2a47fb4a3069ea4b2921ea0e7e4fa305984d27f832da0a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "852faa8c0f46d563c8c9c2e1a7b91903a7fdb4ca6cca38212d87929f0fb3a9ee"
+            }
+          ]
+        },
+        "Cube.021": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "8d50f023671ec172b5179fdce48b1376ebd4f505648fbde8ab84a9ee90702a4a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8fe6d284c52bc0995003a6c9868a3027894e0986aa68125ca6cc783af78fdfb8"
+            }
+          ]
+        },
+        "Cube.022": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "963af2a159b7edfec2dc0f94b92f5a9eb61b07e38d52944b03d37b4d96b3956a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8fe6d284c52bc0995003a6c9868a3027894e0986aa68125ca6cc783af78fdfb8"
+            }
+          ]
+        },
+        "Cube.023": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "0601343b51221fd09c359e94584cbbb1ff286590b4650154157af091c47452c8",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f288ebcbaeb9f59f856adf86a6a0b8534cc213bb812be7ba46c4d5d70aae8674"
+            }
+          ]
+        },
+        "PipReview | Main lower left hollow star icon": {
+          "vertices": 121,
+          "polygons": 200,
+          "loops": 600,
+          "position_float32_sha256": "21801f8e65eeea7c4d27932ad7b2c4882a35b588a170005ee2e8666f93467bb7",
+          "loop_vertex_indices_sha256": "41509cbfe87497b699f8a02e40fc209afe533a1c0921a8b8a7e879be5209c228",
+          "polygon_starts_sizes_sha256": "60926219a0268a1625819214c7ef62f4c995c2811ecbb7b6e187826eac656ce4",
+          "polygon_material_indices_sha256": "67042dfda5683aead81b6055d19c4dba238341f9dd82f49c0e7cc0c19c5f10d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc593011dc72245ca8ed670859f30c83f822d17db0e90df8ae69f361a36358e"
+            }
+          ]
+        },
+        "PipReview | Main lower left rounded patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "cecacf723c154b0055ecad4e4c6b6cc7738dc75d886eca29b80c43622ff78763",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main middle lower panel fine tile seam": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "3602195b7e565f6cabce92f24b8bb4286c61159d7a15b023a8a3bc422bad5f0d",
+          "loop_vertex_indices_sha256": "9bfed5462f77e0ba206e40455d923f9b1c5d169bfd3959d48a735bccb8f79640",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "999db426b677071cb5ff736aea8c298cac30ff8fdbb9ded30ade463b83e5ca7c"
+            }
+          ]
+        },
+        "PipReview | Main plain rear lid": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "ae73679035fb429136481d96f9a5b8bb16b83d2f2c739e1796012efb0a262ca3",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main recessed black glass screen": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "fd92e6f46920727d8591dbe0baed1cdf3b5187faa3c1fd35acc19a801d5d8798",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | screen"
+          ],
+          "uv_layers": []
+        },
+        "Cube.016": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "550575ec7a96e98d870a2e7d2b89bb638a2cfd28b33c449f4e487a41cea137d1",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "5cd5737c17776b63e0126a1b5c4ff25ec06e91f67a53f126e820a993fa39210e"
+            }
+          ]
+        },
+        "PipReview | Main right cyan corner rail": {
+          "vertices": 75,
+          "polygons": 96,
+          "loops": 288,
+          "position_float32_sha256": "d0990f6d38b68842527722957592ef1ba17f911169199fa70d9e6c3ae047849e",
+          "loop_vertex_indices_sha256": "b6bb735c9ec4733aa09313dbbfad021b8e99abbcdc2ab8c853623b9843c24ed5",
+          "polygon_starts_sizes_sha256": "f0e4c4ce73c0f590c9a9cf4c89dacd6da9625088438bd75b14e88f77c4a7476e",
+          "polygon_material_indices_sha256": "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "49a8f3465d7be31faeeb5dd4e98d50cc088ca8892d5ba169c321c6aab1b06113"
+            }
+          ]
+        },
+        "Sphere.001": {
+          "vertices": 323,
+          "polygons": 528,
+          "loops": 1584,
+          "position_float32_sha256": "5b96deaf0df8e06f75ea5ca9d1bedc0c79d6c91b09bef8cdd6e2a88815ad15bc",
+          "loop_vertex_indices_sha256": "40ddccb9956199ac29714a5a94a13de80c4de117f3a9b6f99e63489b8828395f",
+          "polygon_starts_sizes_sha256": "6170cf3280db77abe8ae035bfdc8c712c7dafd554825a9e7da30a8aefc193e46",
+          "polygon_material_indices_sha256": "80b67b115f8e28f3b67fddcd4cd1daac24a054603d1dd0cb13793a299a5dadfc",
+          "material_slot_names": [
+            "PipReview | pixels"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "7f75a7a2c25fd062d63df120e2fa81dbcd26a97b1bef8a5b9ed7fca03ec4a8d2"
+            }
+          ]
+        },
+        "Cube.015": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "23a2831598647653361add16d532ebad7c7eb290644c89b16d6aba82cc85b58a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b5ef243c3cc03d8b6f3568c86fdfc2feaa9d0bca9f37b875fff9ccee79d18a5e"
+            }
+          ]
+        },
+        "Cube.013": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "f47261d3ae7c787e98a7559410376b287b60c932fda90dacc49c49c7122e95dd",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "26d7b20cc64cbdf4594235ed66e5b661cd30d5d685eb83907ac6e9849bc53750"
+            }
+          ]
+        },
+        "Cylinder.003": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "790aed0b3b54bb5649c929411b9e543d346212f96beaa032f4089f2a41a7512f",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d0435312d87af00c381315a437f1412368f8cef7edb524687e37fb1ecd7557b2"
+            }
+          ]
+        },
+        "Cube.006": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "54f4bad4896b0a28b8437cb3a67ac2c1689f549b5c7d048664d9b8c7f87b1192",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8b01afb5e1a2e4045f031a770ddb84527c1fe9d4aafe871d9099bdffb7fdec14"
+            }
+          ]
+        },
+        "PipReview | Main right lower panel fine tile seam": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "18b47504b60ba6f7616faafc501f2026dd638afe8790536e2fd2f0bf655a1b78",
+          "loop_vertex_indices_sha256": "6ce2a0fd5f7b93d76a02c2ae91fd981b2d8dbe1b8df7be8b679c296930acbc90",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e7ceb332b6497bfd9e218d6c047323bfcd237706006d793a3f78050e104bd7b8"
+            }
+          ]
+        },
+        "Cube.014": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "118bce0a27862695719818c0b32f4e6d822e26b8db3cfd52fd09c2447fc21503",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d39bec6ce6569f23c2fbc56ab5bedff8adf8161ba37a1744124bc2cbf8a505e2"
+            }
+          ]
+        },
+        "Cylinder.002": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "d90a39311fd6559c8a416725a53d19f774b352890d657d891efbc319087fd479",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "790fe8413671ee064c2a9557223dc77c866d498cebecabae1175e4329c520cd6"
+            }
+          ]
+        },
+        "Cube.024": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "6c797fdc80a966e04ca72a7209051227a5658ee73b9ba17f4be9f79e9c0cdc79",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b9246f73f64be663d92ca43962707492f0853992626ea5008f3f86d6b6104e17"
+            }
+          ]
+        },
+        "Cube.005": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "1562603e093342a415aeff83b95027742c4015176031295bf3dbd9afe4ff2ac9",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "852faa8c0f46d563c8c9c2e1a7b91903a7fdb4ca6cca38212d87929f0fb3a9ee"
+            }
+          ]
+        },
+        "Cube.025": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "6051cc126191f97ae69ba034ee672cf05ba9a8b48bd88501669aa3dc3a8f3c9c",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f288ebcbaeb9f59f856adf86a6a0b8534cc213bb812be7ba46c4d5d70aae8674"
+            }
+          ]
+        },
+        "Cube.026": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "455d00db49b3f0aef9b407e234ecda8e45f30a2db9f988355333fb7942d4af67",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8fe6d284c52bc0995003a6c9868a3027894e0986aa68125ca6cc783af78fdfb8"
+            }
+          ]
+        },
+        "Cube.027": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "1a2d14032fb8b8d361b83b9fab0419eb518988d48f8f52e6cc23a4c9b2803c38",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "8fe6d284c52bc0995003a6c9868a3027894e0986aa68125ca6cc783af78fdfb8"
+            }
+          ]
+        },
+        "Cube": {
+          "vertices": 784,
+          "polygons": 1452,
+          "loops": 4356,
+          "position_float32_sha256": "491113c50c6d4efd1937b563ec79db5e1abc7da5acd98250f7909e52a8630e69",
+          "loop_vertex_indices_sha256": "d2cf7d344f837b3d78e25fa0d037377f5cee61adb4244aab67ab17202ceccbd0",
+          "polygon_starts_sizes_sha256": "926a0fca1d974b0af62236b14d52b0a79e1074d68e6ae57142763e02fc21be55",
+          "polygon_material_indices_sha256": "ae30239640bbf39a3c862e109e405d064fec1a2ff740f4967a1a6bae73822593",
+          "material_slot_names": [
+            "PipReview | turquoise"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "385f19ae67c8844bd62591397aca3300d6bdb02ae19d64e8a882145a3e5937de"
+            }
+          ]
+        },
+        "PipReview | Main short top carrying handle": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "6747e924901fcdb804d4e902a2436692f650203a81ad8dce6e670295ab595031",
+          "loop_vertex_indices_sha256": "9bfed5462f77e0ba206e40455d923f9b1c5d169bfd3959d48a735bccb8f79640",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "999db426b677071cb5ff736aea8c298cac30ff8fdbb9ded30ade463b83e5ca7c"
+            }
+          ]
+        },
+        "PipReview | Main side black carrying grip": {
+          "vertices": 64,
+          "polygons": 76,
+          "loops": 228,
+          "position_float32_sha256": "25de59eaf9e51dac143337ddffd67a6d4d383638dad373587d472fe76f386b1a",
+          "loop_vertex_indices_sha256": "6ce2a0fd5f7b93d76a02c2ae91fd981b2d8dbe1b8df7be8b679c296930acbc90",
+          "polygon_starts_sizes_sha256": "8adc215e24709484d2f3ad4cf975165cbd6decca8f5f440be4558c3a58369327",
+          "polygon_material_indices_sha256": "e2fc162ed9124452d23c85e81d60a0c228f414c3214a5de635737e25fbd29ac1",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e7ceb332b6497bfd9e218d6c047323bfcd237706006d793a3f78050e104bd7b8"
+            }
+          ]
+        },
+        "Cube.029": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "ac88215f644357783e75b9ce8f737c46c3c103316f775c08d71ca6bdd706167a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "97fcd508b46291d14ba2900d0c65ffffdaa958e502e4733bf564840946ac6787"
+            }
+          ]
+        },
+        "Cube.028": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "812e311ea6296bf5b25f9508f7bf8c9f3668ce67a3f2ee1918baae2f56866c72",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "97fcd508b46291d14ba2900d0c65ffffdaa958e502e4733bf564840946ac6787"
+            }
+          ]
+        },
+        "Cube.008": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "b6d59ad21359227926f54603abf00145062a9f025fd83661c16611b004d9688a",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b188b981d6cbbc1ef2507950f6f83e2e72215316f1da457d346ff66f586a5c2f"
+            }
+          ]
+        },
+        "Cube.007": {
+          "vertices": 1176,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "d9fbf4e3ff3a1277a17cb9c9e5a28700eaaa439fa1f953a7638df9740ede41eb",
+          "loop_vertex_indices_sha256": "18d34bcf37b098515bd7e2a8d9a18dfb6a3c6314a15c82cd4469827d22e77119",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b188b981d6cbbc1ef2507950f6f83e2e72215316f1da457d346ff66f586a5c2f"
+            }
+          ]
+        },
+        "PipReview | Main source-guided gold angular lower panel": {
+          "vertices": 78,
+          "polygons": 48,
+          "loops": 144,
+          "position_float32_sha256": "0051c86a60ae7c6c0ad464530140240215144b4748f66675e8559dcf21a58767",
+          "loop_vertex_indices_sha256": "b3b5ffb7b32a79e8b3d15d3e3294fe80ed82da6a8d03c74cbcc258c01ffb5dfb",
+          "polygon_starts_sizes_sha256": "4e2fffa8e33e40429ca327fab3d5ddda79bd05fe234c8e40cf2065cfc0309e25",
+          "polygon_material_indices_sha256": "5d89f056865052bcb89c910d2d62872e029fb273c3db03f8968a52a41593c1b5",
+          "material_slot_names": [
+            "PipReview | gold enamel"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main subtle lower panel seam": {
+          "vertices": 53,
+          "polygons": 56,
+          "loops": 168,
+          "position_float32_sha256": "dde4b12e586c8addb6be4a32441a8787072d0171b6321cd70e155c640f4ca5ee",
+          "loop_vertex_indices_sha256": "7e33f932ba349b725e9488bf53d637c31596d18c0587e93759a990c068bb10c3",
+          "polygon_starts_sizes_sha256": "49dfc1af5029ecf0943c43bd57ac560132f0d10d89325caaf8bbd4d49865fd3a",
+          "polygon_material_indices_sha256": "6eb69e26de2a26eda48af77d4cec893aa0cf4748a64cbefcfe11a22c1e680ad9",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "3665bb09f0c9305ac51fcae649f10e7dfbc8986075b27d7d41cec9a4b594df28"
+            }
+          ]
+        },
+        "PipReview | Main subtle upper panel seam": {
+          "vertices": 53,
+          "polygons": 56,
+          "loops": 168,
+          "position_float32_sha256": "b83109c2d64d5c2f0059d784731fcfc2247834bbae1e88dae7ab0530e51c605b",
+          "loop_vertex_indices_sha256": "7e33f932ba349b725e9488bf53d637c31596d18c0587e93759a990c068bb10c3",
+          "polygon_starts_sizes_sha256": "49dfc1af5029ecf0943c43bd57ac560132f0d10d89325caaf8bbd4d49865fd3a",
+          "polygon_material_indices_sha256": "6eb69e26de2a26eda48af77d4cec893aa0cf4748a64cbefcfe11a22c1e680ad9",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "3665bb09f0c9305ac51fcae649f10e7dfbc8986075b27d7d41cec9a4b594df28"
+            }
+          ]
+        },
+        "PipReview | Main upper left hollow star icon": {
+          "vertices": 121,
+          "polygons": 200,
+          "loops": 600,
+          "position_float32_sha256": "9016813fdee397869d666726f9d49a4b39ff7956f7828565b3a1ad890c2a80a1",
+          "loop_vertex_indices_sha256": "41509cbfe87497b699f8a02e40fc209afe533a1c0921a8b8a7e879be5209c228",
+          "polygon_starts_sizes_sha256": "60926219a0268a1625819214c7ef62f4c995c2811ecbb7b6e187826eac656ce4",
+          "polygon_material_indices_sha256": "67042dfda5683aead81b6055d19c4dba238341f9dd82f49c0e7cc0c19c5f10d1",
+          "material_slot_names": [
+            "PipReview | gold enamel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc593011dc72245ca8ed670859f30c83f822d17db0e90df8ae69f361a36358e"
+            }
+          ]
+        },
+        "PipReview | Main upper left rounded patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "8c89a9647a0437551a3f139f903243d5420d2c3cd71d82f142e58c2032859e66",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | sky"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main upper right hollow star icon": {
+          "vertices": 121,
+          "polygons": 200,
+          "loops": 600,
+          "position_float32_sha256": "5dcf1a91ec9695d549f08a7bf211be4417ec6dec0c7e88711a69f61e6faa207d",
+          "loop_vertex_indices_sha256": "41509cbfe87497b699f8a02e40fc209afe533a1c0921a8b8a7e879be5209c228",
+          "polygon_starts_sizes_sha256": "60926219a0268a1625819214c7ef62f4c995c2811ecbb7b6e187826eac656ce4",
+          "polygon_material_indices_sha256": "67042dfda5683aead81b6055d19c4dba238341f9dd82f49c0e7cc0c19c5f10d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9fc593011dc72245ca8ed670859f30c83f822d17db0e90df8ae69f361a36358e"
+            }
+          ]
+        },
+        "PipReview | Main upper right rounded patch": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "aa69746cad400c6345441a9d7b99dffb6cf9a101a0d92f89a113c2f92f6384fd",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | coral"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main west blue globe land stamp": {
+          "vertices": 54,
+          "polygons": 32,
+          "loops": 96,
+          "position_float32_sha256": "09b920972ac36e9b6fa58951c61c413cc6b7b79dc6b783718d67bb8228f79052",
+          "loop_vertex_indices_sha256": "8110ef66569fb640c9b186cc1ee591cddae54a67456444e2ee93159df57ff5c9",
+          "polygon_starts_sizes_sha256": "c34270371a4323d1e2010701caaa7b775719de7779a6599ab8923b0027f1a074",
+          "polygon_material_indices_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+          "material_slot_names": [
+            "PipReview | blue"
+          ],
+          "uv_layers": []
+        },
+        "Cylinder.015": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "6ca69ae976475048e9cc6696e27a4bb94e74f0093bb12f6d2fa4695f9aad15bd",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "b71a959098849d0d0ea29d5867171fd12c6f9c501d657ca5a310d7233ba8ec89"
+            }
+          ]
+        },
+        "Cylinder.016": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "2eddf9fa51b7f0dbbad81d4af5048161f4b2a84f3b3ed9397395aa56fff32fce",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.014": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "7359218832fdad1ce71aab1eb5e2f14793488c1157860a4c590fa4e1c7f379f0",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "fd5b051added07a26050735c0a99876a7db213af874afbb66e65abe3431d98a9"
+            }
+          ]
+        },
+        "Cylinder.018": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "3bd40d076c78d419d828e106c9055d88aeefed21b9b30838a9a718ab0af33bd5",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "dd12e597e3df2c84e262161852cba00925257df13ccd5b9926d919ac44cfb918"
+            }
+          ]
+        },
+        "Cylinder.019": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "d9585cc19af381cdd0fff49371e1325f0deaa3a03bf153b765e9899719c27753",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.017": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "93daa1e8b256bd7516c3a686a973800ed0c75affda3351c9049ef382e635d798",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "cced53641535d2341361ba8140c693d8f665ebb06c6df632e8aa278d7e8eca6f"
+            }
+          ]
+        },
+        "Cube.031": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "bccfbe50f546fc3d99e2468965a8257cba946779d787ac2e3c2f35f64f3519b7",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e15ae1bbeecb8ae94e49766b8cd97f87160adfc12a3d4a9e8f9bfa23f79fb0d2"
+            }
+          ]
+        },
+        "Cylinder.013": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "6c4d84e7cb526ed7e3071469f62e2e3f265948228b0b4e9203e624e895290913",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "e0fb673f40ad776b30432ed15fe80151baf0da62b6726fbac3105d17129844c8"
+            }
+          ]
+        },
+        "Cylinder.008": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "7ebe6b10ee60862b111abe874908adb935b652c786da53f54555348a205741f1",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "9cababc2640cebb55b19e6bccc3816e0e6d373ea17893d85f8c3c8f14bb04d9e"
+            }
+          ]
+        },
+        "Cylinder.009": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "eb297987daaf105bd6752033a96920cea37483e46bbcc238fa4e8ea1ed7cd31b",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.007": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "2536299a44918f86939164e86a982e28a733bdf07505ff1e1cdf0930f59fe8e6",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a751164ac4f6f8e8c9bae565768e225c8380f89e24fcb03bcc19526cb48b466b"
+            }
+          ]
+        },
+        "Cylinder.011": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "af85a7482ff5458db589b58c93c11a63313280d453eeb1a4897767dc3ab823ad",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "2b9bbfb3d8252312572e30b27686dacc1e071b0a028152c72aa0f64f10c9ce26"
+            }
+          ]
+        },
+        "Cylinder.012": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "fd3f48728f68a30f35c9b7c13a269ed9d8aa6514927056c7e92ec45500e58465",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.010": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "ba8d9691a24bf1f4d53279c49835df50c3a79af79ac02564c9c6a2a847be01f5",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "77c7041fbb03cd4ae37e1744d53c2be0ec8691b5ffac2fcad10d292aae7b1f8c"
+            }
+          ]
+        },
+        "Cube.030": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "77e63d18ff075c93f0f32155b8e9817d14163e1a2134e44fb38043355c228fe1",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "6e9e153ea29300c5b5cb91c4f39e2e80df24a3c67c58310cfb2e8f0390b762f6"
+            }
+          ]
+        },
+        "Cylinder.006": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "d7171fa0b1f42af5165445c620eb49b7b982c7af35e191ead139442f300f6f84",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "72247592912a050d1606bc34afd43a4e9188a05473215a74026321454ff867bc"
+            }
+          ]
+        },
+        "Cylinder.029": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "d80ea9d7f786334d0da5ff3e72b394ecd2a7af130b19b0b3811baca26e4eac80",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "48f5bbf1c7bc95d7fbc5568f6f13f00657177de9903156045373d76e16fb1937"
+            }
+          ]
+        },
+        "Cylinder.030": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "5271dee2ba8dce427a4657c207722d0a3f3736cbd5fe36034b09fe77dfe3b454",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.028": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "6fb92a270844a98a16f76a92835131b13174af41c9a250107ee7623c40ae63d3",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "df21f2ccfcddb93adfb1a1641a9f86b574dcc6e1274609bf71796aa0fb7f19fc"
+            }
+          ]
+        },
+        "Cylinder.032": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "cf83be1b670e99bb3ccd2432b1d8a511f93737130964fdab1b5fe6d53eb891f0",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "48f5bbf1c7bc95d7fbc5568f6f13f00657177de9903156045373d76e16fb1937"
+            }
+          ]
+        },
+        "Cylinder.033": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "6d5eb2e873bf9a77ef797166dfd27ba1eec4c0939ee1d2b4d6d93c059ad7f84d",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.031": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "fe9fc96a7c37ab8b784013b40ecf38674c1d5eb609bd9d5db1bd21113336a7bc",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "df21f2ccfcddb93adfb1a1641a9f86b574dcc6e1274609bf71796aa0fb7f19fc"
+            }
+          ]
+        },
+        "Cube.033": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "40139bd9c24add9cf8b964424d1589174ea63822609a5b38a31293d8d42e0bcf",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "6e9e153ea29300c5b5cb91c4f39e2e80df24a3c67c58310cfb2e8f0390b762f6"
+            }
+          ]
+        },
+        "Cylinder.027": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "c9aae01b3b85212ab3107b76217f6c0d957e037a2b309c15f37be63762193cf4",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "bb4d52b20e872717ee56d9cdf0e48aa0910b11f2f394a265601668d109fbd2d9"
+            }
+          ]
+        },
+        "Cylinder.022": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "674c2832d5bb912ddc2609e91231528a9caa881ff88a9ef1d072eff30adb995b",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a643ea3b72f45e1b6c3403b6349b8e0b0cf16c0993f699d64b5146ed714ef959"
+            }
+          ]
+        },
+        "Cylinder.023": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "56c06b3eb9d9d5186fec92afc0eaaa4ae9be2a1ae6a131368c03ef23ab14b15b",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.021": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "1afd1476db4f74119cd8d6c07296075cb82c86820a96ff651dea3dfa0a04357e",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "37c719b151fb0755350ed11f3292bb95eff5e48240a502a69693e1a880c50856"
+            }
+          ]
+        },
+        "Cylinder.025": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "e9f35d5bb85700978c1023ee72b362708478288cb137ef4ee5ddb4ba7498b040",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "a643ea3b72f45e1b6c3403b6349b8e0b0cf16c0993f699d64b5146ed714ef959"
+            }
+          ]
+        },
+        "Cylinder.026": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "9f83dfa4a01a605f9acb244b242c91377c8722e065ade351044772996c79eb97",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | gold"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "d657bc2c2f00339daaf795fe4136835d6bd3de1ce63f008e4f7eac2ae73ee32d"
+            }
+          ]
+        },
+        "Cylinder.024": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "0fd30ffdc6c9654dc4f58ed1039747f54b917b468820707eb64dc23c27433c59",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | rubber"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "37c719b151fb0755350ed11f3292bb95eff5e48240a502a69693e1a880c50856"
+            }
+          ]
+        },
+        "Cube.032": {
+          "vertices": 332,
+          "polygons": 588,
+          "loops": 1764,
+          "position_float32_sha256": "5daa7dc632b9308874ce6c90e888dd9cb9f9ba626dbb0db428298078ac361e8f",
+          "loop_vertex_indices_sha256": "b207fd254bd840d50678065f87a56a5dab559cd66541825469a0b08f1563ce94",
+          "polygon_starts_sizes_sha256": "611cf578b84cba648f54654d16901baedabf342003bb3c18c709dea9da16feb7",
+          "polygon_material_indices_sha256": "f81c4fa3aa1ad49efe00502d9d9a92330a660f1b0325d9184f23bf478e96e22e",
+          "material_slot_names": [
+            "PipReview | navy"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "6e9e153ea29300c5b5cb91c4f39e2e80df24a3c67c58310cfb2e8f0390b762f6"
+            }
+          ]
+        },
+        "Cylinder.020": {
+          "vertices": 324,
+          "polygons": 508,
+          "loops": 1524,
+          "position_float32_sha256": "44b03713eddcb95f6904dc76d7414fee8d0205bfee24580d7a99ce0cee8f74a9",
+          "loop_vertex_indices_sha256": "e43a4a5b666d18683df443a7d755e57a886e265d3a2d52784e007fe2099566c0",
+          "polygon_starts_sizes_sha256": "93f5988b0bb6a477841e47cce02483b8cace8e5480cde5ed2cfd8895f4c92d7c",
+          "polygon_material_indices_sha256": "23ba65cb93433b65e7ddcae5f8a7dd2ca232491793848644e625875c6dd6ae43",
+          "material_slot_names": [
+            "PipReview | steel"
+          ],
+          "uv_layers": [
+            {
+              "name": "UVMap",
+              "float32_uv_sha256": "f65360683275ce61592b0bb45d357a62ff03e861e618fd14020d3474472f8166"
+            }
+          ]
+        },
+        "PipReview | Main white airplane patch silhouette": {
+          "vertices": 96,
+          "polygons": 60,
+          "loops": 180,
+          "position_float32_sha256": "a267f2600833842be3fc029023bfb5830872a95243d03f4e69ccfba726d1568f",
+          "loop_vertex_indices_sha256": "fb9a7f4eeaaf35a95231d6a7f0d9ba03bf7749befdc2294fceb1e90658bb7ff9",
+          "polygon_starts_sizes_sha256": "5c19f966e2cf5599b09e0e6e3f99c331ac3e18749ea87020811b11aefba268a6",
+          "polygon_material_indices_sha256": "2dfba633817046c7f559ed4b93076048435f7e1a90f14eb8035c04b9ebae2537",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": []
+        },
+        "PipReview | Main white screen bezel": {
+          "vertices": 208,
+          "polygons": 204,
+          "loops": 612,
+          "position_float32_sha256": "e12ee399e4a55fbd17a1cfccf5b9c517b1cce978ffbea0febadff8415782c105",
+          "loop_vertex_indices_sha256": "f896d31ec3b7455af13f5b01220309ed7abe9e09352ed8dc67b6add29797eef2",
+          "polygon_starts_sizes_sha256": "5ea9f56418700fc680414790247b707dde2490c6b088dedf95f55450aa0d883b",
+          "polygon_material_indices_sha256": "0645a4a67dcec462dc9f335bb0564e6e39bf12ea7e40cf8de81418210102c2d1",
+          "material_slot_names": [
+            "PipReview | ivory"
+          ],
+          "uv_layers": []
+        }
+      }
+    }
+  ],
+  "accepted": false,
+  "production_ready": false,
+  "all_source_files_unchanged": true,
+  "imported_material_graphs_unchanged": true,
+  "all_file_images_packed": true,
+  "geometry_uv_texture_or_rig_edits_performed": false,
+  "limitation": "Blender imports glTF into its native representation; fidelity checks compare immediately imported data to the saved workspace, not byte identity of Blender's representation with GLB. Raw glTF JSON and input hashes are retained for provenance. Grid parents only place models for review. Visual/model approval remains pending.",
+  "output_blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\editable\\CRWT-semua-karakter-review.blend",
+  "output_blend_sha256": "237f1c21339bf1a08e33302def1f33b5f53e3b3303801943ab51edb6c2590caf"
+}

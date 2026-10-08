@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-atlas\\atlas-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "336066549f6e7e137cce795d88594b55372ed06ff2ff8a4aa259bc58574d20fa",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\atlas\\atlas-reference-candidate.glb",
+  "output_sha256": "8a8f2d188921f1ba70b297300ea317ac47092b9e641b0413fbf7510633a0c632",
+  "bytes": 2175720,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

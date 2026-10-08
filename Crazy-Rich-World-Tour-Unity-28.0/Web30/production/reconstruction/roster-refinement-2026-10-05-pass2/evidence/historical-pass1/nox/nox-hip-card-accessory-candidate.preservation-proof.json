@@ -1,0 +1,144 @@
+{
+  "schema": "crwt.nox_hip_card_candidate.v1",
+  "status": "manual-volumetric-accessory-candidate-unapproved",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\nox.glb",
+  "source_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\references\\nox.png",
+  "reference_sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+  "output_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+  "output_bytes": 1885836,
+  "source_files_preserved": true,
+  "source_bin_prefix_byte_identical": true,
+  "source_bin_bytes": 1804864,
+  "original_json_prefix_records_identical": {
+    "accessors": true,
+    "bufferViews": true,
+    "meshes": true,
+    "nodes": true,
+    "materials": true,
+    "textures": true,
+    "images": true,
+    "samplers": true,
+    "skins": true,
+    "animations": true
+  },
+  "original_source_positions_indices_normals_uv_images_unchanged": true,
+  "original_scene_root_nodes_retained_in_order": true,
+  "source_faces": 24412,
+  "source_vertices": 20899,
+  "new_faces": 1060,
+  "new_vertices_accessor_count": 2636,
+  "new_meshes": 1,
+  "new_materials": 3,
+  "card_center_world_gltf": [
+    0.21,
+    -0.01,
+    0.185
+  ],
+  "card_dimensions": {
+    "width": 0.052,
+    "height": 0.078,
+    "thickness": 0.0035,
+    "corner_radius": 0.0028
+  },
+  "card_rotations_degrees": {
+    "z": -35,
+    "y": -10
+  },
+  "new_mesh_bounds": {
+    "min": [
+      0.16777567565441132,
+      -0.05575961247086525,
+      0.1758848875761032
+    ],
+    "max": [
+      0.252224326133728,
+      0.03575960919260979,
+      0.19411511719226837
+    ]
+  },
+  "all_source_triangle_aabbs_checked": 24412,
+  "whole_accessory_aabb_source_overlap_count": 0,
+  "minimum_separating_axis_gap": 0.062309104949235916,
+  "new_welded_edges_count": 1590,
+  "new_welded_edge_incidence_two": true,
+  "new_total_signed_volume": 1.440870228642445e-05,
+  "volumes": [
+    {
+      "name": "Rounded white card, front/back and physical edge",
+      "material": 0,
+      "boundary_vertices": 36,
+      "triangles": 140,
+      "z_thickness": 0.0035
+    },
+    {
+      "name": "Central raised heart ink",
+      "material": 1,
+      "boundary_vertices": 64,
+      "triangles": 252,
+      "z_thickness": 0.0005199999999999998
+    },
+    {
+      "name": "Upper corner heart",
+      "material": 1,
+      "boundary_vertices": 64,
+      "triangles": 252,
+      "z_thickness": 0.00031999999999999976
+    },
+    {
+      "name": "Lower corner heart",
+      "material": 1,
+      "boundary_vertices": 64,
+      "triangles": 252,
+      "z_thickness": 0.00031999999999999976
+    },
+    {
+      "name": "Central white heart spot",
+      "material": 0,
+      "boundary_vertices": 20,
+      "triangles": 76,
+      "z_thickness": 0.0002400000000000002
+    },
+    {
+      "name": "Upper corner black registration pip",
+      "material": 2,
+      "boundary_vertices": 12,
+      "triangles": 44,
+      "z_thickness": 0.0002900000000000001
+    },
+    {
+      "name": "Lower corner black registration pip",
+      "material": 2,
+      "boundary_vertices": 12,
+      "triangles": 44,
+      "z_thickness": 0.0002900000000000001
+    }
+  ],
+  "actual_glb_validation": {
+    "faces": 25472,
+    "vertices": 23535,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "92e84c47888cdf73c38aec0eeb864badf067655c012b74941dcb250aea60f3e5",
+    "accessors_checked": 13,
+    "buffer_views_checked": 15
+  },
+  "images_added": 0,
+  "billboard_added": false,
+  "rig_added": false,
+  "animation_added": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Existing reconstruction anatomy/material artifacts remain.",
+    "Reference specifies only front card placement/decoration; depth, thickness, rounded edge and plain back are manual inferred construction.",
+    "Welded closed-volume check does not certify aesthetic quality or every decoration/card contact; raised ink and white spot are intentionally adjacent physical solids."
+  ]
+}

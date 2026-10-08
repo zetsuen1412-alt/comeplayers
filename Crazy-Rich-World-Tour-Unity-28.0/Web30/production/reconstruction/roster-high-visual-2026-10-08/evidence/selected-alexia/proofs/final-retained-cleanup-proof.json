@@ -1,0 +1,56 @@
+{
+  "schema": "crwt.alexia_high_visual_retained_cleanup_trial.v2_final_bounded",
+  "source_sha256": "21f60d8d03bf1d11346dd970b1189e98a6e3bad48aad1ec6f1ff3f0c5a758748",
+  "baseline_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "garment_mask_sha256": "b457eeacf93f82e323e673c789301d1d4636c08cf06f096fb86da48fe0c19956",
+  "candidate_sha256": "bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158",
+  "cleanup_mask_sha256": "c10276f64c0b0da4a27a15fc3503bacec21417088b93b99441c9aabd7fc43f73",
+  "recipe_sha256": "37bf2bd80dc752d48a00635615ee54b6db6908844b519054bb2c0506607a07cd",
+  "passed": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "visual_accepted": false,
+  "removed_lower_case_triangles": 28,
+  "removed_mixed_garment_triangles": 1052,
+  "removed_union_triangles": 1052,
+  "removed_mixed_case_triangles": 525,
+  "protected_actual_warm_leg_rows": 8468,
+  "false_warm_hand_box_rows": 224,
+  "retained_core_triangles": 131827,
+  "protected_incident_removed_triangles": 0,
+  "lower_case_removed_world_bounds": [
+    [
+      0.27338141202926636,
+      -0.20017121732234955,
+      -0.03411835432052612
+    ],
+    [
+      0.2833157777786255,
+      -0.18734121322631836,
+      -0.030138343572616577
+    ]
+  ],
+  "mixed_garment_removed_world_bounds": [
+    [
+      -0.268871545791626,
+      -0.34497278928756714,
+      -0.03411835432052612
+    ],
+    [
+      0.2927108108997345,
+      -0.12982644140720367,
+      0.17443442344665527
+    ]
+  ],
+  "case_rule": "Current retained core triangle has any source row worldX>.195 and worldY<-.18, and no protected incident row.",
+  "mixed_rule": "Current retained core triangle touches authored coat/cuff/shorts/boots/case or false warm Hand-box row; all three rows in -.18<Y<.145, abs(X+.006)<.34, -.12<Z<.205, Head<.1,Suitcase<.2; no protected incidence. Separate case-touch triangle: all rows X>.16,-.45<Y<-.14,-.08<Z<.21,Head<.1; no protected incidence.",
+  "protected_rule": "Mandatoryface OR cup OR exact frozen semantic-hair POSITION closure OR direct HandL+HandR>.35 (Head<.1,Suitcase<.2) OR source warm skin in -.20<Y<-.035,abs(X+.006)>.145,Z>-.05,Head<.1,Suitcase<.2 AND actual Hand+Forearm>.25 OR actual warm legskin in-.35<Y<-.13, .008<abs(X+.006)<.18, actual legweight>.5,Head/Suitcase<.1 OR central shirt predicate.",
+  "source_all_arrays_attributes_colors_materials_nodes_skins_clips_BIN_prefix_exact": true,
+  "input_hash_mtime_unchanged": true,
+  "limits": [
+    "Analysis-derived fresh cleanup requires actual side and motion inspection.",
+    "Source warm hand-region hue is a conservative protector and may retain some inherited garment fragments.",
+    "Only original core index routing changes; new authored components are identical to the parent trial."
+  ]
+}

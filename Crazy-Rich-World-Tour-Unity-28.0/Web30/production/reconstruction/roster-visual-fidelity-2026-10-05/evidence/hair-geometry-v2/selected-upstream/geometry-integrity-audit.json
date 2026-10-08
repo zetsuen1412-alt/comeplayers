@@ -1,0 +1,59 @@
+{
+  "schema": "crwt.alexia-rear-hair-independent-integrity.v1",
+  "source_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "candidate_sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+  "blend_sha256": "c479511928e9b04ce40d397053156a8f96c729dc040a9adda7964b00d4e15cb2",
+  "source_bin_prefix_identical": true,
+  "all_original_source_records_preserved_except_main_POSITION_NORMAL_references": true,
+  "original_indices_UV_images_materials_transforms_headphone_mesh_preserved_exact": true,
+  "selected_vertex_count": 3695,
+  "actual_position_changed_vertex_count": 3695,
+  "actual_normal_changed_vertex_count": 3695,
+  "all_non_roi_POSITION_NORMAL_floatbytes_identical": true,
+  "non_roi_position_bytes_sha256": "ea4709309ef52baab1eb98c057fe93e99155450d1f1b66eccff1d6e82369e6aa",
+  "non_roi_normal_bytes_sha256": "640a37b6a2c7fcd140ae3b7f9b4855874ebe7d0a8e76d4e95bfb40a7d271ae65",
+  "source_and_candidate_welded_edge_incidence": {
+    "2": 41268
+  },
+  "topology_closed_edge_incidence_preserved": true,
+  "preexisting_source_slivers_corrected_double_precision_audit": [
+    {
+      "face_id": 8162,
+      "old_area": 6.161884614415752e-13,
+      "new_area": 6.266258552067513e-13,
+      "actual_old_new_normal_cosine": 0.9970158958419777,
+      "numerical_limit": "Very small existing source triangle; orientation metadata is sensitive to float32 quantization, separately reported."
+    },
+    {
+      "face_id": 9194,
+      "old_area": 7.055894189769446e-13,
+      "new_area": 7.329422078914038e-13,
+      "actual_old_new_normal_cosine": 0.9951470704449147,
+      "numerical_limit": "Very small existing source triangle; orientation metadata is sensitive to float32 quantization, separately reported."
+    },
+    {
+      "face_id": 9195,
+      "old_area": 2.006968804455736e-13,
+      "new_area": 2.0391736366988996e-13,
+      "actual_old_new_normal_cosine": 0.9995309408545995,
+      "numerical_limit": "Very small existing source triangle; orientation metadata is sensitive to float32 quantization, separately reported."
+    },
+    {
+      "face_id": 9250,
+      "old_area": 7.232826850289901e-13,
+      "new_area": 7.299588573278537e-13,
+      "actual_old_new_normal_cosine": 0.9957324870383449,
+      "numerical_limit": "Very small existing source triangle; orientation metadata is sensitive to float32 quantization, separately reported."
+    },
+    {
+      "face_id": 10004,
+      "old_area": 5.837405414545397e-11,
+      "new_area": 5.7986293930980674e-11,
+      "actual_old_new_normal_cosine": 0.9775235155595932,
+      "numerical_limit": "Very small existing source triangle; orientation metadata is sensitive to float32 quantization, separately reported."
+    }
+  ],
+  "global_collision_certificate": false,
+  "approved": false,
+  "gameIntegrated": false
+}

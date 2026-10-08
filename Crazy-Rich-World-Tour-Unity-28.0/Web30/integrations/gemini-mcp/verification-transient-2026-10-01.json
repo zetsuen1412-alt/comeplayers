@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-10-01T12:38:39.573Z",
+  "deployment": "https://evo-gaming-4srpjaa1i-ilham-evogaming-s-projects.vercel.app",
+  "protocolPassed": false,
+  "geminiConfigured": true,
+  "readyForGeminiCalls": false,
+  "checks": [
+    {
+      "name": "health",
+      "httpStatus": 200
+    },
+    {
+      "name": "initialize",
+      "httpStatus": 200
+    },
+    {
+      "name": "notifications/initialized",
+      "httpStatus": 202
+    }
+  ],
+  "serverInfo": {
+    "name": "crazy-rich-gemini",
+    "version": "0.1.0"
+  },
+  "blocker": "Deployment request failed; check network access and authentication.",
+  "commit": "74e7331e38adb79c81ef329222150e5480871c89",
+  "deploymentId": "dpl_7XokN7Ghzj5p2PDqCmrCLJSEQVkd",
+  "target": "Preview",
+  "secretScope": "codex/crazy-rich-web-v30",
+  "firstUnusedKeyRevoked": true,
+  "replacementKeyStoredAsSecret": true
+}

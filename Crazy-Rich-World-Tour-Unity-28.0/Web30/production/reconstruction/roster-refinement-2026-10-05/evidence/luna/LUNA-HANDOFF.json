@@ -1,0 +1,359 @@
+{
+  "schema": "crwt.luna-staff-head-handoff.v1",
+  "date": "2026-10-05",
+  "approved": false,
+  "gameIntegrated": false,
+  "rig_approved": false,
+  "source": {
+    "sha256": "33f8426e3a4d13957c854f6da62d0105ed98555134154ab96d8b38e7c5a58fcc",
+    "bytes": 2198364,
+    "source_path_at_generation": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-04\\viewer\\models\\luna.glb",
+    "triangles": 33620
+  },
+  "candidate": {
+    "path": "luna-staff-head-refined-candidate.glb",
+    "sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+    "bytes": 3076744
+  },
+  "editable_blend": {
+    "path": "luna-staff-head-refined-candidate.blend",
+    "sha256": "cb88358bcc3ddeb4cd21ac2578bdb7430ff9666253426e1994d4e73246045c23",
+    "bytes": 2456174
+  },
+  "geometry": {
+    "mesh_parts": 13,
+    "glb_accessor_vertices": 40535,
+    "glb_referenced_vertices": 39343,
+    "unreferenced_source_vertices_retained_in_glb_bin": 1192,
+    "triangles": 55274,
+    "skins": 0,
+    "clips": 0,
+    "reference_billboard": false
+  },
+  "delta": {
+    "removed_source_faces": 1101,
+    "retained_source_faces": 32519,
+    "new_neck_caps": 11,
+    "accessory_triangles": 22744,
+    "total_triangle_delta": 21654,
+    "glb_byte_delta": 878380
+  },
+  "source_preservation": {
+    "original_bin_prefix_identical": true,
+    "source_position_normal_uv_accessor_bytes_preserved": true,
+    "source_materials_textures_images_preserved": true,
+    "retained_source_face_order_exact": true,
+    "source_file_unchanged": true,
+    "proof_path": "luna-staff-head-refined-candidate.source-preservation.json"
+  },
+  "neck_cap_audit": {
+    "passed": true,
+    "improper_contacts": 0,
+    "complete_new_cap_retained_pair_coverage": 357709,
+    "aabb_candidate_pairs_exact_tested": 131,
+    "cap_cap_pairs": 55,
+    "scope": "New caps vs retained source and cap/cap only; not retained/retained or accessory volume intersections",
+    "proof_path": "neck-cap-exact-audit.json"
+  },
+  "editable_restore": {
+    "actual_readonly_reopen_passed": true,
+    "geometry_normal_uv_transform_material_image_fingerprints_identical": true,
+    "packed_images": [
+      {
+        "name": "Image_0",
+        "sha256": "c864d8c0a4cf05acfaa5cbf7e9fa29c41c332fae6332984f019be1deb50d258d",
+        "bytes": 405908,
+        "colorspace": "sRGB",
+        "size": [
+          2048,
+          2048
+        ]
+      },
+      {
+        "name": "Image_1",
+        "sha256": "0a5c44321403e714444c2ec90abe384a361e25b3e338221a687cd9ccf8a64197",
+        "bytes": 486840,
+        "colorspace": "Non-Color",
+        "size": [
+          2048,
+          2048
+        ]
+      }
+    ],
+    "all_images_packed": true,
+    "packed_bytes_match_candidate": true,
+    "packed_bytes_match_preserved_source": true,
+    "source_folders_required_to_open_blend": false,
+    "armatures": 0,
+    "actions": 0,
+    "proof_path": "editable-readonly-reopen-proof.json"
+  },
+  "actual_renders": {
+    "folder": "actual-mesh-renders-complete",
+    "views": [
+      [
+        "front",
+        0,
+        0
+      ],
+      [
+        "three-quarter",
+        -30,
+        10
+      ],
+      [
+        "left",
+        90,
+        0
+      ],
+      [
+        "right",
+        -90,
+        0
+      ],
+      [
+        "back",
+        180,
+        0
+      ],
+      [
+        "top",
+        0,
+        89.9
+      ],
+      [
+        "bottom",
+        0,
+        -89.9
+      ]
+    ],
+    "orbit_frames": 24,
+    "view_resolution": 640,
+    "orbit_resolution": 320,
+    "engine": "CYCLES",
+    "samples": 32,
+    "rendered_from_glb_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381"
+  },
+  "visual_review": {
+    "improvement": "Clear separate spherical blue globe and volumetric gold armillary rings/support, readable at front/quarter/profile/back.",
+    "remaining_limits": [
+      "Hair, hat, face, hands, clothes and lower crescent preserve coarse source reconstruction.",
+      "Back hair/cloak remain lumpy/faceted; no rear reference proves reconstruction.",
+      "Gold globe motifs and small star finial do not yet fully follow canonical reference.",
+      "Hidden staff-head depth inferred from one front reference.",
+      "New-cap intersection audit does not cover all accessory-volume or retained/retained intersections.",
+      "No rig, clips, visual approval or game integration."
+    ]
+  },
+  "rebuild_helper": {
+    "path": "../save_editable_candidate.py",
+    "sha256": "1392bcdf4c4c5709111c66aea051f9857f5dc2bea293d8bcdf665041cd67242c"
+  },
+  "files": [
+    {
+      "path": "luna-staff-head-refined-candidate.glb",
+      "sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+      "bytes": 3076744
+    },
+    {
+      "path": "luna-staff-head-refined-candidate.blend",
+      "sha256": "cb88358bcc3ddeb4cd21ac2578bdb7430ff9666253426e1994d4e73246045c23",
+      "bytes": 2456174
+    },
+    {
+      "path": "luna-staff-head-addon.glb",
+      "sha256": "3675723dd845c720bd987803860c4bdc6c923d65d37c1ccd13faaaa19161c6ec",
+      "bytes": 487868
+    },
+    {
+      "path": "luna-staff-head-addon.blend",
+      "sha256": "4d5ae9f40bc0b31345de186125ad5ca5437a605bf5ea865d8f0da8a1b7f6b763",
+      "bytes": 252692
+    },
+    {
+      "path": "luna-staff-head-refined-candidate.source-preservation.json",
+      "sha256": "aa08248564cc93b9b60debb2dd8c93282c597d44fab96bce29c89803263583ac",
+      "bytes": 15320
+    },
+    {
+      "path": "neck-cap-exact-audit.json",
+      "sha256": "2d9063efa06459f659db1af329243cb46c6c58919f1be7c7b2c8ca85a9850613",
+      "bytes": 57959
+    },
+    {
+      "path": "editable-build-proof.json",
+      "sha256": "2820512d740e1bcd74eae701de36ed27b524b4692dde8d0e03f864438147e7b0",
+      "bytes": 20415
+    },
+    {
+      "path": "editable-readonly-reopen-proof.json",
+      "sha256": "f04b66a05bd0eb36cd496609753501f8c56a5bb875f3d649e3189cfa2a57dd46",
+      "bytes": 1322
+    },
+    {
+      "path": "LUNA-HANDOFF.md",
+      "sha256": "25bd1ab418d19160adba527814bf1960d4e5444e4428cc82ced6141c2d5dfa66",
+      "bytes": 4881
+    },
+    {
+      "path": "actual-mesh-renders-complete/back.png",
+      "sha256": "09ef2d4793860eb52e378ec0725b66498485bfcc8bff582bc8b00a7626f81016",
+      "bytes": 519445
+    },
+    {
+      "path": "actual-mesh-renders-complete/bottom.png",
+      "sha256": "e5e8d59bdcd9d39f76c0eb96754ba0aa2ecec7dd3285c01633330b17b75d5d4f",
+      "bytes": 477820
+    },
+    {
+      "path": "actual-mesh-renders-complete/front.png",
+      "sha256": "130fae68d01d54425e1d8cd966c692b20683d4a4a8661f525bf5841cf73c5454",
+      "bytes": 597726
+    },
+    {
+      "path": "actual-mesh-renders-complete/left.png",
+      "sha256": "82df206b5c5e4ce85f2f8576c7f5d766a5cb0afca31b991320c5adba852cb038",
+      "bytes": 520853
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-000.png",
+      "sha256": "ed0e4f7f8253f59765fce41e5ae4f87909a8f22591b405f75d66bb2cf7bf852b",
+      "bytes": 168764
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-015.png",
+      "sha256": "4c28d074e419810818920fcec47c8f2529726f8b5ca2c960fa64c65f9740421d",
+      "bytes": 169289
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-030.png",
+      "sha256": "fca7a3d66e9e500e6b6f4ed3f27320cfa1579ff0cda79d14866dcb92a79cb491",
+      "bytes": 166201
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-045.png",
+      "sha256": "b91932bb758f86c3445c9c639bd86fcd6982cd66bae42213a30359ab9310468b",
+      "bytes": 161671
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-060.png",
+      "sha256": "2a301cf46330ac2a58e03df26ce6dae11d4ebb584b01f4625e6706aa6c41df0f",
+      "bytes": 155256
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-075.png",
+      "sha256": "c35217c07abfab5066f95f27b141bf9774acbb0449b6f6bc06b6c99d4f7d9621",
+      "bytes": 149300
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-090.png",
+      "sha256": "7f676adb23b2042ae979048f8f0028b439136da0d35a82fd417dd9eeeb464210",
+      "bytes": 143646
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-105.png",
+      "sha256": "f0f5cea92ff62c80d2eca7e118138e9f0dab5f92e673540dd977822d2dd33fa0",
+      "bytes": 141051
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-120.png",
+      "sha256": "91890f557fec03b6f7ad3a695034602021c6a7b1920e71c90a813f2470ad38ae",
+      "bytes": 141007
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-135.png",
+      "sha256": "4cb811a50ab4b83e5ad374446d4257bf42fee3e9eab1e0641b0c941de4dd92c1",
+      "bytes": 141699
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-150.png",
+      "sha256": "613d4bd2036ed74d152c1f82db02be36c2e050c5b9c8584d63e5fa6efc79b559",
+      "bytes": 143609
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-165.png",
+      "sha256": "d4a980a68a7f0714e27ece8c68e62310991b5cc3fd7063103f0c80585f1751ab",
+      "bytes": 145382
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-180.png",
+      "sha256": "e78063850963b681fa488b7bcdeb70675ca320e9232f1c83fc4bf15a24ba67dd",
+      "bytes": 145997
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-195.png",
+      "sha256": "427ebe71d768982fa53c94fa6a28133ddd1f765128f6e43edabab11a7ab1e94f",
+      "bytes": 144454
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-210.png",
+      "sha256": "814db419ae6e275d6da71174a6fc5865d1cd4d1525c839be775d54b1ebba76fe",
+      "bytes": 142710
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-225.png",
+      "sha256": "f2ae407185612f2ce068953a0fa1e359b42b739b97f11f594df0b354f6e8594f",
+      "bytes": 140444
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-240.png",
+      "sha256": "538cb6f7f05fc2e6f15bee852b4ffc9d80b4056f9c9dd9936d53bc95e560c276",
+      "bytes": 138814
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-255.png",
+      "sha256": "141957735e7fd5ff005632d97ace316cfd1c8d498dba2ffea06506458bff3e5f",
+      "bytes": 139475
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-270.png",
+      "sha256": "9c7d5a15fa5a8687ff9024ee1a4d6d261477e99d09e000a39863485a735d6140",
+      "bytes": 140297
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-285.png",
+      "sha256": "9f456cf2e2e05c74de4ce26e50dbc0f22ab28abd22b189448db0ca183a8ba99d",
+      "bytes": 145120
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-300.png",
+      "sha256": "836eabff7e1a698fd1cfbd1ec8b729ae549efc62ae805ea826f2e5f8860a4517",
+      "bytes": 151205
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-315.png",
+      "sha256": "0fb2409ca8639f497347b62758eb658250d93d4279f4656eef446c62f0c400cb",
+      "bytes": 156973
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-330.png",
+      "sha256": "5f354f1b9449d0a2e46e409f4c4d06dacc2661b13a3e7a6b2c232d091d1a6416",
+      "bytes": 162080
+    },
+    {
+      "path": "actual-mesh-renders-complete/orbit/frame-345.png",
+      "sha256": "0649968fd672329fbe2d7c6094f8c5a3b12a17f0c8d7854a4473831f40ca8287",
+      "bytes": 166510
+    },
+    {
+      "path": "actual-mesh-renders-complete/render-evidence.json",
+      "sha256": "799edc968eb51c58906503e7c9e97ac5dc8bf83a9d50d63063dc01c2f23cf795",
+      "bytes": 1369
+    },
+    {
+      "path": "actual-mesh-renders-complete/right.png",
+      "sha256": "afd6cbfd07af887965388700f70e2efd899e506e9a218a486b561641c10ecab6",
+      "bytes": 507235
+    },
+    {
+      "path": "actual-mesh-renders-complete/three-quarter.png",
+      "sha256": "d32f494a454715aecfcd77e4b24ca2977f7c1ca7551b438e9045320b014ce783",
+      "bytes": 572017
+    },
+    {
+      "path": "actual-mesh-renders-complete/top.png",
+      "sha256": "edfd9e9f86d7f7c05499682cf78b1029fa6d38f04a89557624dd66205c3f5f72",
+      "bytes": 447260
+    }
+  ]
+}

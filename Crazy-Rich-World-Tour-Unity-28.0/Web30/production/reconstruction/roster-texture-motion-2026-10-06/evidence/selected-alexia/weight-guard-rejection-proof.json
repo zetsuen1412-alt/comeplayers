@@ -1,0 +1,12 @@
+{
+  "schema": "crwt.texture_motion_weight_guard_rejection.v1",
+  "passed": true,
+  "actual_candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "finite_in_range_invalid_weight_rejected": true,
+  "changed_component_before_after": [
+    1.0,
+    0.95
+  ],
+  "actual_rejection": "Weights do not sum to one",
+  "actual_candidate_unchanged": true
+}

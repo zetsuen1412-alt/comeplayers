@@ -1,0 +1,38 @@
+{
+  "schema": "crwt.browser_candidate_review.v1",
+  "verified_utc": "2026-10-05T05:19:23.164145+00:00",
+  "url": "http://127.0.0.1:8770/BUKA-REVIEW-MODEL.html",
+  "html_sha256": "34e5c9e6dae5a8f58dc679d59154de53cbaa325ac2609cd6c056fa2e607e5f29",
+  "manifest_sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+  "transport": "localhost HTTP",
+  "file_protocol_direct_open_verified": false,
+  "model_ready_ui_checked": [
+    "alexia",
+    "rindi",
+    "atlas",
+    "kairo",
+    "luna",
+    "mochi",
+    "nox",
+    "yuna",
+    "zeno",
+    "pip"
+  ],
+  "yuna_final_v4_ui_faces": 32908,
+  "pip_clip_selectors_checked": [
+    "Idle",
+    "Walk",
+    "Jump",
+    "Skill",
+    "Win",
+    "Lose",
+    "Pose statis"
+  ],
+  "comparison_mode_verified": true,
+  "console_warning_error_count": 0,
+  "screenshot": "evidence/browser-final-pip-comparison.jpg",
+  "screenshot_sha256": "2589eebaeea34ee2af1fda96ea262e20258710726ea6e2dc94e4b0010161c6f2",
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": "UI loading, selected clip controls and comparison mode; no gameplay integration or complete animation/deformation quality certificate."
+}

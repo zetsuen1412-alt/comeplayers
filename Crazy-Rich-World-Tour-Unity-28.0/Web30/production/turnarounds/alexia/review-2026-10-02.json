@@ -1,0 +1,81 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "alexia",
+  "updatedAt": "2026-10-02",
+  "stage": "awaiting_turnaround_visual_review",
+  "userDirection": {
+    "message": "lanjut alexia tanpa mata merah atau yang sebelumnya",
+    "activeDesign": "Original blue-eyed Alexia from the approved lineup",
+    "crimsonOverrideActive": false,
+    "referenceSelectionApproved": true
+  },
+  "reference": {
+    "file": "../../references/chibi_travel_adventurers_collectible_lineup.png",
+    "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "target": "Top row, first from left",
+    "eyeColor": "blue"
+  },
+  "selectedDraft": {
+    "file": "turnaround-blue-imagegen-v2.png",
+    "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "generator": "Built-in imagegen",
+    "type": "2D modeling reference draft",
+    "promptFiles": [
+      "imagegen-prompt-v1.txt",
+      "imagegen-prompt-v2.txt"
+    ],
+    "views": [
+      "front",
+      "front three-quarter",
+      "left",
+      "right",
+      "back three-quarter",
+      "back"
+    ]
+  },
+  "gemini": {
+    "primaryAnalysisModel": "gemini-3.8-flash",
+    "primaryOutcome": "Temporary high-demand error",
+    "successfulAnalysisModel": "gemini-3.5-flash-lite",
+    "analysisSucceeded": true,
+    "imageGenerationAttemptedForAlexia": false,
+    "imageQuotaEvidence": "../../../integrations/gemini-mcp/verification-fixed-2026-10-02.json and ../rindi/generation-fixed-2026-10-02.json",
+    "imageQuotaObserved": "Free-tier image quota was 0 on 2026-10-02; no repeated image call for Alexia"
+  },
+  "iterations": [
+    {
+      "version": 1,
+      "file": "turnaround-blue-imagegen-v1.png",
+      "sha256": "e11f84da2fa4d552bf241cbd405d7c337a9e52c553d4d81eeea1fc4e73f0bf58",
+      "outcome": "Blue-eyed identity rendered; suitcase wrong side in back-three-quarter; front-three-quarter too frontal"
+    },
+    {
+      "version": 2,
+      "file": "turnaround-blue-imagegen-v2.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "outcome": "Three-quarter rotation improved and suitcase corrected to anatomical left; selected for visual review"
+    }
+  ],
+  "manualReview": {
+    "eyeColor": "Blue in front, three-quarter and both visible profiles",
+    "identityAndPalette": "Compared directly to first figure in master",
+    "hairAndHeadphones": "Silver/lavender layered long hair and black/white/gold headphones checked across views",
+    "outfit": "Black/white/gold jacket, white shirt, black shorts/belt and chunky shoes checked across views",
+    "suitcase": "Anatomical left, front image-right and back image-left after correction; gold star on front face only; back face plain navy",
+    "inference": "Back hair/outfit construction and hidden details remain inferred from a single-view master",
+    "projection": "Generated 2D illustration, not calibrated orthographic measurements",
+    "expressionAndPose": "Relaxed standing modeling pose instead of the master's headphone gesture"
+  },
+  "visualApproved": false,
+  "approvedByUser": false,
+  "newModelsProduced": 0,
+  "gameAssetsReplaced": false,
+  "remainingGates": [
+    "User review of the new turnaround",
+    "Real multiview-guided volumetric mesh and material fidelity",
+    "Rig and animation deformation after mesh fidelity passes",
+    "Same reviewed GLB hash in viewer and board selector",
+    "Actual mesh 360 turntable, board screenshot and Idle/Walk/action footage"
+  ],
+  "rindiDraftStatus": "Preserved, awaiting visual review; switching to Alexia does not approve Rindi"
+}

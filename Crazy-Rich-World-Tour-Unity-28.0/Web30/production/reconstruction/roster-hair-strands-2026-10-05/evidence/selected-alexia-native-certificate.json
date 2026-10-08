@@ -1,0 +1,19 @@
+{
+  "schema": "crwt.selected_alexia_native.v1",
+  "passed": true,
+  "candidate_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "blend_sha256": "332598c36d589b8868cc1e03b6d4dd957de0d2a5ec0b1d0a790affe7bba07895",
+  "build_proof_sha256": "a2ae972fad62b666f4b77404156cc98e5cc244f14f51d2d0f3b5d813bd677722",
+  "reopen_proof_sha256": "52d175fe4ad0cf63467937a873749b29e32bfa215d06e131a529d4a2d3eea9f5",
+  "all_file_images_packed": true,
+  "read_only_reopen": true,
+  "native_color_attributes_preserved": true,
+  "single_character": "alexia",
+  "packed_active_image_count": 0,
+  "representation_limit": "Native COLOR uses Blender importer representation; packaged GLB bytes remain exact.",
+  "approved": false,
+  "gameIntegrated": false,
+  "editable_manifest_sha256": "51602ecb973e3a1a7029d38f6da970f2c8e4826c76be95a55564cc4d62811a0f",
+  "native_reopen_proof_path": "evidence/native-reopen.json",
+  "native_build_proof_path": "editable/Alexia-hair-strands-review.workspace-proof.json"
+}

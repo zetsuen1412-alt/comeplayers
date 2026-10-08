@@ -1,0 +1,256 @@
+{
+  "modelPath": "alexia-v11-front-projection-diagnostic.glb",
+  "previewType": "embedded baseColor/albedo plus simple lighting",
+  "fullPbrFaithful": false,
+  "gameReadyApproval": false,
+  "albedoLoaded": true,
+  "geometryMutated": false,
+  "animationOrRigVerified": false,
+  "limitations": [
+    "Normal, metallic/roughness, occlusion and emissive maps are not rendered.",
+    "Lighting uses a simple diffuse/fill formula, without environment or specular PBR.",
+    "Textures may already contain baked lighting; this preview does not remove it.",
+    "Bilinear sampling with repeat wrapping is used; source sampler choices are recorded but not reproduced.",
+    "BLEND alpha is shown as a near-zero-alpha cutout, without transparent sorting or blending.",
+    "Both sides are visible for inspection; source culling and full material extensions are not reproduced.",
+    "Loaded rest geometry is inspected; skin deformation and animation are not evaluated.",
+    "Vertex colors are multiplied only for explicit ColorVisuals; extra TextureVisuals vertex attributes are not evaluated."
+  ],
+  "glbSha256": "032e64c6adfd6367f2bc6a92f15adc3df10ba535b6dade9f46d9b251443cd200",
+  "bytes": 15385508,
+  "sourceTextureCount": 1,
+  "sourceTextures": [
+    {
+      "index": 0,
+      "name": null,
+      "sourceImageIndex": 0,
+      "samplerIndex": 0,
+      "extensions": {}
+    }
+  ],
+  "sourceImageCount": 1,
+  "sourceSkinCount": 0,
+  "sourceAnimationCount": 0,
+  "sourceSamplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9729,
+      "wrapS": 33071,
+      "wrapT": 33071
+    }
+  ],
+  "sourceExtensionsUsed": [],
+  "sourceMaterials": [
+    {
+      "index": 0,
+      "name": "DIAGNOSTIC-front-projection-unapproved",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": {
+        "index": 0
+      },
+      "alphaMode": "OPAQUE",
+      "otherTextureSlots": []
+    },
+    {
+      "index": 1,
+      "name": "UNKNOWN-unprojected-gray-not-textured",
+      "baseColorFactor": [
+        0.42,
+        0.42,
+        0.42,
+        1
+      ],
+      "baseColorTexture": null,
+      "alphaMode": "OPAQUE",
+      "otherTextureSlots": []
+    }
+  ],
+  "embeddedImages": [
+    {
+      "index": 0,
+      "name": "original-front-capture-unchanged.jpg",
+      "embedded": true,
+      "encodedSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "decodedRgbaSha256": "3f5d60aed0a8e8e739c7d7677bbaffc8ebd52741a3b90b60094e497bb7b5f5f1",
+      "size": [
+        584,
+        584
+      ]
+    }
+  ],
+  "uvOrientation": {
+    "probeFunction": "trimesh.visual.color.uv_to_color",
+    "probeUvs": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0
+      ]
+    ],
+    "probeRgba": [
+      [
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        0,
+        255
+      ],
+      [
+        255,
+        0,
+        0,
+        255
+      ],
+      [
+        0,
+        255,
+        0,
+        255
+      ]
+    ],
+    "loadedUvValuesModified": false,
+    "textureUploadVerticalFlip": true,
+    "convention": "loaded Trimesh UVs; image upload agrees with installed sampler",
+    "loaderSourceConfirmation": "Root inspected installed trimesh/exchange/gltf/__init__.py lines 1724-1728: raw glTF V is flipped to lower-left origin. This renderer does not apply another UV flip."
+  },
+  "faces": 449582,
+  "vertices": 449426,
+  "loadedGeometryInstances": 2,
+  "vertexCountMeaning": "sum of vertices in transformed loaded instances; shared source accessors may be counted per primitive or instance",
+  "sourceBounds": [
+    [
+      -0.709930956363678,
+      -0.9977096319198608,
+      -0.45268574357032776
+    ],
+    [
+      0.7035887241363525,
+      0.9882368445396423,
+      0.46762484312057495
+    ]
+  ],
+  "displayScale": 0.8560150135721273,
+  "displayTranslationCenter": [
+    -0.0031711161136627197,
+    -0.004736393690109253,
+    0.007469549775123596
+  ],
+  "displayTransformOnly": true,
+  "loadedNormals": "Trimesh vertex_normals, computed by Trimesh when absent",
+  "batches": [
+    {
+      "partIndex": 0,
+      "geometryName": "geometry_0",
+      "materialGroupIndex": 0,
+      "materialName": "DIAGNOSTIC-front-projection-unapproved",
+      "materialType": "PBRMaterial",
+      "faces": 103443,
+      "visualKind": "texture",
+      "baseColorFactorLoaded": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "factorInterpretation": "PBR baseColorFactor or glTF default white",
+      "albedoSlot": "baseColorTexture",
+      "albedoLoaded": true,
+      "embeddedImageIndices": [
+        0
+      ],
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "partIndex": 1,
+      "geometryName": "geometry_1",
+      "materialGroupIndex": 0,
+      "materialName": "UNKNOWN-unprojected-gray-not-textured",
+      "materialType": "PBRMaterial",
+      "faces": 346139,
+      "visualKind": "texture",
+      "baseColorFactorLoaded": [
+        0.41960784792900085,
+        0.41960784792900085,
+        0.41960784792900085,
+        1.0
+      ],
+      "factorInterpretation": "PBR baseColorFactor or glTF default white",
+      "albedoSlot": null,
+      "albedoLoaded": false,
+      "embeddedImageIndices": [],
+      "alphaMode": "OPAQUE"
+    }
+  ],
+  "loadedAlbedoTextureCount": 1,
+  "textureCount": 1,
+  "textures": [
+    {
+      "size": [
+        584,
+        584
+      ],
+      "decodedRgbaSha256": "3f5d60aed0a8e8e739c7d7677bbaffc8ebd52741a3b90b60094e497bb7b5f5f1",
+      "sourceImageIndices": [
+        0
+      ],
+      "sourceImageNames": [
+        "original-front-capture-unchanged.jpg"
+      ],
+      "sourceTextureIndices": [
+        0
+      ],
+      "sourceTextureNames": [
+        null
+      ]
+    }
+  ],
+  "status": "rendered-for-limited-albedo-inspection",
+  "renderedViews": [
+    "front",
+    "three-quarter",
+    "left",
+    "right",
+    "back",
+    "top",
+    "bottom"
+  ],
+  "renderer": "NVIDIA GeForce GTX 1660 SUPER/PCIe/SSE2",
+  "trimeshVersion": "5.1.1",
+  "turntableFrames": 36,
+  "cameraProjection": "orthographic",
+  "textureColorSpace": "sRGB texture decoded to linear, multiplied by factor and simple lighting, encoded to sRGB",
+  "outputFiles": [
+    "front.png",
+    "three-quarter.png",
+    "left.png",
+    "right.png",
+    "back.png",
+    "top.png",
+    "bottom.png",
+    "albedo-contact-sheet.png",
+    "actual-textured-mesh-turntable.gif",
+    "render-evidence.json"
+  ],
+  "inputPreservedSha256Match": true
+}

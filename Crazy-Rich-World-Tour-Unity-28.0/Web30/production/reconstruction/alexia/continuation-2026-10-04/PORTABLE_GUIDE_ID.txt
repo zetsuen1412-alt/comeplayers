@@ -1,0 +1,35 @@
+CRAZY RICH: WORLD TOUR — WEB30 PORTABLE
+
+Ekstrak ZIP ke folder baru. Jalankan dari root hasil ekstraksi:
+python verify_portable_workspace.py
+
+Python3.10+, standard library saja. Ini memeriksa seluruh file tercatat di
+portable-manifest.json dengan ukuran dan SHA-256, bukan persetujuan visual.
+
+Baca Crazy-Rich-World-Tour-Unity-28.0/Web30/CONTINUATION_LATEST_ID.md.
+Repo privat: zetsuen1412-alt/comeplayers
+Branch kerja: codex/crazy-rich-web-v30
+Snapshot lanjutan: checkpoint/crazy-rich-world-tour-2026-10-04-continuation
+
+Paket ini Web30 saja: 10GLB roster revision10, roster gabungan, sourceZIP,
+Alexia V11, referensi, client, bukti audit dan front projection diagnostic.
+Unity project di luar Web30 dan website mirror tersedia di repository penuh.
+Validator Web30/tools/verify_checkpoint.py mengharapkan978file seluruh repo;
+gunakan hanya pada checkout repository penuh. Gunakan verifier di root ZIP
+untuk paket ini.
+
+source.blend62.834.084bytes berada dalam Web30/production/CRWT-Editable-Source.zip.
+Ini source roster sculpt-v1 revision10, bukan sumber rebuild Hunyuan V11.
+
+Projection GLB adalah diagnostik depan: 24,72% permukaan mendapat proyeksi
+JPEG, sisanya gray. Geometri sumber sama, belum full texture/rig/game. Roster
+lama tetap backup yang ditolak visualnya. Accepted models tetap0.
+
+PNG/GIF lokal inspeksi dapat disertakan dalam paket lokal; artifact CI
+membangun GLB identik dari source+selection dan menyertakan bukti tersimpan.
+Skrip untuk render ulang berada dalam folder continuation/tools.
+
+Saat melanjutkan di Codex: baca entry continuation, verifikasi seluruh roster,
+pertahankan mata biru Alexia dan status review. Bandingkan kandidat Jutsu
+eksternal revision6 jika ekspor tersedia, lalu periksa geometri sebelum UV,
+tekstur penuh, rig atau penggantian game asset.

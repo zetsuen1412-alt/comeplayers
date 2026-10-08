@@ -1,0 +1,9 @@
+{
+  "map_id": "fantasy_kingdom",
+  "city": "Ember Keep",
+  "style": "fortress",
+  "level_4": "Landmark",
+  "renderer": "procedural_webgl",
+  "external_glb_slot": "glb/fantasy_kingdom/ember_keep.glb",
+  "fallback": true
+}

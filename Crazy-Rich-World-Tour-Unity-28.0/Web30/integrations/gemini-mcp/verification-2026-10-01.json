@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-01T11:46:19.543Z",
+  "deployment": "https://evo-gaming-h6ypkfhya-ilham-evogaming-s-projects.vercel.app",
+  "protocolPassed": true,
+  "geminiConfigured": false,
+  "readyForGeminiCalls": false,
+  "checks": [
+    {
+      "name": "health",
+      "httpStatus": 200
+    },
+    {
+      "name": "initialize",
+      "httpStatus": 200
+    },
+    {
+      "name": "notifications/initialized",
+      "httpStatus": 202
+    },
+    {
+      "name": "tools/list",
+      "httpStatus": 200
+    },
+    {
+      "name": "ping",
+      "httpStatus": 200
+    },
+    {
+      "name": "tools/call",
+      "httpStatus": 200
+    }
+  ],
+  "serverInfo": {
+    "name": "crazy-rich-gemini",
+    "version": "0.1.0"
+  },
+  "tools": [
+    "gemini_status",
+    "gemini_analyze_reference",
+    "gemini_generate_image",
+    "gemini_character_turnaround"
+  ],
+  "models": {
+    "text": "gemini-3.8-flash",
+    "image": "gemini-3.1-flash-image"
+  },
+  "blocker": "Set GEMINI_API_KEY for this Preview branch in Vercel and redeploy.",
+  "commit": "74e7331e38adb79c81ef329222150e5480871c89",
+  "deploymentId": "dpl_HYJgWfyvNQVFBLanbg8WttpiPGMP",
+  "deploymentState": "READY",
+  "access": "Official temporary Vercel share access; cookie kept only in process memory"
+}

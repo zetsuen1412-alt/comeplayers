@@ -1,0 +1,87 @@
+{
+  "status": "actual-textured-mesh-generated-awaiting-review",
+  "character": "alexia",
+  "provider": "stabilityai/stable-fast-3d",
+  "runtime_revision": "da5709055c2e0e08983d1a8b98172db008a91609",
+  "input_provenance": {
+    "source_relative_path": "turnarounds\\alexia\\turnaround-blue-imagegen-v2.png",
+    "source_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+    "source_front_crop": {
+      "view": "front",
+      "file": "front.png",
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+      "source_pixel_box": [
+        0,
+        0,
+        510,
+        488
+      ],
+      "size": [
+        510,
+        488
+      ]
+    },
+    "cached_preprocess": {
+      "file": "processed-image-cache\\front.png",
+      "sha256": "d25669c20d2f0ea544f693370f92592bbd9c873fbec585806ce8400a6e0d7dc1",
+      "size": [
+        518,
+        518
+      ],
+      "saved_server_url": "https://stable-x-reconviagen.hf.space/gradio_api/file=/tmp/gradio/af64ff6e354add49a33186f350e764fa3b8cf03d763aa05c417d79a65ef1b161/image.png"
+    },
+    "preprocess_result_sha256": "8a3391a5e054a20821304d5304384a1b8d05b4681da9ef3fc07a24dd8f2c2f3a",
+    "operation": "Reuse actual provider RGBA preprocessing of lossless approved V2 front crop. Provider resized and removed background; no new generated image or repaint."
+  },
+  "input_snapshot_sha256": "d25669c20d2f0ea544f693370f92592bbd9c873fbec585806ce8400a6e0d7dc1",
+  "upload_is_exact_cached_provider_preprocessed_rgba": true,
+  "upload_rgb_exact_original_crop": false,
+  "source_rgb_repainted": false,
+  "derived_input_note": "Approved V2 lossless front crop was resized/background-removed by the previously completed Recon preprocessing; reuse exact saved518x518RGBA bytes, including intact navy suitcase. SF3D CPU foreground framing may resize again.",
+  "transport": "Run Button plus five public positional args; standard client inserts hidden State at wire index2",
+  "frontend_wire_component_ids": [
+    13,
+    7,
+    2,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frontend_wire_types": [
+    "button",
+    "image",
+    "state",
+    "slider",
+    "radio",
+    "slider",
+    "slider"
+  ],
+  "params": {
+    "foreground_ratio": 0.85,
+    "remesh_option": "None",
+    "vertex_count": -1,
+    "texture_size": 2048
+  },
+  "authentication": "anonymous; token lookup disabled",
+  "declared_gpu_duration_seconds": 60,
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "provider_generation_submission_status": "result returned",
+  "automatic_retry": false,
+  "production_approved": false,
+  "scope": "True single-image textured mesh diagnostic. Hidden surfaces inferred; source identity, hair, hands and suitcase require actual mesh review.",
+  "generation_returned": true,
+  "mesh": "alexia-sf3d-approved-v2-diagnostic.glb",
+  "bytes": 1942212,
+  "sha256": "74e8a9f9e2e33b214144340d872c1e9674bf0f88b8517009f0d2e60a0de082f6",
+  "gltf_summary": {
+    "meshes": 1,
+    "materials": 1,
+    "images": 2,
+    "textures": 2,
+    "skins": 0,
+    "animations": 0
+  },
+  "ended_utc": "2026-10-04T11:43:15.850409+00:00"
+}

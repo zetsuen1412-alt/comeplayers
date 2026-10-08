@@ -1,0 +1,82 @@
+{
+  "status": "actual-textured-mesh-generated-awaiting-review",
+  "character": "kairo",
+  "provider": "stabilityai/stable-fast-3d",
+  "runtime_revision": "da5709055c2e0e08983d1a8b98172db008a91609",
+  "previous_attempt_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-kairo",
+  "preserved_previous_file_sha256": {
+    "reconstruction-evidence.json": "34bb351df155884aae46419a1c4af4a2b43fe4d8a533085e10b332ba868166ab",
+    "input-alpha.png": "c99e2d216333c5bfeda48822cdff2bedaf9c83a91fd715e54f4e56422983e5d8",
+    "alpha-state-result.json": "918addd866441d70cf2489c3fe702df17e757b64016724aa83cbd549f74d651f",
+    "run-started.lock": "4bc8e8bc46931a338b353f034dabfbf3fc5fecf15b3cc03d150866382b42578d"
+  },
+  "previous_generation_calls_attempted": 1,
+  "previous_actual_gpu_job_started_observed": false,
+  "previous_failure_diagnosis": "Client omitted Button label; state insertion alone yielded six wire inputs for seven components, shifting Image preprocessing input.",
+  "transport_repair": "Explicit positional Run Button plus five public args; standard client inserts None State at index 2.",
+  "frontend_wire_component_ids": [
+    13,
+    7,
+    2,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frontend_wire_types": [
+    "button",
+    "image",
+    "state",
+    "slider",
+    "radio",
+    "slider",
+    "slider"
+  ],
+  "canonical_provenance": {
+    "character": "kairo",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      655,
+      0,
+      932,
+      484
+    ],
+    "crop_sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8",
+    "alpha_sha256": "019b9f27d692517aba1d6781cc89ecc0b4efcca350b28e605b556cacea8212dd",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  "input_snapshot_sha256": "c99e2d216333c5bfeda48822cdff2bedaf9c83a91fd715e54f4e56422983e5d8",
+  "upload_rgb_pixels_match_source_rectangle": true,
+  "source_rgb_repainted": false,
+  "params": {
+    "foreground_ratio": 0.85,
+    "remesh_option": "None",
+    "vertex_count": -1,
+    "texture_size": 1024
+  },
+  "authentication": "anonymous; token lookup disabled",
+  "declared_gpu_duration_seconds": 60,
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "provider_generation_submission_status": "result returned",
+  "automatic_retry": false,
+  "production_approved": false,
+  "scope": "Actual single-image textured-mesh diagnostic. Hidden surfaces inferred; anatomy, source identity and accessories require actual mesh review.",
+  "generation_returned": true,
+  "mesh": "kairo-sf3d-canonical-diagnostic.glb",
+  "bytes": 1128004,
+  "sha256": "12f53af92cee124e079da857de431de708178d568267a28e689cabe18763ac7d",
+  "gltf_summary": {
+    "meshes": 1,
+    "materials": 1,
+    "images": 2,
+    "textures": 2,
+    "skins": 0,
+    "animations": 0
+  },
+  "ended_utc": "2026-10-04T11:28:01.500457+00:00",
+  "previous_evidence_unchanged": true
+}

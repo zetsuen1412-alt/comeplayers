@@ -1,0 +1,273 @@
+{
+  "modelPath": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\texture-fixture.glb",
+  "previewType": "embedded baseColor/albedo plus simple lighting",
+  "fullPbrFaithful": false,
+  "gameReadyApproval": false,
+  "albedoLoaded": true,
+  "geometryMutated": false,
+  "animationOrRigVerified": false,
+  "limitations": [
+    "Normal, metallic/roughness, occlusion and emissive maps are not rendered.",
+    "Lighting uses a simple diffuse/fill formula, without environment or specular PBR.",
+    "Textures may already contain baked lighting; this preview does not remove it.",
+    "Bilinear sampling with repeat wrapping is used; source sampler choices are recorded but not reproduced.",
+    "BLEND alpha is shown as a near-zero-alpha cutout, without transparent sorting or blending.",
+    "Both sides are visible for inspection; source culling and full material extensions are not reproduced.",
+    "Loaded rest geometry is inspected; skin deformation and animation are not evaluated.",
+    "Vertex colors are multiplied only for explicit ColorVisuals; extra TextureVisuals vertex attributes are not evaluated."
+  ],
+  "glbSha256": "f6c79b17407eaaea4654c323b48741f6caf7f56a62cc7179a559bc1bec8b5e72",
+  "bytes": 1484,
+  "sourceTextureCount": 1,
+  "sourceTextures": [
+    {
+      "index": 0,
+      "name": "quadrant-albedo",
+      "sourceImageIndex": 0,
+      "samplerIndex": 0,
+      "extensions": {}
+    }
+  ],
+  "sourceImageCount": 1,
+  "sourceSkinCount": 0,
+  "sourceAnimationCount": 0,
+  "sourceSamplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9729,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "sourceExtensionsUsed": [],
+  "sourceMaterials": [
+    {
+      "index": 0,
+      "name": "UV-quadrant-test",
+      "baseColorFactor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "baseColorTexture": {
+        "index": 0
+      },
+      "alphaMode": "OPAQUE",
+      "otherTextureSlots": []
+    }
+  ],
+  "embeddedImages": [
+    {
+      "index": 0,
+      "name": "quadrant-albedo.png",
+      "embedded": true,
+      "encodedSha256": "f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58",
+      "decodedRgbaSha256": "5b48123a1babb9efe5965cb75028f1dbd7083cfbc848cd2abb380cbc809f9d73",
+      "size": [
+        2,
+        2
+      ]
+    }
+  ],
+  "uvOrientation": {
+    "probeFunction": "trimesh.visual.color.uv_to_color",
+    "probeUvs": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0
+      ]
+    ],
+    "probeRgba": [
+      [
+        0,
+        0,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        0,
+        255
+      ],
+      [
+        255,
+        0,
+        0,
+        255
+      ],
+      [
+        0,
+        255,
+        0,
+        255
+      ]
+    ],
+    "loadedUvValuesModified": false,
+    "textureUploadVerticalFlip": true,
+    "convention": "loaded Trimesh UVs; image upload agrees with installed sampler",
+    "loaderSourceConfirmation": "Root inspected installed trimesh/exchange/gltf/__init__.py lines 1724-1728: raw glTF V is flipped to lower-left origin. This renderer does not apply another UV flip."
+  },
+  "faces": 2,
+  "vertices": 4,
+  "loadedGeometryInstances": 1,
+  "vertexCountMeaning": "sum of vertices in transformed loaded instances; shared source accessors may be counted per primitive or instance",
+  "sourceBounds": [
+    [
+      -0.5,
+      -0.5,
+      0.0
+    ],
+    [
+      0.5,
+      0.5,
+      0.0
+    ]
+  ],
+  "displayScale": 1.7,
+  "displayTranslationCenter": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "displayTransformOnly": true,
+  "loadedNormals": "Trimesh vertex_normals, computed by Trimesh when absent",
+  "batches": [
+    {
+      "partIndex": 0,
+      "geometryName": "quad",
+      "materialGroupIndex": 0,
+      "materialName": "UV-quadrant-test",
+      "materialType": "PBRMaterial",
+      "faces": 2,
+      "visualKind": "texture",
+      "baseColorFactorLoaded": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "factorInterpretation": "PBR baseColorFactor or glTF default white",
+      "albedoSlot": "baseColorTexture",
+      "albedoLoaded": true,
+      "embeddedImageIndices": [
+        0
+      ],
+      "alphaMode": "OPAQUE"
+    }
+  ],
+  "loadedAlbedoTextureCount": 1,
+  "textureCount": 1,
+  "textures": [
+    {
+      "size": [
+        2,
+        2
+      ],
+      "decodedRgbaSha256": "5b48123a1babb9efe5965cb75028f1dbd7083cfbc848cd2abb380cbc809f9d73",
+      "sourceImageIndices": [
+        0
+      ],
+      "sourceImageNames": [
+        "quadrant-albedo.png"
+      ],
+      "sourceTextureIndices": [
+        0
+      ],
+      "sourceTextureNames": [
+        "quadrant-albedo"
+      ]
+    }
+  ],
+  "status": "rendered-for-limited-albedo-inspection",
+  "renderedViews": [
+    "front",
+    "three-quarter",
+    "left",
+    "right",
+    "back",
+    "top",
+    "bottom"
+  ],
+  "renderer": "NVIDIA GeForce GTX 1660 SUPER/PCIe/SSE2",
+  "trimeshVersion": "5.1.1",
+  "turntableFrames": 36,
+  "cameraProjection": "orthographic",
+  "textureColorSpace": "sRGB texture decoded to linear, multiplied by factor and simple lighting, encoded to sRGB",
+  "outputFiles": [
+    "front.png",
+    "three-quarter.png",
+    "left.png",
+    "right.png",
+    "back.png",
+    "top.png",
+    "bottom.png",
+    "albedo-contact-sheet.png",
+    "actual-textured-mesh-turntable.gif",
+    "render-evidence.json"
+  ],
+  "syntheticUvShaderTest": {
+    "syntheticOnly": true,
+    "samplePoints": [
+      [
+        192,
+        192
+      ],
+      [
+        448,
+        192
+      ],
+      [
+        192,
+        448
+      ],
+      [
+        448,
+        448
+      ]
+    ],
+    "actualFrontRgb": [
+      [
+        232,
+        1,
+        1
+      ],
+      [
+        1,
+        234,
+        0
+      ],
+      [
+        1,
+        1,
+        233
+      ],
+      [
+        234,
+        234,
+        0
+      ]
+    ],
+    "expectedQuadrants": [
+      "red",
+      "green",
+      "blue",
+      "yellow"
+    ],
+    "passed": true
+  },
+  "inputPreservedSha256Match": true
+}

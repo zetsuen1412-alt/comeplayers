@@ -1,0 +1,65 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\nox\\nox-reference-surface-candidate.glb",
+  "input_sha256": "a7dcf1688b7d6c5131549dd23ebdd2a61e3b3281b6a48f073a961cfdc1cc81c0",
+  "bytes": 1806884,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 1,
+  "vertices": 20899,
+  "polygons": 24412,
+  "bounds_blender_z_up": [
+    [
+      -0.2940416932106018,
+      -0.22302556037902832,
+      -0.4637373089790344
+    ],
+    [
+      0.29017889499664307,
+      0.19497370719909668,
+      0.4689217805862427
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ],
+    [
+      "top",
+      0,
+      89.9
+    ],
+    [
+      "bottom",
+      0,
+      -89.9
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 24,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

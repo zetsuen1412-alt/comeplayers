@@ -1,0 +1,65 @@
+{
+  "schema": "crwt.offline_mesh_inspection.v1",
+  "viewer": "BUKA-INSPEKSI-ALEXIA.html",
+  "viewer_bytes": 52228593,
+  "viewer_sha256": "257e2d0ffa08fb43574310e9ec871b7730bfdcf5143de0ebfa133a65f3fade8c",
+  "models": [
+    {
+      "id": "original",
+      "label": "V11 asli · geometri",
+      "filename": "alexia-v11-hunyuan21-untextured-diagnostic.glb",
+      "bytes": 8092808,
+      "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "faces": 449582,
+      "vertices": 224713,
+      "skins": 0,
+      "animations": 0,
+      "images": 0,
+      "note": "Geometri V11 asli. Tanpa tekstur, rig, animasi atau persetujuan visual.",
+      "visualApproved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "projection",
+      "label": "Proyeksi depan · diagnostik",
+      "filename": "alexia-v11-front-projection-diagnostic.glb",
+      "bytes": 15385508,
+      "sha256": "032e64c6adfd6367f2bc6a92f15adc3df10ba535b6dade9f46d9b251443cd200",
+      "faces": 449582,
+      "vertices": 224713,
+      "skins": 0,
+      "animations": 0,
+      "images": 1,
+      "note": "Warna hanya diproyeksikan dari foto depan. Permukaan abu-abu belum memiliki tekstur yang terverifikasi; sisi tersembunyi tidak direka sebagai hasil final.",
+      "visualApproved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "cleanup",
+      "label": "Pembersihan terbatas · kandidat",
+      "filename": "alexia-v11-interior-cleanup-candidate.glb",
+      "bytes": 13483392,
+      "sha256": "dae2b0784b190649e5ae69ef2854aa06798468d2244eb5982d61a759c0c54af0",
+      "faces": 449164,
+      "vertices": 224713,
+      "skins": 0,
+      "animations": 0,
+      "images": 0,
+      "note": "Lima komponen interior yang terbukti tertutup dihapus (418 segitiga). Tersisa 449.164 segitiga. Rambut, mata, jari dan cuff belum diperbaiki. Kandidat abu-abu ini tanpa tekstur/rig dan belum disetujui atau diintegrasikan ke game.",
+      "visualApproved": false,
+      "gameIntegrated": false
+    }
+  ],
+  "vendor_sha256": {
+    "build/three.core.js": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20",
+    "build/three.module.js": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a",
+    "examples/jsm/utils/BufferGeometryUtils.js": "fda7e946b8e0b5ab39b779206589e7a1079a22eb24efb89d7223e03fdfb1f751",
+    "examples/jsm/controls/OrbitControls.js": "b97879c748170baadeb3fb84cea1ffdf4674e283dc06042f34e2acb95a76042c",
+    "examples/jsm/loaders/GLTFLoader.js": "67ac5551fdafa6e349bd80c8f8e5e39c136d6b2fb1ad647db9abb21dc86f9e4a",
+    "LICENSE": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+  },
+  "requires_network": false,
+  "source_files_edited": false,
+  "visual_approval": false,
+  "game_integration": false
+}

@@ -1,0 +1,42 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\yuna\\yuna-reference-candidate.glb",
+  "source_sha256": "bbd1adc18d9312c085031aed14734744a3094c90eb6156d2a35b77eaff419b83",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\surface-refinement\\yuna\\yuna-reference-surface-candidate.glb",
+  "output_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+  "raw_bin_chunks_identical": true,
+  "positions_indices_normals_uv_images_unchanged": true,
+  "operation": "PBR material parameter refinement only",
+  "changes": [
+    {
+      "material_index": 0,
+      "before": {
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "roughnessFactor": 0.5782720446586609,
+          "metallicFactor": 0.008575170300900936
+        },
+        "doubleSided": false,
+        "normalTexture": {
+          "index": 1
+        }
+      },
+      "after": {
+        "pbrMetallicRoughness": {
+          "baseColorTexture": {
+            "index": 0
+          },
+          "roughnessFactor": 0.55,
+          "metallicFactor": 0.008575170300900936
+        },
+        "doubleSided": false,
+        "normalTexture": {
+          "index": 1,
+          "scale": 0.0
+        }
+      }
+    }
+  ],
+  "production_approved": false
+}

@@ -1,0 +1,25 @@
+{
+  "id": "/games/crazy-rich-world-tour",
+  "name": "Crazy Rich: World Tour",
+  "short_name": "Crazy Rich",
+  "description": "Anime board game online Crazy Rich: World Tour by ComePlayers.",
+  "start_url": "/games/crazy-rich-world-tour?source=pwa",
+  "scope": "/games/crazy-rich-world-tour",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#071525",
+  "theme_color": "#071525",
+  "lang": "id",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "/brand/comeplayers-app-icon-2026.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

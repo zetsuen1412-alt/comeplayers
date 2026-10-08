@@ -1,0 +1,41 @@
+{
+  "editable_blend_reopened_successfully": true,
+  "blend_sha256": "edff8fdb5270c8aaf6a5d7573af83bc7694ec639605406c716e6f04d023cc7e1",
+  "mesh_objects": [
+    {
+      "name": "geometry_0",
+      "vertices": 20899,
+      "polygons": 24412
+    },
+    {
+      "name": "Nox new viewer-right hip card, unapproved accessory",
+      "vertices": 2636,
+      "polygons": 1060
+    }
+  ],
+  "embedded_images": [
+    {
+      "name": "Image_0",
+      "source": "FILE",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "Image_1",
+      "source": "FILE",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ]
+    }
+  ],
+  "rig": false,
+  "animation": false,
+  "file_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false
+}

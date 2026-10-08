@@ -1,0 +1,1639 @@
+{
+  "schema": "crwt.alexia_high_visual_selected_gate.v1",
+  "passed": true,
+  "source_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "original_core_stream_sha256": {
+    "POSITION": "bad7452022f259c3c12ccf0a13befd95ece18dc24c05ed8c728166c5eee5e390",
+    "NORMAL": "05d26f73a7a94ef27f4513d5ca1b0b170864a0985562985bed071b5e58379e80",
+    "TEXCOORD_0": "206725cdb088c0d03e057e8a5e04702f2e693298c6be0d670617cd7b04c52472",
+    "JOINTS_0": "80a600518ba7d7f57470d4b66955b70a1980ca55661de4dbd123a0deecd9ed16",
+    "WEIGHTS_0": "aef0f95818498ea39864c72b36fef94b13893a5fae417956557bb0720c570acb"
+  },
+  "protected_face_and_cup_rows": 19617,
+  "protected_face_cup_rgb_and_original_triangles_exact": true,
+  "existing_precision_cup_mesh_materials_exact": true,
+  "nineteen_shared_joint_nodes_bind_matrices_and_actual_animation_streams_exact": true,
+  "clips": [
+    {
+      "name": "IdleBreath",
+      "channels": 3
+    },
+    {
+      "name": "Walk",
+      "channels": 12
+    }
+  ],
+  "original_embedded_reference_images_exact": true,
+  "drawn_primitives": [
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 5,
+      "vertices": 252943,
+      "triangles": 68277
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 8,
+      "vertices": 58514,
+      "triangles": 116960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 9,
+      "vertices": 4634,
+      "triangles": 9264
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 10,
+      "vertices": 506,
+      "triangles": 1008
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 11,
+      "vertices": 506,
+      "triangles": 1008
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 12,
+      "vertices": 314,
+      "triangles": 624
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 1554,
+      "triangles": 3104
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 290,
+      "triangles": 576
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 386,
+      "triangles": 768
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 418,
+      "triangles": 832
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 514,
+      "triangles": 1024
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 162,
+      "triangles": 320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 50,
+      "triangles": 96
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 8,
+      "triangles": 12
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 52,
+      "triangles": 100
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 562,
+      "triangles": 1120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 336,
+      "triangles": 668
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 10,
+      "triangles": 16
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 202,
+      "triangles": 400
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 1554,
+      "triangles": 3104
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 290,
+      "triangles": 576
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 386,
+      "triangles": 768
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 418,
+      "triangles": 832
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 514,
+      "triangles": 1024
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 162,
+      "triangles": 320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 50,
+      "triangles": 96
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 8,
+      "triangles": 12
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 52,
+      "triangles": 100
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 562,
+      "triangles": 1120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 336,
+      "triangles": 668
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 10,
+      "triangles": 16
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 202,
+      "triangles": 400
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 256,
+      "triangles": 512
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 17,
+      "vertices": 866,
+      "triangles": 1728
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 34,
+      "triangles": 64
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 34,
+      "triangles": 64
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 2354,
+      "triangles": 4704
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 2354,
+      "triangles": 4704
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 1,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 2,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 3,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 4,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 1,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 2,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 3,
+      "vertices": 720,
+      "triangles": 1440
+    },
+    {
+      "node": 3,
+      "mesh": 1,
+      "material": 4,
+      "vertices": 720,
+      "triangles": 1440
+    }
+  ],
+  "new_drawn_primitives": [
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 8,
+      "vertices": 58514,
+      "triangles": 116960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 9,
+      "vertices": 4634,
+      "triangles": 9264
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 10,
+      "vertices": 506,
+      "triangles": 1008
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 11,
+      "vertices": 506,
+      "triangles": 1008
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 12,
+      "vertices": 314,
+      "triangles": 624
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 1554,
+      "triangles": 3104
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 290,
+      "triangles": 576
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 386,
+      "triangles": 768
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 418,
+      "triangles": 832
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 514,
+      "triangles": 1024
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 162,
+      "triangles": 320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 50,
+      "triangles": 96
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 8,
+      "triangles": 12
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 52,
+      "triangles": 100
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 562,
+      "triangles": 1120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 336,
+      "triangles": 668
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 10,
+      "triangles": 16
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 202,
+      "triangles": 400
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 1554,
+      "triangles": 3104
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 290,
+      "triangles": 576
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 386,
+      "triangles": 768
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 418,
+      "triangles": 832
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 514,
+      "triangles": 1024
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 162,
+      "triangles": 320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 50,
+      "triangles": 96
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 8,
+      "triangles": 12
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 52,
+      "triangles": 100
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 218,
+      "triangles": 432
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 114,
+      "triangles": 224
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 13,
+      "vertices": 562,
+      "triangles": 1120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 2162,
+      "triangles": 4320
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 336,
+      "triangles": 668
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 16,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 10,
+      "triangles": 16
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 202,
+      "triangles": 400
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 256,
+      "triangles": 512
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 14,
+      "vertices": 152,
+      "triangles": 300
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 98,
+      "triangles": 192
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 17,
+      "vertices": 866,
+      "triangles": 1728
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 34,
+      "triangles": 64
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 34,
+      "triangles": 64
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 15,
+      "vertices": 22,
+      "triangles": 40
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 182,
+      "triangles": 360
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 18,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 2354,
+      "triangles": 4704
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 2354,
+      "triangles": 4704
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 62,
+      "triangles": 120
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 482,
+      "triangles": 960
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 66,
+      "triangles": 128
+    },
+    {
+      "node": 1,
+      "mesh": 0,
+      "material": 19,
+      "vertices": 62,
+      "triangles": 120
+    }
+  ],
+  "finite_attributes_valid_indices_normalized_skin_weights": true,
+  "visual_review_required": true,
+  "production_approved": false,
+  "gameIntegrated": false
+}

@@ -1,0 +1,8 @@
+CRWT - ALEXIA TEXTURE AND MANUAL MOTION
+Open BUKA-REVIEW-MODEL.html for the ten-character offline review. Alexia has the selected texture cleanup and an actual manual 19-joint movement prototype. IdleBreath and Walk are authored skeletal clips; Pip retains its prior six clips. Nine other GLBs, references and their 45 actual render PNGs are unchanged. Alexia has five new actual neutral-pose views.
+
+Open editable/Alexia-texture-motion-review.blend to edit the single Alexia native rig. Original GLB streams remain exact at rest except the selected COLOR replacement. Native save/reopen preserves actual mesh/colors/materials/weights/bones/actions/NLA fingerprints. Manual walk has no production foot IK/contact/collision certification.
+
+All candidates remain approved:false and gameIntegrated:false. Detailed scope and remaining visual limits are in the manifest and selected evidence. The local model ZIP does not contain full game source or Git history. New publication status comes only from the exact frozen evidence/github-publication-receipt.json.
+
+Run python verify_texture_motion_checkpoint.py . from a clean extracted checkpoint to verify every packaged file. Reproduce texture then motion with the packaged recipes and baseline/reference, into a fresh output outside the review root.

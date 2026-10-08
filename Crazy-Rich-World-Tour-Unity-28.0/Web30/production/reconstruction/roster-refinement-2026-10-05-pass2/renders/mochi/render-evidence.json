@@ -1,0 +1,65 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\mochi\\trial-v1\\mochi-bag-hardware-candidate.glb",
+  "input_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+  "bytes": 2278336,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 2,
+  "vertices": 18328,
+  "polygons": 24404,
+  "bounds_blender_z_up": [
+    [
+      -0.3799600601196289,
+      -0.2640906572341919,
+      -0.4316798150539398
+    ],
+    [
+      0.4034651517868042,
+      0.1486000418663025,
+      0.4643700122833252
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ],
+    [
+      "top",
+      0,
+      89.9
+    ],
+    [
+      "bottom",
+      0,
+      -89.9
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 24,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

@@ -1,0 +1,101 @@
+{
+  "status": "front-only-projection-diagnostic-unapproved",
+  "sourceMeshSha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+  "referenceImageSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+  "outputGlbSha256": "032e64c6adfd6367f2bc6a92f15adc3df10ba535b6dade9f46d9b251443cd200",
+  "sourceMeshBytes": 8092808,
+  "outputGlbBytes": 15385508,
+  "sourceVertexCount": 224713,
+  "sourceFaceCount": 449582,
+  "projectedTriangles": 103443,
+  "unknownGrayTriangles": 346139,
+  "projectedSurfaceAreaFraction": 0.24720796942710876,
+  "sourceHadNormals": false,
+  "normalsAdded": false,
+  "sourcePositionAccessorSha256": "416825b530ca4cdae092800cb917a2ffdbc5f30202f6621b58d5ce80219218e6",
+  "sourceIndexAccessorSha256": "e5a321d62cdacca1924f83c966dbba454cba7edcafa444d2fc320cfe1ba1c941",
+  "sourceNormalAccessorSha256": null,
+  "sourceBinSha256": "4c6eb50f472dfb8a9cca00aee6a5602bde3ee30597895be8af9a7681d6801328",
+  "sourceBinPrefixByteIdentical": true,
+  "sourcePositionAndIndexBytesPreserved": true,
+  "sourceNodesAndScenesPreserved": true,
+  "originalAccessorsAndBufferViewsPreserved": true,
+  "activeIndexAccessors": "appended visible/gray partition",
+  "facePartitionRestoredToOriginalOrderSha256": "e5a321d62cdacca1924f83c966dbba454cba7edcafa444d2fc320cfe1ba1c941",
+  "faceUnionExactlyOriginalNoDuplicatesOrLoss": true,
+  "geometryRemeshed": false,
+  "embeddedImageBytesUnchanged": true,
+  "referencePixelEditing": false,
+  "projection": {
+    "camera": "+Z orthographic, +Y up",
+    "mapping": "uniform scale from full mesh Y bounds to manual source Y bounds",
+    "referenceBoundsManual": [
+      106,
+      18,
+      478,
+      567
+    ],
+    "sourceModelBounds": [
+      [
+        -0.709930956363678,
+        -0.9977096319198608,
+        -0.45268574357032776
+      ],
+      [
+        0.7035887241363525,
+        0.9882368445396423,
+        0.46762484312057495
+      ]
+    ],
+    "pixelScalePerModelUnit": 276.44249555946936,
+    "mappedGeometryPixelBounds": [
+      [
+        96.62154600007389,
+        18.0
+      ],
+      [
+        487.37845399992614,
+        567.0
+      ]
+    ],
+    "mappedWidthMinusReferenceWidthPixels": 18.756907999852274,
+    "referenceHasSmallWhiteSparkleLowerRight": true,
+    "sourceOriginalPngAvailable": false
+  },
+  "visibility": {
+    "resolution": [
+      2048,
+      2048
+    ],
+    "renderer": "NVIDIA GeForce GTX 1660 SUPER/PCIe/SSE2",
+    "frontFacingNormalZThreshold": 0.15,
+    "candidateTriangles": 108022,
+    "gpuVisibleTriangles": 119186,
+    "interiorPixelSamplesTested": 1475420,
+    "barycentricEdgeExclusion": 0.0001,
+    "method": "GPU depth winner triangle IDs; conservative CPU check of all interior pixel centers",
+    "finiteResolutionLimit": "Some subpixel occlusion is not provable; subpixel-only triangles remain gray."
+  },
+  "productionReady": false,
+  "acceptedModelsProduced": 0,
+  "fullTexture": false,
+  "animationOrRigVerified": false,
+  "gameAssetsChanged": false,
+  "limitations": [
+    "Only the supplied front conditioning JPEG is projected.",
+    "JPEG includes baked lighting and its gray background; silhouette mismatch may sample background.",
+    "Eye relief, hair loops, fused digits/cuffs and small islands are unchanged.",
+    "No texture is invented for back/side/occluded triangles; these use gray material.",
+    "UVs are a camera projection, not a complete production UV unwrap.",
+    "Finite-resolution conservative visibility can leave visible boundary triangles gray.",
+    "Source POSITION accessor is shared across two primitives; importers may count shared vertices twice."
+  ],
+  "outputFiles": [
+    "alexia-v11-front-projection-diagnostic.glb",
+    "actual-v11-front-aligned-gray.png",
+    "actual-v11-front-projection.png",
+    "front-alignment-review.png",
+    "projection-evidence.json"
+  ],
+  "sourceFilesPreservedSha256Match": true
+}

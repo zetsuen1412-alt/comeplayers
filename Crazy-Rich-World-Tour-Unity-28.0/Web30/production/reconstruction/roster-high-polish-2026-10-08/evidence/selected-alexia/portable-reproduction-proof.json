@@ -1,0 +1,29 @@
+{
+  "schema": "crwt.alexia_high_polish_delta_reproduction.v1",
+  "passed": true,
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "actual_delta_steps": 3,
+  "old_nine_stage_chain_replayed": false,
+  "steps": [
+    {
+      "id": "hair",
+      "candidate_sha256": "45e8635c3097444e726eceab22ba0d4c4070202da129dbcfffa33022b5423328",
+      "matched_selected_intermediate": true
+    },
+    {
+      "id": "temple",
+      "candidate_sha256": "2e4760bf2ac6d7b14ff82e9ac2d8e3ad70280d5ae242c5c95f5fc7a8787d5135",
+      "matched_selected_intermediate": true
+    },
+    {
+      "id": "shirt",
+      "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+      "matched_selected_intermediate": true
+    }
+  ],
+  "all_original_review_SHA_mtime_unchanged": true,
+  "new_Blender_or_browser_execution": false,
+  "approved": false,
+  "gameIntegrated": false
+}

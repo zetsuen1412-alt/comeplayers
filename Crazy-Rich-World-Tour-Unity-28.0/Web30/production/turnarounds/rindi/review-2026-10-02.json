@@ -1,0 +1,96 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "rindi",
+  "updatedAt": "2026-10-02",
+  "stage": "awaiting_turnaround_visual_review",
+  "reference": {
+    "file": "../../references/chibi_travel_adventurers_collectible_lineup.png",
+    "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "target": "Top row, second figure from left"
+  },
+  "selectedDraft": {
+    "file": "turnaround-imagegen-v5.png",
+    "sha256": "17027d250f5115118c9edba31a1023bfb379a5437817b770a75beea1a6ba08a7",
+    "generator": "Built-in imagegen",
+    "promptFiles": [
+      "imagegen-prompt-v1.txt",
+      "imagegen-prompt-v2.txt",
+      "imagegen-prompt-v3.txt",
+      "imagegen-prompt-v4.txt",
+      "imagegen-prompt-v5.txt"
+    ],
+    "type": "2D modeling reference draft",
+    "views": [
+      "front",
+      "front three-quarter",
+      "left",
+      "right",
+      "back three-quarter",
+      "back"
+    ]
+  },
+  "gemini": {
+    "analysisModel": "gemini-3.8-flash",
+    "analysisSucceeded": true,
+    "imageModel": "gemini-3.1-flash-image",
+    "imageSucceeded": false,
+    "imageFailure": "Free-tier image generation quota limit is 0",
+    "connectorFixCommit": "5c562517c44306d46df7fc0134fffce5975f9c64",
+    "protocolPassed": true,
+    "geminiConfigured": true
+  },
+  "iterations": [
+    {
+      "version": 1,
+      "file": "turnaround-imagegen-v1.png",
+      "outcome": "Three-quarter angles too frontal; top/bottom perspective views not suitable as orthographic evidence"
+    },
+    {
+      "version": 2,
+      "file": "turnaround-imagegen-v2.png",
+      "outcome": "Rotations improved; omit top/bottom from selected design sheet because projection was not established"
+    },
+    {
+      "version": 3,
+      "file": "turnaround-imagegen-v3.png",
+      "outcome": "Six-view sheet; handbag incorrectly moved to left in back-three-quarter panel"
+    },
+    {
+      "version": 4,
+      "file": "turnaround-imagegen-v4.png",
+      "outcome": "Bag side corrected; obsolete left-side strap remained"
+    },
+    {
+      "version": 5,
+      "file": "turnaround-imagegen-v5.png",
+      "outcome": "Obsolete strap removed; selected candidate for user design review"
+    }
+  ],
+  "manualReview": {
+    "identityAndPalette": "consistent enough for draft review",
+    "hairAndOutfit": "checked across six selected views",
+    "accessorySides": "right hip bag and left sleeve bunny checked after correction",
+    "expressionChange": "Both eyes open in a neutral pose instead of the master wink; user review needed",
+    "hiddenSurfaces": "Inferred; not independently approved or established by the single-view master",
+    "projection": "Generated illustration; exact orthographic calibration is not guaranteed",
+    "reviewMethod": "Direct visual inspection against master and across panels"
+  },
+  "visualApproved": false,
+  "approvedByUser": false,
+  "newModelsProduced": 0,
+  "gameAssetsReplaced": false,
+  "remainingGates": [
+    "User visual review of selected turnaround",
+    "Reference-aligned real volumetric mesh using the agreed views",
+    "Materials and animation deformation review",
+    "Exact reviewed GLB SHA-256 matched to board integration",
+    "Actual mesh front/three-quarter/left/right/back/top/bottom inspection, 360 turntable, board screenshot, Idle/Walk/action clips"
+  ],
+  "deferredCharacter": {
+    "id": "alexia",
+    "status": "resolved_by_new_user_reference_choice",
+    "resolvedOn": "2026-10-02",
+    "resolution": "User later chose original blue-eyed Alexia; crimson override is now inactive",
+    "reason": "Missing approved crimson override reference was skipped for now at user's direction; override remains required for Alexia"
+  }
+}

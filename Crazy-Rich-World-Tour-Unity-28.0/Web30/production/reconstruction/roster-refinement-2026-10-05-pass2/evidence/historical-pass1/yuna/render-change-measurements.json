@@ -1,0 +1,62 @@
+{
+  "schema": "crwt.actual_render_difference.v1",
+  "source_images_modified": false,
+  "views": [
+    {
+      "view": "front",
+      "changed_rgb_pixels": 10471,
+      "changed_bbox": [
+        104,
+        118,
+        655,
+        717
+      ],
+      "front_palette_roi_changed_pixels": 7079,
+      "front_ferrule_roi_changed_pixels": 768,
+      "front_pixels_changed_outside_accessory_rois": 2624,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    },
+    {
+      "view": "three-quarter",
+      "changed_rgb_pixels": 10575,
+      "changed_bbox": [
+        140,
+        147,
+        660,
+        747
+      ],
+      "front_palette_roi_changed_pixels": null,
+      "front_ferrule_roi_changed_pixels": null,
+      "front_pixels_changed_outside_accessory_rois": null,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    },
+    {
+      "view": "opposite-three-quarter",
+      "changed_rgb_pixels": 6925,
+      "changed_bbox": [
+        139,
+        110,
+        583,
+        729
+      ],
+      "front_palette_roi_changed_pixels": null,
+      "front_ferrule_roi_changed_pixels": null,
+      "front_pixels_changed_outside_accessory_rois": null,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    },
+    {
+      "view": "back",
+      "changed_rgb_pixels": 3147,
+      "changed_bbox": [
+        135,
+        218,
+        696,
+        730
+      ],
+      "front_palette_roi_changed_pixels": null,
+      "front_ferrule_roi_changed_pixels": null,
+      "front_pixels_changed_outside_accessory_rois": null,
+      "limits": "Pixel differences show where the candidate affects the actual render; they do not prove aesthetic improvement. Added geometry may change local accessory shadows."
+    }
+  ]
+}

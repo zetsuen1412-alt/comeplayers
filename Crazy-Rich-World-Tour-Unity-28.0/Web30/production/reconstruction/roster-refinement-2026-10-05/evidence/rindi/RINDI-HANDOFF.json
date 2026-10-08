@@ -1,0 +1,83 @@
+{
+  "schema": "crwt.rindi_hand_handoff.v1",
+  "source_sha256": "b696a2995797148a8471e62b13285a23bda51ea05fe2918f99ac331941d2856c",
+  "candidate_sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+  "source_input_unchanged": true,
+  "removed_source_hand_faces": 316,
+  "original_vertex_position_delta_count": 0,
+  "retained_source_faces": 24060,
+  "new_hand_vertices": 10555,
+  "new_hand_faces": 20957,
+  "bridge_faces": 261,
+  "actual_faces": 45278,
+  "actual_vertices": 29689,
+  "welded_components": 1,
+  "improper_new_retained_or_bridge_intersections": 0,
+  "editable_loaded_with_packed_images": true,
+  "visual_final_approved": false,
+  "game_assets_replaced": false,
+  "latest_trial": "trial-v4",
+  "observed": "Five distinct tapered fingers and palm now visible in front/quarter/profile; cuff/body/hair/face/accessory source geometry retained.",
+  "limits": [
+    "Simplified fingers/palm and remaining angular wrist transition, no nails/creases/rig.",
+    "New skin samples one source UV point; bitmap/face skin not edited.",
+    "Internal voxel hand pairs/global old self-intersections not certified."
+  ],
+  "files": [
+    {
+      "path": "rindi-reaching-hand-candidate.glb",
+      "bytes": 3231408,
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "path": "rindi-reaching-hand-candidate.blend",
+      "bytes": 2451159,
+      "sha256": "c5df5d2056df17555b284a460a992ea4b3edf39d8bfc2c3487bb8f3142da4a91"
+    },
+    {
+      "path": "hand-refinement-proof.json",
+      "bytes": 20931,
+      "sha256": "fd908b0a911da0c5458f53b62d9fcd191efc5427a98acaeae5acb5a9a4a7dcbf"
+    },
+    {
+      "path": "independent-integrity-and-bridge-audit.json",
+      "bytes": 2096,
+      "sha256": "e363e3a1cd8d8437105bffffa13184eb03553aebdd1220b4cd9b16b671edf675"
+    },
+    {
+      "path": "editable-restore-proof.json",
+      "bytes": 640,
+      "sha256": "ce3cc2ec1ed0ac6bb74267020b0655f707418708d135372d87a1e6739595c53d"
+    },
+    {
+      "path": "candidate-hand-close/front.png",
+      "bytes": 514317,
+      "sha256": "027e993a51098c6155e1a8fab79a97c40e2f7cac51e672d3c39ad688cbe3c1ab"
+    },
+    {
+      "path": "candidate-hand-close/right.png",
+      "bytes": 420989,
+      "sha256": "5d541db4a724d6b387e69790a58fac783b6cf1975031305bbb31684c1ad0f4e2"
+    },
+    {
+      "path": "candidate-hand-close/three-quarter.png",
+      "bytes": 529917,
+      "sha256": "a53305726692ad5d2727acb2004ecd3229db0fac576c1406376d04af4903c284"
+    },
+    {
+      "path": "candidate-whole/front.png",
+      "bytes": 530443,
+      "sha256": "82e1c5010c10a0db8c6ddd08127657df736545e8b43aa0046764ddcca706f48f"
+    },
+    {
+      "path": "candidate-whole/right.png",
+      "bytes": 488744,
+      "sha256": "5643d912a4f9dcf6dd3d6800e0977dea1dfd98294f27f1d8309725998aa83f80"
+    },
+    {
+      "path": "candidate-whole/three-quarter.png",
+      "bytes": 516205,
+      "sha256": "efb719e8dde352f64980450799cfa315e69564847f8ff39557b4eaad73dcdea7"
+    }
+  ]
+}

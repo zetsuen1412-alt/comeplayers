@@ -1,0 +1,50 @@
+{
+  "mesh": "alexia-v11-hunyuan21-untextured-diagnostic.glb",
+  "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+  "method": "Direct GLB accessor read with numpy; single triangle primitive, no node transforms. No repair, filtering, smoothing, mesh export or file mutation. Index-edge incidence plus exact-position equivalence seam check and vertex-connected component counting.",
+  "analysisScript": "../../../../work/inspect_alexia_v11_raw_topology_readonly.py",
+  "rawFaces": 449582,
+  "rawVertices": 224713,
+  "exactUniquePositions": 224713,
+  "duplicateIndexedFacesIgnoringWinding": 0,
+  "exactZeroAreaFaces": 0,
+  "nearZeroAreaFaces": 6,
+  "nearZeroToleranceNote": "Twice triangle area <=1e-12 in mesh units squared; faces unchanged.",
+  "indexedBoundaryEdges": 0,
+  "indexedNonmanifoldEdgesOverTwoFaces": 0,
+  "exactPositionBoundaryEdges": 0,
+  "exactPositionNonmanifoldEdgesOverTwoFaces": 0,
+  "vertexConnectedComponents": 10,
+  "largestComponentFaces": [
+    448244,
+    500,
+    212,
+    200,
+    188,
+    124,
+    82,
+    16,
+    8,
+    8
+  ],
+  "largestComponentSharePercent": 99.70239,
+  "otherComponentFaces": 1338,
+  "twoFaceEdgeWindingConflicts": 0,
+  "edgeWatertight": true,
+  "positiveSignedVolume": true,
+  "volumeMeshUnitsCubed": 0.5152352723506858,
+  "bounds": [
+    [
+      -0.709930956363678,
+      -0.9977096319198608,
+      -0.45268574357032776
+    ],
+    [
+      0.7035887241363525,
+      0.9882368445396423,
+      0.46762484312057495
+    ]
+  ],
+  "limitation": "Edge watertightness does not establish vertex-manifoldness, self-intersection freedom, local thickness, semantic part separation, source identity, UVs or rigging.",
+  "meshHashUnchanged": true
+}

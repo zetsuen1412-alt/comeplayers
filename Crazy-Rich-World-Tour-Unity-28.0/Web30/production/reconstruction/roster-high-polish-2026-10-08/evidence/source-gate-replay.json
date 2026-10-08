@@ -1,0 +1,11 @@
+{
+  "schema": "crwt.alexia_high_polish_source_gate_descriptor.v1",
+  "tool_path": "tools/verify_selected_polish_source_final.py",
+  "tool_sha256": "6a121d36f1522e0a72890956aff1ad885f89307c913991d38a136c6cf134488a",
+  "argv": [
+    "--descriptor",
+    "{root}/evidence/selected-alexia/selected-delta.json",
+    "--receipt",
+    "{receipt}"
+  ]
+}

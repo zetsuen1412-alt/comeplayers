@@ -1,0 +1,61 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "version": "sculpt-v1-wip",
+  "revision": 10,
+  "visual_final_approved": false,
+  "online_game_replaced": false,
+  "fps": 30,
+  "frame_index": "zero_based_in_exported_timeline",
+  "segments": {
+    "Idle": [
+      0,
+      119
+    ],
+    "Walk": [
+      130,
+      159
+    ],
+    "Jump": [
+      170,
+      217
+    ],
+    "Skill": [
+      228,
+      317
+    ],
+    "Win": [
+      328,
+      417
+    ],
+    "Lose": [
+      428,
+      502
+    ]
+  },
+  "characters": [
+    "alexia",
+    "rindi",
+    "kairo",
+    "luna",
+    "nox",
+    "atlas",
+    "zeno",
+    "yuna",
+    "mochi",
+    "pip"
+  ],
+  "timeline_durations_seconds": {
+    "alexia": 16.733333333333334,
+    "atlas": 16.733333333333334,
+    "kairo": 16.733333333333334,
+    "luna": 16.733333333333334,
+    "mochi": 16.733333333333334,
+    "nox": 16.733333333333334,
+    "pip": 16.733333333333334,
+    "rindi": 16.733333333333334,
+    "yuna": 16.733333333333334,
+    "zeno": 16.733333333333334
+  },
+  "source_actions": 60,
+  "glb_sha256": "0b7137eb87016f73c0338cc143ac9332239c62fd5ced809e28ea2b6affcd36f5"
+}

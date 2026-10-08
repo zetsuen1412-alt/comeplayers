@@ -1,0 +1,43 @@
+{
+  "source_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+  "candidate_sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+  "actual": {
+    "faces": 45028,
+    "vertices": 31672,
+    "meshes": 1,
+    "mesh_definitions": 1,
+    "default_scene": 0,
+    "default_scene_nodes": 3,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "bd345cdf87f42e88a27693a34e11344c655a447e25acd586bdae89a1fa40cec2",
+    "accessors_checked": 8,
+    "buffer_views_checked": 10
+  },
+  "original_bin_prefix_byte_identical": true,
+  "original_primitive_and_index_bytes_exact": true,
+  "original_accessors_views_materials_images_nodes_exact": true,
+  "source_vertex_position_delta_count": 0,
+  "source_triangles_removed": 0,
+  "source_triangles_retained": 35556,
+  "new_vertices": 4738,
+  "new_faces": 9472,
+  "new_closed_components": 2,
+  "new_component_vertex_counts": [
+    1536,
+    3202
+  ],
+  "new_boundary_or_nonmanifold_edges": 0,
+  "new_inconsistent_winding_edges": 0,
+  "new_zero_area_triangles": 0,
+  "minimum_added_triangle_area": 7.144753236112912e-08,
+  "maximum_added_vertex_nearest_source_distance": 0.002049964852631092,
+  "all_added_triangle_points_source_proximity_upper_bound": 0.005119288566145782,
+  "support_bound_method": "Distance is1-Lipschitz; minvertexdistance+trianglediameter, with1e-6numericguard.",
+  "scope": "Original source remains untouched; closed added rim/spiral intentionally overlap source mat surface. No global mesh union/manifold/self-intersection/deformation certificate.",
+  "approved": false,
+  "gameIntegrated": false
+}

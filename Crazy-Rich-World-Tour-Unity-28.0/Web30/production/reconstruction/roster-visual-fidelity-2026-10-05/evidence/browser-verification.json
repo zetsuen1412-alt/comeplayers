@@ -1,0 +1,257 @@
+{
+  "schema": "crwt.fidelity_browser_dom_verification.v1",
+  "url": "http://127.0.0.1:8772/BUKA-REVIEW-MODEL.html",
+  "html_sha256": "f1d134dfb67d581eef797ca4200f6dd01d2ec7cda11ba92dc91397bc21396998",
+  "manifest_sha256": "02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3",
+  "model_count": 10,
+  "checks": [
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "451.712",
+      "name": "Alexia",
+      "reference": {
+        "complete": true,
+        "width": 510
+      },
+      "source": "alexia.glb20.213.184 byte · 0 skinSHA-256 sumber terverifikasid37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "258.703"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "45.278",
+      "name": "Rindi",
+      "reference": {
+        "complete": true,
+        "width": 305
+      },
+      "source": "rindi.glb3.231.408 byte · 0 skinSHA-256 sumber terverifikasid2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "29.689"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "45.028",
+      "name": "Atlas",
+      "reference": {
+        "complete": true,
+        "width": 336
+      },
+      "source": "atlas.glb2.442.228 byte · 0 skinSHA-256 sumber terverifikasica8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "31.672"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "27.820",
+      "name": "Kairo",
+      "reference": {
+        "complete": true,
+        "width": 277
+      },
+      "source": "kairo.glb1.278.084 byte · 0 skinSHA-256 sumber terverifikasi83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "20.492"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "55.274",
+      "name": "Luna",
+      "reference": {
+        "complete": true,
+        "width": 358
+      },
+      "source": "luna.glb3.076.828 byte · 0 skinSHA-256 sumber terverifikasie8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509Statistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "40.535"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "24.404",
+      "name": "Mochi",
+      "reference": {
+        "complete": true,
+        "width": 285
+      },
+      "source": "mochi.glb2.278.420 byte · 0 skinSHA-256 sumber terverifikasibf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcdStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "18.334"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "25.472",
+      "name": "Nox",
+      "reference": {
+        "complete": true,
+        "width": 370
+      },
+      "source": "nox.glb1.885.916 byte · 0 skinSHA-256 sumber terverifikasif96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4fStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "23.535"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        },
+        {
+          "label": "Idle · diam",
+          "value": "Idle"
+        },
+        {
+          "label": "Walk · berjalan",
+          "value": "Walk"
+        },
+        {
+          "label": "Jump · melompat",
+          "value": "Jump"
+        },
+        {
+          "label": "Skill · aksi",
+          "value": "Skill"
+        },
+        {
+          "label": "Win · menang",
+          "value": "Win"
+        },
+        {
+          "label": "Lose · kalah",
+          "value": "Lose"
+        }
+      ],
+      "faces": "97.580",
+      "name": "Pip",
+      "reference": {
+        "complete": true,
+        "width": 321
+      },
+      "source": "pip.glb5.690.144 byte · 1 skinSHA-256 sumber terverifikasic25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9fStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip.",
+      "textures": "Tanpa tekstur",
+      "vertices": "103.760"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "32.908",
+      "name": "Yuna",
+      "reference": {
+        "complete": true,
+        "width": 332
+      },
+      "source": "yuna.glb1.990.840 byte · 0 skinSHA-256 sumber terverifikasi9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898bStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "25.055"
+    },
+    {
+      "clips": [
+        {
+          "label": "Pose statis",
+          "value": ""
+        }
+      ],
+      "faces": "33.300",
+      "name": "Zeno",
+      "reference": {
+        "complete": true,
+        "width": 314
+      },
+      "source": "zeno.glb2.033.724 byte · 0 skinSHA-256 sumber terverifikasic1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bcStatistik berasal dari mesh aktif. Normal tampilan dapat dihitung saat sumber tidak menyertakannya.",
+      "status": "Model 3D siap · pose statis.",
+      "textures": "2 gambar",
+      "vertices": "24.679"
+    }
+  ],
+  "pip_clip_selection": [
+    {
+      "selected": "Idle",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    },
+    {
+      "selected": "Walk",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    },
+    {
+      "selected": "Jump",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    },
+    {
+      "selected": "Skill",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    },
+    {
+      "selected": "Win",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    },
+    {
+      "selected": "Lose",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    },
+    {
+      "selected": "",
+      "status": "Model 3D siap. Pilih clip untuk melihat gerak Pip."
+    }
+  ],
+  "console_errors_warnings": [],
+  "actual_visual_observations": [
+    "Alexia front color mesh and 2D side-by-side visibly rendered",
+    "Alexia left profile visibly rendered",
+    "Alexia grayscale mesh visibly rendered",
+    "Rindi and Atlas color meshes visibly rendered"
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Clip selection and intact source identity do not certify all animation motion quality.",
+    "DOM readiness can precede first WebGL frame; visual observations used settled screenshots.",
+    "Viewer state global unavailable inside read-only DOM evaluate; no state inspector claim."
+  ]
+}

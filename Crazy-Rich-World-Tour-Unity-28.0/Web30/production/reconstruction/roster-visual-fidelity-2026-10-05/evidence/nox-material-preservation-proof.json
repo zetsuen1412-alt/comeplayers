@@ -1,0 +1,33 @@
+{
+  "id": "nox",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\nox.glb",
+  "source_sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\nox.glb",
+  "candidate_sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+  "bytes": 1885916,
+  "material_indices_set_unlit": [
+    0
+  ],
+  "pip_preserved_entire_file": false,
+  "binary_chunk_entirely_byte_identical": true,
+  "all_json_except_materials_and_extension_registration_exact": true,
+  "geometry_uv_normals_indices_images_skin_animations_byte_exact": true,
+  "actual": {
+    "faces": 25472,
+    "vertices": 23535,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "92e84c47888cdf73c38aec0eeb864badf067655c012b74941dcb250aea60f3e5",
+    "accessors_checked": 13,
+    "buffer_views_checked": 15
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

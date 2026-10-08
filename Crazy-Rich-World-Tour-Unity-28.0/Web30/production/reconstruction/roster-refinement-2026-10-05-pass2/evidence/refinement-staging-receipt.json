@@ -1,0 +1,424 @@
+{
+  "schema": "crwt.pass2-evidence-staging.v1",
+  "files": [
+    {
+      "path": "evidence/alexia/build_headphone_detail.py",
+      "sha256": "13ded78c89e5502d8f00255e95192da1e66e8c737d58ec7a69d38d94ccc5397d",
+      "bytes": 7798
+    },
+    {
+      "path": "evidence/alexia/ear-samples.json",
+      "sha256": "54a98b573c6da9d7a4af42ffa67c95f5636184864eb1160911c2eb0ae59f9651",
+      "bytes": 457179
+    },
+    {
+      "path": "evidence/alexia/editable_headphone.py",
+      "sha256": "201ce0f85a32f2f1f9dcc19ce01e173df56fa893871a18810f7cdf81edf2ff91",
+      "bytes": 3139
+    },
+    {
+      "path": "evidence/alexia/HANDOFF.json",
+      "sha256": "9b4a5e54274a7033e7015142f8b9065615894bd09d301a58ba7b32c96e7de2bc",
+      "bytes": 2017
+    },
+    {
+      "path": "evidence/alexia/inspect.py",
+      "sha256": "aa5d1d90724f0e7f41783cea9c7b03de09f1aab4f5f68bdc453996444ad001f4",
+      "bytes": 1322
+    },
+    {
+      "path": "evidence/alexia/inspect_cup_projection.py",
+      "sha256": "f5ada5725858ac899fedac5104107ea47b72f7f20e3e7291500d283b61da6432",
+      "bytes": 1007
+    },
+    {
+      "path": "evidence/alexia/trial-v1/actual-renders/render-evidence.json",
+      "sha256": "aecf9664eb82328b30af83b64b768571f258b1d27641f0f2a00defda5046e86f",
+      "bytes": 1369
+    },
+    {
+      "path": "evidence/alexia/trial-v1/alexia-headphone-candidate.preservation-proof.json",
+      "sha256": "cf8d6f04fb9c07234b5e1f59e1f92fee3f1ff9d5bedee16a42553a96e4785c71",
+      "bytes": 5192
+    },
+    {
+      "path": "evidence/alexia/trial-v1/alexia-headphone-editable.build-proof.json",
+      "sha256": "0b67bcf4bc05a416554d32d713511eedec268e3e7243e8ca7a4f31c2baec2f9d",
+      "bytes": 801
+    },
+    {
+      "path": "evidence/alexia/trial-v1/alexia-headphone-editable.reopen-proof.json",
+      "sha256": "52058e08a20e94fcafbe4c35431ff1cfe3370c968ba27515848962848f44c1d3",
+      "bytes": 1204
+    },
+    {
+      "path": "evidence/kairo/build_fitted_rim_beads.py",
+      "sha256": "c707919059084838797ff0470984992070e6c3576bb5917d7d2b4ccb4b5b3e9d",
+      "bytes": 13309
+    },
+    {
+      "path": "evidence/kairo/finalize_kairo.py",
+      "sha256": "404079fa0677da2c4d00282d1d0a78b0e412c14eb6ea5af70fec56dbdbcfbdb9",
+      "bytes": 12390
+    },
+    {
+      "path": "evidence/kairo/HANDOFF.json",
+      "sha256": "ef54c6fb1d315aecaff622c2646a868b46355e017899e8d8620308583b5e081b",
+      "bytes": 18273
+    },
+    {
+      "path": "evidence/kairo/inspect_head.py",
+      "sha256": "859ca10c875dd20dd2b93f9f9fee03ab25438505f43c66edb08e194e21eed19a",
+      "bytes": 2723
+    },
+    {
+      "path": "evidence/kairo/render_review_blender.py",
+      "sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682",
+      "bytes": 4677
+    },
+    {
+      "path": "evidence/kairo/rim-fit-v1.json",
+      "sha256": "8946b5ac14b7d802bb108b0b4b28085efae2129f985da86b030e026d20bc4f9a",
+      "bytes": 633
+    },
+    {
+      "path": "evidence/kairo/rim-fit-v2.json",
+      "sha256": "47713b2dd0dfe7e0c5cf7e5d5c4a4e842ff5626226a2925ac107be9e734c5026",
+      "bytes": 735
+    },
+    {
+      "path": "evidence/kairo/save_and_reopen_editable.py",
+      "sha256": "b19c8c7b4f145ae7b4500a09f11738f14787e373b9fb7bee1b00e74640ecec0e",
+      "bytes": 6792
+    },
+    {
+      "path": "evidence/kairo/source-head-inspection/inspection.json",
+      "sha256": "9caec3a69eb571eb3985a04a293ccee14db36dd275d165cd37761ea2089306fe",
+      "bytes": 546
+    },
+    {
+      "path": "evidence/kairo/trial-v1/initial-actual-mesh-renders/render-evidence.json",
+      "sha256": "6c390e978f76e093416db91656a45d0087c092b9776677c57e079e73d764ace6",
+      "bytes": 1152
+    },
+    {
+      "path": "evidence/kairo/trial-v1/kairo-fitted-rim-beads-candidate.preservation-proof.json",
+      "sha256": "8125258202f79dfac9fd271a331be0a16363f14ae450de11d84254c2ea3a5aa6",
+      "bytes": 90983
+    },
+    {
+      "path": "evidence/kairo/trial-v2/editable-build-proof.json",
+      "sha256": "8b4129569be599f1bbeab3469d24c1e79c85cded2840400a6ace96400643c29a",
+      "bytes": 10215
+    },
+    {
+      "path": "evidence/kairo/trial-v2/editable-readonly-reopen-proof.json",
+      "sha256": "a951918c7060bf96b72d6a41416904d26f42eb9cc1b94664644ae9933544b948",
+      "bytes": 1189
+    },
+    {
+      "path": "evidence/kairo/trial-v2/final-actual-mesh-renders/render-evidence.json",
+      "sha256": "298841d06c3004cb190abfe57c33b7ebe9c126e7fc66b3ca8dccee53988f879f",
+      "bytes": 1371
+    },
+    {
+      "path": "evidence/kairo/trial-v2/final-glb-validation.json",
+      "sha256": "9864a8aa06553c3670fd192530dd43cac5802ae8d4a3555a5db71c4c38beb937",
+      "bytes": 686
+    },
+    {
+      "path": "evidence/kairo/trial-v2/finalization-proof.json",
+      "sha256": "498a945cbdefd40bcd3ee9cfbaf1b4b98b578768a53cd8b67571fb3b41796c62",
+      "bytes": 13939
+    },
+    {
+      "path": "evidence/kairo/trial-v2/initial-actual-mesh-renders/render-evidence.json",
+      "sha256": "f385b268a30f81d971bd7be756aa96794af3fe71b26949213f3868816a398238",
+      "bytes": 1152
+    },
+    {
+      "path": "evidence/kairo/trial-v2/kairo-fitted-rim-beads-candidate.preservation-proof.json",
+      "sha256": "b66f590cbd7741582651490021152480e6c7c8e5f9d06006d472c842a2011d1f",
+      "bytes": 96288
+    },
+    {
+      "path": "evidence/kairo/trial-v2/MULAI-DI-SINI-KAIRO.md",
+      "sha256": "fe78e6a1c7d9757343e3cc10e58a399e80ca2f4239fab735bfc1223e0beee24a",
+      "bytes": 1434
+    },
+    {
+      "path": "evidence/atlas/audit_and_reopen.py",
+      "sha256": "a29e00650eb00941d1ac9a927b4a002a37a546f9f42a7346bb4ce56e5af7fe73",
+      "bytes": 6942
+    },
+    {
+      "path": "evidence/atlas/finalize_handoff.py",
+      "sha256": "c30bd622eb07727fb3eea7a2e30e2c932f3cd6f285e6d61553a822225b0a9594",
+      "bytes": 7049
+    },
+    {
+      "path": "evidence/atlas/HANDOFF.json",
+      "sha256": "bf773b68849a2102fdbf2451323700b7ec1c776825df21549c3c588b95e8b1e5",
+      "bytes": 12020
+    },
+    {
+      "path": "evidence/atlas/inspect_roll.py",
+      "sha256": "05cfb5e179b3670947418b319de40275d4db47d274167bee71f90f187cbab3a8",
+      "bytes": 3341
+    },
+    {
+      "path": "evidence/atlas/locate_roll_surface.py",
+      "sha256": "62be16b375e973c766332bc2310ffddcf310691a76b55a42e629a7ca6e48844f",
+      "bytes": 663
+    },
+    {
+      "path": "evidence/atlas/pick_roll_center.py",
+      "sha256": "c38344b1cc0d3818152cb67ed3a0c76e80ca5ce7655dde0abfa075fa321da81b",
+      "bytes": 513
+    },
+    {
+      "path": "evidence/atlas/refine_roll_blender.py",
+      "sha256": "d7e3ada07de48c3cd59e2b7d4d99d6b8d3c00c44079b018abc01eeb374c29fd4",
+      "bytes": 11254
+    },
+    {
+      "path": "evidence/atlas/source-inspection/source-roll-inspection.json",
+      "sha256": "6d58a4e53e7706ab652f92135f0b95da82df0fed8d7ab2206867cb191a25fa0f",
+      "bytes": 4237
+    },
+    {
+      "path": "evidence/atlas/trial-02/actual-mesh-renders/render-evidence.json",
+      "sha256": "4f93c4cb148ed1eb83de35790c3eb612ac95744077b9dbddeca949557942a801",
+      "bytes": 1373
+    },
+    {
+      "path": "evidence/atlas/trial-02/ATLAS-HANDOFF-ID.md",
+      "sha256": "4b84f7e1175d7114ee45adda3b4a33ec0a314dce64b53519ba28cfe01a0ea4c9",
+      "bytes": 1861
+    },
+    {
+      "path": "evidence/atlas/trial-02/HANDOFF.json",
+      "sha256": "bf773b68849a2102fdbf2451323700b7ec1c776825df21549c3c588b95e8b1e5",
+      "bytes": 12020
+    },
+    {
+      "path": "evidence/atlas/trial-02/independent-preservation-topology-audit.json",
+      "sha256": "c250d6b07a9cb95f0391bd34e3800cb6888adcfabc9550d3b09f305006e51dfe",
+      "bytes": 1725
+    },
+    {
+      "path": "evidence/atlas/trial-02/native-reopen-proof.json",
+      "sha256": "42937bbde808bc30ac7017e65bdf23fb8346d554cb85b1717518f614dd89165c",
+      "bytes": 1025
+    },
+    {
+      "path": "evidence/atlas/trial-02/quick-actual-mesh-renders/render-evidence.json",
+      "sha256": "6a5cb20f0f1cb5b7de361147d1c4ef4b4c1bb08e49bcf4541035fde7f699b021",
+      "bytes": 1163
+    },
+    {
+      "path": "evidence/atlas/trial-02/roll-preservation-proof.json",
+      "sha256": "a62a4543aae90991bc8e0f780232e51e89739d70a78376ab32e4d7373b478f18",
+      "bytes": 190210
+    },
+    {
+      "path": "evidence/zeno/audit_and_finalize.py",
+      "sha256": "1b9243e69512dd38ee7d49e25194ae90cc457a5bb2acae174bc1263cce3b4d30",
+      "bytes": 13257
+    },
+    {
+      "path": "evidence/zeno/build_fitted_rim_beads.py",
+      "sha256": "0f2182e3c99cdb220281e963aa0542be902d81466821da8de6394f0a03a2c7bc",
+      "bytes": 13925
+    },
+    {
+      "path": "evidence/zeno/HANDOFF.json",
+      "sha256": "3304062c1c47275dc13d1611920b5688fc621f091a0f3d103365e9910355a994",
+      "bytes": 10777
+    },
+    {
+      "path": "evidence/zeno/inspect_head.py",
+      "sha256": "859ca10c875dd20dd2b93f9f9fee03ab25438505f43c66edb08e194e21eed19a",
+      "bytes": 2723
+    },
+    {
+      "path": "evidence/zeno/render_review_blender.py",
+      "sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682",
+      "bytes": 4677
+    },
+    {
+      "path": "evidence/zeno/rim-fit-v1.json",
+      "sha256": "75fa205aeb397aa08db316ff671a9f254ee9010b8e40620c687d6e1e58751de1",
+      "bytes": 634
+    },
+    {
+      "path": "evidence/zeno/rim-fit-v2.json",
+      "sha256": "0623a99c27a3380b721b9ea4edecc1cf1133905765c613aeece73a73be03b5c9",
+      "bytes": 888
+    },
+    {
+      "path": "evidence/zeno/save_and_reopen_editable.py",
+      "sha256": "b19c8c7b4f145ae7b4500a09f11738f14787e373b9fb7bee1b00e74640ecec0e",
+      "bytes": 6792
+    },
+    {
+      "path": "evidence/zeno/source-head-inspection/inspection.json",
+      "sha256": "860c95dc8ed44046b3cd58935f8941a08a03b2ad9b5c1ca12f06e3062da11d5c",
+      "bytes": 543
+    },
+    {
+      "path": "evidence/zeno/trial-v1/initial-actual-mesh-renders/render-evidence.json",
+      "sha256": "eac8464436329fb5dcd1b7cfa34af27d71cc460cb5bd735e205bf783b454e443",
+      "bytes": 1151
+    },
+    {
+      "path": "evidence/zeno/trial-v1/zeno-fitted-rim-beads-candidate.preservation-proof.json",
+      "sha256": "084bd70a4fdb1b0d7d1117d9dab474a36fd88963fa6d189b2fea70cc67cae15e",
+      "bytes": 91115
+    },
+    {
+      "path": "evidence/zeno/trial-v2/editable-build-proof.json",
+      "sha256": "ec7099aa6e816769e61fdf28d82923265e2fd2d5347ae3f0cb75958524e03f15",
+      "bytes": 10210
+    },
+    {
+      "path": "evidence/zeno/trial-v2/editable-readonly-reopen-proof.json",
+      "sha256": "39d50a51f287df9114eea545fd9a8bb0cdb340ca0a76bb41539a50218d3605cd",
+      "bytes": 1188
+    },
+    {
+      "path": "evidence/zeno/trial-v2/final-actual-mesh-renders/render-evidence.json",
+      "sha256": "4db7f7d1811051fb308993845b8a787b269d294c5333161cc22a3311843da407",
+      "bytes": 1370
+    },
+    {
+      "path": "evidence/zeno/trial-v2/final-glb-validation.json",
+      "sha256": "b9340ce25de3a2b0fd4aa1e1527ce1f544598ac60e4a238394affc53a18cbf94",
+      "bytes": 381
+    },
+    {
+      "path": "evidence/zeno/trial-v2/HANDOFF.json",
+      "sha256": "3304062c1c47275dc13d1611920b5688fc621f091a0f3d103365e9910355a994",
+      "bytes": 10777
+    },
+    {
+      "path": "evidence/zeno/trial-v2/independent-preservation-topology-audit.json",
+      "sha256": "d8bdcfc6d93703ecdb57b216b148a3e330d34018d3de69ab17bcfc3b2d1561eb",
+      "bytes": 2243
+    },
+    {
+      "path": "evidence/zeno/trial-v2/initial-actual-mesh-renders/render-evidence.json",
+      "sha256": "517d33b7423af18f2919f332bc12e33abfaff0f88e109cccd40c16bea37ecd60",
+      "bytes": 1151
+    },
+    {
+      "path": "evidence/zeno/trial-v2/MULAI-DI-SINI-ZENO.md",
+      "sha256": "3819c1cf853d7bcb63e463e11a1c6a97ee3dbdcc0afe6762b44f0fb189f9e697",
+      "bytes": 1433
+    },
+    {
+      "path": "evidence/zeno/trial-v2/zeno-fitted-rim-beads-candidate.preservation-proof.json",
+      "sha256": "361b652c77c43c63532c5529978ec86223c4aa780c691839cd4fb0528dfbb837",
+      "bytes": 97438
+    },
+    {
+      "path": "evidence/mochi/accessory-inspection.json",
+      "sha256": "234ffe56975e5500340bbeb915dc893a9caf55471c74b3fda622a21889d6229e",
+      "bytes": 5247
+    },
+    {
+      "path": "evidence/mochi/build_mochi_bag_hardware.py",
+      "sha256": "ec9473014ad8b68fc3da96ea807352d8cacdc7793a804a219f15342b6bfb3f31",
+      "bytes": 13532
+    },
+    {
+      "path": "evidence/mochi/HANDOFF.json",
+      "sha256": "57db40a4e9fa7e5cb5ae445f300c63e449b448b67d0fd7c3b5ad00d19c98397a",
+      "bytes": 29449
+    },
+    {
+      "path": "evidence/mochi/inspect_accessories.py",
+      "sha256": "2c29980e79100e0eb384f0aa9e871f4128d31266a42b1ad00264f6176ec2c1d4",
+      "bytes": 4228
+    },
+    {
+      "path": "evidence/mochi/render_editable_mochi.py",
+      "sha256": "634a86ee5fa34b9c6c32f3b3014973b6496297da01c10ceb138d2769d97666c9",
+      "bytes": 6413
+    },
+    {
+      "path": "evidence/mochi/reopen_native_mochi.py",
+      "sha256": "41c89c755ec27cef9070f3c56e361556c11e765a5a0f2fba8694b50faeb6c940",
+      "bytes": 3099
+    },
+    {
+      "path": "evidence/mochi/reproducibility-check/mochi-bag-hardware-candidate.preservation-proof.json",
+      "sha256": "767a9e7213f180b08a74804dd74f765b4517d87492fa9af6694ec451ecc4cd0a",
+      "bytes": 7301
+    },
+    {
+      "path": "evidence/mochi/trial-v1/actual-mesh-review/mochi-bag-hardware-editable-candidate.reopen-proof.json",
+      "sha256": "3abb0b40766db46da0f77e682dc32eec12b9d0330d653779bc314cdc2e5bbe4e",
+      "bytes": 1830
+    },
+    {
+      "path": "evidence/mochi/trial-v1/actual-mesh-review/render-editable-receipt.json",
+      "sha256": "42e8b625d4eaa03f6e0ba1e3b886d6da40ea756fc5612df29c6e5a87608504ed",
+      "bytes": 3505
+    },
+    {
+      "path": "evidence/mochi/trial-v1/final-actual-mesh-renders/render-evidence.json",
+      "sha256": "fa9426836c830cd9aea04fe7c19fbed97b6361c9af7152538275e6f6826f5794",
+      "bytes": 1367
+    },
+    {
+      "path": "evidence/mochi/trial-v1/HANDOFF.json",
+      "sha256": "57db40a4e9fa7e5cb5ae445f300c63e449b448b67d0fd7c3b5ad00d19c98397a",
+      "bytes": 29449
+    },
+    {
+      "path": "evidence/mochi/trial-v1/mochi-bag-hardware-candidate.preservation-proof.json",
+      "sha256": "767a9e7213f180b08a74804dd74f765b4517d87492fa9af6694ec451ecc4cd0a",
+      "bytes": 7301
+    },
+    {
+      "path": "evidence/mochi/trial-v1/MULAI-DI-SINI-MOCHI.md",
+      "sha256": "47aa3211865c3644bbaafc18e329c03bfb316ba58c22e761dda4c645a7870bc2",
+      "bytes": 1526
+    },
+    {
+      "path": "evidence/mochi/trial-v1/repeat-build-proof.json",
+      "sha256": "c4e70759284182e4715f8c478ec10a72c5e142678620ee01d9456f8850c2d804",
+      "bytes": 930
+    },
+    {
+      "path": "evidence/mochi/trial-v1/visual-comparison-proof.json",
+      "sha256": "f5539248dd2423c1183d9643bac4532036f0f5bcbdea3e34d742bcb75ab6a978",
+      "bytes": 2289
+    },
+    {
+      "path": "evidence/mochi/write_handoff.py",
+      "sha256": "d5f7361d6db2c0becb0e6552bf2579d5b34595d57127ca624a9bab0ee0ef80b6",
+      "bytes": 11236
+    }
+  ],
+  "archives": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\editable\\CRWT-editable-roster.zip",
+      "sha256": "aa974e01411f3d97733d017e11ccac04e74675290e0305ba42b659372cb000ec",
+      "bytes": 19592372,
+      "entries": 5,
+      "crc_and_all_payload_hashes_passed": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\editable\\CRWT-refined-individuals.zip",
+      "sha256": "c325abda8524e97a2762e558719b4ab5ce8f7953cb3f90137a6eb83a0447fcee",
+      "bytes": 10004099,
+      "entries": 92,
+      "crc_and_all_payload_hashes_passed": true
+    }
+  ],
+  "manifest_sha256": "f65190b5e1e862df6f1dcd0b362334728e8864cb6fe39a9f5679c6f08c779e24",
+  "approved": false,
+  "gameIntegrated": false
+}

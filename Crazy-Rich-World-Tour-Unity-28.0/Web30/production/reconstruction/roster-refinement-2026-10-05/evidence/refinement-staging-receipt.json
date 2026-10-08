@@ -1,0 +1,517 @@
+{
+  "schema": "crwt.refinement-evidence-staging.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "manifest_sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+  "workspace_sha256": "ae7874ae464059792cd5065d82c58c503dace95fc51812ea209b49194ce6e839",
+  "copied_evidence": [
+    {
+      "path": "evidence/rindi/actual-mesh-renders-final/render-evidence.json",
+      "sha256": "f0e21795d01b0312ca39298ff35c999d67329b745b1795a6f1ea3907ee4da1ab",
+      "bytes": 1365
+    },
+    {
+      "path": "evidence/rindi/editable-restore-proof.json",
+      "sha256": "ce3cc2ec1ed0ac6bb74267020b0655f707418708d135372d87a1e6739595c53d",
+      "bytes": 640
+    },
+    {
+      "path": "evidence/rindi/hand-refinement-proof.json",
+      "sha256": "fd908b0a911da0c5458f53b62d9fcd191efc5427a98acaeae5acb5a9a4a7dcbf",
+      "bytes": 20931
+    },
+    {
+      "path": "evidence/rindi/independent-integrity-and-bridge-audit.json",
+      "sha256": "e363e3a1cd8d8437105bffffa13184eb03553aebdd1220b4cd9b16b671edf675",
+      "bytes": 2096
+    },
+    {
+      "path": "evidence/rindi/RINDI-HANDOFF.json",
+      "sha256": "164f78607510f7e4626bd427a2b57cab39d7bdba04b20ff5edb6b798a1ee700c",
+      "bytes": 3088
+    },
+    {
+      "path": "evidence/rindi/recipes/audit_refinement.py",
+      "sha256": "46a96140889de23559665d5c3f59a76fee4f4be635322fd2dc0f86938b171e7f",
+      "bytes": 6090
+    },
+    {
+      "path": "evidence/rindi/recipes/check_editable.py",
+      "sha256": "bae32dc26e13cfab192e23ba71f6196199731dbebf54621ca00c44161c8dbccb",
+      "bytes": 1257
+    },
+    {
+      "path": "evidence/rindi/recipes/hand-selection.json",
+      "sha256": "10a5b9b39f5fe1db8efcaa56e34c305393d3befe4b67cb3be14ea1cfb34d5752",
+      "bytes": 10493
+    },
+    {
+      "path": "evidence/rindi/recipes/inspect_hand.py",
+      "sha256": "d839d14f89ec0e0e4b3fa3b17803d13def52b30c49dc5731cafd030776aaa453",
+      "bytes": 2879
+    },
+    {
+      "path": "evidence/rindi/recipes/refine_hand_blender.py",
+      "sha256": "4332fcb039ab134ad1a91b59dea319b96571b58676270572e53543585a00becf",
+      "bytes": 16581
+    },
+    {
+      "path": "evidence/rindi/recipes/RINDI-HANDOFF-ID.md",
+      "sha256": "0357151baa85f683b7df319d5a17fd89578f8eac10dd8ac82d4b71db8378f140",
+      "bytes": 3384
+    },
+    {
+      "path": "evidence/rindi/recipes/dependencies/work/local-sculpt-toolchain/audit_hair_caps_exact.py",
+      "sha256": "eb25540fdd574a99553e6431257bc06e9c2f4b7c19227260be42e39858322568",
+      "bytes": 9130
+    },
+    {
+      "path": "evidence/rindi/recipes/dependencies/work/v11-diagnostic/audit_glb_components.py",
+      "sha256": "b386191456458076d68de21f1922ed869fbe52b5284d35d52c2ed0bb8e1a1024",
+      "bytes": 22184
+    },
+    {
+      "path": "evidence/rindi/recipes/dependencies/work/model-rebuild/tools/validate_roster_candidate.py",
+      "sha256": "72ef5252320ffe045415287e1101c61af032fc6574580e3c245aa4820a30a942",
+      "bytes": 29339
+    },
+    {
+      "path": "evidence/rindi/selected-render-evidence.json",
+      "sha256": "f0e21795d01b0312ca39298ff35c999d67329b745b1795a6f1ea3907ee4da1ab",
+      "bytes": 1365
+    },
+    {
+      "path": "evidence/luna/actual-mesh-renders/render-evidence.json",
+      "sha256": "8b310f1b3af87ccfa1eb92daaa7330f73f2d83b02a34f662df43d7d5485aa566",
+      "bytes": 1160
+    },
+    {
+      "path": "evidence/luna/actual-mesh-renders-complete/render-evidence.json",
+      "sha256": "799edc968eb51c58906503e7c9e97ac5dc8bf83a9d50d63063dc01c2f23cf795",
+      "bytes": 1369
+    },
+    {
+      "path": "evidence/luna/editable-build-proof.json",
+      "sha256": "2820512d740e1bcd74eae701de36ed27b524b4692dde8d0e03f864438147e7b0",
+      "bytes": 20415
+    },
+    {
+      "path": "evidence/luna/editable-readonly-reopen-proof.json",
+      "sha256": "f04b66a05bd0eb36cd496609753501f8c56a5bb875f3d649e3189cfa2a57dd46",
+      "bytes": 1322
+    },
+    {
+      "path": "evidence/luna/LUNA-HANDOFF.json",
+      "sha256": "726c6f8edbc06096b15814150ea5c8baf334cbcc322f11b92c491050eb931f0e",
+      "bytes": 12290
+    },
+    {
+      "path": "evidence/luna/LUNA-HANDOFF.md",
+      "sha256": "25bd1ab418d19160adba527814bf1960d4e5444e4428cc82ced6141c2d5dfa66",
+      "bytes": 4881
+    },
+    {
+      "path": "evidence/luna/luna-staff-head-refined-candidate.source-preservation.json",
+      "sha256": "aa08248564cc93b9b60debb2dd8c93282c597d44fab96bce29c89803263583ac",
+      "bytes": 15320
+    },
+    {
+      "path": "evidence/luna/neck-cap-exact-audit.json",
+      "sha256": "2d9063efa06459f659db1af329243cb46c6c58919f1be7c7b2c8ca85a9850613",
+      "bytes": 57959
+    },
+    {
+      "path": "evidence/luna/recipes/audit_neck_caps.py",
+      "sha256": "f12769420d6b515ce96cbfbf1cf972a065a378aebfa57f076ca7fb3a9d8112c4",
+      "bytes": 2643
+    },
+    {
+      "path": "evidence/luna/recipes/build_staff_head_addon.py",
+      "sha256": "a73dfd28666125867a35d49d85ade0593ee23ba79d5a26023db471135f39fe17",
+      "bytes": 3948
+    },
+    {
+      "path": "evidence/luna/recipes/choose_neck_cut.py",
+      "sha256": "f39ceeabdf59ce860f23dee948612f719f74b7d93f73a2b144b1d913b7981033",
+      "bytes": 1830
+    },
+    {
+      "path": "evidence/luna/recipes/head-selection-components.json",
+      "sha256": "51e6fcdb8acf869abf8390c65d5eed771a31c2b9ec121163f72eee986222312b",
+      "bytes": 10507
+    },
+    {
+      "path": "evidence/luna/recipes/inspect_head_boundary.py",
+      "sha256": "0fd6842104ce6d9d9e0abdcca571dfa95bf017e6705eefd56a8a54ed2bb29828",
+      "bytes": 1407
+    },
+    {
+      "path": "evidence/luna/recipes/inspect_staff.py",
+      "sha256": "4c93acb2cded1ae3dddefc80cf6c19f4646357dbac2deb5d51bd510bbdcc27b7",
+      "bytes": 992
+    },
+    {
+      "path": "evidence/luna/recipes/isolate_staff_head.py",
+      "sha256": "e5d57b42d3ee2a49ec33697beeabecd040e66a65ee73e15e30697d8ff0698490",
+      "bytes": 1324
+    },
+    {
+      "path": "evidence/luna/recipes/merge_staff_head_candidate.py",
+      "sha256": "b38c15c788a8712043a72e35c77948518c1b89384c0f8413e10107d07b578183",
+      "bytes": 7148
+    },
+    {
+      "path": "evidence/luna/recipes/neck-cut-options.json",
+      "sha256": "95795d5f77a332c9a723def3de4932d2bd4af6630c3c20bb444f802a0cfc0290",
+      "bytes": 52437
+    },
+    {
+      "path": "evidence/luna/recipes/render_staff_selection.py",
+      "sha256": "38e6cc3c9e74e53164a5535d52a06646e6f95005bba783267fe5777cad9c2bc8",
+      "bytes": 2866
+    },
+    {
+      "path": "evidence/luna/recipes/save_editable_candidate.py",
+      "sha256": "1392bcdf4c4c5709111c66aea051f9857f5dc2bea293d8bcdf665041cd67242c",
+      "bytes": 8067
+    },
+    {
+      "path": "evidence/luna/recipes/staff-head-frozen-selection.json",
+      "sha256": "bc420b43e3097d8d07a30abd42564ccfa9fa2a802008bcf79ec7f9816391d28a",
+      "bytes": 14194
+    },
+    {
+      "path": "evidence/luna/recipes/staff-inspection.json",
+      "sha256": "3a574c8e257556a3b946b3c6c1438fef1c3f940274df07a484cd1ea7cb09bafc",
+      "bytes": 2994892
+    },
+    {
+      "path": "evidence/luna/recipes/staff-region-faces.json",
+      "sha256": "7e9a9f64c677111167dbbf543b0933d6510a8dfbf22a4a2bfd4a8a923f806d5e",
+      "bytes": 1060803
+    },
+    {
+      "path": "evidence/luna/recipes/staff_regions.py",
+      "sha256": "285ea16ecf253eebd750ac5dd4174aee030be5eb0c535ad140a53181f8708c53",
+      "bytes": 2115
+    },
+    {
+      "path": "evidence/luna/recipes/dependencies/work/model-rebuild/Mochi-tail/inspect_components.py",
+      "sha256": "5925e290e372f60522c257a1929f2c0a07182c07fd200572f2a1c7a40edaa543",
+      "bytes": 4813
+    },
+    {
+      "path": "evidence/luna/recipes/dependencies/work/model-rebuild/Mochi-tail/attach_tail_candidate.py",
+      "sha256": "4c1b479c03407e18dca5d4c2573e5cca3bbf830cb2a41516fcc9489c267af3e0",
+      "bytes": 14174
+    },
+    {
+      "path": "evidence/luna/recipes/dependencies/work/model-rebuild/tools/validate_roster_candidate.py",
+      "sha256": "72ef5252320ffe045415287e1101c61af032fc6574580e3c245aa4820a30a942",
+      "bytes": 29339
+    },
+    {
+      "path": "evidence/luna/recipes/dependencies/work/local-sculpt-toolchain/audit_hair_caps_exact.py",
+      "sha256": "eb25540fdd574a99553e6431257bc06e9c2f4b7c19227260be42e39858322568",
+      "bytes": 9130
+    },
+    {
+      "path": "evidence/luna/recipes/dependencies/work/v11-diagnostic/audit_glb_components.py",
+      "sha256": "b386191456458076d68de21f1922ed869fbe52b5284d35d52c2ed0bb8e1a1024",
+      "bytes": 22184
+    },
+    {
+      "path": "evidence/luna/selected-render-evidence.json",
+      "sha256": "799edc968eb51c58906503e7c9e97ac5dc8bf83a9d50d63063dc01c2f23cf795",
+      "bytes": 1369
+    },
+    {
+      "path": "evidence/nox/actual-mesh-review/nox-hip-card-editable-candidate.reopen-proof.json",
+      "sha256": "93d6cc8359a888e3869a3fb52f48b0423af6a97dadb1621966cbd3edfa9e3669",
+      "bytes": 830
+    },
+    {
+      "path": "evidence/nox/actual-mesh-review/render-editable-receipt.json",
+      "sha256": "c55a3abff4cc0e1da6d2ff02ace2483eb4a6dcfebb65b8afad96c8616ef8a398",
+      "bytes": 3226
+    },
+    {
+      "path": "evidence/nox/MULAI-DI-SINI-NOX.md",
+      "sha256": "733b2c5feb4768b594646a7f4c4d766fe11ada57ea4d61b4df0339b95db36143",
+      "bytes": 2379
+    },
+    {
+      "path": "evidence/nox/NOX-HANDOFF.json",
+      "sha256": "c2fb1bc78494464ffa85b6a7003f3eee73fd4d121eaac6d1a8ce1f958abd53a8",
+      "bytes": 6123
+    },
+    {
+      "path": "evidence/nox/nox-hip-card-accessory-candidate.preservation-proof.json",
+      "sha256": "4414ce068f454e41ae8e08c9930dbd22780854dde25d26c2e512520c05c16cd7",
+      "bytes": 4343
+    },
+    {
+      "path": "evidence/nox/visual-review.json",
+      "sha256": "c45ac5b61dea0ca2f7a29ae25b1cb708f29c7dfcbdb9c268901e17567d54a1df",
+      "bytes": 2024
+    },
+    {
+      "path": "evidence/nox/recipes/build_nox_hip_card.py",
+      "sha256": "87a012b2609adc00227b5f95349a74cebe5c7f75e077a5915cd5336b1091ef65",
+      "bytes": 12849
+    },
+    {
+      "path": "evidence/nox/recipes/FULL-RENDER-HANDOFF.json",
+      "sha256": "ca50b747477fac410db8e9795b318e0a6769c90fea22b81a41c779f19ca9ad8d",
+      "bytes": 7601
+    },
+    {
+      "path": "evidence/nox/recipes/inspect_nox.py",
+      "sha256": "f6874a6101ba85e426ec0982135b9b7672f751ebd9b52357f6798a54847afcbb",
+      "bytes": 2165
+    },
+    {
+      "path": "evidence/nox/recipes/render_editable_nox.py",
+      "sha256": "0a65fcc03ff8072b7e4d498481c868fa1b8fbb18b4604ac01da634ee717a8e14",
+      "bytes": 6268
+    },
+    {
+      "path": "evidence/nox/recipes/reopen_editable_check.py",
+      "sha256": "877050dcc08fa9c2887d4c110840b9fc0469ee140c54b4c8fd342611d1d729c9",
+      "bytes": 1205
+    },
+    {
+      "path": "evidence/nox/recipes/source-inspection.json",
+      "sha256": "ad5faab0a36c55858cba31dc8e1ffbb6361c6efc584df37276eef2121825cef0",
+      "bytes": 823700
+    },
+    {
+      "path": "evidence/nox/recipes/write_handoff.py",
+      "sha256": "80e4d770cc2e3479ca3fbdc3b8e41cf253cca448bb0c354e247613c5da45adf7",
+      "bytes": 3223
+    },
+    {
+      "path": "evidence/nox/selected-render-evidence.json",
+      "sha256": "85a06ae809dd137b64704228b8bc3a3b28d6a39fa89150b699fa06a5448050db",
+      "bytes": 1366
+    },
+    {
+      "path": "evidence/yuna/actual-mesh-review/render-editable-receipt.json",
+      "sha256": "929deaecc3b7ed98985f81afbc35d7280a72d31a23b5982c6a90ef51e4c892d3",
+      "bytes": 3242
+    },
+    {
+      "path": "evidence/yuna/actual-mesh-review/yuna-accessory-refinement-editable-candidate.reopen-proof.json",
+      "sha256": "6797491c56635a2a938bb43fffb94b9b93a5aedeb73a45ac736c081069c3eb16",
+      "bytes": 822
+    },
+    {
+      "path": "evidence/yuna/MULAI-DI-SINI-YUNA.md",
+      "sha256": "c7eb94a33fe83c478db6a4289c6769287ecf1201600c3ca46ff03d0f7c1a0c01",
+      "bytes": 2830
+    },
+    {
+      "path": "evidence/yuna/render-change-measurements.json",
+      "sha256": "c866d97fe92e12a819b7a8133169693fffc8830cc46286ad0d87688975d27f65",
+      "bytes": 2084
+    },
+    {
+      "path": "evidence/yuna/visual-review.json",
+      "sha256": "018e8e8b55f17b41e3fa66541649826fbe94c9ff791a569f89e115166fa2de88",
+      "bytes": 2361
+    },
+    {
+      "path": "evidence/yuna/yuna-accessory-refinement-candidate.preservation-proof.json",
+      "sha256": "075f628417b2affd042345c4e5e01e00f93afc3f85cab538a42e93868a6eda23",
+      "bytes": 44841
+    },
+    {
+      "path": "evidence/yuna/YUNA-HANDOFF.json",
+      "sha256": "dd0ca1cca296453cbecc0aa6aa560f50f34281631f63a925b87ae69f483ebe5a",
+      "bytes": 10537
+    },
+    {
+      "path": "evidence/yuna/recipes/build_yuna_accessory_details.py",
+      "sha256": "592e9836973564a0a58e34fcf3a39abfe0aa7d17056b7e2cf08425b76d411d0d",
+      "bytes": 14285
+    },
+    {
+      "path": "evidence/yuna/recipes/build_yuna_accessory_details_v4.py",
+      "sha256": "467878c2b0dfe2da311625e75e571d7a9393b0c2d9d6da07e87ecbad7b7f764d",
+      "bytes": 15836
+    },
+    {
+      "path": "evidence/yuna/recipes/ferrule-source-face-selection.json",
+      "sha256": "3999842cdbaa37929722a21a80fd329f4b6a33dfb15c79873f5a9c7ab1447d2c",
+      "bytes": 42560
+    },
+    {
+      "path": "evidence/yuna/recipes/freeze_ferrule_selection.py",
+      "sha256": "3a742bb5d294dbc5aff9f071ad99a298e5b7273207b096d5ffd14d8c00c897a9",
+      "bytes": 3047
+    },
+    {
+      "path": "evidence/yuna/recipes/FULL-RENDER-HANDOFF.json",
+      "sha256": "42416604b376088abb5be71c98b0945d498b9de1a06090343347233b715cc267",
+      "bytes": 7610
+    },
+    {
+      "path": "evidence/yuna/recipes/inspect_yuna.py",
+      "sha256": "6a701d5185bae19a22ef2be34861547bc4967ef74fb29347a7bc2fb6ebc8e55a",
+      "bytes": 3164
+    },
+    {
+      "path": "evidence/yuna/recipes/measure_and_handoff.py",
+      "sha256": "513d73340f7f962b8455af03fcb97f8ae3feb15a8cb37ecfa14432c10ab39a59",
+      "bytes": 5425
+    },
+    {
+      "path": "evidence/yuna/recipes/measure_and_handoff_v4.py",
+      "sha256": "a0f730aecf6fbedfa8823d871c7aef423da4a547bbe61df3bf98e12805e55f61",
+      "bytes": 6129
+    },
+    {
+      "path": "evidence/yuna/recipes/render_editable_yuna.py",
+      "sha256": "92ca8947838c0ecc98cace3aaaca5ae5cc01c7b98bd0e02d974cf79c775c0530",
+      "bytes": 6339
+    },
+    {
+      "path": "evidence/yuna/recipes/reopen_editable_check.py",
+      "sha256": "ed6cdb2b81d09f646a68ced667091e78eb6e05613fdb4f50cc671128d6253bce",
+      "bytes": 1205
+    },
+    {
+      "path": "evidence/yuna/recipes/reopen_editable_check_v4.py",
+      "sha256": "eb3e7581046c612a982bc80979f64fe5727f5b9924c7350d2eb3c69bee9448f8",
+      "bytes": 1205
+    },
+    {
+      "path": "evidence/yuna/recipes/source-inspection.json",
+      "sha256": "6b69731acbec3555aaff573e3030e076a537032cc848d2b5d927b064cb8cfeec",
+      "bytes": 35547
+    },
+    {
+      "path": "evidence/yuna/recipes/write_full_render_receipt.py",
+      "sha256": "b0bbebeb31f3a09947b567f58f67b46c0765ae3c10a867aa90530dd7418e5a12",
+      "bytes": 2544
+    },
+    {
+      "path": "evidence/yuna/recipes/write_full_render_receipt_v4.py",
+      "sha256": "31689293d4128bb250943dff32be2bd735fe716d73dfc463f7ba102cd1b5eb66",
+      "bytes": 2598
+    },
+    {
+      "path": "evidence/yuna/selected-render-evidence.json",
+      "sha256": "0686f01b9552d1a1266c5e34ba606e3a3e87f59ea797a2545340045bdfaf887e",
+      "bytes": 1372
+    },
+    {
+      "path": "evidence/pip/actual-glb-preservation.proof.json",
+      "sha256": "fe4d684d1b839a618faa62cd328d6e5fbe9236ab28941f931e24c5463966ee07",
+      "bytes": 13229
+    },
+    {
+      "path": "evidence/pip/actual-mesh-renders/render-evidence.json",
+      "sha256": "34aeb3e8a9d4ec4b54120392d00524e3b4f0cdc3be049cfb536ef0618e69e179",
+      "bytes": 1210
+    },
+    {
+      "path": "evidence/pip/actual-mesh-renders-final/render-evidence.json",
+      "sha256": "c5411f9978ae94af014379d7184dfaa307601fd892a310c6a954003463658562",
+      "bytes": 1369
+    },
+    {
+      "path": "evidence/pip/pip-reference-guided-candidate.manifest.json",
+      "sha256": "262f0815b7901c04fdbd69df82c7e6d1c2d7e786b18825e72963538aba3873b7",
+      "bytes": 21254
+    },
+    {
+      "path": "evidence/pip/rounded-case-refinement.proof.json",
+      "sha256": "1aa0c9711ac23262f5e3f41abe6f31df261ec24cf3a257d62e9d9b2407d29b29",
+      "bytes": 10114
+    },
+    {
+      "path": "evidence/pip/saved-editable-blend.proof.json",
+      "sha256": "68e925dfe8ae5426dc4c5fbbb51c26ec5a2c3d60e6d3964a7347625e294be34f",
+      "bytes": 859
+    },
+    {
+      "path": "evidence/pip/recipes/audit_pip_refinement.py",
+      "sha256": "b0df8d6056f761f1c7f32d23cb7724985b5e52f57c014c86d0c0c1e4318cf941",
+      "bytes": 9294
+    },
+    {
+      "path": "evidence/pip/recipes/inspect_saved_pip_blend.py",
+      "sha256": "25ef6ed7005fe537345b19014bd2fc28871ba57ee544bf25d6083441c3fd12cb",
+      "bytes": 2992
+    },
+    {
+      "path": "evidence/pip/recipes/PIP-REFINEMENT-HANDOFF.md",
+      "sha256": "52535f4c9e097201809e663f6837d2d4463b85e368418fd23affff1cb41ba45a",
+      "bytes": 6793
+    },
+    {
+      "path": "evidence/pip/recipes/pip_v8_frozen_builder.py",
+      "sha256": "86a073f23cbe9af9f7fc8d690bef458b7338b915a1d07d33bb7f9e5ca5a33be2",
+      "bytes": 32851
+    },
+    {
+      "path": "evidence/pip/recipes/refine_pip_case.py",
+      "sha256": "e6f324dfb00e38206904981c4df146217e68edba92ba043a270354bb7eb95efa",
+      "bytes": 16247
+    },
+    {
+      "path": "evidence/pip/recipes/review-receipt.json",
+      "sha256": "56117f9e936a6a1d0c6b534e37f8ab1068c8a31bfee819541b0538b8fcf97e8a",
+      "bytes": 9341
+    },
+    {
+      "path": "evidence/pip/selected-render-evidence.json",
+      "sha256": "c5411f9978ae94af014379d7184dfaa307601fd892a310c6a954003463658562",
+      "bytes": 1369
+    },
+    {
+      "path": "evidence/PIP-HANDOFF.json",
+      "sha256": "56117f9e936a6a1d0c6b534e37f8ab1068c8a31bfee819541b0538b8fcf97e8a",
+      "bytes": 9341
+    },
+    {
+      "path": "evidence/stage_evidence.py",
+      "sha256": "7af148fa21f7d062fac3f3c955fd55379663b23d26685a9a7fd676bb5141fb98",
+      "bytes": 17305
+    },
+    {
+      "path": "evidence/roster-workspace-reopen.json",
+      "sha256": "bdcc4fd3c803705bb2900fa4895084be8bb3d9767d01ca356d7ad850a761fc45",
+      "bytes": 15364
+    }
+  ],
+  "archives": [
+    {
+      "path": "editable/CRWT-refined-individuals.zip",
+      "sha256": "21083414520c87fb45881a3037273e2e4e18895552098a4ca39753a48c930a5d",
+      "bytes": 10350367,
+      "entries": 86,
+      "crc_and_all_payload_hashes_passed": true
+    },
+    {
+      "path": "editable/Pip-source-preserved.zip",
+      "sha256": "0ad736d3a4264896d27722725f34139ef4aabbf7c0cf96f71b47b0077ac3d041",
+      "bytes": 9684736,
+      "entries": 16,
+      "crc_and_all_payload_hashes_passed": true
+    },
+    {
+      "path": "editable/CRWT-editable-roster.zip",
+      "sha256": "8076f2183d8e1a9902386241311bd0290d690ef3f2d53cab5293dfbdab14a46f",
+      "bytes": 18714482,
+      "entries": 5,
+      "crc_and_all_payload_hashes_passed": true
+    }
+  ],
+  "path_map": {
+    "path": "evidence/PORTABLE-PATH-MAP.json",
+    "sha256": "43d353e06f8f8dcbacc40cd952f5a469851a6c2da4f1b1fc684f7448e877d021"
+  },
+  "historical_mochi_handoff_preserved": true
+}

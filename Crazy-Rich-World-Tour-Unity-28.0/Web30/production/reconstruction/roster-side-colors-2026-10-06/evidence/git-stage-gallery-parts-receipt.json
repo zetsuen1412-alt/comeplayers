@@ -1,0 +1,87 @@
+{
+  "schema": "crwt.alexia_side_colors_gallery_parts_preparation.v1",
+  "passed": true,
+  "inventory_finalized": false,
+  "old_source_pins_sha256": "875f7696dffb6b0892ec5704992f73b1ed193cf30fd7c335dc1dc3699637114a",
+  "source_pins_sha256": "33b70e6c225d756c10477b47002d3d6244b2c86aeb244f84c7d2f5d9df12d0ea",
+  "archive": {
+    "archive_storage": "split",
+    "archive_bytes": 42424850,
+    "archive_sha256": "b829454a5c3f7734262044574727b00851aa8fe3d45fe6c14d59da9e1bee3c40",
+    "archive_parts": [
+      {
+        "path": "OFFLINE-GALLERY.zip.part-01",
+        "bytes": 22000000,
+        "sha256": "8ee233e9f6276e82976ac4edb4e0cb17741c38b2fc16488e5022f75665a5d35d"
+      },
+      {
+        "path": "OFFLINE-GALLERY.zip.part-02",
+        "bytes": 20424850,
+        "sha256": "844e5918c2a2a93e51072d884b7d7692211d44cfaddca886832a2baaad8cbadf"
+      }
+    ]
+  },
+  "original_archive_preserved": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\checkpoint\\gallery-archive-original.zip",
+  "one_entry_archive_CRC_SHA_passed": {
+    "archive_sha256": "b829454a5c3f7734262044574727b00851aa8fe3d45fe6c14d59da9e1bee3c40",
+    "archive_storage": "split",
+    "archive_parts": [
+      {
+        "path": "OFFLINE-GALLERY.zip.part-01",
+        "bytes": 22000000,
+        "sha256": "8ee233e9f6276e82976ac4edb4e0cb17741c38b2fc16488e5022f75665a5d35d"
+      },
+      {
+        "path": "OFFLINE-GALLERY.zip.part-02",
+        "bytes": 20424850,
+        "sha256": "844e5918c2a2a93e51072d884b7d7692211d44cfaddca886832a2baaad8cbadf"
+      }
+    ],
+    "entry": "BUKA-REVIEW-MODEL.html",
+    "html_sha256": "d40934e341522069d5b07a194e1410de289fe06ac7c9955b1e8eb441cffe5bf4",
+    "html_bytes": 58333384,
+    "entry_count": 1,
+    "CRC_passed": true,
+    "logical_ZIP_written": false
+  },
+  "actual_parts_restore_passed": true,
+  "actual_restored_HTML_sha256": "d40934e341522069d5b07a194e1410de289fe06ac7c9955b1e8eb441cffe5bf4",
+  "logical_ZIP_created_by_restore": false,
+  "runtime_helpers": {
+    "verify_side_colors_source.py": {
+      "bytes": 49582,
+      "sha256": "147c5487b6f7fcf0bf5cbb9f8c55d5060722b2e9496cefb0ca3c41b09d834daf",
+      "git_blob_sha1": "26c579a36a963f4491ed199a71f503e4ffa7874f"
+    },
+    "materialize_side_colors_source.py": {
+      "bytes": 7757,
+      "sha256": "d0d5eff0f2daf6739e5cba58d69faf4178f0d5777fd57e9c73dae902a6c2dafd",
+      "git_blob_sha1": "e010baf701710f222a8f2bffda3143bf860f74fb"
+    },
+    "rebuild_side_colors_gallery.py": {
+      "bytes": 3162,
+      "sha256": "342471a8219a53eed687b186025e2cea1239dae93273cce93d258bf9a6d3b9c9",
+      "git_blob_sha1": "aa9171b0473fa9c3f1f4712b0bff06a5972dd95c"
+    },
+    "restore_offline_gallery.py": {
+      "bytes": 5254,
+      "sha256": "fde03ecca83ca0ffe6ba5955c8ff2d8382dc08a978c1c50aec2f92fe44ba25e5",
+      "git_blob_sha1": "7450c8fa2d68a76498ffb1a0da01e8a62d63faa9"
+    }
+  },
+  "workflow": {
+    "bytes": 3395,
+    "sha256": "baccac6f056bab43c29d899d9295776798722a9649b0c775ad70d4aa91fdfe20",
+    "git_blob_sha1": "c208a5a125e32179c85cc74920cecc68bc5ed3d0"
+  },
+  "root_guide": {
+    "bytes": 3763,
+    "sha256": "2cadfd655a771165e600a823a948adafe61f3c8bacbd2d346aca664795fbf53c",
+    "git_blob_sha1": "97f004931cfbbcdfb388f78eed1bcbf2c72fa98f"
+  },
+  "selected_review_payload_exact": true,
+  "all_staged_models_native_references_renders_existing_evidence_exact": true,
+  "stage_files": 148,
+  "approved": false,
+  "gameIntegrated": false
+}

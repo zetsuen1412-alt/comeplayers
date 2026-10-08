@@ -1,0 +1,33 @@
+{
+  "id": "luna",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\luna.glb",
+  "source_sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\material-diagnostic\\all10-original-texture-unlit\\models\\luna.glb",
+  "candidate_sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+  "bytes": 3076828,
+  "material_indices_set_unlit": [
+    0
+  ],
+  "pip_preserved_entire_file": false,
+  "binary_chunk_entirely_byte_identical": true,
+  "all_json_except_materials_and_extension_registration_exact": true,
+  "geometry_uv_normals_indices_images_skin_animations_byte_exact": true,
+  "actual": {
+    "faces": 55274,
+    "vertices": 40535,
+    "meshes": 13,
+    "mesh_definitions": 13,
+    "default_scene": 0,
+    "default_scene_nodes": 15,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "a2e4a62ab0ac2e5b437160a5cd9013c089e97d6521acd1c91e35ba814a830b03",
+    "accessors_checked": 47,
+    "buffer_views_checked": 49
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

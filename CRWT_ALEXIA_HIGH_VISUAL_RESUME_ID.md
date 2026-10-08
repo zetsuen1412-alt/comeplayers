@@ -1,0 +1,119 @@
+# Crazy Rich World Tour: HIGH visual checkpoint
+
+Selected Alexia SHA256:
+`e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52`.
+The source baseline is e18:
+`e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca`.
+Final local review/native/browser/ZIP checks and exact Git-source restoration
+and nine-stage model replay passed. Git publication and current CI are not
+claimed by this source-preparation note.
+
+Alexia now has closed rounded lavender hair waves, a fitted charcoal/gold
+headphone band, lit hair materials, clean authored clothes/cuffs/shoes/case,
+and closed replacement calves/palms/fingers. Corrupted retained source fragments
+are removed from visible triangle routing. Original source arrays remain
+stored; original visible warm leg/hand triangles are not preserved. The
+face/eyes/front identity, precision cups and original nineteen-joint skeleton,
+two skins and `IdleBreath`/`Walk` clips remain protected. Nine other roster
+models and original reference/renders remain baseline bytes.
+
+The complete portable model chain contains exactly nine authored stages:
+
+| Stage | Candidate SHA256 |
+| --- | --- |
+| Hair | `7a748e6e8cc262d3161f0ed05f36037a02d4528ca1a45f57b7cf4f4b026b4556` |
+| Band | `fc5e7690a475af1df3fa982186ffbad2325921644f74c8570627108b0c5cfb7c` |
+| Hair material | `2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0` |
+| Garment | `88a40e8af34fe0b01183da1f79244da3e3924900390950fc84b22394fcfc9f26` |
+| Retained cleanup | `b0284bb2abc9e50254cea75bb39b48e402d1e8e26a1a2eee2e36a6a1bb212660` |
+| Rear calves | `21f60d8d03bf1d11346dd970b1189e98a6e3bad48aad1ec6f1ff3f0c5a758748` |
+| Final retained cleanup | `bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158` |
+| Cold orphans | `786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5` |
+| Visible anatomy | `e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52` |
+
+From the extracted review root, use the delivered local-input instructions in
+`evidence/selected-alexia/README-high-rebuild.md`. The rebuild starts from the
+included baseline and checks every intermediate SHA and exact final bytes.
+The recorded local exact procedural byte authoring used Windows x64, Python
+3.12.14 and NumPy 2.3.5. This provenance remains unchanged. The replay uses no cloud service
+or new renders. Payload restoration and validation also run on Linux.
+
+Validated Git source prefix:
+`Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-high-visual-2026-10-08`.
+Keep the sibling `roster-side-quality-2026-10-08`, pinned by baseline inventory
+`cf73d4b043a7a7beb6da2ceef6c41c6cd9c92481604b8c47a13d5c3a667b3b02`.
+The lean source references unchanged files by exact SHA, splits new compressed
+GLB/native bytes into at most 22,000,000-byte parts, and regenerates offline
+HTML/viewer receipt byte for byte. From its source directory:
+
+```text
+python -B tools/source_checkpoint/run_high_visual_source_checks.py --source . --work ../CRWT-HIGH-checked --receipt ../CRWT-HIGH-source-check.json
+```
+
+The Linux job checks all ten GLBs, actual native build/reopen bindings, image
+magic, the selected HIGH gate and all 169 exact restored payload files. Its
+checked job summary states restoration only and zero replayed recipe steps.
+A separate Windows job uses available Python 3.12.10 x64 with NumPy 2.3.5
+and runs the unchanged strict full-source checker: those checks plus all nine
+pinned recipe intermediates and the exact final model. Compatibility with the
+recorded local authoring runtime requires its actual nine-stage SHA checks to
+pass; runtime equivalence is not assumed.
+Both jobs disable checkout newline conversion and require the exact checkout.
+Checked JSON goes to each job summary; no artifact upload or Expo token is
+required. A passing HIGH job does not imply repository-wide CI
+success. Publication receipts must include actual exact-head runs and retain
+any unrelated failures or unverified external access explicitly.
+
+The model remains a manual animated review prototype. Hand forms overlap;
+production finger articulation, foot IK, cloth/skin collision and game
+integration are not certified.
+
+Final source inventory SHA256: `25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798`.
+
+Actual source validation receipt: `CRWT_ALEXIA_HIGH_VISUAL_LOCAL_VALIDATION.json`,
+SHA256 `e53fdadd1cf6aae0b33c19c6f68481b2edce680e0dd63a3b89f8a3e3318bad03`. It verifies 169 exact restored payload files,
+ten real GLBs, native build/read-only-reopen evidence, exact offline gallery
+and all nine model recipe outputs. No new Blender/browser execution occurred
+during this source check.
+
+The local review ZIP SHA256 is
+`376911cef22d65c26e9d69b794212d3225dce543f9b53bb5ce4b9bff1c4b3b84`
+(209,318,634 bytes). Its separate actual clean restore proof SHA256 is
+`f89c3f046d3fcd96f9c221692c5606b780c5498c34e9f23a50a34233bdffbedd`;
+that check did execute a real read-only Blender reopen.
+
+An initial local source-preparation attempt failed a sibling import in a very
+long Windows staging path. The final source helpers handle extended Windows
+module paths; the exported final source command passed the complete check.
+The failed staging tree is preserved outside this published source plan.
+
+The first published Linux HIGH run stopped at the regenerated gallery receipt:
+Linux LF differed from its frozen Windows CRLF serialization. The source
+restorer now declares and verifies that one receipt serialization policy.
+It accepts only the exact generated JSON document in LF or CRLF form, then
+requires the canonical CRLF bytes to match the frozen SHA256 and Git blob
+pin. HTML, every other restored payload file, the canonical gallery builder,
+all model recipes and the review ZIP remain unchanged. Both ending fixtures
+passed, invalid documents/formatting were rejected, and the exported repaired
+source passed all ten models and all nine rebuild steps locally. This is
+local validation; a new actual exact-head Linux CI run remains required.
+
+The subsequent Linux run at head 533b passed all 169 restored byte pins,
+model/native/source validation and the first hair recipe, then failed the
+headband intermediate SHA check. This failure is retained; no intermediate
+or final model pin is relaxed. Exact procedural byte replay retains every SHA pin. The original
+Windows x64 / Python 3.12.14 / NumPy 2.3.5 authoring environment remains
+recorded separately from the available Windows CI runtime. The existing local Windows nine-stage check remains the
+recorded actual result. This workflow correction does not rerun or alter
+the local model. New actual exact-head Linux restoration and Windows full
+replay jobs are both required; their current CI success is not claimed.
+
+At head 1da40dc, the Windows job stopped during setup-python because Python
+3.12.14 x64 was unavailable for Windows 2022. No model replay ran in that
+job. The official actions/python-versions manifest lists Python 3.12.10
+Windows x64, so only Windows provisioning and its exact version assertion
+now use 3.12.10. Linux restoration remains on 3.12.14. NumPy 2.3.5 and all
+nine intermediate/final model SHA checks remain unchanged. A successful
+actual new Windows replay must establish compatibility; it is not claimed
+by this preparation note. No extra local nine-stage replay was performed.
+Runtime availability source: https://github.com/actions/python-versions/blob/main/versions-manifest.json

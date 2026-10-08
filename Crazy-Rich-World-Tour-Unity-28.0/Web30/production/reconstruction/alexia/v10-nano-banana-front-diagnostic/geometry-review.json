@@ -1,0 +1,150 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "reviewType": "independent-actual-mesh-visual-geometry-gate",
+  "reviewedUtc": "2026-10-03T16:13:49Z",
+  "reviewer": "review_inputs",
+  "mesh": "alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+  "meshSha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+  "localMeshHashVerified": true,
+  "faces": 800876,
+  "vertices": 268436,
+  "provenance": {
+    "source": "Actual Gemini corrected FRONT container 4bca68acb91fd063 screenshot-cropped JPEG",
+    "input": "../nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "inputSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "localInputHashVerified": true,
+    "inputSize": [
+      584,
+      584
+    ],
+    "geminiNanoBananaOutputCapture": true,
+    "originalFullResolutionImageExport": false,
+    "suppliedViews": [
+      "front"
+    ],
+    "hiddenSurfaces": "Inferred; no back or side images supplied",
+    "parameters": "Unchanged from V9: seed 1412, steps 10, guidance 5, octree resolution 256, rembg true, chunks 8000, randomize false",
+    "captureLimitations": [
+      "Low-resolution 584 x 584 JPEG UI capture, not original full-size PNG.",
+      "Character is unobstructed by text or UI controls, but a small white sparkle mark is visible in the lower-right background. A completely mark-free crop is not certified.",
+      "Capture shows blue eyes, coherent lavender hair, headphones, black/white/gold clothing, mild A-pose and no suitcase. Its derived costume/pose is not approved as an exact replacement for V2."
+    ]
+  },
+  "reviewEvidence": {
+    "actualMeshRenders": true,
+    "renderEvidence": "mesh-review/render-evidence.json",
+    "renderedViewsInspected": [
+      "front",
+      "three-quarter",
+      "left",
+      "right",
+      "back",
+      "top",
+      "bottom"
+    ],
+    "contactSheet": "mesh-review/geometry-contact-sheet.png",
+    "nanoBananaCapture": "../nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "approvedReference": "../../references/alexia-approved-v2-blue.png",
+    "priorV9ContactSheet": "../v9-front-only-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "priorV9MeshSha256": "870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8",
+    "method": "Visual inspection of seven actual gray GLB PNGs and contact sheet, compared with the submitted JPEG, approved V2 six-view source and V9 renders. No mesh edits, new generation or topology instrumentation."
+  },
+  "comparisonWithV9": {
+    "arms": {
+      "outcome": "Clearer pose separation",
+      "observations": [
+        "V10 arms extend farther from the torso in the mild A-pose, producing more visible underarm/torso clearance in front and three-quarter views than V9.",
+        "Hands are still coarse with short/fused-looking digits; improved clearance does not establish clean hand topology or rig readiness."
+      ]
+    },
+    "hair": {
+      "outcome": "Silhouette changed; principal defect remains",
+      "observations": [
+        "V10's hair extends behind the body as a thinner sloping curtain with pointed hanging ends rather than V9's bulky rounded lower hair mass.",
+        "Both side views, back, top and bottom retain shredded sheet-like relief and rough ridges; long wire-like pieces and isolated-looking floaters remain around the hair perimeter.",
+        "The smoother coherent locks visible in the Nano Banana capture and the layered curling tied hair in V2 were not reconstructed."
+      ]
+    },
+    "clothesAndFace": {
+      "outcome": "Some silhouette regularization, unresolved coarse detail",
+      "observations": [
+        "V10 lower coat panels appear more regular/tapered than V9, but lapels, panel hems, cuffs, belt and shirt remain coarse or blurred.",
+        "Eye/fringe relief remains bumpy and asymmetric around the face; the clear smooth face and eye openings of the input/source are not established.",
+        "Shoes remain rounded, with softened lace/collar/sole detail."
+      ]
+    },
+    "density": {
+      "v9Faces": 1098020,
+      "v10Faces": 800876,
+      "faceReduction": 297144,
+      "faceReductionPercent": 27.0618,
+      "interpretation": "A lower face count is a useful diagnostic difference, not a geometry-quality or production-readiness pass."
+    },
+    "causalLimitation": "The input changed in pose, hair shape, resolution and JPEG capture quality while provider parameters stayed fixed. Visual differences cannot be attributed solely to Nano Banana or to any one input factor."
+  },
+  "blockingDefects": [
+    {
+      "id": "hair-locks-and-artifacts",
+      "severity": "blocking",
+      "views": [
+        "front",
+        "three-quarter",
+        "left",
+        "right",
+        "back",
+        "top",
+        "bottom"
+      ],
+      "observation": "Hair is a curtain of ragged sheets and ridges with wire-like protrusions/isolated-looking fragments instead of coherent source locks.",
+      "implication": "Rebuild or use a different reconstruction approach. Removing floaters or smoothing alone does not create the missing curling lock geometry."
+    },
+    {
+      "id": "face-and-fringe",
+      "severity": "blocking",
+      "views": [
+        "front",
+        "three-quarter",
+        "left",
+        "right"
+      ],
+      "observation": "Coarse/bumpy eye-region and fringe relief do not recover the clean visible face and eye openings in the input and V2.",
+      "implication": "Identity needs a head/face shape pass and cannot be certified through gray geometry or future texturing alone."
+    },
+    {
+      "id": "garments-hands-footwear",
+      "severity": "blocking",
+      "views": [
+        "front",
+        "three-quarter",
+        "left",
+        "right"
+      ],
+      "observation": "Coat hems/lapels/cuffs and belt detail remain coarse, hands have stubby fused-looking digits, and sneaker construction is softened.",
+      "implication": "Shape correction and production topology are required before rigging and material baking."
+    }
+  ],
+  "nonBlockingObservations": [
+    "Improved arm clearance, separate legs, shorts and headphone silhouette are visible.",
+    "No suitcase or floor/base geometry is apparent in the seven renders. This is not a complete component-count audit."
+  ],
+  "materialAndProductionRisks": [
+    "The reviewed mesh is untextured and unrigged; blue eyes, hair color, stars, trim and source material fidelity are not validated by these gray renders.",
+    "Ragged sheets/wires can cause noisy shadows, normals and texture-bake artifacts.",
+    "Only a low-resolution front capture was supplied, so back/scalp/ponytail and hidden garment construction remain inferred despite available V2 comparison.",
+    "800,876 triangles still requires an asset-budget/topology pass after shape recovery; no target production budget was established here.",
+    "UVs, manifoldness, exact component connectivity, skin weights and deformation were not independently verified."
+  ],
+  "verdict": "rebuild",
+  "ready": false,
+  "geometryGatePassed": false,
+  "meshApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "rigged": false,
+  "productionMeshApproved": false,
+  "gameAssetsReplaced": false,
+  "nextAction": "Preserve V10 as the actual Nano Banana FRONT-capture diagnostic. Rebuild the hair/head/garment geometry or compare a different reconstruction before topology, rigging or texture approval; do not replace game assets.",
+  "furtherSmoothingWorthwhile": false,
+  "furtherSmoothingReason": "Pose clearance improved, but the missing coherent locks and coarse face/garment anatomy persist. Another smoothing-only pass would not resolve the geometry gate."
+}

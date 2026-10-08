@@ -1,0 +1,132 @@
+name: CRWT Character Sculpt Import
+on:
+  push:
+    branches: [codex/crazy-rich-web-v30]
+    paths:
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/sculpt-v1-import.json
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: crwt-character-sculpt-import
+  cancel-in-progress: false
+jobs:
+  import:
+    if: github.repository == 'zetsuen1412-alt/comeplayers' && github.ref == 'refs/heads/codex/crazy-rich-web-v30'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify and import only CRWT preview assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          INPUT_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, hashlib, io, json, os, pathlib, posixpath, re, struct, time, urllib.request, urllib.parse, urllib.error, zipfile
+          repo = os.environ['GH_REPOSITORY']
+          assert repo == 'zetsuen1412-alt/comeplayers'
+          api = 'https://api.github.com/repos/' + repo
+          branch = 'codex/crazy-rich-web-v30'
+          root = 'Crazy-Rich-World-Tour-Unity-28.0/Web30'
+          def request(path, data=None, method=None):
+              payload = None if data is None else json.dumps(data).encode()
+              req = urllib.request.Request(api + path, data=payload, method=method,
+                  headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                  'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json',
+                  'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'CRWT-Asset-Importer'})
+              with urllib.request.urlopen(req, timeout=120) as r: return json.load(r)
+          item = request('/contents/' + root + '/production/sculpt-v1-import.json?ref=' + os.environ['INPUT_SHA'])
+          config = json.loads(base64.b64decode(item['content']))
+          url = urllib.parse.urlparse(config['package_url'])
+          assert url.scheme == 'https' and url.hostname == 'd2ol7oe51mr4n9.cloudfront.net'
+          assert url.path.startswith('/user_3JlC5msQOwY9G4pYlmpaOXt3RfP/') and url.path.endswith('.zip')
+          assert re.fullmatch(r'[0-9a-f]{64}', config['sha256'])
+          with urllib.request.urlopen(config['package_url'], timeout=120) as r: package = r.read(100 * 1024 * 1024 + 1)
+          assert len(package) <= 100 * 1024 * 1024, 'Package exceeds import limit'
+          assert hashlib.sha256(package).hexdigest() == config['sha256'], 'Package checksum mismatch'
+          allowed = {'roster.glb', 'source.blend', 'preview.png', 'clips.json', 'README_ID.md'}
+          out = pathlib.Path('/tmp/crwt-sculpt-artifact'); out.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(io.BytesIO(package)) as z:
+              assert set(z.namelist()) == allowed, 'Unexpected archive files'
+              assert all(v.file_size <= 100 * 1024 * 1024 for v in z.infolist())
+              assert sum(v.file_size for v in z.infolist()) <= 160 * 1024 * 1024
+              files = {name: z.read(name) for name in allowed}
+          glb = files['roster.glb']
+          magic, version, size = struct.unpack_from('<III', glb)
+          assert magic == 0x46546C67 and version == 2 and size == len(glb)
+          json_size, chunk_type = struct.unpack_from('<II', glb, 12)
+          assert chunk_type == 0x4E4F534A
+          doc = json.loads(glb[20:20+json_size])
+          ids = {'alexia','rindi','kairo','luna','nox','atlas','zeno','yuna','mochi','pip'}
+          assert ids.issubset({n.get('name') for n in doc['nodes']})
+          assert len(doc.get('skins', [])) == 10 and len(doc.get('images', [])) >= 10
+          assert len(doc.get('animations', [])) >= 10
+          assert files['source.blend'].startswith(b'BLENDER')
+          assert files['preview.png'].startswith(b'\x89PNG\r\n\x1a\n')
+          clipmeta = json.loads(files['clips.json'])
+          assert set(clipmeta['segments']) == {'Idle','Walk','Jump','Skill','Win','Lose'}
+          assert clipmeta['visual_final_approved'] is False
+          for name, data in files.items(): (out/name).write_bytes(data)
+          report = {'status':'structural_checks_passed', 'visual_final_approved':False,
+              'online_game_replaced':False, 'characters':sorted(ids), 'skins':len(doc['skins']),
+              'images':len(doc['images']), 'animation_timelines':len(doc['animations']),
+              'package_sha256':config['sha256'], 'glb_sha256':hashlib.sha256(glb).hexdigest()}
+          (out/'qa-report.json').write_text(json.dumps(report, indent=2))
+          # Keep editable Blender source in the artifact rather than the website bundle.
+          entries = []
+          for name in ['roster.glb','preview.png','clips.json','README_ID.md']:
+              blob = request('/git/blobs', {'content':base64.b64encode(files[name]).decode(),'encoding':'base64'})['sha']
+              for prefix in [root + '/client', 'website/public/games/crazy-rich-world-tour/client']:
+                  entries.append({'path':prefix+'/assets/characters/sculpt-v1/'+name,'mode':'100644','type':'blob','sha':blob})
+          for attempt in range(3):
+              parent = request('/git/ref/heads/' + branch)['object']['sha']
+              base = request('/git/commits/' + parent)['tree']['sha']
+              tree = request('/git/trees', {'base_tree':base,'tree':entries})['sha']
+              commit = request('/git/commits', {'message':'feat(crwt): import ten textured rigged character sculpts (WIP)', 'tree':tree,'parents':[parent]})['sha']
+              try:
+                  request('/git/refs/heads/' + branch, {'sha':commit,'force':False}, 'PATCH')
+                  print('IMPORTED_COMMIT=' + commit); report['commit'] = commit
+                  (out/'qa-report.json').write_text(json.dumps(report, indent=2)); break
+              except urllib.error.HTTPError as e:
+                  if e.code not in (409,422) or attempt == 2: raise
+                  time.sleep(2)
+          # Downloadable artifact also contains a self-hosted viewer. Never execute downloaded JS in this job.
+          viewer = request('/contents/' + root + '/client/character-demo.html?ref=' + os.environ['INPUT_SHA'])
+          html = base64.b64decode(viewer['content']).decode()
+          html = html.replace('./assets/characters/sculpt-v1/roster.glb','./roster.glb')
+          html = html.replace('https://cdn.jsdelivr.net/npm/three@0.180.0/','./vendor/three/')
+          (out/'character-demo.html').write_text(html)
+          # Fetch pinned dependencies recursively, only from the fixed package and normalized paths.
+          base_url = 'https://cdn.jsdelivr.net/npm/three@0.180.0/'
+          pending = ['build/three.module.js','examples/jsm/controls/OrbitControls.js',
+              'examples/jsm/loaders/GLTFLoader.js','examples/jsm/environments/RoomEnvironment.js',
+              'examples/jsm/exporters/GLTFExporter.js','examples/jsm/utils/SkeletonUtils.js','LICENSE']
+          fetched = set(); dependency_hashes = {}
+          while pending:
+              path = posixpath.normpath(pending.pop())
+              if path in fetched: continue
+              assert not path.startswith(('/', '..')) and len(fetched) < 60
+              with urllib.request.urlopen(base_url + path, timeout=60) as r: data = r.read(8*1024*1024+1)
+              assert len(data) <= 8*1024*1024
+              dest = out/'vendor'/'three'/path; dest.parent.mkdir(parents=True, exist_ok=True); dest.write_bytes(data)
+              dependency_hashes[path] = hashlib.sha256(data).hexdigest(); fetched.add(path)
+              if path.endswith('.js'):
+                  for dep in re.findall(r'(?:from\s*|import\s*)[\x27\x22]([^\x27\x22]+)[\x27\x22]', data.decode()):
+                      if dep.startswith('.'):
+                          pending.append(posixpath.normpath(posixpath.join(posixpath.dirname(path), dep)))
+          (out/'vendor'/'checksums.json').write_text(json.dumps(dependency_hashes,indent=2))
+          (out/'START-DEMO.bat').write_text('@echo off\ncd /d "%~dp0"\necho Open http://localhost:8765/character-demo.html\nstart "" http://localhost:8765/character-demo.html\npy -m http.server 8765 --bind 127.0.0.1\npause\n')
+          (out/'start-demo.sh').write_text('#!/bin/sh\ncd "$(dirname "$0")"\necho "Open http://localhost:8765/character-demo.html"\npython3 -m http.server 8765 --bind 127.0.0.1\n')
+          print(json.dumps(report, indent=2))
+          PY
+      - name: Retain editable source, real meshes and offline demo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Ten-Character-Sculpts-WIP
+          path: /tmp/crwt-sculpt-artifact/
+          if-no-files-found: error
+          retention-days: 30

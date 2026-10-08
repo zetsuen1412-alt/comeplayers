@@ -1,0 +1,244 @@
+{
+  "id": "zeno",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\models\\zeno.glb",
+  "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05\\viewer\\references\\zeno.png",
+  "reference_sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\trial-v2\\zeno-fitted-rim-beads-candidate.glb",
+  "candidate_sha256": "7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88",
+  "candidate_bytes": 2033644,
+  "blend_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\trial-v2\\zeno-fitted-rim-beads-candidate.blend",
+  "blend_sha256": "fcb80134f9e9ee9ae3cf1e50ba42db294aa6961cbcc6feb991cb6ff14cd2529c",
+  "blend_bytes": 2020342,
+  "render_directory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\trial-v2\\final-actual-mesh-renders",
+  "preservation_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\trial-v2\\independent-preservation-topology-audit.json",
+  "reopen_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\trial-v2\\editable-readonly-reopen-proof.json",
+  "geometry_recipe_proof_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\trial-v2\\zeno-fitted-rim-beads-candidate.preservation-proof.json",
+  "recipe_paths": [
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\build_fitted_rim_beads.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\rim-fit-v2.json",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\save_and_reopen_editable.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\render_review_blender.py",
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\audit_and_finalize.py"
+  ],
+  "recipe_hashes": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\build_fitted_rim_beads.py",
+      "sha256": "0f2182e3c99cdb220281e963aa0542be902d81466821da8de6394f0a03a2c7bc"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\rim-fit-v2.json",
+      "sha256": "0623a99c27a3380b721b9ea4edecc1cf1133905765c613aeece73a73be03b5c9"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\save_and_reopen_editable.py",
+      "sha256": "b19c8c7b4f145ae7b4500a09f11738f14787e373b9fb7bee1b00e74640ecec0e"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\render_review_blender.py",
+      "sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05-pass2\\zeno\\audit_and_finalize.py",
+      "sha256": "1b9243e69512dd38ee7d49e25194ae90cc457a5bb2acae174bc1263cce3b4d30"
+    }
+  ],
+  "render_evidence_sha256": "4db7f7d1811051fb308993845b8a787b269d294c5333161cc22a3311843da407",
+  "renders": [
+    {
+      "path": "front.png",
+      "sha256": "a2e28cf80ed8805d12d6f702cfc17be4fb8d35348b73beebb7acba96412d26b6",
+      "bytes": 563960
+    },
+    {
+      "path": "three-quarter.png",
+      "sha256": "3553f8d603d6dd5355684dacce2c03de3be53b2e52f2ade5bd5e7e8935e4456b",
+      "bytes": 552635
+    },
+    {
+      "path": "left.png",
+      "sha256": "3efc5e3bab2363a8ca1d4b194cbef75628c2483f119f6b8b098d65d183cba586",
+      "bytes": 495992
+    },
+    {
+      "path": "right.png",
+      "sha256": "cfdb9c98ea00699a1310c328ab6af516365c849fcd09f5c7c75aa7bfcf3a42b2",
+      "bytes": 502605
+    },
+    {
+      "path": "back.png",
+      "sha256": "84d54b27920a077e46204736e57636074802233a488df2773057688a96f119ec",
+      "bytes": 514967
+    },
+    {
+      "path": "top.png",
+      "sha256": "614b0f90c5d909d25530dc715eebdc0adfdb96535bf0efcba34c0479aa0a1d6d",
+      "bytes": 438829
+    },
+    {
+      "path": "bottom.png",
+      "sha256": "ece163ff788166e141cf7a62172224163f179600b7aa82b3031bd5a7f388b91e",
+      "bytes": 465006
+    },
+    {
+      "path": "orbit/frame-000.png",
+      "sha256": "c0c3a0c4b77fd0d033b08ec9e640660836be35d1e0def23b16738b7dc5f5aa84",
+      "bytes": 159251
+    },
+    {
+      "path": "orbit/frame-015.png",
+      "sha256": "5dc411e4f585f81dacfe27358c83946bbfd1a15047e924d31231767a4310a501",
+      "bytes": 158024
+    },
+    {
+      "path": "orbit/frame-030.png",
+      "sha256": "b6e10f5c04aec8c9a57cfebb3b588b1f39bc6bb8b3ba1400113ce9b4f96700c2",
+      "bytes": 155051
+    },
+    {
+      "path": "orbit/frame-045.png",
+      "sha256": "5a14338fdbe1b25ba2f2ad8befefe6c70a890db655154a547d91493d04dc1ed1",
+      "bytes": 149978
+    },
+    {
+      "path": "orbit/frame-060.png",
+      "sha256": "3893e164c935bc4da3f7f78da3a085fa7d3571e02202dc376ed86f63e8e39898",
+      "bytes": 144698
+    },
+    {
+      "path": "orbit/frame-075.png",
+      "sha256": "dccf61b3338c7d31ac45a22a8e3ad8caf264547f76ded6ec4dfc69f335ba88f9",
+      "bytes": 141132
+    },
+    {
+      "path": "orbit/frame-090.png",
+      "sha256": "6018054148861991407b16ba59e8e18b7cf61b35c20baeba6c80054d9e50488a",
+      "bytes": 137124
+    },
+    {
+      "path": "orbit/frame-105.png",
+      "sha256": "f9819f7928e11223301f7bb183c7996e4b0bcb691de0867efb633b4c3780a41b",
+      "bytes": 135293
+    },
+    {
+      "path": "orbit/frame-120.png",
+      "sha256": "697ed068f575991586ee33703bf2cc120a165c3eab69196f185bc2a3c0d1d9aa",
+      "bytes": 136135
+    },
+    {
+      "path": "orbit/frame-135.png",
+      "sha256": "060ce9b136685627f5940f7cb856003570a7d037c663e51d0ce0a6f2d1e6f2b8",
+      "bytes": 138250
+    },
+    {
+      "path": "orbit/frame-150.png",
+      "sha256": "57fa245724b3a780269bb9bd8c01c2d3cbfa0e4ffe17465a16642c4bd747e5c9",
+      "bytes": 140478
+    },
+    {
+      "path": "orbit/frame-165.png",
+      "sha256": "b44e1938a08c59fd151cb8a40cb6da8fdfce45447a27efefaf0d0b55453b6539",
+      "bytes": 142908
+    },
+    {
+      "path": "orbit/frame-180.png",
+      "sha256": "20783e27675ee04a9d2c1931a32e67cb44220b48f73ce36da95c9a4b9843670c",
+      "bytes": 144378
+    },
+    {
+      "path": "orbit/frame-195.png",
+      "sha256": "0727ccf57784d16d403c99d7fafa31dbc89f961ac7abba592203d83ece0842a0",
+      "bytes": 144091
+    },
+    {
+      "path": "orbit/frame-210.png",
+      "sha256": "1d2235a4665effbbcc9930decf1af1ef734d086b819f1e6a04a266c49cc35879",
+      "bytes": 142161
+    },
+    {
+      "path": "orbit/frame-225.png",
+      "sha256": "4c2b3b20ed9cace85b34dba25c22fee0bb43acb7ccf4599cf51c3332455d0457",
+      "bytes": 139380
+    },
+    {
+      "path": "orbit/frame-240.png",
+      "sha256": "5bb9b296cd8ccfb2c2ad59347bdc77fc35ea42e3358f52e70ca884834e2c499c",
+      "bytes": 138200
+    },
+    {
+      "path": "orbit/frame-255.png",
+      "sha256": "33576b285d6361c0515c2dd9912fab1d6dcba05ce25ff032fc0ea3ad870c2316",
+      "bytes": 138636
+    },
+    {
+      "path": "orbit/frame-270.png",
+      "sha256": "d86dd506d76f64ab70ad3e37b82fa2f570b5324026c9f5129ffd32e66a442d5c",
+      "bytes": 139018
+    },
+    {
+      "path": "orbit/frame-285.png",
+      "sha256": "bc900318954ea18de14ac7cc8a9458c492833d201097849c88f72429dcf1a9e4",
+      "bytes": 141720
+    },
+    {
+      "path": "orbit/frame-300.png",
+      "sha256": "c34fced6db8211a69f6c37880a31872235d5e6aafed7024c9750b89f1353e2aa",
+      "bytes": 147016
+    },
+    {
+      "path": "orbit/frame-315.png",
+      "sha256": "df323d65e6ce95d032557b496991b9627a233197e550910c10367c8c4ff5fa8f",
+      "bytes": 152300
+    },
+    {
+      "path": "orbit/frame-330.png",
+      "sha256": "2320c34e58c1b018b00a7a83abefcd9022334805da2df2b47b4c5ebe0d20eae0",
+      "bytes": 155756
+    },
+    {
+      "path": "orbit/frame-345.png",
+      "sha256": "dfc4e0ab1bb50a0cda35471e5980a5afd192ff5a1396f899c79c2b7259107974",
+      "bytes": 157881
+    }
+  ],
+  "stats": {
+    "faces": 33300,
+    "vertices": 24679,
+    "meshes": 3,
+    "mesh_definitions": 3,
+    "default_scene": 0,
+    "default_scene_nodes": 5,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "a5fe009f9f9f0609e07a88af46999e5d27ec186967a069e96fd40be4b708a00f",
+    "accessors_checked": 10,
+    "buffer_views_checked": 12
+  },
+  "scope": {
+    "operation": "Only thin volumetric warm-gold trim on two existing goggle rims; original lens/frame/fingers/scarf/hair retained.",
+    "source_faces_retained": 27156,
+    "source_faces_removed": 0,
+    "source_vertex_deltas": 0,
+    "added_vertices": 3072,
+    "added_faces": 6144,
+    "original_bin_prefix_primitive_attributes_images_materials_nodes_exact": true,
+    "new_closed_components": 2,
+    "new_topology_boundary_nonmanifold_inconsistent_winding_zeroarea": 0,
+    "packed_original_images_byte_identical": true,
+    "root_visual_review": "Root inspected V2 reference-facing front/left/right and selected scoped unapproved trim; no geometry edits during finalization."
+  },
+  "limits": [
+    "Existing reconstructed lenses, hair, anatomy, texture and rear are unchanged.",
+    "Tube thickness/seat depth inferred for a physical trim from the front reference.",
+    "Beads intentionally seat slightly into the original rim surface; closedness audit applies to each new bead, not every pre-existing source component or bead/source contact.",
+    "Front-ray anchors prove seat on the actual source surface, not a bitmap or perfect aesthetic match.",
+    "The touching-finger-occluded segment uses an inferred fitted plane: 85 retained anchors max residual 0.00384, 43 excluded occluded rays max depth difference 0.04593. All touching fingers remain original.",
+    "Static unrigged candidate; no final visual/perfection approval or game integration.",
+    "Packed native blend is portable for editing. The local source defaults/recipe dependencies are provenance, not a single-command portable rebuild claim."
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

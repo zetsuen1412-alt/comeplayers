@@ -1,0 +1,86 @@
+{
+  "schema": "crwt.reference_calibration.input_proof.v1",
+  "input_files": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\models\\alexia.glb",
+      "bytes": 2225660,
+      "sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\references\\alexia-blue-v2-turnaround.png",
+      "bytes": 1988013,
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\alexia.png",
+      "bytes": 315274,
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\render-evidence.json",
+      "bytes": 1369,
+      "sha256": "aecf9664eb82328b30af83b64b768571f258b1d27641f0f2a00defda5046e86f",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\front-projection-v3.json",
+      "bytes": 1641,
+      "sha256": "7ff5e7586be467cf63b51c4fbb97f787b14e90af7c9750d2b1b5f0d54cd3467b",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v3\\renders\\front.png",
+      "bytes": 580594,
+      "sha256": "91e0bdccada651d3b470e51a202e3f05b4984b97207ea1fb8c09e755912c778c",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\front.png",
+      "bytes": 547050,
+      "sha256": "74c16b1576a028d072ca3cadd9e7cb3d15bcfe9161f5450a2ae335b4a3595683",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\left.png",
+      "bytes": 464245,
+      "sha256": "234d3ee15c903c766f09682dd34a49058ecfcde8548d6acb0b03c4132be5cc6b",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\right.png",
+      "bytes": 482137,
+      "sha256": "89d95d51efb0bbc842ae0c1b134d4e886ce5862a571350dd5dd50c55da429a85",
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\back.png",
+      "bytes": 493543,
+      "sha256": "a457c31fe82ae025c3de6ee9b03e4cdb58550351b79ba9b6e67795fd6e1d202e",
+      "unchanged_after": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\reference-calibration\\alexia-geometry-calibration.json",
+      "sha256": "9b8d0e4b8b92eb973002e346f350d29395bc4bece716701f71736289ecb74db7"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\reference-calibration\\front-landmark-refinement-proposal.json",
+      "sha256": "027a28c5c82ad797635ef441bcbb3a712112a4e4250c6e6db8d3b93bc206b668"
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\reference-calibration\\reference-actual-diagnostic-layout.png",
+      "sha256": "43c0ca928bb60ee5852304a9c60e59d8231492b0f396c71ccc880f05c3cf38f9"
+    }
+  ],
+  "source_image_modification": false,
+  "source_mesh_modification": false,
+  "thumbnail_layout_only": true,
+  "texture_asset_outputs": false,
+  "manual_not_camera_solved": true,
+  "approved": false,
+  "gameIntegrated": false
+}

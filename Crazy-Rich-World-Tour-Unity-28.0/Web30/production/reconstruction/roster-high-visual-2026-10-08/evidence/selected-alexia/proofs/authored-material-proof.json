@@ -1,0 +1,21 @@
+{
+  "schema": "crwt.alexia_authored_hair_material.v1",
+  "source_sha256": "fc5e7690a475af1df3fa982186ffbad2325921644f74c8570627108b0c5cfb7c",
+  "candidate_sha256": "2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0",
+  "candidate_bytes": 69428732,
+  "new_hair_roughness": 0.5,
+  "new_hair_anisotropy_strength": 0.35,
+  "explicit_tangent_space": [
+    {
+      "material_index": 8,
+      "vertices": 58514,
+      "finite_unit_tangents": true,
+      "max_normal_dot_tangent": 4.392986227563789e-08,
+      "fallback_pole_or_degenerate_uv_vertices": 32
+    }
+  ],
+  "source_geometry_normals_colors_skins_clips_images_original_BIN_exact": true,
+  "source_hash_unchanged": true,
+  "visual_accepted": false,
+  "gameIntegrated": false
+}

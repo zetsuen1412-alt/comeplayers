@@ -1,0 +1,20 @@
+{
+  "tool_path": "tools/verify_side_quality_source.py",
+  "tool_sha256": "19ca8235fc72cc64c3b032c9d0a30491fbb7d49a85f57fdd670555e4a8d05af9",
+  "argv": [
+    "--baseline",
+    "{root}/evidence/selected-alexia/source/alexia-baseline.glb",
+    "--candidate",
+    "{root}/viewer/models/alexia.glb",
+    "--semantic-mask",
+    "{root}/evidence/selected-alexia/source/semantic-masks.npz",
+    "--garment-mask",
+    "{root}/evidence/selected-alexia/source/garment-mask-diagnostic.npz",
+    "--receipt",
+    "{receipt}"
+  ],
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "approved": false,
+  "gameIntegrated": false
+}

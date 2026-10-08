@@ -1,0 +1,26 @@
+{
+  "schema": "crwt.git_native_storage.v1",
+  "full_archive": {
+    "path": "CRWT-fidelity-editable-roster.zip",
+    "bytes": 65915347,
+    "sha256": "966c135bd63115bbec746c21d30ef6f1ff33d4e6bf5d195c4975da57d470199a"
+  },
+  "parts": [
+    {
+      "path": "CRWT-fidelity-editable-roster.zip.part01",
+      "bytes": 32957674,
+      "sha256": "c239056c9bf1c6c2bae4997bfeb1f96458fdbdf2a8b211d737b6337efce5de18"
+    },
+    {
+      "path": "CRWT-fidelity-editable-roster.zip.part02",
+      "bytes": 32957673,
+      "sha256": "6421d4319165ee3b773bd4341ff22ea5cace1eac943c3bffcf2e4dbd1ba08109"
+    }
+  ],
+  "scope": "Git source storage transport only; concatenation restores byte-exact original ZIP",
+  "user_output_full_zip_unchanged": true,
+  "zip_payloads_unchanged": true,
+  "restore_tool": "../tools/restore_native_archive.py",
+  "approved": false,
+  "gameIntegrated": false
+}

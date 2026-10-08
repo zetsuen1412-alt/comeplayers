@@ -1,0 +1,111 @@
+{
+  "schema": "crwt.yuna_actual_render_editable.v1",
+  "source_sha256": "bf8bcd2c18be7b95ac6725219ac510792b14110d0445827262ade05fb374638e",
+  "candidate_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+  "source_imported_mesh_fingerprints": [
+    {
+      "vertices": 21309,
+      "polygons": 25716,
+      "uv_layers": 1,
+      "materials": 1,
+      "sha256": "fc70a2346a46d63996e7595e44a9f05f9701e4206111aefc8ed5a9f34349d31a"
+    }
+  ],
+  "candidate_imported_mesh_fingerprints": [
+    {
+      "vertices": 21309,
+      "polygons": 25716,
+      "uv_layers": 1,
+      "materials": 1,
+      "sha256": "fc70a2346a46d63996e7595e44a9f05f9701e4206111aefc8ed5a9f34349d31a"
+    },
+    {
+      "vertices": 3746,
+      "polygons": 7192,
+      "uv_layers": 0,
+      "materials": 8,
+      "sha256": "c0193a9be76b21f46788821496140370de5e8ada2164554b1d49758eaf1fcdde"
+    }
+  ],
+  "source_imported_native_mesh_uv_polygon_transform_fingerprints_retained": true,
+  "packed_blend": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\trial-v4\\actual-mesh-review\\yuna-accessory-refinement-editable-candidate.blend",
+  "blend_sha256": "f596d66b1985d358777c0f49f131e5f80cf79f8d467925e1944bc427cf9870c1",
+  "blender_version": "5.2.2 LTS",
+  "engine": "BLENDER_EEVEE",
+  "resolution": [
+    800,
+    800
+  ],
+  "same_camera_and_lights": true,
+  "bounds_from_source_blender_z_up": [
+    [
+      -0.3930493891239166,
+      -0.2391263246536255,
+      -0.44736167788505554
+    ],
+    [
+      0.37436389923095703,
+      0.22648870944976807,
+      0.44999802112579346
+    ]
+  ],
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "opposite-three-quarter",
+      30,
+      10
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "render_source": "Actual GLB imported geometry/materials only; no reference image shown as a 3D surface",
+  "approved": false,
+  "gameIntegrated": false,
+  "render_files": [
+    {
+      "path": "after\\back.png",
+      "sha256": "c76153031721a5875fadd842ba945397017a7c9c809e58a6d42ceffc2b6fef36"
+    },
+    {
+      "path": "after\\front.png",
+      "sha256": "a81ff3315b1c8f5e58544e19e1c83c026f2ce6a7009f3a13a93ca99187f70c92"
+    },
+    {
+      "path": "after\\opposite-three-quarter.png",
+      "sha256": "262b79fc2ad12f2d906468de9f612f90de78aeb230204bc5cefeb858eefd694a"
+    },
+    {
+      "path": "after\\three-quarter.png",
+      "sha256": "2a3078c63c14ec20fbe46af39fad6f599de3ed246fee74a75d105dbc1524afbf"
+    },
+    {
+      "path": "before\\back.png",
+      "sha256": "54e008c57cd71341832b11904a765b2feed410082f6aef3794d44ebaaa6d652d"
+    },
+    {
+      "path": "before\\front.png",
+      "sha256": "35b230be66129777df120d3c0964aee389b45a19d908fe0526cc362ba080ccf8"
+    },
+    {
+      "path": "before\\opposite-three-quarter.png",
+      "sha256": "fe3bdd4fe1d31958f4225e31bdfc2dbaf000ede92ad2bbad6e251c351d9c0be6"
+    },
+    {
+      "path": "before\\three-quarter.png",
+      "sha256": "c1e6b9b937ed0897bcc0a719e532ec0cab8907788e54e0288632ffd52a33f251"
+    }
+  ]
+}

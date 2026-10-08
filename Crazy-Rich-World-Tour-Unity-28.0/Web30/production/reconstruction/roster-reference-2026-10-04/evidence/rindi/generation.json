@@ -1,0 +1,72 @@
+{
+  "status": "actual-textured-mesh-generated-awaiting-review",
+  "character": "rindi",
+  "provider": "stabilityai/stable-fast-3d",
+  "runtime_revision": "da5709055c2e0e08983d1a8b98172db008a91609",
+  "canonical_provenance": {
+    "character": "rindi",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      352,
+      0,
+      657,
+      478
+    ],
+    "crop_sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6",
+    "alpha_sha256": "0a30747a218048dc7eaa1303d4395a8e8bf33aa048b8a6e0e9d7b37a08b4bb25",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  "upload_rgb_pixels_match_source_rectangle": true,
+  "source_rgb_repainted": false,
+  "upload_operation": "original crop RGB + exact u2net mask alpha; straight RGBA, original cutout preserved",
+  "authentication": "anonymous; token lookup disabled",
+  "declared_gpu_duration_seconds": 60,
+  "transport": "Six positional args: ordinary Run Button plus five public args; standard client inserts None State at wire index2",
+  "frontend_wire_component_ids": [
+    13,
+    7,
+    2,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frontend_wire_types": [
+    "button",
+    "image",
+    "state",
+    "slider",
+    "radio",
+    "slider",
+    "slider"
+  ],
+  "params": {
+    "foreground_ratio": 0.85,
+    "remesh_option": "None",
+    "vertex_count": -1,
+    "texture_size": 2048
+  },
+  "provider_generation_calls_attempted": 1,
+  "actual_job_started_observed": false,
+  "provider_generation_submission_status": "result returned",
+  "production_approved": false,
+  "automatic_retry": false,
+  "scope": "Actual single-image textured-mesh diagnostic. Hidden surfaces inferred; source identity, hair, hands and props require actual mesh review.",
+  "input_snapshot_sha256": "e617ba46c765b48e8c8a132fee31541ecb946d61d9f13a8b5b8fce4c6a4e31d7",
+  "generation_returned": true,
+  "mesh": "rindi-sf3d-canonical-diagnostic.glb",
+  "bytes": 1736920,
+  "sha256": "650d5f098d52d976da8eacf2a314ae00062dca181280ced35fc4977a6263067a",
+  "gltf_summary": {
+    "meshes": 1,
+    "materials": 1,
+    "images": 2,
+    "textures": 2,
+    "skins": 0,
+    "animations": 0
+  },
+  "ended_utc": "2026-10-04T11:32:35.525761+00:00"
+}

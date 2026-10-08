@@ -1,0 +1,62 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\zeno.glb",
+  "input_sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+  "bytes": 2033724,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 3,
+  "vertices": 24679,
+  "polygons": 33300,
+  "bounds_blender_z_up": [
+    [
+      -0.36024004220962524,
+      -0.2622412443161011,
+      -0.46155357360839844
+    ],
+    [
+      0.3413287401199341,
+      0.19784015417099,
+      0.46520423889160156
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 0,
+  "view_transform": "Standard",
+  "solid_accessory_lights": {
+    "world_strength": 0.25,
+    "key_power_factor": 120,
+    "fill_power_factor": 56,
+    "rim_power_factor": 100
+  },
+  "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+}

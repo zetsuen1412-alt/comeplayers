@@ -1,0 +1,65 @@
+name: CRWT Alexia Hair Strands 2026-10-05
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/crazy-rich-web-v30
+    paths:
+      - .github/workflows/crwt-alexia-hair-strands-2026-10-05.yml
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-hair-strands-2026-10-05/**
+      - CRWT_ALEXIA_HAIR_STRANDS_RESUME_ID.md
+permissions:
+  contents: read
+env:
+  ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-hair-strands-2026-10-05
+  BASELINE_ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05
+jobs:
+  verify-hair-strands-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Materialize raw exact HEAD blobs and actual original Alexia comparison input
+        run: >-
+          python3 -B "$ROSTER/tools/materialize_hair_strands_source.py" --repo-root .
+          --out-dir crwt-hair-strands-raw --expected-commit "$GITHUB_SHA"
+          --receipt crwt-hair-strands-materialization.json
+      - name: Verify source pins, original attributes, new closed locks and existing local native certificates
+        working-directory: crwt-hair-strands-raw
+        run: >-
+          python3 -B "$ROSTER/tools/verify_hair_strands_source.py" --roster "$ROSTER"
+          --baseline-roster "$BASELINE_ROSTER" --inventory "$ROSTER/source-inventory.json"
+          --pins "$ROSTER/source-pins.json" --receipt ../crwt-hair-strands-source-verification.json
+      - name: Validate all ten actual GLBs without generation
+        working-directory: crwt-hair-strands-raw
+        run: >-
+          python3 -B "$ROSTER/tools/validate_roster_candidate.py" "$ROSTER/review-manifest.json"
+          --receipt ../crwt-hair-strands-roster-validation.json
+      - name: Rebuild exact gallery into fresh external output and compare frozen JSON receipt
+        working-directory: crwt-hair-strands-raw
+        run: >-
+          python3 -B "$ROSTER/tools/rebuild_hair_strands_gallery.py" --roster "$ROSTER"
+          --build-dir ../crwt-hair-strands-gallery-build --receipt ../crwt-hair-strands-gallery-verification.json
+      - name: Verify pinned one-entry gallery ZIP CRC and restore fresh external HTML
+        working-directory: crwt-hair-strands-raw
+        run: >-
+          python3 -B "$ROSTER/tools/restore_offline_gallery.py" --archive "$ROSTER/OFFLINE-GALLERY.zip"
+          --pins "$ROSTER/source-pins.json" --out ../crwt-hair-strands-gallery-restore/BUKA-REVIEW-MODEL.html
+          --receipt ../crwt-hair-strands-gallery-restore.json
+      - name: Save private hair-strands source and verification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Alexia-Hair-Strands-2026-10-05-${{ github.sha }}
+          path: |
+            crwt-hair-strands-raw/Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-hair-strands-2026-10-05
+            crwt-hair-strands-gallery-build
+            crwt-hair-strands-gallery-restore
+            crwt-hair-strands-materialization.json
+            crwt-hair-strands-source-verification.json
+            crwt-hair-strands-roster-validation.json
+            crwt-hair-strands-gallery-verification.json
+            crwt-hair-strands-gallery-restore.json
+          retention-days: 7
+          if-no-files-found: error

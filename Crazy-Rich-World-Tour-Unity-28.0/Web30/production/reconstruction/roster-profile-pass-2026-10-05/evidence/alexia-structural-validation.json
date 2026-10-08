@@ -1,0 +1,21 @@
+{
+  "candidate_sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3",
+  "actual_stats": {
+    "faces": 451712,
+    "vertices": 258703,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "d7ce87386aac3abb6ee49d4e9b8035f1b5e57a9150c17d88cfa8f30671b697bf",
+    "accessors_checked": 38,
+    "buffer_views_checked": 40
+  },
+  "approved": false,
+  "gameIntegrated": false
+}

@@ -1,0 +1,59 @@
+{
+  "schema": "crwt.aniimo_actual_browser_reference_review.v1",
+  "video_url": "https://www.youtube.com/watch?v=QMVrBG6EZr4",
+  "title": "Aniimo's Character Customization! 💋 | Thinking Out Loud 💬",
+  "channel": "Sarah Sunstone",
+  "duration_seconds": 912.861,
+  "reference_scope": "User-selected artistic example; not a mesh/UV/rig tutorial",
+  "model_changed_by_reference": false,
+  "frames": [
+    {
+      "path": "actual-face-04m33s.jpg",
+      "observed_video_time_seconds": 273.85,
+      "sha256": "732d1719d8ea8886ab027b3ab37d8936c29479602ab52088fdf7b105bbc5c011",
+      "bytes": 123410,
+      "actual_screenshot": true,
+      "observation": "Wajah bersih, mata biru, kulit dan bibir halus; panel makeup/roughness."
+    },
+    {
+      "path": "actual-body-07m18s.jpg",
+      "observed_video_time_seconds": 438.787278,
+      "sha256": "af547fc533c2afd03f39f5f1fd25191fd7fa51f23c60da5a7815bacae6341a88",
+      "bytes": 138432,
+      "actual_screenshot": true,
+      "observation": "Profil samping kepala dan rompi cropped abu-biru; bagian atas kepala terpotong viewport."
+    },
+    {
+      "path": "actual-hair-07m36s.jpg",
+      "observed_video_time_seconds": 456.416666,
+      "sha256": "5df82508882f00b736eccade091d8e124fb55fefa1f27f79a1c78851ec1d86ec",
+      "bytes": 111191,
+      "actual_screenshot": true,
+      "observation": "Rambut kuncir, poni samping, arah helai terkontrol dan panel tailoring."
+    },
+    {
+      "path": "actual-outfit-09m07s.jpg",
+      "observed_video_time_seconds": 547.7,
+      "sha256": "2dbc27830f9bacaef063709033b1c7d425bc349d5a15a8a8e771e919dab77f78",
+      "bytes": 124518,
+      "actual_screenshot": true,
+      "observation": "Outfit layered, rok, sarung tangan, pelindung lutut dan boots terpisah."
+    },
+    {
+      "path": "actual-hair-08m16s.jpg",
+      "observed_video_time_seconds": 496.416666,
+      "sha256": "8c18a493c4015661c9b6e98353669e24cfcb9798cdd0020382cfa12731337ca7",
+      "bytes": 158435,
+      "actual_screenshot": true,
+      "observation": "Hanya panel Highlights/Gradient dan torso; rambut di luar frame sehingga tidak digunakan untuk menilai bentuk rambut."
+    }
+  ],
+  "published_text_reference": {
+    "brief_sha256": "851f6fa8590f6622c4f26786a85ffda8808475e20f9ef130e068e39a45979085",
+    "record_sha256": "33859144aa4f2955f1458890078c776d219ebc4426f684c3d1681acc45c84895"
+  },
+  "limits": [
+    "No topology, numeric material values or rig method can be inferred exactly from video pixels.",
+    "Static frames do not certify gameplay rig, collision or animation quality."
+  ]
+}

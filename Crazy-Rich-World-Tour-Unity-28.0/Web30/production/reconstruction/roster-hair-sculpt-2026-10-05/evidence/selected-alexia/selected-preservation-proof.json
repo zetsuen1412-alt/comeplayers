@@ -1,0 +1,396 @@
+{
+  "schema": "crwt.alexia.rear_hair_sculpt_continuous.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "passed": true,
+  "variant": "moderate-continuous-smooth",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-strands\\viewer\\models\\alexia.glb",
+  "source_sha256": "19f007950c8651e81ee2c49374f28af3785e3710171f142324bf67cb7ce74b24",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-strands\\references\\alexia-blue-v2-turnaround.png",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\moderate-continuous-smooth\\alexia.glb",
+  "candidate_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+  "candidate_bytes": 31125616,
+  "recipe_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\build_hair_sculpt_continuous.py",
+  "recipe_sha256": "045ecaa659106c42e3e87506e137c0d176ac4e7aab6a76f62160ac5a4f7d0080",
+  "recipe_helpers": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\build_hair_sculpt.py",
+      "sha256": "75437b85e74d4452194cc508a9eda15abd4652109090653b0e25aa985cdcdb05",
+      "used_functions": "read_glb, accessor, append3, smooth, NaturalCubic, hardmask, geometry; manually frozen PATHS/VARIANTS only. Rejected carve() is not called."
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\build_hair_sculpt_smooth_normals.py",
+      "sha256": "9f25470b9f656ccf8878f2335d1c4ac58adf1e03b6094fff73ba1947e2b85282",
+      "used_functions": "smooth_rotation_normals, unit only. No rejected geometry GLB is read."
+    }
+  ],
+  "rejected_candidate_glb_dependency": false,
+  "source_BIN_byte_prefix_identical": true,
+  "original_accessors_and_bufferViews_identical": true,
+  "unchanged_non_position_normal_accessors": true,
+  "unchanged_mesh1_mesh2": true,
+  "all_node_transforms_materials_images_uv_colors_indices_skins_animations_identical": true,
+  "original_total_vertices": 261299,
+  "original_core_vertices": 252943,
+  "original_core_triangles": 440192,
+  "original_mesh_vertices_changed": 23572,
+  "original_normals_changed": 24496,
+  "affected_original_faces": 47146,
+  "hard_hair_mask_vertex_count": 26776,
+  "mesh_count_before_after": [
+    3,
+    3
+  ],
+  "added_meshes": 0,
+  "added_nodes": 0,
+  "added_materials": 0,
+  "added_vertices": 0,
+  "added_triangles": 0,
+  "new_position_accessor": 44,
+  "new_normal_accessor": 45,
+  "old_position_accessor": 32,
+  "old_normal_accessor": 33,
+  "mask_parameters": {
+    "coordinate_frame": "glTF world +Y up +Z front; original mesh0 local_to_world=(-X,+Y,-Z), existing 180deg Y rotation preserved",
+    "hard_spatial": {
+      "world_x_absolute_max": 0.245,
+      "world_y_min": -0.065,
+      "world_y_max": 0.365,
+      "world_z_max": -0.095
+    },
+    "hard_color": {
+      "blue_minus_green_min": 0.008,
+      "blue_minus_red_min": -0.005,
+      "minimum_rgb_min": 0.075
+    },
+    "hard_normal": {
+      "original_world_normal_z_max": -0.12
+    },
+    "source_geometric_face_protection": {
+      "pin_incident_original_area_below_or_equal": 1e-12,
+      "triangle_quality_pin": false,
+      "geometric_facing_pin": false,
+      "opposing_normal_pin": false
+    },
+    "position_mask_policy": "Hard original hair mask, protected near-degenerate incident vertices and tied original-position cohorts only. No quality/geometric-normal categorical pins and no face-neighbor erosion. Smooth Euclidean boundary-distance fade, no vertex-color amplitude modulation.",
+    "normal_mask_policy": "Only incident changed-face vertices also inside the original hard hair mask; protected original normals exact.",
+    "smooth_spatial": {
+      "x_fade_from": 0.205,
+      "x_fade_to": 0.245,
+      "y_bottom_zero": -0.065,
+      "y_bottom_full": -0.02,
+      "y_top_full": 0.29,
+      "y_top_zero": 0.345,
+      "z_zero": -0.095,
+      "z_full": -0.125
+    },
+    "smooth_color": {
+      "blue_minus_green_zero": 0.008,
+      "blue_minus_green_full": 0.055,
+      "blue_minus_red_zero": -0.005,
+      "blue_minus_red_full": 0.026,
+      "minimum_rgb_zero": 0.075,
+      "minimum_rgb_full": 0.25
+    },
+    "smooth_normal": {
+      "rear_facing_zero": 0.12,
+      "rear_facing_full": 0.58
+    },
+    "confidence_smoothing_neighbor_iterations": 0,
+    "confidence_smoothing_neighbor_blend": 0.45,
+    "final_inset_smoothing_neighbor_iterations": 0,
+    "final_inset_smoothing_policy": "No final unweighted Laplacian displacement smoothing: inherited irregular triangles made that trial less safe. Source confidence and geometric boundary distance are smoothed, while inset is a continuous manually guided compact S-field.",
+    "coincident_position_policy": "Tie inset amount to the smallest proposed delta in each original world-position cohort rounded to 6 decimal places. A cohort is pinned if any member is outside the eroded hard hair mask. This preserves original seam offsets instead of opening a displacement crack.",
+    "coincident_world_position_round_decimal_places": 6,
+    "pinned_boundary_geodesic_fade_world_units": 0.025,
+    "seam_geodesic_policy": "Near-coincident cohorts also share confidence smoothing and zero-cost graph connections for boundary-distance falloff. This avoids unequal seam falloff from duplicate UV-seam topology.",
+    "degenerate_area_threshold_world_units_squared": 1e-12,
+    "groove_inset_direction_world": [
+      0,
+      0,
+      1
+    ],
+    "groove_compact_support_sigma_multiple": 3.0,
+    "groove_terminal_blend": "Combined spatial smoothstep; paths are natural cubic X(Y) S curves, with broader branch/swing through the lower-middle rear hair.",
+    "continuous_field": {
+      "boundary_distance": "Euclidean distance to protected original boundary vertices, smoothstep(0,.025,d)",
+      "upper_depth_factor": ".55 + .45*(1-smoothstep(.12,.23,worldY))",
+      "color_normal_amplitude_modulation": false
+    }
+  },
+  "mask_npz_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-hair-sculpt-next\\geometry\\moderate-continuous-smooth\\sculpt-masks.npz",
+  "mask_npz_sha256": "73564d44c6746fff0aa1f66a3bd89b6350039c21cb88b44d92076d3be071ff1f",
+  "guide_paths": [
+    {
+      "id": "positive-outer-valley",
+      "strength": 0.72,
+      "xy": [
+        [
+          0.17,
+          0.365
+        ],
+        [
+          0.166,
+          0.29
+        ],
+        [
+          0.153,
+          0.21
+        ],
+        [
+          0.19,
+          0.15
+        ],
+        [
+          0.222,
+          0.095
+        ],
+        [
+          0.23,
+          0.045
+        ],
+        [
+          0.205,
+          -0.012
+        ],
+        [
+          0.16,
+          -0.065
+        ]
+      ]
+    },
+    {
+      "id": "positive-inner-valley",
+      "strength": 1.0,
+      "xy": [
+        [
+          0.082,
+          0.365
+        ],
+        [
+          0.091,
+          0.29
+        ],
+        [
+          0.068,
+          0.21
+        ],
+        [
+          0.035,
+          0.16
+        ],
+        [
+          0.065,
+          0.115
+        ],
+        [
+          0.103,
+          0.065
+        ],
+        [
+          0.095,
+          0.015
+        ],
+        [
+          0.05,
+          -0.065
+        ]
+      ]
+    },
+    {
+      "id": "central-branch-valley",
+      "strength": 0.84,
+      "xy": [
+        [
+          0.01,
+          0.365
+        ],
+        [
+          0.009,
+          0.3
+        ],
+        [
+          -0.018,
+          0.24
+        ],
+        [
+          -0.011,
+          0.185
+        ],
+        [
+          0.015,
+          0.13
+        ],
+        [
+          0.014,
+          0.08
+        ],
+        [
+          -0.02,
+          0.025
+        ],
+        [
+          -0.002,
+          -0.065
+        ]
+      ]
+    },
+    {
+      "id": "negative-inner-valley",
+      "strength": 1.0,
+      "xy": [
+        [
+          -0.071,
+          0.365
+        ],
+        [
+          -0.083,
+          0.29
+        ],
+        [
+          -0.093,
+          0.22
+        ],
+        [
+          -0.063,
+          0.165
+        ],
+        [
+          -0.1,
+          0.115
+        ],
+        [
+          -0.145,
+          0.055
+        ],
+        [
+          -0.128,
+          0.0
+        ],
+        [
+          -0.075,
+          -0.065
+        ]
+      ]
+    },
+    {
+      "id": "negative-outer-valley",
+      "strength": 0.72,
+      "xy": [
+        [
+          -0.165,
+          0.365
+        ],
+        [
+          -0.174,
+          0.29
+        ],
+        [
+          -0.155,
+          0.22
+        ],
+        [
+          -0.18,
+          0.16
+        ],
+        [
+          -0.223,
+          0.095
+        ],
+        [
+          -0.237,
+          0.045
+        ],
+        [
+          -0.213,
+          -0.015
+        ],
+        [
+          -0.165,
+          -0.065
+        ]
+      ]
+    }
+  ],
+  "sculpt_parameters": {
+    "depth": 0.009,
+    "sigma": 0.015
+  },
+  "maximum_world_delta": 0.009000003337860107,
+  "mean_changed_world_delta": 0.002149417040904046,
+  "world_delta_bounds": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.009000003337860107
+    ]
+  ],
+  "changed_world_bounds": [
+    [
+      -0.24489283561706543,
+      -0.06474193185567856,
+      -0.21380719542503357
+    ],
+    [
+      0.24482426047325134,
+      0.3448753356933594,
+      -0.09516681730747223
+    ]
+  ],
+  "position_xy_byte_exact": true,
+  "geometry_checks": {
+    "baseline_area_below_or_equal_1e_minus12": 64,
+    "affected_baseline_area_below_or_equal_1e_minus12": 0,
+    "baseline_area_below_or_equal_1e_minus14": 0,
+    "new_degenerate_faces_at_1e_minus12_relative_baseline": 0,
+    "new_flipped_faces_relative_original": 0,
+    "minimum_affected_original_area": 3.712436190522732e-12,
+    "minimum_affected_candidate_area": 3.882482700620335e-12,
+    "minimum_affected_area_ratio": 0.6384810693596517,
+    "minimum_affected_face_cosine_vs_original": 0.8064657907273579,
+    "baseline_triangle_quality_below_point1": 16064,
+    "affected_original_triangle_quality_below_point1": 1866,
+    "minimum_affected_original_triangle_quality": 0.0010898088173821217,
+    "triangle_quality_pin_policy": "Diagnostic only; no categorical sliver pins. All actually affected original faces pass relative cross-product orientation and non-collapse checks.",
+    "cohort_duplicate_count": 28488,
+    "vertices_in_duplicate_cohorts": 61408,
+    "inset_cohort_tied": true
+  },
+  "normal_correction": {
+    "method": "Shortest quaternion rotation of original stored smooth normal from original to deformed area-weighted geometric vertex normal. Original normal angular offset and smoothing style are preserved; no absolute geometric normal replacement.",
+    "geometric_accumulation": "Area-weighted triangle cross products before/after, all incident original triangles.",
+    "weld_policy": "Exact original-position cohorts share geometric accumulation only when every stored source normal has dot>=.999 to the cohort mean normal. Original normal discontinuities retain separate geometric corrections.",
+    "exact_original_position_cohort_count": 220084,
+    "exact_duplicate_cohort_count": 28493,
+    "compatible_welded_duplicate_cohort_count": 4806,
+    "incompatible_duplicate_cohort_count": 23687,
+    "compatible_welded_vertex_count": 9674,
+    "compatible_welded_normal_mask_vertex_count": 530,
+    "original_normal_compatibility_min_dot_to_mean": 0.999,
+    "maximum_geometric_normal_rotation_degrees": 33.798625103215734,
+    "maximum_normal_unit_length_error": 7.24822020181648e-08,
+    "normal_delta_maximum_length": 0.5813795941804001,
+    "normal_mask_vertex_count": 24496,
+    "original_normals_changed": 24475
+  },
+  "normal_differential_smoothing": {
+    "method": "Area-weighted spatial Gaussian smoothing of differential correction, then normalize(original stored smooth normal + smoothed correction).",
+    "sigma_world": 0.01,
+    "radius_world": 0.025,
+    "original_normal_neighbor_compatibility_min_dot": 0.95,
+    "neighbor_scope": "Source hard hair mask, including unchanged zero-correction neighbors to taper corrections; output limited to incident changed-face vertices within same hard hair mask."
+  },
+  "scope": "Continuous shallow S-field carving of original rear hair surface. Original smooth normals plus spatially smoothed deformation response. Exact original protected positions/normals, colors, UV, topology and existing meshes1/2 retained.",
+  "limits": [
+    "Manual approximate reference-supported S paths, inferred depth/attachments; no reference precision claim.",
+    "Numerical passing remains provisional until actual gray/color visual review.",
+    "Original near-degeneracies and low-quality triangles are recorded separately; no exhaustive self-intersection certificate.",
+    "No separate deep open hair gaps, rigging, production approval or game integration."
+  ]
+}

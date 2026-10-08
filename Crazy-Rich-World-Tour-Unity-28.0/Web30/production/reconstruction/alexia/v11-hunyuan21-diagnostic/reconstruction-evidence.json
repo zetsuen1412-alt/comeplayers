@@ -1,0 +1,157 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "attempt": "v11-hunyuan21-standard-single-image-controlled-diagnostic",
+  "purpose": "Compare official Hunyuan3D 2.1 Standard against V10 2mv Turbo using the EXACT same Nano Banana FRONT JPEG. Standard steps30/octree256; only the image slot is supplied.",
+  "sourceProvenance": "Exact actual Gemini corrected FRONT container 4bca68acb91fd063 584px screenshot-cropped JPEG reused from V10; small lower-right sparkle retained, not mark-free certified; NOT original full-size PNG or prior imagegen.",
+  "provider": "Tencent official Hunyuan3D 2.1 public ZeroGPU Space",
+  "spaceOrigin": "https://tencent-hunyuan3d-2-1.hf.space",
+  "apiContract": {
+    "file": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-03\\new-chat\\work\\hunyuan21-info.json",
+    "sha256": "8549a73c090265e6ce4b62869f8f5ffdd1a3e15d25043d6f4df54f7c72c86378",
+    "endpoint": "/shape_generation",
+    "parameterCount": 12,
+    "parameterNames": [
+      "image",
+      "mv_image_front",
+      "mv_image_back",
+      "mv_image_left",
+      "mv_image_right",
+      "steps",
+      "guidance_scale",
+      "seed",
+      "octree_resolution",
+      "check_box_rembg",
+      "num_chunks",
+      "randomize_seed"
+    ],
+    "offlineContractValidated": true,
+    "imageSlot": "image",
+    "allMultiviewSlotsDisabled": true,
+    "captionParameterSupplied": false,
+    "standardDefaultsUsed": [
+      "steps",
+      "guidance_scale",
+      "octree_resolution",
+      "check_box_rembg",
+      "num_chunks"
+    ],
+    "intentionalDefaultOverrides": {
+      "seed": 1412,
+      "randomize_seed": false
+    },
+    "priorV10Mesh": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-03\\new-chat\\outputs\\alexia\\v10-nano-banana-front-diagnostic\\alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+    "priorV10MeshSha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+    "priorV10MeshHashVerified": true
+  },
+  "providerConfigurationExpected": {
+    "checkpoint": "hunyuan3d-dit-v2-1",
+    "precision": "FP16",
+    "flashVDM": false,
+    "basis": "Official Space source audit provided by the parent agent; server settings, not client API arguments",
+    "differentFromV10": "Standard Hunyuan3D 2.1 rather than 2mv Turbo; steps changed from10 to30"
+  },
+  "shapeOnly": true,
+  "textureGenerationRequested": false,
+  "startedUtc": "2026-10-03T16:25:07.312117+00:00",
+  "params": {
+    "steps": 30,
+    "guidance_scale": 5.0,
+    "seed": 1412,
+    "octree_resolution": 256,
+    "check_box_rembg": true,
+    "num_chunks": 8000,
+    "randomize_seed": false
+  },
+  "enabledViews": [
+    "front-source-via-image"
+  ],
+  "disabledViews": [
+    "mv_image_front",
+    "mv_image_back",
+    "mv_image_left",
+    "mv_image_right"
+  ],
+  "submissionLimit": 1,
+  "automaticRetry": false,
+  "input": {
+    "file": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-03\\new-chat\\outputs\\alexia\\nano-banana-ui-review\\nano-banana-front-capture.jpg",
+    "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "sourceImageCaptureJpegSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "bytes": 98474,
+    "image": {
+      "format": "JPEG",
+      "mode": "RGB",
+      "size": [
+        584,
+        584
+      ]
+    },
+    "captureProvenance": {
+      "provider": "Gemini Apps / Nano Banana UI",
+      "correctedFrontContainer": "4bca68acb91fd063",
+      "captureKind": "screenshot-cropped JPEG",
+      "expectedUiCropWidthPx": 584,
+      "originalFullSizePng": false,
+      "intendedCrop": "generated-image area with no UI controls over the character",
+      "annotationFreeVisualReviewRequired": true,
+      "markFreeCaptureCertified": false,
+      "visibleCaptureArtifact": "Small white sparkle in lower-right background; outside the character but retained in the exact JPEG.",
+      "requestedChanges": "coherent layered hair and clean mild A-pose",
+      "lowResolutionLimitation": "About 584 px UI crop; compression/capture detail is limited. Not an original full-resolution image export.",
+      "multiviewConsistencyPassed": false,
+      "diagnosticInputApprovedAsFinal": false
+    },
+    "submittedSnapshot": "input-capture.jpg",
+    "submittedSnapshotSha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928"
+  },
+  "meshApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "rigged": false,
+  "gameAssetsReplaced": false,
+  "productionMeshApproved": false,
+  "status": "independently-reviewed-eligible-for-controlled-texture-inspection-only",
+  "generationReturned": true,
+  "providerReportedMeshStats": {
+    "model": {
+      "shapegen": "tencent/Hunyuan3D-2.1/hunyuan3d-dit-v2-1",
+      "texgen": "tencent/Hunyuan3D-2.1"
+    },
+    "params": {
+      "caption": null,
+      "steps": 30,
+      "guidance_scale": 5.0,
+      "seed": 1412,
+      "octree_resolution": 256,
+      "check_box_rembg": true,
+      "num_chunks": 8000
+    },
+    "number_of_faces": 449582,
+    "number_of_vertices": 224713,
+    "time": {
+      "remove background": 0.9366734027862549,
+      "shape generation": 16.537423133850098,
+      "export to trimesh": 0.11951589584350586,
+      "total": 17.596157789230347
+    }
+  },
+  "actualSeed": 1412,
+  "download": {
+    "mode": "download-existing-service-result",
+    "bytes": 8092808
+  },
+  "glbValidation": {
+    "magic": "glTF",
+    "version": 2,
+    "bytes": 8092808,
+    "declaredLength": 8092808
+  },
+  "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+  "mesh": "alexia-v11-hunyuan21-untextured-diagnostic.glb",
+  "inputNote": "Only the exact V10 584px Nano Banana FRONT JPEG was supplied through image. All mv_image slots were None. Hidden surfaces are inferred; sparkle/capture limitations, source-fidelity and side/back construction remain unverified.",
+  "endedUtc": "2026-10-03T16:25:42.885877+00:00",
+  "textureCandidateEligible": true,
+  "geometryReview": "geometry-review.json",
+  "geometryReviewScope": "Controlled texture diagnostic eligibility only; production geometry, source fidelity, rigging and game approvals remain false"
+}

@@ -1,0 +1,251 @@
+{
+  "schema": "crwt.alexia_high_visual_rebuild_chain.v2_variable_steps",
+  "baseline_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_path": "viewer/models/alexia.glb",
+  "baseline_directory": "roster-side-quality-2026-10-08",
+  "baseline_inventory_sha256": "cf73d4b043a7a7beb6da2ceef6c41c6cd9c92481604b8c47a13d5c3a667b3b02",
+  "baseline_model_path": "viewer/models/alexia.glb",
+  "inputs": {
+    "semantic": {
+      "path": "evidence/selected-alexia/source/semantic-masks.npz",
+      "sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649"
+    },
+    "reference": {
+      "path": "references/alexia-blue-v2-turnaround.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+    },
+    "boundary": {
+      "path": "evidence/selected-alexia/source/safe-hair-boundary-removal.npz",
+      "sha256": "b267a0531dcd5f1644f2df62bfea9f677eff64a6abd5bce94f0f420811376629"
+    },
+    "orphan": {
+      "path": "evidence/selected-alexia/source/safe-outer-orphan-hair-removal.npz",
+      "sha256": "ded53028e73e702840adb0d50a353d5ba47d3e5039d92db8c136bd6f4218c1fd"
+    },
+    "garment": {
+      "path": "evidence/selected-alexia/source/clean-garment-masks.npz",
+      "sha256": "b457eeacf93f82e323e673c789301d1d4636c08cf06f096fb86da48fe0c19956"
+    },
+    "anatomical": {
+      "path": "evidence/selected-alexia/source/final-retained-cleanup-masks.npz",
+      "sha256": "c10276f64c0b0da4a27a15fc3503bacec21417088b93b99441c9aabd7fc43f73"
+    },
+    "cold_protector": {
+      "path": "evidence/selected-alexia/source/cold-orphan-masks.npz",
+      "sha256": "4029629f0efd1606c2e2bb2d3072a3011da193d3509c82f8a198366e8b180502"
+    }
+  },
+  "proofs": {
+    "hair": {
+      "path": "evidence/selected-alexia/proofs/hair-geometry-proof.json",
+      "sha256": "5e3db79d1ecefd90bc3b7ed336ae24998455abad7d4ac7c37d905484965f1fc2"
+    },
+    "headband": {
+      "path": "evidence/selected-alexia/proofs/headband-proof.json",
+      "sha256": "ae81807468f6cd5979d47a9a5a3ce5c7451d44b2ce0a2fe4d252ea02b3874cd2"
+    },
+    "material": {
+      "path": "evidence/selected-alexia/proofs/authored-material-proof.json",
+      "sha256": "6abd57c9c527eaf3a063beb871e55f9d29920bc4d4a7d462656741a477137fdc"
+    },
+    "body": {
+      "path": "evidence/selected-alexia/proofs/clean-garment-proof.json",
+      "sha256": "8cb8a8330978affc8ac00001454bafd16cd1ddb327bcab16143d127ecb8e2d60"
+    },
+    "retained-cleanup": {
+      "path": "evidence/selected-alexia/proofs/retained-cleanup-proof.json",
+      "sha256": "4fbeb9a12d8285c1c46abf75fc3ba42b021e86f1d08a613a7fbf5256dfc92209"
+    },
+    "rear-calves": {
+      "path": "evidence/selected-alexia/proofs/rear-leg-cleanup-proof.json",
+      "sha256": "2c5ccaf93bd3235b45bf308716d5dc299889a4b748e5a078e08737b150b7d741"
+    },
+    "final-cleanup": {
+      "path": "evidence/selected-alexia/proofs/final-retained-cleanup-proof.json",
+      "sha256": "095116b3eeb1dfe6d46a24d9aeaaca5438a194eecf0fdcf89ed88a4b270e74e9"
+    },
+    "cold-orphans": {
+      "path": "evidence/selected-alexia/proofs/cold-orphan-proof.json",
+      "sha256": "1c96bf859aac4a39b3e627194b8903dc63fd0655125f3b4cb8d2211c82fb83df"
+    },
+    "clean-anatomy": {
+      "path": "evidence/selected-alexia/proofs/visible-anatomy-replacement-proof.json",
+      "sha256": "94e2845e1ba73015dcea338bea0659101cb693f97a37f5f4ec8fc59fc3c953c3"
+    }
+  },
+  "steps": [
+    {
+      "id": "hair",
+      "path": "evidence/selected-alexia/recipes/build_clean_hair_final_waves.py",
+      "sha256": "b5287d8e22df208c8b7e0fa7a83d7ed33ce8bbc7cd4b03c8cd3bc5136f0ef02c",
+      "source_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+      "candidate_sha256": "7a748e6e8cc262d3161f0ed05f36037a02d4528ca1a45f57b7cf4f4b026b4556",
+      "argv": [
+        "--source",
+        "{source}",
+        "--semantic-mask",
+        "{input:semantic}",
+        "--reference",
+        "{input:reference}",
+        "--boundary-mask",
+        "{input:boundary}",
+        "--orphan-mask",
+        "{input:orphan}",
+        "--output-parent",
+        "{work}/hair",
+        "--variant",
+        "crown-waves"
+      ],
+      "output_glb": "hair/crown-waves/alexia.glb"
+    },
+    {
+      "id": "headband",
+      "path": "evidence/selected-alexia/recipes/build_clean_headband.py",
+      "sha256": "a4291f8714f46ce43d93301f82e1ff29953fe4977e5ca1acba016c0490669566",
+      "source_sha256": "7a748e6e8cc262d3161f0ed05f36037a02d4528ca1a45f57b7cf4f4b026b4556",
+      "candidate_sha256": "fc5e7690a475af1df3fa982186ffbad2325921644f74c8570627108b0c5cfb7c",
+      "argv": [
+        "--source",
+        "{source}",
+        "--masks",
+        "{input:semantic}",
+        "--output",
+        "{work}/headband/alexia.glb"
+      ],
+      "output_glb": "headband/alexia.glb"
+    },
+    {
+      "id": "material",
+      "path": "evidence/selected-alexia/recipes/polish_authored_hair_material.py",
+      "sha256": "51d74c030cc08714ed0504fb9925c1e4b89c09cf88f4f7bc7fc723d8a74936d0",
+      "source_sha256": "fc5e7690a475af1df3fa982186ffbad2325921644f74c8570627108b0c5cfb7c",
+      "candidate_sha256": "2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0",
+      "argv": [
+        "--source",
+        "{source}",
+        "--output",
+        "{work}/material/alexia.glb",
+        "--roughness",
+        "0.5"
+      ],
+      "output_glb": "material/alexia.glb"
+    },
+    {
+      "id": "body",
+      "path": "evidence/selected-alexia/recipes/build_clean_garment_profile.py",
+      "sha256": "8f3abea238122247afa7dde6987835d62ba168a7a1fbf6a797ae294f5c078a40",
+      "source_sha256": "2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0",
+      "candidate_sha256": "88a40e8af34fe0b01183da1f79244da3e3924900390950fc84b22394fcfc9f26",
+      "argv": [
+        "--source",
+        "{source}",
+        "--semantic-mask",
+        "{input:semantic}",
+        "--output",
+        "{work}/body"
+      ],
+      "output_glb": "body/alexia.glb"
+    },
+    {
+      "id": "retained-cleanup",
+      "path": "evidence/selected-alexia/recipes/cleanup_retained_garment.py",
+      "sha256": "61276e8bed039c768276768ad98cabab02d6748ca6b06a60035cb3243640dcec",
+      "source_sha256": "88a40e8af34fe0b01183da1f79244da3e3924900390950fc84b22394fcfc9f26",
+      "candidate_sha256": "b0284bb2abc9e50254cea75bb39b48e402d1e8e26a1a2eee2e36a6a1bb212660",
+      "argv": [
+        "--source",
+        "{source}",
+        "--baseline",
+        "{baseline}",
+        "--semantic",
+        "{input:semantic}",
+        "--garment",
+        "{input:garment}",
+        "--output",
+        "{work}/retained-cleanup"
+      ],
+      "output_glb": "retained-cleanup/alexia.glb"
+    },
+    {
+      "id": "rear-calves",
+      "path": "evidence/selected-alexia/recipes/cleanup_rear_leg_shell.py",
+      "sha256": "91d4cf988ae08fa912228683bb87fc2c92e2c0761b6704493e7faa226966fd0b",
+      "source_sha256": "b0284bb2abc9e50254cea75bb39b48e402d1e8e26a1a2eee2e36a6a1bb212660",
+      "candidate_sha256": "21f60d8d03bf1d11346dd970b1189e98a6e3bad48aad1ec6f1ff3f0c5a758748",
+      "argv": [
+        "--source",
+        "{source}",
+        "--baseline",
+        "{baseline}",
+        "--semantic",
+        "{input:semantic}",
+        "--output",
+        "{work}/rear-calves"
+      ],
+      "output_glb": "rear-calves/alexia.glb"
+    },
+    {
+      "id": "final-cleanup",
+      "path": "evidence/selected-alexia/recipes/cleanup_retained_garment_final.py",
+      "sha256": "37bf2bd80dc752d48a00635615ee54b6db6908844b519054bb2c0506607a07cd",
+      "source_sha256": "21f60d8d03bf1d11346dd970b1189e98a6e3bad48aad1ec6f1ff3f0c5a758748",
+      "candidate_sha256": "bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158",
+      "argv": [
+        "--source",
+        "{source}",
+        "--baseline",
+        "{baseline}",
+        "--semantic",
+        "{input:semantic}",
+        "--garment",
+        "{input:garment}",
+        "--output",
+        "{work}/final-cleanup"
+      ],
+      "output_glb": "final-cleanup/alexia.glb"
+    },
+    {
+      "id": "cold-orphans",
+      "path": "evidence/selected-alexia/recipes/remove_cold_garment_orphans.py",
+      "sha256": "15f41fa6cdf53e67f9dcd5a8e61c7a859edc211ba7c3096474d3407df6fe4f28",
+      "source_sha256": "bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158",
+      "candidate_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+      "argv": [
+        "--source",
+        "{source}",
+        "--semantic",
+        "{input:semantic}",
+        "--protector",
+        "{input:anatomical}",
+        "--output",
+        "{work}/cold-orphans"
+      ],
+      "output_glb": "cold-orphans/alexia.glb"
+    },
+    {
+      "id": "clean-anatomy",
+      "path": "evidence/selected-alexia/recipes/replace_clean_hands_legs.py",
+      "sha256": "1088ce42fa19dedca841c8404b9b82e8472ca1a332084a126c04282663605d66",
+      "source_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+      "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+      "argv": [
+        "--source",
+        "{source}",
+        "--semantic",
+        "{input:semantic}",
+        "--protector",
+        "{input:cold_protector}",
+        "--output",
+        "{work}/clean-anatomy"
+      ],
+      "output_glb": "clean-anatomy/alexia.glb"
+    }
+  ],
+  "step_count": 9,
+  "first_four_authoring_steps_preserved": true,
+  "numpy_required": true,
+  "renders_recreated": false,
+  "approved": false,
+  "gameIntegrated": false
+}

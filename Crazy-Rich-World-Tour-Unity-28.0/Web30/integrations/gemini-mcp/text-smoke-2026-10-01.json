@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-10-01T12:28:31.886Z",
+  "deployment": "https://evo-gaming-4srpjaa1i-ilham-evogaming-s-projects.vercel.app",
+  "tool": "gemini_analyze_reference",
+  "prompt": "Reply exactly CRWT_READY. This is a connectivity test.",
+  "referenceImageSent": false,
+  "succeeded": true,
+  "httpStatus": 200,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Gemini model: gemini-3.8-flash\n\nCRWT_READY"
+        }
+      ]
+    }
+  }
+}

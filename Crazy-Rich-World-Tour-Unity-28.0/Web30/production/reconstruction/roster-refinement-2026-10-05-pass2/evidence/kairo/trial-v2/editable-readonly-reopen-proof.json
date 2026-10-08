@@ -1,0 +1,41 @@
+{
+  "schema": "crwt.packed-editable-readonly-reopen.v1",
+  "id": "kairo",
+  "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+  "candidate_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+  "blend_sha256": "4fa2d0c884a40c34e4a28c3cb0fce773dde9a2c4decdd8c8d0020743d19d1447",
+  "saved_geometry_normal_uv_transform_material_image_fingerprints_identical": true,
+  "mesh_count": 3,
+  "triangles": 27820,
+  "vertices": 20492,
+  "images": [
+    {
+      "name": "Image_0",
+      "sha256": "b98010c97f4300a65273e583f38420e60ec750f2149e46ccf9365e78953b1ae2",
+      "bytes": 151312,
+      "colorspace": "sRGB",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "Image_1",
+      "sha256": "fce8646d8c20f3e16bf982a41c1db4cc75af032bef2b15e7ae58db8fc0205e9b",
+      "bytes": 157360,
+      "colorspace": "Non-Color",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  ],
+  "armatures": 0,
+  "actions": 0,
+  "all_file_images_packed": true,
+  "packed_images_byte_identical_to_glb": true,
+  "no_source_or_blend_writes": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "blender_version": "5.2.2 LTS"
+}

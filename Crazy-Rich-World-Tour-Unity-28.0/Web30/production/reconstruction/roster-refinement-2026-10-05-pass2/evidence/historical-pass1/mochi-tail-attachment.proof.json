@@ -1,0 +1,140 @@
+{
+  "schema": "crwt.mochi-tail-attachment.v1",
+  "status": "hidden_connector_visual_candidate",
+  "visual_final_approved": false,
+  "game_assets_replaced": false,
+  "source": {
+    "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\mochi\\mochi-reference-candidate.glb",
+    "sha256": "19cc6a8c6a8ff08518ab3bc2f29de1a5f77056daa00bf400400837285e2b372b",
+    "bytes": 1422928
+  },
+  "output": {
+    "path": "mochi-tail-attached-candidate.glb",
+    "sha256": "43afaf939f88a5f1a4da92d564e6e9c9c02dc02ab5283cf3214f7ce7f21b3c8d",
+    "bytes": 2180072
+  },
+  "selection": {
+    "original_component_faces": [
+      22604,
+      440
+    ],
+    "retained_original_cream_tip_faces": 434,
+    "anchor_vertices": {
+      "posterior_hip": 3496,
+      "inner_rear_tip": 4339
+    },
+    "removed_hidden_source_face_ids": [
+      3171,
+      3175,
+      3176,
+      3966,
+      3967,
+      3968,
+      15234,
+      15240,
+      15241,
+      15927,
+      15928,
+      15929
+    ]
+  },
+  "geometry": {
+    "source_vertices": 14794,
+    "added_vertices": 108,
+    "source_triangles": 23044,
+    "removed_hidden_triangles": 12,
+    "connector_triangles": 228,
+    "final_triangles": 23260,
+    "connected_components_before": 2,
+    "connected_components_after": 1,
+    "all_welded_edges_two_faces": true,
+    "surface_winding_consistent": true,
+    "original_position_normal_uv_arrays_preserved": true,
+    "retained_source_face_order_and_indices_preserved": true,
+    "controls_blender_z_up": [
+      [
+        0.17754745483398438,
+        0.07332062721252441,
+        -0.22436612844467163
+      ],
+      [
+        0.22163374423784302,
+        0.10985384464101156,
+        -0.24230277001777847
+      ],
+      [
+        0.19465223913301177,
+        -0.038040912101101686,
+        -0.21068409304017016
+      ],
+      [
+        0.21880590915679932,
+        -0.06510007381439209,
+        -0.18239271640777588
+      ]
+    ],
+    "ring_centers_blender_z_up": [
+      [
+        0.18876351078951858,
+        0.07905301678515197,
+        -0.22831334397897818
+      ],
+      [
+        0.1964487168923553,
+        0.07555130932274005,
+        -0.22960453611361742
+      ],
+      [
+        0.20133629096031816,
+        0.06464708624048515,
+        -0.22855700056196476
+      ],
+      [
+        0.20415945081123138,
+        0.04817192895358389,
+        -0.22548803303739604
+      ],
+      [
+        0.2056514142629185,
+        0.027957418877232743,
+        -0.22071492925328667
+      ],
+      [
+        0.20654539913320355,
+        0.0058351374266282716,
+        -0.2145549849230123
+      ],
+      [
+        0.20757462323991024,
+        -0.016363333983032975,
+        -0.20732549575994844
+      ],
+      [
+        0.2094723044008626,
+        -0.036806413936554504,
+        -0.19934375747747068
+      ],
+      [
+        0.21297166043388432,
+        -0.05366252101873971,
+        -0.19092706578895466
+      ]
+    ]
+  },
+  "preservation": {
+    "original_bin_chunk_is_exact_prefix": true,
+    "embedded_images_unchanged": true,
+    "materials_unchanged": true,
+    "node_transforms_unchanged": true,
+    "input_sha256_unchanged": true
+  },
+  "texture_policy": "Connector reuses actual existing posterior-hip orange UV texel; no new texture or generated detail.",
+  "limits": [
+    "Hidden curve between body and existing tip is inferred from one front image; anatomy is unapproved.",
+    "No extra fluffy tip or second disconnected tail was added; original visible body and tip positions remain.",
+    "The small missing connection gap may change front pixels; pixel-identical silhouette is not claimed.",
+    "Source glossy/normal material settings retained; root may apply separately reviewed material refinement.",
+    "Six original center vertices may become unused when their hidden fans are opened; original attribute arrays are preserved.",
+    "No rig, animation, game integration or final visual approval is claimed."
+  ]
+}

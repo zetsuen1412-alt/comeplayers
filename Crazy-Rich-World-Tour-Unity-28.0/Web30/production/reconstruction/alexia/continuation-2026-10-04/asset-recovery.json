@@ -1,0 +1,133 @@
+{
+  "schema": "crwt.local_asset_recovery.v1",
+  "date": "2026-10-04",
+  "recovered_web30_commit": "a4fcc63a6685e68ce1cad8a28b321fe487631f8d",
+  "github_actions_export_run": 37187222539,
+  "github_actions_artifact_id": 11297691220,
+  "downloaded_inner_archive_sha256": "ec84b713ec60ca1ca9cb3506135ea931683625b880fa0a30169d0cf4879de879",
+  "web30_baseline_files_rehashed_locally": 279,
+  "full_repository_files_verified_on_github_runner": 978,
+  "source_revision": 10,
+  "roster": [
+    {
+      "id": "alexia",
+      "path": "client/assets/characters/sculpt-v1/models/alexia.glb",
+      "bytes": 1955096,
+      "actual_sha256": "1f53e8bffe7b89fd6f5b7cf484947b0618fbe1a8e3d53f7a8f25a2e4308c2c1a",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "rindi",
+      "path": "client/assets/characters/sculpt-v1/models/rindi.glb",
+      "bytes": 2196416,
+      "actual_sha256": "836fb376255c1b062f7a63132c588ab517c51bf771fa3f628a96a2df64d4c99a",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "kairo",
+      "path": "client/assets/characters/sculpt-v1/models/kairo.glb",
+      "bytes": 2049952,
+      "actual_sha256": "76035333bbd03d1630306a10c6683482f9d945875bbbff582947cedec966b486",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "luna",
+      "path": "client/assets/characters/sculpt-v1/models/luna.glb",
+      "bytes": 2010496,
+      "actual_sha256": "d40be4fb195a8ab1eeaee8999e91b9b57a183867dd1d2a74cc40950fb9a3c2db",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "nox",
+      "path": "client/assets/characters/sculpt-v1/models/nox.glb",
+      "bytes": 2229072,
+      "actual_sha256": "849837d3c075084632298c6c9cb589409411af11e4a37363aaa785a47d8bafb8",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "atlas",
+      "path": "client/assets/characters/sculpt-v1/models/atlas.glb",
+      "bytes": 1853896,
+      "actual_sha256": "70db6abfcda406158c9d75d1708e0f0853424b5a8a4813e4b9920d196a9efcf7",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "zeno",
+      "path": "client/assets/characters/sculpt-v1/models/zeno.glb",
+      "bytes": 2090164,
+      "actual_sha256": "5fec7efcacc1634a4d415d53ec454d60d9b4ba4c7eeeb75c9c0c74305ec58924",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "yuna",
+      "path": "client/assets/characters/sculpt-v1/models/yuna.glb",
+      "bytes": 1894524,
+      "actual_sha256": "7d90f730bec9c3ea61e629b1c9e96697349166f8931983a444000ad409b04ec9",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "mochi",
+      "path": "client/assets/characters/sculpt-v1/models/mochi.glb",
+      "bytes": 1486964,
+      "actual_sha256": "12feeb2a41153d7aea5f331dfb248ae15ebcbd4edac5ef9d51eaa432f91973e3",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    },
+    {
+      "id": "pip",
+      "path": "client/assets/characters/sculpt-v1/models/pip.glb",
+      "bytes": 2542668,
+      "actual_sha256": "5bc6584acb877f17a6be41a1581bb8956f7280630836df507e8b9ab82caaa641",
+      "matches_saved_qa": true,
+      "visual_final_approved": false
+    }
+  ],
+  "editable_source": {
+    "path": "production/CRWT-Editable-Source.zip",
+    "bytes": 7638252,
+    "actual_sha256": "298dbdb9d0127ac067061d34a6dc934716a70ee3165fff42a8e33ed4ee59efdd",
+    "crc_valid": true,
+    "entries": [
+      {
+        "path": "source.blend",
+        "bytes": 62834084,
+        "actual_sha256": "c2ceab85a941585bf5d6189b250646a7647893e1fe3063d80fa7faa649c4dea4"
+      },
+      {
+        "path": "clips.json",
+        "bytes": 1107,
+        "actual_sha256": "73365ca60b4d4246c732f5623bd436661eac19a5617d0635ffeead68955112a8"
+      },
+      {
+        "path": "extract_characters.py",
+        "bytes": 13852,
+        "actual_sha256": "a2ab304db441c69e0877f4e2f47306f8ef9a3809579829e70adf7725cee67040"
+      },
+      {
+        "path": "build_character_demo.py",
+        "bytes": 3054,
+        "actual_sha256": "fa23f25a6644d814bf06d4bfb7d311b6b14f4311974a55fbe6d0ddf70d655d51"
+      }
+    ],
+    "scope": "Preserved sculpt-v1 roster source, not Hunyuan V11 source"
+  },
+  "alexia_v11": {
+    "path": "production/reconstruction/alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+    "bytes": 8092808,
+    "actual_sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+    "matches_checkpoint": true,
+    "ready_for_rig": false,
+    "ready_for_game": false
+  },
+  "review_status_changed": false,
+  "accepted_models": 0,
+  "game_assets_replaced": false
+}

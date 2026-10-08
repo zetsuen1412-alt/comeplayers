@@ -1,0 +1,20 @@
+{
+  "submitted": true,
+  "visualApproved": false,
+  "model": "gemini-3.1-flash-image",
+  "meshProduced": false,
+  "requestFile": "request-2026-10-02.json",
+  "images": [],
+  "referenceSha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+  "character": "rindi",
+  "deployment": "https://evo-gaming-4srpjaa1i-ilham-evogaming-s-projects.vercel.app",
+  "tool": "gemini_character_turnaround",
+  "rpcError": null,
+  "text": [
+    "Invalid value at 'generation_config.response_format.image.aspect_ratio' (type.googleapis.com/google.ai.generativelanguage.v1.ImageResponseFormat.AspectRatio), \"16:9\"\nInvalid value at 'generation_config.response_format.image.image_size' (type.googleapis.com/google.ai.generativelanguage.v1.ImageResponseFormat.ImageSize), \"4K\""
+  ],
+  "checkedAt": "2026-10-02T04:22:20.9283197Z",
+  "gameAssetsReplaced": false,
+  "toolIsError": true,
+  "succeeded": false
+}

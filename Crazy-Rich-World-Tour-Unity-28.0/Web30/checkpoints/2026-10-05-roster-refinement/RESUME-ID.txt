@@ -1,0 +1,60 @@
+CRAZY RICH WORLD TOUR — CHECKPOINT KARAKTER 05 OKTOBER 2026
+
+Lima perbaikan geometri baru: Rindi (tangan), Nox (kartu pinggul), Luna
+(kepala tongkat), Yuna (palet dan ferrule kuas), Pip (casing/panel/badge).
+Alexia, Kairo, Atlas, Zeno dan Mochi memakai GLB identik checkpoint04.
+Seluruh10 model tetap kandidat review. Belum sempurna/disetujui dan belum
+mengganti model runtime game. Sembilan model statis; Pip13joint/enamclip.
+
+PAKET LOKAL UNTUK KOMPUTER LAIN
+1. Pindahkan CRWT-10-karakter-checkpoint-2026-10-05.zip beserta .sha256.
+2. Periksa Get-FileHash <nama ZIP> -Algorithm SHA256 lalu ekstrak ke folderbaru.
+3. Jalankan python verify_model_checkpoint.py dari root hasil ekstraksi.
+4. Buka BUKA-REVIEW-MODEL.html di Chrome/Edge dengan WebGL2 aktif. Penampil,
+   GLB dan referensi embedded, tanpa koneksi internet/API key. Direct file://
+   belum diverifikasi pada IAB; jika browser memblokir, jalankan
+   python -m http.server 8769 --bind 127.0.0.1 dari folder hasil ekstraksi,
+   lalu buka http://127.0.0.1:8769/BUKA-REVIEW-MODEL.html.
+5. Edit editable/CRWT-semua-karakter-review.blend di Blender5.2.2. Seluruh
+  18 gambar file packed; tiap karakter dalam collection tersendiri. Posisi
+   grid untuk review memakai parent translation; source mesh tidak dibentuk
+   ulang oleh workspace builder. File individual4 karakter berada pada
+   CRWT-refined-individuals.zip; Pip-source-preserved.zip mempertahankan
+   scene/source original28objects/60actions serta kandidat Pip terbaru.
+
+FULL PROYEK GAME + UNITY + WEBSITE DI GITHUB
+Repo privat: https://github.com/zetsuen1412-alt/comeplayers
+Gunakan akun yang memiliki akses. Clone branch frozen berikut, jangan
+menimpa folder kerja yang sudah mempunyai perubahan lokal:
+
+git clone --single-branch --branch checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable https://github.com/zetsuen1412-alt/comeplayers.git Crazy-Rich-World-Tour-05
+cd Crazy-Rich-World-Tour-05
+python Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-refinement-2026-10-05/tools/verify_checkpoint.py
+
+Galeri Git disimpan sebagai builder/source/model, bukan HTML26MB:
+cd Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-refinement-2026-10-05
+python viewer/build_offline_gallery.py --manifest review-manifest.json --output viewer-rebuild/BUKA-REVIEW-MODEL.html
+
+Gunakan folder output baru. Builder menolak overwrite HTML/receipt existing.
+Ekstrak editable/CRWT-editable-roster.zip untuk memperoleh all10.blend;
+native/source Pip dan individual4 karakter berada dalam ZIP editable lain.
+Git memuat15 render baru depan/quarter/belakang serta full-render receipts.
+Paket lokal memuat70 view +240 frame orbit actual Blender; render karakter
+tanpa perubahan disalin dari04 dengan SHA GLB identik. Fullrender31fileper
+karakter bukan input wajib untuk membuka/mengedit model di komputer lain.
+
+LANGKAH MODEL BERIKUTNYA
+Prioritas: siluet curl rambut, detail wajah/tangan/pakaian, pola tekstur
+belakang, kecocokan aksesori terhadap referensi, kemudian rig/deformasi.
+Kualitas hidden surfaces belum disahkan dari frontreference. Refinement
+vertex-color global Alexia ditolak karena menghilangkan helai rambut.
+Tidak ada generasi cloud atau layanan berbayar pada checkpoint05 ini.
+
+BUKTI
+review-manifest.json memin GLB/refSHA; evidence/final-roster-validation.json
+memverifikasi10GLB. Handoff/proofperkarakter menjelaskan area perubahan dan
+batas audit. Packedworkspace proof +read-only reopen membuktikan portabilitas
+editor; hash/CI lulus tidak berarti desain sempurna. Publicationreceipt memuat
+commit/snapshot/runs tepat setelah seluruh CI selesai. File evidence berpath
+absolute adalah catatan mesin asal; model/ref dan entry review memakai path
+relatif. Source dan checkpoint04 tetap utuh.

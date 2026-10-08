@@ -1,0 +1,272 @@
+{
+  "schema": "crwt.alexia_profile_github_publication.v1",
+  "repository": "zetsuen1412-alt/comeplayers",
+  "development_branch": "codex/crazy-rich-web-v30",
+  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-profile-portable",
+  "commit": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+  "tree_sha": "a65bc1181edb5a4f7a83964a8b8cdd65b1c6501c",
+  "baseline_source_commit": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+  "model_count": 10,
+  "manifest_sha256": "f04487f660a5ac3b1f537fb620785cdb82ae6e4fbd6266120e0218e18f9a2063",
+  "review_manifest_sha256": "f04487f660a5ac3b1f537fb620785cdb82ae6e4fbd6266120e0218e18f9a2063",
+  "changed_model_sha256": {
+    "alexia": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3"
+  },
+  "preserved_baseline_blobs": 3950,
+  "added_files": 140,
+  "total_source_blobs": 4090,
+  "overwrites": 0,
+  "deletions": 0,
+  "inventory_path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05/source-inventory.json",
+  "inventory_sha256": "703feebcf198e67133b57843b9e821cfed554ae92bdaa4beb88c5b096210d487",
+  "native_workspace_sha256": "910c03cdeca5589f87824b141b97215245306f4287a52a7ac5d811dfce887b5e",
+  "native_reopen_proof_sha256": "cf04cc94b5e394dba5254701ce34789dc7aa9ba61ba50872a4ae59b668f37a44",
+  "native_build_proof_sha256": "017a2e0ec8b3db935029858c20f5ab1430989ca65fbfc8b1e1db2c455fc53389",
+  "native_selected_certificate_sha256": "69fd8171d90f3e3dffb58ec1779d72909aa77c88e4cf0d94fa7f9ced0604bcc8",
+  "editable_scope": "single selected Alexia; previous full-roster native remains in the unchanged prior checkpoint",
+  "actual_render_scope": {
+    "new": 5,
+    "reused_unchanged": 45
+  },
+  "offline_gallery_storage": {
+    "path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-profile-pass-2026-10-05/OFFLINE-GALLERY.zip",
+    "archive_bytes": 34192528,
+    "archive_sha256": "741af40cdb28fef9f57e73a389f3cd0100b81b658a458d92ea27852b41685bc9",
+    "html_entry": "BUKA-REVIEW-MODEL.html",
+    "html_bytes": 47456895,
+    "html_sha256": "25ec72ab2ffb0cfeddd93b50e83737cc53ff6e445311721950b6ad8a60369261",
+    "CRC_passed": true
+  },
+  "local_browser_verification_sha256": "96b61d2f1a10f4cecb6d09e86e3dc7fcce2006ab07c9fb599e85dc66f849698e",
+  "independent_selected_chain_audit_sha256": "aeb476eb2ef087cb236adba929c5f50ee9add2b48ea8f1b1e660ab5f362c887e",
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Profile hair still has a merged lower volume and painted curls rather than separate sculpted locks.",
+    "Side color bands and anatomy remain approximate; no solved-camera or quantitative precision claim.",
+    "High-resolution review mesh needs optimization. Rigging, deformation, game integration and final visual approval remain outstanding.",
+    "CI validates exact source, archive and frozen evidence; actual Blender reopen and browser inspection occurred locally.",
+    "Exact source GLB float colors are retained. Native CORNER BYTE_COLOR is Blender's imported representation.",
+    "Publication receipt is local package evidence outside its own Git snapshot to avoid self-reference."
+  ],
+  "parent_commit": "b8a5c69d1d75e621fa8d76bd0935b7f5b67ad858",
+  "initial_profile_commit": "b8a5c69d1d75e621fa8d76bd0935b7f5b67ad858",
+  "preservation_comparison": "All 3950 blobs of frozen baseline 0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7 preserved; corrective parent b8a5 changes only browser screenshot paths/report/inventory.",
+  "screenshot_format_correction": {
+    "byte_identical_renames": 3,
+    "from": ".png",
+    "to": ".jpg",
+    "model_native_render_bytes_unchanged": true
+  },
+  "snapshot_verified": true,
+  "refs_verified": [
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-visual-fidelity-portable",
+      "sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-pass2-portable",
+      "sha": "8ea9cb7b849d586de299d8042d8f7185c9c40d3e",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable",
+      "sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable",
+      "sha": "1c63379d02ef4fea211c963a18fed7e84a2c6494",
+      "verified": true
+    },
+    {
+      "branch": "codex/crazy-rich-web-v30",
+      "sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-alexia-profile-portable",
+      "sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "verified": true
+    }
+  ],
+  "ci_runs": [
+    {
+      "id": 37327157469,
+      "name": "Crazy Rich Unity Source Checks",
+      "event": "pull_request",
+      "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37327157469"
+    },
+    {
+      "id": 37327157641,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "pull_request",
+      "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37327157641"
+    },
+    {
+      "id": 37327142404,
+      "name": "CRWT Alexia Profile Pass 2026-10-05",
+      "event": "push",
+      "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37327142404"
+    },
+    {
+      "id": 37327142409,
+      "name": "CRWT Portable Character Workspace",
+      "event": "push",
+      "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37327142409"
+    },
+    {
+      "id": 37327142412,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "push",
+      "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37327142412"
+    }
+  ],
+  "source_ci_jobs": [
+    {
+      "id": 111820666895,
+      "name": "verify-profile-source",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37327142404/job/111820666895",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Materialize exact new-prefix HEAD blobs and frozen reused render inputs",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify source snapshot, selected Alexia, nine unchanged models and local native certificate",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate all ten actual GLBs with the frozen standard-library validator",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rebuild exact offline gallery in a fresh directory and compare frozen metadata",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Restore exact one-entry offline gallery ZIP to a fresh external HTML and verify CRC",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save private profile review source and reproducibility evidence",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "source_artifact": [
+    {
+      "id": 11351734075,
+      "name": "CRWT-Alexia-Profile-Pass-2026-10-05-764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "size_in_bytes": 193986185,
+      "expired": false,
+      "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd",
+      "run_id": 37327142404
+    }
+  ],
+  "pr": {
+    "number": 34,
+    "url": "https://github.com/zetsuen1412-alt/comeplayers/pull/34",
+    "draft": true,
+    "open": true,
+    "head_sha": "764d7a7af2ce1d8ecadf103ea77e8fc20cbce4cd"
+  },
+  "models": [
+    {
+      "id": "alexia",
+      "sha256": "7ad88d0117c667e01877763e301b5cde8cca27985151cbb21be7b076b37b5cf3"
+    },
+    {
+      "id": "rindi",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "id": "kairo",
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915"
+    },
+    {
+      "id": "luna",
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509"
+    },
+    {
+      "id": "nox",
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f"
+    },
+    {
+      "id": "atlas",
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24"
+    },
+    {
+      "id": "zeno",
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc"
+    },
+    {
+      "id": "yuna",
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b"
+    },
+    {
+      "id": "mochi",
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+    },
+    {
+      "id": "pip",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+    }
+  ],
+  "unchanged_model_ids": [
+    "rindi",
+    "kairo",
+    "luna",
+    "nox",
+    "atlas",
+    "zeno",
+    "yuna",
+    "mochi",
+    "pip"
+  ]
+}

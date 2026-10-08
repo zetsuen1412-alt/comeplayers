@@ -1,0 +1,7 @@
+# Zeno — trim kacamata lokal, pass2 05 Oktober 2026
+
+Kandidat V2 menambahkan trim emas tipis ber-volume pada dua rim kacamata yang sudah ada. Semua 27.156 face sumber, posisi, normal, UV, tekstur, material dan transform tetap identik; BIN sumber menjadi prefix yang tidak berubah. Tambahan 3.072 vertex/6.144 face menghasilkan 33.300 face/24.679 vertex. Tidak ada lensa baru, tangan/scarf dipindah, atau geometri V2 diubah saat finalisasi.
+
+Root telah meninjau depan/profil dan memilih V2 sebagai kandidat belum disetujui. Segmen yang tertutup jari memakai plane fit dari 85 anchor terlihat, dengan 43 anchor ray yang menyentuh jari dikecualikan. Kedalaman di balik jari bersifat inferensi. Kedua bead tertutup dan berorientasi konsisten secara individual; tidak ada klaim union welded, kontak global bebas intersection, deformasi atau kesempurnaan visual. Rambut, anatomi, lensa, scarf, warna dan belakang tetap sumber lama.
+
+Native .blend dengan kedua image asli packed berhasil dibuka ulang read-only di Blender 5.2.2; fingerprint geometri/topologi/normal/UV/transform/material/gambar tetap sama. Review terdiri dari 7 view dan 24 orbit GLB aktual. HANDOFF.json memuat hash sumber/kandidat/native/proof/recipe/render. Model statis tanpa rig, approved=false dan gameIntegrated=false. Mulai edit dari salinan .blend; resep lokal disimpan sebagai provenance dan masih perlu penyesuaian path/dependensi untuk rebuild di mesin lain.

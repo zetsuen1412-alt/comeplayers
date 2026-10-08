@@ -1,0 +1,62 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-reference-fidelity\\viewer\\models\\atlas.glb",
+  "input_sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+  "bytes": 2442228,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 1,
+  "vertices": 31672,
+  "polygons": 45028,
+  "bounds_blender_z_up": [
+    [
+      -0.35188794136047363,
+      -0.32148730754852295,
+      -0.43873992562294006
+    ],
+    [
+      0.3991994857788086,
+      0.33618468046188354,
+      0.446677565574646
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 0,
+  "view_transform": "Standard",
+  "solid_accessory_lights": {
+    "world_strength": 0.25,
+    "key_power_factor": 120,
+    "fill_power_factor": 56,
+    "rim_power_factor": 100
+  },
+  "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "crwt.alexia_exact_cohort_trajectory_independent_samples.v1",
+  "passed": true,
+  "candidate_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "source_position_grouping": "Exactly12-byte little-endian float32 XYZ; no rounded assignment.",
+  "source_core_vertices": 252943,
+  "samples": [
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 0.0,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 0.45,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 0.9,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 1.35,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 1.8,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 2.25,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 2.7,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 3.15,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 3.6,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.0,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.15,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.3,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.44999999999999996,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.6,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.75,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.8999999999999999,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 1.05,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 1.2,
+      "maximum_exact_cohort_coordinate_gap_world_units": 0.0
+    }
+  ],
+  "all_eighteen_sampled_exact_cohort_gaps_zero": true,
+  "audit_script_sha256": "f463f5c43d19927f4265efe65611b658723dd2e110a7e4a075dbd9ce2ead51c4",
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Equality of sampled exact source-position cohorts does not certify arbitrary triangle intersections, near-coincident seams or full-cycle contact."
+  ]
+}

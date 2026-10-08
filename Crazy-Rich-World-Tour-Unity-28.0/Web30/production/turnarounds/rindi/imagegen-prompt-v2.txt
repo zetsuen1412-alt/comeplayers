@@ -1,0 +1,12 @@
+Use case: identity-preserve.
+Input image 1: approved master lineup. Rindi is ONLY the pink-haired figure SECOND FROM LEFT IN THE TOP ROW. This is the master identity.
+Input image 2: EDIT TARGET, the eight-panel Rindi turnaround draft. Preserve its exact character, materials, hair, face, eye color, head/body proportions, outfit, skirt, bag, rabbit, shoes, relaxed pose, background, lighting, four-column/two-row layout and panel sizes.
+
+Make ONE TARGETED CORRECTION: accurate CAMERA ORIENTATION in the four specified panels. Do not redesign anything.
+Keep panels 1, 3, 4 and 6 exactly as in image 2. Those show front, left side, right side and back.
+Change panel 2 (top row second) to a genuine front three-quarter 45-degree camera: visibly show one front side and one profile side of the same head/body; no near-frontal substitute.
+Change panel 5 (bottom row first) to a genuine back three-quarter 45-degree camera.
+Change panel 7 (bottom row third) to a true TOP ORTHOGRAPHIC view from exactly above, camera pointing vertically downward, zero perspective or tilt. The dominant visible shape is crown of hair and twin-tail root arrangement, shoulders/arms and planted shoes where not occluded. Do not tilt the head or pose the character differently to show her face.
+Change panel 8 (bottom row fourth) to a true BOTTOM ORTHOGRAPHIC view from exactly below, camera pointing vertically upward, zero perspective or tilt. Use the SAME standing pose and body orientation. Show flat soles and conservatively occluded fully clothed geometry from directly below, with opaque clothing coverage preserved. Do not recline the figure, bring knees toward camera, or use dramatic foreshortening. This is a geometry inspection view, no anatomical detail.
+
+Physical consistency is mandatory: pink satchel stays on her ANATOMICAL RIGHT hip and white rabbit accessory stays near her ANATOMICAL LEFT sleeve/forearm through every view. In the front view satchel is viewer-left and rabbit viewer-right. Do not mirror or swap them in rotated panels. Preserve red heart bows, pink curls, ruby eyes, jacket trims/hardware, plaid skirt and red/white sneakers. Hidden construction is inferred draft reference only. No other characters, no labels, no pedestal, no new decorations. Output the revised eight-panel sheet only.

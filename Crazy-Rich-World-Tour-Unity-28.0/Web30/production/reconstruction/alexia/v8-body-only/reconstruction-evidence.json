@@ -1,0 +1,78 @@
+{
+  "project": "Crazy Rich World Tour",
+  "character": "Alexia",
+  "attempt": "v8-approved-body-only-individual-views",
+  "startedUtc": "2026-10-03T13:25:43.054377+00:00",
+  "provider": "Tencent Hunyuan3D-2mv public ZeroGPU",
+  "paidJob": false,
+  "params": {
+    "steps": 10,
+    "guidance_scale": 5.0,
+    "seed": 1412,
+    "octree_resolution": 256,
+    "check_box_rembg": true,
+    "num_chunks": 8000,
+    "randomize_seed": false
+  },
+  "inputs": {
+    "front": {
+      "file": "inputs\\front.png",
+      "sha256": "65c54f7a3eed009cb63baba6345bb6b498148396dcafe55ef06efd6fb3d1c367"
+    },
+    "back": {
+      "file": "inputs\\back.png",
+      "sha256": "3b54d03f0d57e29c10582a2424ed83cf58784c969d2db2616a9b7805727573c8"
+    },
+    "left": {
+      "file": "inputs\\left.png",
+      "sha256": "ecc7c1378d7fa9b45db80cba0b69ba6b9cddcb1554c4e97eee84e2a5fe83d06a"
+    },
+    "right": {
+      "file": "inputs\\right.png",
+      "sha256": "82df6067fba7e5b4293df375c93afdf483e68776277d3dd84236134008c35c9a"
+    }
+  },
+  "meshApproved": false,
+  "rigged": false,
+  "gameAssetsReplaced": false,
+  "inputNote": "Images derived with imagegen from user-reviewed four-view sheet. Remaining alpha fringe reviewed; server rembg enabled. Anatomical asymmetric trim remains uncertain.",
+  "status": "rejected-before-texture",
+  "endedUtc": "2026-10-03T13:26:19.247428+00:00",
+  "mesh": "alexia-v8-untextured-candidate.glb",
+  "sha256": "e5da53c13dbe73e7604bd785342594107a6c24d513721526c432938166534837",
+  "meshStats": {
+    "vertices": 333268,
+    "faces": 979960,
+    "bounds": [
+      [
+        -0.7735005021095276,
+        -0.9985710382461548,
+        -0.6374742388725281
+      ],
+      [
+        0.8236657977104187,
+        0.9579155445098877,
+        0.6084504127502441
+      ]
+    ],
+    "watertight": false
+  },
+  "postprocessRecovery": "Recovered downloaded white_mesh.glb; service file result dict needed path field. No resubmission.",
+  "geometryReview": {
+    "verdict": "REBUILD",
+    "propAndFloorRemoved": true,
+    "issues": [
+      "noisy fragmented hair and floating wisps",
+      "softened jacket tails, fingers, cuffs and shoe layers",
+      "raw topology has duplicated triangles",
+      "mobile target requires retopology after shape fidelity"
+    ],
+    "cleanupTrial": {
+      "file": "alexia-v8-cleanup-trial.glb",
+      "sha256": "5e42383b14aa5a4bded1bc1a1f40892bf789cf87d69fbfe0469b6ec5711d5319",
+      "verdict": "not sufficient to pass fidelity",
+      "operation": "remove duplicate/degenerate faces and sub-100-face islands; 5 light Taubin passes"
+    },
+    "sameMeshHashInRenderedEvidence": "e5da53c13dbe73e7604bd785342594107a6c24d513721526c432938166534837"
+  }
+}

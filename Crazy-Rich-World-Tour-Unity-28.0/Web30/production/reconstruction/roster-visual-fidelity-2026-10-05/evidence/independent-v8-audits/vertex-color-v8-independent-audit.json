@@ -1,0 +1,178 @@
+{
+  "schema": "crwt.alexia.vertex_color_independent_audit.v1",
+  "candidate_sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1",
+  "source_sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+  "checks": {
+    "original_bin_prefix_bytes_identical": true,
+    "nodes_unchanged": true,
+    "scenes_unchanged": true,
+    "scene_unchanged": true,
+    "skins_unchanged": true,
+    "animations_unchanged": true,
+    "accessors_original_records_unchanged": true,
+    "bufferViews_original_records_unchanged": true,
+    "materials_original_records_unchanged": true,
+    "images_original_records_unchanged": true,
+    "textures_original_records_unchanged": true,
+    "samplers_original_records_unchanged": true,
+    "accepted_accessory_mesh_definitions_unchanged": true,
+    "active_original_positions_exact": true,
+    "active_original_uvs_exact": true,
+    "all_midpoints_linear_and_packed_float32_exact": true,
+    "all_active_uvs_interpolated_exact": true,
+    "all_subdivision_indices_exact_and_source_order_preserved": true,
+    "source_face_count_times_16": true,
+    "vertex_color_float32_vec4_not_normalized": true,
+    "all_colors_finite_linear_unit_rgb_opaque": true,
+    "normalized_interpolated_normals_exact": true,
+    "unlit_vertex_color_material_without_base_texture": true,
+    "builder_hash_matches_frozen_v7_proof": true,
+    "config_hash_matches_frozen_v7_proof": true,
+    "saved_thresholds_match_v7": true,
+    "saved_config_matches_v7": true,
+    "deterministic_sample_colors_match_linear_rgb_formula": true
+  },
+  "all_checks_pass": true,
+  "source_mesh_faces": 27512,
+  "subdivided_mesh_faces": 440192,
+  "active_vertices": 252943,
+  "color_samples_checked": 349,
+  "max_sample_float32_error": 0,
+  "frozen_v7_normal_blend_thresholds": [
+    0.02,
+    0.45
+  ],
+  "material_rule": "glTF float COLOR_0 is linear RGB; sampled sRGB bytes are decoded before interpolation and blending.",
+  "visual_findings": [
+    "V7 retains smooth blending and front details are clearer than V5.",
+    "Back earcup mask leaves broad soft lavender columns beside the crisper projected center.",
+    "V7 left profile no longer shows the secondary dark/gold earcup stripe present in V5.",
+    "Back curls remain printed colors on source hair masses; profile texture blur/stretching remains."
+  ],
+  "implementation_risks": [
+    "Normal-sign weighting has no visibility/semantic ownership test. The smooth ellipse mask specifically removes rear earcup sampling, but does not solve every occlusion.",
+    "The frozen V7 proof does not store the hardcoded blend thresholds or builder hash; final handoff should freeze a recipe or config thresholds.",
+    "The builder guards the GLB output but does not preflight an existing sibling proof file; a fresh binary path can overwrite an older proof with that stem."
+  ],
+  "visual_scope": "All five V8 front, back, left, right, quarter views reviewed; moderate real rear hair volume with residual side blur.",
+  "scope": "Original vertices and accessor/BIN records remain preserved. The active source surface is linearly subdivided; accessory geometry, nodes, scene, skins and animations are unchanged. Float32 midpoint rounding applies to appended vertices.",
+  "adds_missing_anatomy": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "input_files": [
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\hair-geometry\\trial-v2\\alexia-rear-hair-control-candidate.glb",
+      "sha256": "588787b28f0344a64c1cce9b944dd2aafc46d9b84c8cb99c49d7e6e901eff06b",
+      "bytes": 2788400,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\alexia-blended-reference.glb",
+      "sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1",
+      "bytes": 20213184,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\alexia-blended-reference.proof.json",
+      "sha256": "c4ddfb8ffa662508b2edcca49bf8e57fe879e374e90aea6aa7977fa394b4fe2f",
+      "bytes": 4745,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\build_blended_vertex_reference.py",
+      "sha256": "1a492dc30f2512d1932c43e13c860871cb8d467a57d1f08fd92f7b2dedcd7772",
+      "bytes": 9174,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\viewer\\references\\alexia.png",
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+      "bytes": 315274,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-pass2\\references\\alexia-blue-v2-turnaround.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "bytes": 1988013,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\front-projection-v8.json",
+      "sha256": "1cb5d718639c9e26d7d966f27279ea0a798018bfbd984c3ba5bd9c0fa5ad6a01",
+      "bytes": 2199,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v5\\renders\\front.png",
+      "sha256": "da52f7065c6794ac3edd9cb76be179101bd88de43fe7c693f9059a3a8e7b2285",
+      "bytes": 571341,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v5\\renders\\left.png",
+      "sha256": "6da2358ead99316321ee72d3df41201cdf937869c98c5e627fe527cd1dd7430e",
+      "bytes": 477802,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v5\\renders\\right.png",
+      "sha256": "d90a40b6531f97307a21d365b1793c423115ddebe1df6ec94f417658b835f6fc",
+      "bytes": 492241,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v5\\renders\\back.png",
+      "sha256": "390f44a0f35e41abe02ae1c101e39a8229bb4b86096579d0f609f187036f5d36",
+      "bytes": 543653,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v5\\renders\\three-quarter.png",
+      "sha256": "b3fee7aaebb0f85540d4da6c9e97cf02bc92352a07a3ecb0ac442f841e8f0e3e",
+      "bytes": 565292,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v5\\renders\\render-evidence.json",
+      "sha256": "f3f06401e59f7d2b8a532dc302c971f1785c3f7ff8b9bcc764f08b106a26c53f",
+      "bytes": 1298,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\front.png",
+      "sha256": "e09a25c1e592f5e8e0ee61d4afed2141b900d0d9a37d7b78480d55336ba3aaba",
+      "bytes": 592956,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\left.png",
+      "sha256": "3023ecf2ca291a42d89f3bef7f4a706a604abaebd6c258371c1df9893b37c18c",
+      "bytes": 512712,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\right.png",
+      "sha256": "e7c111e5637ac7facb068f526018bd8c6476e6e31995d3f0852469c83064e752",
+      "bytes": 525364,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\back.png",
+      "sha256": "463a5b55da5c7fdcc898e4b3b5fca09bd75498e56695f8d540559341ede0364e",
+      "bytes": 556866,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\three-quarter.png",
+      "sha256": "0ba93efc577b97a9cef7bc590da316a80d2a3d212e9f9885ada1fd0a28f83a83",
+      "bytes": 591038,
+      "unchanged_after": true
+    },
+    {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\reference-fidelity-2026-10-05\\trial-v8\\renders\\render-evidence.json",
+      "sha256": "384ba3c0828281072bb3a0df35bebe426c7b0e0f37f84c6fbf038b01983a708d",
+      "bytes": 1452,
+      "unchanged_after": true
+    }
+  ]
+}

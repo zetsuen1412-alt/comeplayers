@@ -1,0 +1,13 @@
+{
+  "source": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\sf3d-nox-cpu-recovery\\nox-sf3d-canonical-diagnostic.glb",
+  "source_sha256": "1f003878e0eda62d2bc664aa60c5c39505378fbc4c372ffbbc188ee3bfac5ed1",
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\normalized\\nox\\nox-reference-candidate.glb",
+  "output_sha256": "82ac3e1a76565dd149947dbe27bbfb562cf0079b8aaec6dba711a32a11389f44",
+  "bytes": 1806884,
+  "transformation": "rotation 180 degrees around Y via scene root parent; determinant +1",
+  "raw_bin_chunks_identical": true,
+  "meshes_accessors_buffers_images_textures_materials_identical": true,
+  "mirrored": false,
+  "geometry_edited": false,
+  "production_approved": false
+}

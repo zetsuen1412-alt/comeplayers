@@ -1,0 +1,49 @@
+CRAZY RICH WORLD TOUR — RESUME REVIEW REFERENCE FIDELITY
+Tanggal: 05 Oktober 2026
+
+Mulai review: buka BUKA-REVIEW-MODEL.html. Untuk menyunting model, ekstrak
+editable/CRWT-fidelity-editable-roster.zip ke folder baru dan buka
+editable/CRWT-semua-karakter-review.blend dengan Blender 5.2.2 atau versi kompatibel.
+Tidak membutuhkan layanan cloud untuk membuka atau menyunting paket ini.
+
+10 karakter dipertahankan. Delapan GLB diperbarui: Alexia, Atlas, Kairo, Luna,
+Nox, Yuna, Zeno, Mochi. Rindi dan Pip memakai byte GLB pass2 yang sama.
+Rindi mempertahankan PBR agar volume tangan baru terbaca. Pip tetap memiliki
+13 joint dan enam klip Idle, Walk, Jump, Skill, Win, Lose. Sembilan karakter
+lain adalah model statis; belum dipasang ke gameplay dan belum disetujui final.
+
+Alexia V8: warna depan/belakang disampel dari turnaround V2 ke titik mesh 3D
+dengan transisi halus; volume rambut belakang berubah hanya pada 3695 vertex
+sumber. Subdivision meningkatkan resolusi warna, bukan anatomi baru.
+Tujuh karakter lain hanya memakai material unlit pada tekstur sumber yang sama;
+warna yang lebih jelas tidak membuktikan geometri atau detail tekstur sempurna.
+Profil, untaian rambut, tangan, tekstur blur, dan sisi yang tidak terlihat pada
+referensi tetap perlu pengerjaan. Kalibrasi landmark manual memiliki ketidakpastian
+sekitar 0,01 world unit; ilustrasi multi-view tidak merupakan pengukuran 3D unik.
+
+Workspace Blender current berisi 10 karakter dan 9 image FILE aktif yang packed.
+Reopen independen memeriksa geometri, normal, UV, COLOR_0, graph material,
+gambar aktif, serta rig/klip Pip. Byte gambar sumber yang tidak aktif tetap ada
+di GLB dan arsip sumber lama; jumlah 9 image aktif bukan klaim semua image
+sumber dihapus. Arsip pass2 CRWT-editable-roster.zip dan Pip-source-preserved.zip
+di editable/preserved-source dipertahankan persis, jangan menggantinya.
+Blender mengimpor COLOR_0 Alexia sebagai BYTE_COLOR; proof membandingkan
+representasi native setelah impor/save/reopen, bukan byte float COLOR_0 GLB.
+GLB float original tetap disimpan persis. Vertex accessor yang tidak digunakan
+dapat dihilangkan importer tanpa kehilangan face; counts render adalah counts
+mesh Blender yang diimpor, bukan jumlah accessor GLB.
+
+actual-five-views berisi 50 render Blender aktual dan receipt source SHA.
+contact-sheets adalah layout sumber pixel 1:1, tanpa resize atau repaint.
+evidence menyimpan audit V8, ROI hair V2, kalibrasi, dan recipe sumber.
+Recipe historis tetap memakai path asal dan tidak dijanjikan sebagai satu perintah
+rekonstruksi pada komputer baru; workspace packed adalah titik lanjut praktis.
+
+Status publikasi Git ditentukan evidence/github-publication-receipt.json jika
+tersedia dan snapshot_verified=true. Commit/branch final harus dibaca dari receipt,
+bukan dari tanggal file. Paket Blender ini berscope model/review; source project
+lengkap dilanjutkan melalui branch checkpoint Git yang dicatat receipt dan
+panduan root. Manifest/HTML dan bukti staging lama dipertahankan tanpa overwrite.
+
+SHA manifest: 02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3
+SHA native current: 08df9d68c5227459da0da00c4dc479ba5fe7b30e292fc26d940b8bb5f1cbd3f9

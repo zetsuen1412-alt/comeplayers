@@ -1,0 +1,131 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "reviewType": "independent-actual-mesh-visual-geometry-gate",
+  "reviewedUtc": "2026-10-03T15:53:09Z",
+  "reviewer": "review_inputs",
+  "mesh": "alexia-v9-front-only-untextured-diagnostic.glb",
+  "meshSha256": "870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8",
+  "localMeshHashVerified": true,
+  "faces": 1098020,
+  "vertices": 359970,
+  "provenance": {
+    "source": "Existing local imagegen front derived from the reviewed V8 reference sheet",
+    "geminiNanoBananaOutput": false,
+    "suppliedViews": [
+      "front"
+    ],
+    "hiddenSurfaces": "Inferred by the reconstruction; no back or side images were supplied",
+    "parameters": "Same V8 Hunyuan3D-2mv settings: seed 1412, steps 10, guidance 5, octree resolution 256"
+  },
+  "reviewEvidence": {
+    "actualMeshRenders": true,
+    "renderEvidence": "mesh-review/render-evidence.json",
+    "renderedViewsInspected": [
+      "front",
+      "three-quarter",
+      "left",
+      "right",
+      "back",
+      "top",
+      "bottom"
+    ],
+    "contactSheet": "mesh-review/geometry-contact-sheet.png",
+    "approvedReference": "../../references/alexia-approved-v2-blue.png",
+    "priorV8ContactSheet": "../mesh-review/geometry-contact-sheet.png",
+    "priorV8MeshSha256": "e5da53c13dbe73e7604bd785342594107a6c24d513721526c432938166534837",
+    "method": "Visual inspection of actual gray GLB renders, comparison with approved V2 six-view source and V8 renders; no mesh editing or topology instrumentation"
+  },
+  "comparisonWithV8": {
+    "hair": {
+      "outcome": "Limited local change; principal defect remains",
+      "observations": [
+        "V9 appears to have fewer prominent long detached needle-like pieces and a somewhat more contiguous outer hair mass than V8. This is a qualitative render comparison, not a measured component-count reduction.",
+        "Both profiles and the back remain a broad curtain-like mass with shredded sheets, ridges and ragged edges. V9 does not recover the source's coherent smooth layered curls.",
+        "Top and bottom views expose dense rough relief across the hair mass; detached-looking fragments remain visible in front, back and three-quarter renders."
+      ]
+    },
+    "limbs": {
+      "outcome": "Small front-view improvement, insufficient for production",
+      "observations": [
+        "Legs remain visibly separate; the front hand silhouettes have somewhat more readable finger protrusions than V8's short mitten-like ends.",
+        "Hands still show short/fused-looking digits and rough wrist/cuff boundaries. Visual inspection cannot certify finger topology or skin deformation.",
+        "Source sneaker lacing, layered sole and collar shapes remain softened into generic rounded forms."
+      ]
+    },
+    "clothes": {
+      "outcome": "Changed coat panel silhouette, no fidelity pass",
+      "observations": [
+        "V9 front lower coat panels are less broad and rounded than V8, but panel edges, lapels and cuffs remain lumpy or ragged.",
+        "Shirt, belt and hardware relief is irregular and does not reproduce the crisp source layering."
+      ]
+    },
+    "density": {
+      "v8Faces": 979960,
+      "v9Faces": 1098020,
+      "faceIncrease": 118060,
+      "faceIncreasePercent": 12.0474,
+      "interpretation": "Higher face count has not resolved the visible shape defects."
+    }
+  },
+  "blockingDefects": [
+    {
+      "id": "hair-shape",
+      "severity": "blocking",
+      "views": [
+        "left",
+        "right",
+        "back",
+        "three-quarter",
+        "top"
+      ],
+      "observation": "Broad curtain-like hair silhouette with noisy shredded surface instead of smooth coherent tied hair and layered curling locks in the approved source.",
+      "implication": "Hair must be reconstructed or rebuilt; smoothing and removing floaters alone cannot supply the missing source-like lock shapes."
+    },
+    {
+      "id": "face-fringe",
+      "severity": "blocking",
+      "views": [
+        "front",
+        "three-quarter"
+      ],
+      "observation": "The low fringe and ragged material around the cheeks/neck obscure or flatten the intended eye/face region; the approved source leaves the large eyes and face clear.",
+      "implication": "Head and fringe shape need correction before identity can be accepted."
+    },
+    {
+      "id": "clothing-hands",
+      "severity": "blocking",
+      "views": [
+        "front",
+        "three-quarter",
+        "left",
+        "right"
+      ],
+      "observation": "Irregular lapel/panel/cuff boundaries and stubby fused-looking finger relief remain.",
+      "implication": "Silhouette and usable hand/garment boundaries require shape work before rigging or texture baking."
+    }
+  ],
+  "nonBlockingObservations": [
+    "Headphone band and earcups, separate legs, shorts and a body-only standing silhouette remain recognizable.",
+    "No suitcase or floor/base geometry is apparent in the seven renders. This is a visual observation, not a full disconnected-component inventory."
+  ],
+  "materialAndProductionRisks": [
+    "No texture is present in the reviewed renders. Blue eyes, lavender hair, black/gold clothing, stars and material fidelity have not been validated.",
+    "Dense ragged hair and garment relief could produce noisy normals, shadows and texture bakes if transferred to a production asset.",
+    "Front-only inference leaves the back, scalp/ponytail construction and hidden clothing uncertain despite the available approved six-view comparison.",
+    "The wide hair mass may cause animation clearance problems; no rig, skin weights, UV layout or deformation were reviewed.",
+    "1,098,020 triangles requires a later topology/asset-budget pass after the shape is corrected. No production budget was established by this review.",
+    "Manifoldness, exact connectivity and component counts were not independently tested."
+  ],
+  "verdict": "rebuild",
+  "ready": false,
+  "geometryGatePassed": false,
+  "meshApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "productionMeshApproved": false,
+  "gameAssetsReplaced": false,
+  "nextAction": "Preserve as a front-only diagnostic. Compare a genuinely different reconstruction or rebuild hair/head/garment shapes from the approved views before retopology, rigging or texture approval.",
+  "furtherSmoothingWorthwhile": false,
+  "furtherSmoothingReason": "One cleanup can remove local floaters but does not address the curtain silhouette, missing coherent curls or face/garment shape errors. A further smoothing-only pass is unlikely to change the gate."
+}

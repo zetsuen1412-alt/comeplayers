@@ -1,0 +1,1402 @@
+{
+  "verifiedAtUtc": "2026-10-03T17:34:05.697908+00:00",
+  "status": "archive-built-and-verified",
+  "standardLibraryOnly": true,
+  "providerRequestSubmitted": false,
+  "layout": "archive root contains alexia/, props/, references/, tools/ and root deliverables",
+  "fileCount": 156,
+  "uncompressedBytes": 97577609,
+  "jsonFileCount": 43,
+  "allJsonValid": true,
+  "sha256Checks": [
+    {
+      "path": "alexia/v9-front-only-diagnostic/alexia-v9-front-only-untextured-diagnostic.glb",
+      "sha256": "870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8",
+      "evidence": [
+        "alexia/v9-front-only-diagnostic/reconstruction-evidence.json",
+        "alexia/v9-front-only-diagnostic/mesh-review/render-evidence.json",
+        "alexia/v9-front-only-diagnostic/geometry-review.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+      "sha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+      "evidence": [
+        "alexia/v10-nano-banana-front-diagnostic/reconstruction-evidence.json",
+        "alexia/v10-nano-banana-front-diagnostic/mesh-review/render-evidence.json",
+        "alexia/v10-nano-banana-front-diagnostic/geometry-review.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+      "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "evidence": [
+        "alexia/v11-hunyuan21-diagnostic/reconstruction-evidence.json",
+        "alexia/v11-hunyuan21-diagnostic/mesh-review/render-evidence.json",
+        "alexia/v11-hunyuan21-diagnostic/geometry-review.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "references/master-lineup.png",
+      "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+      "evidence": [
+        "active inspected source reference"
+      ],
+      "matched": true
+    },
+    {
+      "path": "references/alexia-approved-v2-blue.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "evidence": [
+        "active inspected source reference"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-front-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-front-review.jpg",
+      "sha256": "3744fa57f4ce4e8142a94c8ad6a591b161bbcc82cd67a03467749d8ea212c25e",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-back-capture.jpg",
+      "sha256": "b731761320b2bdc1f3fb1291efe40f510250cd2efd83871087d1f3a43870a8cf",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-back-review.jpg",
+      "sha256": "ca02674735d79b069b9028192006a2a88976748f070bdeac43d8016c48d9b367",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-right-capture.jpg",
+      "sha256": "20c4e4aaceb04f2b3e508fab4992311cc546e915e5336850709444233c8e1f1f",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-right-review.jpg",
+      "sha256": "57b4c814f149422200f21c38c8c3a7cbf468cdf35f7f11434e7a907a97043187",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-left-capture.jpg",
+      "sha256": "cd3db64d55252aa93e4327e9fe6254db3f036a695c115a2621d9665da879d22b",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-left-review.jpg",
+      "sha256": "c9f16743c85378f613b7e16e65a303be831f6a83909319d47d58ec9ee81da846",
+      "evidence": [
+        "alexia/nano-banana-ui-review/capture-provenance.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/input-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "evidence": [
+        "alexia/v10-nano-banana-front-diagnostic/reconstruction-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/input-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "evidence": [
+        "alexia/v11-hunyuan21-diagnostic/reconstruction-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/inputs/front.png",
+      "sha256": "65c54f7a3eed009cb63baba6345bb6b498148396dcafe55ef06efd6fb3d1c367",
+      "evidence": [
+        "V9 reconstruction input"
+      ],
+      "matched": true
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate.glb",
+      "sha256": "0463579d662806eb9afd71d8c9ee9e759139cd8daa4de0ce2c7c0cc4260bb684",
+      "evidence": [
+        "props/yuna-palette-candidate-evidence.json",
+        "props/yuna-palette-source-guided-candidate-review/render-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate.glb",
+      "sha256": "e7120dfe3285742e5556dd484c899d61c5e0604ae1760b94a0268130b1a42df0",
+      "evidence": [
+        "props/yuna-palette-optimized-candidate-evidence.json",
+        "props/yuna-palette-source-guided-optimized-candidate-review/render-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/v12-hunyuan21-texture-diagnostic/input-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "evidence": [
+        "alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "tools/hunyuan2-info.json",
+      "sha256": "052fd40b3f2fb3f06619bfbb853bf84b62bc2a4bd791dfc2d9ebfe402d217907",
+      "evidence": [
+        "alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "tools/hunyuan2-config.json",
+      "sha256": "5dffadc00045562aa58758d65b1ce7bebc06512cc74c9018225234b0e20cddaf",
+      "evidence": [
+        "alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "tools/hunyuan2-runtime.json",
+      "sha256": "dfa00bebe7f1a508a8a97025df73a8cc6e964d4a3dcb03ff1c31ae49a0c56a95",
+      "evidence": [
+        "alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+      ],
+      "matched": true
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/geometry-review.json",
+      "sha256": "c8b87e8d32e703c570f6d7cb535f3c6c8e411589d6fdd6de10c253cc50fcfe5c",
+      "evidence": [
+        "alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json"
+      ],
+      "matched": true
+    }
+  ],
+  "meshChecks": {
+    "v9": {
+      "sha256": "870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8",
+      "glbCounts": {
+        "triangles": 1098020,
+        "uniquePositionAccessorVertices": 359970,
+        "primitiveExpandedPositionVertices": 359970,
+        "meshCount": 1,
+        "primitiveCount": 1,
+        "sourceSkinCount": 0,
+        "sourceAnimationCount": 0,
+        "sourceTextureCount": 0
+      },
+      "loadedRenderFaces": 1098020,
+      "loadedRenderVertices": 359970,
+      "approvalFlags": {
+        "meshApproved": false,
+        "sourceFidelityApproved": false,
+        "textureApproved": false,
+        "rigged": false,
+        "gameAssetsReplaced": false,
+        "productionMeshApproved": false
+      },
+      "reviewVerdict": "rebuild"
+    },
+    "v10": {
+      "sha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+      "glbCounts": {
+        "triangles": 800876,
+        "uniquePositionAccessorVertices": 268436,
+        "primitiveExpandedPositionVertices": 268436,
+        "meshCount": 1,
+        "primitiveCount": 1,
+        "sourceSkinCount": 0,
+        "sourceAnimationCount": 0,
+        "sourceTextureCount": 0
+      },
+      "loadedRenderFaces": 800876,
+      "loadedRenderVertices": 268436,
+      "approvalFlags": {
+        "meshApproved": false,
+        "sourceFidelityApproved": false,
+        "textureApproved": false,
+        "rigged": false,
+        "gameAssetsReplaced": false,
+        "productionMeshApproved": false
+      },
+      "reviewVerdict": "rebuild"
+    },
+    "v11": {
+      "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "glbCounts": {
+        "triangles": 449582,
+        "uniquePositionAccessorVertices": 224713,
+        "primitiveExpandedPositionVertices": 224713,
+        "meshCount": 1,
+        "primitiveCount": 1,
+        "sourceSkinCount": 0,
+        "sourceAnimationCount": 0,
+        "sourceTextureCount": 0
+      },
+      "loadedRenderFaces": 449582,
+      "loadedRenderVertices": 224713,
+      "approvalFlags": {
+        "meshApproved": false,
+        "sourceFidelityApproved": false,
+        "textureApproved": false,
+        "rigged": false,
+        "gameAssetsReplaced": false,
+        "productionMeshApproved": false
+      },
+      "reviewVerdict": "eligible-for-controlled-texture-inspection"
+    }
+  },
+  "paletteChecks": [
+    {
+      "path": "props/yuna-palette-source-guided-candidate.glb",
+      "sha256": "0463579d662806eb9afd71d8c9ee9e759139cd8daa4de0ce2c7c0cc4260bb684",
+      "glbCounts": {
+        "triangles": 10272,
+        "uniquePositionAccessorVertices": 5156,
+        "primitiveExpandedPositionVertices": 6692,
+        "meshCount": 11,
+        "primitiveCount": 12,
+        "sourceSkinCount": 0,
+        "sourceAnimationCount": 0,
+        "sourceTextureCount": 0
+      },
+      "loadedRenderVertices": 6692,
+      "candidateOnly": true
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate.glb",
+      "sha256": "e7120dfe3285742e5556dd484c899d61c5e0604ae1760b94a0268130b1a42df0",
+      "glbCounts": {
+        "triangles": 2304,
+        "uniquePositionAccessorVertices": 1172,
+        "primitiveExpandedPositionVertices": 1684,
+        "meshCount": 11,
+        "primitiveCount": 12,
+        "sourceSkinCount": 0,
+        "sourceAnimationCount": 0,
+        "sourceTextureCount": 0
+      },
+      "loadedRenderVertices": 1684,
+      "candidateOnly": true
+    }
+  ],
+  "manifestFlags": {
+    "visual_final_approved": false,
+    "game_assets_replaced": false,
+    "accepted_models_produced": 0,
+    "accepted_meshes": 0,
+    "best_shape_candidate_production_approved": false
+  },
+  "nanoBananaMultiviewApproved": false,
+  "successfulReconstructionAttempts": 10,
+  "v12": {
+    "generationReturned": false,
+    "newMeshOrTextureProduced": false,
+    "glbExists": false,
+    "failureClassification": "provider-rejected-requested-gpu-duration-on-free-access",
+    "observedRequestedGpuDurationSeconds": 270
+  },
+  "v13": {
+    "status": "blocked-by-preflight",
+    "configuredTextureGenerationUnavailable": true,
+    "submitted": false,
+    "generated": false,
+    "providerGenerationSubmissions": 0,
+    "newGpuJobSubmitted": false,
+    "generationReturned": false,
+    "newGlbProduced": false,
+    "newMeshOrTextureProduced": false,
+    "glbExists": false,
+    "sourceDeclaredCombinedGpuDurationSeconds": 90,
+    "actualRequestedGpuDurationSeconds": null,
+    "durationAcceptanceTested": false
+  },
+  "readmeBodiesSynchronized": true,
+  "readmePackageBodySha256": "5caa8b5a82f2deec15c4995f52968f7c5d062358ec706998a7a58e6ba0597e6e",
+  "requiredPaths": [
+    "README-paket-karakter.md",
+    "README-repository.md",
+    "alexia-body-only-four-views-draft.png",
+    "alexia/inputs/front.png",
+    "alexia/nano-banana-ui-review/capture-provenance.json",
+    "alexia/nano-banana-ui-review/multiview-review.json",
+    "alexia/nano-banana-ui-review/nano-banana-back-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-back-review.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-front-review.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-left-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-left-review.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-right-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-right-review.jpg",
+    "alexia/v10-nano-banana-front-diagnostic/alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+    "alexia/v10-nano-banana-front-diagnostic/geometry-review.json",
+    "alexia/v10-nano-banana-front-diagnostic/input-capture.jpg",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/actual-mesh-turntable.gif",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/back.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/bottom.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/front.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/left.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/render-evidence.json",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/right.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/three-quarter.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/top.png",
+    "alexia/v10-nano-banana-front-diagnostic/reconstruction-evidence.json",
+    "alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+    "alexia/v11-hunyuan21-diagnostic/geometry-review.json",
+    "alexia/v11-hunyuan21-diagnostic/input-capture.jpg",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/actual-mesh-turntable.gif",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/back.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/bottom.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/front.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/left.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/render-evidence.json",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/right.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/three-quarter.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/top.png",
+    "alexia/v11-hunyuan21-diagnostic/reconstruction-evidence.json",
+    "alexia/v12-hunyuan21-texture-diagnostic/free-texture-path-audit.json",
+    "alexia/v12-hunyuan21-texture-diagnostic/input-capture.jpg",
+    "alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json",
+    "alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json",
+    "alexia/v9-front-only-diagnostic/alexia-v9-front-only-untextured-diagnostic.glb",
+    "alexia/v9-front-only-diagnostic/geometry-review.json",
+    "alexia/v9-front-only-diagnostic/mesh-review/actual-mesh-turntable.gif",
+    "alexia/v9-front-only-diagnostic/mesh-review/back.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/bottom.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/front.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/left.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/render-evidence.json",
+    "alexia/v9-front-only-diagnostic/mesh-review/right.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/three-quarter.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/top.png",
+    "alexia/v9-front-only-diagnostic/reconstruction-evidence.json",
+    "character-design-inventory.json",
+    "character-visual-rebuild.json",
+    "gemini-alexia-3d-spec.json",
+    "gemini-alexia-3d-spec.txt",
+    "nano-banana-character-prompts.json",
+    "nano-banana-character-prompts.md",
+    "props/yuna-palette-candidate-evidence.json",
+    "props/yuna-palette-optimized-candidate-evidence.json",
+    "props/yuna-palette-source-guided-candidate-review/actual-mesh-turntable.gif",
+    "props/yuna-palette-source-guided-candidate-review/back.png",
+    "props/yuna-palette-source-guided-candidate-review/bottom.png",
+    "props/yuna-palette-source-guided-candidate-review/front.png",
+    "props/yuna-palette-source-guided-candidate-review/geometry-contact-sheet.png",
+    "props/yuna-palette-source-guided-candidate-review/left.png",
+    "props/yuna-palette-source-guided-candidate-review/render-evidence.json",
+    "props/yuna-palette-source-guided-candidate-review/right.png",
+    "props/yuna-palette-source-guided-candidate-review/three-quarter.png",
+    "props/yuna-palette-source-guided-candidate-review/top.png",
+    "props/yuna-palette-source-guided-candidate.glb",
+    "props/yuna-palette-source-guided-optimized-candidate-review/actual-mesh-turntable.gif",
+    "props/yuna-palette-source-guided-optimized-candidate-review/back.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/bottom.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/front.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/geometry-contact-sheet.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/geometry-review.json",
+    "props/yuna-palette-source-guided-optimized-candidate-review/left.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/render-evidence.json",
+    "props/yuna-palette-source-guided-optimized-candidate-review/right.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/three-quarter.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/top.png",
+    "props/yuna-palette-source-guided-optimized-candidate.glb",
+    "references/alexia-approved-v2-blue.png",
+    "references/master-lineup.png",
+    "tools/REPRODUCE-DIAGNOSTICS.txt",
+    "tools/hunyuan2-config.json",
+    "tools/hunyuan2-info.json",
+    "tools/hunyuan2-runtime.json",
+    "tools/reconstruct_alexia_v10_diagnostic.py",
+    "tools/reconstruct_alexia_v11_hunyuan21_diagnostic.py",
+    "tools/reconstruct_alexia_v12_texture_diagnostic.py",
+    "tools/reconstruct_alexia_v9_diagnostic.py",
+    "tools/render_textured_mesh.py"
+  ],
+  "oldArchiveExistingPathsPreserved": [
+    "README-paket-karakter.md",
+    "README-repository.md",
+    "alexia-body-only-four-views-draft.png",
+    "alexia/REPRODUCE.txt",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/actual-mesh-turntable.gif",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/back.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/bottom.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/front.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/geometry-contact-sheet.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/left.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/render-evidence.json",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/right.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/three-quarter.png",
+    "alexia/alexia-suitcase-separate-prop-candidate-review/top.png",
+    "alexia/alexia-suitcase-separate-prop-candidate.glb",
+    "alexia/alexia-v8-cleanup-trial-review/actual-mesh-turntable.gif",
+    "alexia/alexia-v8-cleanup-trial-review/back.png",
+    "alexia/alexia-v8-cleanup-trial-review/bottom.png",
+    "alexia/alexia-v8-cleanup-trial-review/front.png",
+    "alexia/alexia-v8-cleanup-trial-review/geometry-contact-sheet.png",
+    "alexia/alexia-v8-cleanup-trial-review/left.png",
+    "alexia/alexia-v8-cleanup-trial-review/render-evidence.json",
+    "alexia/alexia-v8-cleanup-trial-review/right.png",
+    "alexia/alexia-v8-cleanup-trial-review/three-quarter.png",
+    "alexia/alexia-v8-cleanup-trial-review/top.png",
+    "alexia/alexia-v8-cleanup-trial.glb",
+    "alexia/alexia-v8-untextured-candidate.glb",
+    "alexia/build_suitcase.py",
+    "alexia/gemini-actual-mesh-review.json",
+    "alexia/gemini-review-context.json",
+    "alexia/inputs/back.png",
+    "alexia/inputs/front.png",
+    "alexia/inputs/left.png",
+    "alexia/inputs/right.png",
+    "alexia/mesh-review/actual-mesh-turntable.gif",
+    "alexia/mesh-review/back.png",
+    "alexia/mesh-review/bottom.png",
+    "alexia/mesh-review/front.png",
+    "alexia/mesh-review/geometry-contact-sheet.png",
+    "alexia/mesh-review/left.png",
+    "alexia/mesh-review/render-evidence.json",
+    "alexia/mesh-review/right.png",
+    "alexia/mesh-review/three-quarter.png",
+    "alexia/mesh-review/top.png",
+    "alexia/mesh-review/topology-stats.json",
+    "alexia/nano-banana-app-evidence.json",
+    "alexia/nano-banana-ui-review/capture-provenance.json",
+    "alexia/nano-banana-ui-review/multiview-review.json",
+    "alexia/nano-banana-ui-review/nano-banana-back-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-back-review.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-front-review.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-left-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-left-review.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-right-capture.jpg",
+    "alexia/nano-banana-ui-review/nano-banana-right-review.jpg",
+    "alexia/reconstruction-evidence.json",
+    "alexia/render_mesh.py",
+    "alexia/suitcase-evidence.json",
+    "alexia/trellis-evidence.json",
+    "alexia/trellis2-evidence.json",
+    "alexia/v10-nano-banana-front-diagnostic/alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+    "alexia/v10-nano-banana-front-diagnostic/geometry-review.json",
+    "alexia/v10-nano-banana-front-diagnostic/input-capture.jpg",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/actual-mesh-turntable.gif",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/back.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/bottom.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/front.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/left.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/render-evidence.json",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/right.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/three-quarter.png",
+    "alexia/v10-nano-banana-front-diagnostic/mesh-review/top.png",
+    "alexia/v10-nano-banana-front-diagnostic/reconstruction-evidence.json",
+    "alexia/v10-nano-banana-front-diagnostic/service-result.json",
+    "alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+    "alexia/v11-hunyuan21-diagnostic/geometry-review.json",
+    "alexia/v11-hunyuan21-diagnostic/input-capture.jpg",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/actual-mesh-turntable.gif",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/back.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/bottom.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/front.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/left.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/render-evidence.json",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/right.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/three-quarter.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/top.png",
+    "alexia/v11-hunyuan21-diagnostic/mesh-review/topology-stats.json",
+    "alexia/v11-hunyuan21-diagnostic/reconstruction-evidence.json",
+    "alexia/v11-hunyuan21-diagnostic/service-result.json",
+    "alexia/v12-hunyuan21-texture-diagnostic/free-texture-path-audit.json",
+    "alexia/v12-hunyuan21-texture-diagnostic/input-capture.jpg",
+    "alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json",
+    "alexia/v9-front-only-diagnostic/alexia-v9-front-only-untextured-diagnostic.glb",
+    "alexia/v9-front-only-diagnostic/geometry-review.json",
+    "alexia/v9-front-only-diagnostic/mesh-review/actual-mesh-turntable.gif",
+    "alexia/v9-front-only-diagnostic/mesh-review/back.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/bottom.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/front.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/geometry-contact-sheet.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/left.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/render-evidence.json",
+    "alexia/v9-front-only-diagnostic/mesh-review/right.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/three-quarter.png",
+    "alexia/v9-front-only-diagnostic/mesh-review/top.png",
+    "alexia/v9-front-only-diagnostic/reconstruction-evidence.json",
+    "alexia/v9-front-only-diagnostic/service-result.json",
+    "character-design-inventory.json",
+    "character-visual-rebuild.json",
+    "gemini-alexia-3d-spec.json",
+    "gemini-alexia-3d-spec.txt",
+    "nano-banana-character-prompts.json",
+    "nano-banana-character-prompts.md",
+    "props/build_yuna_palette_candidate.py",
+    "props/build_yuna_palette_optimized_candidate.py",
+    "props/yuna-palette-candidate-evidence.json",
+    "props/yuna-palette-optimized-candidate-evidence.json",
+    "props/yuna-palette-source-guided-candidate-review/actual-mesh-turntable.gif",
+    "props/yuna-palette-source-guided-candidate-review/back.png",
+    "props/yuna-palette-source-guided-candidate-review/bottom.png",
+    "props/yuna-palette-source-guided-candidate-review/front.png",
+    "props/yuna-palette-source-guided-candidate-review/geometry-contact-sheet.png",
+    "props/yuna-palette-source-guided-candidate-review/left.png",
+    "props/yuna-palette-source-guided-candidate-review/render-evidence.json",
+    "props/yuna-palette-source-guided-candidate-review/right.png",
+    "props/yuna-palette-source-guided-candidate-review/three-quarter.png",
+    "props/yuna-palette-source-guided-candidate-review/top.png",
+    "props/yuna-palette-source-guided-candidate.glb",
+    "props/yuna-palette-source-guided-optimized-candidate-review/actual-mesh-turntable.gif",
+    "props/yuna-palette-source-guided-optimized-candidate-review/back.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/bottom.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/front.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/geometry-contact-sheet.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/geometry-review.json",
+    "props/yuna-palette-source-guided-optimized-candidate-review/left.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/render-evidence.json",
+    "props/yuna-palette-source-guided-optimized-candidate-review/right.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/three-quarter.png",
+    "props/yuna-palette-source-guided-optimized-candidate-review/top.png",
+    "props/yuna-palette-source-guided-optimized-candidate.glb",
+    "references/alexia-approved-v2-blue.png",
+    "references/master-lineup.png",
+    "tools/REPRODUCE-DIAGNOSTICS.txt",
+    "tools/free_geometry_alternative_check.json",
+    "tools/hunyuan21-info.json",
+    "tools/reconstruct_alexia_v10_diagnostic.py",
+    "tools/reconstruct_alexia_v11_hunyuan21_diagnostic.py",
+    "tools/reconstruct_alexia_v12_texture_diagnostic.py",
+    "tools/reconstruct_alexia_v9_diagnostic.py",
+    "tools/render_textured_mesh.py"
+  ],
+  "oldArchivePathsNotInOutputs": [],
+  "excluded": [
+    "*.lock",
+    "*.partial",
+    "*.pyc",
+    "__pycache__/",
+    "crazy-rich-character-progress.zip",
+    "package-verification.json"
+  ],
+  "archive": "crazy-rich-character-progress.zip",
+  "archiveBytes": 52563454,
+  "archiveSha256": "1d04ad1ac3cf01a90b85dd55bec9fd628a8508566cd464d38550cc5ad9245898",
+  "zipCrcPassed": true,
+  "zipAllEntryHashesMatched": true,
+  "requiredPathsPassed": true,
+  "sourceFilesUnchangedDuringBuild": true,
+  "verificationReportIncludedInZip": false,
+  "files": [
+    {
+      "path": "README-paket-karakter.md",
+      "sha256": "5caa8b5a82f2deec15c4995f52968f7c5d062358ec706998a7a58e6ba0597e6e",
+      "bytes": 8720
+    },
+    {
+      "path": "README-repository.md",
+      "sha256": "45b42f5a06469cda3e0b479e1f234f8940cd234923dc2cbb912c071ad7e335ce",
+      "bytes": 9284
+    },
+    {
+      "path": "alexia-body-only-four-views-draft.png",
+      "sha256": "5a70338a5b160920e03267667224d3c5727dc946df98f85d60b4827a9a2155e8",
+      "bytes": 1209384
+    },
+    {
+      "path": "alexia/REPRODUCE.txt",
+      "sha256": "bf96305bc3a8aa379cd12eeba3fff5716cdda15acd972897b3ca0124881836d3",
+      "bytes": 727
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/actual-mesh-turntable.gif",
+      "sha256": "506b93f4b04c69115d425f64fcc256c3b79a392f5d766715a8338916f380d052",
+      "bytes": 399184
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/back.png",
+      "sha256": "52eaa0d6c8f9d62586b8da4835700962e13286654d0e1a09feda28ed507133e5",
+      "bytes": 5441
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/bottom.png",
+      "sha256": "90468dc22bfea6f9d268a17ecd0b0e31c6bfb1b7701cf5ce71c326424c06df1a",
+      "bytes": 5188
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/front.png",
+      "sha256": "a303bdf93bdacf66ecb49d64d70168f31f45692572d74eb480d8ad23e2413b87",
+      "bytes": 6946
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/geometry-contact-sheet.png",
+      "sha256": "0bdf976fc80c5f6b3dea272b33d268a5ac63825c50fbafc07486cdf5c0ada966",
+      "bytes": 46208
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/left.png",
+      "sha256": "465bdd739039d24c462bf40d9a59c67a0eb87f5d7186e168151eeb3ddb45bbdf",
+      "bytes": 6228
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/render-evidence.json",
+      "sha256": "a2321305c44482477bedaf14c8605f563f719ac610f416c2a848ab079c410707",
+      "bytes": 338
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/right.png",
+      "sha256": "a2885ccb6eb1c36f19f73ae3bca40d564e66946a206d1390a9eed8cccf291a96",
+      "bytes": 6508
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/three-quarter.png",
+      "sha256": "16c14a68e35a5af20951ef14e61c63fe81aa86fd76a99452b95796b030bb96c5",
+      "bytes": 12019
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate-review/top.png",
+      "sha256": "00248c1b725fe7fb0ef3ef68961600c9a9fe2a11cdbd3f8c0e74334ada3b6ff1",
+      "bytes": 6079
+    },
+    {
+      "path": "alexia/alexia-suitcase-separate-prop-candidate.glb",
+      "sha256": "8a36bb0661f9e9a2922d5120a53cc369e96770dd62666b56acc169689c4c639a",
+      "bytes": 152928
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/actual-mesh-turntable.gif",
+      "sha256": "e343c5d5d044200be117ca1894c476888ec4975f2a1bf5574762fc5da718d5a2",
+      "bytes": 1839444
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/back.png",
+      "sha256": "c0022fc7db12d18e8d1e8d2f9fca471803b5e8d78de9f5f7393804faa936e1b3",
+      "bytes": 148986
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/bottom.png",
+      "sha256": "5de31b10296a94f68f95f53b1bd983840f61947cea3d8c900b4f5731ec402e67",
+      "bytes": 101727
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/front.png",
+      "sha256": "85f3dc44dbfa72fb2cd3629e9c1d9245f373609a2dedb87abba16fc70b1bf6de",
+      "bytes": 181215
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/geometry-contact-sheet.png",
+      "sha256": "d621a33659a3a650b8e46bc712d9cab33366d07cf69899f79d07edd60b8105d4",
+      "bytes": 1027843
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/left.png",
+      "sha256": "fe99667968e8be5f9564af3455687091918ef4e0fb96b72175add6eec58b5b91",
+      "bytes": 131785
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/render-evidence.json",
+      "sha256": "d5b03437d072e8575900414083f2ae13bc6e42ff3ddf23e9761a4336a27a58df",
+      "bytes": 341
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/right.png",
+      "sha256": "af2f84d11cf4fd25a184a35d2f99eeb290ab3497d4ddff7b1f86fc991764d4f7",
+      "bytes": 140100
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/three-quarter.png",
+      "sha256": "6cc9f5528f060bd979c1fc77b901104cfd8cca78f3130138672b8c9adcc88ec0",
+      "bytes": 173745
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial-review/top.png",
+      "sha256": "3acbb44fdad762262cf5ed1dbc53182c280159fb9ce602fa0200dc526ade00bd",
+      "bytes": 130926
+    },
+    {
+      "path": "alexia/alexia-v8-cleanup-trial.glb",
+      "sha256": "5e42383b14aa5a4bded1bc1a1f40892bf789cf87d69fbfe0469b6ec5711d5319",
+      "bytes": 11988796
+    },
+    {
+      "path": "alexia/alexia-v8-untextured-candidate.glb",
+      "sha256": "e5da53c13dbe73e7604bd785342594107a6c24d513721526c432938166534837",
+      "bytes": 15760008
+    },
+    {
+      "path": "alexia/build_suitcase.py",
+      "sha256": "fcd55ec4f7a07e694af846b7e1585fdcbde768574eb457bb14f2e2a352e99f6a",
+      "bytes": 4509
+    },
+    {
+      "path": "alexia/gemini-actual-mesh-review.json",
+      "sha256": "44133881e3779c33d383b2fea07eb1de8391500b2d1b938fd2cad823ce138d94",
+      "bytes": 1276
+    },
+    {
+      "path": "alexia/gemini-review-context.json",
+      "sha256": "f9b4a79b96f5e0d2143deb3e69aa35ccd44ed00bdbbe827672efcc527ec2791a",
+      "bytes": 1808
+    },
+    {
+      "path": "alexia/inputs/back.png",
+      "sha256": "3b54d03f0d57e29c10582a2424ed83cf58784c969d2db2616a9b7805727573c8",
+      "bytes": 968897
+    },
+    {
+      "path": "alexia/inputs/front.png",
+      "sha256": "65c54f7a3eed009cb63baba6345bb6b498148396dcafe55ef06efd6fb3d1c367",
+      "bytes": 1273804
+    },
+    {
+      "path": "alexia/inputs/left.png",
+      "sha256": "ecc7c1378d7fa9b45db80cba0b69ba6b9cddcb1554c4e97eee84e2a5fe83d06a",
+      "bytes": 1008170
+    },
+    {
+      "path": "alexia/inputs/right.png",
+      "sha256": "82df6067fba7e5b4293df375c93afdf483e68776277d3dd84236134008c35c9a",
+      "bytes": 875961
+    },
+    {
+      "path": "alexia/mesh-review/actual-mesh-turntable.gif",
+      "sha256": "9ff8a6fc6998ce527ffe150be4360d93bacb3a8eb758794138c6d85b98c2351c",
+      "bytes": 1858748
+    },
+    {
+      "path": "alexia/mesh-review/back.png",
+      "sha256": "3db46d3e95cd1723e75c88f376efd7013794fe11ea65c5e1b144ee0a887a39d6",
+      "bytes": 141398
+    },
+    {
+      "path": "alexia/mesh-review/bottom.png",
+      "sha256": "5d7766a156559f4e1a77ab6494a959931425db0b25779e3c22cce3acbd3a3e17",
+      "bytes": 98955
+    },
+    {
+      "path": "alexia/mesh-review/front.png",
+      "sha256": "69bee2a236e4a8a3acc336f43c35293a31d4d24e4f2bd93d48c32b9f12030521",
+      "bytes": 169477
+    },
+    {
+      "path": "alexia/mesh-review/geometry-contact-sheet.png",
+      "sha256": "d5f9944736130e844d249448b63889c6dd0279897da331965073b0d8092e2c64",
+      "bytes": 989143
+    },
+    {
+      "path": "alexia/mesh-review/left.png",
+      "sha256": "c36b554e945788ea280cf296540173292f3b1b03b406ffa739d4c269cf85d4de",
+      "bytes": 126149
+    },
+    {
+      "path": "alexia/mesh-review/render-evidence.json",
+      "sha256": "6852cdde5e76f6cf93a0a1b4cb314b85f6dd0fc2e6e3794e2c09f1c050255e48",
+      "bytes": 341
+    },
+    {
+      "path": "alexia/mesh-review/right.png",
+      "sha256": "a3f6c4c87f452375af169a68e6ecadca9ceddad51d92203a0641f1247f5efc97",
+      "bytes": 130625
+    },
+    {
+      "path": "alexia/mesh-review/three-quarter.png",
+      "sha256": "157daea64e5b3a536392f5878e6f083951e98791d6bd548f5904d0d1cd7b03a3",
+      "bytes": 174668
+    },
+    {
+      "path": "alexia/mesh-review/top.png",
+      "sha256": "342708dfacc6518894b5e80020ed3c8667aa0acca42a3b0419297bf42dd7fc94",
+      "bytes": 125865
+    },
+    {
+      "path": "alexia/mesh-review/topology-stats.json",
+      "sha256": "ac3d55f253d325bb07cc1a820460d1cf2c737ef06fb594d887dad0ab6ee5673f",
+      "bytes": 286
+    },
+    {
+      "path": "alexia/nano-banana-app-evidence.json",
+      "sha256": "6035abc0209a1369fe4e5baa6bf713548081e530349357f93e906b6fa4ab2444",
+      "bytes": 7833
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/capture-provenance.json",
+      "sha256": "d7b683a1118f0df86b28fa75a4a80b8e2b48e405c0de78ee38023ce589b84479",
+      "bytes": 3091
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/multiview-review.json",
+      "sha256": "c2c1f66ca6b6c489feb5ccb405d62369714c457fa116aef697b34a0fa57a3b48",
+      "bytes": 9151
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-back-capture.jpg",
+      "sha256": "b731761320b2bdc1f3fb1291efe40f510250cd2efd83871087d1f3a43870a8cf",
+      "bytes": 73092
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-back-review.jpg",
+      "sha256": "ca02674735d79b069b9028192006a2a88976748f070bdeac43d8016c48d9b367",
+      "bytes": 45070
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-front-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "bytes": 98474
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-front-review.jpg",
+      "sha256": "3744fa57f4ce4e8142a94c8ad6a591b161bbcc82cd67a03467749d8ea212c25e",
+      "bytes": 58033
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-left-capture.jpg",
+      "sha256": "cd3db64d55252aa93e4327e9fe6254db3f036a695c115a2621d9665da879d22b",
+      "bytes": 58400
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-left-review.jpg",
+      "sha256": "c9f16743c85378f613b7e16e65a303be831f6a83909319d47d58ec9ee81da846",
+      "bytes": 36202
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-right-capture.jpg",
+      "sha256": "20c4e4aaceb04f2b3e508fab4992311cc546e915e5336850709444233c8e1f1f",
+      "bytes": 57793
+    },
+    {
+      "path": "alexia/nano-banana-ui-review/nano-banana-right-review.jpg",
+      "sha256": "57b4c814f149422200f21c38c8c3a7cbf468cdf35f7f11434e7a907a97043187",
+      "bytes": 36944
+    },
+    {
+      "path": "alexia/reconstruction-evidence.json",
+      "sha256": "a4318da56018a4e612c6ad1e94068e2b21f399325c8a96768d1944e827752c3b",
+      "bytes": 2757
+    },
+    {
+      "path": "alexia/render_mesh.py",
+      "sha256": "711a0fcecb68e7f1b998cd89a451744d4d3b932c526d6e6dedef83b961e72c44",
+      "bytes": 3862
+    },
+    {
+      "path": "alexia/suitcase-evidence.json",
+      "sha256": "48154215f242176ef1cee756e2879c26f73f6839e0f8a8176b68877f272dc696",
+      "bytes": 590
+    },
+    {
+      "path": "alexia/trellis-evidence.json",
+      "sha256": "0310cebc9a551b54a10698b25e7d9308daa445f4bc1c80f6000990082cd97c9a",
+      "bytes": 785
+    },
+    {
+      "path": "alexia/trellis2-evidence.json",
+      "sha256": "160f07e1c709ed86ef7ce8652a25f1710f7de50c79b6203a62b91a555870b00d",
+      "bytes": 628
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/alexia-v10-nano-banana-front-untextured-diagnostic.glb",
+      "sha256": "9448d7c4d4632f2d4202bf5b8eca9916112b0f88601d7b0cec6e0d1075439fce",
+      "bytes": 12833016
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/geometry-review.json",
+      "sha256": "420d09f9d5dd7e5c39baa924ea66196a5ef4a72ad67e12abce78ac27b9cec698",
+      "bytes": 7695
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/input-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "bytes": 98474
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/actual-mesh-turntable.gif",
+      "sha256": "3268592c89a50884222d998a7700103c00d15d83247a154284bd94e197a1dad7",
+      "bytes": 1725007
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/back.png",
+      "sha256": "41f97ac94c49cf07cc4c2857fb5a9c518e635b5f5b3d725282449b33c5419e11",
+      "bytes": 124596
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/bottom.png",
+      "sha256": "b107ae243c41998fcdfa3d0aefcdc528f6baa647ebceee2842cecc73a047c8a8",
+      "bytes": 95467
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/front.png",
+      "sha256": "5601e79047f4f6c2e9982169c2f43bf20308213ca71816b213ab726a716ffb40",
+      "bytes": 157174
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/geometry-contact-sheet.png",
+      "sha256": "ff8f0e1757b3e87ce71ebabd7cca4a117e6ce132a83d8ac212a23aae1c3845cd",
+      "bytes": 898170
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/left.png",
+      "sha256": "b9fd08ed4b89c0d37a52ecc0696576fd95f5dcddeb4a09f8b23c801ec5396aa1",
+      "bytes": 108194
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/render-evidence.json",
+      "sha256": "097a20de5b9a8e99e7f8e5091101d3201cebcc13d941772c5f764bdb8fe01cfc",
+      "bytes": 341
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/right.png",
+      "sha256": "9a48f9d05ed4ac2c85988c107442addff4161e7e80d082f182eb0f35c41c3de0",
+      "bytes": 117854
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/three-quarter.png",
+      "sha256": "b93000da8d36e87aec18dfa9058f95b30b8077f1798d9aa543e6ef33c40e55bd",
+      "bytes": 158396
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/mesh-review/top.png",
+      "sha256": "4fb97c2edb7e5a3558004234286f6c63cbcf08cc6e7aad6f8bc52b26da853ec4",
+      "bytes": 114218
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/reconstruction-evidence.json",
+      "sha256": "a2fe91fbb39e271f333d7f48f9e4c02f5587c9e9ed404f12e72a02d61fac7e55",
+      "bytes": 4043
+    },
+    {
+      "path": "alexia/v10-nano-banana-front-diagnostic/service-result.json",
+      "sha256": "496f0cb5cbf9457ffc340cc6a046ff94caa74eec1447151728e0204de3007ccf",
+      "bytes": 1358
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+      "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+      "bytes": 8092808
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/geometry-review.json",
+      "sha256": "c8b87e8d32e703c570f6d7cb535f3c6c8e411589d6fdd6de10c253cc50fcfe5c",
+      "bytes": 8844
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/input-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "bytes": 98474
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/actual-mesh-turntable.gif",
+      "sha256": "8e8ac70d2adb96b7d64815db04875df23600532448eb1e29584a2b5a046ade0e",
+      "bytes": 1551915
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/back.png",
+      "sha256": "8af45ddc1bbc4f46a3c93804a393a5d9c4f6a5fc274144ebdb96001f63660046",
+      "bytes": 103086
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/bottom.png",
+      "sha256": "d6fa440ec1299cef099d8a96e27eb4c0fce399f96fbe372c7ed174f3ce1800c2",
+      "bytes": 66853
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/front.png",
+      "sha256": "99db0c84c11f2a28f4d8a03e2612de1e8f56b324552cf71eff87643891208de9",
+      "bytes": 148660
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/geometry-contact-sheet.png",
+      "sha256": "7564782cf36784f783124d517a6ffb8a6540282be6103492f56755c0675d3be1",
+      "bytes": 750360
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/left.png",
+      "sha256": "4caa24a6d9f982d3ba567e060d869817bacb193b2092ff1d8038b562a867a679",
+      "bytes": 93035
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/render-evidence.json",
+      "sha256": "75babb08b004e49a3c1f0cfc6bb66807a7007af87f4fdafee2569ce62319bf3b",
+      "bytes": 341
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/right.png",
+      "sha256": "632ccfb11b8b71bf7fcc50089dc73893cf4461f36a285b83d816f4d4cfcfa690",
+      "bytes": 97827
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/three-quarter.png",
+      "sha256": "9063b462ae52e3688b416c30eb053a56883b15f52a3c10f1de7958a8ca281bfb",
+      "bytes": 143872
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/top.png",
+      "sha256": "42d06234be349f08a31f8085cc85b3eecb41d71f6a4724c631d9170c73377a5b",
+      "bytes": 81541
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/mesh-review/topology-stats.json",
+      "sha256": "3fa2be837b62e7c3e19e664d6ae0de6839beeea1de67bd6a7c1578b0adf5b006",
+      "bytes": 1712
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/reconstruction-evidence.json",
+      "sha256": "c610ca91b2a5daa6aa4377d7ccb2a0ed51221ed5878a557c15ef7fd2f5bd7fb7",
+      "bytes": 6309
+    },
+    {
+      "path": "alexia/v11-hunyuan21-diagnostic/service-result.json",
+      "sha256": "85f5bba1386c676d7c533647d593175ff73222b6c971cf8d48b41a35c3a76f4e",
+      "bytes": 1353
+    },
+    {
+      "path": "alexia/v12-hunyuan21-texture-diagnostic/free-texture-path-audit.json",
+      "sha256": "300ff95953fa92a4563a5fccdc4d75620be410b20d6c3da2de452800247b115b",
+      "bytes": 7477
+    },
+    {
+      "path": "alexia/v12-hunyuan21-texture-diagnostic/input-capture.jpg",
+      "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+      "bytes": 98474
+    },
+    {
+      "path": "alexia/v12-hunyuan21-texture-diagnostic/reconstruction-evidence.json",
+      "sha256": "80151c79ca83734e856cfc029c3efb48b936e8f798620b671fd9d4835a44cc00",
+      "bytes": 5877
+    },
+    {
+      "path": "alexia/v13-hunyuan2-texture-diagnostic/preflight-evidence.json",
+      "sha256": "29e30a91cadb2af1f45e4346c9c4c17b9b6686b3314d3faa264a0dc31a4d27b3",
+      "bytes": 7003
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/alexia-v9-front-only-untextured-diagnostic.glb",
+      "sha256": "870198ff54d815695285c18452fcaea08260ff732259ab632a0aa134a09efea8",
+      "bytes": 17497152
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/geometry-review.json",
+      "sha256": "30e04e8c2b90c7d474bf839a95abda9ed12c770cb25a4800d7567b2c8f93e1dd",
+      "bytes": 6620
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/actual-mesh-turntable.gif",
+      "sha256": "0950c3ce83ed11640fe625bc8f45a62c2f254304d1ea6ffe08fd28ddb4de31d7",
+      "bytes": 1977068
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/back.png",
+      "sha256": "2b096821cc71fa647f5e91aea367f726071721bbc110617e398f4e54382bb0f5",
+      "bytes": 152518
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/bottom.png",
+      "sha256": "fc4bfdb9065c58909e5702f5e6731571ee7ff314f866a4b941e812163a76ef44",
+      "bytes": 97844
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/front.png",
+      "sha256": "66864374979bac3c372c3d96538a2328079b0bf379c6e992b7b733cd9b42ff22",
+      "bytes": 185357
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/geometry-contact-sheet.png",
+      "sha256": "7b617510beeddaf43c351dfccb40eb06c629abbd66da81dcd288d62d13e2089b",
+      "bytes": 1040383
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/left.png",
+      "sha256": "fe4cfabb41c25388465883185b5d5b2f79f3e558aa1881014ab38747a808e81a",
+      "bytes": 126131
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/render-evidence.json",
+      "sha256": "ee64a21cdb05316540e3b3f7eac22c53d1aced7cf78fc669c3abb417f9a3012d",
+      "bytes": 342
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/right.png",
+      "sha256": "104806278f9cf04ab11f33cfca108edd2b7d2a71e50114e21cd568d7103e9a69",
+      "bytes": 137456
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/three-quarter.png",
+      "sha256": "7a5ca5157f8f62e135748ae6d0d2cc96f6f0f6a288624ce290c903c00bd0a0b5",
+      "bytes": 186052
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/mesh-review/top.png",
+      "sha256": "c08e06a0b0733da3817f7091fdc840c7d14aed3aadf93719c816bce161067680",
+      "bytes": 133649
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/reconstruction-evidence.json",
+      "sha256": "0eb63083da001662a7a76794135c47aa9f3fea679412a6d0f8842811ef6cbd4f",
+      "bytes": 2773
+    },
+    {
+      "path": "alexia/v9-front-only-diagnostic/service-result.json",
+      "sha256": "4c7417d19520be0a74e6a56c356d0f741dff1e3900b7d2ad0e0e7140da1fbaee",
+      "bytes": 1357
+    },
+    {
+      "path": "character-design-inventory.json",
+      "sha256": "a72ba29d0fc5c2e1bdc6c26302771067a157a5b29a63e74c900765241ffc7e31",
+      "bytes": 22558
+    },
+    {
+      "path": "character-visual-rebuild.json",
+      "sha256": "d7b0ca88b5f124a888b2e61b63dab4607a5d4bdc3ff339e76059da78f885f817",
+      "bytes": 14634
+    },
+    {
+      "path": "gemini-alexia-3d-spec.json",
+      "sha256": "04d8d116d3151786daf54f6c85301defa87f8a65270402700e5aaba9a21b9dc2",
+      "bytes": 5303
+    },
+    {
+      "path": "gemini-alexia-3d-spec.txt",
+      "sha256": "b34c9b70740a80ec4aab3965c4f2f6817d83ee9f3fa2afd8f3bc14b6db9b1d6f",
+      "bytes": 4094
+    },
+    {
+      "path": "nano-banana-character-prompts.json",
+      "sha256": "294547bfd490e779935dde6fe3c3232389002c192e107ea524b8ed3832b47985",
+      "bytes": 278607
+    },
+    {
+      "path": "nano-banana-character-prompts.md",
+      "sha256": "327dbd4bd671290a12ab5fc675d8673aeffff4de056a196b660f01b4b65aaecc",
+      "bytes": 27005
+    },
+    {
+      "path": "props/build_yuna_palette_candidate.py",
+      "sha256": "519b59c95c2b84dce0f2f595923c4289cb6204b73519c8ee3f90f94661071951",
+      "bytes": 19226
+    },
+    {
+      "path": "props/build_yuna_palette_optimized_candidate.py",
+      "sha256": "a7b046875e09847b3c2475d0777f0fa04b159cc96dfd66c7e223085a81a57ee9",
+      "bytes": 26714
+    },
+    {
+      "path": "props/yuna-palette-candidate-evidence.json",
+      "sha256": "25c80659d3336e865b72f5a836ccb0871454489751f22e7c517c8483f69f5095",
+      "bytes": 9358
+    },
+    {
+      "path": "props/yuna-palette-optimized-candidate-evidence.json",
+      "sha256": "8b7ab3750d3b0608a5087c6bfbb0e24a1a38d026c844b8c9a4a922db32fa330e",
+      "bytes": 13859
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/actual-mesh-turntable.gif",
+      "sha256": "22f8d3bff082f906a44fdc8ea7be42f4a93c9d1c288719fc132a4c5c71977192",
+      "bytes": 361786
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/back.png",
+      "sha256": "768d998e88b17a06d492143a609ba37ae4b7d3ca89bafa267e31037edbf13bc4",
+      "bytes": 7814
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/bottom.png",
+      "sha256": "cdc9f8bc60230328a4e5a3cef648745018fa850a81dc8fad74966ecff832d61f",
+      "bytes": 4933
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/front.png",
+      "sha256": "5c6b166c8237e278f3c7bdc276997b94dabbed6f283ce7e5b360fbb6ef696b4e",
+      "bytes": 25677
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/geometry-contact-sheet.png",
+      "sha256": "a343fd0ad4d405bbcfb454a0bbfbd484eb6a0352cf3ce0a42f605f52910e2ef2",
+      "bytes": 80810
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/left.png",
+      "sha256": "7c2d1122357da39cbce48e41ad07900318ed7518d36d7aa4096cd164b4f4f22e",
+      "bytes": 7377
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/render-evidence.json",
+      "sha256": "edbef6554e8de516f54b25129cb26926e6c211f07b258a866b79b1b64e673f1b",
+      "bytes": 338
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/right.png",
+      "sha256": "037e63afacf92d5a2cb32c32255724b327f850fc77041cf5844e4a28114d68d4",
+      "bytes": 6292
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/three-quarter.png",
+      "sha256": "a3a9dc60762ab5967dfb7d84fe451b3541234d6b3f6f682c898769da2bac0366",
+      "bytes": 23302
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate-review/top.png",
+      "sha256": "416deda8bfd15ab94e05b5af3f4124522a9f7efa6f7343288779351fb1bdafd3",
+      "bytes": 5185
+    },
+    {
+      "path": "props/yuna-palette-source-guided-candidate.glb",
+      "sha256": "0463579d662806eb9afd71d8c9ee9e759139cd8daa4de0ce2c7c0cc4260bb684",
+      "bytes": 196312
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/actual-mesh-turntable.gif",
+      "sha256": "a63f740c7c635466958883170aae3ce8081ee0671009830d61703ab7d5dbf627",
+      "bytes": 351498
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/back.png",
+      "sha256": "622c40b3fe66005c1f89707796b34edc57f9cf03844eea6f1c74414ae6725d37",
+      "bytes": 7396
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/bottom.png",
+      "sha256": "a00b9dfcb7d18aef01d470b410aba48d4d82c42f271f85f2dbcbc336200769bd",
+      "bytes": 4302
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/front.png",
+      "sha256": "0c17a9549e61b2470288b2c1a3ef68b1dc24ba1f6ed6acfcaaedb547086ccdea",
+      "bytes": 16261
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/geometry-contact-sheet.png",
+      "sha256": "38dbe70a98fd4af10efdb57f9438c8e03204117da945f92d86f11c5c08d171ad",
+      "bytes": 58014
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/geometry-review.json",
+      "sha256": "7d79c636d38f44243cd4dcaa3bcd5ac6fd6a9ff9d561a9d63c403f7c38dd6107",
+      "bytes": 4191
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/left.png",
+      "sha256": "c3987fd30e8bf263c53da265015d57e83ea4d8e28e738dc03a63ac3b3b97641c",
+      "bytes": 5729
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/render-evidence.json",
+      "sha256": "732c2f4f74100e43ba0e1e7b166c5a0a97edac3664ab29754cdf8bd6c8249704",
+      "bytes": 337
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/right.png",
+      "sha256": "797a3ed794ef6e853c817655aca3d68e5d4083045dfbc2072629fbd29a99c06e",
+      "bytes": 4852
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/three-quarter.png",
+      "sha256": "26c68dc60b4dd19584e854dcbd79d5b04f1e6cbbee69e9439deb862cbfd1af38",
+      "bytes": 16387
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate-review/top.png",
+      "sha256": "50602343c0232a1e922550320341f9d405f1cefb64dd92545a3562fa069be5b2",
+      "bytes": 4522
+    },
+    {
+      "path": "props/yuna-palette-source-guided-optimized-candidate.glb",
+      "sha256": "e7120dfe3285742e5556dd484c899d61c5e0604ae1760b94a0268130b1a42df0",
+      "bytes": 52816
+    },
+    {
+      "path": "references/alexia-approved-v2-blue.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      "bytes": 1988013
+    },
+    {
+      "path": "references/master-lineup.png",
+      "sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+      "bytes": 2352648
+    },
+    {
+      "path": "tools/REPRODUCE-DIAGNOSTICS.txt",
+      "sha256": "5eb75b94695d173d24fa546ae1631104ad4b8af89413032627121b9ea343215b",
+      "bytes": 16596
+    },
+    {
+      "path": "tools/free_geometry_alternative_check.json",
+      "sha256": "97f61c35221bce1e58608195a8717f25071e4f9bc3b2f2051529b16fa1921cd4",
+      "bytes": 6344
+    },
+    {
+      "path": "tools/hunyuan2-config.json",
+      "sha256": "5dffadc00045562aa58758d65b1ce7bebc06512cc74c9018225234b0e20cddaf",
+      "bytes": 77304
+    },
+    {
+      "path": "tools/hunyuan2-info.json",
+      "sha256": "052fd40b3f2fb3f06619bfbb853bf84b62bc2a4bd791dfc2d9ebfe402d217907",
+      "bytes": 25499
+    },
+    {
+      "path": "tools/hunyuan2-runtime.json",
+      "sha256": "dfa00bebe7f1a508a8a97025df73a8cc6e964d4a3dcb03ff1c31ae49a0c56a95",
+      "bytes": 9949
+    },
+    {
+      "path": "tools/hunyuan21-info.json",
+      "sha256": "8549a73c090265e6ce4b62869f8f5ffdd1a3e15d25043d6f4df54f7c72c86378",
+      "bytes": 24992
+    },
+    {
+      "path": "tools/reconstruct_alexia_v10_diagnostic.py",
+      "sha256": "c5f226047ef4dff9f807ddeed22dd4c9cd0d79ee6fcc3b98920f31991d969d0b",
+      "bytes": 17070
+    },
+    {
+      "path": "tools/reconstruct_alexia_v11_hunyuan21_diagnostic.py",
+      "sha256": "4abea0e08797cd3d13907ae6ea2de3dcf0acec9becaafb1a01ff35a050fba03f",
+      "bytes": 21619
+    },
+    {
+      "path": "tools/reconstruct_alexia_v12_texture_diagnostic.py",
+      "sha256": "820a0d38c9387c282c7a29dc74a83a54cff267f7bec4e39314484461c9ada381",
+      "bytes": 30732
+    },
+    {
+      "path": "tools/reconstruct_alexia_v9_diagnostic.py",
+      "sha256": "bbd8d2775f04d34f78cf38c57a7966e900cfa0c43954511aefa69fee44a3ebfe",
+      "bytes": 12401
+    },
+    {
+      "path": "tools/render_textured_mesh.py",
+      "sha256": "3e9e83678aed91bfc21527bd15eed95a6f9fcd1ff768aeba698c07a9e16f7f65",
+      "bytes": 29544
+    }
+  ]
+}

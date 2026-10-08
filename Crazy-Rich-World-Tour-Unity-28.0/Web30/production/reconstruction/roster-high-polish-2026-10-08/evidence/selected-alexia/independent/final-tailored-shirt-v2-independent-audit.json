@@ -1,0 +1,372 @@
+{
+  "schema": "crwt.alexia_high_polish_tailored_shirt_independent_audit.v1",
+  "passed": true,
+  "source_sha256": "2e4760bf2ac6d7b14ff82e9ac2d8e3ad70280d5ae242c5c95f5fc7a8787d5135",
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "mask_sha256": "e8c175666daaad9fb253e8004431219e7f47fdeaf26b640d89885b9bf7a67710",
+  "builder_proof_sha256": "14961bb38a67d6f74eb42504c3fa279f30f24369200e79f836f0758aa9b4897b",
+  "hand_over_25pct_guard_enabled": true,
+  "bounded_rear_litter_removal_enabled": true,
+  "bounded_body_weighted_rear_coat_removal_enabled": true,
+  "same_13_shirt_component_streams_as_previous_candidate": true,
+  "removed_actual_current_core_triangles": 20271,
+  "named_legacy_incidence": {
+    "mandatory_face_indices": {
+      "removed_triangle_incidence": 3959,
+      "referenced_rows": 2756,
+      "Head_over_20pct_rows": 0,
+      "Hand_over_25pct_rows": 0
+    },
+    "hair_indices": {
+      "removed_triangle_incidence": 2069,
+      "referenced_rows": 1170,
+      "Head_over_20pct_rows": 1170,
+      "Hand_over_25pct_rows": 0
+    },
+    "cup_indices": {
+      "removed_triangle_incidence": 0,
+      "referenced_rows": 0,
+      "Head_over_20pct_rows": 0,
+      "Hand_over_25pct_rows": 0
+    },
+    "hands_indices": {
+      "removed_triangle_incidence": 289,
+      "referenced_rows": 160,
+      "Head_over_20pct_rows": 141,
+      "Hand_over_25pct_rows": 0
+    },
+    "cuff_indices": {
+      "removed_triangle_incidence": 66,
+      "referenced_rows": 37,
+      "Head_over_20pct_rows": 17,
+      "Hand_over_25pct_rows": 0
+    },
+    "jacket_indices": {
+      "removed_triangle_incidence": 230,
+      "referenced_rows": 137,
+      "Head_over_20pct_rows": 76,
+      "Hand_over_25pct_rows": 0
+    }
+  },
+  "actual_head_weighted_named_face_removed_incidence": 0,
+  "actual_Hand_over_25pct_referenced_removed_rows": 0,
+  "checks": {
+    "old_BIN_accessor_bufferView_material_prefixes_exact": true,
+    "core_attribute_arrays_exact": true,
+    "all_other_existing_primitives_meshes_nodes_skins_clips_default_scene_exact": true,
+    "removed_current_indices_exact_independent_predicate_and_order": true,
+    "serialized_NPZ_sets_exact": true,
+    "new_component_count": 13,
+    "input_SHA_mtime_unchanged": true
+  },
+  "new_components": [
+    {
+      "primitive": 112,
+      "vertices": 2050,
+      "triangles": 4096,
+      "world_bounds": [
+        [
+          -0.09978561103343964,
+          -0.03799999877810478,
+          0.008047106675803661
+        ],
+        [
+          0.08778560906648636,
+          0.1550000011920929,
+          0.17221735417842865
+        ]
+      ],
+      "positive_signed_volume": 0.003813191887691038,
+      "minimum_area": 1.5263265752452064e-05,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 113,
+      "vertices": 36,
+      "triangles": 12,
+      "world_bounds": [
+        [
+          -0.07999999821186066,
+          0.08799999952316284,
+          0.12600000202655792
+        ],
+        [
+          -0.026000000536441803,
+          0.14900000393390656,
+          0.17399999499320984
+        ]
+      ],
+      "positive_signed_volume": 6.895997008363209e-06,
+      "minimum_area": 8.16086887592541e-05,
+      "all_index_edges_2": false,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 114,
+      "vertices": 38,
+      "triangles": 72,
+      "world_bounds": [
+        [
+          -0.059539999812841415,
+          0.08827999979257584,
+          0.1313546746969223
+        ],
+        [
+          -0.02612280659377575,
+          0.1506854146718979,
+          0.17689552903175354
+        ]
+      ],
+      "positive_signed_volume": 1.9952137410245272e-07,
+      "minimum_area": 2.0249706748292696e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 115,
+      "vertices": 36,
+      "triangles": 12,
+      "world_bounds": [
+        [
+          0.014000000432133675,
+          0.08799999952316284,
+          0.12600000202655792
+        ],
+        [
+          0.06800000369548798,
+          0.14900000393390656,
+          0.17399999499320984
+        ]
+      ],
+      "positive_signed_volume": 6.89599769009115e-06,
+      "minimum_area": 8.160868574648273e-05,
+      "all_index_edges_2": false,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 116,
+      "vertices": 38,
+      "triangles": 72,
+      "world_bounds": [
+        [
+          0.01412280648946762,
+          0.08827999979257584,
+          0.1313546746969223
+        ],
+        [
+          0.047540001571178436,
+          0.1506854146718979,
+          0.17689552903175354
+        ]
+      ],
+      "positive_signed_volume": 2.132639385278778e-07,
+      "minimum_area": 2.024975786717352e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 117,
+      "vertices": 66,
+      "triangles": 128,
+      "world_bounds": [
+        [
+          -0.04053197428584099,
+          0.07897602766752243,
+          0.136033833026886
+        ],
+        [
+          -0.004836393985897303,
+          0.1521979421377182,
+          0.17854328453540802
+        ]
+      ],
+      "positive_signed_volume": 7.052963248505318e-07,
+      "minimum_area": 4.596879589370988e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 118,
+      "vertices": 66,
+      "triangles": 128,
+      "world_bounds": [
+        [
+          -0.007163606118410826,
+          0.07897602766752243,
+          0.136033833026886
+        ],
+        [
+          0.02853197604417801,
+          0.1521979421377182,
+          0.17854328453540802
+        ]
+      ],
+      "positive_signed_volume": 7.007610039586551e-07,
+      "minimum_area": 4.596877872939735e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 119,
+      "vertices": 266,
+      "triangles": 528,
+      "world_bounds": [
+        [
+          -0.012000000104308128,
+          0.07000000029802322,
+          0.17520000040531158
+        ],
+        [
+          0.0,
+          0.0860000029206276,
+          0.18080000579357147
+        ]
+      ],
+      "positive_signed_volume": 5.470824062305714e-07,
+      "minimum_area": 1.4803549200687288e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 120,
+      "vertices": 362,
+      "triangles": 720,
+      "world_bounds": [
+        [
+          -0.007149999961256981,
+          -0.03007286973297596,
+          0.16836024820804596
+        ],
+        [
+          -0.0048500001430511475,
+          0.06010570377111435,
+          0.17406967282295227
+        ]
+      ],
+      "positive_signed_volume": 3.580525336787558e-07,
+      "minimum_area": 3.306225638699809e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 121,
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.00860000029206276,
+          0.05040000006556511,
+          0.1709153801202774
+        ],
+        [
+          -0.0034000000450760126,
+          0.05559999868273735,
+          0.17391538619995117
+        ]
+      ],
+      "positive_signed_volume": 3.981563395930055e-08,
+      "minimum_area": 1.1167001562370768e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 122,
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.00860000029206276,
+          0.023399999365210533,
+          0.1734076887369156
+        ],
+        [
+          -0.0034000000450760126,
+          0.028599999845027924,
+          0.17640769481658936
+        ]
+      ],
+      "positive_signed_volume": 3.9815640757488305e-08,
+      "minimum_area": 1.1167001562370768e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 123,
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.00860000029206276,
+          -0.003599999938160181,
+          0.17184920608997345
+        ],
+        [
+          -0.0034000000450760126,
+          0.0015999999595806003,
+          0.17484921216964722
+        ]
+      ],
+      "positive_signed_volume": 3.9815657604292664e-08,
+      "minimum_area": 1.1167000726978143e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    },
+    {
+      "primitive": 124,
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.00860000029206276,
+          -0.029600000008940697,
+          0.17019841074943542
+        ],
+        [
+          -0.0034000000450760126,
+          -0.024399999529123306,
+          0.1731984168291092
+        ]
+      ],
+      "positive_signed_volume": 3.981565454882182e-08,
+      "minimum_area": 1.1167001562370768e-07,
+      "all_index_edges_2": true,
+      "all_exact_float32_POSITION_welded_edges_2": true,
+      "face_mean_normal_disagreements": 0,
+      "actual_Pelvis_Chest_weights_sum_1": true
+    }
+  ],
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Legacy mandatory-face includes deliberate lower neck and cloth replacement, while actual head-weighted named face is preserved.",
+    "Original cuff/hair label incidence is disclosed; only the retained original primitive0 faces are removed.",
+    "Closed index-edge components overlap; global intersections and cloth simulation are not certified."
+  ]
+}

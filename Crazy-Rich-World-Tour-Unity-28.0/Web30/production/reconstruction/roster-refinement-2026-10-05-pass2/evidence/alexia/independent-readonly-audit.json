@@ -1,0 +1,87 @@
+{
+  "source_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+  "candidate_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "native_sha256": "c58639582c0da106312391b3548720c2d8b0a03536804b30892c1ba4730a251f",
+  "original_bin_prefix_and_json_records_exact": true,
+  "original_scene_properties_and_transform_roots_preserved": true,
+  "original_2_embedded_images_equal_native_packed_bytes": true,
+  "actual": {
+    "faces": 39032,
+    "vertices": 29185,
+    "meshes": 2,
+    "mesh_definitions": 2,
+    "default_scene": 0,
+    "default_scene_nodes": 4,
+    "skins": 0,
+    "clips": 0,
+    "images": 2,
+    "normal_present_on_every_primitive": true,
+    "clip_names": [],
+    "bin_sha256": "d6b0065c473c0891b20eeae157be7d308cc9bcf7d11f007f566092a8c75774c5",
+    "accessors_checked": 28,
+    "buffer_views_checked": 30
+  },
+  "new_part_topology": [
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 8.340645850793913e-07,
+      "positive_signed_volume": 5.857514840077977e-07
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 7.034147789252636e-07,
+      "positive_signed_volume": 1.6850053551732017e-06
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 3.419560992708235e-09,
+      "positive_signed_volume": 1.165447109740752e-06
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 1.4080411187986348e-09,
+      "positive_signed_volume": 2.5378695173603443e-08
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 7.616809255752639e-07,
+      "positive_signed_volume": 5.066637476434421e-07
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 6.423810365645845e-07,
+      "positive_signed_volume": 1.4575192952585403e-06
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 3.1115375782368213e-09,
+      "positive_signed_volume": 1.0080988511647237e-06
+    },
+    {
+      "faces": 1440,
+      "vertices": 720,
+      "all_edges_two_opposite": true,
+      "minimum_triangle_area": 1.281215295264673e-09,
+      "positive_signed_volume": 2.1952371404066416e-08
+    }
+  ],
+  "no_preservation_or_glb_structural_blocker_found": true,
+  "limits": [
+    "Eight individual coatings certified closed/oriented/nonzero area, not a welded global union or collision/deformation/visual perfection certificate.",
+    "Native reopen proof checks actual mesh/UV/material index/transforms and packed image bytes; it does not separately fingerprint the material shader graph or corner normals."
+  ]
+}

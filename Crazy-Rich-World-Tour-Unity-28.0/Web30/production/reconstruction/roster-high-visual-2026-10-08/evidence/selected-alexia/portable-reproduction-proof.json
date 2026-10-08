@@ -1,0 +1,72 @@
+{
+  "schema": "crwt.alexia_high_visual_local_review_rebuild.v2_pathcheck",
+  "passed": true,
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "chain_sha256": "6c61f0a16524e2e0c01be70cfd0fbae36dc880389e0bb4ad1cde575819eb93a0",
+  "actual_step_count": 9,
+  "steps": [
+    {
+      "id": "hair",
+      "candidate_sha256": "7a748e6e8cc262d3161f0ed05f36037a02d4528ca1a45f57b7cf4f4b026b4556",
+      "candidate_bytes": 64011088,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "headband",
+      "candidate_sha256": "fc5e7690a475af1df3fa982186ffbad2325921644f74c8570627108b0c5cfb7c",
+      "candidate_bytes": 68492232,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "material",
+      "candidate_sha256": "2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0",
+      "candidate_bytes": 69428732,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "body",
+      "candidate_sha256": "88a40e8af34fe0b01183da1f79244da3e3924900390950fc84b22394fcfc9f26",
+      "candidate_bytes": 77260180,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "retained-cleanup",
+      "candidate_sha256": "b0284bb2abc9e50254cea75bb39b48e402d1e8e26a1a2eee2e36a6a1bb212660",
+      "candidate_bytes": 78965692,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "rear-calves",
+      "candidate_sha256": "21f60d8d03bf1d11346dd970b1189e98a6e3bad48aad1ec6f1ff3f0c5a758748",
+      "candidate_bytes": 80901520,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "final-cleanup",
+      "candidate_sha256": "bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158",
+      "candidate_bytes": 82483588,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "cold-orphans",
+      "candidate_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+      "candidate_bytes": 83689164,
+      "matched_actual_pinned_intermediate": true
+    },
+    {
+      "id": "clean-anatomy",
+      "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+      "candidate_bytes": 84708100,
+      "matched_actual_pinned_intermediate": true
+    }
+  ],
+  "final_model_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-high-visual-2026-10-08\\publication\\local-review-reproduction-check\\clean-anatomy\\alexia.glb",
+  "final_model_byte_identical": true,
+  "all_review_inputs_SHA_mtime_unchanged": true,
+  "baseline_from_local_review": true,
+  "sibling_source_repository_required": false,
+  "Blender_browser_render_Git_network_used": false,
+  "HIGH_source_gate_passed": true,
+  "approved": false,
+  "gameIntegrated": false
+}

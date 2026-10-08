@@ -1,0 +1,15 @@
+{
+  "provider": "Microsoft TRELLIS.2 public ZeroGPU",
+  "seed": 1412,
+  "mode": "single-front-image",
+  "resolution": "1024",
+  "paidJob": false,
+  "approved": false,
+  "gameAssetsReplaced": false,
+  "startedUtc": "2026-10-03T13:38:00.626238+00:00",
+  "limitation": "Single image; hidden surfaces inferred and must be compared to agreed back/side views.",
+  "status": "not-generated",
+  "errorClass": "AppError",
+  "error": "The upstream Gradio app has raised an exception but has not enabled verbose error reporting. To enable, set show_error=True in launch().",
+  "endedUtc": "2026-10-03T13:38:18.505019+00:00"
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "crwt.alexia-side-colors-actual-render-comparison.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "render_source": "Actual imported volumetric GLB meshes and original embedded materials; reference PNG not used in scene.",
+  "camera_contract": "All models use identical baseline bounds, orthographic framing, camera transforms and lighting.",
+  "camera_center_blender": [
+    -0.00600847601890564,
+    -0.01529797911643982,
+    0.01690545678138733
+  ],
+  "extent": 0.9243070483207703,
+  "resolution": [
+    512,
+    512
+  ],
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "samples": 16,
+  "view_transform": "Standard",
+  "all_input_files_unchanged": true,
+  "models": [
+    {
+      "label": "baseline",
+      "input_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-05-hair-sculpt\\viewer\\models\\alexia.glb",
+      "input_sha256": "a605eedeaf86740d14f92d04553b25c016a1c0bf362a2265036fadb5aa60acd4",
+      "views": [
+        {
+          "name": "front",
+          "azimuth": 0,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\front.png",
+          "sha256": "8ee247da264910179f80011fe6dd51ea290ff62739ee60dc16d52a10849cf078",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "left",
+          "azimuth": 90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\left.png",
+          "sha256": "eb02c112acc01d684e415025c8ea9a86599bbc1f3ef63c1ba16e39f1c4d19c62",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "right",
+          "azimuth": -90,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\right.png",
+          "sha256": "0d1e023b5f2120474d12172454efd58436422cfb96d38be8c143a290af9fbc9c",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "back",
+          "azimuth": 180,
+          "elevation": 0,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\back.png",
+          "sha256": "5f517b491222d2a59942868d326aecbca4b3932d98b73d2f78f39feff3b4693d",
+          "resolution": [
+            512,
+            512
+          ]
+        },
+        {
+          "name": "three-quarter",
+          "azimuth": -30,
+          "elevation": 10,
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\three-quarter.png",
+          "sha256": "17cc96d70b24ddd79a7d093f8f338952fc76ae48ffb49a3cabaccc2c2836ea18",
+          "resolution": [
+            512,
+            512
+          ]
+        }
+      ],
+      "mesh_objects": 3,
+      "vertices": 261299,
+      "polygons": 456896,
+      "gray_geometry_inspection_views": [],
+      "gray_material_is_render_copy_override_only": true,
+      "fixed_camera_hair_closeups": [
+        {
+          "name": "hair-left",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\hair-left.png",
+          "sha256": "ea494faf22eb2fae45e0c33bb9b0c9047d56f96b67ad94b0b9d07c406d970765",
+          "resolution": [
+            512,
+            512
+          ],
+          "azimuth": 90,
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        },
+        {
+          "name": "hair-right",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\hair-right.png",
+          "sha256": "375099c53bd81b407326df54732b78a56806abdaa82cb17a52b6e0d8111a0ff1",
+          "resolution": [
+            512,
+            512
+          ],
+          "azimuth": -90,
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        },
+        {
+          "name": "hair-back",
+          "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-colors-2026-10-06\\render\\baseline-review\\baseline\\hair-back.png",
+          "sha256": "1b03a5572ea1fc5e493905e28832ab017afa588eb0b71f4b5eb684404adc2689",
+          "resolution": [
+            512,
+            512
+          ],
+          "azimuth": 180,
+          "center": [
+            -0.00600847601890564,
+            -0.01529797911643982,
+            0.18328072130680084
+          ],
+          "ortho_scale": 0.68398721575737
+        }
+      ]
+    }
+  ]
+}

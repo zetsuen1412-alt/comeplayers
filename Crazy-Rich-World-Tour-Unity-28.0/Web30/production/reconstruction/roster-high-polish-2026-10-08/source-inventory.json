@@ -1,0 +1,595 @@
+{
+  "schema": "crwt.alexia_high_polish_source_inventory.v1",
+  "files": [
+    {
+      "path": "LANJUT-DI-KOMPUTER-LAIN.md",
+      "bytes": 2514,
+      "sha256": "d9cd4f07242de8f28c50b3bac2a10bb2c323a2ffb8ccb80871dedb3118f5642a",
+      "git_blob_sha1": "a59cbf695efe7df5660b3806b087167378208952",
+      "mode": "100644"
+    },
+    {
+      "path": "MULAI-DI-SINI.txt",
+      "bytes": 1104,
+      "sha256": "c0a089ceb83ba4738e92dc1231eca26a285f31e98581d63b02cd98aab2febcbb",
+      "git_blob_sha1": "2912ec652226e9824cbc3bda5c73029dd2960e40",
+      "mode": "100644"
+    },
+    {
+      "path": "SOURCE-README.md",
+      "bytes": 1497,
+      "sha256": "7316c99228ce98c9d96e31f91d22a381460e93e078716f0bc59c7b5b70285d6a",
+      "git_blob_sha1": "bba076a183249a085e6e49cf4bcdeaf3bb7b741e",
+      "mode": "100644"
+    },
+    {
+      "path": "alexia-editable-manifest.json",
+      "bytes": 240,
+      "sha256": "0c87ba8fe76e080d9bb4ceb287cd377999a7eb9d0bbcb816247b636c7e50ea61",
+      "git_blob_sha1": "4a975fed0529504940de155351529db6eaa8a3ff",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/BRIEF-KARAKTER-ANIIMO-ID.md",
+      "bytes": 6461,
+      "sha256": "851f6fa8590f6622c4f26786a85ffda8808475e20f9ef130e068e39a45979085",
+      "git_blob_sha1": "a1c170f69c566e72b526d7a0e8f820443072b660",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/actual-body-07m18s.jpg",
+      "bytes": 138432,
+      "sha256": "af547fc533c2afd03f39f5f1fd25191fd7fa51f23c60da5a7815bacae6341a88",
+      "git_blob_sha1": "62941773856e93c383c4e9cdcc06fff6461e6694",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/actual-browser-frame-review.json",
+      "bytes": 2562,
+      "sha256": "20db8007ef6cfb9573d5c5d43c91327eeca7d40b1179f82c7ddf60efd683a6a8",
+      "git_blob_sha1": "b56df8634ee30f9848251055b84fb84a6a2e3dfd",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/actual-face-04m33s.jpg",
+      "bytes": 123410,
+      "sha256": "732d1719d8ea8886ab027b3ab37d8936c29479602ab52088fdf7b105bbc5c011",
+      "git_blob_sha1": "3b3a962b56287d270d4cb1e18374425f5e763f65",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/actual-hair-07m36s.jpg",
+      "bytes": 111191,
+      "sha256": "5df82508882f00b736eccade091d8e124fb55fefa1f27f79a1c78851ec1d86ec",
+      "git_blob_sha1": "db7c3b369466bacecb55ec43d54f259d87ee17c3",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/actual-outfit-09m07s.jpg",
+      "bytes": 124518,
+      "sha256": "2dbc27830f9bacaef063709033b1c7d425bc349d5a15a8a8e771e919dab77f78",
+      "git_blob_sha1": "9067a68eb955d3a30034ab73be18297418111485",
+      "mode": "100644"
+    },
+    {
+      "path": "art-direction/aniimo/reference-record.json",
+      "bytes": 7682,
+      "sha256": "33859144aa4f2955f1458890078c776d219ebc4426f684c3d1681acc45c84895",
+      "git_blob_sha1": "cafd60a5b5aeb1cf74ae72e5c461b302b208b5ce",
+      "mode": "100644"
+    },
+    {
+      "path": "editable/Alexia-high-polish-review.workspace-proof.json",
+      "bytes": 709188,
+      "sha256": "44758694be6b43290f8ef2965680a23742245b40fd6a5e2f0dad8d8df0080265",
+      "git_blob_sha1": "45e65fcc79ecca9041bf8cce155714807a1e9ab2",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/actual-webgl-review.json",
+      "bytes": 3128,
+      "sha256": "f651af9269da6f4c3992ef8e1b327ab95213f18a0f6de5c59a603090243c3951",
+      "git_blob_sha1": "428fc87446df93d6620305d487ed35566c524365",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/alexia-final-quarter.jpg",
+      "bytes": 82420,
+      "sha256": "9a8da3d68074cdd5a206342559fbbf9b411a9f39e1d245797ff1fcd54eacfc81",
+      "git_blob_sha1": "7892437621741751cd5623c06e2734d55d148f16",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/back-balanced.jpg",
+      "bytes": 75598,
+      "sha256": "dd5442bfddc61638153163582be0898ff2212d1725443043f5a393abbed5c1bf",
+      "git_blob_sha1": "6c0eba765e76ec2ab755e265d2c086983ce0a37e",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/front-balanced.jpg",
+      "bytes": 87464,
+      "sha256": "e5b4585b13ce56cdefe6b3536b9c941865a1d51b266d6fb7b19c204dda02dcc7",
+      "git_blob_sha1": "762869d84a334a5193f76fcec4696c66dc569292",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/idle-quarter.jpg",
+      "bytes": 82364,
+      "sha256": "4db4e89829df5a401f20e1e67c5765a6f407d38d38e6a6f9bdc2ea910baacc46",
+      "git_blob_sha1": "23f4f42faa09c932d7ef20528113d9ab813e35aa",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/left-balanced.jpg",
+      "bytes": 76497,
+      "sha256": "2ac12074e433fbefc953e812fd92ae74edbb2f7125ab446c9af487547b40f65d",
+      "git_blob_sha1": "dda82956377f6050297db17210ab219b2f98f3e1",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/quarter-balanced.jpg",
+      "bytes": 82420,
+      "sha256": "9a8da3d68074cdd5a206342559fbbf9b411a9f39e1d245797ff1fcd54eacfc81",
+      "git_blob_sha1": "7892437621741751cd5623c06e2734d55d148f16",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/reference-comparison.jpg",
+      "bytes": 104227,
+      "sha256": "0e6c3fd3fcb8ca00b1259280ad04b45f3d92b7dec05039ef38a5c7f4663a0076",
+      "git_blob_sha1": "355091eebaaae9db86e168064c093c036da0ae4d",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/right-balanced.jpg",
+      "bytes": 74598,
+      "sha256": "f1796b9f85bff39f8eea56db2e21aa30e2165b054584d6aa63de422e51ab64f5",
+      "git_blob_sha1": "7c73adc35f9c5b2b93a1185bbe5b379881ff16d7",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/rindi-baseline-check.jpg",
+      "bytes": 82144,
+      "sha256": "4aed1cfd68012691c413b8830ad0c73fdd0927dd47397908cc7dcbdd0b4624c8",
+      "git_blob_sha1": "a04e630a22b2ab93feb5ed7b058f894f3aeb74dc",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/walk-quarter-later.jpg",
+      "bytes": 82132,
+      "sha256": "58194406b05206d6f8764baa246dec9932c2c9424989d71057ceeaf1d161c8e4",
+      "git_blob_sha1": "34d1eaf12129f5e1286c5bdbc0237337323d5819",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/walk-quarter-warm.jpg",
+      "bytes": 81967,
+      "sha256": "fc62d189cedcbec5084c53b20a0a558ac3decd8638b8fbb7fc9904a5c95472ec",
+      "git_blob_sha1": "49e27d2520b71e98337a15b38bd9bcd8584e9c66",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/browser/walk-quarter.jpg",
+      "bytes": 82341,
+      "sha256": "02aeb9240e498fc237b8dbcb292088f779cd737857f0b791d69098f626068f28",
+      "git_blob_sha1": "3f64c9fbd246265fe1b44ef5b2ae16a219f72feb",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/motion/idle-quarter.png",
+      "bytes": 207569,
+      "sha256": "9ad0f52bdac26018e6e3a781c3b1cfa38b9c1137ef7fafdaa5d2e3b164cec5c6",
+      "git_blob_sha1": "dc76f5031c1a66d87a96bd0b1b50c2f4c879fd7a",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/motion/motion-render-proof.json",
+      "bytes": 27328,
+      "sha256": "22150a0e67f0c171ea0a245903bcdb72f5cb26e60cdd07787fc18340c0699fc0",
+      "git_blob_sha1": "f67ec8bdf79fa346de0b9c737115e1fd72fd131a",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/motion/neutral-front.png",
+      "bytes": 207128,
+      "sha256": "218fffd26d6e4a970f74a8991c5933761f9080250b5e9981c387c153521ef3e2",
+      "git_blob_sha1": "e685575b82ac1ef37508e4191db4709b6d0a16bf",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/motion/walk-quarter.png",
+      "bytes": 207497,
+      "sha256": "08227652d367ac3ed7a93c61d67d546d5b659fe94623f76be655c122dcc3ff8b",
+      "git_blob_sha1": "dbc3d758122df30a0342ea66e7e4d1961f8ab001",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/motion/walk-threequarter.png",
+      "bytes": 207908,
+      "sha256": "ccf7fef1720a8d7b82c416041141d336cdbe1e188afdd65aa2d6621f53326351",
+      "git_blob_sha1": "c2a361d0beab0c7848aedde93530f7d35a255a29",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/native-build.log",
+      "bytes": 1264,
+      "sha256": "eb50e4ec6a434af1aee7ac338667a5230ad5b82307eae5727dece46b1b37c198",
+      "git_blob_sha1": "827101537a3cf988c3f731dde2de428891caa22f",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/native-reopen.json",
+      "bytes": 709639,
+      "sha256": "39cbb5009109055e191fea71e578689d489f0fa299783372442953ad9d1a1558",
+      "git_blob_sha1": "b3c27242a9a59a74c630ae8512b5ddb46a6e6ea6",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/native-reopen.log",
+      "bytes": 1069,
+      "sha256": "148a3cfe365d63f2ee0eab525af3c13ea545cd2bec1e3f6d0c6a0fde91630cf1",
+      "git_blob_sha1": "0a01113adbe251b00fa88da8f87cbc1331a68e1f",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/native-review.json",
+      "bytes": 1379,
+      "sha256": "d591677f2567203dbd77f46f3bf001dc505b03d0444e20449251da6319718378",
+      "git_blob_sha1": "e8a4b2a03dd25f712298f68d2cff1d6a722b75f4",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/review-staging.json",
+      "bytes": 821,
+      "sha256": "ca158277f0d6eb58489a22f3745a8027eefa71eadd320440054e969586c74bed",
+      "git_blob_sha1": "cb318a16cfd2d4271a19f9116697cc9d14c33933",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/README-selected-delta.md",
+      "bytes": 1032,
+      "sha256": "a42166a19f9248f385e9f647acf735fc5c90912573350f4c4933625d271f86b3",
+      "git_blob_sha1": "2932d20d026b82835c2cc81d8c2c1036b068a1a2",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe.py",
+      "bytes": 9342,
+      "sha256": "eaec41de0fa79fad88a5e0aef2d11e31bf1342fb0761280128a88cabd04b78ca",
+      "git_blob_sha1": "a727f0c9906f27aae184852f1a82def5bf56d07b",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_final.py",
+      "bytes": 1140,
+      "sha256": "680ca35eaf46d94dc8e5250eb097398d8f9b44b14a0cf52cd1cfdbb4502df251",
+      "git_blob_sha1": "5b7458aaa46ffe4082f4160fce44924658822396",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_v2.py",
+      "bytes": 3088,
+      "sha256": "0a17eeef9c36290d13e76766dc95e0f47d2af7d470fc208fe5ff38c360d40c17",
+      "git_blob_sha1": "e7ee55b0780877c6c9e6466ec5c95b72d75edd0f",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_v3.py",
+      "bytes": 1329,
+      "sha256": "3584b07173a468afee34fa096e68c2cebc6fa0374341b4cd52e2b718ae9b0bef",
+      "git_blob_sha1": "56d4f8b3815f7cfda26fef6d410316377d8debcd",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_v4.py",
+      "bytes": 825,
+      "sha256": "f951ba5e8323707e5ae0d18e5c1a8881d55c854978ce28980b40cb88edaea198",
+      "git_blob_sha1": "6ed2990839e477e337f61f2c881adcf25507b230",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_temple_final.py",
+      "bytes": 3037,
+      "sha256": "31184de86bb7c2e6092231e3fe9a25bce6d42395d8f327ce8a2eb301b27a0788",
+      "git_blob_sha1": "6aedf396c899603b60c06ba52fd41aef976ff4ca",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair.py",
+      "bytes": 18156,
+      "sha256": "1f4a98408d7de2d37d4518d002700fbb57bca40fce5813c704398dfb3628c805",
+      "git_blob_sha1": "b9b8136a2b8366283bb4dabef198ee6ea3604964",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair_v2.py",
+      "bytes": 19538,
+      "sha256": "45adb3d463d42128eb702b121a3de53e3b81bd387d29d7f5519ab4611af690e6",
+      "git_blob_sha1": "2d54bc085119547a02cc18a79989779623ef0ddb",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair_v3.py",
+      "bytes": 19632,
+      "sha256": "67e37c5669c99fc67520c83b2c2fff7104b9622793b3d89aa7d94d99039664d6",
+      "git_blob_sha1": "20a368fa24a80050e9250aca321e8aa2757227b3",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair_v4.py",
+      "bytes": 19580,
+      "sha256": "e6e2e6673d32b9e6bcb0c44c28dcf825fc2317c30513e80fb3b825bdcd98a033",
+      "git_blob_sha1": "4890328475de4d673acc995f269a0b9cc8c4d8e7",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/repair_temple_material.py",
+      "bytes": 8336,
+      "sha256": "f40f0fcb770448f858bb5b2d367567d808bc405c818793baa6033cd9bf3b5e38",
+      "git_blob_sha1": "daedb09aa3376443630b1b7a61bf8195fe6d7db0",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/hair-polish-proof.json",
+      "bytes": 33176,
+      "sha256": "ecf09bb42153b2b68dee010849cca6ee934e0156ba18a1c0851008410078235b",
+      "git_blob_sha1": "2c5049aa67676d7c49db8a1d42154b37a34f39c3",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/independent/final-actual-motion-v2-cpu-audit.json",
+      "bytes": 46210,
+      "sha256": "9de61ea922619840dc61e3164e82e06946b5ea8dd5f521de45c5acef640af263",
+      "git_blob_sha1": "2f3b39b8d44e11e7e53dc5f36dd384df9de43a63",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/independent/final-hair-independent-audit.json",
+      "bytes": 2594,
+      "sha256": "10af4ac20a8209449c455598f432242fbf0bd77c8a138b9c852c5e11727b1b7b",
+      "git_blob_sha1": "43a42d325cc5e54a9cbeb497802b21d1c0c4ada6",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/independent/final-high-polish-candidate-v2-audit.json",
+      "bytes": 8009,
+      "sha256": "5d3fcfd492c79143ce179238a1dd085c811a2f9e81f03f4ff55620f78a59ac9f",
+      "git_blob_sha1": "5594071dbe5c09c07df711f5c0ee768acc6bdfc8",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/independent/final-tailored-shirt-v2-independent-audit.json",
+      "bytes": 11264,
+      "sha256": "b458545d983d58c64f6840a4557d8e8e22708dc152902342ef22edf673368787",
+      "git_blob_sha1": "652b19c0c0fd34c5032a638364534567e03edb77",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/independent/final-temple-partition-independent-audit.json",
+      "bytes": 1945,
+      "sha256": "240e6cae91bab8c4550039a9879d2496f322661c58de0a0dec612f4187224f9f",
+      "git_blob_sha1": "201aef43ea18f715a92b4203ed85e3197e7ff524",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/portable-reproduction-proof.json",
+      "bytes": 1034,
+      "sha256": "7c13ff8308d9e9a6441f0aef8d33d9d0863755703b30db877e593204cd2a5e18",
+      "git_blob_sha1": "4b97f478db630192f09d58228438a57dc47a9edd",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/build_polished_hair_final.py",
+      "bytes": 19603,
+      "sha256": "4f14e8cfe1d4f169f30464ed74abfaa489871e8e3cfab6878b18051d43899857",
+      "git_blob_sha1": "3175b15d9277e8981d2f3237d2f7665ffa9c7d54",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/build_tailored_shirt_final.py",
+      "bytes": 15010,
+      "sha256": "f7f0b60f47030c1e748eefcd830e306579a9812860575e459be9ea2b33baa825",
+      "git_blob_sha1": "f75240ff71ea0fcd3779c877209ff683cbede9a8",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/rebuild_selected_delta.py",
+      "bytes": 3888,
+      "sha256": "8c3d226b0b283aa310dd9f9ca9c54049dd9e2319658fc13b8fee36784a3a0563",
+      "git_blob_sha1": "49e1f4c128e2f6504faa29809be7ba5bcd766a3f",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/repair_temple_material_final.py",
+      "bytes": 9923,
+      "sha256": "02df168c8636e1e51668da78bd354a94355e4c38b48c8b61b405d0770201f167",
+      "git_blob_sha1": "ea8e8a74604018971ad98b5bc3dbe504ee046787",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/selected-delta.json",
+      "bytes": 7769,
+      "sha256": "6156bd912385c2e9bc6f576d93219e171299c0ab14fffb8f3b2b666f181110d8",
+      "git_blob_sha1": "111065d429dd0f8908402fcf167048db27dadbc3",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/source-gate-proof.json",
+      "bytes": 7689,
+      "sha256": "aa92dcf58dfac6a9f4612cd269d20e20d8a93f5b495dabc06d970a74582839bd",
+      "git_blob_sha1": "6f93ea953566f24ebd75dd0be2ddf97afa7b8dc3",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/tailored-shirt-masks.npz",
+      "bytes": 318911,
+      "sha256": "e8c175666daaad9fb253e8004431219e7f47fdeaf26b640d89885b9bf7a67710",
+      "git_blob_sha1": "2b49800892174d413260b8a3aeeadd9d2ed6b026",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/tailored-shirt-proof.json",
+      "bytes": 9090,
+      "sha256": "14961bb38a67d6f74eb42504c3fa279f30f24369200e79f836f0758aa9b4897b",
+      "git_blob_sha1": "ab63a08c545b8305c1d6f3a0d39eb38650980b7d",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/temple-material-masks.npz",
+      "bytes": 475096,
+      "sha256": "4e82dd5bda947eabc754a7e4938d12f7d13aab7aabb72996ba6958ce9196189a",
+      "git_blob_sha1": "67b01d3a3f2dab2a35c16a9adc3e4f269ae7596b",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/selected-alexia/temple-material-proof.json",
+      "bytes": 33017,
+      "sha256": "52eb0ab56f9025d825746dc31919f10e01d5605157e569a7ba1f3fe0cbc8726c",
+      "git_blob_sha1": "c0a04bde42f7dd556eb9ed7d45273991558353ab",
+      "mode": "100644"
+    },
+    {
+      "path": "evidence/source-gate-replay.json",
+      "bytes": 345,
+      "sha256": "1d2063a20ec7cdb78f32cc0e217592a0071bdcbd9016eb47ec1aa3d9aa09690d",
+      "git_blob_sha1": "c1bb2731afd2bc2c52fa2736c231cafac88ee6d7",
+      "mode": "100644"
+    },
+    {
+      "path": "renders/alexia/back.png",
+      "bytes": 456092,
+      "sha256": "d13e15f704512c621381e5d6e938f10cf998a1f875ce1a4b068b49f3cd46cac8",
+      "git_blob_sha1": "b51f69ff8aa517a0907533e8e340c4f8cbf734e1",
+      "mode": "100644"
+    },
+    {
+      "path": "renders/alexia/front.png",
+      "bytes": 528448,
+      "sha256": "7eb1ff5630ad771c661e2ace0dcf179507fb6c125a09824255cbceac7f943013",
+      "git_blob_sha1": "02afc37c997a141b7b56e012ef55877186367d39",
+      "mode": "100644"
+    },
+    {
+      "path": "renders/alexia/left.png",
+      "bytes": 462268,
+      "sha256": "da7f227715834569dbbc403f9be8fb9ae6c23e8a52325b5874358bdb2770709e",
+      "git_blob_sha1": "0c713cc9d200f929cd305cec59f10bfd586c299b",
+      "mode": "100644"
+    },
+    {
+      "path": "renders/alexia/render-evidence.json",
+      "bytes": 1888,
+      "sha256": "75d4aa13a6f654c8e633fd864e3841119a968f8d7e89997dc9fc795fe39f91f3",
+      "git_blob_sha1": "cfaa9fb27f002e55faa066af3ebfd831ae8195ac",
+      "mode": "100644"
+    },
+    {
+      "path": "renders/alexia/right.png",
+      "bytes": 467552,
+      "sha256": "220379588daf63cad67b415c0de5692c5787ca59ca10aca96215930fb11efa0a",
+      "git_blob_sha1": "d9a13e2b126f4e13b97ab883a22247d890266aa5",
+      "mode": "100644"
+    },
+    {
+      "path": "renders/alexia/three-quarter.png",
+      "bytes": 535320,
+      "sha256": "46691000ee67afc895f240cc4e32b984fea49fc599a32c832c38a8d584430e3c",
+      "git_blob_sha1": "694d4683298b28e1a30209a7fab320cf2da44381",
+      "mode": "100644"
+    },
+    {
+      "path": "review-manifest.json",
+      "bytes": 11625,
+      "sha256": "a97e144ed7605d632766a49de3ed10e8bb2293a66da879e34c7d2179bd1efcaf",
+      "git_blob_sha1": "0c989586af3b00744dd9f8fdbe8cffd858adac1b",
+      "mode": "100644"
+    },
+    {
+      "path": "review-payload.json",
+      "bytes": 40301,
+      "sha256": "49f26a096f735025a6ac8d23a7c65e7c24ef1f61a914d322019657456fce06b3",
+      "git_blob_sha1": "b4418baa717e2d3d7a6fe60354898d88acfa83df",
+      "mode": "100644"
+    },
+    {
+      "path": "source-layout.json",
+      "bytes": 56975,
+      "sha256": "685efda15f765fd5e23e73765c6870fbff1a9848d1b57b4617ef42438080e32d",
+      "git_blob_sha1": "be36061c19f61420a4d84204a2d384067fe8b3ac",
+      "mode": "100644"
+    },
+    {
+      "path": "storage/4b257c0153c7b225cf02a5bd835bb8caca8825faaec3341a7aa71bccfe4b33c1.gz.part-01",
+      "bytes": 11140086,
+      "sha256": "dd3de9a11afc0f1cc2581fc40bd49ec77a25e5cd5143cdba90b5cb17950ec54c",
+      "git_blob_sha1": "c6f8688b9b28cdba837a8aef93b4a2465c5a9a2a",
+      "mode": "100644"
+    },
+    {
+      "path": "storage/f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10.gz.part-01",
+      "bytes": 22000000,
+      "sha256": "ebc335558aa9aae5ec9a510b71b9a4f5d4743ce6982e779ebf2f4fb5766a96d9",
+      "git_blob_sha1": "5ca9b080f52dac32472fc150f20c45f074960171",
+      "mode": "100644"
+    },
+    {
+      "path": "storage/f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10.gz.part-02",
+      "bytes": 22000000,
+      "sha256": "c847506d04f8bd04b7f5ea3a6f44a753a33d3baa1bf9edd37fde1da52813b176",
+      "git_blob_sha1": "806a918a6bd856c207e87cc81c96f32a5dd2cdfd",
+      "mode": "100644"
+    },
+    {
+      "path": "storage/f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10.gz.part-03",
+      "bytes": 10224962,
+      "sha256": "57d443314d4c88d71e58f94c9f9e8042a7c6c6e595c2f81e13b20ad496f5fc52",
+      "git_blob_sha1": "210f248290481dbe08c4cf31be4e7e2384cc8da9",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/source_checkpoint/portable_polish_source.py",
+      "bytes": 6134,
+      "sha256": "6700cb0dfbc52b35aa42a126544b76f786f5989a6066618e7c39c31eabf143d0",
+      "git_blob_sha1": "cd79649cf5141a6e6a5cfeee6423487fdaae782e",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/source_checkpoint/prepare_high_polish_source.py",
+      "bytes": 12425,
+      "sha256": "5feeb68421b15b14f4183399777bbfc6ef7623ac46480d7ab21b13cac8497740",
+      "git_blob_sha1": "189e2b2178746c3ac6c1972b099ec86d6fe5eb89",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/source_checkpoint/restore_high_polish.py",
+      "bytes": 10982,
+      "sha256": "ac0515f63da95e0ec266edc7a0a0b84a5505a441918d7f88a9dfe124f8743784",
+      "git_blob_sha1": "dd1d202f9ae2b91f0ebc490076ffb2f3392003ec",
+      "mode": "100644"
+    },
+    {
+      "path": "tools/verify_selected_polish_source_final.py",
+      "bytes": 19101,
+      "sha256": "6a121d36f1522e0a72890956aff1ad885f89307c913991d38a136c6cf134488a",
+      "git_blob_sha1": "4e6d438b3b09d69bd1e37fc74b3561f4447ced78",
+      "mode": "100644"
+    },
+    {
+      "path": "verify_actual_checkpoint.py",
+      "bytes": 13324,
+      "sha256": "7909adb7b8cb6734369d51f21dddc186933225a5ef570b679b19f71fe4e71943",
+      "git_blob_sha1": "7ed39b4d6a4e5c8925e465bc62f06966c800626a",
+      "mode": "100644"
+    },
+    {
+      "path": "viewer/gallery.html",
+      "bytes": 14384,
+      "sha256": "e0ea65f7c9b25a2fca2e19f55273b09094bddbc7c50b2d55c995cc066f753bf1",
+      "git_blob_sha1": "695156ede91c870ac2fa0196cbd6bd17950d3d08",
+      "mode": "100644"
+    }
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

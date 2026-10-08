@@ -1,0 +1,50 @@
+Alexia texture cleanup followed by manual skeletal motion
+
+Requirements: Python 3, NumPy and Pillow for the texture recipe. The motion
+builder uses Python 3 and NumPy. Both standalone recipes use explicit inputs
+and contain no historical workspace imports. Original reference pixels are
+read only. Blender is optional for inspecting/editing the actual native rig.
+
+From the delivered review root, use the packaged recipes and original baseline:
+
+python evidence/selected-alexia/recipes/build_semantic_palette_soft_volume.py --source evidence/selected-alexia/source/alexia-baseline.glb --reference references/alexia-blue-v2-turnaround.png --output-parent ../CRWT-Alexia-texture-motion-rebuilt --variant soft-volume-protected
+
+python evidence/selected-alexia/recipes/build_alexia_motion_exact_closure_v2.py --source ../CRWT-Alexia-texture-motion-rebuilt/soft-volume-protected/alexia.glb --semantic-mask ../CRWT-Alexia-texture-motion-rebuilt/soft-volume-protected/semantic-masks.npz --output-parent ../CRWT-Alexia-texture-motion-rebuilt --name alexia-texture-motion
+
+Both output children must be new. The output parent is outside the delivered
+review root, so review/inventory inputs remain unchanged. The texture step
+appends only a replacement mesh0 COLOR stream. The motion step preserves every
+active static texture input stream and appends JOINTS/WEIGHTS, skeleton, skins,
+inverse-bind matrices and real joint animation channels.
+
+Expected combined GLB SHA256:
+6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9
+Expected texture intermediate SHA256:
+a70437cd013e44e1aa90d68ace4ce0355dd7832d203c9bf2c22b4921491ff57b
+
+IdleBreath: 3.6 seconds. Walk: 1.2 seconds. Each has 49 authored key times.
+Walk is an in-place alternating leg/knee/foot and arm step. The root stays
+fixed. This manual merged-chibi prototype lacks production foot IK, contact,
+collision, root travel, facial rigging and dynamic hair. Its small joint angles
+limit but do not certify against coat/hair/body intersections. The suitcase is
+a rigid right-hand accessory; head, cups and rear hair locks move together.
+
+Native/color representation follows the Blender importer. Source GLB streams
+remain exact at rest except the selected texture COLOR replacement. Numerical
+proofs do not replace actual rendered motion review or production approval.
+
+Optional actual serialized motion sampler audit against the reproduced static
+texture intermediate (external fresh report):
+
+python evidence/selected-alexia/recipes/audit_serialized_motion.py --source ../CRWT-Alexia-texture-motion-rebuilt/soft-volume-protected/alexia.glb --candidate ../CRWT-Alexia-texture-motion-rebuilt/alexia-texture-motion/alexia.glb --report ../CRWT-Alexia-texture-motion-rebuilt/alexia-texture-motion/replayed-motion-audit.json
+
+The motion recipe reads the explicitly supplied accepted semantic mask (SHA256
+10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649).
+All 99,032 semantic hair vertices are rigid Head. Exact 12-byte original FLOAT
+POSITION cohorts extend that set to 99,250 vertices to preserve existing seams.
+The 218 shared-position extras include 24 jacket-color and one cuff-color vertex;
+they are seam members, not all unambiguous hair. No rounding or distance-based
+closure is used. All other weight rows and animation channels are unchanged
+from the prior manual prototype. No face/hand/critical protected vertices occur
+in this closure. Actual source rest geometry and static texture streams remain
+exact. The recipe computes closure from original source positions and the mask.

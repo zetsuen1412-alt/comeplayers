@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob:; style-src 'unsafe-inline'; img-src blob: data:; connect-src blob: data:; worker-src blob:; base-uri 'none'; form-action 'none'">
+<title>Alexia — Inspeksi mesh Crazy Rich: World Tour</title>
+<style>
+:root{font-family:Segoe UI,system-ui,sans-serif;color:#243446;background:#e9eef2;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #116b9a;outline-offset:3px}header{padding:20px 26px;background:#fff;border-bottom:1px solid #d5dfe6;display:flex;align-items:center;justify-content:space-between;gap:16px}h1{font-size:21px;margin:3px 0 0}p{margin:6px 0;font-size:13px;line-height:1.5}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;color:#60768a}.badge{color:#765514;background:#fff5d7;border:1px solid #ead498;border-radius:8px;padding:8px 12px;font-size:12px}.layout{display:grid;grid-template-columns:minmax(300px,1fr) 330px;height:calc(100vh - 91px);min-height:450px}.canvas-wrap{position:relative;min-width:0;min-height:0}canvas{display:block;width:100%;height:100%;touch-action:none}.hint{position:absolute;bottom:18px;left:20px;margin:0;padding:8px 10px;border-radius:7px;background:#ffffffdf;color:#526c80;font-size:12px;pointer-events:none}aside{padding:21px;background:#fff;border-left:1px solid #d5dfe6;overflow:auto}label{display:block;font-size:12px;font-weight:600;margin:0 0 7px}select{width:100%;padding:10px;border:1px solid #c4d1db;border-radius:7px;background:#f8fafb;color:#243446}.status{margin:16px 0 12px;font-size:13px;line-height:1.5;min-height:58px}.status.error{color:#983f35}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:15px 0}.toolbar button{padding:9px 4px;border:1px solid #cbd8e1;border-radius:7px;background:#f8fafb;color:#2e4d64;font-size:12px}.toolbar button.active{background:#235c80;color:#fff;border-color:#235c80}.toggle{display:flex;align-items:center;gap:7px;margin:12px 0;font-weight:400}.toggle input{margin:0;width:16px;height:16px}.info{margin-top:18px;padding-top:14px;border-top:1px solid #dde5ea;font-size:12px;line-height:1.55}.info strong{display:block;color:#3c5367}code{display:block;overflow-wrap:anywhere;font:10px/1.55 Consolas,monospace;color:#5e7384;background:#f3f6f8;border-radius:5px;padding:7px;margin-top:5px}.unknown{margin-top:16px;padding:10px;background:#edf1f4;border-radius:7px;font-size:12px;line-height:1.5}.unknown span{display:inline-block;width:11px;height:11px;border-radius:50%;background:#767676;margin-right:4px}.footer{margin-top:15px;color:#63798b;font-size:11px;line-height:1.5}@media(max-width:780px){header{padding:14px 16px}h1{font-size:18px}.badge{max-width:135px;font-size:10px}.layout{height:auto;display:block;min-height:0}.canvas-wrap{height:58vh;min-height:300px}aside{border-left:0;border-top:1px solid #d5dfe6;padding:17px}.toolbar{grid-template-columns:repeat(4,1fr)}.hint{font-size:11px;left:12px;bottom:12px}.status{min-height:0}.info{font-size:12px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">CRAZY RICH: WORLD TOUR</div><h1>Alexia · inspeksi mesh 3D</h1></div><div class="badge">Kandidat pengerjaan<br>Belum persetujuan visual</div></header>
+<main class="layout">
+<div class="canvas-wrap" id="viewport"><canvas id="view" aria-label="Model Alexia tiga dimensi yang dapat diputar"></canvas><p class="hint">Tarik untuk memutar · scroll/cubit untuk zoom · klik kanan untuk geser</p></div>
+<aside aria-label="Kontrol inspeksi model">
+<label for="model">Model yang diperiksa</label><select id="model" disabled></select>
+<div id="status" class="status" role="status">Menyiapkan penampil offline…</div>
+<div class="toolbar" aria-label="Sudut kamera"><button data-view="front">Depan</button><button data-view="back">Belakang</button><button data-view="left">Kiri</button><button data-view="right">Kanan</button><button data-view="quarter">Tiga perempat</button><button data-view="top">Atas</button><button data-view="bottom">Bawah</button><button id="reset">Reset kamera</button></div>
+<label class="toggle"><input id="wireframe" type="checkbox">Kerangka segitiga (wireframe)</label>
+<label class="toggle"><input id="gray" type="checkbox">Tampilkan geometri abu-abu</label>
+<label class="toggle"><input id="rotate" type="checkbox">Putar otomatis</label>
+<div class="info" id="info">Identitas berkas akan tampil setelah model dibuka.</div>
+<div class="unknown"><span></span>Pada proyeksi depan, bagian abu-abu belum diberi tekstur terverifikasi. Warna depan tidak membuktikan bentuk atau desain sisi belakang.</div>
+<div class="footer">Model GLB dan Three.js disertakan di file ini. Tidak perlu koneksi internet. Penampil menghitung normal/posisi kamera untuk tampilan dan tidak mengubah berkas sumber. Belum rig, animasi, atau integrasi game.</div>
+</aside>
+</main>
+<!-- EMBEDDED_PAYLOAD -->
+<!-- VIEWER_APP -->
+<!-- THIRD_PARTY_LICENSE -->
+</body></html>

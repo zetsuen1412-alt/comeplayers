@@ -1,0 +1,243 @@
+{
+  "schema": "crwt.pass2-actual-before-after.v1",
+  "output_sha256": "2bd703c6bdf02ef7254752e69db43ffa5f1bc33d52d250b2676ffe737b7faa3d",
+  "input_files_preserved": true,
+  "inputs": [
+    {
+      "path": "outputs\\model-review-2026-10-05\\review-manifest.json",
+      "sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+      "bytes": 10951
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\review-manifest.json",
+      "sha256": "f65190b5e1e862df6f1dcd0b362334728e8864cb6fe39a9f5679c6f08c779e24",
+      "bytes": 11188
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\references\\alexia.png",
+      "sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+      "bytes": 315274
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\viewer\\models\\alexia.glb",
+      "sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "bytes": 1942444
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\alexia\\render-evidence.json",
+      "sha256": "b7343c8cb6b66389974173b7d6258d9189b848e3d9d1ad602e4c71631559b3a1",
+      "bytes": 1367
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\alexia\\front.png",
+      "sha256": "6ae89bf48e19e0b204c9311c2803010540edc21f57328a212fb6424614a5f381",
+      "bytes": 545832
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\models\\alexia.glb",
+      "sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+      "bytes": 2225660
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\render-evidence.json",
+      "sha256": "aecf9664eb82328b30af83b64b768571f258b1d27641f0f2a00defda5046e86f",
+      "bytes": 1369
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\alexia\\front.png",
+      "sha256": "74c16b1576a028d072ca3cadd9e7cb3d15bcfe9161f5450a2ae335b4a3595683",
+      "bytes": 547050
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\references\\kairo.png",
+      "sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8",
+      "bytes": 218500
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\viewer\\models\\kairo.glb",
+      "sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "bytes": 1128236
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\kairo\\render-evidence.json",
+      "sha256": "30267581cdf1bb63aabca81a093993a2578519160e289cdb5f1acf443ed8e87c",
+      "bytes": 1362
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\kairo\\front.png",
+      "sha256": "0b0f3bd73365f05fed1cd1eeaee9ed1d148a3f794b8099a1e5d377d15bda621e",
+      "bytes": 531647
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\models\\kairo.glb",
+      "sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+      "bytes": 1278000
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\kairo\\render-evidence.json",
+      "sha256": "298841d06c3004cb190abfe57c33b7ebe9c126e7fc66b3ca8dccee53988f879f",
+      "bytes": 1371
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\kairo\\front.png",
+      "sha256": "6070986303f3f2ff0628733b9b413bfa091cc8538b5920b262463e1ba98769e4",
+      "bytes": 532918
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\references\\atlas.png",
+      "sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f",
+      "bytes": 227383
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\viewer\\models\\atlas.glb",
+      "sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "bytes": 2175716
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\atlas\\render-evidence.json",
+      "sha256": "cf17b2a6af26c60bcbbc52fc16c05d6239cdc41962b27a4184075851506a38c1",
+      "bytes": 1365
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\atlas\\front.png",
+      "sha256": "162078c24ab587114c7bb941a99643036351174b6cbee4e763cff41e39838011",
+      "bytes": 596949
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\models\\atlas.glb",
+      "sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+      "bytes": 2442104
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\atlas\\render-evidence.json",
+      "sha256": "4f93c4cb148ed1eb83de35790c3eb612ac95744077b9dbddeca949557942a801",
+      "bytes": 1373
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\atlas\\front.png",
+      "sha256": "7babb3359a188301420797b5f521786070ce70a3d27f2518bf733e3a5e75a842",
+      "bytes": 598088
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\references\\zeno.png",
+      "sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+      "bytes": 210187
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\viewer\\models\\zeno.glb",
+      "sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "bytes": 1883880
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\zeno\\render-evidence.json",
+      "sha256": "3b5b75e4a6897e2b96a5cd731efcd1fb79a8406827ac13a76c4556225d0ccb65",
+      "bytes": 1361
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\zeno\\front.png",
+      "sha256": "d6704905505a70574d99f16e25eb386acacfa15cf0957380b42696c13c9b74bd",
+      "bytes": 562709
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\models\\zeno.glb",
+      "sha256": "7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88",
+      "bytes": 2033644
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\zeno\\render-evidence.json",
+      "sha256": "4db7f7d1811051fb308993845b8a787b269d294c5333161cc22a3311843da407",
+      "bytes": 1370
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\zeno\\front.png",
+      "sha256": "a2e28cf80ed8805d12d6f702cfc17be4fb8d35348b73beebb7acba96412d26b6",
+      "bytes": 563960
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\references\\mochi.png",
+      "sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b",
+      "bytes": 130236
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\viewer\\models\\mochi.glb",
+      "sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "bytes": 2180084
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\mochi\\render-evidence.json",
+      "sha256": "94d482710cdc76b0d19598404b0400a38d6db715dc56a4d4df061946ad4182de",
+      "bytes": 1370
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05\\renders\\mochi\\front.png",
+      "sha256": "3d1dcb6dcbfc02666ec7f650f0677cfd1f84db26541a1a237e65e408146a8241",
+      "bytes": 525279
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\viewer\\models\\mochi.glb",
+      "sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+      "bytes": 2278336
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\mochi\\render-evidence.json",
+      "sha256": "fa9426836c830cd9aea04fe7c19fbed97b6361c9af7152538275e6f6826f5794",
+      "bytes": 1367
+    },
+    {
+      "path": "outputs\\model-review-2026-10-05-pass2\\renders\\mochi\\front.png",
+      "sha256": "fd972168a757807b1f910109e530a5103ade6e496532cd87619617bf90f243b4",
+      "bytes": 525867
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "alexia",
+      "scope": "Headphone perak / emas / bingkai hitam",
+      "source_sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "candidate_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+      "reference_sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "kairo",
+      "scope": "Bingkai goggles",
+      "source_sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "candidate_sha256": "543cb1ad81f03bd76b30df12259268a94356c8d5cb773b28742a72973c331f52",
+      "reference_sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8",
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "atlas",
+      "scope": "Tepi dan spiral roll",
+      "source_sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "candidate_sha256": "3d589b5ef653907530d51fbc468c90778fbc8e2975d0946a65a8aeff31b44153",
+      "reference_sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f",
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "zeno",
+      "scope": "Bingkai goggles dengan pose asli",
+      "source_sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "candidate_sha256": "7670b51db86958a7e956df8053de4fcff959046a0853920cfbf0e3e859f52c88",
+      "reference_sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+      "approved": false,
+      "gameIntegrated": false
+    },
+    {
+      "id": "mochi",
+      "scope": "Gesper strap dan clasp gold-teal tas",
+      "source_sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "candidate_sha256": "98ae40d75ef957a82beed4aa63aab918990b3b045bf6dd9d8573bbb456bf40e2",
+      "reference_sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b",
+      "approved": false,
+      "gameIntegrated": false
+    }
+  ],
+  "reference_used_as_geometry": false,
+  "image_processing": "thumbnail/layout/text only; original reference and actual render pixels unchanged",
+  "approved": false,
+  "gameIntegrated": false
+}

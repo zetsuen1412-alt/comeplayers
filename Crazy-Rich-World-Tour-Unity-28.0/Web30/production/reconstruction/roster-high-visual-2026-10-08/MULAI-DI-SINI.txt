@@ -1,0 +1,20 @@
+STUDIO KARAKTER - VERSI VISUAL TERBARU
+
+1. Salin ZIP checkpoint beserta berkas .sha256 ke komputer tujuan.
+2. Ekstrak ZIP ke folder BARU. Pertahankan susunan folder di dalamnya.
+3. Klik dua kali BUKA-REVIEW-MODEL.html dengan Chrome atau Edge. Pilih Alexia,
+   sudut kiri/kanan/belakang, pencahayaan seimbang/hangat, atau IdleBreath/Walk.
+
+Untuk mengedit: buka editable/Alexia-high-visual-review.blend di Blender.
+Rig dan gerak IdleBreath/Walk adalah prototipe manual; belum integrasi game.
+
+Dari folder hasil ekstrak, periksa file dan sepuluh GLB dengan Python standar:
+  python verify_actual_checkpoint.py .
+Pemeriksaan source HIGH opsional membutuhkan Python + NumPy:
+  python verify_actual_checkpoint.py . --source-gate
+Resep pembangunan ulang terpilih berada di evidence/selected-alexia/recipes/.
+Ikuti petunjuk pembangunan ulang yang disertakan; gunakan folder output baru
+DI LUAR folder checkpoint agar file asli tetap utuh.
+
+Paket lokal ini tidak menyatakan publikasi Git, keberhasilan CI, atau
+persetujuan produksi. Catatan publikasi terpisah harus dibaca sesuai cakupannya.

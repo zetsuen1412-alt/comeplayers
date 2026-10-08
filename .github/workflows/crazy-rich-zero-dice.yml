@@ -3,10 +3,12 @@ on:
   push:
     paths:
       - 'Crazy-Rich-World-Tour-Unity-28.0/**'
+      - '!Crazy-Rich-World-Tour-Unity-28.0/Web30/**'
       - '.github/workflows/crazy-rich-zero-dice.yml'
   pull_request:
     paths:
       - 'Crazy-Rich-World-Tour-Unity-28.0/**'
+      - '!Crazy-Rich-World-Tour-Unity-28.0/Web30/**'
       - '.github/workflows/crazy-rich-zero-dice.yml'
 permissions:
   contents: read

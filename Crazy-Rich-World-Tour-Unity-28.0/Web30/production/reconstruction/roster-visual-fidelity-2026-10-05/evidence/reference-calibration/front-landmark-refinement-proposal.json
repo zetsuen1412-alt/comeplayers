@@ -1,0 +1,137 @@
+{
+  "source": "outputs/model-review-2026-10-05-pass2/viewer/models/alexia.glb",
+  "source_sha256": "d9d868ffd4dbd0829a858df953eced16715742fa5f48dd290d3f08339038a0ae",
+  "reference": "outputs/model-review-2026-10-05-pass2/viewer/references/alexia.png",
+  "reference_sha256": "419dd06e8f2ce95a7b5e208c667d3f4b31d43b52810b457365cbb618e0805d69",
+  "width": 510,
+  "height": 488,
+  "normal_threshold": 0.05,
+  "vertical": [
+    [
+      -0.445248,
+      470
+    ],
+    [
+      -0.36,
+      425
+    ],
+    [
+      -0.2,
+      338
+    ],
+    [
+      -0.115,
+      296
+    ],
+    [
+      -0.047,
+      258
+    ],
+    [
+      0.1,
+      183
+    ],
+    [
+      0.157,
+      164
+    ],
+    [
+      0.2347,
+      126
+    ],
+    [
+      0.34,
+      73
+    ],
+    [
+      0.479059,
+      20
+    ]
+  ],
+  "horizontal_center_pixels": [
+    [
+      -0.45,
+      223
+    ],
+    [
+      0,
+      223
+    ],
+    [
+      0.15,
+      220
+    ],
+    [
+      0.19,
+      222.5
+    ],
+    [
+      0.3,
+      222.5
+    ],
+    [
+      0.36,
+      222
+    ],
+    [
+      0.48,
+      222
+    ]
+  ],
+  "horizontal_center_world": [
+    [
+      -0.45,
+      -0.024
+    ],
+    [
+      0.0,
+      -0.023
+    ],
+    [
+      0.15,
+      -0.02
+    ],
+    [
+      0.3,
+      -0.02
+    ],
+    [
+      0.48,
+      -0.006
+    ]
+  ],
+  "horizontal_scale": [
+    [
+      -0.45,
+      491
+    ],
+    [
+      0,
+      440
+    ],
+    [
+      0.15,
+      475
+    ],
+    [
+      0.235,
+      510
+    ],
+    [
+      0.34,
+      485
+    ],
+    [
+      0.48,
+      480
+    ]
+  ],
+  "fallback_unlit": true,
+  "exclude_peripheral_hair": true,
+  "manual_calibration": {
+    "status": "proposal, not rendered or approved",
+    "source": "geometric eye cavities measured by root",
+    "uncertainty_pixels": 4,
+    "guide": "alexia-geometry-calibration.json"
+  }
+}

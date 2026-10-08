@@ -1,0 +1,59 @@
+{
+  "schema": "crwt.alexia_high_visual_cold_orphan_actual_full_scope.v1",
+  "passed": true,
+  "source_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+  "checks": {
+    "e18_original_BIN_prefix_exact": true,
+    "core_original_POSITION_NORMAL_UV_JOINTS_WEIGHTS_exact": true,
+    "all_current_core_COLORS_and_alpha_exact88": true,
+    "final_retained_original_triangle_chain_exact": true,
+    "all_source_face_cup_incident_original_triangles_preserved": true,
+    "source_precision_cup_mesh_exact": true,
+    "all_source_joint_nodes_skins_clips_actual_streams_exact": true,
+    "all_authored88_primitives_unchanged": true,
+    "old_nonjoint_rear_node_deactivation_only": true,
+    "all_materials_images_unchanged_after_calf": true
+  },
+  "source_core_triangles_initial": 440192,
+  "hair_triangles_removed": 181305,
+  "garment_triangles_removed": 111586,
+  "trace": [
+    {
+      "stage": "retained-cleanup-trial",
+      "mask_sha256": "698208984bc2b701a25cdd5a80e970fad0e8e0e72f2fb78073b2ecc63f4f1409",
+      "removed": 5187,
+      "remaining": 142114
+    },
+    {
+      "stage": "rear-leg-cleanup-trial",
+      "mask_sha256": "ca3d61ba588d9c2f81e2886b22927f82559d71932ce286a2abe04c3f9150ed1c",
+      "removed": 9235,
+      "remaining": 132879
+    },
+    {
+      "stage": "final-retained-cleanup-trial",
+      "mask_sha256": "c10276f64c0b0da4a27a15fc3503bacec21417088b93b99441c9aabd7fc43f73",
+      "removed": 1052,
+      "remaining": 131827
+    },
+    {
+      "stage": "cold-orphan-cleanup-trial",
+      "mask_sha256": "4029629f0efd1606c2e2bb2d3072a3011da193d3509c82f8a198366e8b180502",
+      "removed": 31374,
+      "remaining": 100453
+    }
+  ],
+  "final_original_core_triangles": 100453,
+  "frozen_protected_rows": 138030,
+  "actual_warm_leg_rows": 8468,
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Strong actual right/quarter improvement is observed; final five/motion review remains pending.",
+    "Residual source hand-edge geometry remains protected and is not concealed by this structural receipt.",
+    "No exhaustive collision/self-intersection or production animation claim."
+  ]
+}

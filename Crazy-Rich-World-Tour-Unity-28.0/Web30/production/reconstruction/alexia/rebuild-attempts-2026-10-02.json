@@ -1,0 +1,75 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "alexia",
+  "date": "2026-10-02",
+  "activeReference": {
+    "turnaround": "production/turnarounds/alexia/turnaround-blue-imagegen-v2.png",
+    "eyeColor": "blue",
+    "turnaroundSha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+  },
+  "reviewer": {
+    "provider": "Gemini MCP",
+    "model": "gemini-3.8-flash",
+    "verdict": "REBUILD BEFORE TEXTURE",
+    "criticalIssues": [
+      "Suitcase fused into body/legs",
+      "Hair produced noisy/floating geometry",
+      "Insufficient articulation gaps around arms/torso and thighs",
+      "Headphones, jacket edges and shoe soles need cleaner hard-surface definition"
+    ]
+  },
+  "attempts": [
+    {
+      "id": "hunyuan2mv-v1-full-sheet",
+      "provider": "Tencent Hunyuan3D-2mv Turbo via public ZeroGPU Space",
+      "seed": 1412,
+      "steps": 5,
+      "octreeResolution": 256,
+      "faces": 1151046,
+      "vertices": 435242,
+      "glbSha256": "4517eebd5a2300ed69bdd65c81413a87070f4df74693369ac0ecd728a6bd6eba",
+      "outcome": "rejected_before_texture",
+      "reason": "Major prop/body fusion and noisy hair geometry"
+    },
+    {
+      "id": "hunyuan2mv-v2-masked-body",
+      "provider": "Tencent Hunyuan3D-2mv Turbo via public ZeroGPU Space",
+      "seed": 1412,
+      "steps": 8,
+      "octreeResolution": 192,
+      "faces": 501934,
+      "vertices": 186625,
+      "connectedComponents": 127440,
+      "mainComponentFaces": 364696,
+      "outcome": "rejected_before_texture",
+      "reason": "Suitcase still reconstructed; excessive disconnected fragments remained"
+    },
+    {
+      "id": "hunyuan2mv-v3-strict-crop",
+      "provider": "Tencent Hunyuan3D-2mv Turbo via public ZeroGPU Space",
+      "seed": 1412,
+      "steps": 10,
+      "octreeResolution": 192,
+      "faces": 482910,
+      "vertices": 177137,
+      "connectedComponents": 126827,
+      "mainComponentFaces": 347890,
+      "rawGlbSha256": "a936ab2a49c9b50ae670250d403275597be78a0c7ec420d4225c584d7b19a9a9",
+      "cleanedMainGlbSha256": "8d312cc32b86f81c775e1c82dfc017376586ded2ee40f5ce8186c90f795efbb7",
+      "outcome": "rejected_before_texture",
+      "reason": "Prop-like box still hallucinated and hair remained too fragmented for final riggable asset"
+    }
+  ],
+  "nextStep": {
+    "action": "Create a dedicated body-only reconstruction turnaround from approved Alexia V2",
+    "constraints": [
+      "Preserve blue-eyed Alexia identity, face proportions, hair silhouette, headphones and black/white/gold outfit",
+      "Remove suitcase from all body views",
+      "Use a rig-friendly neutral A-pose with visible arm/torso gaps and separated legs",
+      "Consolidate hair into clean volumetric clumps while preserving the approved overall silhouette",
+      "Reconstruct suitcase later as a separate prop"
+    ],
+    "riggingBlockedUntilGeometryPasses": true,
+    "textureBlockedUntilGeometryPasses": true
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "schema": "crwt.refinement-portable-path-map.v1",
+  "approved": false,
+  "gameIntegrated": false,
+  "planned_snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable",
+  "manifest_sha256": "b0cfc842d9e4ca920bba8447edc9f7987d33393d59f1ce084f0c3349a9da4b30",
+  "models": {
+    "alexia": {
+      "glb": "viewer/models/alexia.glb",
+      "sha256": "98bc9fd0f8957ee6454061a7370f634b832902e65e0f283026a41c9c1f8cc761",
+      "reference": "viewer/references/alexia.png"
+    },
+    "rindi": {
+      "glb": "viewer/models/rindi.glb",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+      "reference": "viewer/references/rindi.png"
+    },
+    "kairo": {
+      "glb": "viewer/models/kairo.glb",
+      "sha256": "8a3a8ddeb2b095e1ee179deffedfe03e091f965517384b06ea8dd9e1cda532fc",
+      "reference": "viewer/references/kairo.png"
+    },
+    "luna": {
+      "glb": "viewer/models/luna.glb",
+      "sha256": "2dea095cc34c52bcda460633b0062e9036adfd004e2cc9a519a8ef33d21a6381",
+      "reference": "viewer/references/luna.png"
+    },
+    "nox": {
+      "glb": "viewer/models/nox.glb",
+      "sha256": "0bc43f8be7f61773d6cc3a8cc67a6b3a7c907276d5e8bbd178b94ceecb175b6b",
+      "reference": "viewer/references/nox.png"
+    },
+    "atlas": {
+      "glb": "viewer/models/atlas.glb",
+      "sha256": "9c9cd775fa42fbab656e0116a937b8ec0902b4da7df9f1882a999e4bf8f5242f",
+      "reference": "viewer/references/atlas.png"
+    },
+    "zeno": {
+      "glb": "viewer/models/zeno.glb",
+      "sha256": "b79dd20f263f29cf6c9f368d2094cd997567c7ae359339511af0875becbeb7e9",
+      "reference": "viewer/references/zeno.png"
+    },
+    "yuna": {
+      "glb": "viewer/models/yuna.glb",
+      "sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+      "reference": "viewer/references/yuna.png"
+    },
+    "mochi": {
+      "glb": "viewer/models/mochi.glb",
+      "sha256": "15449dcf923bbee701bdf1c69b2eacd5446fe5beeec067dfd611384d05d635b8",
+      "reference": "viewer/references/mochi.png"
+    },
+    "pip": {
+      "glb": "viewer/models/pip.glb",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+      "reference": "viewer/references/pip.png"
+    }
+  },
+  "editable_archives": {
+    "CRWT-refined-individuals.zip": {
+      "members": [
+        "MULAI-DI-SINI.txt",
+        "evidence/luna/LUNA-HANDOFF.json",
+        "evidence/luna/LUNA-HANDOFF.md",
+        "evidence/luna/actual-mesh-renders-complete/render-evidence.json",
+        "evidence/luna/actual-mesh-renders/render-evidence.json",
+        "evidence/luna/editable-build-proof.json",
+        "evidence/luna/editable-readonly-reopen-proof.json",
+        "evidence/luna/luna-staff-head-refined-candidate.source-preservation.json",
+        "evidence/luna/neck-cap-exact-audit.json",
+        "evidence/luna/recipes/audit_neck_caps.py",
+        "evidence/luna/recipes/build_staff_head_addon.py",
+        "evidence/luna/recipes/choose_neck_cut.py",
+        "evidence/luna/recipes/dependencies/work/local-sculpt-toolchain/audit_hair_caps_exact.py",
+        "evidence/luna/recipes/dependencies/work/model-rebuild/Mochi-tail/attach_tail_candidate.py",
+        "evidence/luna/recipes/dependencies/work/model-rebuild/Mochi-tail/inspect_components.py",
+        "evidence/luna/recipes/dependencies/work/model-rebuild/tools/validate_roster_candidate.py",
+        "evidence/luna/recipes/dependencies/work/v11-diagnostic/audit_glb_components.py",
+        "evidence/luna/recipes/head-selection-components.json",
+        "evidence/luna/recipes/inspect_head_boundary.py",
+        "evidence/luna/recipes/inspect_staff.py",
+        "evidence/luna/recipes/isolate_staff_head.py",
+        "evidence/luna/recipes/merge_staff_head_candidate.py",
+        "evidence/luna/recipes/neck-cut-options.json",
+        "evidence/luna/recipes/render_staff_selection.py",
+        "evidence/luna/recipes/save_editable_candidate.py",
+        "evidence/luna/recipes/staff-head-frozen-selection.json",
+        "evidence/luna/recipes/staff-inspection.json",
+        "evidence/luna/recipes/staff-region-faces.json",
+        "evidence/luna/recipes/staff_regions.py",
+        "evidence/luna/selected-render-evidence.json",
+        "evidence/nox/MULAI-DI-SINI-NOX.md",
+        "evidence/nox/NOX-HANDOFF.json",
+        "evidence/nox/actual-mesh-review/nox-hip-card-editable-candidate.reopen-proof.json",
+        "evidence/nox/actual-mesh-review/render-editable-receipt.json",
+        "evidence/nox/nox-hip-card-accessory-candidate.preservation-proof.json",
+        "evidence/nox/recipes/FULL-RENDER-HANDOFF.json",
+        "evidence/nox/recipes/build_nox_hip_card.py",
+        "evidence/nox/recipes/inspect_nox.py",
+        "evidence/nox/recipes/render_editable_nox.py",
+        "evidence/nox/recipes/reopen_editable_check.py",
+        "evidence/nox/recipes/source-inspection.json",
+        "evidence/nox/recipes/write_handoff.py",
+        "evidence/nox/selected-render-evidence.json",
+        "evidence/nox/visual-review.json",
+        "evidence/rindi/RINDI-HANDOFF.json",
+        "evidence/rindi/actual-mesh-renders-final/render-evidence.json",
+        "evidence/rindi/editable-restore-proof.json",
+        "evidence/rindi/hand-refinement-proof.json",
+        "evidence/rindi/independent-integrity-and-bridge-audit.json",
+        "evidence/rindi/recipes/RINDI-HANDOFF-ID.md",
+        "evidence/rindi/recipes/audit_refinement.py",
+        "evidence/rindi/recipes/check_editable.py",
+        "evidence/rindi/recipes/dependencies/work/local-sculpt-toolchain/audit_hair_caps_exact.py",
+        "evidence/rindi/recipes/dependencies/work/model-rebuild/tools/validate_roster_candidate.py",
+        "evidence/rindi/recipes/dependencies/work/v11-diagnostic/audit_glb_components.py",
+        "evidence/rindi/recipes/hand-selection.json",
+        "evidence/rindi/recipes/inspect_hand.py",
+        "evidence/rindi/recipes/refine_hand_blender.py",
+        "evidence/rindi/selected-render-evidence.json",
+        "evidence/yuna/MULAI-DI-SINI-YUNA.md",
+        "evidence/yuna/YUNA-HANDOFF.json",
+        "evidence/yuna/actual-mesh-review/render-editable-receipt.json",
+        "evidence/yuna/actual-mesh-review/yuna-accessory-refinement-editable-candidate.reopen-proof.json",
+        "evidence/yuna/recipes/FULL-RENDER-HANDOFF.json",
+        "evidence/yuna/recipes/build_yuna_accessory_details.py",
+        "evidence/yuna/recipes/build_yuna_accessory_details_v4.py",
+        "evidence/yuna/recipes/ferrule-source-face-selection.json",
+        "evidence/yuna/recipes/freeze_ferrule_selection.py",
+        "evidence/yuna/recipes/inspect_yuna.py",
+        "evidence/yuna/recipes/measure_and_handoff.py",
+        "evidence/yuna/recipes/measure_and_handoff_v4.py",
+        "evidence/yuna/recipes/render_editable_yuna.py",
+        "evidence/yuna/recipes/reopen_editable_check.py",
+        "evidence/yuna/recipes/reopen_editable_check_v4.py",
+        "evidence/yuna/recipes/source-inspection.json",
+        "evidence/yuna/recipes/write_full_render_receipt.py",
+        "evidence/yuna/recipes/write_full_render_receipt_v4.py",
+        "evidence/yuna/render-change-measurements.json",
+        "evidence/yuna/selected-render-evidence.json",
+        "evidence/yuna/visual-review.json",
+        "evidence/yuna/yuna-accessory-refinement-candidate.preservation-proof.json",
+        "luna/luna-staff-head-refined-candidate.blend",
+        "nox/nox-hip-card-editable-candidate.blend",
+        "rindi/rindi-reaching-hand-candidate.blend",
+        "yuna/yuna-accessory-refinement-editable-candidate.blend"
+      ]
+    },
+    "Pip-source-preserved.zip": {
+      "members": [
+        "MULAI-DI-SINI.txt",
+        "evidence/actual-glb-preservation.proof.json",
+        "evidence/actual-mesh-renders-final/render-evidence.json",
+        "evidence/actual-mesh-renders/render-evidence.json",
+        "evidence/pip-reference-guided-candidate.manifest.json",
+        "evidence/recipes/PIP-REFINEMENT-HANDOFF.md",
+        "evidence/recipes/audit_pip_refinement.py",
+        "evidence/recipes/inspect_saved_pip_blend.py",
+        "evidence/recipes/pip_v8_frozen_builder.py",
+        "evidence/recipes/refine_pip_case.py",
+        "evidence/recipes/review-receipt.json",
+        "evidence/rounded-case-refinement.proof.json",
+        "evidence/saved-editable-blend.proof.json",
+        "evidence/selected-render-evidence.json",
+        "pip-reference-guided-candidate.blend"
+      ]
+    },
+    "CRWT-editable-roster.zip": {
+      "members": [
+        "CRWT-semua-karakter-review.blend",
+        "CRWT-semua-karakter-review.workspace-proof.json",
+        "MULAI-DI-SINI.txt",
+        "roster-workspace-reopen.json"
+      ]
+    }
+  },
+  "handoffs": {
+    "rindi": "evidence/rindi/RINDI-HANDOFF.json",
+    "luna": "evidence/luna/LUNA-HANDOFF.json",
+    "nox": "evidence/nox/NOX-HANDOFF.json",
+    "yuna": "evidence/yuna/YUNA-HANDOFF.json",
+    "pip": "evidence/PIP-HANDOFF.json"
+  },
+  "historical_mochi": {
+    "handoff": "evidence/MOCHI-HANDOFF.json",
+    "proof": "evidence/mochi-tail-attachment.proof.json",
+    "path_status": "Old scratch dependency paths are historical; the current manifest identifies the selected unchanged Mochi GLB."
+  },
+  "restore_note": "Use relative GLB/reference paths, packed native blends and ZIP manifests. Absolute generation paths in preserved evidence are provenance, not restore dependencies. Recipes are review provenance with historical path/environment assumptions; no one-command portable rebuild is claimed."
+}

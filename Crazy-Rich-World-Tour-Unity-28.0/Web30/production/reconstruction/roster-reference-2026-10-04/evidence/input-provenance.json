@@ -1,0 +1,162 @@
+[
+  {
+    "character": "alexia",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      25,
+      0,
+      350,
+      478
+    ],
+    "crop_sha256": "d075bb361a624d3c85e51efd4d3541e634223720b077a4535e9c132f66590518",
+    "alpha_sha256": "ad99fc916c536595efc2a2b66190e98c40a84b6deee2f7fd43e483a488b2edf7",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "rindi",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      352,
+      0,
+      657,
+      478
+    ],
+    "crop_sha256": "89cbee984e8784106b8a189dbf60988a6f54704845a4211ffcc20927a7ddbdb6",
+    "alpha_sha256": "0a30747a218048dc7eaa1303d4395a8e8bf33aa048b8a6e0e9d7b37a08b4bb25",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "kairo",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      655,
+      0,
+      932,
+      484
+    ],
+    "crop_sha256": "8411bc47f221e7e48cd58545068c1ff162f9b9997aa565c0ddbb15a7de595bc8",
+    "alpha_sha256": "019b9f27d692517aba1d6781cc89ecc0b4efcca350b28e605b556cacea8212dd",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "luna",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      934,
+      0,
+      1292,
+      481
+    ],
+    "crop_sha256": "24796f84ca53209bbd932b153e1bb1c1ce5af0d165edda77c61e579459bf6ac8",
+    "alpha_sha256": "73d5ca2193d0b9c0984fb5d633e206c68893460077c1667c274f9898f92f5c47",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "nox",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      1297,
+      0,
+      1667,
+      482
+    ],
+    "crop_sha256": "185cc0261d0fb8ecba92e0e14fe6398eeda31fd61a594ab9ce9947ae7b1d96d1",
+    "alpha_sha256": "d4e28564403880f5c0ae28dbc1cefaaf8123909a9d410fe340611a6df84ef9e7",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "atlas",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      20,
+      485,
+      356,
+      885
+    ],
+    "crop_sha256": "402a17b7f62d122de4af24da00d51cb36c2acfc027c733f8ff8e586451b3f71f",
+    "alpha_sha256": "7e16c1fb1fcbe8659377d27e7253e1df3cbd65a0d2756c3373a896dc3099635f",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "zeno",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      359,
+      485,
+      673,
+      886
+    ],
+    "crop_sha256": "4f3409d6e7dde581ceb022af100d4ce221bf44437148cd8dedc0375153852bcb",
+    "alpha_sha256": "4770c5df8ed3234498d893c3e5adee0000a643ca647dafc448baeca55c0fea67",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "yuna",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      672,
+      497,
+      1004,
+      889
+    ],
+    "crop_sha256": "3f4c951ef5efbb00d885cd5e20da6083dcb81ec08034a9e2d1b03b5dd38ef1f4",
+    "alpha_sha256": "722105b7e16bec69fb343e0788f74bda7b39c390b3b1ebb0c5d3fd117d3b8b73",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "mochi",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      1012,
+      555,
+      1297,
+      887
+    ],
+    "crop_sha256": "4cda42d5015a25fb900ae69808f6b7cf77bd9ce28c9c8034e5d13d34edbc016b",
+    "alpha_sha256": "925595b443434a9857fd6e6b0abf5b0caae67535ce037e625d11882086211110",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  },
+  {
+    "character": "pip",
+    "source": "references\\chibi_travel_adventurers_collectible_lineup.png",
+    "source_sha256": "d3559fe6948cc5a1befffba7f779d46138517394dcb53f2deb0ce0be113c719e",
+    "crop_xyxy": [
+      1332,
+      528,
+      1653,
+      874
+    ],
+    "crop_sha256": "edd071febc8054aa1302c91f69e704dab3e06ad242e5743572bd3b7b4051c8e5",
+    "alpha_sha256": "860d3cc6cf97be59105986d5b33a7bec5a1f9169ed3de2b699cb2b67d40a01e2",
+    "operation": "crop + u2net foreground alpha; no generated/repainted RGB pixels",
+    "visual_checked": false,
+    "status": "reconstruction_input_not_final_art"
+  }
+]

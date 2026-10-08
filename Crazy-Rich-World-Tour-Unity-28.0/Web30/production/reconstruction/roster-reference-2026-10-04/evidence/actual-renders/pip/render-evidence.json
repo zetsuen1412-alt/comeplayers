@@ -1,0 +1,65 @@
+{
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-rebuild\\Pip\\trial-v8\\pip-reference-guided-candidate.glb",
+  "input_sha256": "abef291c518c0ea34625678644910270fc9594e1d107ca80988db2059609fb32",
+  "bytes": 5525688,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 196,
+  "vertices": 100396,
+  "polygons": 87968,
+  "bounds_blender_z_up": [
+    [
+      -0.6344482898712158,
+      -0.21599999070167542,
+      -5.587935447692871e-09
+    ],
+    [
+      0.4193347990512848,
+      0.1574999839067459,
+      1.3344998359680176
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ],
+    [
+      "top",
+      0,
+      89.9
+    ],
+    [
+      "bottom",
+      0,
+      -89.9
+    ]
+  ],
+  "production_approved": false,
+  "orbit_frames": 24,
+  "material_limit": "studio preview lighting; no claim of identical lighting to raster reference"
+}

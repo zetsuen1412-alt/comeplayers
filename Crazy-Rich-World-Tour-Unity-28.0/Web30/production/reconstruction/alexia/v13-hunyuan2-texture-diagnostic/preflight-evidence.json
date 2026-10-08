@@ -1,0 +1,181 @@
+{
+  "project": "Crazy Rich: World Tour",
+  "character": "Alexia",
+  "candidate": "v13-hunyuan2-controlled-new-geometry-texture-diagnostic",
+  "auditType": "saved-live-official-space-preflight",
+  "checkedUtc": "2026-10-03T17:30:07.194516+00:00",
+  "scope": "Offline inspection of public official metadata/source fetched by the parent during this session. This record does not perform a new remote request or a model/GPU submission.",
+  "status": "blocked-by-preflight",
+  "reason": "Live Activated Model HTML declares TextureGeneration(Unavailable). Do not submit a combined shape+texture request while the configured texture generator is unavailable.",
+  "spaceUrl": "https://huggingface.co/spaces/tencent/Hunyuan3D-2",
+  "spaceOrigin": "https://tencent-hunyuan3d-2.hf.space",
+  "endpointCandidate": "/generation_all",
+  "metadata": [
+    {
+      "kind": "info",
+      "file": "tools/hunyuan2-info.json",
+      "bytes": 25499,
+      "sha256": "052fd40b3f2fb3f06619bfbb853bf84b62bc2a4bd791dfc2d9ebfe402d217907",
+      "copiedByteForByte": true,
+      "sourceUrl": "https://tencent-hunyuan3d-2.hf.space/info"
+    },
+    {
+      "kind": "config",
+      "file": "tools/hunyuan2-config.json",
+      "bytes": 77304,
+      "sha256": "5dffadc00045562aa58758d65b1ce7bebc06512cc74c9018225234b0e20cddaf",
+      "copiedByteForByte": true,
+      "sourceUrl": "https://tencent-hunyuan3d-2.hf.space/config"
+    },
+    {
+      "kind": "runtime",
+      "file": "tools/hunyuan2-runtime.json",
+      "bytes": 9949,
+      "sha256": "dfa00bebe7f1a508a8a97025df73a8cc6e964d4a3dcb03ff1c31ae49a0c56a95",
+      "copiedByteForByte": true,
+      "sourceUrl": "https://huggingface.co/api/spaces/tencent/Hunyuan3D-2"
+    }
+  ],
+  "runtime": {
+    "stage": "RUNNING",
+    "revision": "40b9abf02675534b9e80e3150bd97b85c135c8c8",
+    "hardware": {
+      "current": "zero-a10g",
+      "requested": "zero-a10g"
+    },
+    "domains": [
+      {
+        "domain": "tencent-hunyuan3d-2.hf.space",
+        "stage": "READY"
+      }
+    ],
+    "private": false,
+    "gated": false,
+    "disabled": false
+  },
+  "configuredModels": {
+    "componentId": 73,
+    "componentType": "html",
+    "activatedModelHtml": "\n        <div align=\"center\">\n        Activated Model - Shape Generation (tencent/Hunyuan3D-2/hunyuan3d-dit-v2-0) ; Texture Generation (Unavailable)\n        </div>\n        ",
+    "activatedModelText": "Activated Model - Shape Generation (tencent/Hunyuan3D-2/hunyuan3d-dit-v2-0) ; Texture Generation (Unavailable)",
+    "shapeGeneration": "tencent/Hunyuan3D-2/hunyuan3d-dit-v2-0",
+    "textureGeneration": "Unavailable"
+  },
+  "configuredTextureGenerationUnavailable": true,
+  "source": {
+    "url": "https://huggingface.co/spaces/tencent/Hunyuan3D-2/blob/main/gradio_app.py",
+    "sessionFile": "work/hunyuan2-source.py",
+    "sha256": "2f9c51dfac0e132f1a808eb3db07e016497e7afd59ba9a5bfba443a318f56508",
+    "bytes": 31568,
+    "sourceDeclaredCombinedGpuDurationSeconds": 90,
+    "actualRequestedGpuDurationSeconds": null,
+    "durationNote": "90 seconds is a source decorator observation only. No GPU request was submitted; acceptance under free access was not tested.",
+    "combinedFunctionGeneratesNewShapeFirst": true,
+    "firstReturnFileFormat": "white GLB",
+    "secondReturnFileFormat": "textured GLB",
+    "returnSlots": {
+      "0": "white GLB",
+      "1": "textured GLB",
+      "2": "viewer HTML",
+      "3": "stats",
+      "4": "seed"
+    },
+    "pbrTextureCapabilityConfirmed": false,
+    "textureUnavailableUnderlyingCauseEstablished": false
+  },
+  "apiContract": {
+    "parameterCount": 13,
+    "parameterNames": [
+      "caption",
+      "image",
+      "mv_image_front",
+      "mv_image_back",
+      "mv_image_left",
+      "mv_image_right",
+      "steps",
+      "guidance_scale",
+      "seed",
+      "octree_resolution",
+      "check_box_rembg",
+      "num_chunks",
+      "randomize_seed"
+    ],
+    "parameterDefaults": {
+      "caption": null,
+      "image": null,
+      "mv_image_front": null,
+      "mv_image_back": null,
+      "mv_image_left": null,
+      "mv_image_right": null,
+      "steps": 30,
+      "guidance_scale": 5.0,
+      "seed": 1234,
+      "octree_resolution": 256,
+      "check_box_rembg": true,
+      "num_chunks": 8000,
+      "randomize_seed": true
+    },
+    "returnComponents": [
+      "File",
+      "File",
+      "Html",
+      "Json",
+      "Slider"
+    ],
+    "captionExposed": true,
+    "note": "This differs from the 12-argument Hunyuan3D-2.1 contract. No parameters were submitted and no V12 checkpoint/default/PBR equivalence is assumed."
+  },
+  "input": {
+    "file": "alexia/nano-banana-ui-review/nano-banana-front-capture.jpg",
+    "sha256": "1202424fc57571aaad7b7e1389d4de1ae7ba155c1ec113bd4425b5f05ab02928",
+    "actualLocalHashVerified": true,
+    "intendedMethod": "single-image; all multiview inputs disabled",
+    "captureKind": "584x584 Nano Banana UI screenshot JPEG; original PNG was not exported",
+    "visibleSparkleRetained": true,
+    "hiddenSurfacesInferred": true
+  },
+  "sourceGate": {
+    "file": "alexia/v11-hunyuan21-diagnostic/geometry-review.json",
+    "sha256": "c8b87e8d32e703c570f6d7cb535f3c6c8e411589d6fdd6de10c253cc50fcfe5c",
+    "textureCandidateEligible": true,
+    "diagnosticOnly": true,
+    "gateTransfersToNewGeometry": false
+  },
+  "baselineV11": {
+    "file": "alexia/v11-hunyuan21-diagnostic/alexia-v11-hunyuan21-untextured-diagnostic.glb",
+    "sha256": "d0a0fea651079aa98d026a1610ef0a9e7f4c14c0c466cb1d949886df45c24a66",
+    "actualLocalHashVerified": true,
+    "meshChanged": false
+  },
+  "cachedV11GeometryReused": false,
+  "newShapeApprovalTransferred": false,
+  "candidateMethodNote": "This would produce a new textured geometry candidate, not paint the preserved V11 mesh. Independent geometry and texture review would be required.",
+  "providerGenerationSubmissions": 0,
+  "newGpuJobSubmitted": false,
+  "providerGenerationSubmitted": false,
+  "submitted": false,
+  "generated": false,
+  "generationReturned": false,
+  "serviceResultReturned": false,
+  "newMeshOrTextureProduced": false,
+  "newGlbProduced": false,
+  "whiteGlb": null,
+  "texturedGlb": null,
+  "automaticRetry": false,
+  "creditsOrSubscriptionPurchased": false,
+  "quotaRemainingChecked": false,
+  "quotaRemaining": null,
+  "quotaCauseInferred": false,
+  "durationAcceptanceTested": false,
+  "chargedComputeClaimed": false,
+  "meshApproved": false,
+  "sourceFidelityApproved": false,
+  "textureApproved": false,
+  "newGeometryGatePassed": false,
+  "productionMeshApproved": false,
+  "rigged": false,
+  "readyForRigging": false,
+  "readyForGame": false,
+  "gameAssetsReplaced": false,
+  "nextStep": "Preserve V11 and this preflight evidence. Reassess live texture availability before separately considering a future free diagnostic; do not submit the blocked candidate automatically."
+}

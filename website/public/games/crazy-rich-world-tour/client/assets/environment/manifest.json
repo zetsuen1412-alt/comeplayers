@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "pipeline": "CRWT25_LIVING_WORLD",
+  "presentation_only": true,
+  "systems": [
+    "dynamic_lighting",
+    "time_cycle",
+    "traffic",
+    "npc_walkers",
+    "vegetation_sway",
+    "water_motion",
+    "map_weather",
+    "aircraft_boats",
+    "ambient_props"
+  ],
+  "maps": {
+    "world_tour": {
+      "weather": "clear",
+      "traffic": "cars",
+      "special": [
+        "airplane",
+        "tour_boat",
+        "city_walkers"
+      ]
+    },
+    "tokyo_rush": {
+      "weather": "sakura",
+      "traffic": "cars+train",
+      "special": [
+        "commuter_train",
+        "sakura_petals",
+        "neon_city"
+      ]
+    },
+    "tropical_paradise": {
+      "weather": "breeze",
+      "traffic": "light",
+      "special": [
+        "boats",
+        "palms",
+        "water_shimmer"
+      ]
+    },
+    "candy_world": {
+      "weather": "sparkle",
+      "traffic": "candy_cars",
+      "special": [
+        "balloons",
+        "sparkles",
+        "candy_trees"
+      ]
+    },
+    "fantasy_kingdom": {
+      "weather": "firefly",
+      "traffic": "carriage",
+      "special": [
+        "carriage",
+        "fireflies",
+        "magic_lights"
+      ]
+    }
+  },
+  "authority": "visual_only_server_state_unchanged",
+  "low_power": "automatic_reduced_population",
+  "reduced_motion": "supported"
+}

@@ -1,0 +1,269 @@
+{
+  "schema": "crwt.roster_visual_fidelity_github_checkpoint.v1",
+  "repository": "https://github.com/zetsuen1412-alt/comeplayers.git",
+  "development_branch": "codex/crazy-rich-web-v30",
+  "snapshot_branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-visual-fidelity-portable",
+  "commit": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+  "tree_sha": "824d85ee62991086774b52c7d33180b2bc9d3850",
+  "baseline_source_commit": "8ea9cb7b849d586de299d8042d8f7185c9c40d3e",
+  "snapshot_verified": true,
+  "model_count": 10,
+  "manifest_sha256": "02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3",
+  "review_manifest_sha256": "02251bcc4a385515f9836fcfa62c2bdb30d4a07fc1fb39e71e3370363db9fdf3",
+  "models": [
+    {
+      "id": "alexia",
+      "sha256": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1"
+    },
+    {
+      "id": "rindi",
+      "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524"
+    },
+    {
+      "id": "kairo",
+      "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915"
+    },
+    {
+      "id": "luna",
+      "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509"
+    },
+    {
+      "id": "nox",
+      "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f"
+    },
+    {
+      "id": "atlas",
+      "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24"
+    },
+    {
+      "id": "zeno",
+      "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc"
+    },
+    {
+      "id": "yuna",
+      "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b"
+    },
+    {
+      "id": "mochi",
+      "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+    },
+    {
+      "id": "pip",
+      "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f"
+    }
+  ],
+  "changed_model_sha256": {
+    "alexia": "d37527d948b950f51e9074f6c60af2a3de0795a53e6b3fb02eb90add2f36eaa1",
+    "kairo": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+    "luna": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+    "nox": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+    "atlas": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+    "zeno": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+    "yuna": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+    "mochi": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd"
+  },
+  "unchanged_model_ids": [
+    "rindi",
+    "pip"
+  ],
+  "preserved_baseline_blobs": 3742,
+  "added_files": 208,
+  "total_source_blobs": 3950,
+  "overwrites": 0,
+  "deletions": 0,
+  "inventory_path": "Crazy-Rich-World-Tour-Unity-28.0/Web30/checkpoints/2026-10-05-roster-visual-fidelity/inventory.json",
+  "inventory_sha256": "215f1efdbdbf61c79f01887587c885c10345bb8ea06ab4ec38c9365429dea572",
+  "native_workspace_sha256": "08df9d68c5227459da0da00c4dc479ba5fe7b30e292fc26d940b8bb5f1cbd3f9",
+  "native_reopen_proof_sha256": "a02cf5ffb159f1cde2dceb49a46e8e98593ea5d214514b4449061cb7450c7a3c",
+  "portable_native_reopen_proof_sha256": "1556fef214d5abb68496d9b2573aaf9bf54034f8044e4627fcb83e9532459cc4",
+  "native_archive_storage": {
+    "full_zip_sha256": "966c135bd63115bbec746c21d30ef6f1ff33d4e6bf5d195c4975da57d470199a",
+    "full_zip_bytes": 65915347,
+    "git_part_count": 2,
+    "parts": [
+      {
+        "name": "CRWT-fidelity-editable-roster.zip.part01",
+        "bytes": 32957674,
+        "sha256": "c239056c9bf1c6c2bae4997bfeb1f96458fdbdf2a8b211d737b6337efce5de18"
+      },
+      {
+        "name": "CRWT-fidelity-editable-roster.zip.part02",
+        "bytes": 32957673,
+        "sha256": "6421d4319165ee3b773bd4341ff22ea5cace1eac943c3bffcf2e4dbd1ba08109"
+      }
+    ],
+    "crc_and_reassembly_ci_verified": true
+  },
+  "refs_verified": [
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-visual-fidelity-portable",
+      "sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "verified": true
+    },
+    {
+      "branch": "codex/crazy-rich-web-v30",
+      "sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-pass2-portable",
+      "sha": "8ea9cb7b849d586de299d8042d8f7185c9c40d3e",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-05-roster-refinement-portable",
+      "sha": "df6374199d71137b5ed26af07fae6949c661de46",
+      "verified": true
+    },
+    {
+      "branch": "checkpoint/crazy-rich-world-tour-2026-10-04-roster-reference-portable",
+      "sha": "1c63379d02ef4fea211c963a18fed7e84a2c6494",
+      "verified": true
+    }
+  ],
+  "ci_runs": [
+    {
+      "id": 37309602872,
+      "name": "Crazy Rich Unity Source Checks",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "path": ".github/workflows/crazy-rich-zero-dice.yml",
+      "html_url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37309602872",
+      "created_at": "2026-10-05T12:27:00Z",
+      "updated_at": "2026-10-05T12:28:28Z"
+    },
+    {
+      "id": 37309602845,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "path": ".github/workflows/crazy-rich-web-v30.yml",
+      "html_url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37309602845",
+      "created_at": "2026-10-05T12:27:00Z",
+      "updated_at": "2026-10-05T12:30:54Z"
+    },
+    {
+      "id": 37309591763,
+      "name": "CRWT Roster Visual Fidelity 2026-10-05",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "path": ".github/workflows/crwt-roster-visual-fidelity-2026-10-05.yml",
+      "html_url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37309591763",
+      "created_at": "2026-10-05T12:26:54Z",
+      "updated_at": "2026-10-05T12:28:50Z"
+    },
+    {
+      "id": 37309591708,
+      "name": "CRWT Portable Character Workspace",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "path": ".github/workflows/crwt-portable-character-workspace.yml",
+      "html_url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37309591708",
+      "created_at": "2026-10-05T12:26:54Z",
+      "updated_at": "2026-10-05T12:28:26Z"
+    },
+    {
+      "id": 37309591695,
+      "name": "Crazy Rich Web v30 Checks",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+      "path": ".github/workflows/crazy-rich-web-v30.yml",
+      "html_url": "https://github.com/zetsuen1412-alt/comeplayers/actions/runs/37309591695",
+      "created_at": "2026-10-05T12:26:54Z",
+      "updated_at": "2026-10-05T12:29:45Z"
+    }
+  ],
+  "source_ci_jobs": [
+    {
+      "id": 111761452446,
+      "name": "verify-and-archive",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Materialize exact source Git blobs without checkout line-ending filters",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify complete source inventory and every frozen baseline blob",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify ten actual candidate GLBs without generation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Restore pinned native ZIP from two Git parts and verify SHA256 plus CRC",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Rebuild exact offline gallery and preserve frozen receipt bytes",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Archive complete preserved source and visual-fidelity review assets",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save private portable source checkpoint",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "source_artifact": {
+    "id": 11345282425,
+    "name": "CRWT-Roster-Visual-Fidelity-Source-2026-10-05-0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7",
+    "size_in_bytes": 679073660,
+    "digest": "sha256:61691a9904a96eb52765520a07a77dd170c908387c5cfb1c743d46dd9f029fa2",
+    "expired": false,
+    "expires_at": "2026-10-12T12:28:27Z",
+    "head_sha": "0f4fa8f6bf35a237b7b84344194f756a2e1fb8d7"
+  },
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Source hashes, native restore and CI do not certify perfect 360-degree likeness or game readiness.",
+    "Eight GLBs changed: Alexia color sampling and bounded rear hair volume; seven material-only revisions. Rindi and Pip retain baseline bytes.",
+    "Native Blender BYTE_COLOR is compared against imported data; original GLB float32 colors remain preserved in the exact GLB file.",
+    "The local model-review ZIP excludes full Unity/game/backend/Git history; full source is on the verified frozen Git branch.",
+    "GitHub artifact retention is temporary; the frozen branch is the durable continuation checkpoint."
+  ]
+}

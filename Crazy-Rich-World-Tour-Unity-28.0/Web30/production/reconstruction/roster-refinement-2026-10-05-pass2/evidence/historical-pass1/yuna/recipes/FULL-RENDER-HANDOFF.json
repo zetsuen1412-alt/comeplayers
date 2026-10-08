@@ -1,0 +1,301 @@
+{
+  "schema": "crwt.complete_candidate_mesh_render_set.v1",
+  "id": "yuna",
+  "candidate": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\trial-v4\\yuna-accessory-refinement-candidate.glb",
+  "candidate_sha256": "07972d86aa8fb6701d26d0a8ee94dc35170a6516c2eb72cebbb0ec947152d224",
+  "folder": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\model-refinement-2026-10-05\\yuna\\final-v4-actual-mesh-renders",
+  "seven_views": 7,
+  "orbit_frames": 24,
+  "images_verified": 31,
+  "source": "Actual exported GLB mesh/materials via unchanged render_review_blender.py; no reference-image billboard",
+  "render_evidence_sha256": "0686f01b9552d1a1266c5e34ba606e3a3e87f59ea797a2545340045bdfaf887e",
+  "engine": "CYCLES",
+  "blender_version": "5.2.2 LTS",
+  "render_script_sha256": "c3ccf8c1c9f08eea74ff10d3420a2350e44c51605a7c8af25c6659444fbe9682",
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "These are geometry render views, not a whole-character visual approval or deformation/game test."
+  ],
+  "images": [
+    {
+      "path": "back.png",
+      "bytes": 518771,
+      "sha256": "75fddbf9a2d52fd1f20e6c70f419bdf9b39da8d19270e6734bf21583499796b6",
+      "dimensions": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "bottom.png",
+      "bytes": 469168,
+      "sha256": "fd7bf9ddb94947108f357306f89a97e87b1bdd6de9ce1a3893f23c1b8d2c3caa",
+      "dimensions": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "front.png",
+      "bytes": 563262,
+      "sha256": "bc30881bdc2313bacf46c5fbaab136a785cb1ee15abb2dd69f299f1f69b80476",
+      "dimensions": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "left.png",
+      "bytes": 492429,
+      "sha256": "d82e267aed8827034b83b42f479086c4ceaa8b9bde6a4387932ee33e2eb8a5f7",
+      "dimensions": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "orbit/frame-000.png",
+      "bytes": 160405,
+      "sha256": "2985ecddef13f94b782d982da5b29c5f840b98a63749b4cfd452dd9116c04a1e",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-015.png",
+      "bytes": 157888,
+      "sha256": "e95582c62a512f50d11764744bf7bb7d7e4605997eb3884c75d6f137846b2915",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-030.png",
+      "bytes": 153137,
+      "sha256": "565076ea02a4e7a3a3b645ceb173390866dbb68c1b0fdbc962b92a83245c1b7c",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-045.png",
+      "bytes": 148224,
+      "sha256": "dd378cb8c488a3eb865545160ed67f89844fb18a7f33cb0092d09fe73a2a261c",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-060.png",
+      "bytes": 141886,
+      "sha256": "6fb22be138f0f53927612e5dfc3cf0b4dca770bc69bedb798989beaa957b9312",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-075.png",
+      "bytes": 137222,
+      "sha256": "bab36c89e0aabcd20daa43a52694b967872e24761dc010829fe9c327e43edcab",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-090.png",
+      "bytes": 135792,
+      "sha256": "a92366c7cb6aeb5d0e789964b54a93343d5d3d09d6c192d5ff6e307aa49ac303",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-105.png",
+      "bytes": 136382,
+      "sha256": "7f0fd3c897b62d7736ec1c23bffd1b44a3cd3a6aeb7c8c84daba150da01a6f0f",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-120.png",
+      "bytes": 137185,
+      "sha256": "7f42321915e35b9eb0acd5d8af79e267c3c32e7060b7d75b2fef659de3b98d2d",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-135.png",
+      "bytes": 139272,
+      "sha256": "fc5e49be5d096b23b4ed473e5235fddd0a33b0f77c0892650a04204f8c37b39d",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-150.png",
+      "bytes": 142990,
+      "sha256": "4d1327cfe51eb20e58bf429956ba54e77da3e331e00bcf95ecb1f93b298975d5",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-165.png",
+      "bytes": 144714,
+      "sha256": "66862b62b3ee22ad31a0f3a818e62eeead28cc13a550d6b88e6484ea1e4486c7",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-180.png",
+      "bytes": 144691,
+      "sha256": "aa4ed4535c0ae25431878d9ebfb1e530b4f9fa0c1d56637d2283216424d78816",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-195.png",
+      "bytes": 143195,
+      "sha256": "164d906b4498e1194bc50d6cbc6a96e2824800daa8ffae45ca687b370ff7cc17",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-210.png",
+      "bytes": 140210,
+      "sha256": "03e16c4938812cfb87800a92635ac0cda322f9d57225c2c7a35cd1a435a31b46",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-225.png",
+      "bytes": 138467,
+      "sha256": "d4d9d1ea20e1f9aafb7d95fedc9c6c1844e484bac17cb6786dd740d34128f64b",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-240.png",
+      "bytes": 137219,
+      "sha256": "e8e8c91e27bb0431cbe65b565a24486cec6c466c2e3ca06e8a9604e11d03aaf2",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-255.png",
+      "bytes": 138145,
+      "sha256": "7b60f927e623a2082d2a8d5ff0b639e0c42c54c472afd53380fd6619e7ca7c5b",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-270.png",
+      "bytes": 140347,
+      "sha256": "1a3a6970391ed8905c661a86805f194de46359731485077bda198b484a6d2f74",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-285.png",
+      "bytes": 145413,
+      "sha256": "44b8f2c583a09d50af2e8506761dd2014e1c163fc329786f5efad8affbaac8a3",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-300.png",
+      "bytes": 149717,
+      "sha256": "99467404d9ec4fbac03b020ea631c1ae0f45f1c48c9949c35c48f9fd582f8553",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-315.png",
+      "bytes": 153932,
+      "sha256": "3c11e899bc05d59e07a942070e198375215c08bd3f554fa1eb724d39c422cdd0",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-330.png",
+      "bytes": 158070,
+      "sha256": "54b0df188c88082e7c869be6f4327f13da9f673e3b5d6be0dccd2f5fb869a653",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "orbit/frame-345.png",
+      "bytes": 160089,
+      "sha256": "39ef84b907e32562765b7f64c95b97b17a4dd8486ca9ba8633c63f13fb8c5ea3",
+      "dimensions": [
+        320,
+        320
+      ]
+    },
+    {
+      "path": "right.png",
+      "bytes": 510600,
+      "sha256": "ca08974eafa578083ad1c217dd0f3603b6ab91e5decbc1415b16c75223608b49",
+      "dimensions": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "three-quarter.png",
+      "bytes": 557442,
+      "sha256": "c4b3da4ab576aa0b07b424388b871197b62697722d7386fff742e1004ad34dc4",
+      "dimensions": [
+        640,
+        640
+      ]
+    },
+    {
+      "path": "top.png",
+      "bytes": 438236,
+      "sha256": "af93c520004496280b6bf5da0551d4c617e2e512e8ce60127e61f7c6918b3365",
+      "dimensions": [
+        640,
+        640
+      ]
+    }
+  ]
+}
