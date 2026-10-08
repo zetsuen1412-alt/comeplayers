@@ -1,4 +1,4 @@
-# Local validated source checkpoint; this workflow must produce its own actual CI result.
+# Restore checks are portable; exact procedural authoring remains bound to Windows.
 name: CRWT Alexia High Visual 2026-10-08
 on:
   workflow_dispatch:
@@ -17,47 +17,149 @@ env:
   SELECTED_RECIPE_STEPS: "9"
   SELECTED_SOURCE_INVENTORY_SHA256: 25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798
 jobs:
-  verify-high-visual-source:
+  verify-linux-payload-restoration:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
+      - name: Preserve committed file bytes during checkout
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Require this exact checkout and explicit numeric runtime
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+      - name: Require this exact checkout and numeric runtime
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          python3 -B -c 'import sys; assert sys.version_info[:2] == (3, 12), "Python 3.12 is required for pinned model replay"'
-          python3 -m pip install --disable-pip-version-check numpy==2.3.5
-      - name: Require the selected model and complete nine-stage contract
+          python -B -c 'import sys; assert sys.version_info[:3] == (3, 12, 14)'
+          python -m pip install --disable-pip-version-check numpy==2.3.5
+      - name: Restore all exact payload files and check models native bindings and image formats
         run: |
-          python3 -B - <<'PY'
+          python -B - <<'PY'
+          import importlib.util, json, os, re, sys
+          from pathlib import Path
+          sys.dont_write_bytecode = True
+          source = Path(os.environ['ROSTER']).resolve(strict=True)
+          sys.path.insert(0, str(source / 'tools/source_checkpoint'))
+          from portable_high_common import need, source_pins, scan, json_read, fresh, write_json
+          from restore_high_visual import restore
+
+          def snapshot(root):
+              return scan(root), {p.relative_to(root).as_posix(): p.stat().st_mtime_ns
+                                  for p in root.rglob('*') if p.is_file()}
+
+          def checked_restore_result(result, selected, inventory, head):
+              need(result.get('schema') == 'crwt.high_visual_linux_restore_checks.v1' and result.get('passed') is True, 'Linux restoration proof did not pass')
+              need(result.get('scope') == 'payload_restoration' and result.get('recipe_replay_executed') is False and result.get('actual_recipe_step_count') == 0, 'Linux must not claim a recipe replay')
+              need(re.fullmatch('[a-f0-9]{40}', head) and result.get('observed_checkout_sha') == head, 'Linux checkout binding differs')
+              need(result.get('candidate_sha256') == selected and result.get('source_inventory_sha256') == inventory, 'Selected source or model differs')
+              restoration = result.get('restore', {})
+              need(restoration.get('passed') is True and restoration.get('candidate_sha256') == selected and restoration.get('source_inventory_sha256') == inventory, 'Actual restoration differs')
+              need(restoration.get('payload_files_restored') == 169 and restoration.get('all_payload_bytes_git_blob_pins_exact') is True and restoration.get('gallery_HTML_and_receipt_regenerated_byte_exact') is True and restoration.get('source_unchanged') is True, 'Exact 169-file restoration required')
+              required = {'actual delivered offline gallery regeneration', 'all ten actual GLBs', 'actual selected HIGH source gate'}
+              checks = restoration.get('checks', [])
+              need(isinstance(checks, list) and len(checks) == 3 and {row.get('check') for row in checks} == required and all(row.get('passed') is True for row in checks), 'Actual gallery, ten-model and HIGH checks required')
+              assets = result.get('assets', {})
+              need(assets.get('models_checked') == 10 and assets.get('candidate_sha256') == selected and assets.get('native_build_and_readonly_reopen_bindings_valid') is True and assets.get('native_bones') == 19 and assets.get('actual_alexia_clip_names') == ['IdleBreath', 'Walk'], 'Actual native and ten-model evidence differs')
+              need(type(result.get('image_magic_files_checked')) is int and result['image_magic_files_checked'] > 0, 'Image format checks required')
+              need(result.get('source_baseline_restored_SHA_mtime_unchanged') is True and result.get('new_Blender_browser_render_execution') is False and result.get('global_repository_CI_success_claimed') is False, 'Restoration scope/preservation flags differ')
+              return result
+
+          _, inventory_pin = source_pins(source)
+          need(inventory_pin['sha256'] == os.environ['SELECTED_SOURCE_INVENTORY_SHA256'], 'Frozen source inventory differs')
+          layout = json_read(source / 'source-layout.json')
+          chain = json_read(source / 'rebuild-chain.json')
+          selected = os.environ['SELECTED_ALEXIA_SHA256']
+          need(layout['candidate_sha256'] == chain['candidate_sha256'] == selected, 'Frozen model differs')
+          need(chain['step_count'] == len(chain['steps']) == int(os.environ['SELECTED_RECIPE_STEPS']), 'Complete selected contract differs')
+          baseline = (source.parent / layout['baseline_directory']).resolve(strict=True)
+          before_source, before_baseline = snapshot(source), snapshot(baseline)
+          work = fresh(Path(os.environ['RUNNER_TEMP']) / 'crwt-high-linux-restoration', source, baseline)
+          work.mkdir(parents=True)
+          restored = work / 'review'
+          restoration = restore(source, restored, baseline, work / 'restore-proof.json', True, True)
+          before_restored = snapshot(restored)
+          helper = restored / 'verify_actual_checkpoint.py'
+          spec = importlib.util.spec_from_file_location('crwt_high_linux_actual_checkpoint', helper)
+          verifier = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(verifier)
+          assets = verifier.actual_assets(lambda name: (restored / name).read_bytes())
+          images = 0
+          for name in before_restored[0]:
+              if name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                  with (restored / name).open('rb') as stream:
+                      verifier.image_magic(name, stream.read(8))
+                  images += 1
+          need(snapshot(source) == before_source and snapshot(baseline) == before_baseline and snapshot(restored) == before_restored, 'Read-only Linux checks changed bytes or mtimes')
+          result = {'schema': 'crwt.high_visual_linux_restore_checks.v1', 'passed': True,
+                    'scope': 'payload_restoration', 'observed_checkout_sha': os.environ['GITHUB_SHA'],
+                    'candidate_sha256': selected, 'source_inventory_sha256': inventory_pin['sha256'],
+                    'restore': restoration, 'assets': assets, 'image_magic_files_checked': images,
+                    'recipe_replay_executed': False, 'actual_recipe_step_count': 0,
+                    'source_baseline_restored_SHA_mtime_unchanged': True,
+                    'new_Blender_browser_render_execution': False,
+                    'global_repository_CI_success_claimed': False, 'approved': False, 'gameIntegrated': False}
+          checked_restore_result(result, selected, inventory_pin['sha256'], os.environ['GITHUB_SHA'])
+          write_json(work / 'linux-restoration-check.json', result)
+          raw = json.dumps(result, ensure_ascii=False, indent=2)
+          need(len(raw.encode('utf-8')) < 500000, 'Linux proof too large for job summary')
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+              summary.write('## Verified Linux payload restoration\n\nCheckout: `' + os.environ['GITHUB_SHA'] + '`\n\nThis job checked all 169 restored payload files, ten GLBs, existing native evidence, image formats and the selected HIGH gate. It did not replay the procedural recipes or execute Blender. Exact nine-stage authoring replay is a separate Windows job. Repository-wide CI success is not claimed.\n\n```json\n' + raw + '\n```\n')
+          print(raw)
+          PY
+  verify-windows-exact-nine-stage-replay:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Preserve committed file bytes during checkout
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+      - name: Require the exact checkout and original byte-authoring runtime
+        run: |
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Exact checkout is required' }
+          python -B -c "import os,sys; assert os.name == 'nt' and sys.version_info[:3] == (3,12,14)"
+          if ($LASTEXITCODE -ne 0) { throw 'Windows Python 3.12.14 is required' }
+          python -m pip install --disable-pip-version-check numpy==2.3.5
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned NumPy install failed' }
+          python -B -c "import numpy; assert numpy.__version__ == '2.3.5'"
+          if ($LASTEXITCODE -ne 0) { throw 'NumPy 2.3.5 is required' }
+      - name: Require the selected model inventory and complete nine-stage contract
+        run: |
+          @'
           import hashlib, json, os
           from pathlib import Path
-          source = Path(os.environ["ROSTER"])
-          selected = os.environ["SELECTED_ALEXIA_SHA256"]
-          count = int(os.environ["SELECTED_RECIPE_STEPS"])
-          inventory = (source / "source-inventory.json").read_bytes()
-          if hashlib.sha256(inventory).hexdigest() != os.environ["SELECTED_SOURCE_INVENTORY_SHA256"]:
-              raise SystemExit("Frozen selected HIGH source inventory differs")
-          layout = json.loads((source / "source-layout.json").read_bytes())
-          chain = json.loads((source / "rebuild-chain.json").read_bytes())
-          if layout["candidate_sha256"] != selected or chain["candidate_sha256"] != selected:
-              raise SystemExit("Frozen selected HIGH model differs")
-          if chain["step_count"] != count or len(chain["steps"]) != count:
-              raise SystemExit("Complete selected nine-stage chain is required")
-          PY
-      - name: Restore all payload bytes and run actual model native source and recipe checks
-        run: >-
-          python3 -B "$ROSTER/tools/source_checkpoint/run_high_visual_source_checks.py"
-          --source "$ROSTER"
-          --work "$RUNNER_TEMP/crwt-high-visual-checked"
-          --receipt "$RUNNER_TEMP/crwt-high-visual-source-check.json"
-      - name: Write the verified actual source proof to the job summary
-        run: >-
-          python3 -B "$ROSTER/tools/source_checkpoint/write_high_visual_ci_summary.py"
-          --source "$ROSTER"
-          --receipt "$RUNNER_TEMP/crwt-high-visual-source-check.json"
-          --summary "$GITHUB_STEP_SUMMARY"
-          --head-sha "$GITHUB_SHA"
+          source = Path(os.environ['ROSTER'])
+          selected = os.environ['SELECTED_ALEXIA_SHA256']
+          count = int(os.environ['SELECTED_RECIPE_STEPS'])
+          inventory = (source / 'source-inventory.json').read_bytes()
+          if hashlib.sha256(inventory).hexdigest() != os.environ['SELECTED_SOURCE_INVENTORY_SHA256']:
+              raise SystemExit('Frozen selected HIGH source inventory differs')
+          layout = json.loads((source / 'source-layout.json').read_bytes())
+          chain = json.loads((source / 'rebuild-chain.json').read_bytes())
+          if layout['candidate_sha256'] != selected or chain['candidate_sha256'] != selected:
+              raise SystemExit('Frozen selected HIGH model differs')
+          if chain['step_count'] != count or len(chain['steps']) != count:
+              raise SystemExit('Complete selected nine-stage chain is required')
+          '@ | python -B -
+          if ($LASTEXITCODE -ne 0) { throw 'Frozen selected contract check failed' }
+      - name: Restore exact payload and require every pinned procedural model intermediate
+        run: |
+          python -B "$env:ROSTER/tools/source_checkpoint/run_high_visual_source_checks.py" --source "$env:ROSTER" --work "$env:RUNNER_TEMP/crwt-high-windows-checked" --receipt "$env:RUNNER_TEMP/crwt-high-windows-source-check.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Exact Windows nine-stage source check failed' }
+      - name: Write the strictly verified actual nine-stage proof to the job summary
+        run: |
+          python -B "$env:ROSTER/tools/source_checkpoint/write_high_visual_ci_summary.py" --source "$env:ROSTER" --receipt "$env:RUNNER_TEMP/crwt-high-windows-source-check.json" --summary "$env:GITHUB_STEP_SUMMARY" --head-sha "$env:GITHUB_SHA"
+          if ($LASTEXITCODE -ne 0) { throw 'Actual nine-stage summary check failed' }

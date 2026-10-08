@@ -34,7 +34,9 @@ The complete portable model chain contains exactly nine authored stages:
 From the extracted review root, use the delivered local-input instructions in
 `evidence/selected-alexia/README-high-rebuild.md`. The rebuild starts from the
 included baseline and checks every intermediate SHA and exact final bytes.
-It requires Python 3.12 and NumPy 2.3.5; it uses no cloud service or new renders.
+Exact procedural byte authoring requires Windows x64, Python 3.12.14 and
+NumPy 2.3.5, matching the authoring runtime. The replay uses no cloud service
+or new renders. Payload restoration and validation also run on Linux.
 
 Validated Git source prefix:
 `Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-high-visual-2026-10-08`.
@@ -48,10 +50,14 @@ HTML/viewer receipt byte for byte. From its source directory:
 python -B tools/source_checkpoint/run_high_visual_source_checks.py --source . --work ../CRWT-HIGH-checked --receipt ../CRWT-HIGH-source-check.json
 ```
 
-The source job must check all ten GLBs, actual native build/reopen bindings,
-image magic, the selected HIGH gate, exact gallery restoration and all nine
-recipe steps. Checked JSON goes to its job summary; no artifact upload or
-Expo token is required. A passing HIGH job does not imply repository-wide CI
+The Linux job checks all ten GLBs, actual native build/reopen bindings, image
+magic, the selected HIGH gate and all 169 exact restored payload files. Its
+checked job summary states restoration only and zero replayed recipe steps.
+A separate Windows job runs the unchanged strict full-source checker: those
+checks plus all nine pinned recipe intermediates and the exact final model.
+Both jobs disable checkout newline conversion and require the exact checkout.
+Checked JSON goes to each job summary; no artifact upload or Expo token is
+required. A passing HIGH job does not imply repository-wide CI
 success. Publication receipts must include actual exact-head runs and retain
 any unrelated failures or unverified external access explicitly.
 
@@ -88,3 +94,13 @@ all model recipes and the review ZIP remain unchanged. Both ending fixtures
 passed, invalid documents/formatting were rejected, and the exported repaired
 source passed all ten models and all nine rebuild steps locally. This is
 local validation; a new actual exact-head Linux CI run remains required.
+
+The subsequent Linux run at head 533b passed all 169 restored byte pins,
+model/native/source validation and the first hair recipe, then failed the
+headband intermediate SHA check. This failure is retained; no intermediate
+or final model pin is relaxed. Exact procedural byte replay is now explicitly
+bound to the original Windows x64 / Python 3.12.14 / NumPy 2.3.5 authoring
+environment. The existing local Windows nine-stage check remains the
+recorded actual result. This workflow correction does not rerun or alter
+the local model. New actual exact-head Linux restoration and Windows full
+replay jobs are both required; their current CI success is not claimed.
