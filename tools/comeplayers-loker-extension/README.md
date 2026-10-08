@@ -1,6 +1,6 @@
-# ComePlayers Lowongan — browser bridge v1.3.7
+# ComePlayers Lowongan — browser bridge v1.3.10
 
-## Perbaikan scan v1.3.7 — 8 Oktober 2026
+## Perbaikan scan v1.3.10 — 8 Oktober 2026
 
 Scan menunggu hingga 45 detik untuk postingan pertama dan tautan waktunya.
 Pada v1.3.6, lima pemeriksaan kosong dapat mengakhiri scan dalam sekitar
@@ -10,9 +10,9 @@ STOP tetap menghentikan scan; perubahan tujuan atau pemeriksaan keamanan
 Facebook menghentikannya dengan pesan yang sesuai. Jika feed belum terbaca,
 Admin menampilkan pesan yang dapat ditindaklanjuti.
 
-Muat folder v1.3.7 melalui Load unpacked, pastikan hanya satu salinan ekstensi
+Muat folder v1.3.10 melalui Load unpacked, pastikan hanya satu salinan ekstensi
 aktif, hubungkan tab grup Facebook dan muat ulang Admin Lowongan. Periksa
-status **ekstensi v1.3.7**, lalu scan kembali. Komentar tetap memerlukan
+status **ekstensi v1.3.10**, lalu scan kembali. Komentar tetap memerlukan
 pemeriksaan daftar dan klik KIRIM KOMENTAR.
 
 Paket ini berisi perbaikan lokal dari commit v1.3.6
@@ -39,7 +39,17 @@ Foto lowongan dapat berukuran sampai 5 MB (PNG/JPG/WebP).
 
 ## Pemeriksaan versi dan pengiriman
 
-Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.7**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
+Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.10**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
+
+Versi 1.3.10 membaca kartu postingan yang tidak memakai penanda artikel. Jika tautan waktunya masih berupa alamat grup, scan dapat memakai nomor dari tautan foto utama sebagai calon alamat postingan. Ekstensi membuka calon itu di tab sementara yang tidak aktif, lalu mencocokkan alamat, penulis, isi, dan nomor foto dengan kartu asal. Hanya hasil yang cocok yang masuk daftar; tab sementara ditutup setelah pemeriksaan. Tautan dari komentar, isi teks, atau postingan yang dibagikan tidak digunakan sebagai foto utama. Komentar dan foto lowongan tidak dikirim selama scan.
+
+Kutipan tersembunyi atau kutipan di dalam komentar tidak lagi menyebabkan kartu utama salah dianggap sebagai postingan yang dibagikan. Kutipan yang terlihat dan benar-benar dimiliki postingan utama tetap diperiksa.
+
+Sesudah satu klik kirim, ekstensi menunggu nomor komentar dan nomor foto yang tetap. Tampilan sementara dengan nomor `client:...` belum dianggap sebagai hasil terkirim. Ekstensi memeriksa komentar tersebut pada tab baru yang tidak aktif, mencocokkan tujuan dan foto, lalu membaca status moderasi. Komentar ditolak menjadi **Gagal** dengan penjelasan penolakan grup; komentar menunggu persetujuan menjadi **Pending**; bukti yang tidak lengkap menjadi **Perlu diperiksa**. Tidak ada pengiriman ulang otomatis. Tab sumber dan draf baru pengguna tidak dimuat ulang atau dihapus oleh pemeriksaan ini.
+
+Pada uji akun nyata 8 Oktober 2026, scan berhasil menemukan satu postingan dan banner berhasil masuk sebagai komentar dengan nomor tetap. Setelah halaman dimuat ulang, Facebook menampilkan bahwa komentar ditolak otomatis berdasarkan kriteria grup. Uji ini membuktikan pemindaian dan pengiriman berjalan, tetapi tidak membuktikan komentar diterima untuk tampil publik. Aturan penerimaan grup tetap berlaku.
+
+Halaman Admin tetap terlihat selama scan. Saat pengiriman membutuhkan halaman postingan lain, ekstensi menunggu halaman itu siap sebelum menampilkan tab Facebook. Menu ekstensi menyediakan **Pemeriksaan grup** untuk membantu diagnosis tampilan yang berubah, termasuk jumlah calon foto, hasil pemeriksaan, dan tahap terakhir tanpa menyimpan isi postingan atau identitas penulis.
 
 Versi 1.3.6 juga mengenali postingan feed dalam container DIV biasa, apabila ada penanda isi postingan dan tautan header yang jelas. Tautan komentar/balasan dan tautan yang hanya disebut di isi postingan tidak digunakan sebagai bukti target. Untuk postingan yang disetujui, ekstensi dapat memakai feed grup yang sudah terbuka jika hanya ada satu postingan dengan tautan target dan kolom komentar utama yang cocok. Jika pemeriksaan ini tidak terpenuhi, ekstensi membuka tautan postingan secara langsung seperti sebelumnya.
 

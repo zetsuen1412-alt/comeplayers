@@ -75,8 +75,8 @@ img[data-attachment-preview], [data-comment-id] img { width:200px; height:200px;
 
 def article(post="123", message="Status biasa", href=None):
     link = href or f'/groups/example/posts/{post}/'
-    return (f'<article role="article"><div data-ad-preview="message">{message}</div>'
-            f'<a href="{link}">Waktu</a></article>')
+    return (f'<article role="article"><a href="{link}">Waktu</a>'
+            f'<div data-ad-preview="message">{message}</div></article>')
 
 
 def comment_fixture(*, modal=False, placeholder="Tulis komentar publik...",
@@ -94,7 +94,7 @@ def comment_fixture(*, modal=False, placeholder="Tulis komentar publik...",
     """Real DOM attachment/send handlers with an observable irreversible click."""
     root = '<div role="dialog" aria-label="Postingan fixture">' if modal else '<article role="article">'
     close = '</div>' if modal else '</article>'
-    story = '<div data-ad-preview="message">Info loker apa aja</div><a href="/groups/example/posts/123/">Waktu</a>'
+    story = '<a href="/groups/example/posts/123/">Waktu</a><div data-ad-preview="message">Info loker apa aja</div>'
     comments = '<div id="comments" role="list" data-comment-list="true"><div role="listitem" data-comment-id="existing">Komentar sebelumnya</div></div>'
     if live_preview_structure:
         story='<h2>Postingan sintetis</h2>'+story
@@ -202,9 +202,11 @@ function bindSend(control) { control.onclick = e => {
       window.lastPreview={naturalWidth:image.naturalWidth,width:rect.width,height:rect.height,outsideForm:!document.getElementById('composer').contains(image)};
     }
   if (opts.outcome === 'success' || opts.outcome === 'nested' || opts.outcome === 'moved-preview') {
-    const c = document.createElement('div'); c.setAttribute('role', 'listitem'); c.setAttribute('data-comment-id', 'new-comment');
+    const c = document.createElement('div'); c.setAttribute('role', 'listitem'); c.setAttribute('data-comment-id', '1837828897215027');
     const actor = document.createElement('a'); actor.href = '/profile.php?id=' + (opts.actorMismatch ? '200' : '100'); actor.textContent='Profil';
-    c.append(actor, opts.outcome === 'moved-preview' ? preview.querySelector('img') : media());
+    const photo=document.createElement('a');photo.href='https://www.facebook.com/photo/?fbid=122122814811465799';
+    photo.append(opts.outcome === 'moved-preview' ? preview.querySelector('img') : media());
+    c.append(actor, photo);
     (opts.outcome === 'nested' ? comments.querySelector('[data-comment-id]') : comments).append(c);
     editor.textContent = ''; preview.replaceChildren();
   } else if (opts.outcome === 'lazy-image') {
@@ -253,7 +255,7 @@ def plain_comment_fixture(**options):
 
 def nested_reply_dialog_fixture():
     inner = comment_fixture(modal=True, placeholder='Tulis jawaban...')
-    inner = inner.replace('<div data-ad-preview="message">Info loker apa aja</div><a href="/groups/example/posts/123/">Waktu</a>', '')
+    inner = inner.replace('<a href="/groups/example/posts/123/">Waktu</a><div data-ad-preview="message">Info loker apa aja</div>', '')
     inner = inner.replace('aria-label="Postingan fixture"', 'aria-label="Balas komentar"')
     return ('<div role="dialog" aria-label="Postingan fixture"><div data-ad-preview="message">Status biasa</div>'
             '<a href="/groups/example/posts/123/">Waktu</a><div role="list" data-comment-list="true">'
@@ -394,7 +396,7 @@ def run_case(browser, script, case):
 
 
 def cases():
-    success = dict(status='sent', dispatches=1, sends=1, file_changes=1)
+    success = dict(status='verify_comment', dispatches=1, sends=1, file_changes=1)
     skipped = dict(status='skipped', dispatches=0, sends=0)
     uncertain = dict(status='uncertain', dispatches=1, sends=1)
     return [

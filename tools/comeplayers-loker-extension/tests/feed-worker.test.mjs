@@ -11,7 +11,7 @@ const job = () => ({ id: 'reviewed-job', lease: 'lease', kind: 'group_comment', 
 
 // Deterministic worker-routing tests. Chrome transport/storage and short waits
 // are simulated here; unpacked-extension.py separately tests the native APIs.
-function harness({ url = group, pendingUrl, probe = async () => ({ ready: true }) } = {}) {
+function harness({ url = group, pendingUrl, probe = async () => ({ ready: true }), cancelWhenTargetRead = false } = {}) {
   const data = { facebookTab: 1, cancelled: false, stopLatched: false };
   const events = [];
   const tab = { id: 1, url, status: 'complete', pendingUrl };
@@ -23,12 +23,14 @@ function harness({ url = group, pendingUrl, probe = async () => ({ ready: true }
       remove: async key => { delete data[key]; },
     } },
     tabs: {
-      get: async () => ({ ...tab }),
-      update: async (_id, change) => { events.push({ type: 'navigate', url: change.url }); Object.assign(tab, change, { pendingUrl: undefined }); },
+      get: async () => { events.push({ type: 'read-tab', url: tab.url, pendingUrl: tab.pendingUrl }); if (cancelWhenTargetRead && tab.url === target) data.cancelled = true; return { ...tab }; },
+      update: async (_id, change) => { events.push({ type: change.url ? 'navigate' : 'activate', ...change }); Object.assign(tab, change, { pendingUrl: undefined }); },
       sendMessage: async (_id, message) => {
         events.push({ type: message.type, job: message.job });
         if (message.type === 'CP_LOKER_PROBE_FEED') return probe();
-        if (message.type === 'CP_LOKER_RUN') return { status: 'sent' };
+        // Sending and fresh-document proof have their own tests. This routing
+        // fixture deliberately returns an inconclusive content result.
+        if (message.type === 'CP_LOKER_RUN') return { status: 'uncertain' };
         return { stopped: true };
       },
       query: async () => [],
@@ -47,7 +49,7 @@ function harness({ url = group, pendingUrl, probe = async () => ({ ready: true }
 
 test('positive feed probe runs approved target without navigation', async () => {
   const h = harness();
-  assert.equal((await h.command('run', job())).status, 'sent');
+  assert.equal((await h.command('run', job())).status, 'uncertain');
   assert.equal(h.events.some(e => e.type === 'navigate'), false);
   assert.equal(h.events.filter(e => e.type === 'CP_LOKER_PROBE_FEED').length, 1);
   assert.equal(h.events.find(e => e.type === 'CP_LOKER_RUN').job.useExistingFeed, true);
@@ -62,14 +64,41 @@ for (const [name, options] of [
 ]) {
   test(`${name} falls back to the exact approved canonical post`, async () => {
     const h = harness(options);
-    assert.equal((await h.command('run', job())).status, 'sent');
+    assert.equal((await h.command('run', job())).status, 'uncertain');
     assert.deepEqual(h.events.filter(e => e.type === 'navigate').map(e => e.url), [target]);
+    assert.equal(Object.hasOwn(h.events.find(e => e.type === 'navigate'), 'active'), false);
+    const activation = h.events.findIndex(e => e.type === 'activate' && e.active === true);
+    const navigation = h.events.findIndex(e => e.type === 'navigate');
+    const readyReads = h.events.slice(navigation + 1, activation).filter(e => e.type === 'read-tab' && e.url === target && !e.pendingUrl);
+    assert.equal(readyReads.length >= 2, true, 'activate only after both target readiness reads');
+    assert.equal(activation < h.events.findIndex(e => e.type === 'CP_LOKER_RUN'), true);
     assert.equal(h.events.find(e => e.type === 'CP_LOKER_RUN').job.useExistingFeed, false);
     if (name === 'different group' || name === 'pending document') {
       assert.equal(h.events.some(e => e.type === 'CP_LOKER_PROBE_FEED'), false);
     }
   });
 }
+
+test('read-only scan navigates the attached Facebook tab without taking focus from Admin', async () => {
+  const h = harness();
+  const result = await h.command('scan', { groups: [group] });
+  assert.equal(result.groupsScanned, 1);
+  assert.deepEqual(h.events.filter(e => e.type === 'navigate').map(e => e.url), [group]);
+  assert.equal(h.events.some(e => e.type === 'navigate' && Object.hasOwn(e, 'active')), false);
+  assert.equal(h.events.filter(e => e.type === 'CP_LOKER_SCAN_ALL').length, 1);
+  assert.equal(h.events.some(e => e.type === 'CP_LOKER_RUN' || e.type === 'CP_LOKER_PROBE_FEED'), false);
+  assert.equal(h.events.some(e => e.type === 'activate'), false);
+});
+
+test('STOP during target loading prevents foreground activation and comment dispatch', async () => {
+  const h = harness({ probe: async () => ({ ready: false }), cancelWhenTargetRead: true });
+  const result = await h.command('run', job());
+  assert.equal(result.status, 'cancelled');
+  assert.equal(result.dispatched, false);
+  assert.deepEqual(h.events.filter(e => e.type === 'navigate').map(e => e.url), [target]);
+  assert.equal(h.events.some(e => e.type === 'activate' || e.type === 'CP_LOKER_RUN'), false);
+  assert.equal(h.data.active, undefined);
+});
 
 test('STOP while read-only probe awaits response prevents run and navigation', async () => {
   let entered, release;

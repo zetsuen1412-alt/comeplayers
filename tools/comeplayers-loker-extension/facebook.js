@@ -17,6 +17,7 @@
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const editorSelector = '[contenteditable="true"][role="textbox"],[contenteditable="true"][data-lexical-editor="true"],textarea[role="textbox"]';
   const commentSelector = '[role="article"],[role="listitem"],[data-comment-id],[data-commentid],[data-ad-rendering-role="comment"]';
+  const commentBoundarySelector = '[data-comment-id],[data-commentid],[data-ad-rendering-role="comment"],[data-comment-list],[data-reply-thread],[data-comment-thread]';
   const imageInput = input => !input.disabled && (!input.accept || /image\/|\.(png|jpe?g|webp)(?:,|$)/i.test(input.accept));
   const enabled = control => visible(control) && control.getAttribute('aria-disabled') !== 'true' && !control.disabled;
   function failure(code, message) { return Object.assign(new Error(message), { code }); }
@@ -91,8 +92,11 @@
 
   function postHeaderRefs(root, group) {
     const refs = new Set();
+    const messages = [...root.querySelectorAll(storySelector)].filter(node => visible(node)
+      && !node.parentElement?.closest(storySelector) && !nestedComment(node, root, root));
     for (const link of root.querySelectorAll('a[href]')) {
-      if (!visible(link) || link.closest(storySelector) || nestedComment(link, root, root)) continue;
+      if (!visible(link) || link.closest(storySelector) || nestedComment(link, root, root)
+        || messages.some(message => !(link.compareDocumentPosition(message) & Node.DOCUMENT_POSITION_FOLLOWING))) continue;
       const url = new URL(link.href, location.href), parsed = target(link.href);
       if (parsed?.post && parsed.group === group && !url.searchParams.has('comment_id') && !url.searchParams.has('reply_comment_id')) refs.add(parsed.url);
     }
@@ -123,6 +127,368 @@
 
   function scanPostContexts(group) {
     return [...articles(), ...plainPostContexts(group)];
+  }
+
+  function timestampLabel(link, root, message) {
+    // Facebook inserts invisible formatting characters into timestamp text.
+    // Referenced accessibility labels may be hidden, but must belong to this
+    // isolated post header, not another card, post body, or comment thread.
+    const referenced = norm(link.getAttribute('aria-labelledby')).split(' ').filter(Boolean).map(id => link.ownerDocument.getElementById(id))
+      .filter(node => node && root.contains(node) && !node.contains(link) && !node.closest(storySelector)
+        && !nestedComment(node, root, root) && (node.compareDocumentPosition(message) & Node.DOCUMENT_POSITION_FOLLOWING));
+    const labels = [link.getAttribute('aria-label'), link.innerText,
+      referenced.map(node => node.textContent).join(' '),
+      ...[...link.querySelectorAll('[aria-label]')].filter(visible).map(node => node.getAttribute('aria-label'))];
+    return labels.some(value => {
+      const text = norm(value).replace(/[\u034f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g, '').replace(/^(?:sekitar|about)\s+/i, '');
+      return /^(?:baru saja|just now|kemarin|yesterday|hari ini|today)\b/i.test(text)
+        || /^(?:semenit|sejam|sehari|seminggu|sebulan|setahun|satu\s+(?:detik|menit|jam|hari|minggu|bulan|tahun))(?:\s+(?:yang\s+)?lalu)?$/i.test(text)
+        || /^\d+\s*(?:detik|menit|mnt|jam|hari|minggu|bulan|tahun|seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|years?|[smhdwyj])(?:\b|$)/i.test(text)
+        || /^(?:\d{1,2}\s+)?(?:januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember|january|february|march|may|june|july|august|october|december)\b/i.test(text);
+    });
+  }
+
+  function lazyHeaderLinks(root, group) {
+    const messages = [...root.querySelectorAll(storySelector)].filter(marker => visible(marker)
+      && !marker.parentElement?.closest(storySelector));
+    if (messages.length !== 1) return [];
+    const message = messages[0];
+    return [...root.querySelectorAll('a[href]')].filter(link => {
+      if (!visible(link) || link.closest(storySelector) || nestedComment(link, root, root)
+        || !(link.compareDocumentPosition(message) & Node.DOCUMENT_POSITION_FOLLOWING) || !timestampLabel(link, root, message)) return false;
+      const parsed = target(link.href), url = new URL(link.href, location.href);
+      return parsed && !parsed.post && parsed.group === group
+        && !url.searchParams.has('comment_id') && !url.searchParams.has('reply_comment_id');
+    });
+  }
+
+  function timestampHoverTarget(link, rect) {
+    // Facebook can attach its lazy-link handler to a span inside the anchor.
+    // An event on the anchor cannot reach that descendant. Prefer the actual
+    // hit-tested child; never dispatch to an element outside this timestamp.
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    if (hit && hit !== link && link.contains(hit) && visible(hit)) return hit;
+    const labelled = [...link.querySelectorAll('[aria-label],[aria-labelledby]')].filter(visible);
+    const branches = labelled.filter(node => !labelled.some(other => other !== node && other.contains(node)));
+    if (branches.length > 1) return link;
+    let selected = branches[0] || link;
+    // A single visible child chain gives an unambiguous fallback for a
+    // temporarily obscured/off-screen timestamp, without sweeping branches.
+    for (let depth = 0; depth < 12; depth++) {
+      const children = [...selected.children].filter(visible);
+      if (children.length !== 1) break;
+      selected = children[0];
+    }
+    return selected;
+  }
+
+  function lazyPostHeaders(group) {
+    // Discover isolated cards before they have a post URL: plainPostContexts
+    // deliberately requires that URL, so it cannot bootstrap lazy headers.
+    const scopes = new Set(articles().filter(visible));
+    const markers = [...document.querySelectorAll(storySelector)].filter(marker => visible(marker)
+      && !marker.parentElement?.closest(storySelector)
+      && !marker.closest(`${commentSelector},[role="dialog"],[role="list"],[data-comment-list],[data-reply-thread],[data-comment-thread],form`));
+    for (const marker of markers) {
+      for (let scope = marker.parentElement; scope && scope !== document.body; scope = scope.parentElement) {
+        if (scope.matches(`${commentSelector},[role="dialog"],[role="list"],[role="feed"],main,[role="main"],[data-comment-list],[data-reply-thread],[data-comment-thread],form`)) break;
+        const messages = [...scope.querySelectorAll(storySelector)].filter(node => visible(node) && !node.parentElement?.closest(storySelector));
+        if (messages.length !== 1 || messages[0] !== marker) break;
+        if (lazyHeaderLinks(scope, group).length !== 1) continue;
+        scopes.add(scope);
+        break;
+      }
+    }
+    return [...scopes].flatMap(scope => {
+      const links = lazyHeaderLinks(scope, group);
+      return links.length === 1 ? [{ scope, link:links[0] }] : [];
+    });
+  }
+
+  function hydratePostHeaders(group, attempted) {
+    for (const { link } of lazyPostHeaders(group)) {
+      const attempt = attempted.get(link);
+      if (attempt && Date.now() - attempt.last < 3000) continue;
+      attempted.set(link, { first:attempt?.first ?? Date.now(), last:Date.now() });
+      // React resolves some group timestamp placeholders on hover. Request
+      // that ordinary behavior without clicking, navigating, or taking focus.
+      const rect = link.getBoundingClientRect();
+      const hoverTarget = timestampHoverTarget(link, rect);
+      const init = { bubbles:true, composed:true, view:window, clientX:rect.left + rect.width / 2, clientY:rect.top + rect.height / 2 };
+      hoverTarget.dispatchEvent(new PointerEvent('pointerover', { ...init, pointerType:'mouse' }));
+      hoverTarget.dispatchEvent(new MouseEvent('mouseover', init));
+      // Native mouseenter does not bubble. Emit it only along the selected
+      // hit path, as ordinary pointer entry would, including the anchor.
+      const entered = [];
+      for (let node = hoverTarget; node && link.contains(node); node = node.parentElement) {
+        entered.unshift(node);
+        if (node === link) break;
+      }
+      for (const node of entered) node.dispatchEvent(new MouseEvent('mouseenter', { ...init, bubbles:false }));
+    }
+  }
+
+  function scanHeaderAuthors(root, boundaryRoot = root) {
+    const refs = new Set();
+    const messages = [...root.querySelectorAll(storySelector)].filter(node => visible(node)
+      && !node.parentElement?.closest(storySelector) && !nestedComment(node, root, boundaryRoot));
+    if (messages.length !== 1) return refs;
+    for (const link of root.querySelectorAll('a[href]')) {
+      if (!visible(link) || link.closest(storySelector) || nestedComment(link, root, boundaryRoot)
+        || !(link.compareDocumentPosition(messages[0]) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
+      const url = new URL(link.href, location.href);
+      const groupUser = /^\/groups\/[a-zA-Z0-9._-]+\/user\/(\d+)\/?$/.exec(url.pathname);
+      const ref = ['www.facebook.com','web.facebook.com','m.facebook.com'].includes(url.hostname)
+        && url.protocol === 'https:' && groupUser ? `/profile.php?id=${groupUser[1]}` : actorKey(link.href);
+      if (ref) refs.add(ref);
+    }
+    return refs;
+  }
+
+  function scanStoryMatches(source, opened) {
+    if (source === opened) return true;
+    const prefix = source.replace(/\s*(?:…|\.\.\.)?\s*(?:lihat selengkapnya|see more)\s*$/i, '').replace(/\s*(?:…|\.\.\.)\s*$/, '').trim();
+    return prefix !== source && prefix.length >= 8 && opened.startsWith(prefix)
+      && (opened.length === prefix.length || /\s|[.,!?;:]/.test(opened[prefix.length]));
+  }
+
+  function scanPhotoReference(link, group, strict = true) {
+    try {
+      const url = new URL(link.href, location.href);
+      if (url.protocol !== 'https:' || !['www.facebook.com','web.facebook.com','m.facebook.com'].includes(url.hostname)
+        || url.username || url.password || url.port || !/^\/photo(?:\.php|\/)\/?$/.test(url.pathname)
+        || url.searchParams.has('comment_id') || url.searchParams.has('reply_comment_id')) return null;
+      // A media URL is only a candidate. The numeric post is never accepted
+      // until another public DOM document confirms author, caption and photo.
+      const media = /^gm\.(\d+)$/.exec(url.searchParams.get('set') || '');
+      const photo = url.searchParams.get('fbid') || '';
+      const affinity = url.searchParams.get('idorvanity');
+      return media && /^\d+$/.test(group) && /^\d+$/.test(photo)
+        && (strict ? affinity === group : !affinity || affinity === group)
+        ? { url:`https://www.facebook.com/groups/${group}/posts/${media[1]}/`, photo } : null;
+    } catch { return null; }
+  }
+
+  function scanPrimaryPhotos(root, group, strict = true) {
+    return [...root.querySelectorAll('a[href]')].filter(link => visible(link) && !link.closest(storySelector) && !link.closest('form') && !nestedComment(link, root, root)
+      && [...link.querySelectorAll('img')].some(img => visible(img) && (img.width > 120 || img.naturalWidth > 120)))
+      .map(link => scanPhotoReference(link, group, strict)).filter(Boolean);
+  }
+
+  function scanHasSharedPost(root) {
+    const selector = '[data-shared-post],[data-ad-rendering-role="shared_story"],blockquote';
+    const markers = new Set([root.closest(selector), ...root.querySelectorAll(selector)]);
+    return [...markers].some(marker => {
+      if (!marker || marker.matches(commentBoundarySelector) || marker.closest('form') || nestedComment(marker, root, root)) return false;
+      // Shared markers belong to the primary post only while visibly owned
+      // by it. Hidden metadata and quotes in semantic comments/replies must
+      // not invalidate the separately verified author, caption and photo.
+      return visible(marker) || getComputedStyle(marker).display === 'contents'
+        && [...marker.querySelectorAll('*')].some(visible);
+    });
+  }
+
+  function scanMediaScope(root, group) {
+    if (!visible(root) || root.matches(commentBoundarySelector) || scanHasSharedPost(root)) return null;
+    const messages = [...root.querySelectorAll(storySelector)].filter(node => visible(node) && !node.parentElement?.closest(storySelector)
+      && !nestedComment(node, root, root));
+    if (messages.length !== 1) return null;
+    const authors = scanHeaderAuthors(root), caption = norm(messages[0].textContent);
+    if (authors.size !== 1 || caption.length < 8 || caption.length > 9000) return null;
+    const authorHeadings = [...root.querySelectorAll('h1,h2,[role="heading"]')].filter(heading => visible(heading)
+      && !heading.closest(storySelector) && !heading.closest('form') && !nestedComment(heading, root, root)
+      && (heading.compareDocumentPosition(messages[0]) & Node.DOCUMENT_POSITION_FOLLOWING)
+      && [...heading.querySelectorAll('a[href]')].some(link => {
+        const url = new URL(link.href, location.href);
+        return actorKey(link.href) || url.protocol === 'https:' && ['www.facebook.com','web.facebook.com','m.facebook.com'].includes(url.hostname)
+          && /^\/groups\/[^/]+\/user\/\d+\/?$/.test(url.pathname);
+      }));
+    if (authorHeadings.filter(heading => !authorHeadings.some(other => other !== heading && other.contains(heading))).length > 1) return null;
+    const times = [...root.querySelectorAll('a[href]')].filter(link => visible(link) && !link.closest(storySelector)
+      && !nestedComment(link, root, root) && timestampLabel(link, root, messages[0]));
+    // A second timestamp is evidence of a quoted/shared post, even when its
+    // author happens to be the same account as the outer post's author.
+    if (times.length !== 1) return null;
+    let quotedAuthor = false;
+    const allActors = new Set([...root.querySelectorAll('a[href]')].filter(link => visible(link) && !link.closest(storySelector)
+      && !link.closest('form') && !nestedComment(link, root, root)).flatMap(link => {
+        const url = new URL(link.href, location.href), user = /^\/groups\/[^/]+\/user\/(\d+)\/?$/.exec(url.pathname);
+        const actor = ['www.facebook.com','web.facebook.com','m.facebook.com'].includes(url.hostname) && url.protocol === 'https:' && user
+          ? `/profile.php?id=${user[1]}` : actorKey(link.href);
+        if (actor && !(link.compareDocumentPosition(messages[0]) & Node.DOCUMENT_POSITION_FOLLOWING)) quotedAuthor = true;
+        return actor ? [actor] : [];
+      }));
+    if (quotedAuthor || allActors.size !== 1 || !allActors.has([...authors][0])) return null;
+    const photos = scanPrimaryPhotos(root, group), refs = new Set(photos.map(photo => photo.url));
+    if (refs.size !== 1) return null;
+    return { scope:root, proof:{ url:[...refs][0], author:[...authors][0], caption, photos:[...new Set(photos.map(photo => photo.photo))].sort().slice(0, 8) } };
+  }
+
+  function scanMediaCandidates(group) {
+    const candidates = new Map();
+    for (const candidate of lazyPostHeaders(group)) {
+      for (let scope = candidate.scope; scope && scope !== document.body; scope = scope.parentElement) {
+        if (scope.matches('[role="feed"],main,[role="main"],[role="dialog"]')) break;
+        const messages = [...scope.querySelectorAll(storySelector)].filter(node => visible(node) && !node.parentElement?.closest(storySelector));
+        if (messages.length !== 1) break;
+        const resolved = scanMediaScope(scope, group);
+        if (resolved) { candidates.set(resolved.proof.url, resolved); break; }
+        if (scope.matches('[role="article"]')) break;
+      }
+    }
+    return [...candidates.values()];
+  }
+
+  function scanVerificationRoots(wanted) {
+    const dialogs = [...document.querySelectorAll('[role="dialog"]')].filter(visible);
+    if (dialogs.length) {
+      const inner = dialogs.filter(dialog => !dialogs.some(other => other !== dialog && dialog.contains(other)));
+      return inner.length === 1 ? [postRoot(inner[0], { target:wanted.url })] : [];
+    }
+    const roots = new Set(articles().filter(visible));
+    for (const marker of document.querySelectorAll(storySelector)) {
+      if (!visible(marker) || marker.parentElement?.closest(storySelector)
+        || marker.closest(`${commentSelector},[role="dialog"],[role="list"],${commentBoundarySelector},form`)) continue;
+      for (let scope = marker.parentElement; scope && scope !== document.body; scope = scope.parentElement) {
+        if (scope.matches('[role="feed"],main,[role="main"],[role="dialog"]')) break;
+        const messages = [...scope.querySelectorAll(storySelector)].filter(node => visible(node) && !node.parentElement?.closest(storySelector));
+        if (messages.length !== 1) break;
+        if (scanHeaderAuthors(scope).size === 1 && scanPrimaryPhotos(scope, wanted.group, false).length) roots.add(scope);
+      }
+    }
+    return [...roots];
+  }
+
+  async function verifyScanMedia(proof, expiresAt) {
+    cancelled = false;
+    const wanted = target(proof?.url);
+    if (!wanted?.post || typeof proof.caption !== 'string' || proof.caption.length < 8 || proof.caption.length > 9000
+      || typeof proof.author !== 'string' || !Array.isArray(proof.photos) || proof.photos.length < 1 || proof.photos.length > 8
+      || proof.photos.some(photo => !/^\d+$/.test(photo)) || !(expiresAt > Date.now() && expiresAt <= Date.now() + 20000)) return { verified:false };
+    const job = { kind:'group_scan', target:wanted.url, expiresAt };
+    while (Date.now() < expiresAt) {
+      check(job);
+      const matched = new Map();
+      for (const root of scanVerificationRoots(wanted)) {
+        if (nestedComment(root, root, root) || root.matches(commentBoundarySelector) || scanHasSharedPost(root)) continue;
+        const messages = [...root.querySelectorAll(storySelector)].filter(node => visible(node) && !node.parentElement?.closest(storySelector)
+          && !nestedComment(node, root, root));
+        const authors = scanHeaderAuthors(root), refs = postHeaderRefs(root, wanted.group);
+        const photos = scanPrimaryPhotos(root, wanted.group, false);
+        if (messages.length !== 1 || authors.size !== 1 || !authors.has(proof.author) || refs.size > 1
+          || refs.size === 1 && !refs.has(wanted.url) || !scanStoryMatches(proof.caption, norm(messages[0].textContent))) continue;
+        if (!proof.photos.every(photo => photos.some(item => item.url === wanted.url && item.photo === photo))) continue;
+        matched.set(messages[0], root);
+      }
+      if (matched.size === 1) return { verified:true, url:wanted.url };
+      if (matched.size > 1) return { verified:false };
+      await sleep(300);
+    }
+    return { verified:false };
+  }
+
+  function scanDialogClose(dialog, boundaryRoot) {
+    const candidates = new Set();
+    const headings = [...dialog.querySelectorAll('h1,h2,[role="heading"]')].filter(heading => visible(heading)
+      && heading.closest('[role="dialog"]') === dialog && !nestedComment(heading, dialog, boundaryRoot)
+      && /postingan|\bpost\b/i.test(norm(heading.textContent)));
+    for (const heading of headings) {
+      for (let scope = heading.parentElement; scope && dialog.contains(scope); scope = scope.parentElement) {
+        if (story(scope) || scope.querySelector(`${editorSelector},${commentSelector}`)) break;
+        for (const button of buttons(scope)) {
+          if (enabled(button) && !nestedComment(button, dialog, boundaryRoot)
+            && /^(tutup|close)(?: (?:postingan|post|dialog))?$/i.test(label(button))) candidates.add(button);
+        }
+        if (scope === dialog) break;
+      }
+    }
+    return candidates.size === 1 ? [...candidates][0] : null;
+  }
+
+  async function pressScanTimestamp(job, scope, link, clickTarget) {
+    const group = target(job.target).group;
+    const steps = ['pointerdown','mousedown','pointerup','mouseup','click'];
+    for (const type of steps) {
+      check(job);
+      // A press handler may already have opened the post. Do not deliver a
+      // second activation into the newly opened modal or its background.
+      if (target(location.href)?.post || [...document.querySelectorAll('[role="dialog"]')].some(visible)) return;
+      const linkTarget = target(link.href), refs = postHeaderRefs(scope, group);
+      const lazy = lazyHeaderLinks(scope, group);
+      if (!scope.isConnected || !link.isConnected || !clickTarget.isConnected || !scope.contains(link)
+        || !link.contains(clickTarget) || !visible(link) || !visible(clickTarget) || !linkTarget || linkTarget.group !== group
+        || (linkTarget.post ? refs.size !== 1 || !refs.has(linkTarget.url) : lazy.length !== 1 || lazy[0] !== link)) {
+        throw failure('scan_timestamp_changed', 'Tautan waktu postingan berubah selama scan.');
+      }
+      const rect = clickTarget.getBoundingClientRect();
+      const down = /down$/.test(type);
+      const init = { bubbles:true, cancelable:true, composed:true, view:window, button:0, buttons:down ? 1 : 0, detail:1,
+        clientX:rect.left + rect.width / 2, clientY:rect.top + rect.height / 2 };
+      const event = type.startsWith('pointer')
+        ? new PointerEvent(type, { ...init, detail:0, pointerId:1, pointerType:'mouse', isPrimary:true, width:1, height:1, pressure:down ? .5 : 0 })
+        : new MouseEvent(type, init);
+      // A page can stop propagation before a late bubble guard executes.
+      // Pre-cancel only native anchor activation; page press handlers still
+      // receive the event. If they refuse cancelled clicks, fail closed.
+      if (type === 'click') event.preventDefault();
+      clickTarget.dispatchEvent(event);
+      if (type !== 'click') await sleep(40);
+    }
+  }
+
+  async function resolveScanHeader(job, candidate) {
+    check(job);
+    const wanted = target(job.target), { scope, link } = candidate;
+    const sourceText = norm(story(scope)?.textContent), authors = scanHeaderAuthors(scope);
+    const links = lazyHeaderLinks(scope, wanted.group);
+    if (!sourceText || authors.size !== 1 || !scope.isConnected || !link.isConnected || !scope.contains(link) || !visible(link)
+      || link.hasAttribute('download') || links.length !== 1 || links[0] !== link
+      || [...document.querySelectorAll('[role="dialog"]')].some(visible)) return null;
+    const author = [...authors][0];
+    // This is a read-only timestamp press, never a comment/composer click.
+    const hit = timestampHoverTarget(link, link.getBoundingClientRect());
+    const nestedControl = hit.closest('button,[role="button"],input,textarea,select,[contenteditable="true"]');
+    const clickTarget = link.contains(hit) && (!nestedControl || !link.contains(nestedControl)) ? hit : link;
+    await pressScanTimestamp(job, scope, link, clickTarget);
+    const openUntil = Math.min(job.expiresAt, Date.now() + 7000);
+    let matched = null;
+    while (Date.now() < openUntil) {
+      check(job);
+      const here = target(location.href);
+      const dialogs = [...document.querySelectorAll('[role="dialog"]')].filter(visible);
+      const inner = dialogs.filter(dialog => !dialogs.some(other => other !== dialog && dialog.contains(other)));
+      if (inner.length > 1) throw failure('scan_modal_ambiguous', 'Scan dihentikan: ada beberapa dialog Facebook.');
+      if (here?.post && inner.length === 1) {
+        const dialog = inner[0];
+        const boundaryRoot = postRoot(dialog, { target:here.url });
+        const messages = [...dialog.querySelectorAll(storySelector)].filter(node => visible(node)
+          && !node.parentElement?.closest(storySelector) && node.closest('[role="dialog"]') === dialog
+          && !nestedComment(node, dialog, boundaryRoot));
+        const modalAuthors = scanHeaderAuthors(dialog, boundaryRoot);
+        if (messages.length > 1 || messages.length === 1 && !scanStoryMatches(sourceText, norm(messages[0].textContent))
+          || modalAuthors.size > 1 || modalAuthors.size === 1 && !modalAuthors.has(author)) {
+          throw failure('scan_modal_mismatch', 'Scan dihentikan: isi atau penulis dialog tidak cocok dengan postingan yang dibuka.');
+        }
+        const close = messages.length === 1 && modalAuthors.size === 1 ? scanDialogClose(dialog, boundaryRoot) : null;
+        if (close) { matched = { dialog, close, boundaryRoot, url:here.url }; break; }
+      }
+      await sleep(150);
+    }
+    if (!matched) throw failure('scan_modal_unresolved', 'Scan dihentikan: tautan atau kontrol tutup postingan belum dapat dipastikan.');
+    check(job);
+    if (!matched.dialog.isConnected || !enabled(matched.close) || target(location.href)?.url !== matched.url
+      || scanDialogClose(matched.dialog, matched.boundaryRoot) !== matched.close) throw failure('scan_modal_changed', 'Dialog berubah selama scan.');
+    matched.close.click();
+    const closeUntil = Math.min(job.expiresAt, Date.now() + 5000);
+    while (Date.now() < closeUntil) {
+      check(job);
+      const here = target(location.href);
+      if (here && !here.post && here.group === wanted.group
+        && ![...document.querySelectorAll('[role="dialog"]')].some(visible)) return { url:matched.url, preview:sourceText.slice(0, 220) };
+      if (here?.post && here.url !== matched.url) throw failure('scan_modal_changed', 'Halaman berubah saat menutup postingan hasil scan.');
+      await sleep(150);
+    }
+    throw failure('scan_feed_not_restored', 'Scan dihentikan: halaman grup belum kembali setelah menutup postingan.');
   }
 
   function findFeedContext(job, withComposer = true) {
@@ -188,12 +554,30 @@
     return roots.length === 1 ? roots[0] : context;
   }
 
+  function feedItemWrapper(node, context, root) {
+    // A feed can wrap each semantic post in a listitem. That wrapper is not
+    // a comment, but a listitem inside a comment list still is. Only permit
+    // this structural wrapper around a complete, top-level semantic post.
+    if (context !== root || !root.matches('[role="article"]')
+      || !node.matches('[role="listitem"],li') || !node.contains(root)) return false;
+    const message = story(root), feed = node.closest('[role="feed"]');
+    if (!message || message.closest(commentSelector) !== root || !feed
+      || root.matches(commentBoundarySelector) || root.parentElement?.closest('[role="article"],[role="dialog"]')) return false;
+    for (let ancestor = root.parentElement; ancestor && ancestor !== feed; ancestor = ancestor.parentElement) {
+      if (ancestor.matches(`${commentBoundarySelector},[role="article"],[role="dialog"],[role="list"]`)) return false;
+    }
+    return true;
+  }
+
   function nestedComment(element, context, root) {
     for (let node = element.parentElement; node && node !== document.body; node = node.parentElement) {
+      if (node.matches(commentBoundarySelector)) return true;
       if (node === context || node === root) continue;
       // A semantic comment can wrap a nested dialog. Continue beyond the
       // selected dialog instead of declaring its reply editor a post root.
-      if (!context.contains(node) && node.matches('[role="article"]') && story(node)) continue;
+      const outerStory = !context.contains(node) && node.matches('[role="article"]') ? story(node) : null;
+      if (outerStory && !context.contains(outerStory) && !node.parentElement?.closest('[role="article"]')) continue;
+      if (feedItemWrapper(node, context, root)) continue;
       if (node !== root && (node.matches(commentSelector)
         || node.matches('li') && node.parentElement?.matches('[role="list"],ul,ol')
         || node.matches('[data-reply-thread],[data-comment-thread]'))) return true;
@@ -438,21 +822,123 @@
 
   function topLevelComments(context, root, composer) {
     const nodes = [...context.querySelectorAll(commentSelector)].filter(node => node !== root
-      && !node.contains(composer) && !composer.contains(node) && !story(node));
+      && !node.contains(composer) && !composer.contains(node) && !story(node)
+      && !node.closest('[data-reply-thread],[data-comment-thread]'));
     return nodes.filter(node => !nodes.some(parent => parent !== node && parent.contains(node)));
   }
 
-  function commentKey(comment) {
-    const explicit = comment.getAttribute('data-comment-id') || comment.getAttribute('data-commentid');
-    if (explicit) return `id:${explicit}`;
-    for (const link of comment.querySelectorAll('a[href]')) {
-      const owner = link.closest(commentSelector);
-      if (owner && owner !== comment) continue;
-      const url = new URL(link.href, location.href);
-      const id = url.searchParams.get('reply_comment_id') || url.searchParams.get('comment_id');
-      if (id) return `id:${id}`;
+  function commentOwnsNode(comment, element) {
+    for (let node = element; node && node !== comment; node = node.parentElement) {
+      if (node.matches(`${commentBoundarySelector},[role="article"],form`)) return false;
+      // Footer status listitems are metadata, while a nested listitem with
+      // its own author/editor is a reply and cannot describe this comment.
+      if (node.matches('[role="listitem"],li') && (node.querySelector(editorSelector)
+        || [...node.querySelectorAll('a[href]')].some(link => commentActorKey(link.href)))) return false;
     }
-    return '';
+    return comment.contains(element);
+  }
+
+  function commentKey(comment, wanted = null) {
+    const explicit = comment.getAttribute('data-comment-id') || comment.getAttribute('data-commentid');
+    const ids = new Set(/^[1-9]\d{0,39}$/.test(explicit || '') ? [explicit] : []);
+    for (const link of comment.querySelectorAll('a[href]')) {
+      if (!commentOwnsNode(comment, link)) continue;
+      const url = new URL(link.href, location.href), parsed = target(link.href);
+      if (!parsed?.post || wanted && parsed.url !== wanted.url) continue;
+      if (url.searchParams.has('reply_comment_id')) return '';
+      const id = url.searchParams.get('comment_id');
+      // React's optimistic client:UUID is not a persisted Facebook comment.
+      if (/^[1-9]\d{0,39}$/.test(id || '')) ids.add(id);
+    }
+    return ids.size === 1 ? `id:${[...ids][0]}` : '';
+  }
+
+  function commentPhotoIds(comment) {
+    const ids = new Set();
+    for (const link of comment.querySelectorAll('a[href]')) {
+      if (!visible(link) || !commentOwnsNode(comment, link) || !mediaImages(link).length) continue;
+      const url = new URL(link.href, location.href), id = url.searchParams.get('fbid');
+      if (url.protocol === 'https:' && ['www.facebook.com','web.facebook.com','m.facebook.com'].includes(url.hostname)
+        && !url.username && !url.password && !url.port && /^\/photo(?:\.php|\/)\/?$/.test(url.pathname)
+        && /^[1-9]\d{0,39}$/.test(id || '')) ids.add(id);
+    }
+    return [...ids].sort().slice(0, 8);
+  }
+
+  function commentModeration(comment) {
+    const rejected = /^(?:(?:komentar(?: anda)?|your comment|comment)\s+)?(?:ditolak|rejected|declined)$/i;
+    const pending = /^(?:(?:komentar(?: anda)?|your comment|comment)\s+)?(?:menunggu persetujuan(?: admin)?|menunggu persetujuan admin grup|pending(?: approval)?|awaiting approval)$/i;
+    const feedback = /^(?:lihat masukan|lihat umpan balik|see feedback|view feedback)$/i;
+    const states = new Set();
+    for (const control of comment.querySelectorAll('button,[role="button"],[role="status"],[role="alert"],[role="listitem"],li')) {
+      if (!visible(control) || !commentOwnsNode(comment, control)
+        || control.closest(`${storySelector},[data-comment-body],[data-comment-text],blockquote,[contenteditable="true"]`)) continue;
+      const text = label(control);
+      if (!rejected.test(text) && !pending.test(text)) {
+        if (text && control.matches('[role="status"],[role="alert"]')) states.add('uncertain');
+        continue;
+      }
+      if (control.matches('[role="listitem"],li')) {
+        // An ordinary comment can literally say "Ditolak". Accept a list
+        // label only in its own metadata list next to Facebook's feedback UI.
+        let metadata = null;
+        for (let parent = control.parentElement, depth = 0; parent && parent !== comment && depth < 3; parent = parent.parentElement, depth++) {
+          if (parent.querySelector(`${storySelector},${editorSelector},[role="article"],[data-comment-id],[data-commentid],[data-comment-body],[data-comment-text]`)
+            || mediaImages(parent).length || [...parent.querySelectorAll('a[href]')].some(link => commentActorKey(link.href))) break;
+          if (buttons(parent).some(button => !control.contains(button) && commentOwnsNode(comment, button) && feedback.test(label(button)))) { metadata = parent; break; }
+        }
+        if (!metadata) { states.add('uncertain'); continue; }
+      }
+      states.add(rejected.test(text) ? 'failed' : 'pending');
+    }
+    return states.has('failed') ? 'failed' : states.has('pending') ? 'pending' : states.has('uncertain') ? 'uncertain' : '';
+  }
+
+  async function verifyComment(job, proof, expiresAt) {
+    const wanted = target(job?.target);
+    const end = Math.min(Number(job?.expiresAt) || 0, Number(expiresAt) || Date.now() + 18000, Date.now() + 18000);
+    const finish = (status, stage, note) => ({ status, ref:wanted?.url, commentId:proof?.commentId, photoIds:proof?.photoIds,
+      dispatched:true, stage, stages:['send_clicked','committed_comment_found',stage], note:`[stage:${stage}] ${note}`.slice(0,240) });
+    if (job?.kind !== 'group_comment' || job.payload?.adminSelected !== true || !wanted?.post || proof?.ref !== wanted.url
+      || !/^[1-9]\d{0,39}$/.test(proof?.commentId || '') || !Array.isArray(proof.photoIds) || !proof.photoIds.length
+      || proof.photoIds.length > 8 || new Set(proof.photoIds).size !== proof.photoIds.length
+      || proof.photoIds.some(id => typeof id !== 'string' || !/^[1-9]\d{0,39}$/.test(id))) {
+      return finish('uncertain','verification_inconclusive','Bukti komentar belum lengkap. Tidak dikirim ulang.');
+    }
+    let stableSince = 0;
+    while (Date.now() < end) {
+      // Sending already occurred. STOP stops future dispatches, but this
+      // isolated read-only check must still report what Facebook retained.
+      if (target(location.href)?.url !== wanted.url) return finish('uncertain','verification_inconclusive','Halaman verifikasi berubah. Tidak dikirim ulang.');
+      if ([...document.querySelectorAll('[role="alert"],[role="dialog"]')].some(element => /temporarily blocked|dibatasi sementara|confirm your identity|konfirmasi identitas|security check|pemeriksaan keamanan/i.test(element.textContent))) {
+        return finish('uncertain','verification_inconclusive','Facebook membatasi pemeriksaan hasil. Tidak dikirim ulang.');
+      }
+      const context = document.readyState === 'complete' && (findCommentContext(job)
+        || ![...document.querySelectorAll('[role="dialog"]')].some(visible) && findFeedContext(job, false));
+      if (context) {
+        const root = postRoot(context, job), editor = context.querySelector(editorSelector) || document.createElement('div');
+        const groups = new Set([...root.querySelectorAll('a[href]')].map(link => target(link.href)).filter(ref => ref?.post).map(ref => ref.group));
+        const headers = new Set([...groups].flatMap(group => [...postHeaderRefs(root, group)]));
+        const messages = [...root.querySelectorAll(storySelector)].filter(node => visible(node)
+          && !node.parentElement?.closest(storySelector) && !nestedComment(node, root, root));
+        if (headers.size > 1 || headers.size === 1 && !headers.has(wanted.url) || messages.length !== 1) {
+          return finish('uncertain','verification_inconclusive','Konteks postingan pada halaman verifikasi tidak tunggal. Tidak dikirim ulang.');
+        }
+        const matching = topLevelComments(context, root, editor).filter(comment => visible(comment)
+          && commentKey(comment, wanted) === `id:${proof.commentId}`
+          && proof.photoIds.every(id => commentPhotoIds(comment).includes(id)));
+        if (matching.length === 1) {
+          const state = commentModeration(matching[0]);
+          if (state === 'failed') return finish('failed','comment_rejected','Facebook menolak komentar melalui moderasi grup. Tidak dikirim ulang.');
+          if (state === 'pending') return finish('pending','comment_pending','Komentar menunggu persetujuan admin grup. Tidak dikirim ulang.');
+          if (state === 'uncertain') return finish('uncertain','verification_inconclusive','Facebook menampilkan status komentar yang belum dapat dipastikan. Tidak dikirim ulang.');
+          stableSince ||= Date.now();
+          if (Date.now() - stableSince >= 4500) return finish('sent','verified_new_comment','Komentar dan foto terlihat pada pemeriksaan baru tanpa status ditolak atau menunggu persetujuan.');
+        } else stableSince = 0;
+      } else stableSince = 0;
+      await sleep(300);
+    }
+    return finish('uncertain','verification_inconclusive','Hasil komentar belum terkonfirmasi pada halaman baru. Tidak dikirim ulang.');
   }
 
   function mediaKey(img) {
@@ -474,6 +960,15 @@
     } catch { return ''; }
   }
 
+  function commentActorKey(href) {
+    try {
+      const url = new URL(href, location.href), user = /^\/groups\/[a-zA-Z0-9._-]+\/user\/([1-9]\d*)\/?$/.exec(url.pathname);
+      if (url.protocol !== 'https:' || !['www.facebook.com','web.facebook.com','m.facebook.com'].includes(url.hostname)
+        || url.username || url.password || url.port) return '';
+      return user ? `/profile.php?id=${user[1]}` : actorKey(href);
+    } catch { return ''; }
+  }
+
   function composerCleared(editor, scope, preview) {
     const text = norm(editor instanceof HTMLTextAreaElement ? editor.value : editor.textContent);
     const previews = mediaImages(scope).filter(img => img.closest('[data-attachment-preview]')
@@ -482,7 +977,7 @@
       && !scope.querySelector('[role="progressbar"]');
   }
 
-  async function scanAllPosts(groupUrl) {
+  async function scanAllPosts(groupUrl, scanToken = '') {
     cancelled = false;
     const wanted = target(groupUrl);
     const here = target(location.href);
@@ -491,12 +986,21 @@
       throw new Error('Facebook meminta pemeriksaan keamanan/pembatasan.');
     }
     const found = new Map();
+    const hydrated = new WeakMap();
+    const openedLinks = new WeakSet();
+    const completedCards = new Set();
+    const checkedMedia = new Set();
+    const scanDiagnostics = { mediaCandidates:0, checkedMedia:0, verifiedMedia:0, lastVerifyStage:'not_attempted' };
+    let openedCount = 0;
     let idleRounds = 0;
     const deadline = Date.now() + 45000;
     const scanJob = { kind: 'group_scan', target: groupUrl, expiresAt: deadline };
     // A complete document can still be waiting for Facebook's first feed card
     // or timestamp permalink. Empty initial polls must not end the scan early.
     while (!cancelled && Date.now() < deadline && (!found.size || idleRounds < 5)) {
+      check(scanJob);
+      if (target(location.href)?.post) throw failure('target_changed', 'Halaman bukan tujuan scan grup.');
+      hydratePostHeaders(wanted.group, hydrated);
       check(scanJob);
       const before = found.size;
       for (const a of scanPostContexts(wanted.group)) {
@@ -505,17 +1009,64 @@
         const message = norm(story(a)?.textContent || a.textContent || '');
         found.set(ref, { url: ref, preview: message.slice(0, 220) || 'Postingan tanpa teks' });
       }
+      // Give ordinary hover hydration time first. If it never reveals a URL,
+      // resolve one reviewed card by its timestamp modal, then return to feed.
+      // Each link is opened at most once and one scan has a bounded budget.
+      if (scanToken && deadline - Date.now() > 12000) {
+        const media = scanMediaCandidates(wanted.group);
+        scanDiagnostics.mediaCandidates = Math.max(scanDiagnostics.mediaCandidates, media.length);
+        const candidate = media.find(item => !found.has(item.proof.url) && !checkedMedia.has(item.proof.url));
+        if (candidate) {
+          checkedMedia.add(candidate.proof.url);
+          scanDiagnostics.checkedMedia = checkedMedia.size;
+          const result = await chrome.runtime.sendMessage({ type:'CP_LOKER_VERIFY_SCAN_MEDIA', token:scanToken, proof:candidate.proof });
+          scanDiagnostics.lastVerifyStage = typeof result?.stage === 'string' ? result.stage.slice(0, 60) : result?.verified ? 'verified' : 'document_unverified';
+          if (cancelled) return { items:[...found.values()], stopped:true, scanDiagnostics };
+          check(scanJob);
+          // Confirm that the source card is still exactly the card reviewed
+          // before asynchronous verification; rerenders or caption edits fail.
+          const current = candidate.scope.isConnected && scanMediaScope(candidate.scope, wanted.group);
+          if (result?.verified === true && result.url === candidate.proof.url && current
+            && JSON.stringify(current.proof) === JSON.stringify(candidate.proof)) {
+            found.set(result.url, { url:result.url, preview:candidate.proof.caption.slice(0, 220) });
+            scanDiagnostics.verifiedMedia++;
+          }
+        }
+      }
+      if (!scanToken && openedCount < 12 && deadline - Date.now() > 12000
+        && ![...document.querySelectorAll('[role="dialog"]')].some(visible)) {
+        const candidate = lazyPostHeaders(wanted.group).map(candidate => ({ ...candidate,
+          key:[...scanHeaderAuthors(candidate.scope)].join('|') + '\n' + norm(story(candidate.scope)?.textContent) }))
+          .find(({ scope, link, key }) => !openedLinks.has(link) && !completedCards.has(key)
+            && hydrated.has(link) && Date.now() - hydrated.get(link).first >= 3500 && scanHeaderAuthors(scope).size === 1);
+        if (candidate) {
+          openedLinks.add(candidate.link);
+          openedCount++;
+          try {
+            const resolved = await resolveScanHeader(scanJob, candidate);
+            if (resolved) {
+              completedCards.add(candidate.key);
+              if (!found.has(resolved.url)) found.set(resolved.url, resolved);
+            }
+          } catch (error) {
+            if (cancelled && error.code === 'cancelled') return { items:[...found.values()], stopped:true };
+            throw error;
+          }
+        }
+      }
       idleRounds = found.size > 0 && found.size === before ? idleRounds + 1 : 0;
       if (found.size) window.scrollBy(0, innerHeight * .9);
       await sleep(900);
     }
     if (!found.size && !cancelled) {
       const hasCards = scanPostContexts(wanted.group).some(visible);
-      throw failure(hasCards ? 'scan_layout_unrecognized' : 'scan_feed_not_ready', hasCards
+      const error = failure(hasCards ? 'scan_layout_unrecognized' : 'scan_feed_not_ready', hasCards
         ? 'Postingan terlihat tetapi tautan postingannya belum dikenali. Buka halaman Diskusi grup, lalu scan ulang.'
         : 'Feed grup belum terbaca setelah 45 detik. Pastikan postingan tampil di tab Facebook, lalu scan ulang.');
+      error.scanDiagnostics = scanDiagnostics;
+      throw error;
     }
-    return { items: [...found.values()] };
+    return { items: [...found.values()], scanDiagnostics };
   }
 
   async function run(job) {
@@ -525,9 +1076,12 @@
     if (job.kind === 'group_scan') {
       await dispatch(job);
       const found = new Set();
+      const hydrated = new WeakMap();
       const scanUntil = Math.min(job.expiresAt - 15000, Date.now() + 105000);
       let idleRounds = 0;
       while (Date.now() < scanUntil && idleRounds < 4) {
+        check(job);
+        hydratePostHeaders(target(job.target).group, hydrated);
         check(job);
         const before = found.size;
         for (const a of scanPostContexts(target(job.target).group)) {
@@ -620,13 +1174,13 @@
         const existingComments = topLevelComments(context, root, scope);
         const beforeComments = {
           nodes: new Set(existingComments),
-          keys: new Set(existingComments.map(commentKey).filter(Boolean)),
+          keys: new Set(existingComments.map(comment => commentKey(comment, target(job.target))).filter(Boolean)),
           media: new Set(existingComments.flatMap(comment => mediaImages(comment).map(mediaKey)).filter(Boolean)),
         };
-        // Compare actor links only in memory, never include identity in a
-        // result, note, storage, or log. Some variants have no avatar link.
-        const actorLinks = new Set([...scope.querySelectorAll('a[href]')].filter(link => link.querySelector('img'))
-          .map(link => actorKey(link.href)).filter(Boolean));
+        // Compare the single composer actor only in memory; SVG avatars and
+        // group/user profile aliases carry the same public account identity.
+        const actorLinks = new Set([...scope.querySelectorAll('a[href]')].filter(link => link.querySelector('img,svg'))
+          .map(link => commentActorKey(link.href)).filter(Boolean));
         check(job);
         if (!editor.isConnected || !context.contains(editor) || !attachmentStillOwned(ownership, preview) || !enabled(send)
           || ownership.userChanged || editorText(editor) !== ownership.originalText) {
@@ -644,20 +1198,26 @@
         dispatched = true;
         send.click();
         mark('send_clicked');
-        await waitFor(job, () => {
+        const committed = await waitFor(job, () => {
           if (!composerCleared(editor, scope, preview)) return null;
           const comments = topLevelComments(context, root, scope);
           if (comments.length <= beforeComments.nodes.size) return null;
-          return comments.find(comment => {
-            const key = commentKey(comment), images = mediaImages(comment);
-            if (beforeComments.nodes.has(comment) || key && beforeComments.keys.has(key) || !images.length) return false;
-            if (!key && images.every(img => beforeComments.media.has(mediaKey(img)))) return false;
-            const author = [...comment.querySelectorAll('a[href]')].map(link => actorKey(link.href)).find(Boolean);
-            return !actorLinks.size || !author || actorLinks.has(author);
-          }) || null;
+          const candidates = comments.filter(comment => {
+            const key = commentKey(comment, target(job.target));
+            return !beforeComments.nodes.has(comment) && !(key && beforeComments.keys.has(key));
+          });
+          // A concurrent photo comment or an optimistic client placeholder
+          // cannot be silently substituted for the comment just submitted.
+          if (candidates.length !== 1 || actorLinks.size > 1) return null;
+          const comment = candidates[0], key = commentKey(comment, target(job.target));
+          const authors = new Set([...comment.querySelectorAll('a[href]')].filter(link => commentOwnsNode(comment, link))
+            .map(link => commentActorKey(link.href)).filter(Boolean));
+          if (authors.size > 1 || actorLinks.size && (authors.size !== 1 || !actorLinks.has([...authors][0]))) return null;
+          return key && mediaImages(comment).length && commentPhotoIds(comment).length ? comment : null;
         }, 18000, 'verification_inconclusive', 'Kirim sudah dicoba, tetapi komentar foto baru belum terkonfirmasi. Periksa manual; tidak dikirim ulang.');
-        mark('verified_new_comment');
-        return result('sent', context.matches('[role="dialog"]') ? 'Komentar foto baru terverifikasi di modal postingan.' : 'Komentar foto baru terverifikasi pada postingan.', target(job.target).url);
+        mark('committed_comment_found');
+        return { ...result('verify_comment','Komentar memiliki ID tetap; memeriksa hasil moderasi pada halaman baru.',target(job.target).url),
+          commentId:commentKey(committed, target(job.target)).slice(3), photoIds:commentPhotoIds(committed) };
       } catch (error) {
         if (!dispatched && ownership?.changed) {
           let cleaned = false;
@@ -694,6 +1254,12 @@
   chrome.runtime.onMessage.addListener((m, sender, respond) => {
     if (sender.id !== chrome.runtime.id) return;
     if (m?.type === 'CP_LOKER_CANCEL') { cancelled = true; respond({ stopped: true }); return; }
+    if (m?.type === 'CP_LOKER_VERIFY_COMMENT') {
+      verifyComment(m.job, m.proof, m.expiresAt).then(respond).catch(() => respond({ status:'uncertain',ref:m.proof?.ref,
+        commentId:m.proof?.commentId,photoIds:m.proof?.photoIds,dispatched:true,stage:'verification_inconclusive',
+        note:'[stage:verification_inconclusive] Hasil komentar belum terkonfirmasi. Tidak dikirim ulang.' }));
+      return true;
+    }
     if (m?.type === 'CP_LOKER_PROBE_FEED') {
       // Read-only probe: the worker still checks STOP and obtains server
       // preflight before any approved job can attach or submit a comment.
@@ -705,7 +1271,11 @@
       return;
     }
     if (m?.type === 'CP_LOKER_SCAN_ALL') {
-      scanAllPosts(m.group).then(respond).catch(e => respond({ error: e.message, items: [] }));
+      scanAllPosts(m.group, m.token).then(respond).catch(e => respond({ error: e.message, items: [], ...(e.scanDiagnostics ? { scanDiagnostics:e.scanDiagnostics } : {}) }));
+      return true;
+    }
+    if (m?.type === 'CP_LOKER_VERIFY_SCAN_DOCUMENT') {
+      verifyScanMedia(m.proof, m.expiresAt).then(respond).catch(() => respond({ verified:false }));
       return true;
     }
     if (!['CP_LOKER_RUN','CP_LOKER_VERIFY'].includes(m?.type)) return;
