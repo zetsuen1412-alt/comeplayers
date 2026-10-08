@@ -1,0 +1,15 @@
+{
+  "tool_path": "tools/verify_high_visual.py",
+  "tool_sha256": "0ab94813a1a9896b344656425f40596275987d386b86c28d661f1a2ec617dd38",
+  "source_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "argv": [
+    "--source",
+    "{root}/evidence/selected-alexia/source/alexia-baseline.glb",
+    "--candidate",
+    "{root}/viewer/models/alexia.glb",
+    "--masks",
+    "{root}/evidence/selected-alexia/source/semantic-masks.npz",
+    "--output",
+    "{receipt}"
+  ]
+}

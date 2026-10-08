@@ -1,0 +1,22 @@
+{
+  "preflight_passed": true,
+  "model_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "actual_faces": 276417,
+  "actual_vertices": 357263,
+  "actual_mesh_definitions": 3,
+  "actual_two_19_joint_skins": true,
+  "actual_clip_names": [
+    "IdleBreath",
+    "Walk"
+  ],
+  "models": 10,
+  "unchanged_models": 9,
+  "unchanged_other_actual_PNGs": 45,
+  "new_actual_views": 5,
+  "selected_support_files": 43,
+  "output": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-08-high-visual",
+  "executed": true,
+  "manifest_sha256": "6e73c675d287710cb391c610b9f1dae51b0bcfb4ca537560538bf6b8dfaa0805",
+  "gallery_sha256": "9209f1ad62b7b1d0cab4626b5edcec808c52cfc32dc2ac022741fad8a74d2122",
+  "source_inputs_hash_mtime_unchanged": true
+}

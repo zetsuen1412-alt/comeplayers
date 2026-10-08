@@ -1,0 +1,332 @@
+{
+  "schema": "crwt.alexia_high_visual_visible_anatomy_replacement.v1",
+  "source_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "prior_protector_sha256": "4029629f0efd1606c2e2bb2d3072a3011da193d3509c82f8a198366e8b180502",
+  "recipe_sha256": "1088ce42fa19dedca841c8404b9b82e8472ca1a332084a126c04282663605d66",
+  "mask_sha256": "92e8e67fdbf60a69f6ef2423e6c8b54c3237d177e5e9d292baea8d6eec886def",
+  "passed": true,
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "removed_leg_column_triangles": 19994,
+  "removed_hand_wrist_triangles": 10744,
+  "removed_side_cloth_triangles": 12612,
+  "removed_union_triangles": 32176,
+  "retained_original_core_triangles": 68277,
+  "protected_face_cup_shirt_hair_incidence": 0,
+  "original_warm_leg_rows_now_incident_deactivated_triangles": 8373,
+  "touched_world_bounds": [
+    [
+      -0.32236966490745544,
+      -0.3446148931980133,
+      -0.08343040198087692
+    ],
+    [
+      0.2910313606262207,
+      0.08318324387073517,
+      0.17255061864852905
+    ]
+  ],
+  "original_POSITION_NORMAL_UV_COLOR_JOINTS_WEIGHTS_BIN_exact": true,
+  "original_nodes_skins_actual_clips_and_all_preexisting_authored_components_exact": true,
+  "visible_leg_skin_is_now_authored_closed_calves": true,
+  "visible_hand_skin_is_now_authored_closed_palms_fingers": true,
+  "new_hand_components": [
+    {
+      "name": "L fitted wrist",
+      "vertices": 482,
+      "triangles": 960,
+      "signed_volume": 1.0288366585000191e-05,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.24300000000000002,
+          -0.099,
+          0.079
+        ],
+        [
+          -0.219,
+          -0.067,
+          0.105
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "L rounded palm",
+      "vertices": 482,
+      "triangles": 960,
+      "signed_volume": 2.0362392199483328e-05,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.255,
+          -0.124,
+          0.081
+        ],
+        [
+          -0.215,
+          -0.086,
+          0.107
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "L finger 1",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 9.163807889846567e-07,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.2529,
+          -0.13425219806739988,
+          0.09217973017465238
+        ],
+        [
+          -0.2441,
+          -0.11381698867122994,
+          0.1058
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "L finger 2",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 1.2071662169227798e-06,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.24389999999999998,
+          -0.14025219806739989,
+          0.09217973017465238
+        ],
+        [
+          -0.2351,
+          -0.11381698867122994,
+          0.1058
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "L finger 3",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 1.1094759265237826e-06,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.23489999999999997,
+          -0.13825219806739988,
+          0.09217973017465238
+        ],
+        [
+          -0.2261,
+          -0.11381698867122994,
+          0.1058
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "L finger 4",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 8.688070239541076e-07,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.22589999999999996,
+          -0.13325219806739988,
+          0.09217973017465238
+        ],
+        [
+          -0.2171,
+          -0.11381698867122994,
+          0.1058
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "L small thumb",
+      "vertices": 62,
+      "triangles": 120,
+      "signed_volume": 2.065384057453254e-06,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          -0.22252237454251117,
+          -0.11961979489392843,
+          0.09226386665022059
+        ],
+        [
+          -0.2020776772972363,
+          -0.09589382996586883,
+          0.10972379734500505
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R fitted wrist",
+      "vertices": 482,
+      "triangles": 960,
+      "signed_volume": 1.0288366585002383e-05,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.219,
+          -0.099,
+          0.079
+        ],
+        [
+          0.24300000000000002,
+          -0.067,
+          0.105
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R rounded palm",
+      "vertices": 482,
+      "triangles": 960,
+      "signed_volume": 2.0362392199482854e-05,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.215,
+          -0.124,
+          0.081
+        ],
+        [
+          0.255,
+          -0.086,
+          0.107
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R finger 1",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 9.163807889842954e-07,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.2171,
+          -0.13425219806739988,
+          0.08417973017465237
+        ],
+        [
+          0.22589999999999996,
+          -0.11381698867122994,
+          0.0978
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R finger 2",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 1.2071662169223462e-06,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.2261,
+          -0.14025219806739989,
+          0.08417973017465237
+        ],
+        [
+          0.23489999999999997,
+          -0.11381698867122994,
+          0.0978
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R finger 3",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 1.1094759265229152e-06,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.2351,
+          -0.13825219806739988,
+          0.08417973017465237
+        ],
+        [
+          0.24389999999999998,
+          -0.11381698867122994,
+          0.0978
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R finger 4",
+      "vertices": 66,
+      "triangles": 128,
+      "signed_volume": 8.688070239541438e-07,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.2441,
+          -0.13325219806739988,
+          0.08417973017465237
+        ],
+        [
+          0.2529,
+          -0.11381698867122994,
+          0.0978
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    },
+    {
+      "name": "R small thumb",
+      "vertices": 62,
+      "triangles": 120,
+      "signed_volume": 2.094009153530158e-06,
+      "edge_incidence_all_two": true,
+      "world_bounds": [
+        [
+          0.2020776772972363,
+          -0.11961979489392843,
+          0.09226386665022059
+        ],
+        [
+          0.22252237454251117,
+          -0.09589382996586883,
+          0.10972379734500505
+        ]
+      ],
+      "weights": "Existing Hand/Forearm slots with actual normalized Y blend."
+    }
+  ],
+  "new_vertices": 2580,
+  "new_triangles": 5104,
+  "input_hash_mtime_unchanged": true,
+  "scope": {
+    "leg_column": "Every original triangle row: -.37<Y<-.122,abs(X+.006)<.19,-.12<Z<.23; no face/cup/hair/shirt incidence.",
+    "hand_wrist": "Triangle touches actual Hand+Forearm>.25 in -.145<Y<-.058,.14<abs(X+.006)<.32,-.095<Z<.20; all rows inside this hand box; no face/cup/hair/shirt.",
+    "side_cloth": "Every row -.15<Y<.085,.125<abs(X+.006)<.34,-.12<Z<.205; no face/cup/hair/shirt. Head label alone is not a semantic protector."
+  },
+  "limits": [
+    "Visible hand and leg skins are replacements, not claims of preserving old visible warm-skin triangles.",
+    "Palms/fingers use separate closed overlapping forms; no global collision, finger articulation, full production rig or foot IK certification.",
+    "Final actual front/side/Walk render inspection remains required."
+  ]
+}

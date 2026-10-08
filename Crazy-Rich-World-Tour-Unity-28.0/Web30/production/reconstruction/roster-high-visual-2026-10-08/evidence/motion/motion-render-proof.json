@@ -1,0 +1,1253 @@
+{
+  "schema": "crwt.alexia_motion_actual_blender_frames.v1",
+  "source_default_scene_visibility": {
+    "default_scene_index": 0,
+    "active_source_mesh_objects": [
+      "geometry_0",
+      "Alexia original cup face precision details"
+    ],
+    "retained_inactive_mesh_objects": [
+      "Alexia added volumetric rear curl locks"
+    ],
+    "inactive_mesh_data_preserved": true,
+    "inactive_meshes_hidden_from_viewport_and_render": true
+  },
+  "approved": false,
+  "gameIntegrated": false,
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "blender_version": "5.2.2 LTS",
+  "armatures": 1,
+  "bones": 19,
+  "clips": [
+    "IdleBreath",
+    "Walk"
+  ],
+  "render_size": [
+    384,
+    384
+  ],
+  "camera_fit": "Actual drawn neutral mesh vertices, fixed close framing per angle; .84 projected height/.90 width; no pose-dependent auto-fit",
+  "frames": [
+    {
+      "name": "neutral-front",
+      "clip": "Walk",
+      "time_seconds": 0,
+      "frame": 0.0,
+      "png_sha256": "4c17fb01fe6549faadc72ff88a668ebde9a4bf60f05ba2fefcde24ab54a4e3a5",
+      "meshes": [
+        {
+          "name": "Alexia original cup face precision details",
+          "vertices": 5760,
+          "minimum": [
+            -0.21243037283420563,
+            -0.10940127819776535,
+            0.22189997136592865
+          ],
+          "maximum": [
+            0.1754377782344818,
+            -0.04146647825837135,
+            0.29409998655319214
+          ]
+        },
+        {
+          "name": "geometry_0",
+          "vertices": 138855,
+          "minimum": [
+            -0.34870654344558716,
+            -0.23399999737739563,
+            -0.44600003957748413
+          ],
+          "maximum": [
+            0.32100000977516174,
+            0.26883944869041443,
+            0.48399996757507324
+          ]
+        }
+      ],
+      "bones": [
+        {
+          "name": "AlexiaPrototype_Root",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Pelvis",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Spine",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Chest",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Neck",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Head",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmR",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Suitcase",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighR",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinR",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootR",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "walk-quarter",
+      "clip": "Walk",
+      "time_seconds": 0.3,
+      "frame": 7.199999809265137,
+      "png_sha256": "a7d77ea26ef4196129f78e98cffdbfc73f0e58e5a2fb7b211037fa81ba738c39",
+      "meshes": [
+        {
+          "name": "Alexia original cup face precision details",
+          "vertices": 5760,
+          "minimum": [
+            -0.21686440706253052,
+            -0.10940129309892654,
+            0.2155544012784958
+          ],
+          "maximum": [
+            0.17093755304813385,
+            -0.04146649315953255,
+            0.29020267724990845
+          ]
+        },
+        {
+          "name": "geometry_0",
+          "vertices": 138855,
+          "minimum": [
+            -0.3504135310649872,
+            -0.25090131163597107,
+            -0.4689403176307678
+          ],
+          "maximum": [
+            0.3245617151260376,
+            0.26883941888809204,
+            0.4799572229385376
+          ]
+        }
+      ],
+      "bones": [
+        {
+          "name": "AlexiaPrototype_Root",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Pelvis",
+          "rotation_quaternion": [
+            0.9999818801879883,
+            0.0,
+            0.0,
+            0.005999963730573654
+          ],
+          "location": [
+            0.0,
+            -0.003999977372586727,
+            1.4901159417490817e-08
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Spine",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Chest",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Neck",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Head",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmL",
+          "rotation_quaternion": [
+            0.9983472228050232,
+            0.057468291372060776,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmR",
+          "rotation_quaternion": [
+            0.9999217391014099,
+            -0.012499659322202206,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Suitcase",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighL",
+          "rotation_quaternion": [
+            0.9950041174888611,
+            -0.09983339160680771,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinL",
+          "rotation_quaternion": [
+            0.991561770439148,
+            0.12963418662548065,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootL",
+          "rotation_quaternion": [
+            0.9992969632148743,
+            -0.03749122843146324,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighR",
+          "rotation_quaternion": [
+            0.9950041174888611,
+            0.09983339160680771,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinR",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootR",
+          "rotation_quaternion": [
+            0.9996218681335449,
+            -0.027496514841914177,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "walk-threequarter",
+      "clip": "Walk",
+      "time_seconds": 0.9,
+      "frame": 21.600000381469727,
+      "png_sha256": "23f739e1af87c8bac80e299e27f90240690dfde24b0914def1b787b7e357fff5",
+      "meshes": [
+        {
+          "name": "Alexia original cup face precision details",
+          "vertices": 5760,
+          "minimum": [
+            -0.20799683034420013,
+            -0.10940129309892654,
+            0.21788354218006134
+          ],
+          "maximum": [
+            0.1799129843711853,
+            -0.04146649315953255,
+            0.29241663217544556
+          ]
+        },
+        {
+          "name": "geometry_0",
+          "vertices": 138855,
+          "minimum": [
+            -0.3469502329826355,
+            -0.25088194012641907,
+            -0.4696080982685089
+          ],
+          "maximum": [
+            0.3202204704284668,
+            0.26883941888809204,
+            0.4799572229385376
+          ]
+        }
+      ],
+      "bones": [
+        {
+          "name": "AlexiaPrototype_Root",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Pelvis",
+          "rotation_quaternion": [
+            0.9999818801879883,
+            0.0,
+            0.0,
+            -0.005999963730573654
+          ],
+          "location": [
+            0.0,
+            -0.003999977372586727,
+            1.4901159417490817e-08
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Spine",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Chest",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Neck",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Head",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmL",
+          "rotation_quaternion": [
+            0.9983472228050232,
+            -0.057468291372060776,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmL",
+          "rotation_quaternion": [
+            0.9997467994689941,
+            0.02249806933104992,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmR",
+          "rotation_quaternion": [
+            0.9999217391014099,
+            0.012499659322202206,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Suitcase",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighL",
+          "rotation_quaternion": [
+            0.9950041174888611,
+            0.09983339160680771,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinL",
+          "rotation_quaternion": [
+            0.9999998807907104,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootL",
+          "rotation_quaternion": [
+            0.9996218681335449,
+            -0.027496514841914177,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighR",
+          "rotation_quaternion": [
+            0.9950041174888611,
+            -0.09983339160680771,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinR",
+          "rotation_quaternion": [
+            0.991561770439148,
+            0.12963418662548065,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootR",
+          "rotation_quaternion": [
+            0.9992969632148743,
+            -0.03749122843146324,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "idle-quarter",
+      "clip": "IdleBreath",
+      "time_seconds": 0.9,
+      "frame": 21.600000381469727,
+      "png_sha256": "b4d5ccff9732e48931f737c9a7b0eb8cbb20414b79072bf30ca65aa1b6b00455",
+      "meshes": [
+        {
+          "name": "Alexia original cup face precision details",
+          "vertices": 5760,
+          "minimum": [
+            -0.2129465788602829,
+            -0.11162827163934708,
+            0.22211095690727234
+          ],
+          "maximum": [
+            0.17490077018737793,
+            -0.043643053621053696,
+            0.2942936420440674
+          ]
+        },
+        {
+          "name": "geometry_0",
+          "vertices": 138855,
+          "minimum": [
+            -0.34840184450149536,
+            -0.23399999737739563,
+            -0.44565069675445557
+          ],
+          "maximum": [
+            0.32100000977516174,
+            0.268139511346817,
+            0.48665255308151245
+          ]
+        }
+      ],
+      "bones": [
+        {
+          "name": "AlexiaPrototype_Root",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Pelvis",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Spine",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Chest",
+          "rotation_quaternion": [
+            0.9999788403511047,
+            0.006500005256384611,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.001499995356425643,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Neck",
+          "rotation_quaternion": [
+            0.9999967813491821,
+            0.0,
+            0.0,
+            0.002499996917322278
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Head",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_UpperArmR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ForearmR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_HandR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_Suitcase",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootL",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ThighR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_ShinR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AlexiaPrototype_FootR",
+          "rotation_quaternion": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "location": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    }
+  ],
+  "source_content_and_mtime_unchanged": true
+}

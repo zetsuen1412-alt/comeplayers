@@ -1,0 +1,63 @@
+# Local validated source checkpoint; this workflow must produce its own actual CI result.
+name: CRWT Alexia High Visual 2026-10-08
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/crazy-rich-web-v30]
+    paths:
+      - .github/workflows/crwt-alexia-high-visual-2026-10-08.yml
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-high-visual-2026-10-08/**
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-quality-2026-10-08/**
+      - CRWT_ALEXIA_HIGH_VISUAL_RESUME_ID.md
+permissions:
+  contents: read
+env:
+  ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-high-visual-2026-10-08
+  SELECTED_ALEXIA_SHA256: e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52
+  SELECTED_RECIPE_STEPS: "9"
+  SELECTED_SOURCE_INVENTORY_SHA256: 064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3
+jobs:
+  verify-high-visual-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Require this exact checkout and explicit numeric runtime
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -B -c 'import sys; assert sys.version_info[:2] == (3, 12), "Python 3.12 is required for pinned model replay"'
+          python3 -m pip install --disable-pip-version-check numpy==2.3.5
+      - name: Require the selected model and complete nine-stage contract
+        run: |
+          python3 -B - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          source = Path(os.environ["ROSTER"])
+          selected = os.environ["SELECTED_ALEXIA_SHA256"]
+          count = int(os.environ["SELECTED_RECIPE_STEPS"])
+          inventory = (source / "source-inventory.json").read_bytes()
+          if hashlib.sha256(inventory).hexdigest() != os.environ["SELECTED_SOURCE_INVENTORY_SHA256"]:
+              raise SystemExit("Frozen selected HIGH source inventory differs")
+          layout = json.loads((source / "source-layout.json").read_bytes())
+          chain = json.loads((source / "rebuild-chain.json").read_bytes())
+          if layout["candidate_sha256"] != selected or chain["candidate_sha256"] != selected:
+              raise SystemExit("Frozen selected HIGH model differs")
+          if chain["step_count"] != count or len(chain["steps"]) != count:
+              raise SystemExit("Complete selected nine-stage chain is required")
+          PY
+      - name: Restore all payload bytes and run actual model native source and recipe checks
+        run: >-
+          python3 -B "$ROSTER/tools/source_checkpoint/run_high_visual_source_checks.py"
+          --source "$ROSTER"
+          --work "$RUNNER_TEMP/crwt-high-visual-checked"
+          --receipt "$RUNNER_TEMP/crwt-high-visual-source-check.json"
+      - name: Write the verified actual source proof to the job summary
+        run: >-
+          python3 -B "$ROSTER/tools/source_checkpoint/write_high_visual_ci_summary.py"
+          --source "$ROSTER"
+          --receipt "$RUNNER_TEMP/crwt-high-visual-source-check.json"
+          --summary "$GITHUB_STEP_SUMMARY"
+          --head-sha "$GITHUB_SHA"

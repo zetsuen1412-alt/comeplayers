@@ -1,0 +1,1726 @@
+{
+  "schema": "crwt.alexia_clean_garment_visual_trial.v4_profile_sneakers",
+  "visual_trial_only": true,
+  "source_sha256": "2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0",
+  "candidate_sha256": "88a40e8af34fe0b01183da1f79244da3e3924900390950fc84b22394fcfc9f26",
+  "source_semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "source_original_BIN_prefix_exact": true,
+  "all_original_position_normal_UV_weights_skeleton_IBMs_clips_material_image_prefix_exact": true,
+  "protected_face_hair_cup_shirt_palms_legskin_color_and_incident_triangles_exact": true,
+  "source_alpha_exact": true,
+  "color_region_vertices": {
+    "coat": 14819,
+    "cuffs": 2097,
+    "shorts": 7759,
+    "boots": 23690,
+    "suitcase": 20120
+  },
+  "protected_vertices": 157544,
+  "geometric_palms_vertices": 11630,
+  "removed_original_triangles": 111586,
+  "new_components": [
+    {
+      "name": "continuous L coat panel",
+      "material": "charcoal",
+      "vertices": 1554,
+      "triangles": 3104,
+      "world_bounds": [
+        [
+          -0.16499983182582914,
+          -0.15,
+          -0.0389
+        ],
+        [
+          -0.006000000000000013,
+          0.116,
+          0.12797400578080956
+        ]
+      ],
+      "signed_volume": 0.00032879746725262047
+    },
+    {
+      "name": "L clean gold lapel rail",
+      "material": "gold",
+      "vertices": 290,
+      "triangles": 576,
+      "world_bounds": [
+        [
+          -0.1084697430211394,
+          -0.14848297331493207,
+          0.1116582563693936
+        ],
+        [
+          -0.07360141215557128,
+          0.11499378506223332,
+          0.13316901674019732
+        ]
+      ],
+      "signed_volume": 6.309776682300235e-06
+    },
+    {
+      "name": "L gold hem rail",
+      "material": "gold",
+      "vertices": 386,
+      "triangles": 768,
+      "world_bounds": [
+        [
+          -0.16857583325145462,
+          -0.15059999999999998,
+          -0.03159943508085637
+        ],
+        [
+          -0.005945803501835837,
+          -0.1454,
+          0.12264161374880347
+        ]
+      ],
+      "signed_volume": 5.769326899747792e-06
+    },
+    {
+      "name": "L rounded shoulder join",
+      "material": "charcoal",
+      "vertices": 418,
+      "triangles": 832,
+      "world_bounds": [
+        [
+          -0.19,
+          0.02700000000000001,
+          -0.0020000000000000018
+        ],
+        [
+          -0.08800000000000002,
+          0.113,
+          0.092
+        ]
+      ],
+      "signed_volume": 0.00042359632793113975
+    },
+    {
+      "name": "L smooth sleeve",
+      "material": "charcoal",
+      "vertices": 514,
+      "triangles": 1024,
+      "world_bounds": [
+        [
+          -0.25215933069116797,
+          -0.0747330441129224,
+          0.0021289908638928504
+        ],
+        [
+          -0.10047288331851541,
+          0.09994621900013051,
+          0.12144607651467468
+        ]
+      ],
+      "signed_volume": 0.0008402223934031636
+    },
+    {
+      "name": "L rolled white cuff",
+      "material": "white",
+      "vertices": 162,
+      "triangles": 320,
+      "world_bounds": [
+        [
+          -0.2724953578533777,
+          -0.0918682348607143,
+          0.03851898818637347
+        ],
+        [
+          -0.1775046421466223,
+          -0.03613176513928568,
+          0.13648101181362654
+        ]
+      ],
+      "signed_volume": 0.0001544562655565553
+    },
+    {
+      "name": "L cuff gold seam",
+      "material": "gold",
+      "vertices": 50,
+      "triangles": 96,
+      "world_bounds": [
+        [
+          -0.274,
+          -0.074,
+          0.04500000000000001
+        ],
+        [
+          -0.184,
+          -0.072,
+          0.135
+        ]
+      ],
+      "signed_volume": 1.2578605591982047e-05
+    },
+    {
+      "name": "L leather epaulet base",
+      "material": "leather",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          -0.17300000000000001,
+          0.10099999999999999,
+          0.020999999999999998
+        ],
+        [
+          -0.10700000000000001,
+          0.113,
+          0.081
+        ]
+      ],
+      "signed_volume": 4.2044450726076754e-05
+    },
+    {
+      "name": "L gold epaulet",
+      "material": "gold",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          -0.1665,
+          0.11250000000000002,
+          0.024999999999999998
+        ],
+        [
+          -0.11350000000000002,
+          0.1175,
+          0.07699999999999999
+        ]
+      ],
+      "signed_volume": 1.2366860462334849e-05
+    },
+    {
+      "name": "L shoulder badge backing",
+      "material": "leather",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          -0.188,
+          0.03799999999999999,
+          0.042499999999999996
+        ],
+        [
+          -0.18,
+          0.08,
+          0.0855
+        ]
+      ],
+      "signed_volume": 1.2981527258491753e-05
+    },
+    {
+      "name": "L raised shoulder star",
+      "material": "gold",
+      "vertices": 22,
+      "triangles": 40,
+      "world_bounds": [
+        [
+          -0.19125,
+          0.04605572809000084,
+          0.04878309573927754
+        ],
+        [
+          -0.18875,
+          0.075,
+          0.07921690426072246
+        ]
+      ],
+      "signed_volume": 8.81677878438645e-07
+    },
+    {
+      "name": "L folded leather lapel",
+      "material": "leather",
+      "vertices": 8,
+      "triangles": 12,
+      "world_bounds": [
+        [
+          -0.121,
+          0.045,
+          0.122
+        ],
+        [
+          -0.054,
+          0.124,
+          0.15
+        ]
+      ],
+      "signed_volume": 1.0078000000000116e-05
+    },
+    {
+      "name": "L lapel fine gold edge",
+      "material": "gold",
+      "vertices": 52,
+      "triangles": 100,
+      "world_bounds": [
+        [
+          -0.12218297227648531,
+          0.043930289202158725,
+          0.12616882542410815
+        ],
+        [
+          -0.052768991246848515,
+          0.12537807130054623,
+          0.15283117457589185
+        ]
+      ],
+      "signed_volume": 1.0711393500508936e-06
+    },
+    {
+      "name": "L raised coat button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.09079999999999999,
+          0.0502,
+          0.14159999999999998
+        ],
+        [
+          -0.0832,
+          0.0578,
+          0.1464
+        ]
+      ],
+      "signed_volume": 1.360801244613207e-07
+    },
+    {
+      "name": "L raised coat button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.09079999999999999,
+          0.0082,
+          0.14159999999999998
+        ],
+        [
+          -0.0832,
+          0.0158,
+          0.1464
+        ]
+      ],
+      "signed_volume": 1.360801244610308e-07
+    },
+    {
+      "name": "L raised coat button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.09079999999999999,
+          -0.0338,
+          0.14159999999999998
+        ],
+        [
+          -0.0832,
+          -0.026199999999999998,
+          0.1464
+        ]
+      ],
+      "signed_volume": 1.3608012446098713e-07
+    },
+    {
+      "name": "L leather pocket flap",
+      "material": "leather",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          -0.1475,
+          -0.1185,
+          0.106
+        ],
+        [
+          -0.1025,
+          -0.0915,
+          0.114
+        ]
+      ],
+      "signed_volume": 8.654820306841877e-06
+    },
+    {
+      "name": "L pocket gold piping",
+      "material": "gold",
+      "vertices": 22,
+      "triangles": 40,
+      "world_bounds": [
+        [
+          -0.146,
+          -0.0936,
+          0.11347830957392777
+        ],
+        [
+          -0.104,
+          -0.0904,
+          0.11652169042607224
+        ]
+      ],
+      "signed_volume": 3.159933516323187e-07
+    },
+    {
+      "name": "L pocket button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          -0.128,
+          -0.10400000000000001,
+          0.11420000000000001
+        ],
+        [
+          -0.122,
+          -0.098,
+          0.1178
+        ]
+      ],
+      "signed_volume": 6.361086150331992e-08
+    },
+    {
+      "name": "L separate fitted shorts leg",
+      "material": "charcoal",
+      "vertices": 562,
+      "triangles": 1120,
+      "world_bounds": [
+        [
+          -0.142,
+          -0.154,
+          -0.032
+        ],
+        [
+          0.0,
+          -0.067,
+          0.152
+        ]
+      ],
+      "signed_volume": 0.0015071490812942996
+    },
+    {
+      "name": "L shorts fine gold hem",
+      "material": "gold",
+      "vertices": 482,
+      "triangles": 960,
+      "world_bounds": [
+        [
+          -0.12939436880022814,
+          -0.153,
+          -0.023236899258042665
+        ],
+        [
+          -0.012605631199771854,
+          -0.15,
+          0.1434200152109441
+        ]
+      ],
+      "signed_volume": 2.8144895966527675e-06
+    },
+    {
+      "name": "L curved fitted sneaker sole",
+      "material": "white",
+      "vertices": 2162,
+      "triangles": 4320,
+      "world_bounds": [
+        [
+          -0.15796875,
+          -0.4445,
+          -0.031
+        ],
+        [
+          -0.02203124999999999,
+          -0.4305,
+          0.234
+        ]
+      ],
+      "signed_volume": 0.00034208301979918727
+    },
+    {
+      "name": "L authored tall sneaker upper",
+      "material": "white",
+      "vertices": 2162,
+      "triangles": 4320,
+      "world_bounds": [
+        [
+          -0.15596875,
+          -0.43500000000000005,
+          -0.031
+        ],
+        [
+          -0.02403124999999999,
+          -0.31015384615384617,
+          0.234
+        ]
+      ],
+      "signed_volume": 0.001731719403678877
+    },
+    {
+      "name": "L fitted black tongue",
+      "material": "rubber",
+      "vertices": 336,
+      "triangles": 668,
+      "world_bounds": [
+        [
+          -0.11499999999999999,
+          -0.392957985230446,
+          0.044
+        ],
+        [
+          -0.065,
+          -0.30814715719063546,
+          0.155
+        ]
+      ],
+      "signed_volume": 9.990000000001747e-06
+    },
+    {
+      "name": "L white cross lace 0 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12091631925110004,
+          -0.34606101239798315,
+          0.07793118387571232
+        ],
+        [
+          -0.05957297418585468,
+          -0.3237373028381103,
+          0.09407712951385754
+        ]
+      ],
+      "signed_volume": 6.883518535626626e-07
+    },
+    {
+      "name": "L white cross lace 0 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12042702581414531,
+          -0.34606101239798315,
+          0.07793118387571232
+        ],
+        [
+          -0.05908368074889996,
+          -0.3237373028381103,
+          0.09407712951385754
+        ]
+      ],
+      "signed_volume": 6.871052676154666e-07
+    },
+    {
+      "name": "L white cross lace 1 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12075625830606959,
+          -0.3661491037090683,
+          0.09693156550958236
+        ],
+        [
+          -0.05962671446458758,
+          -0.3491790815721357,
+          0.11307334501424282
+        ]
+      ],
+      "signed_volume": 6.690392544892181e-07
+    },
+    {
+      "name": "L white cross lace 1 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.1203732855354124,
+          -0.3661491037090683,
+          0.09693156550958236
+        ],
+        [
+          -0.059243741693930395,
+          -0.3491790815721357,
+          0.11307334501424282
+        ]
+      ],
+      "signed_volume": 6.682802003805286e-07
+    },
+    {
+      "name": "L white cross lace 2 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12055929132685554,
+          -0.3796921968019008,
+          0.11593155956678823
+        ],
+        [
+          -0.05962103986380977,
+          -0.3692924484116953,
+          0.13207027309240502
+        ]
+      ],
+      "signed_volume": 6.556890965907321e-07
+    },
+    {
+      "name": "L white cross lace 2 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12037896013619023,
+          -0.3796921968019008,
+          0.11593155956678823
+        ],
+        [
+          -0.059440708673144445,
+          -0.3692924484116953,
+          0.13207027309240502
+        ]
+      ],
+      "signed_volume": 6.552535976052566e-07
+    },
+    {
+      "name": "L white cross lace 3 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12052673032445947,
+          -0.3894868846852432,
+          0.13493156589715424
+        ],
+        [
+          -0.05962830910708499,
+          -0.37923187462147523,
+          0.15106991725081073
+        ]
+      ],
+      "signed_volume": 6.552057516379623e-07
+    },
+    {
+      "name": "L white cross lace 3 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.12037169089291501,
+          -0.3894868846852432,
+          0.13493156589715424
+        ],
+        [
+          -0.05947326967554052,
+          -0.37923187462147523,
+          0.15106991725081073
+        ]
+      ],
+      "signed_volume": 6.547899339474011e-07
+    },
+    {
+      "name": "L gold sneaker side panel",
+      "material": "gold",
+      "vertices": 10,
+      "triangles": 16,
+      "world_bounds": [
+        [
+          -0.1548,
+          -0.399,
+          0.045
+        ],
+        [
+          -0.136,
+          -0.351,
+          0.122
+        ]
+      ],
+      "signed_volume": 1.2501000000002271e-06
+    },
+    {
+      "name": "L subtle gold toe guard",
+      "material": "gold",
+      "vertices": 202,
+      "triangles": 400,
+      "world_bounds": [
+        [
+          -0.12936542852387561,
+          -0.41247877573382724,
+          0.21071607370300155
+        ],
+        [
+          -0.050634571476124386,
+          -0.4060997909807168,
+          0.21328392629699844
+        ]
+      ],
+      "signed_volume": 4.2117544717815164e-07
+    },
+    {
+      "name": "continuous R coat panel",
+      "material": "charcoal",
+      "vertices": 1554,
+      "triangles": 3104,
+      "world_bounds": [
+        [
+          -0.005999999999999987,
+          -0.15,
+          -0.0389
+        ],
+        [
+          0.15299983182582913,
+          0.116,
+          0.12797400578080956
+        ]
+      ],
+      "signed_volume": 0.0003287974672526196
+    },
+    {
+      "name": "R clean gold lapel rail",
+      "material": "gold",
+      "vertices": 290,
+      "triangles": 576,
+      "world_bounds": [
+        [
+          0.061601412155571265,
+          -0.14848297331493207,
+          0.1116582563693936
+        ],
+        [
+          0.09646974302113939,
+          0.11499378506223332,
+          0.13316901674019732
+        ]
+      ],
+      "signed_volume": 6.308312698570652e-06
+    },
+    {
+      "name": "R gold hem rail",
+      "material": "gold",
+      "vertices": 386,
+      "triangles": 768,
+      "world_bounds": [
+        [
+          -0.006054196498164163,
+          -0.15059999999999998,
+          -0.03159943508085637
+        ],
+        [
+          0.1565758332514546,
+          -0.1454,
+          0.12264161374880347
+        ]
+      ],
+      "signed_volume": 5.767000774795784e-06
+    },
+    {
+      "name": "R rounded shoulder join",
+      "material": "charcoal",
+      "vertices": 418,
+      "triangles": 832,
+      "world_bounds": [
+        [
+          0.08800000000000002,
+          0.02700000000000001,
+          -0.0020000000000000018
+        ],
+        [
+          0.19,
+          0.113,
+          0.092
+        ]
+      ],
+      "signed_volume": 0.00042359632793114024
+    },
+    {
+      "name": "R smooth sleeve",
+      "material": "charcoal",
+      "vertices": 514,
+      "triangles": 1024,
+      "world_bounds": [
+        [
+          0.10047288331851541,
+          -0.0747330441129224,
+          0.0021289908638928504
+        ],
+        [
+          0.25215933069116797,
+          0.09994621900013051,
+          0.12144607651467468
+        ]
+      ],
+      "signed_volume": 0.0008402225482382295
+    },
+    {
+      "name": "R rolled white cuff",
+      "material": "white",
+      "vertices": 162,
+      "triangles": 320,
+      "world_bounds": [
+        [
+          0.1775046421466223,
+          -0.0918682348607143,
+          0.03851898818637347
+        ],
+        [
+          0.2724953578533777,
+          -0.03613176513928568,
+          0.13648101181362654
+        ]
+      ],
+      "signed_volume": 0.000154456265556556
+    },
+    {
+      "name": "R cuff gold seam",
+      "material": "gold",
+      "vertices": 50,
+      "triangles": 96,
+      "world_bounds": [
+        [
+          0.184,
+          -0.074,
+          0.04500000000000001
+        ],
+        [
+          0.274,
+          -0.072,
+          0.135
+        ]
+      ],
+      "signed_volume": 1.2578605591982752e-05
+    },
+    {
+      "name": "R leather epaulet base",
+      "material": "leather",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          0.10700000000000001,
+          0.10099999999999999,
+          0.020999999999999998
+        ],
+        [
+          0.17300000000000001,
+          0.113,
+          0.081
+        ]
+      ],
+      "signed_volume": 4.204445072607607e-05
+    },
+    {
+      "name": "R gold epaulet",
+      "material": "gold",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          0.11350000000000002,
+          0.11250000000000002,
+          0.024999999999999998
+        ],
+        [
+          0.1665,
+          0.1175,
+          0.07699999999999999
+        ]
+      ],
+      "signed_volume": 1.2366860462334378e-05
+    },
+    {
+      "name": "R shoulder badge backing",
+      "material": "leather",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          0.18,
+          0.03799999999999999,
+          0.042499999999999996
+        ],
+        [
+          0.188,
+          0.08,
+          0.0855
+        ]
+      ],
+      "signed_volume": 1.2981527258492385e-05
+    },
+    {
+      "name": "R raised shoulder star",
+      "material": "gold",
+      "vertices": 22,
+      "triangles": 40,
+      "world_bounds": [
+        [
+          0.18875,
+          0.04605572809000084,
+          0.04878309573927754
+        ],
+        [
+          0.19125,
+          0.075,
+          0.07921690426072246
+        ]
+      ],
+      "signed_volume": 8.81677878438645e-07
+    },
+    {
+      "name": "R folded leather lapel",
+      "material": "leather",
+      "vertices": 8,
+      "triangles": 12,
+      "world_bounds": [
+        [
+          0.054,
+          0.045,
+          0.122
+        ],
+        [
+          0.121,
+          0.124,
+          0.15
+        ]
+      ],
+      "signed_volume": 1.0078000000000116e-05
+    },
+    {
+      "name": "R lapel fine gold edge",
+      "material": "gold",
+      "vertices": 52,
+      "triangles": 100,
+      "world_bounds": [
+        [
+          0.052768991246848515,
+          0.043930289202158725,
+          0.12616882542410815
+        ],
+        [
+          0.12218297227648531,
+          0.12537807130054623,
+          0.15283117457589185
+        ]
+      ],
+      "signed_volume": 1.0443298160345084e-06
+    },
+    {
+      "name": "R raised coat button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          0.0832,
+          0.0502,
+          0.14159999999999998
+        ],
+        [
+          0.09079999999999999,
+          0.0578,
+          0.1464
+        ]
+      ],
+      "signed_volume": 1.360801244608578e-07
+    },
+    {
+      "name": "R raised coat button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          0.0832,
+          0.0082,
+          0.14159999999999998
+        ],
+        [
+          0.09079999999999999,
+          0.0158,
+          0.1464
+        ]
+      ],
+      "signed_volume": 1.3608012446106643e-07
+    },
+    {
+      "name": "R raised coat button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          0.0832,
+          -0.0338,
+          0.14159999999999998
+        ],
+        [
+          0.09079999999999999,
+          -0.026199999999999998,
+          0.1464
+        ]
+      ],
+      "signed_volume": 1.360801244610207e-07
+    },
+    {
+      "name": "R leather pocket flap",
+      "material": "leather",
+      "vertices": 218,
+      "triangles": 432,
+      "world_bounds": [
+        [
+          0.1025,
+          -0.1185,
+          0.106
+        ],
+        [
+          0.1475,
+          -0.0915,
+          0.114
+        ]
+      ],
+      "signed_volume": 8.654820306842385e-06
+    },
+    {
+      "name": "R pocket gold piping",
+      "material": "gold",
+      "vertices": 22,
+      "triangles": 40,
+      "world_bounds": [
+        [
+          0.104,
+          -0.0936,
+          0.11347830957392777
+        ],
+        [
+          0.146,
+          -0.0904,
+          0.11652169042607224
+        ]
+      ],
+      "signed_volume": 3.159933516325536e-07
+    },
+    {
+      "name": "R pocket button",
+      "material": "gold",
+      "vertices": 114,
+      "triangles": 224,
+      "world_bounds": [
+        [
+          0.122,
+          -0.10400000000000001,
+          0.11420000000000001
+        ],
+        [
+          0.128,
+          -0.098,
+          0.1178
+        ]
+      ],
+      "signed_volume": 6.361086150329148e-08
+    },
+    {
+      "name": "R separate fitted shorts leg",
+      "material": "charcoal",
+      "vertices": 562,
+      "triangles": 1120,
+      "world_bounds": [
+        [
+          0.0,
+          -0.154,
+          -0.032
+        ],
+        [
+          0.142,
+          -0.067,
+          0.152
+        ]
+      ],
+      "signed_volume": 0.0015071490812942994
+    },
+    {
+      "name": "R shorts fine gold hem",
+      "material": "gold",
+      "vertices": 482,
+      "triangles": 960,
+      "world_bounds": [
+        [
+          0.012605631199771854,
+          -0.153,
+          -0.023236899258042665
+        ],
+        [
+          0.12939436880022814,
+          -0.15,
+          0.1434200152109441
+        ]
+      ],
+      "signed_volume": 2.814489596655295e-06
+    },
+    {
+      "name": "R curved fitted sneaker sole",
+      "material": "white",
+      "vertices": 2162,
+      "triangles": 4320,
+      "world_bounds": [
+        [
+          0.02203124999999999,
+          -0.4445,
+          -0.031
+        ],
+        [
+          0.15796875,
+          -0.4305,
+          0.234
+        ]
+      ],
+      "signed_volume": 0.00034208301979919193
+    },
+    {
+      "name": "R authored tall sneaker upper",
+      "material": "white",
+      "vertices": 2162,
+      "triangles": 4320,
+      "world_bounds": [
+        [
+          0.02403124999999999,
+          -0.43500000000000005,
+          -0.031
+        ],
+        [
+          0.15596875,
+          -0.31015384615384617,
+          0.234
+        ]
+      ],
+      "signed_volume": 0.0017317194036788651
+    },
+    {
+      "name": "R fitted black tongue",
+      "material": "rubber",
+      "vertices": 336,
+      "triangles": 668,
+      "world_bounds": [
+        [
+          0.065,
+          -0.392957985230446,
+          0.044
+        ],
+        [
+          0.11499999999999999,
+          -0.30814715719063546,
+          0.155
+        ]
+      ],
+      "signed_volume": 9.990000000002254e-06
+    },
+    {
+      "name": "R white cross lace 0 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.05908368074889996,
+          -0.34606101239798315,
+          0.07793118387571232
+        ],
+        [
+          0.12042702581414531,
+          -0.3237373028381103,
+          0.09407712951385754
+        ]
+      ],
+      "signed_volume": 6.883518535628303e-07
+    },
+    {
+      "name": "R white cross lace 0 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.05957297418585468,
+          -0.34606101239798315,
+          0.07793118387571232
+        ],
+        [
+          0.12091631925110004,
+          -0.3237373028381103,
+          0.09407712951385754
+        ]
+      ],
+      "signed_volume": 6.871052676171275e-07
+    },
+    {
+      "name": "R white cross lace 1 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.059243741693930395,
+          -0.3661491037090683,
+          0.09693156550958236
+        ],
+        [
+          0.1203732855354124,
+          -0.3491790815721357,
+          0.11307334501424282
+        ]
+      ],
+      "signed_volume": 6.690392544897806e-07
+    },
+    {
+      "name": "R white cross lace 1 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.05962671446458758,
+          -0.3661491037090683,
+          0.09693156550958236
+        ],
+        [
+          0.12075625830606959,
+          -0.3491790815721357,
+          0.11307334501424282
+        ]
+      ],
+      "signed_volume": 6.682802003850842e-07
+    },
+    {
+      "name": "R white cross lace 2 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.059440708673144445,
+          -0.3796921968019008,
+          0.11593155956678823
+        ],
+        [
+          0.12037896013619023,
+          -0.3692924484116953,
+          0.13207027309240502
+        ]
+      ],
+      "signed_volume": 6.556890965885848e-07
+    },
+    {
+      "name": "R white cross lace 2 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.05962103986380977,
+          -0.3796921968019008,
+          0.11593155956678823
+        ],
+        [
+          0.12055929132685554,
+          -0.3692924484116953,
+          0.13207027309240502
+        ]
+      ],
+      "signed_volume": 6.552535976053259e-07
+    },
+    {
+      "name": "R white cross lace 3 -1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.05947326967554052,
+          -0.3894868846852432,
+          0.13493156589715424
+        ],
+        [
+          0.12037169089291501,
+          -0.37923187462147523,
+          0.15106991725081073
+        ]
+      ],
+      "signed_volume": 6.552057516352584e-07
+    },
+    {
+      "name": "R white cross lace 3 1",
+      "material": "white",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          0.05962830910708499,
+          -0.3894868846852432,
+          0.13493156589715424
+        ],
+        [
+          0.12052673032445947,
+          -0.37923187462147523,
+          0.15106991725081073
+        ]
+      ],
+      "signed_volume": 6.547899339458268e-07
+    },
+    {
+      "name": "R gold sneaker side panel",
+      "material": "gold",
+      "vertices": 10,
+      "triangles": 16,
+      "world_bounds": [
+        [
+          0.136,
+          -0.399,
+          0.045
+        ],
+        [
+          0.1548,
+          -0.351,
+          0.122
+        ]
+      ],
+      "signed_volume": 1.2501000000002271e-06
+    },
+    {
+      "name": "R subtle gold toe guard",
+      "material": "gold",
+      "vertices": 202,
+      "triangles": 400,
+      "world_bounds": [
+        [
+          0.050634571476124386,
+          -0.41247877573382724,
+          0.21071607370300155
+        ],
+        [
+          0.12936542852387561,
+          -0.4060997909807168,
+          0.21328392629699844
+        ]
+      ],
+      "signed_volume": 4.2117544719424484e-07
+    },
+    {
+      "name": "tailored black waist belt",
+      "material": "leather",
+      "vertices": 256,
+      "triangles": 512,
+      "world_bounds": [
+        [
+          -0.138,
+          -0.059,
+          -0.027999999999999997
+        ],
+        [
+          0.126,
+          -0.039,
+          0.16
+        ]
+      ],
+      "signed_volume": 5.570510119209596e-05
+    },
+    {
+      "name": "buckle black backing",
+      "material": "leather",
+      "vertices": 152,
+      "triangles": 300,
+      "world_bounds": [
+        [
+          -0.024999999999999998,
+          -0.060500000000000005,
+          0.1595
+        ],
+        [
+          0.013000000000000001,
+          -0.0375,
+          0.1665
+        ]
+      ],
+      "signed_volume": 5.380813839944471e-06
+    },
+    {
+      "name": "gold buckle vertical edge",
+      "material": "gold",
+      "vertices": 98,
+      "triangles": 192,
+      "world_bounds": [
+        [
+          -0.027000000000000003,
+          -0.061000000000000006,
+          0.1675
+        ],
+        [
+          -0.023,
+          -0.037,
+          0.17250000000000001
+        ]
+      ],
+      "signed_volume": 3.8283798935184543e-07
+    },
+    {
+      "name": "gold buckle vertical edge",
+      "material": "gold",
+      "vertices": 98,
+      "triangles": 192,
+      "world_bounds": [
+        [
+          0.011,
+          -0.061000000000000006,
+          0.1675
+        ],
+        [
+          0.015,
+          -0.037,
+          0.17250000000000001
+        ]
+      ],
+      "signed_volume": 3.8283798935186915e-07
+    },
+    {
+      "name": "gold buckle horizontal edge",
+      "material": "gold",
+      "vertices": 98,
+      "triangles": 192,
+      "world_bounds": [
+        [
+          -0.026000000000000002,
+          -0.062,
+          0.1675
+        ],
+        [
+          0.013999999999999999,
+          -0.057999999999999996,
+          0.17250000000000001
+        ]
+      ],
+      "signed_volume": 6.429034007750435e-07
+    },
+    {
+      "name": "gold buckle horizontal edge",
+      "material": "gold",
+      "vertices": 98,
+      "triangles": 192,
+      "world_bounds": [
+        [
+          -0.026000000000000002,
+          -0.04,
+          0.1675
+        ],
+        [
+          0.013999999999999999,
+          -0.036,
+          0.17250000000000001
+        ]
+      ],
+      "signed_volume": 6.429034007750878e-07
+    },
+    {
+      "name": "belt gold eyelet",
+      "material": "gold",
+      "vertices": 62,
+      "triangles": 120,
+      "world_bounds": [
+        [
+          -0.0968,
+          -0.050800000000000005,
+          0.13601994848035837
+        ],
+        [
+          -0.0932,
+          -0.0472,
+          0.1388199484803584
+        ]
+      ],
+      "signed_volume": 1.6928582463127517e-08
+    },
+    {
+      "name": "belt gold eyelet",
+      "material": "gold",
+      "vertices": 62,
+      "triangles": 120,
+      "world_bounds": [
+        [
+          -0.0668,
+          -0.050800000000000005,
+          0.15068761527810656
+        ],
+        [
+          -0.0632,
+          -0.0472,
+          0.1534876152781066
+        ]
+      ],
+      "signed_volume": 1.6928582463163543e-08
+    },
+    {
+      "name": "belt gold eyelet",
+      "material": "gold",
+      "vertices": 62,
+      "triangles": 120,
+      "world_bounds": [
+        [
+          -0.036800000000000006,
+          -0.050800000000000005,
+          0.15830340736279508
+        ],
+        [
+          -0.0332,
+          -0.0472,
+          0.1611034073627951
+        ]
+      ],
+      "signed_volume": 1.6928582463155374e-08
+    },
+    {
+      "name": "belt gold eyelet",
+      "material": "gold",
+      "vertices": 62,
+      "triangles": 120,
+      "world_bounds": [
+        [
+          0.0222,
+          -0.050800000000000005,
+          0.15814012803859473
+        ],
+        [
+          0.0258,
+          -0.0472,
+          0.16094012803859475
+        ]
+      ],
+      "signed_volume": 1.6928582463136464e-08
+    },
+    {
+      "name": "belt gold eyelet",
+      "material": "gold",
+      "vertices": 62,
+      "triangles": 120,
+      "world_bounds": [
+        [
+          0.052199999999999996,
+          -0.050800000000000005,
+          0.15032801302604315
+        ],
+        [
+          0.0558,
+          -0.0472,
+          0.15312801302604317
+        ]
+      ],
+      "signed_volume": 1.692858246312334e-08
+    },
+    {
+      "name": "belt gold eyelet",
+      "material": "gold",
+      "vertices": 62,
+      "triangles": 120,
+      "world_bounds": [
+        [
+          0.08220000000000001,
+          -0.050800000000000005,
+          0.13536303783211462
+        ],
+        [
+          0.0858,
+          -0.0472,
+          0.13816303783211464
+        ]
+      ],
+      "signed_volume": 1.6928582463196683e-08
+    },
+    {
+      "name": "rounded navy suitcase shell",
+      "material": "navy",
+      "vertices": 866,
+      "triangles": 1728,
+      "world_bounds": [
+        [
+          0.177,
+          -0.43199999999999994,
+          -0.0030000000000000044
+        ],
+        [
+          0.321,
+          -0.15,
+          0.15300000000000002
+        ]
+      ],
+      "signed_volume": 0.006192848718092093
+    },
+    {
+      "name": "suitcase gold vertical rail",
+      "material": "gold",
+      "vertices": 34,
+      "triangles": 64,
+      "world_bounds": [
+        [
+          0.2044,
+          -0.415,
+          0.1524
+        ],
+        [
+          0.21159999999999998,
+          -0.167,
+          0.1596
+        ]
+      ],
+      "signed_volume": 9.839801330370886e-06
+    },
+    {
+      "name": "suitcase gold vertical rail",
+      "material": "gold",
+      "vertices": 34,
+      "triangles": 64,
+      "world_bounds": [
+        [
+          0.2864,
+          -0.415,
+          0.1524
+        ],
+        [
+          0.29359999999999997,
+          -0.167,
+          0.1596
+        ]
+      ],
+      "signed_volume": 9.839801330370257e-06
+    },
+    {
+      "name": "raised gold star emblem",
+      "material": "gold",
+      "vertices": 22,
+      "triangles": 40,
+      "world_bounds": [
+        [
+          0.21285985238078417,
+          -0.314742645786248,
+          0.155
+        ],
+        [
+          0.28514014761921586,
+          -0.24599999999999997,
+          0.161
+        ]
+      ],
+      "signed_volume": 1.206135337704266e-05
+    },
+    {
+      "name": "suitcase wheel",
+      "material": "rubber",
+      "vertices": 182,
+      "triangles": 360,
+      "world_bounds": [
+        [
+          0.184,
+          -0.446,
+          0.011999999999999999
+        ],
+        [
+          0.20400000000000001,
+          -0.424,
+          0.032
+        ]
+      ],
+      "signed_volume": 4.4213372171556424e-06
+    },
+    {
+      "name": "suitcase wheel",
+      "material": "rubber",
+      "vertices": 182,
+      "triangles": 360,
+      "world_bounds": [
+        [
+          0.184,
+          -0.446,
+          0.117
+        ],
+        [
+          0.20400000000000001,
+          -0.424,
+          0.137
+        ]
+      ],
+      "signed_volume": 4.421337217150393e-06
+    },
+    {
+      "name": "suitcase wheel",
+      "material": "rubber",
+      "vertices": 182,
+      "triangles": 360,
+      "world_bounds": [
+        [
+          0.294,
+          -0.446,
+          0.011999999999999999
+        ],
+        [
+          0.314,
+          -0.424,
+          0.032
+        ]
+      ],
+      "signed_volume": 4.421337217156745e-06
+    },
+    {
+      "name": "suitcase wheel",
+      "material": "rubber",
+      "vertices": 182,
+      "triangles": 360,
+      "world_bounds": [
+        [
+          0.294,
+          -0.446,
+          0.117
+        ],
+        [
+          0.314,
+          -0.424,
+          0.137
+        ]
+      ],
+      "signed_volume": 4.421337217158715e-06
+    },
+    {
+      "name": "suitcase rigid carry handle",
+      "material": "rubber",
+      "vertices": 66,
+      "triangles": 128,
+      "world_bounds": [
+        [
+          0.213,
+          -0.151,
+          0.06899999999999999
+        ],
+        [
+          0.28500000000000003,
+          -0.11081732659460941,
+          0.081
+        ]
+      ],
+      "signed_volume": 1.1513076733985138e-05
+    }
+  ],
+  "new_vertices": 26798,
+  "new_triangles": 53244,
+  "input_hash_mtime_unchanged": true,
+  "recipe_sha256": "8f3abea238122247afa7dde6987835d62ba168a7a1fbf6a797ae294f5c078a40",
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "This trial requires actual front/side/motion inspection before selection.",
+    "New garment segmentation and fit are authored approximations, not measured anatomical ground truth.",
+    "Manual inherited19-joint rig and in-place IdleBreath/Walk remain; no cloth simulation, foot IK or collision certification.",
+    "Protected original skin/face geometry remains, but new garment occlusion must be visually checked."
+  ]
+}

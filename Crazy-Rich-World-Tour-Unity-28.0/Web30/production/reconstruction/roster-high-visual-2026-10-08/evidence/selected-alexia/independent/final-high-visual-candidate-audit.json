@@ -1,0 +1,77 @@
+{
+  "schema": "crwt.alexia_high_visual_candidate_independent_audit.v1",
+  "source_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_bytes": 84708100,
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "passed": true,
+  "visual_accepted": true,
+  "visual_motion_accepted": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "render_proof_sha256": "4d2ac2305ccc91e5ae163fd53d5a28fdf342d657944795efbd838b5e913a0bcd",
+  "actual_png_sha256": {
+    "front": "b1e5ad58d29dbd9f18d476920a1150127f1f3d05bafe93e749dc3c8db02ceb43",
+    "three-quarter": "5775d29307a39f4dc7d71cc4ee7141d2ecd251ea101d6dc1fcf2efe5962bea67",
+    "left": "12716cbf8cf623aa0fba6233aa1f649c9835b31483e46e8e1e767ad29206b1af",
+    "right": "f877d401343e821f51e55515dafb4073fa845ab51b4e8ecd68ab01be6c81e2d4",
+    "back": "90c6a17e6de4e5d6629a2c5193fab4995dd364fbd2d2e76d9d764811d87ebbcf"
+  },
+  "motion_render_proof_sha256": "eca4d241d185da9a05798179822a507156e96fc67ca5edc1a0ffe6fcb541661f",
+  "actual_motion_png_sha256": {
+    "neutral-front": "4c17fb01fe6549faadc72ff88a668ebde9a4bf60f05ba2fefcde24ab54a4e3a5",
+    "walk-quarter": "a7d77ea26ef4196129f78e98cffdbfc73f0e58e5a2fb7b211037fa81ba738c39",
+    "walk-threequarter": "23f739e1af87c8bac80e299e27f90240690dfde24b0914def1b787b7e357fff5",
+    "idle-quarter": "b4d5ccff9732e48931f737c9a7b0eb8cbb20414b79072bf30ca65aa1b6b00455"
+  },
+  "numeric_audit_sha256": "ea83434f1868ae2c1241d957325df8b801681e961460bce9406ff7b945aef85b",
+  "CPU_motion_audit_sha256": "a1f592cb3af83948a373dde48f53a1faf22c1a9512437bc551d146290bbc708e",
+  "accepted_recipe_sha256": {
+    "geometry/build_clean_hair_final_waves.py": "b5287d8e22df208c8b7e0fa7a83d7ed33ce8bbc7cd4b03c8cd3bc5136f0ef02c",
+    "build_clean_headband.py": "a4291f8714f46ce43d93301f82e1ff29953fe4977e5ca1acba016c0490669566",
+    "polish_authored_hair_material.py": "51d74c030cc08714ed0504fb9925c1e4b89c09cf88f4f7bc7fc723d8a74936d0",
+    "independent/build_clean_garment_profile.py": "8f3abea238122247afa7dde6987835d62ba168a7a1fbf6a797ae294f5c078a40",
+    "independent/cleanup_retained_garment.py": "61276e8bed039c768276768ad98cabab02d6748ca6b06a60035cb3243640dcec",
+    "independent/cleanup_rear_leg_shell.py": "91d4cf988ae08fa912228683bb87fc2c92e2c0761b6704493e7faa226966fd0b",
+    "independent/cleanup_retained_garment_final.py": "37bf2bd80dc752d48a00635615ee54b6db6908844b519054bb2c0506607a07cd",
+    "independent/remove_cold_garment_orphans.py": "15f41fa6cdf53e67f9dcd5a8e61c7a859edc211ba7c3096474d3407df6fe4f28",
+    "independent/replace_clean_hands_legs.py": "1088ce42fa19dedca841c8404b9b82e8472ca1a332084a126c04282663605d66"
+  },
+  "checks": {
+    "original_face_eye_and_precision_cup_identity_preserved": true,
+    "all_original_POSITION_NORMAL_UV_JOINTS_WEIGHTS_stored_exact": true,
+    "all19_original_joint_nodes_bind_and_actual2clips_exact": true,
+    "authorized_nine_stage_triangle_mask_chain_replayed_exact": true,
+    "all110_new_components_finite_closed_local_edges_unit_normals_normalized_valid_weights": true,
+    "actual_default_scene_2mesh_instances_119primitives_only": true,
+    "inactive_old_rear_drawable_excluded": true,
+    "actual18_CPU_times_finite_rest_and_both_clip_endpoints_neutral": true,
+    "actual_drawn_Walk_feet_genuinely_alternate": true,
+    "all5_actual640_neutral_views_reviewed": true,
+    "all4_actual384_neutral_Idle_Walk_frames_reviewed": true,
+    "all_actual_images_proof_and_candidate_hashes_match": true,
+    "reference_image_exact": true
+  },
+  "actual_visual_observations": [
+    "Rounded side/back lavender waves replace the merged coarse shell and outer paper fragments.",
+    "Coherent charcoal cloth, gold detailing, rolled cuffs, shaped high-top sneakers and a closed navy suitcase read clearly from the actual sides and quarter view.",
+    "Old hanging leg/case strips, mottled palm chunks and black skin dots are removed; fitted closed peach calves and small hands/fingers supply the visible limb surfaces.",
+    "Face/eyes/fringe and precise cup details retain identity. The source-derived front shirt/neck and fringe retain some baked projection roughness.",
+    "Actual Walk at .3/.9 seconds visibly alternates legs; new hands, calves, shoes, hair and suitcase remain coherent without gross visible tearing."
+  ],
+  "visible_replacement_scope": {
+    "hair": "17 rounded closed authored components; original active hair triangles deactivated by audited masks.",
+    "garments_accessories": "Authored cloth/cuffs/shorts/shoes/case and fitted headphone strap; original bounded corrupt garment/case triangles deactivated.",
+    "legs_hands": "Original visible leg/hand skin triangles, including prior warm rows, intentionally deactivated. Two closed calves and14 closed hand forms are the new visible surfaces; original arrays remain stored exact."
+  },
+  "limitations": [
+    "A small inherited white/pale sleeve-side fragment and some rear/fringe/shirt projection remnants remain; this is a substantial reviewed improvement, not a perfect rebuild.",
+    "Broad separated hair clumps and deliberately intersecting closed authoring forms do not constitute exhaustive global collision/self-intersection certification.",
+    "Calf/knee silhouettes and calf-to-shoe fit are approximate; hand fingers are simple closed forms driven by Hand/Forearm, without independent finger articulation.",
+    "IdleBreath and in-place Walk remain the inherited manual prototype. No foot IK, grounded contact, cloth physics, locomotion controller or production/game integration claim is made.",
+    "This receipt selects Alexia only; it does not claim visual improvements to the other nine characters."
+  ],
+  "minimum_sampled_actual_foot_world_Y": -0.4696080718836613,
+  "approval_scope": "Accept this exact candidate as the bounded HIGH visual review iteration with genuine inherited prototype motion; production and game integration flags remain false."
+}

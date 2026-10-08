@@ -1,0 +1,40 @@
+{
+  "schema": "crwt.alexia_high_visual_cold_orphan_cleanup.v1",
+  "source_sha256": "bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158",
+  "candidate_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+  "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "anatomical_protector_sha256": "c10276f64c0b0da4a27a15fc3503bacec21417088b93b99441c9aabd7fc43f73",
+  "cleanup_mask_sha256": "4029629f0efd1606c2e2bb2d3072a3011da193d3509c82f8a198366e8b180502",
+  "recipe_sha256": "15f41fa6cdf53e67f9dcd5a8e61c7a859edc211ba7c3096474d3407df6fe4f28",
+  "passed": true,
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "removed_current_core_triangles": 31374,
+  "retained_current_core_triangles": 100453,
+  "removed_protected_incidence": 0,
+  "touched_original_row_count": 22071,
+  "touched_original_world_bounds": [
+    [
+      -0.34840184450149536,
+      -0.35618510842323303,
+      -0.07553590834140778
+    ],
+    [
+      0.29028600454330444,
+      0.035362035036087036,
+      0.1841428279876709
+    ]
+  ],
+  "all_original_arrays_COLORS_materials_nodes_skins_clips_BIN_prefix_exact": true,
+  "all_preexisting_authored_primitives_exact": true,
+  "actual_warm_leg_rows_retained": 8468,
+  "rule": "Every vertex of a current original-core triangle is inside the union body(-.23<Y<.13,.06<abs(X+.006)<.35,-.14<Z<.22,Head<.1,Suitcase<.2), legs(-.36<Y<-.13,abs(X+.006)<.18,-.12<Z<.21,actual legweight>.5,Head/Suitcase<.1), case(X>.16,-.45<Y<-.14,-.08<Z<.21,Head<.1); no frozen anatomical/hair protector row is incident. No authored garment-touch requirement.",
+  "input_hash_mtime_unchanged": true,
+  "limits": [
+    "Scope follows saturated actual geometry diagnostics; new real rest/Walk views are still required.",
+    "Frozen warm hand/leg and shirt rows remain even if their inherited reconstruction is coarse.",
+    "Original arrays remain stored exactly; only current original-core triangle index routing changes."
+  ]
+}

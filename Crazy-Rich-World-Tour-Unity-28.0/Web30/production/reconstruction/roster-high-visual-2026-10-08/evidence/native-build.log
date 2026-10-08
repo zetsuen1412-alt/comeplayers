@@ -1,0 +1,12 @@
+Extensions: writing cache failed ([WinError 5] Access is denied: 'C:\\Users\\Administrator\\AppData\\Roaming\\Blender Foundation').
+12:36:47 | INFO: Data are loaded, start creating Blender stuff
+12:36:47 | INFO: Blender create Mesh node Alexia V2 conforming headphone rim and diaphragm candidate
+12:36:47 | INFO: Blender create Mesh node Two genuine flattened lower rear S curl locks
+12:36:47 | INFO: Blender create Mesh node geometry_0
+12:36:48 | INFO: glTF import finished in 1.47s
+00:05.797  image.write      | ERROR OpenImageIO write failed: Could not open file "준쀿\\.thumbnails\large\blender_30108_e8a37d2b5550d602565169072ebfd7a9.png.png"
+Info: Saved as "Alexia-high-visual-review.blend"
+{'passed': True, 'blend': 'C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-08-high-visual\\editable\\Alexia-high-visual-review.blend', 'proof': 'C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-08-high-visual\\editable\\Alexia-high-visual-review.workspace-proof.json', 'candidate_sha256': 'e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52', 'meshes': 3, 'armatures': 1, 'actions': 2}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

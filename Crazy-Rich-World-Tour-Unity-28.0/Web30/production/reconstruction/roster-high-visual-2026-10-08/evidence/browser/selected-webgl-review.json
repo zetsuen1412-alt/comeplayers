@@ -1,0 +1,77 @@
+{
+  "schema": "crwt.high_visual_actual_webgl_review.v1",
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "actual_source_identity_visible": true,
+  "actual_views_reviewed": [
+    "front",
+    "left",
+    "right",
+    "back",
+    "quarter"
+  ],
+  "actual_lighting_profiles_reviewed": [
+    "balanced",
+    "warm"
+  ],
+  "actual_clip_controls_reviewed": [
+    "IdleBreath",
+    "Walk"
+  ],
+  "actual_console_warn_error_entries": 0,
+  "screenshots": [
+    {
+      "path": "back-balanced.jpg",
+      "sha256": "8d10160d723e53a89062cca206f08b7bfd6391eca97060353787fd8e495fad92",
+      "format": "JPEG"
+    },
+    {
+      "path": "front-balanced.jpg",
+      "sha256": "f5d4cfe79f61b173ba85e2f95fd37fd8d5ab05db12262790118c810840ec81ae",
+      "format": "JPEG"
+    },
+    {
+      "path": "idle-quarter-balanced.jpg",
+      "sha256": "06c423f2f3a4a041f3ebdb482199accd650b15866c7d0125cb6858db91a4150d",
+      "format": "JPEG"
+    },
+    {
+      "path": "left-balanced.jpg",
+      "sha256": "56df30228a57214771c0a57f8fa01a2f66c9cc0c56142a6a8a345fbf62f9516e",
+      "format": "JPEG"
+    },
+    {
+      "path": "quarter-balanced.jpg",
+      "sha256": "1cc26a410d8e08a20c55accd332b79bfdd7b07f55fb2539617bd9c01647bcce7",
+      "format": "JPEG"
+    },
+    {
+      "path": "quarter-warm.jpg",
+      "sha256": "7d60ef7507fa03ca858f74b7ef865ff9cd9c9a59df6b55a7dab1fca166d53eac",
+      "format": "JPEG"
+    },
+    {
+      "path": "right-balanced.jpg",
+      "sha256": "e2026b0018f57bd3dbc0e9ec00d3ef22f5081c46fa9d44ce0b66844d20b87201",
+      "format": "JPEG"
+    },
+    {
+      "path": "walk-quarter-later.jpg",
+      "sha256": "76f78707c890d181cbd61042f0eba052fa367f7fad225ebc55638784783185ab",
+      "format": "JPEG"
+    },
+    {
+      "path": "walk-quarter-warm.jpg",
+      "sha256": "e8bdd289a55e49ba368714285beed0de47ceac1390dae534b7b6c7da114e9810",
+      "format": "JPEG"
+    }
+  ],
+  "selected_for_current_review": true,
+  "remaining_visual_limits": [
+    "Small inherited sleeve and rear fragments remain.",
+    "Broad rear hair locks need further sculpt refinement.",
+    "Motion remains a manual prototype; production IK and simulation are absent."
+  ],
+  "Aniimo_equivalent_or_perfect_claimed": false,
+  "production_approved": false,
+  "gameIntegrated": false
+}

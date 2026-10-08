@@ -1,0 +1,338 @@
+{
+  "schema": "crwt.high_visual_actual_source_checks.v1",
+  "passed": true,
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "source_inventory_sha256": "064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3",
+  "actual_recipe_step_count": 9,
+  "restore": {
+    "schema": "crwt.alexia_high_visual_source_restore.v1",
+    "passed": true,
+    "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+    "source_inventory_sha256": "064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3",
+    "baseline_inventory_sha256": "cf73d4b043a7a7beb6da2ceef6c41c6cd9c92481604b8c47a13d5c3a667b3b02",
+    "source_files_checked": 94,
+    "payload_files_restored": 169,
+    "all_payload_bytes_git_blob_pins_exact": true,
+    "gallery_HTML_and_receipt_regenerated_byte_exact": true,
+    "checks": [
+      {
+        "check": "actual delivered offline gallery regeneration",
+        "passed": true
+      },
+      {
+        "check": "all ten actual GLBs",
+        "passed": true
+      },
+      {
+        "check": "actual selected HIGH source gate",
+        "passed": true
+      }
+    ],
+    "source_unchanged": true,
+    "new_Blender_or_browser_execution": false,
+    "approved": false,
+    "gameIntegrated": false
+  },
+  "assets": {
+    "models_checked": 10,
+    "models": [
+      {
+        "id": "alexia",
+        "sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+        "actual": {
+          "faces": 276417,
+          "vertices": 357263,
+          "meshes": 2,
+          "mesh_definitions": 3,
+          "default_scene": 0,
+          "default_scene_nodes": 23,
+          "skins": 2,
+          "clips": 2,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [
+            "IdleBreath",
+            "Walk"
+          ],
+          "bin_sha256": "6125c29d04db2aca90e3cde7882eec34d66dc9386807a43a68fcdd77bd7ebbc1",
+          "accessors_checked": 658,
+          "buffer_views_checked": 660
+        }
+      },
+      {
+        "id": "rindi",
+        "sha256": "d2388d4e67cdb59ce00c602302c19053d6eaf3633a45f694cfc64c7f3ebc8524",
+        "actual": {
+          "faces": 45278,
+          "vertices": 29689,
+          "meshes": 1,
+          "mesh_definitions": 1,
+          "default_scene": 0,
+          "default_scene_nodes": 3,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "bc473bd8794ba61e1dd1a2b1a86d11185bbe6d39a59b5714136e05ccb24f101f",
+          "accessors_checked": 8,
+          "buffer_views_checked": 10
+        }
+      },
+      {
+        "id": "kairo",
+        "sha256": "83ac6f20c6cc0bb46c415a18eceabc7bbf5f5abe385135ad4bb5fda077225915",
+        "actual": {
+          "faces": 27820,
+          "vertices": 20492,
+          "meshes": 3,
+          "mesh_definitions": 3,
+          "default_scene": 0,
+          "default_scene_nodes": 5,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "cf866d33bfe0367ae9c77d6ec967caf8bd05dceb495f58147c464286913ee09d",
+          "accessors_checked": 10,
+          "buffer_views_checked": 12
+        }
+      },
+      {
+        "id": "luna",
+        "sha256": "e8a64c0898e313bb25830622642c2e91d820710bd8835fc83bb1166667265509",
+        "actual": {
+          "faces": 55274,
+          "vertices": 40535,
+          "meshes": 13,
+          "mesh_definitions": 13,
+          "default_scene": 0,
+          "default_scene_nodes": 15,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "a2e4a62ab0ac2e5b437160a5cd9013c089e97d6521acd1c91e35ba814a830b03",
+          "accessors_checked": 47,
+          "buffer_views_checked": 49
+        }
+      },
+      {
+        "id": "nox",
+        "sha256": "f96e762753ea17e360b7c41ea8f52179e78c608933246164e3016dfcbb5f2e4f",
+        "actual": {
+          "faces": 25472,
+          "vertices": 23535,
+          "meshes": 2,
+          "mesh_definitions": 2,
+          "default_scene": 0,
+          "default_scene_nodes": 4,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "92e84c47888cdf73c38aec0eeb864badf067655c012b74941dcb250aea60f3e5",
+          "accessors_checked": 13,
+          "buffer_views_checked": 15
+        }
+      },
+      {
+        "id": "atlas",
+        "sha256": "ca8ef8ae3f6ca1fd7453622eebf85351882a47cb5b87dc120281bb08d1b8aa24",
+        "actual": {
+          "faces": 45028,
+          "vertices": 31672,
+          "meshes": 1,
+          "mesh_definitions": 1,
+          "default_scene": 0,
+          "default_scene_nodes": 3,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "bd345cdf87f42e88a27693a34e11344c655a447e25acd586bdae89a1fa40cec2",
+          "accessors_checked": 8,
+          "buffer_views_checked": 10
+        }
+      },
+      {
+        "id": "zeno",
+        "sha256": "c1220fc7fd0e1527c6237dc2bf49b215dd4d468436fa37a24c7435bcffa013bc",
+        "actual": {
+          "faces": 33300,
+          "vertices": 24679,
+          "meshes": 3,
+          "mesh_definitions": 3,
+          "default_scene": 0,
+          "default_scene_nodes": 5,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "a5fe009f9f9f0609e07a88af46999e5d27ec186967a069e96fd40be4b708a00f",
+          "accessors_checked": 10,
+          "buffer_views_checked": 12
+        }
+      },
+      {
+        "id": "yuna",
+        "sha256": "9480a38057be2a5deb4111afc4bd861d34cd0ce441457f3164d0d1794036898b",
+        "actual": {
+          "faces": 32908,
+          "vertices": 25055,
+          "meshes": 2,
+          "mesh_definitions": 2,
+          "default_scene": 0,
+          "default_scene_nodes": 4,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "75f34864d26f43226425828d527c75b04a6a4967b88a9c8e8ba09300755b8e09",
+          "accessors_checked": 28,
+          "buffer_views_checked": 30
+        }
+      },
+      {
+        "id": "mochi",
+        "sha256": "bf2c91d6bcd4a731724d52402182f7935d8abb33f88242cd84614232c2bfcfcd",
+        "actual": {
+          "faces": 24404,
+          "vertices": 18334,
+          "meshes": 2,
+          "mesh_definitions": 2,
+          "default_scene": 0,
+          "default_scene_nodes": 4,
+          "skins": 0,
+          "clips": 0,
+          "images": 2,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [],
+          "bin_sha256": "198703e2a80568cd251416c0fa96ef79ec585535098e57de36fb102cb26045fb",
+          "accessors_checked": 14,
+          "buffer_views_checked": 16
+        }
+      },
+      {
+        "id": "pip",
+        "sha256": "c25e835508cdd2401c57b9d478585f2bcf973b3943b2de64a695f0129f0f7d9f",
+        "actual": {
+          "faces": 97580,
+          "vertices": 103760,
+          "meshes": 194,
+          "mesh_definitions": 194,
+          "default_scene": 0,
+          "default_scene_nodes": 208,
+          "skins": 1,
+          "clips": 6,
+          "images": 0,
+          "normal_present_on_every_primitive": true,
+          "clip_names": [
+            "Idle",
+            "Walk",
+            "Jump",
+            "Skill",
+            "Win",
+            "Lose"
+          ],
+          "bin_sha256": "589020abde45bbf1e0b0fc3f3a92209f888d175cf618e8cfb07a68e213fd2780",
+          "accessors_checked": 1004,
+          "buffer_views_checked": 1004
+        }
+      }
+    ],
+    "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+    "actual_alexia_clip_names": [
+      "IdleBreath",
+      "Walk"
+    ],
+    "actual_active_meshes": 2,
+    "native_retained_mesh_data": 3,
+    "native_actions": 2,
+    "native_bones": 19,
+    "native_build_and_readonly_reopen_bindings_valid": true
+  },
+  "rebuild": {
+    "schema": "crwt.alexia_high_visual_actual_rebuild.v2_variable_steps",
+    "passed": true,
+    "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+    "source_inventory_sha256": "064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3",
+    "baseline_inventory_sha256": "cf73d4b043a7a7beb6da2ceef6c41c6cd9c92481604b8c47a13d5c3a667b3b02",
+    "actual_step_count": 9,
+    "steps": [
+      {
+        "id": "hair",
+        "candidate_sha256": "7a748e6e8cc262d3161f0ed05f36037a02d4528ca1a45f57b7cf4f4b026b4556",
+        "candidate_bytes": 64011088,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "headband",
+        "candidate_sha256": "fc5e7690a475af1df3fa982186ffbad2325921644f74c8570627108b0c5cfb7c",
+        "candidate_bytes": 68492232,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "material",
+        "candidate_sha256": "2e64e8be6f93935e02330d3c1442f59d2049dfd752b7b1fff8d734bbeccac6c0",
+        "candidate_bytes": 69428732,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "body",
+        "candidate_sha256": "88a40e8af34fe0b01183da1f79244da3e3924900390950fc84b22394fcfc9f26",
+        "candidate_bytes": 77260180,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "retained-cleanup",
+        "candidate_sha256": "b0284bb2abc9e50254cea75bb39b48e402d1e8e26a1a2eee2e36a6a1bb212660",
+        "candidate_bytes": 78965692,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "rear-calves",
+        "candidate_sha256": "21f60d8d03bf1d11346dd970b1189e98a6e3bad48aad1ec6f1ff3f0c5a758748",
+        "candidate_bytes": 80901520,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "final-cleanup",
+        "candidate_sha256": "bfdd444fac106b52fdaaf2008df32aaaebc7ac48fbdaddd4b72e80917849f158",
+        "candidate_bytes": 82483588,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "cold-orphans",
+        "candidate_sha256": "786ccd57c5dc5ae59996d771fc55c30ddfa0e7fefb89814a7e6d47429c00aec5",
+        "candidate_bytes": 83689164,
+        "matched_actual_pinned_intermediate": true
+      },
+      {
+        "id": "clean-anatomy",
+        "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+        "candidate_bytes": 84708100,
+        "matched_actual_pinned_intermediate": true
+      }
+    ],
+    "final_model_byte_identical": true,
+    "final_model_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-high-visual-2026-10-08\\publication\\exported-final-source-check\\rebuilt\\clean-anatomy\\alexia.glb",
+    "original_payload_source_SHA_mtime_unchanged": true,
+    "renders_browser_native_not_regenerated": true,
+    "approved": false,
+    "gameIntegrated": false
+  },
+  "delivered_actual_checkpoint_verifier_sha256": "990892643f4201ab5852ac6f9d97ecdc32eb09ffd37040650250c200330be4d5",
+  "source_review_inputs_SHA_mtime_unchanged": true,
+  "new_Blender_browser_render_execution": false,
+  "existing_actual_native_build_reopen_evidence_checked": true,
+  "global_repository_CI_success_claimed": false,
+  "approved": false,
+  "gameIntegrated": false
+}

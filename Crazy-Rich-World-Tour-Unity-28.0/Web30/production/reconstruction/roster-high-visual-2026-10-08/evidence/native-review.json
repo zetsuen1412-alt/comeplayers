@@ -1,0 +1,38 @@
+{
+  "preflight_passed": true,
+  "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "actual_skin_count": 2,
+  "actual_joint_count": 19,
+  "actual_clip_names": [
+    "IdleBreath",
+    "Walk"
+  ],
+  "original_joint_skin_IBM_and_clip_bindings_exact": true,
+  "mesh_count_policy": "Actual imported meshes/primitives; no old three-mesh assertion.",
+  "executed": true,
+  "passed": true,
+  "blend_sha256": "d05b2aa9e042ee209324d218abc17fdebf8361439fd43117e6b4d0facda62fc6",
+  "build_proof_sha256": "1040b1d1fb5a2e60f05c73d0aa1b390a1e250fdc00d475f72822cd2e890e7462",
+  "reopen_proof_sha256": "904c5e3f15b971967ced03ad9a6b1de7844ab70285837dd7ba92aef27e35d185",
+  "native_mesh_count": 3,
+  "native_active_mesh_count": 2,
+  "source_default_scene_visibility": {
+    "default_scene_index": 0,
+    "active_source_mesh_objects": [
+      "geometry_0",
+      "Alexia original cup face precision details"
+    ],
+    "retained_inactive_mesh_objects": [
+      "Alexia added volumetric rear curl locks"
+    ],
+    "inactive_mesh_data_preserved": true,
+    "inactive_meshes_hidden_from_viewport_and_render": true
+  },
+  "native_COLOR_attribute_count": 2,
+  "native_armatures": 1,
+  "native_bones": 19,
+  "native_actions": 2,
+  "source_and_native_hash_mtime_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false
+}

@@ -1,0 +1,11 @@
+00:02.031  blend            | Read blend: "C:\Users\Administrator\Documents\Codex\2026-10-04\lan\outputs\model-review-2026-10-08-high-visual\editable\Alexia-high-visual-review.blend"
+Extensions: writing cache failed ([WinError 5] Access is denied: 'C:\\Users\\Administrator\\AppData\\Roaming\\Blender Foundation').
+12:36:58 | INFO: Data are loaded, start creating Blender stuff
+12:36:58 | INFO: Blender create Mesh node Alexia V2 conforming headphone rim and diaphragm candidate
+12:36:58 | INFO: Blender create Mesh node Two genuine flattened lower rear S curl locks
+12:36:58 | INFO: Blender create Mesh node geometry_0
+12:36:59 | INFO: glTF import finished in 1.32s
+{'passed': True, 'proof': 'C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-08-high-visual\\evidence\\native-reopen.json', 'candidate_sha256': 'e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52', 'native_meshes': 3, 'native_armatures': 1, 'native_actions': 2}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit
