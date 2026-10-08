@@ -1,0 +1,577 @@
+{
+  "schema": "crwt.alexia.layered_side_hair.v2_integrated",
+  "passed": true,
+  "visual_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "variant": "integrated-shallow",
+  "source_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\viewer\\models\\alexia.glb",
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "semantic_mask_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\evidence\\selected-alexia\\semantic-masks.npz",
+  "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "reference_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\references\\alexia-blue-v2-turnaround.png",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "recipe_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\build_layered_side_hair_integrated.py",
+  "recipe_sha256": "8bf9e9038a8c14f6f7345654519e088bcba77bfbdf2f00e4c464ec3fe13ae227",
+  "candidate_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\v2-trials\\integrated-shallow\\alexia.glb",
+  "candidate_sha256": "ebf49c841d763282bd331f8737859c39518df54d5cb51cef54a7d84a517b3027",
+  "candidate_bytes": 51239164,
+  "mask_npz_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\v2-trials\\integrated-shallow\\layered-hair-masks.npz",
+  "mask_npz_sha256": "facbcde3a480fe7f52cdfb0c7932af770842168e07bedfd16f2532a43d927024",
+  "source_BIN_byte_prefix_identical": true,
+  "original_accessor_bufferView_prefix_identical": true,
+  "all_original_positions_normals_uv_indices_weights_joints_exact": true,
+  "all_existing_nodes_skins_animations_images_textures_materials_exact": true,
+  "mesh1_mesh2_exact": true,
+  "source_alpha_exact": true,
+  "mandatory_face_hands_cup_outfit_colors_exact": true,
+  "existing_mesh_count": 3,
+  "added_meshes": 0,
+  "added_nodes": 0,
+  "added_skins": 0,
+  "added_materials": 1,
+  "added_mesh0_primitives": 1,
+  "source_core_vertices": 252943,
+  "source_original_vertices_changed": 0,
+  "source_original_normals_changed": 0,
+  "source_core_colors_changed": 52766,
+  "allowed_core_color_vertices": 52802,
+  "new_vertices": 17436,
+  "new_triangles": 34848,
+  "new_closed_locks": 6,
+  "new_head_joint_slot": 5,
+  "new_hair_all_head_weight_one": true,
+  "maximum_source_position_delta": 0,
+  "exact_source_position_cohort_spread": 0,
+  "ambiguous_218_closure_extras_position_changed": 0,
+  "mask_parameters": {
+    "world_axis_signs": [
+      -1,
+      1,
+      -1
+    ],
+    "center_x": -0.006,
+    "semantic_hair_mask_key": "hair_indices",
+    "y_min": -0.075,
+    "y_max": 0.385,
+    "centered_abs_x_min": 0.12,
+    "centered_abs_x_max": 0.29,
+    "z_max": 0.035,
+    "cup_center_y": 0.258,
+    "cup_center_z_plus": 0.092,
+    "cup_center_z_minus": 0.062,
+    "cup_radius_y": 0.054,
+    "cup_radius_z": 0.039,
+    "cup_distance_min": 1.4,
+    "source_positions_normals_weights_uv_unchanged": true
+  },
+  "variant_parameters": {
+    "width_factor": 1.0,
+    "half_depth": 0.006,
+    "interior_inset": 0.0015,
+    "root_tip_inset": 0.012,
+    "core_trough_strength": 0.23,
+    "curvature_section_max_product": 0.52
+  },
+  "core_color_method": "Broad continuous S-field support troughs, gamma lavender target [.785,.725,.871], smooth geometric boundary margins; alpha/protected colors exact.",
+  "new_color_method": "Calm normal-derived silver-lavender cross-section COLOR with unlit material matching source hair; actual closed smooth-normal volume, no pixels synthesized/edited.",
+  "append_accessors": {
+    "core_color": 87,
+    "POSITION": 88,
+    "NORMAL": 89,
+    "TEXCOORD_0": 90,
+    "COLOR_0": 91,
+    "JOINTS_0": 92,
+    "WEIGHTS_0": 93,
+    "indices": 94
+  },
+  "locks": [
+    {
+      "name": "front-long-crescent-minus",
+      "side": -1,
+      "manual_yz_guide": [
+        [
+          0.421,
+          0.007
+        ],
+        [
+          0.37,
+          -0.005
+        ],
+        [
+          0.305,
+          -0.02
+        ],
+        [
+          0.225,
+          -0.043
+        ],
+        [
+          0.16,
+          -0.036
+        ],
+        [
+          0.095,
+          -0.014
+        ],
+        [
+          0.035,
+          -0.024
+        ],
+        [
+          -0.028,
+          -0.06
+        ],
+        [
+          -0.072,
+          -0.067
+        ],
+        [
+          -0.089,
+          -0.046
+        ]
+      ],
+      "vertices": 2906,
+      "triangles": 5808,
+      "world_bounds": [
+        [
+          -0.31012627482414246,
+          -0.0893607810139656,
+          -0.081678107380867
+        ],
+        [
+          -0.18773119151592255,
+          0.4215864837169647,
+          0.015453631058335304
+        ]
+      ],
+      "full_maximum_width": 0.058,
+      "full_maximum_depth": 0.012,
+      "minimum_triangle_area": 5.0658984814759135e-09,
+      "enclosed_volume": 0.00023811127777074604,
+      "edge_incidence_histogram": {
+        "2": 8712
+      },
+      "face_vs_mean_smooth_normal_disagreements": 0,
+      "curvature_section_minimum_scale": 0.9758175518547578,
+      "minimum_tight_cup_distance": 1.555777182288793,
+      "centerline_source_query_radius_yz": [
+        0.021,
+        0.023
+      ],
+      "centerline_source_query_min_count": 286,
+      "centerline_source_query_max_normalized_nearest_distance": 0.6266701777236449,
+      "inferred_depth_and_root_attachment": true,
+      "root_and_tip_closed": true,
+      "root_tip_inset_vs_lowpassed_surface_fit": 0.0135,
+      "root_tip_attachment_is_inferred_not_collision_certified": true
+    },
+    {
+      "name": "middle-tapered-crescent-minus",
+      "side": -1,
+      "manual_yz_guide": [
+        [
+          0.412,
+          -0.028
+        ],
+        [
+          0.365,
+          -0.044
+        ],
+        [
+          0.295,
+          -0.07
+        ],
+        [
+          0.23,
+          -0.095
+        ],
+        [
+          0.16,
+          -0.107
+        ],
+        [
+          0.098,
+          -0.084
+        ],
+        [
+          0.04,
+          -0.076
+        ],
+        [
+          -0.01,
+          -0.1
+        ],
+        [
+          -0.043,
+          -0.125
+        ],
+        [
+          -0.061,
+          -0.1
+        ]
+      ],
+      "vertices": 2906,
+      "triangles": 5808,
+      "world_bounds": [
+        [
+          -0.31662246584892273,
+          -0.06142263859510422,
+          -0.14027586579322815
+        ],
+        [
+          -0.1845829039812088,
+          0.41281378269195557,
+          -0.025654984638094902
+        ]
+      ],
+      "full_maximum_width": 0.066,
+      "full_maximum_depth": 0.012,
+      "minimum_triangle_area": 5.763443330037097e-09,
+      "enclosed_volume": 0.00026093756759454915,
+      "edge_incidence_histogram": {
+        "2": 8712
+      },
+      "face_vs_mean_smooth_normal_disagreements": 0,
+      "curvature_section_minimum_scale": 0.8788081051831725,
+      "minimum_tight_cup_distance": 2.578248285726066,
+      "centerline_source_query_radius_yz": [
+        0.021,
+        0.023
+      ],
+      "centerline_source_query_min_count": 172,
+      "centerline_source_query_max_normalized_nearest_distance": 0.26314017015583774,
+      "inferred_depth_and_root_attachment": true,
+      "root_and_tip_closed": true,
+      "root_tip_inset_vs_lowpassed_surface_fit": 0.0135,
+      "root_tip_attachment_is_inferred_not_collision_certified": true
+    },
+    {
+      "name": "rear-short-crescent-minus",
+      "side": -1,
+      "manual_yz_guide": [
+        [
+          0.403,
+          -0.06
+        ],
+        [
+          0.34,
+          -0.089
+        ],
+        [
+          0.275,
+          -0.12
+        ],
+        [
+          0.21,
+          -0.149
+        ],
+        [
+          0.145,
+          -0.178
+        ],
+        [
+          0.08,
+          -0.19
+        ],
+        [
+          0.02,
+          -0.165
+        ],
+        [
+          -0.026,
+          -0.176
+        ],
+        [
+          -0.065,
+          -0.194
+        ],
+        [
+          -0.082,
+          -0.176
+        ]
+      ],
+      "vertices": 2906,
+      "triangles": 5808,
+      "world_bounds": [
+        [
+          -0.2726455628871918,
+          -0.08237916976213455,
+          -0.22232002019882202
+        ],
+        [
+          -0.14334306120872498,
+          0.4040016829967499,
+          -0.057819023728370667
+        ]
+      ],
+      "full_maximum_width": 0.064,
+      "full_maximum_depth": 0.012,
+      "minimum_triangle_area": 5.588054600825489e-09,
+      "enclosed_volume": 0.0002528172498709481,
+      "edge_incidence_histogram": {
+        "2": 8712
+      },
+      "face_vs_mean_smooth_normal_disagreements": 0,
+      "curvature_section_minimum_scale": 0.5891080102244944,
+      "minimum_tight_cup_distance": 3.6842647363198004,
+      "centerline_source_query_radius_yz": [
+        0.021,
+        0.023
+      ],
+      "centerline_source_query_min_count": 0,
+      "centerline_source_query_max_normalized_nearest_distance": 1.9644034155622443,
+      "inferred_depth_and_root_attachment": true,
+      "root_and_tip_closed": true,
+      "root_tip_inset_vs_lowpassed_surface_fit": 0.0135,
+      "root_tip_attachment_is_inferred_not_collision_certified": true
+    },
+    {
+      "name": "front-long-crescent-plus",
+      "side": 1,
+      "manual_yz_guide": [
+        [
+          0.421,
+          0.007
+        ],
+        [
+          0.37307818128993103,
+          -0.0077361611466053495
+        ],
+        [
+          0.31078508848717884,
+          -0.025142300877492314
+        ],
+        [
+          0.23279422863405996,
+          -0.049928203230275504
+        ],
+        [
+          0.1688632697771099,
+          -0.04387846202409766
+        ],
+        [
+          0.10386326977710987,
+          -0.021878462024097663
+        ],
+        [
+          0.042794228634059954,
+          -0.03092820323027551
+        ],
+        [
+          -0.022214911512821147,
+          -0.06514230087749232
+        ],
+        [
+          -0.06892181871006897,
+          -0.06973616114660536
+        ],
+        [
+          -0.089,
+          -0.046
+        ]
+      ],
+      "vertices": 2906,
+      "triangles": 5808,
+      "world_bounds": [
+        [
+          0.1615610420703888,
+          -0.08935211598873138,
+          -0.08637727797031403
+        ],
+        [
+          0.2984568774700165,
+          0.4216516613960266,
+          0.00907760951668024
+        ]
+      ],
+      "full_maximum_width": 0.058,
+      "full_maximum_depth": 0.012,
+      "minimum_triangle_area": 5.0653193091192595e-09,
+      "enclosed_volume": 0.00023884441659865712,
+      "edge_incidence_histogram": {
+        "2": 8712
+      },
+      "face_vs_mean_smooth_normal_disagreements": 0,
+      "curvature_section_minimum_scale": 0.852193313423425,
+      "minimum_tight_cup_distance": 2.4329513867226917,
+      "centerline_source_query_radius_yz": [
+        0.021,
+        0.023
+      ],
+      "centerline_source_query_min_count": 264,
+      "centerline_source_query_max_normalized_nearest_distance": 0.1273857578357691,
+      "inferred_depth_and_root_attachment": true,
+      "root_and_tip_closed": true,
+      "root_tip_inset_vs_lowpassed_surface_fit": 0.0135,
+      "root_tip_attachment_is_inferred_not_collision_certified": true
+    },
+    {
+      "name": "middle-tapered-crescent-plus",
+      "side": 1,
+      "manual_yz_guide": [
+        [
+          0.412,
+          -0.028
+        ],
+        [
+          0.36807818128993103,
+          -0.046736161146605344
+        ],
+        [
+          0.30078508848717883,
+          -0.07514230087749232
+        ],
+        [
+          0.23779422863405997,
+          -0.10192820323027552
+        ],
+        [
+          0.1688632697771099,
+          -0.11487846202409766
+        ],
+        [
+          0.10686326977710987,
+          -0.09187846202409766
+        ],
+        [
+          0.04779422863405995,
+          -0.08292820323027551
+        ],
+        [
+          -0.004214911512821146,
+          -0.10514230087749232
+        ],
+        [
+          -0.039921818710068974,
+          -0.12773616114660535
+        ],
+        [
+          -0.061,
+          -0.1
+        ]
+      ],
+      "vertices": 2906,
+      "triangles": 5808,
+      "world_bounds": [
+        [
+          0.14274278283119202,
+          -0.06141392141580582,
+          -0.14810113608837128
+        ],
+        [
+          0.2949908375740051,
+          0.41297194361686707,
+          -0.025723829865455627
+        ]
+      ],
+      "full_maximum_width": 0.066,
+      "full_maximum_depth": 0.012,
+      "minimum_triangle_area": 5.762877067189732e-09,
+      "enclosed_volume": 0.00027064979423164825,
+      "edge_incidence_histogram": {
+        "2": 8712
+      },
+      "face_vs_mean_smooth_normal_disagreements": 0,
+      "curvature_section_minimum_scale": 0.7507664785268225,
+      "minimum_tight_cup_distance": 3.4514609396481273,
+      "centerline_source_query_radius_yz": [
+        0.021,
+        0.023
+      ],
+      "centerline_source_query_min_count": 169,
+      "centerline_source_query_max_normalized_nearest_distance": 0.16844473901977888,
+      "inferred_depth_and_root_attachment": true,
+      "root_and_tip_closed": true,
+      "root_tip_inset_vs_lowpassed_surface_fit": 0.0135,
+      "root_tip_attachment_is_inferred_not_collision_certified": true
+    },
+    {
+      "name": "rear-short-crescent-plus",
+      "side": 1,
+      "manual_yz_guide": [
+        [
+          0.403,
+          -0.06
+        ],
+        [
+          0.34307818128993106,
+          -0.09173616114660535
+        ],
+        [
+          0.28078508848717887,
+          -0.1251423008774923
+        ],
+        [
+          0.21779422863405995,
+          -0.1559282032302755
+        ],
+        [
+          0.15386326977710987,
+          -0.18587846202409766
+        ],
+        [
+          0.08886326977710987,
+          -0.19787846202409767
+        ],
+        [
+          0.027794228634059948,
+          -0.17192820323027552
+        ],
+        [
+          -0.020214911512821145,
+          -0.1811423008774923
+        ],
+        [
+          -0.06192181871006898,
+          -0.19673616114660536
+        ],
+        [
+          -0.082,
+          -0.176
+        ]
+      ],
+      "vertices": 2906,
+      "triangles": 5808,
+      "world_bounds": [
+        [
+          0.08100000023841858,
+          -0.08237151056528091,
+          -0.2303168922662735
+        ],
+        [
+          0.234728142619133,
+          0.40412259101867676,
+          -0.057878728955984116
+        ]
+      ],
+      "full_maximum_width": 0.064,
+      "full_maximum_depth": 0.012,
+      "minimum_triangle_area": 5.5881892407612504e-09,
+      "enclosed_volume": 0.0002752437374389612,
+      "edge_incidence_histogram": {
+        "2": 8712
+      },
+      "face_vs_mean_smooth_normal_disagreements": 0,
+      "curvature_section_minimum_scale": 0.5661382161663592,
+      "minimum_tight_cup_distance": 4.537840187067449,
+      "centerline_source_query_radius_yz": [
+        0.021,
+        0.023
+      ],
+      "centerline_source_query_min_count": 0,
+      "centerline_source_query_max_normalized_nearest_distance": 2.638000225095158,
+      "inferred_depth_and_root_attachment": true,
+      "root_and_tip_closed": true,
+      "root_tip_inset_vs_lowpassed_surface_fit": 0.0135,
+      "root_tip_attachment_is_inferred_not_collision_certified": true
+    }
+  ],
+  "scope": "Six actual closed broad tapered lateral S volumes with existing Head skin. Original geometry and current rig/clips exact.",
+  "limits": [
+    "Manual reference-supported S guides and inferred roots/depth, not precise six-view reconstruction.",
+    "New separate closed volumes intersect source hair intentionally for attachment; no exhaustive self-intersection or collision certificate.",
+    "Inherited merged hair core, mottled headphone strap and garment projection defects remain.",
+    "Numeric passing requires actual side/front/back and animated review before selection."
+  ]
+}

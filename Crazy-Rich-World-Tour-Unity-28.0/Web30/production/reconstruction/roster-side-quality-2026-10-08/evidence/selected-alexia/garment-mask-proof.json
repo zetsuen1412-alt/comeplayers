@@ -1,0 +1,94 @@
+{
+  "schema": "crwt.alexia_side_garment_diagnostic.v1",
+  "diagnostic_overlay_only": true,
+  "never_select": true,
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "source_semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "overlay_sha256": "f1fc76643e77d1c7ec5440a60ab0051963ceda921fc05278ddb850d7b25b4b29",
+  "mask_npz_sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511",
+  "script_sha256": "c11f305fdaf453b49ebd92a1926fa3cae09e490d208f42a7882e677577df74d0",
+  "mask_parameters": {
+    "world_axis_signs": [
+      -1,
+      1,
+      -1
+    ],
+    "centered_abs_x": "abs(X+.006)",
+    "y_open_interval": [
+      -0.045,
+      0.12
+    ],
+    "abs_x_open_interval": [
+      0.1,
+      0.29
+    ],
+    "z_open_interval": [
+      0,
+      0.17
+    ],
+    "subtract_exact_frozen_sets": [
+      "hair_indices",
+      "cup_indices",
+      "cuff_indices",
+      "protected_critical_indices"
+    ],
+    "subtract_exact_hair_POSITION_cohort_closure": true,
+    "maximum_actual_head_weight_exclusive": 0.5
+  },
+  "allowed_vertices": 5174,
+  "original_jacket_overlap_vertices": 3381,
+  "new_extension_vertices": 1793,
+  "world_bounds": [
+    [
+      -0.232815682888031,
+      -0.044992849230766296,
+      0.01073525846004486
+    ],
+    [
+      0.1888313591480255,
+      0.1198587417602539,
+      0.16391068696975708
+    ]
+  ],
+  "protected_overlap": {
+    "hair": 0,
+    "cup": 0,
+    "cuff": 0,
+    "protected_critical": 0,
+    "mandatory_face": 0,
+    "hands": 0
+  },
+  "exact_hair_closure_overlap": 0,
+  "warm_skinlike_sourceRGB_selected_vertices": 94,
+  "original_BIN_prefix_identical": true,
+  "single_appended_COLOR_replacement": true,
+  "all_original_POSITION_NORMAL_UV_indices_materials_images_rig_weights_clip_data_exact": true,
+  "mesh1_mesh2_and_source_alpha_exact": true,
+  "outside_mask_colors_exact": true,
+  "all_frozen_inputs_hash_mtime_unchanged": true,
+  "input_snapshot": {
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\viewer\\models\\alexia.glb": [
+      45516820,
+      "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+      1791259057091738300
+    ],
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\evidence\\selected-alexia\\semantic-masks.npz": [
+      4632849,
+      "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+      1791259056893436900
+    ],
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\references\\alexia-blue-v2-turnaround.png": [
+      1988013,
+      "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+      1791259056955436900
+    ]
+  },
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Saturated cyan is an analysis label, not a color improvement candidate.",
+    "Upper garment spatial mask must be confirmed against actual side coverage, including true white cuffs/shirt and skin.",
+    "The26776/99032 old mask stories are not active color gate policies for this new pass."
+  ]
+}

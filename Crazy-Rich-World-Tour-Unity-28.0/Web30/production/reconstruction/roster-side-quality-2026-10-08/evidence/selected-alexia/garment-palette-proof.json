@@ -1,0 +1,22 @@
+{
+  "schema": "crwt.alexia_side_garment_polish.v1",
+  "passed": true,
+  "source_sha256": "ebf49c841d763282bd331f8737859c39518df54d5cb51cef54a7d84a517b3027",
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_bytes": 55286388,
+  "garment_mask_sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511",
+  "recipe_sha256": "5347a6a93f2b6f17ffa57b4d6df523e6504b177ac79938128ab09c322fa1bdba",
+  "allowed_color_vertices": 5174,
+  "changed_color_vertices": 5174,
+  "protected_face_hands_cups_cuffs_hair_and_alpha_exact": true,
+  "all_source_geometry_rig_clip_material_image_data_exact": true,
+  "confident_source_gold_rows": 82,
+  "shoulder_edge_rows": 204,
+  "source_inputs_hash_and_mtime_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Only the upper side jacket mask is polished; lower sleeve/hem/shoe/suitcase paint remains inherited.",
+    "Manual charcoal/gold palette, with coarse source geometry. Actual profile review is required."
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "crwt.alexia_side_quality_browser_review.v1",
+  "passed": true,
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "gallery_sha256": "a25ac6569a4d33a542c4853716d86f32e7f94b79380e133bb8114d80e4dbf5b1",
+  "url": "http://127.0.0.1:8778/BUKA-REVIEW-MODEL.html",
+  "screenshots": {
+    "alexia-front.png": {
+      "sha256": "805dd2de0902884b45077d5ce73a44649d004671f308b903f65c28ea8d215be3",
+      "bytes": 88905
+    },
+    "alexia-gray-right.png": {
+      "sha256": "dd54e5e9c6238060fd631a137d7c4746af0b48a85b808c48452c1f0e32ddc402",
+      "bytes": 75724
+    },
+    "alexia-idle.png": {
+      "sha256": "5a5f7d26164bd0c4ee8fff95610f107bc22cf4f6d96befc05fb83f3a5165419a",
+      "bytes": 86528
+    },
+    "alexia-latest-review.png": {
+      "sha256": "ec47d12e37631e579b5216ce7a7fe3237452153e42d37313d8fa0a348c3cc3fb",
+      "bytes": 86051
+    },
+    "alexia-left.png": {
+      "sha256": "d889e4274ee8aa547471ec8e08342569f132d9b89a35aed08ebe70831d9d1ea9",
+      "bytes": 78849
+    },
+    "alexia-right.png": {
+      "sha256": "db6a4b5797fee4953266e162f051f493a7876feea927020dc38ff93abadc6138",
+      "bytes": 78078
+    },
+    "alexia-walk-a.png": {
+      "sha256": "80e8f24f9d5338f5846061311d5f5034fed2e4e622811c9dc9694f2025999550",
+      "bytes": 86612
+    },
+    "alexia-walk-b.png": {
+      "sha256": "0446daada919c5fa86ae9c77610ada28d3cf0950814e296a87ec1f7291610324",
+      "bytes": 86610
+    },
+    "pip-six-clips.png": {
+      "sha256": "6c5bc0e9ac16991624cf5025c3f78db2cc94f51fd0846d8e8d5290232a518882",
+      "bytes": 82088
+    }
+  },
+  "observed": [
+    "Header08Oktober2026 and ten-character navigation visible.",
+    "Both side views and front show the selected Alexia with491744triangles278735vertices.",
+    "Gray toggle exposes actual 3D side volume and original materials restore after uncheck.",
+    "Walk selected reports Animasi aktif: Walk and two actual rendered canvas captures differ.",
+    "Idle selected reports Animasi aktif: IdleBreath; static selection reports pose statis.",
+    "Pip loads with six preserved mechanical clip options.",
+    "Final three-quarter Alexia view inspected; no browser console errors or warnings observed."
+  ],
+  "walk_canvas_pixel_difference_bbox": [
+    281,
+    43,
+    507,
+    429
+  ],
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "limits": [
+    "This browser review observes playback and rendered appearance; originalHeadband and lower garment/shoe/case artifacts remain.",
+    "Prototype gait does not certify foot contact, collisions or game integration."
+  ]
+}

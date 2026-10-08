@@ -1,0 +1,36 @@
+name: CRWT Alexia Side Quality 2026-10-08
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/crazy-rich-web-v30]
+    paths:
+      - .github/workflows/crwt-alexia-side-quality-2026-10-08.yml
+      - Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-quality-2026-10-08/**
+      - CRWT_ALEXIA_SIDE_QUALITY_RESUME_ID.md
+permissions:
+  contents: read
+env:
+  ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-side-quality-2026-10-08
+jobs:
+  verify-side-quality-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install explicit numeric source-gate dependency
+        run: python3 -m pip install numpy==2.3.5
+      - name: Restore exact source inventory and check all ten models and selected source gate
+        run: >-
+          python3 -B "$ROSTER/tools/restore_side_quality.py"
+          --out-dir crwt-side-quality-review --receipt crwt-side-quality-source-restore.json
+          --verify-models --verify-source-gate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CRWT-Alexia-Side-Quality-2026-10-08-${{ github.sha }}
+          path: |
+            crwt-side-quality-source-restore.json
+            crwt-side-quality-review-source-gate.json
+          retention-days: 7
+          if-no-files-found: error

@@ -1,0 +1,219 @@
+{
+  "schema": "crwt.alexia_side_quality_independent_final_candidate_audit.v1",
+  "passed": true,
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_bytes": 55286388,
+  "visual_accepted": true,
+  "visual_motion_accepted": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "render_proof_sha256": "4041b3324642099b9cc5ed0621f7404d60278a433f775da779970857f7c28f15",
+  "actual_png_sha256": {
+    "front": "c8714205ef593094e89d9bd4552f6b7f76ebf0023768ec8834f03beab7f92e26",
+    "three-quarter": "410800408987a7857b8a25b0c569ce0f21d27e99dd351876064948eebf49a552",
+    "left": "836bbbd23a6d2240d4489b1caff92a4e23210e96d3eafaedeb541281228e8913",
+    "right": "b51936a985fd24593ad4fa9f02f3b8ccb82464f94d9f54c34cb571ac62ff97d7",
+    "back": "8e71914d7791e114e75f7a8863e5d5c0a7cdea35a02bad6d29b64aae982c922f"
+  },
+  "actual_png_files": {
+    "front": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-five\\front.png",
+      "sha256": "c8714205ef593094e89d9bd4552f6b7f76ebf0023768ec8834f03beab7f92e26",
+      "bytes": 570599,
+      "resolution": [
+        640,
+        640
+      ]
+    },
+    "three-quarter": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-five\\three-quarter.png",
+      "sha256": "410800408987a7857b8a25b0c569ce0f21d27e99dd351876064948eebf49a552",
+      "bytes": 563381,
+      "resolution": [
+        640,
+        640
+      ]
+    },
+    "left": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-five\\left.png",
+      "sha256": "836bbbd23a6d2240d4489b1caff92a4e23210e96d3eafaedeb541281228e8913",
+      "bytes": 485527,
+      "resolution": [
+        640,
+        640
+      ]
+    },
+    "right": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-five\\right.png",
+      "sha256": "b51936a985fd24593ad4fa9f02f3b8ccb82464f94d9f54c34cb571ac62ff97d7",
+      "bytes": 494481,
+      "resolution": [
+        640,
+        640
+      ]
+    },
+    "back": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-five\\back.png",
+      "sha256": "8e71914d7791e114e75f7a8863e5d5c0a7cdea35a02bad6d29b64aae982c922f",
+      "bytes": 503783,
+      "resolution": [
+        640,
+        640
+      ]
+    }
+  },
+  "actual_motion_render_proof_sha256": "330eec055425efbcaeb9035e658822361be00be1f27a9bdb8d195f943a598856",
+  "actual_motion_png_files": {
+    "neutral-front": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-motion-frames\\neutral-front.png",
+      "sha256": "c7de9c381942db6fe726f7b4d00923221eb0b33f4281eca2be3a14b209d56644",
+      "bytes": 223396,
+      "clip": "Walk",
+      "time_seconds": 0,
+      "resolution": [
+        384,
+        384
+      ]
+    },
+    "walk-quarter": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-motion-frames\\walk-quarter.png",
+      "sha256": "38b098fbaf1ed2a319ece82b842e5bda327b9f5decdd2a586ffd8e662a32daa1",
+      "bytes": 220003,
+      "clip": "Walk",
+      "time_seconds": 0.3,
+      "resolution": [
+        384,
+        384
+      ]
+    },
+    "walk-threequarter": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-motion-frames\\walk-threequarter.png",
+      "sha256": "fa7405e18c27da9d66c037672051ff30ce3f72460cf2ee4e32bcc89410038555",
+      "bytes": 219032,
+      "clip": "Walk",
+      "time_seconds": 0.9,
+      "resolution": [
+        384,
+        384
+      ]
+    },
+    "idle-quarter": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-motion-frames\\idle-quarter.png",
+      "sha256": "c43e69f3afda672067b6de4b6f2681c87b24e7c9e71bc5d135f98dba41aa2872",
+      "bytes": 218677,
+      "clip": "IdleBreath",
+      "time_seconds": 0.9,
+      "resolution": [
+        384,
+        384
+      ]
+    }
+  },
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "evidence": {
+    "independent_numeric": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\integrated-garment-numeric-audit.json",
+      "sha256": "ee02b6198d1a29f312762a6c16ffe9205928e8a14645c8ad946c038299fba4e6"
+    },
+    "independent_CPU18": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\integrated-garment-cpu-motion-audit.json",
+      "sha256": "bc9f6a12f80e5bacecfb12d0e3fcc239a778ca32c1c932a589801747f9b67b9e"
+    },
+    "portable_combined_reproduction": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\portable-combined-reproduction-proof.json",
+      "sha256": "4c1ddfffdfdc3b5a127e55c97537ac4894c50c9623673520d506792fb9e2c331"
+    },
+    "garment_actual_coverage": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\garment-diagnostic\\garment-coverage-visual-audit.json",
+      "sha256": "97a77db5864105275d19a743456671896a1e270009ab8e5bc1bda1859eaf3bec"
+    },
+    "garment_mask": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\garment-diagnostic\\garment-mask-diagnostic.npz",
+      "sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511"
+    },
+    "source_gate": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\render\\final-source-gate.json",
+      "sha256": "0cd74190ff4ff2bd03bbc07eff4878275a10ef73f83f88eaa88d8d61e0d7d3c7"
+    },
+    "hair_geometry_proof": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\v2-trials\\integrated-shallow\\alexia.geometry-proof.json",
+      "sha256": "4a24a4ede6c3b842f0554793968018f283945bd1356e6f843da5b1293c32cffa"
+    },
+    "hair_geometry_mask": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\v2-trials\\integrated-shallow\\layered-hair-masks.npz",
+      "sha256": "facbcde3a480fe7f52cdfb0c7932af770842168e07bedfd16f2532a43d927024"
+    },
+    "garment_palette_proof": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\integrated-garment-trial\\alexia.garment-proof.json",
+      "sha256": "083892d8747e93579954561ed168d25ac330e67e71c4b9b60da3cbd1b7e6be6d"
+    },
+    "hair_recipe": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\build_layered_side_hair_integrated.py",
+      "sha256": "8bf9e9038a8c14f6f7345654519e088bcba77bfbdf2f00e4c464ec3fe13ae227"
+    },
+    "garment_recipe": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\polish_side_garment.py",
+      "sha256": "5347a6a93f2b6f17ffa57b4d6df523e6504b177ac79938128ab09c322fa1bdba"
+    }
+  },
+  "numeric_summary": {
+    "original_meshes": 3,
+    "original_positions_normals_uv_indices_joints_weights_exact": true,
+    "original_nodes_skins_inversebind_clips_material_image_prefix_exact": true,
+    "existing_skins": 2,
+    "existing_joints": 19,
+    "existing_clips": [
+      "IdleBreath",
+      "Walk"
+    ],
+    "allowed_hair_core_color_vertices": 52802,
+    "changed_hair_core_color_vertices": 52766,
+    "changed_upper_side_garment_vertices": 5174,
+    "added_mesh0_primitives": 1,
+    "added_meshes": 0,
+    "added_nodes": 0,
+    "added_skins": 0,
+    "added_hair_vertices": 17436,
+    "added_hair_triangles": 34848,
+    "added_closed_components": 6,
+    "actual_added_Head_joint_slot": 5,
+    "actual_added_Head_weight_one": true,
+    "maximum_new_rest_bind_error": 2.384185793236071e-09,
+    "new_face_vs_mean_normal_disagreements": 0,
+    "new_degenerate_triangles": 0
+  },
+  "checks": {
+    "all_three_original_meshes_preserved": true,
+    "all_existing_rig_and_authored_clips_source_exact": true,
+    "original_source_BIN_accessor_view_prefix_exact": true,
+    "mesh1_mesh2_exact": true,
+    "protected_face_skin_hands_cup_cuff_color_and_all_alpha_exact": true,
+    "original_cohort_geometry_and_weights_unchanged": true,
+    "actual_new_six_closed_surfaces_edge_incidence_two_Euler_two_positive_volume": true,
+    "actual_added_hair_headrigid_and_CPU18_finite_no_stretch_neutral_endpoints": true,
+    "actual_original_joint_world_trajectories_source_exact": true,
+    "actual_five_neutral640_PNGs_human_inspected": true,
+    "actual_four_animated384_PNGs_human_inspected": true,
+    "actual_side_shape_color_improvement_without_true_shirt_cuff_skin_repaint_observed": true,
+    "actual_copied_two_step_portable_reproduction_byte_exact": true,
+    "no_optional_headphone_bridge_selected": true,
+    "frozen_inputs_content_and_mtime_preserved": true
+  },
+  "human_visual_judgment": [
+    "Both actual side views show more legible layered S-flow and shallow tapered relief over the previous flat side mass. Roots/tips look integrated enough for this bounded pass, rather than detached rods.",
+    "The upper side jacket has a calmer charcoal/gold panel. Front, quarter and profiles preserve recognizable face/eyes, central white shirt, main cuffs, hands and circular cups; no true skin/shirt/cuff repaint was observed.",
+    "The back shows added lateral flow while retaining the inherited broad central cap. Front identity remains recognizable and front fringe/eye/skin source data are exact.",
+    "All four actual animated images show coherent hair/head/cup and suitcase attachment. The two Walk phases differ visibly; no gross new tearing or stretched side locks was observed.",
+    "The optional V3 headphone bridge was visually rejected and is absent from the selected e18cc model."
+  ],
+  "limits": [
+    "This is a bounded side hair-volume and upper garment palette improvement, not precise six-view reconstruction or production approval.",
+    "The broad inherited hair cap, coarse holes/peripheral loops, flat simplified curl shading and mottled original headphone strap remain visible.",
+    "Lower sleeve/hem/shoe/suitcase white/skin/gold projection artifacts remain outside the upper garment mask.",
+    "Six new closed volumes intentionally overlap the source hair for attachment. Edge/manifold/winding/normal tests do not certify absence of self/intersections or collisions with every source surface.",
+    "The inherited manual in-place IdleBreath/Walk prototype has no production foot IK/root travel/contact/collision or physical hair simulation certification.",
+    "No claim that nine other character models changed; their source/render preservation will be verified separately during staging."
+  ]
+}

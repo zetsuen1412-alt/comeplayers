@@ -1,0 +1,221 @@
+{
+  "schema": "crwt.alexia_side_quality_independent_cpu_motion.v1",
+  "passed": true,
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "actual_new_vertices": 17436,
+  "actual_Head_joint_slot": 5,
+  "actual_Head_node_name": "AlexiaPrototype_Head",
+  "maximum_new_rest_bind_error": 2.384185793236071e-09,
+  "samples": [
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 0.0,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 0.0,
+      "Head_rotation_orthogonality_error": 0.0,
+      "neutral_endpoint_max_rest_delta": 2.9802322831784522e-09,
+      "minimum_world_y": -0.08936077803373332
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 0.44999998807907104,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 8.528876160899982e-19,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.08818510514300974
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 0.8999999761581421,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 1.1102230246251565e-16,
+      "Head_rotation_orthogonality_error": 1.1102230246251565e-16,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.08769275973646948
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 1.3499999642372131,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 1.1102230246251565e-16,
+      "Head_rotation_orthogonality_error": 2.220446049250313e-16,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.08818510498761066
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 1.7999999523162842,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 1.1102230246251565e-16,
+      "Head_rotation_orthogonality_error": 4.8707866882727695e-28,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.08936077802127168
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 2.2499999403953552,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 1.1725853607501778e-18,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.0919275010661555
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 2.6999999284744263,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 2.220446049250313e-16,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09298885414164021
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 3.1499999165534973,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 1.1102230246251565e-16,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.0919275017538019
+    },
+    {
+      "clip": "IdleBreath",
+      "time_seconds": 3.5999999046325684,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 3.8966293506182156e-27,
+      "neutral_endpoint_max_rest_delta": 3.1466491912102157e-09,
+      "minimum_world_y": -0.08936077805865679
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.0,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 0.0,
+      "Head_rotation_orthogonality_error": 0.0,
+      "neutral_endpoint_max_rest_delta": 1.4326116959395563e-08,
+      "minimum_world_y": -0.08936079534008254
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.15000000596046448,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 9.764376911556335e-19,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09194564711890972
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.30000001192092896,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 1.1102230246251565e-16,
+      "Head_rotation_orthogonality_error": 3.14051409537189e-19,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09558479500509849
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.45000001788139343,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 8.326672684688674e-17,
+      "Head_rotation_orthogonality_error": 1.554927788767767e-18,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09389472764611234
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.6000000238418579,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 0.0,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.08936079481929474
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.7500000298023224,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 1.1102230246251565e-16,
+      "Head_rotation_orthogonality_error": 9.764376911556335e-19,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09219565559430302
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 0.9000000357627869,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 5.663955701435228e-19,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09594260340088549
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 1.0500000417232513,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 2.220446049250313e-16,
+      "neutral_endpoint_max_rest_delta": null,
+      "minimum_world_y": -0.09414566526284897
+    },
+    {
+      "clip": "Walk",
+      "time_seconds": 1.2000000476837158,
+      "actual_new_vertices": 17436,
+      "finite": true,
+      "old_joint_world_trajectory_max_delta": 0.0,
+      "new_hair_vs_exact_Head_deformation_max_delta": 5.551115123125783e-17,
+      "Head_rotation_orthogonality_error": 0.0,
+      "neutral_endpoint_max_rest_delta": 1.4989180650154532e-08,
+      "minimum_world_y": -0.08936079540834027
+    }
+  ],
+  "all_eighteen_actual_new_hair_samples_finite_headrigid": true,
+  "all_source_joint_world_clip_trajectories_exact": true,
+  "all_clip_endpoints_neutral": true,
+  "all_input_bytes_and_mtime_unchanged": true,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Serialized deformation equality and rigidity are not a source/hair/arm collision or full-cycle contact certificate.",
+    "Actual animated images still need inspection before visual_motion_accepted:true."
+  ]
+}

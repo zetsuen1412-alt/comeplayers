@@ -1,0 +1,17 @@
+{
+  "schema": "crwt.alexia_side_quality_native_review.v1",
+  "passed": true,
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "blend_sha256": "f8a6d7507e82f49723e65e09a1239ef4f19c3fcfdad51d6a46588aa7daa4e0ba",
+  "build_proof_sha256": "6d3ba39a3cba4f9e8fcb9668251801c81d2858dce046de2e13892e003bdbfaaa",
+  "reopen_proof_sha256": "d35103d2b98f57dcbc9cbafd942cc2ee9722b9ee92b8cd2a7cd9e8fc8ee16fce",
+  "native_mesh_count": 3,
+  "native_COLOR_attribute_count": 2,
+  "native_armature_count": 1,
+  "native_action_count": 2,
+  "source_inputs_unchanged": true,
+  "successful_original_build_preserved": true,
+  "wrapper_log_capture": "Raw bytes avoid Windows console-codepage decoding; no native data changes.",
+  "approved": false,
+  "gameIntegrated": false
+}

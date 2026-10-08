@@ -1,0 +1,65 @@
+{
+  "schema": "crwt.alexia_side_garment_actual_coverage_review.v1",
+  "passed": true,
+  "diagnostic_only": true,
+  "diagnostic_overlay_only": true,
+  "never_select_overlay": true,
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "overlay_sha256": "f1fc76643e77d1c7ec5440a60ab0051963ceda921fc05278ddb850d7b25b4b29",
+  "mask_npz_sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511",
+  "mask_proof_sha256": "e8b0dbd85ed71516105c70af276ef1b477cad2b79b394b023281904bf824661a",
+  "actual_render_proof_sha256": "6d5b082ac0e88bd3c80aeda64d883cc42392037fc09dc17781cf4ac365ca2918",
+  "renderer_sha256": "1a7c09cb0f4c4fcfc57b749b9fdd25d4319d634eca4031242555fd5a34b629df",
+  "actual_pngs": {
+    "left": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\garment-diagnostic\\actual-frames\\left.png",
+      "sha256": "4308ea614774a476aea301cdf5cb180bb3ec0554603491fe18bd4f6b017de00d",
+      "bytes": 184897,
+      "resolution": [
+        384,
+        384
+      ]
+    },
+    "right": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\garment-diagnostic\\actual-frames\\right.png",
+      "sha256": "0f375c98fdfc52de642c20984e2b98c2678ff633dd3ac85df62e3afce593cbc5",
+      "bytes": 188697,
+      "resolution": [
+        384,
+        384
+      ]
+    }
+  },
+  "allowed_color_vertices": 5174,
+  "old_jacket_overlap_vertices": 3381,
+  "new_extension_vertices": 1793,
+  "visual_coverage_suitable_for_bounded_color_trial": true,
+  "human_actual_view_findings": [
+    "Cyan covers coherent lateral upper jacket/shoulder panels, including much of the large white upper sleeve/side-body patch in both actual profiles.",
+    "The central face/profile skin, circular cups, lavender hair, hands and the main visible white cuff stripe remain clear of cyan in these views.",
+    "Lower sleeve/hem/footwear smears remain outside this conservative upper pass; this diagnostic will not justify a claim that the entire outfit is fixed.",
+    "Ninety-four selected vertices have warm skin-like source RGB. Actual placement appears in the upper garment strip; RGB alone cannot certify their semantics. Check the real charcoal/gold trial at the cuff/side-shirt boundary before selection."
+  ],
+  "protected_frozen_mask_overlap": {
+    "hair": 0,
+    "cup": 0,
+    "cuff": 0,
+    "protected_critical": 0,
+    "mandatory_face": 0,
+    "hands": 0
+  },
+  "exact_hair_POSITION_cohort_closure_overlap": 0,
+  "all_source_geometry_normals_materials_rig_weights_clips_exact": true,
+  "source_alpha_and_outside_mask_colors_exact": true,
+  "all_frozen_input_bytes_and_mtime_unchanged": true,
+  "candidate_selected": false,
+  "visual_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "color_trial_guidance": "Use coherent charcoal with restrained garment-only gold trim. Preserve genuine white cuff/shirt, and inspect actual front/quarter plus both profiles before accepting the repainted model.",
+  "limits": [
+    "Coverage acceptance is only permission to attempt a color candidate; it is not acceptance of the saturated analysis overlay.",
+    "Old protected/cuff index sets are byte-exact, while new extension semantics still require the actual color trial boundary review."
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "schema": "crwt.alexia.side_quality_negative_gate.v1",
+  "passed": true,
+  "synthetic_fixture_mutations": true,
+  "actual_glb_fixture_verification": true,
+  "gate_helper_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\verify_side_quality.py",
+  "gate_helper_sha256": "19ca8235fc72cc64c3b032c9d0a30491fbb7d49a85f57fdd670555e4a8d05af9",
+  "check_script_sha256": "ef128a37e5a5e2de4a4d2c530f6a9c5daa1beb878b4d64b8a9344f66ac48a74a",
+  "positive_exact_selected_candidate_passed": true,
+  "positive_candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "four_distinct_targeted_rejections": true,
+  "all_frozen_inputs_sha_bytes_mtime_unchanged": true,
+  "frozen_inputs": {
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\verify_side_quality.py": {
+      "sha256": "19ca8235fc72cc64c3b032c9d0a30491fbb7d49a85f57fdd670555e4a8d05af9",
+      "bytes": 11960,
+      "mtime_ns": 1791428743939424700
+    },
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\viewer\\models\\alexia.glb": {
+      "sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+      "bytes": 45516820,
+      "mtime_ns": 1791259057091738300
+    },
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\integrated-garment-trial\\alexia.glb": {
+      "sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+      "bytes": 55286388,
+      "mtime_ns": 1791428482433145500
+    },
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\outputs\\model-review-2026-10-06-texture-motion\\evidence\\selected-alexia\\semantic-masks.npz": {
+      "sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+      "bytes": 4632849,
+      "mtime_ns": 1791259056893436900
+    },
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\independent\\garment-diagnostic\\garment-mask-diagnostic.npz": {
+      "sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511",
+      "bytes": 332583,
+      "mtime_ns": 1791427040882618400
+    },
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\build_layered_side_hair_integrated.py": {
+      "sha256": "8bf9e9038a8c14f6f7345654519e088bcba77bfbdf2f00e4c464ec3fe13ae227",
+      "bytes": 19146,
+      "mtime_ns": 1791428075214754600
+    },
+    "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\polish_side_garment.py": {
+      "sha256": "5347a6a93f2b6f17ffa57b4d6df523e6504b177ac79938128ab09c322fa1bdba",
+      "bytes": 6166,
+      "mtime_ns": 1791428024869217000
+    }
+  },
+  "results": [
+    {
+      "name": "new_hair_weight_assigned_to_neck",
+      "fixture_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\negative-gate-fixtures\\new_hair_weight_assigned_to_neck.glb",
+      "fixture_sha256": "5fdbfe58f806454ce499c1f903caf10dc38921e656cb3578d3fdde842279fb48",
+      "fixture_bytes": 55286388,
+      "actual_mutated_glb": true,
+      "rejected": true,
+      "rejection_message": "All added hair must use actual Head skin exclusively",
+      "mutation": {
+        "accessor": 92,
+        "new_vertex": 0,
+        "original_joint_row": [
+          5,
+          0,
+          0,
+          0
+        ],
+        "mutated_joint_row": [
+          4,
+          0,
+          0,
+          0
+        ],
+        "unchanged_weight_row": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "assigned_joint_name": "AlexiaPrototype_Neck",
+        "expected_rejection": "All added hair must use actual Head skin exclusively"
+      },
+      "fixture_unchanged_during_check": true
+    },
+    {
+      "name": "protected_face_rgb_changed",
+      "fixture_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\negative-gate-fixtures\\protected_face_rgb_changed.glb",
+      "fixture_sha256": "5ba255ee0b9572792df1f92a6d1a0e6ec17f795981e622735ba0b438e3644144",
+      "fixture_bytes": 55286388,
+      "actual_mutated_glb": true,
+      "rejected": true,
+      "rejection_message": "Protected color/alpha changed",
+      "mutation": {
+        "accessor": 95,
+        "mandatory_face_vertex": 14048,
+        "channel": "R",
+        "original_value": 0.3114334046840668,
+        "mutated_value": 0.20000000298023224,
+        "alpha_unchanged": true,
+        "expected_rejection": "Protected color/alpha changed"
+      },
+      "fixture_unchanged_during_check": true
+    },
+    {
+      "name": "new_triangle_winding_reversed",
+      "fixture_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\negative-gate-fixtures\\new_triangle_winding_reversed.glb",
+      "fixture_sha256": "a5a7128083de289c5142762e355cf650c6f5096bf3b7999ed590735b5d8fff84",
+      "fixture_bytes": 55286388,
+      "actual_mutated_glb": true,
+      "rejected": true,
+      "rejection_message": "New face disagrees with smooth outward normals",
+      "mutation": {
+        "accessor": 94,
+        "new_triangle": 0,
+        "original_indices": [
+          0,
+          24,
+          1
+        ],
+        "mutated_indices": [
+          0,
+          1,
+          24
+        ],
+        "triangle_area_and_index_bounds_preserved": true,
+        "expected_rejection": "New face disagrees with smooth outward normals"
+      },
+      "fixture_unchanged_during_check": true
+    },
+    {
+      "name": "original_animation_interpolation_changed",
+      "fixture_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-side-quality-2026-10-08\\geometry\\negative-gate-fixtures\\original_animation_interpolation_changed.glb",
+      "fixture_sha256": "4ede1c86eac7a94f360dc648c49561fa56477d63931635d97f226d77fc190334",
+      "fixture_bytes": 55286388,
+      "actual_mutated_glb": true,
+      "rejected": true,
+      "rejection_message": "Original metadata changed: animations",
+      "mutation": {
+        "animation": "IdleBreath",
+        "sampler": 0,
+        "original_interpolation": "LINEAR",
+        "mutated_interpolation": "STEP",
+        "original_animation_BIN_unchanged": true,
+        "expected_rejection": "Original metadata changed: animations"
+      },
+      "fixture_unchanged_during_check": true
+    }
+  ],
+  "scope": "Mechanical source-gate rejection tests only; no rendering, source helper edit, selection change or publication action."
+}

@@ -1,0 +1,20 @@
+ALEXIA — KUALITAS SISI, 08 OKTOBER 2026
+
+PINDAH KE KOMPUTER LAIN
+1. Salin CRWT-Alexia-side-quality-checkpoint-2026-10-08.zip ke komputer tujuan.
+2. Ekstrak seluruh ZIP ke folder baru yang kosong. Pertahankan semua subfolder.
+3. Klik dua kali BUKA-REVIEW-MODEL.html dari folder hasil ekstraksi.
+
+Halaman membuka review 10 karakter. Alexia memiliki 5 render aktual, IdleBreath dan Walk; gunakan Stop/Reset untuk kembali ke pose netral. Pip mempertahankan 6 klip. Sembilan model lain, seluruh referensi dan 45 PNG lama tetap persis.
+
+EDIT DI BLENDER
+Buka editable/Alexia-side-quality-review.blend. File menyimpan model, rig dan aksi IdleBreath/Walk. Rig serta gerak masih prototipe manual untuk review, belum rig atau gait produksi.
+
+PERIKSA FILE
+Dari folder hasil ekstraksi, jalankan: python verify_local_checkpoint.py .
+Pemeriksaan CRC/SHA/inventori memakai Python standar. Pengulangan pemeriksaan sumber dengan tools/verify_side_quality_source.py memerlukan Python dan NumPy; argumen lengkap ada di evidence/source-gate-replay.json.
+
+BANGUN ULANG MODEL
+Ikuti dua perintah pada evidence/selected-alexia/README-portable-rebuild.md. Resep memakai baseline, mask dan referensi yang sudah disertakan; hasil ditulis ke folder baru di luar folder review.
+
+Ini checkpoint lokal; tidak mengklaim publikasi Git atau CI baru. Lihat manifest dan evidence untuk lingkup perubahan serta batas kualitas yang masih tersisa.

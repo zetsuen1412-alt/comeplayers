@@ -1,0 +1,84 @@
+{
+  "schema": "crwt.alexia_side_quality_independent_numeric.v1",
+  "passed": true,
+  "source_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_bytes": 55286388,
+  "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "garment_mask_sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511",
+  "original_source_BIN_accessor_view_prefix_exact": true,
+  "original_position_normal_uv_indices_joint_weight_streams_exact": true,
+  "original_nodes_skins_clips_and_material_image_prefix_exact": true,
+  "mesh1_mesh2_exact": true,
+  "source_alpha_and_all_protected_colors_exact": true,
+  "allowed_hair_color_vertices": 52802,
+  "changed_hair_color_vertices": 52766,
+  "allowed_garment_color_vertices": 5174,
+  "changed_garment_color_vertices": 5174,
+  "new_vertices": 17436,
+  "new_triangles": 34848,
+  "new_components": [
+    {
+      "vertices": 2906,
+      "faces": 5808,
+      "edges": 8712,
+      "Euler": 2,
+      "positive_enclosed_volume": 0.00023811127777074604,
+      "minimum_triangle_area": 5.0658984814759135e-09
+    },
+    {
+      "vertices": 2906,
+      "faces": 5808,
+      "edges": 8712,
+      "Euler": 2,
+      "positive_enclosed_volume": 0.00026093756759454915,
+      "minimum_triangle_area": 5.763443330037097e-09
+    },
+    {
+      "vertices": 2906,
+      "faces": 5808,
+      "edges": 8712,
+      "Euler": 2,
+      "positive_enclosed_volume": 0.0002528172498709481,
+      "minimum_triangle_area": 5.588054600825489e-09
+    },
+    {
+      "vertices": 2906,
+      "faces": 5808,
+      "edges": 8712,
+      "Euler": 2,
+      "positive_enclosed_volume": 0.00023884441659865712,
+      "minimum_triangle_area": 5.0653193091192595e-09
+    },
+    {
+      "vertices": 2906,
+      "faces": 5808,
+      "edges": 8712,
+      "Euler": 2,
+      "positive_enclosed_volume": 0.00027064979423164825,
+      "minimum_triangle_area": 5.762877067189732e-09
+    },
+    {
+      "vertices": 2906,
+      "faces": 5808,
+      "edges": 8712,
+      "Euler": 2,
+      "positive_enclosed_volume": 0.0002752437374389612,
+      "minimum_triangle_area": 5.5881892407612504e-09
+    }
+  ],
+  "new_all_Head_slot": 5,
+  "new_all_actual_weight_one": true,
+  "maximum_unit_normal_error": 4.388314522874026e-08,
+  "face_vs_mean_normal_disagreements": 0,
+  "new_degenerate_faces": 0,
+  "all_input_bytes_and_mtime_unchanged": true,
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Surface incidence, winding, normal agreement and positive volume do not certify absence of self/intersections or source/core collisions.",
+    "The six new volumes intentionally intersect inherited core hair for visual integration; actual front/profile/back and motion review remain required."
+  ]
+}

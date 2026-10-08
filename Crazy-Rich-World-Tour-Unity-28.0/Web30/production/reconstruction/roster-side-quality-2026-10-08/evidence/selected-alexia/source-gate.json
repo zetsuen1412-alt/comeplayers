@@ -1,0 +1,53 @@
+{
+  "schema": "crwt.alexia_side_quality_source_gate.v2_fitted_bridge",
+  "passed": true,
+  "baseline_sha256": "6502a072d375d6a63fe52a3974027f4d9aa5263709579583775fd85a98a4deb9",
+  "candidate_sha256": "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca",
+  "candidate_bytes": 55286388,
+  "semantic_mask_sha256": "10618a926e013a8a8f9f8d932412f17170197bba2cecd3217c838bdc02ba3649",
+  "garment_mask_sha256": "b517b0f7b8437284206c1ee4f8bf0b4864b02add0ee835d398b54823ae7be511",
+  "changed_hair_color_vertices": 52766,
+  "changed_garment_color_vertices": 5174,
+  "original_POSITION_NORMAL_UV_indices_weights_exact": true,
+  "original_nodes_skins_bones_clips_materials_images_exact": true,
+  "protected_face_hands_cup_cuff_color_and_all_alpha_exact": true,
+  "original_BIN_accessor_view_prefix_exact": true,
+  "added_primitives": [
+    {
+      "kind": "layered_side_hair",
+      "material_name": "Alexia integrated shallow lavender crescents",
+      "vertices": 17436,
+      "faces": 34848,
+      "all_vertices_Head_rigid": true,
+      "rest_inverse_bind_max_error": 2.384185793236071e-09,
+      "bounds_world": [
+        [
+          -0.31662246584892273,
+          -0.0893607810139656,
+          -0.2303168922662735
+        ],
+        [
+          0.2984568774700165,
+          0.4216516613960266,
+          0.015453631058335304
+        ]
+      ]
+    }
+  ],
+  "added_vertices": 17436,
+  "added_faces": 34848,
+  "original_mesh_count": 3,
+  "existing_skin_count": 2,
+  "joint_count": 19,
+  "clips": [
+    "IdleBreath",
+    "Walk"
+  ],
+  "all_inputs_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "Additional tapered side hair is a manual approximation of the reference, with no physical hair simulation.",
+    "Protected original geometry and gait stay exact; existing lower garment/shoe texture and gait-contact limitations remain."
+  ]
+}
