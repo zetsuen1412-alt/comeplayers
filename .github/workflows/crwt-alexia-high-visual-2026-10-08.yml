@@ -125,13 +125,13 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12.14'
+          python-version: '3.12.10'
           architecture: x64
-      - name: Require the exact checkout and original byte-authoring runtime
+      - name: Require the exact checkout and available Windows runtime
         run: |
           if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Exact checkout is required' }
-          python -B -c "import os,sys; assert os.name == 'nt' and sys.version_info[:3] == (3,12,14)"
-          if ($LASTEXITCODE -ne 0) { throw 'Windows Python 3.12.14 is required' }
+          python -B -c "import os,sys; assert os.name == 'nt' and sys.version_info[:3] == (3,12,10)"
+          if ($LASTEXITCODE -ne 0) { throw 'Windows Python 3.12.10 is required' }
           python -m pip install --disable-pip-version-check numpy==2.3.5
           if ($LASTEXITCODE -ne 0) { throw 'Pinned NumPy install failed' }
           python -B -c "import numpy; assert numpy.__version__ == '2.3.5'"

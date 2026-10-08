@@ -34,8 +34,8 @@ The complete portable model chain contains exactly nine authored stages:
 From the extracted review root, use the delivered local-input instructions in
 `evidence/selected-alexia/README-high-rebuild.md`. The rebuild starts from the
 included baseline and checks every intermediate SHA and exact final bytes.
-Exact procedural byte authoring requires Windows x64, Python 3.12.14 and
-NumPy 2.3.5, matching the authoring runtime. The replay uses no cloud service
+The recorded local exact procedural byte authoring used Windows x64, Python
+3.12.14 and NumPy 2.3.5. This provenance remains unchanged. The replay uses no cloud service
 or new renders. Payload restoration and validation also run on Linux.
 
 Validated Git source prefix:
@@ -53,8 +53,11 @@ python -B tools/source_checkpoint/run_high_visual_source_checks.py --source . --
 The Linux job checks all ten GLBs, actual native build/reopen bindings, image
 magic, the selected HIGH gate and all 169 exact restored payload files. Its
 checked job summary states restoration only and zero replayed recipe steps.
-A separate Windows job runs the unchanged strict full-source checker: those
-checks plus all nine pinned recipe intermediates and the exact final model.
+A separate Windows job uses available Python 3.12.10 x64 with NumPy 2.3.5
+and runs the unchanged strict full-source checker: those checks plus all nine
+pinned recipe intermediates and the exact final model. Compatibility with the
+recorded local authoring runtime requires its actual nine-stage SHA checks to
+pass; runtime equivalence is not assumed.
 Both jobs disable checkout newline conversion and require the exact checkout.
 Checked JSON goes to each job summary; no artifact upload or Expo token is
 required. A passing HIGH job does not imply repository-wide CI
@@ -98,9 +101,19 @@ local validation; a new actual exact-head Linux CI run remains required.
 The subsequent Linux run at head 533b passed all 169 restored byte pins,
 model/native/source validation and the first hair recipe, then failed the
 headband intermediate SHA check. This failure is retained; no intermediate
-or final model pin is relaxed. Exact procedural byte replay is now explicitly
-bound to the original Windows x64 / Python 3.12.14 / NumPy 2.3.5 authoring
-environment. The existing local Windows nine-stage check remains the
+or final model pin is relaxed. Exact procedural byte replay retains every SHA pin. The original
+Windows x64 / Python 3.12.14 / NumPy 2.3.5 authoring environment remains
+recorded separately from the available Windows CI runtime. The existing local Windows nine-stage check remains the
 recorded actual result. This workflow correction does not rerun or alter
 the local model. New actual exact-head Linux restoration and Windows full
 replay jobs are both required; their current CI success is not claimed.
+
+At head 1da40dc, the Windows job stopped during setup-python because Python
+3.12.14 x64 was unavailable for Windows 2022. No model replay ran in that
+job. The official actions/python-versions manifest lists Python 3.12.10
+Windows x64, so only Windows provisioning and its exact version assertion
+now use 3.12.10. Linux restoration remains on 3.12.14. NumPy 2.3.5 and all
+nine intermediate/final model SHA checks remain unchanged. A successful
+actual new Windows replay must establish compatibility; it is not claimed
+by this preparation note. No extra local nine-stage replay was performed.
+Runtime availability source: https://github.com/actions/python-versions/blob/main/versions-manifest.json
