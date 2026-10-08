@@ -26,11 +26,24 @@ jobs:
           python3 -B "$ROSTER/tools/restore_side_quality.py"
           --out-dir crwt-side-quality-review --receipt crwt-side-quality-source-restore.json
           --verify-models --verify-source-gate
-      - uses: actions/upload-artifact@v4
-        with:
-          name: CRWT-Alexia-Side-Quality-2026-10-08-${{ github.sha }}
-          path: |
-            crwt-side-quality-source-restore.json
-            crwt-side-quality-review-source-gate.json
-          retention-days: 7
-          if-no-files-found: error
+      - name: Write verified actual JSON proofs to job summary
+        run: |
+          python3 -B - <<'PY'
+          import json, os
+          from pathlib import Path
+          candidate = "e18cc26d9662d5ec615fa636150b5f4eddaab9c8ca4c2b3b1ea702bf1d50efca"
+          paths = [Path("crwt-side-quality-source-restore.json"), Path("crwt-side-quality-review-source-gate.json")]
+          verified = []
+          for path in paths:
+              raw = path.read_text(encoding="utf-8")
+              proof = json.loads(raw)
+              if proof.get("passed") is not True:
+                  raise SystemExit(f"Actual proof did not pass: {path}")
+              if proof.get("candidate_sha256") != candidate:
+                  raise SystemExit(f"Actual proof selected candidate differs: {path}")
+              verified.append((path.name, raw))
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as summary:
+              summary.write("## Verified Alexia side-quality source proofs\n\n")
+              for name, raw in verified:
+                  summary.write(f"### {name}\n\n```json\n{raw.rstrip()}\n```\n\n")
+          PY
