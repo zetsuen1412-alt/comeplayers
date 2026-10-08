@@ -1376,7 +1376,22 @@
     "html_path": "BUKA-REVIEW-MODEL.html",
     "receipt_path": "BUKA-REVIEW-MODEL.viewer-receipt.json",
     "builder_path": "viewer/build_offline_gallery.py",
-    "manifest_path": "review-manifest.json"
+    "manifest_path": "review-manifest.json",
+    "receipt_line_ending_policy": {
+      "schema": "crwt.high_gallery_receipt_serialization.v1",
+      "canonical_line_ending": "CRLF",
+      "accepted_generated_line_endings": [
+        "LF",
+        "CRLF"
+      ],
+      "json_serialization": "json.dumps(document, ensure_ascii=False, indent=2) + LF",
+      "canonical_pin": {
+        "bytes": 9670,
+        "sha256": "8660befa11a2328a9910530f82d506cb8aabc85f09f9d5a98d56600df9903b71",
+        "git_blob_sha1": "2fa304dca468788d5a3063d6c1d9d68c00d22b25"
+      },
+      "canonical_document_sha256": "760392a2a071047e7d100a9046fbb95dc8de08924bbfc3db95c37a9dd7afb8a7"
+    }
   },
   "high_gate": {
     "tool_path": "tools/verify_high_visual.py",

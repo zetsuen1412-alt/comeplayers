@@ -2,18 +2,27 @@
   "schema": "crwt.high_visual_actual_source_checks.v1",
   "passed": true,
   "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
-  "source_inventory_sha256": "064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3",
+  "source_inventory_sha256": "25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798",
   "actual_recipe_step_count": 9,
   "restore": {
     "schema": "crwt.alexia_high_visual_source_restore.v1",
     "passed": true,
     "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
-    "source_inventory_sha256": "064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3",
+    "source_inventory_sha256": "25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798",
     "baseline_inventory_sha256": "cf73d4b043a7a7beb6da2ceef6c41c6cd9c92481604b8c47a13d5c3a667b3b02",
     "source_files_checked": 94,
     "payload_files_restored": 169,
     "all_payload_bytes_git_blob_pins_exact": true,
     "gallery_HTML_and_receipt_regenerated_byte_exact": true,
+    "gallery_receipt_serialization": {
+      "canonical_line_ending": "CRLF",
+      "generated_line_ending": "CRLF",
+      "line_ending_normalization_applied": false,
+      "JSON_document_unchanged": true,
+      "canonical_sha256": "8660befa11a2328a9910530f82d506cb8aabc85f09f9d5a98d56600df9903b71",
+      "canonical_git_blob_sha1": "2fa304dca468788d5a3063d6c1d9d68c00d22b25",
+      "canonical_bytes": 9670
+    },
     "checks": [
       {
         "check": "actual delivered offline gallery regeneration",
@@ -262,7 +271,7 @@
     "schema": "crwt.alexia_high_visual_actual_rebuild.v2_variable_steps",
     "passed": true,
     "candidate_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
-    "source_inventory_sha256": "064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3",
+    "source_inventory_sha256": "25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798",
     "baseline_inventory_sha256": "cf73d4b043a7a7beb6da2ceef6c41c6cd9c92481604b8c47a13d5c3a667b3b02",
     "actual_step_count": 9,
     "steps": [
@@ -322,7 +331,7 @@
       }
     ],
     "final_model_byte_identical": true,
-    "final_model_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-high-visual-2026-10-08\\publication\\exported-final-source-check\\rebuilt\\clean-anatomy\\alexia.glb",
+    "final_model_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-high-visual-2026-10-08\\publication\\receipt-fixed-source-check\\rebuilt\\clean-anatomy\\alexia.glb",
     "original_payload_source_SHA_mtime_unchanged": true,
     "renders_browser_native_not_regenerated": true,
     "approved": false,

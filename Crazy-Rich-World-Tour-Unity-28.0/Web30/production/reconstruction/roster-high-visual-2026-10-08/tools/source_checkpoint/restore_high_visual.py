@@ -13,6 +13,21 @@ if os.name=='nt':
  sys.path.insert(0,_module_dir)
 from portable_high_common import *
 
+def normalize_gallery_receipt(path,expected,policy):
+ need(isinstance(policy,dict)and policy.get('schema')=='crwt.high_gallery_receipt_serialization.v1','Explicit gallery receipt serialization policy required')
+ need(policy.get('canonical_line_ending')=='CRLF'and policy.get('accepted_generated_line_endings')==['LF','CRLF']and policy.get('json_serialization')=="json.dumps(document, ensure_ascii=False, indent=2) + LF",'Only declared LF/CRLF JSON serialization is supported')
+ need(policy.get('canonical_pin')==expected,'Receipt policy/payload byte pins differ')
+ original=path.read_bytes();document=__import__('json').loads(original.decode('utf-8'),parse_constant=lambda value:(_ for _ in()).throw(ValueError('Nonfinite receipt JSON')))
+ semantic=__import__('json').dumps(document,ensure_ascii=False,sort_keys=True,separators=(',',':'),allow_nan=False).encode('utf-8')
+ need(hashes(semantic)['sha256']==policy.get('canonical_document_sha256'),'Generated receipt JSON document differs')
+ lf=(__import__('json').dumps(document,ensure_ascii=False,indent=2,allow_nan=False)+'\n').encode('utf-8');crlf=lf.replace(b'\n',b'\r\n')
+ need(original in (lf,crlf),'Generated receipt has unexpected whitespace/mixed endings/BOM')
+ need(hashes(crlf)==expected,'Canonical generated receipt SHA/Gitblob/bytes differ')
+ changed=original!=crlf
+ if changed:path.write_bytes(crlf)
+ need(hashes(path.read_bytes())==expected,'Canonical receipt write is not exact')
+ return {'canonical_line_ending':'CRLF','generated_line_ending':'LF'if changed else 'CRLF','line_ending_normalization_applied':changed,'JSON_document_unchanged':True,'canonical_sha256':expected['sha256'],'canonical_git_blob_sha1':expected['git_blob_sha1'],'canonical_bytes':expected['bytes']}
+
 def restore(source,output,baseline=None,receipt=None,verify_models=False,verify_high_gate=False):
  source=source.resolve(strict=True);layout=json_read(source/'source-layout.json');payload=json_read(source/'review-payload.json')
  need(layout['schema']==LAYOUT_SCHEMA and payload['schema']==PAYLOAD_SCHEMA,'HIGH layout/payload schema differs')
@@ -42,6 +57,7 @@ def restore(source,output,baseline=None,receipt=None,verify_models=False,verify_
   gallery=layout['gallery'];need({r['path']for r in generated}=={gallery['html_path'],gallery['receipt_path']},'Exactly gallery HTML and receipt must be generated')
   before=scan(output)
   checks.append(command([sys.executable,'-B',output/gallery['builder_path'],'--manifest',output/gallery['manifest_path'],'--output',output/gallery['html_path'],'--expected-output-sha256',expected[gallery['html_path']]['sha256']],'actual delivered offline gallery regeneration'))
+  receipt_serialization=normalize_gallery_receipt(output/gallery['receipt_path'],expected[gallery['receipt_path']],gallery['receipt_line_ending_policy'])
   actual=scan(output);need(actual==expected,'Complete restored payload SHA/Gitblob inventory differs')
   need(all(actual[k]==v for k,v in before.items()),'Gallery rebuild changed an input')
   if verify_models:
@@ -53,7 +69,7 @@ def restore(source,output,baseline=None,receipt=None,verify_models=False,verify_
    g=json_read(gateout);need(g['passed'] is True and g['candidate_sha256']==layout['candidate_sha256'],'HIGH gate selected SHA differs')
   need(scan(output)==expected and scan(old)==oldpins,'Read-only validators changed review/baseline files')
  need(source_pins(source)==(pins,ipin),'HIGH source changed during restore')
- result={'schema':'crwt.alexia_high_visual_source_restore.v1','passed':True,'candidate_sha256':layout['candidate_sha256'],'source_inventory_sha256':ipin['sha256'],'baseline_inventory_sha256':layout['baseline_inventory_sha256'],'source_files_checked':len(pins),'payload_files_restored':len(expected),'all_payload_bytes_git_blob_pins_exact':True,'gallery_HTML_and_receipt_regenerated_byte_exact':True,'checks':checks,'source_unchanged':True,'new_Blender_or_browser_execution':False,'approved':False,'gameIntegrated':False}
+ result={'schema':'crwt.alexia_high_visual_source_restore.v1','passed':True,'candidate_sha256':layout['candidate_sha256'],'source_inventory_sha256':ipin['sha256'],'baseline_inventory_sha256':layout['baseline_inventory_sha256'],'source_files_checked':len(pins),'payload_files_restored':len(expected),'all_payload_bytes_git_blob_pins_exact':True,'gallery_HTML_and_receipt_regenerated_byte_exact':True,'gallery_receipt_serialization':receipt_serialization,'checks':checks,'source_unchanged':True,'new_Blender_or_browser_execution':False,'approved':False,'gameIntegrated':False}
  if receipt:write_json(receipt,result)
  return result
 if __name__=='__main__':

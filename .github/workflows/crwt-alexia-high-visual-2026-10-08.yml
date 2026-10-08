@@ -15,7 +15,7 @@ env:
   ROSTER: Crazy-Rich-World-Tour-Unity-28.0/Web30/production/reconstruction/roster-high-visual-2026-10-08
   SELECTED_ALEXIA_SHA256: e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52
   SELECTED_RECIPE_STEPS: "9"
-  SELECTED_SOURCE_INVENTORY_SHA256: 064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3
+  SELECTED_SOURCE_INVENTORY_SHA256: 25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798
 jobs:
   verify-high-visual-source:
     runs-on: ubuntu-24.04

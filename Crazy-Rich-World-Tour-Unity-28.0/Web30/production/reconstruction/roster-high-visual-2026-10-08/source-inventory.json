@@ -528,9 +528,9 @@
     },
     {
       "path": "source-layout.json",
-      "bytes": 58704,
-      "sha256": "37c62ebac48dbf383fe17930bea77a50ba6482b6caadcc968e374611825dffe1",
-      "git_blob_sha1": "5db50ce95e01e37b2f276fb38a868271b87a6300",
+      "bytes": 57940,
+      "sha256": "638b4ff74a1acd81d34dbfa613a654cfc52595d1210c7ec37e5d8d5582e54b4b",
+      "git_blob_sha1": "f14b219fb99871f8b5ae103eb6af455367ced287",
       "mode": "100644"
     },
     {
@@ -598,9 +598,9 @@
     },
     {
       "path": "tools/source_checkpoint/restore_high_visual.py",
-      "bytes": 6201,
-      "sha256": "a100ecacf408c94b4207a1772a3c24ca83a9196ec88061a5667b7daba0eab2bd",
-      "git_blob_sha1": "e2d4cc0c686609dbd07113111f156448fd449f4d",
+      "bytes": 8087,
+      "sha256": "bc6c641efa7d80df042b48767cd8e909ef0f502f7bea52e54ef41a15bb98d158",
+      "git_blob_sha1": "22d61baba58da8da516030c6f64b5dd41e850b82",
       "mode": "100644"
     },
     {

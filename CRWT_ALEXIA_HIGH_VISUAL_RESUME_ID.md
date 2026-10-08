@@ -59,10 +59,10 @@ The model remains a manual animated review prototype. Hand forms overlap;
 production finger articulation, foot IK, cloth/skin collision and game
 integration are not certified.
 
-Final source inventory SHA256: `064216253f436a58dbd911e7473b0d303e3cf12c49964c67b98ccb5a9e40d0b3`.
+Final source inventory SHA256: `25c05d65bc7cb7e986f8dbd1191570a340c7f4a78679c3e9f3cc0a12e02b1798`.
 
 Actual source validation receipt: `CRWT_ALEXIA_HIGH_VISUAL_LOCAL_VALIDATION.json`,
-SHA256 `d61cd9f75225ad1ffcaaad3c2c63abcde3cca7ee80381bf489531aa5cd572713`. It verifies 169 exact restored payload files,
+SHA256 `e53fdadd1cf6aae0b33c19c6f68481b2edce680e0dd63a3b89f8a3e3318bad03`. It verifies 169 exact restored payload files,
 ten real GLBs, native build/read-only-reopen evidence, exact offline gallery
 and all nine model recipe outputs. No new Blender/browser execution occurred
 during this source check.
@@ -77,3 +77,14 @@ An initial local source-preparation attempt failed a sibling import in a very
 long Windows staging path. The final source helpers handle extended Windows
 module paths; the exported final source command passed the complete check.
 The failed staging tree is preserved outside this published source plan.
+
+The first published Linux HIGH run stopped at the regenerated gallery receipt:
+Linux LF differed from its frozen Windows CRLF serialization. The source
+restorer now declares and verifies that one receipt serialization policy.
+It accepts only the exact generated JSON document in LF or CRLF form, then
+requires the canonical CRLF bytes to match the frozen SHA256 and Git blob
+pin. HTML, every other restored payload file, the canonical gallery builder,
+all model recipes and the review ZIP remain unchanged. Both ending fixtures
+passed, invalid documents/formatting were rejected, and the exported repaired
+source passed all ten models and all nine rebuild steps locally. This is
+local validation; a new actual exact-head Linux CI run remains required.
