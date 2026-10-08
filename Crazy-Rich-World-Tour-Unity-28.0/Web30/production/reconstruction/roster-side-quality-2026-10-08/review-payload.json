@@ -13,8 +13,8 @@
     },
     {
       "path": "MULAI-DI-SINI.txt",
-      "bytes": 1410,
-      "sha256": "bcc19a6e92aaf3be9258ed2186e01dfde8307f29aab7f166037db5bafa0ba9cd"
+      "bytes": 1659,
+      "sha256": "d4553ee61e63127e83eb75fd0345d2f1d35480a4632fadc3e74612e6f821dbfc"
     },
     {
       "path": "alexia-editable-manifest.json",
@@ -32,52 +32,52 @@
       "sha256": "6d3ba39a3cba4f9e8fcb9668251801c81d2858dce046de2e13892e003bdbfaaa"
     },
     {
-      "path": "evidence/browser/alexia-front.png",
+      "path": "evidence/browser/alexia-front.jpg",
       "bytes": 88905,
       "sha256": "805dd2de0902884b45077d5ce73a44649d004671f308b903f65c28ea8d215be3"
     },
     {
-      "path": "evidence/browser/alexia-gray-right.png",
+      "path": "evidence/browser/alexia-gray-right.jpg",
       "bytes": 75724,
       "sha256": "dd54e5e9c6238060fd631a137d7c4746af0b48a85b808c48452c1f0e32ddc402"
     },
     {
-      "path": "evidence/browser/alexia-idle.png",
+      "path": "evidence/browser/alexia-idle.jpg",
       "bytes": 86528,
       "sha256": "5a5f7d26164bd0c4ee8fff95610f107bc22cf4f6d96befc05fb83f3a5165419a"
     },
     {
-      "path": "evidence/browser/alexia-latest-review.png",
+      "path": "evidence/browser/alexia-latest-review.jpg",
       "bytes": 86051,
       "sha256": "ec47d12e37631e579b5216ce7a7fe3237452153e42d37313d8fa0a348c3cc3fb"
     },
     {
-      "path": "evidence/browser/alexia-left.png",
+      "path": "evidence/browser/alexia-left.jpg",
       "bytes": 78849,
       "sha256": "d889e4274ee8aa547471ec8e08342569f132d9b89a35aed08ebe70831d9d1ea9"
     },
     {
-      "path": "evidence/browser/alexia-right.png",
+      "path": "evidence/browser/alexia-right.jpg",
       "bytes": 78078,
       "sha256": "db6a4b5797fee4953266e162f051f493a7876feea927020dc38ff93abadc6138"
     },
     {
-      "path": "evidence/browser/alexia-walk-a.png",
+      "path": "evidence/browser/alexia-walk-a.jpg",
       "bytes": 86612,
       "sha256": "80e8f24f9d5338f5846061311d5f5034fed2e4e622811c9dc9694f2025999550"
     },
     {
-      "path": "evidence/browser/alexia-walk-b.png",
+      "path": "evidence/browser/alexia-walk-b.jpg",
       "bytes": 86610,
       "sha256": "0446daada919c5fa86ae9c77610ada28d3cf0950814e296a87ec1f7291610324"
     },
     {
       "path": "evidence/browser/browser-review-proof.json",
-      "bytes": 2676,
-      "sha256": "0984e131022f229463fd8e301efa35ca80de2e427b64007776e7fbb40db24062"
+      "bytes": 5140,
+      "sha256": "05e8c891fed1abacfd201fcdc1db0bce69eeb04870f03d7364ed64957821ed1a"
     },
     {
-      "path": "evidence/browser/pip-six-clips.png",
+      "path": "evidence/browser/pip-six-clips.jpg",
       "bytes": 82088,
       "sha256": "6c5bc0e9ac16991624cf5025c3f78db2cc94f51fd0846d8e8d5290232a518882"
     },

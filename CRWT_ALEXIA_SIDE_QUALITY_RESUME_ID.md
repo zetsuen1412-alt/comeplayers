@@ -5,3 +5,5 @@ The additive source checkpoint is `Crazy-Rich-World-Tour-Unity-28.0/Web30/produc
 Run the new source workflow for this commit to observe its actual result; this guide does not import an old CI success. Publication and CI receipts are separate. Continue from the restored selected model, not the rejected trials or old Oct5 ambient viewer.
 
 The six integrated side locks improve profile volume and the upper-jacket color is cleaner. Coarse core hair, headphone-band texture, lower garment/shoe/case and prototype gait limits remain; no game integration or production approval is claimed.
+
+Use the corrected v2 local delivery: its nine browser captures have `.jpg` names matching their unchanged JPEG bytes. Model/native/gallery/render PNG and recipe content is unchanged.

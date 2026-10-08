@@ -6,13 +6,6 @@
   "native_sha256": "f8a6d7507e82f49723e65e09a1239ef4f19c3fcfdad51d6a46588aa7daa4e0ba",
   "files": [
     {
-      "path": "alexia-editable-manifest.json",
-      "bytes": 229,
-      "sha256": "113fba2ed3d41b8c146576c11b042d8da230ae3f3b3c9cb6a37aa087ecd6b74a",
-      "encoding": "direct",
-      "source": "alexia-editable-manifest.json"
-    },
-    {
       "path": "BUKA-REVIEW-MODEL.html",
       "bytes": 71276352,
       "sha256": "a25ac6569a4d33a542c4853716d86f32e7f94b79380e133bb8114d80e4dbf5b1",
@@ -34,6 +27,20 @@
       "source": "BUKA-REVIEW-MODEL.viewer-receipt.json"
     },
     {
+      "path": "MULAI-DI-SINI.txt",
+      "bytes": 1659,
+      "sha256": "d4553ee61e63127e83eb75fd0345d2f1d35480a4632fadc3e74612e6f821dbfc",
+      "encoding": "direct",
+      "source": "MULAI-DI-SINI.txt"
+    },
+    {
+      "path": "alexia-editable-manifest.json",
+      "bytes": 229,
+      "sha256": "113fba2ed3d41b8c146576c11b042d8da230ae3f3b3c9cb6a37aa087ecd6b74a",
+      "encoding": "direct",
+      "source": "alexia-editable-manifest.json"
+    },
+    {
       "path": "editable/Alexia-side-quality-review.blend",
       "bytes": 23424371,
       "sha256": "f8a6d7507e82f49723e65e09a1239ef4f19c3fcfdad51d6a46588aa7daa4e0ba",
@@ -53,74 +60,74 @@
       "source": "editable/Alexia-side-quality-review.workspace-proof.json"
     },
     {
-      "path": "evidence/browser/alexia-front.png",
+      "path": "evidence/browser/alexia-front.jpg",
       "bytes": 88905,
       "sha256": "805dd2de0902884b45077d5ce73a44649d004671f308b903f65c28ea8d215be3",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-front.png"
+      "source": "evidence/browser/alexia-front.jpg"
     },
     {
-      "path": "evidence/browser/alexia-gray-right.png",
+      "path": "evidence/browser/alexia-gray-right.jpg",
       "bytes": 75724,
       "sha256": "dd54e5e9c6238060fd631a137d7c4746af0b48a85b808c48452c1f0e32ddc402",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-gray-right.png"
+      "source": "evidence/browser/alexia-gray-right.jpg"
     },
     {
-      "path": "evidence/browser/alexia-idle.png",
+      "path": "evidence/browser/alexia-idle.jpg",
       "bytes": 86528,
       "sha256": "5a5f7d26164bd0c4ee8fff95610f107bc22cf4f6d96befc05fb83f3a5165419a",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-idle.png"
+      "source": "evidence/browser/alexia-idle.jpg"
     },
     {
-      "path": "evidence/browser/alexia-latest-review.png",
+      "path": "evidence/browser/alexia-latest-review.jpg",
       "bytes": 86051,
       "sha256": "ec47d12e37631e579b5216ce7a7fe3237452153e42d37313d8fa0a348c3cc3fb",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-latest-review.png"
+      "source": "evidence/browser/alexia-latest-review.jpg"
     },
     {
-      "path": "evidence/browser/alexia-left.png",
+      "path": "evidence/browser/alexia-left.jpg",
       "bytes": 78849,
       "sha256": "d889e4274ee8aa547471ec8e08342569f132d9b89a35aed08ebe70831d9d1ea9",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-left.png"
+      "source": "evidence/browser/alexia-left.jpg"
     },
     {
-      "path": "evidence/browser/alexia-right.png",
+      "path": "evidence/browser/alexia-right.jpg",
       "bytes": 78078,
       "sha256": "db6a4b5797fee4953266e162f051f493a7876feea927020dc38ff93abadc6138",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-right.png"
+      "source": "evidence/browser/alexia-right.jpg"
     },
     {
-      "path": "evidence/browser/alexia-walk-a.png",
+      "path": "evidence/browser/alexia-walk-a.jpg",
       "bytes": 86612,
       "sha256": "80e8f24f9d5338f5846061311d5f5034fed2e4e622811c9dc9694f2025999550",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-walk-a.png"
+      "source": "evidence/browser/alexia-walk-a.jpg"
     },
     {
-      "path": "evidence/browser/alexia-walk-b.png",
+      "path": "evidence/browser/alexia-walk-b.jpg",
       "bytes": 86610,
       "sha256": "0446daada919c5fa86ae9c77610ada28d3cf0950814e296a87ec1f7291610324",
       "encoding": "direct",
-      "source": "evidence/browser/alexia-walk-b.png"
+      "source": "evidence/browser/alexia-walk-b.jpg"
     },
     {
       "path": "evidence/browser/browser-review-proof.json",
-      "bytes": 2676,
-      "sha256": "0984e131022f229463fd8e301efa35ca80de2e427b64007776e7fbb40db24062",
+      "bytes": 5140,
+      "sha256": "05e8c891fed1abacfd201fcdc1db0bce69eeb04870f03d7364ed64957821ed1a",
       "encoding": "direct",
       "source": "evidence/browser/browser-review-proof.json"
     },
     {
-      "path": "evidence/browser/pip-six-clips.png",
+      "path": "evidence/browser/pip-six-clips.jpg",
       "bytes": 82088,
       "sha256": "6c5bc0e9ac16991624cf5025c3f78db2cc94f51fd0846d8e8d5290232a518882",
       "encoding": "direct",
-      "source": "evidence/browser/pip-six-clips.png"
+      "source": "evidence/browser/pip-six-clips.jpg"
     },
     {
       "path": "evidence/independent-candidate-audit.json",
@@ -149,6 +156,13 @@
       "sha256": "d7828724d148a935a4d7729180a6c710b35baa8e4c5faca25cea3a5d04fe5b14",
       "encoding": "direct",
       "source": "evidence/native-review.json"
+    },
+    {
+      "path": "evidence/selected-alexia/README-portable-rebuild.md",
+      "bytes": 2037,
+      "sha256": "78a2790ebe45fb3dc4958de0d4780cbe974d18d97846883778cc585b2531636a",
+      "encoding": "direct",
+      "source": "evidence/selected-alexia/README-portable-rebuild.md"
     },
     {
       "path": "evidence/selected-alexia/garment-coverage-visual-audit.json",
@@ -256,13 +270,6 @@
       "source": "evidence/selected-alexia/portable-combined-reproduction-proof.json"
     },
     {
-      "path": "evidence/selected-alexia/README-portable-rebuild.md",
-      "bytes": 2037,
-      "sha256": "78a2790ebe45fb3dc4958de0d4780cbe974d18d97846883778cc585b2531636a",
-      "encoding": "direct",
-      "source": "evidence/selected-alexia/README-portable-rebuild.md"
-    },
-    {
       "path": "evidence/selected-alexia/recipes/build_layered_side_hair_integrated.py",
       "bytes": 19146,
       "sha256": "8bf9e9038a8c14f6f7345654519e088bcba77bfbdf2f00e4c464ec3fe13ae227",
@@ -275,6 +282,13 @@
       "sha256": "5347a6a93f2b6f17ffa57b4d6df523e6504b177ac79938128ab09c322fa1bdba",
       "encoding": "direct",
       "source": "evidence/selected-alexia/recipes/polish_side_garment.py"
+    },
+    {
+      "path": "evidence/selected-alexia/source-gate.json",
+      "bytes": 1881,
+      "sha256": "0cd74190ff4ff2bd03bbc07eff4878275a10ef73f83f88eaa88d8d61e0d7d3c7",
+      "encoding": "direct",
+      "source": "evidence/selected-alexia/source-gate.json"
     },
     {
       "path": "evidence/selected-alexia/source/alexia-baseline.glb",
@@ -302,13 +316,6 @@
       "source": "evidence/selected-alexia/source/semantic-masks.npz"
     },
     {
-      "path": "evidence/selected-alexia/source-gate.json",
-      "bytes": 1881,
-      "sha256": "0cd74190ff4ff2bd03bbc07eff4878275a10ef73f83f88eaa88d8d61e0d7d3c7",
-      "encoding": "direct",
-      "source": "evidence/selected-alexia/source-gate.json"
-    },
-    {
       "path": "evidence/source-gate-replay.json",
       "bytes": 743,
       "sha256": "c131f130851b2cbe5653c39bdce5bca606df8adde1345d0d24580ea3b12009a4",
@@ -321,13 +328,6 @@
       "sha256": "0cd74190ff4ff2bd03bbc07eff4878275a10ef73f83f88eaa88d8d61e0d7d3c7",
       "encoding": "direct",
       "source": "evidence/source-gate.json"
-    },
-    {
-      "path": "MULAI-DI-SINI.txt",
-      "bytes": 1410,
-      "sha256": "bcc19a6e92aaf3be9258ed2186e01dfde8307f29aab7f166037db5bafa0ba9cd",
-      "encoding": "direct",
-      "source": "MULAI-DI-SINI.txt"
     },
     {
       "path": "references/alexia-blue-v2-turnaround.png",
@@ -979,6 +979,13 @@
       "source": "viewer/references/zeno.png"
     },
     {
+      "path": "viewer/vendor/three/LICENSE",
+      "bytes": 1081,
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "encoding": "direct",
+      "source": "viewer/vendor/three/LICENSE"
+    },
+    {
       "path": "viewer/vendor/three/build/three.core.js",
       "bytes": 1403455,
       "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20",
@@ -1012,15 +1019,9 @@
       "sha256": "fda7e946b8e0b5ab39b779206589e7a1079a22eb24efb89d7223e03fdfb1f751",
       "encoding": "direct",
       "source": "viewer/vendor/three/examples/jsm/utils/BufferGeometryUtils.js"
-    },
-    {
-      "path": "viewer/vendor/three/LICENSE",
-      "bytes": 1081,
-      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
-      "encoding": "direct",
-      "source": "viewer/vendor/three/LICENSE"
     }
   ],
   "approved": false,
-  "gameIntegrated": false
+  "gameIntegrated": false,
+  "media_paths_corrected_without_transcoding": true
 }

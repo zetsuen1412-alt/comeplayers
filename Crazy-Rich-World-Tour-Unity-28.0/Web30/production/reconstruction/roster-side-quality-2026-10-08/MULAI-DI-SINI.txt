@@ -1,7 +1,7 @@
 ALEXIA — KUALITAS SISI, 08 OKTOBER 2026
 
 PINDAH KE KOMPUTER LAIN
-1. Salin CRWT-Alexia-side-quality-checkpoint-2026-10-08.zip ke komputer tujuan.
+1. Salin CRWT-Alexia-side-quality-checkpoint-2026-10-08-v2.zip ke komputer tujuan.
 2. Ekstrak seluruh ZIP ke folder baru yang kosong. Pertahankan semua subfolder.
 3. Klik dua kali BUKA-REVIEW-MODEL.html dari folder hasil ekstraksi.
 
@@ -18,3 +18,6 @@ BANGUN ULANG MODEL
 Ikuti dua perintah pada evidence/selected-alexia/README-portable-rebuild.md. Resep memakai baseline, mask dan referensi yang sudah disertakan; hasil ditulis ke folder baru di luar folder review.
 
 Ini checkpoint lokal; tidak mengklaim publikasi Git atau CI baru. Lihat manifest dan evidence untuk lingkup perubahan serta batas kualitas yang masih tersisa.
+
+KOREKSI MEDIA V2
+Sembilan tangkapan browser memakai akhiran .jpg sesuai format JPEG sebenarnya. Hanya nama file dan rujukan buktinya yang diperbaiki; byte gambar, model, galeri, render PNG, rig dan animasi tetap sama. Versi asli tetap disimpan.

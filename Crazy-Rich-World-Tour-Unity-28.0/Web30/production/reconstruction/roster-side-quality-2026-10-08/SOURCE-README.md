@@ -43,3 +43,8 @@ Remaining limits include the inherited coarse core hair, mottled headphone
 band, lower garment/shoe/case artifacts and a manual in-place gait without foot
 IK or hair simulation. Approval, game integration and production readiness are
 not claimed.
+
+The v2 local delivery corrects nine browser JPEG filenames from `.png` to
+`.jpg`, without changing their image bytes. All model/native/gallery/render
+PNG/recipe bytes remain exact. The original delivery and its evidence remain
+preserved. This source snapshot uses the corrected browser paths and manifest.
