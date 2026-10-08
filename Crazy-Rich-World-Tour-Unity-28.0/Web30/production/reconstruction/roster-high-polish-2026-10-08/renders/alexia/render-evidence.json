@@ -1,0 +1,75 @@
+{
+  "source_default_scene_visibility": {
+    "default_scene_index": 0,
+    "active_source_mesh_objects": [
+      "geometry_0",
+      "Alexia original cup face precision details"
+    ],
+    "retained_inactive_mesh_objects": [
+      "Alexia added volumetric rear curl locks"
+    ],
+    "inactive_mesh_data_preserved": true,
+    "inactive_meshes_hidden_from_viewport_and_render": true
+  },
+  "input_glb": "C:\\Users\\Administrator\\Documents\\Codex\\2026-10-04\\lan\\work\\alexia-high-polish-2026-10-08\\selected-final\\alexia.glb",
+  "input_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "bytes": 99699944,
+  "render_source": "actual GLB mesh/materials imported by Blender; no reference-image billboard",
+  "blender_version": "5.2.2 LTS",
+  "engine": "CYCLES",
+  "cycles_samples": 32,
+  "mesh_objects": 2,
+  "vertices": 195286,
+  "polygons": 383130,
+  "bounds_blender_z_up": [
+    [
+      -0.34870654344558716,
+      -0.23399999737739563,
+      -0.44600003957748413
+    ],
+    [
+      0.32100000977516174,
+      0.26969417929649353,
+      0.48399996757507324
+    ]
+  ],
+  "pose": "static rest pose; animation disabled in render copy",
+  "views": [
+    [
+      "front",
+      0,
+      0
+    ],
+    [
+      "three-quarter",
+      -30,
+      10
+    ],
+    [
+      "left",
+      90,
+      0
+    ],
+    [
+      "right",
+      -90,
+      0
+    ],
+    [
+      "back",
+      180,
+      0
+    ]
+  ],
+  "production_approved": false,
+  "source_content_and_mtime_unchanged": true,
+  "orbit_frames": 0,
+  "view_transform": "Standard",
+  "solid_accessory_lights": {
+    "world_strength": 0.25,
+    "key_power_factor": 120,
+    "fill_power_factor": 56,
+    "rim_power_factor": 100
+  },
+  "material_limit": "Unlit projected colors retain baked reference lighting; solid accessories use studio PBR."
+}

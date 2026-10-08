@@ -1,0 +1,1720 @@
+{
+  "schema": "crwt.alexia_high_visual_actual_motion_CPU.v1",
+  "passed": true,
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "joint_count": 19,
+  "skin_count": 2,
+  "active_mesh_instances": 2,
+  "active_primitives": [
+    {
+      "mesh": 0,
+      "primitive": 0,
+      "vertices": 252943,
+      "referenced_vertices": 25775,
+      "triangles": 45335,
+      "rest_world_max_error": 2.5728223440601994e-08,
+      "weight_sum_max_error": 1.1920928955078125e-07
+    },
+    {
+      "mesh": 0,
+      "primitive": 1,
+      "vertices": 118674,
+      "referenced_vertices": 118674,
+      "triangles": 237280,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 2,
+      "vertices": 4634,
+      "referenced_vertices": 4634,
+      "triangles": 9264,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 3,
+      "vertices": 506,
+      "referenced_vertices": 506,
+      "triangles": 1008,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 4,
+      "vertices": 506,
+      "referenced_vertices": 506,
+      "triangles": 1008,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 5,
+      "vertices": 314,
+      "referenced_vertices": 314,
+      "triangles": 624,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 6,
+      "vertices": 1554,
+      "referenced_vertices": 1554,
+      "triangles": 3104,
+      "rest_world_max_error": 4.087177041256496e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 7,
+      "vertices": 290,
+      "referenced_vertices": 290,
+      "triangles": 576,
+      "rest_world_max_error": 4.958947683042503e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 8,
+      "vertices": 386,
+      "referenced_vertices": 386,
+      "triangles": 768,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 9,
+      "vertices": 418,
+      "referenced_vertices": 418,
+      "triangles": 832,
+      "rest_world_max_error": 5.704164363073971e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 10,
+      "vertices": 514,
+      "referenced_vertices": 514,
+      "triangles": 1024,
+      "rest_world_max_error": 1.0601232419693574e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 11,
+      "vertices": 162,
+      "referenced_vertices": 162,
+      "triangles": 320,
+      "rest_world_max_error": 4.3213368994265977e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 12,
+      "vertices": 50,
+      "referenced_vertices": 50,
+      "triangles": 96,
+      "rest_world_max_error": 4.3213368994265977e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 13,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 14,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 15,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 16,
+      "vertices": 22,
+      "referenced_vertices": 22,
+      "triangles": 40,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 17,
+      "vertices": 8,
+      "referenced_vertices": 8,
+      "triangles": 12,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 18,
+      "vertices": 52,
+      "referenced_vertices": 52,
+      "triangles": 100,
+      "rest_world_max_error": 4.423590063695748e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 19,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 4.997323388433728e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 20,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 4.344792275956522e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 21,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 4.455236179978783e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 22,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 3.598630449186402e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 23,
+      "vertices": 22,
+      "referenced_vertices": 22,
+      "triangles": 40,
+      "rest_world_max_error": 4.131346875713149e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 24,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 25,
+      "vertices": 562,
+      "referenced_vertices": 562,
+      "triangles": 1120,
+      "rest_world_max_error": 8.389239442019303e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 26,
+      "vertices": 482,
+      "referenced_vertices": 482,
+      "triangles": 960,
+      "rest_world_max_error": 6.145835174109493e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 27,
+      "vertices": 2162,
+      "referenced_vertices": 2162,
+      "triangles": 4320,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 28,
+      "vertices": 2162,
+      "referenced_vertices": 2162,
+      "triangles": 4320,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 29,
+      "vertices": 336,
+      "referenced_vertices": 336,
+      "triangles": 668,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 30,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 31,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 32,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 33,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 34,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 35,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 36,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 37,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 38,
+      "vertices": 10,
+      "referenced_vertices": 10,
+      "triangles": 16,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 39,
+      "vertices": 202,
+      "referenced_vertices": 202,
+      "triangles": 400,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 40,
+      "vertices": 1554,
+      "referenced_vertices": 1554,
+      "triangles": 3104,
+      "rest_world_max_error": 3.79077280676654e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 41,
+      "vertices": 290,
+      "referenced_vertices": 290,
+      "triangles": 576,
+      "rest_world_max_error": 4.958947683042503e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 42,
+      "vertices": 386,
+      "referenced_vertices": 386,
+      "triangles": 768,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 43,
+      "vertices": 418,
+      "referenced_vertices": 418,
+      "triangles": 832,
+      "rest_world_max_error": 5.704164363073971e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 44,
+      "vertices": 514,
+      "referenced_vertices": 514,
+      "triangles": 1024,
+      "rest_world_max_error": 1.2376051183871084e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 45,
+      "vertices": 162,
+      "referenced_vertices": 162,
+      "triangles": 320,
+      "rest_world_max_error": 7.033348070617507e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 46,
+      "vertices": 50,
+      "referenced_vertices": 50,
+      "triangles": 96,
+      "rest_world_max_error": 7.033348070617507e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 47,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 48,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 49,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 50,
+      "vertices": 22,
+      "referenced_vertices": 22,
+      "triangles": 40,
+      "rest_world_max_error": 4.768371586472142e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 51,
+      "vertices": 8,
+      "referenced_vertices": 8,
+      "triangles": 12,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 52,
+      "vertices": 52,
+      "referenced_vertices": 52,
+      "triangles": 100,
+      "rest_world_max_error": 4.423590063695748e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 53,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 4.997323388433728e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 54,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 4.344792275956522e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 55,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 4.455236179978783e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 56,
+      "vertices": 218,
+      "referenced_vertices": 218,
+      "triangles": 432,
+      "rest_world_max_error": 3.7029385668851944e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 57,
+      "vertices": 22,
+      "referenced_vertices": 22,
+      "triangles": 40,
+      "rest_world_max_error": 4.027038758014356e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 58,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 59,
+      "vertices": 562,
+      "referenced_vertices": 562,
+      "triangles": 1120,
+      "rest_world_max_error": 8.389239442019303e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 60,
+      "vertices": 482,
+      "referenced_vertices": 482,
+      "triangles": 960,
+      "rest_world_max_error": 6.5720083541886964e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 61,
+      "vertices": 2162,
+      "referenced_vertices": 2162,
+      "triangles": 4320,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 62,
+      "vertices": 2162,
+      "referenced_vertices": 2162,
+      "triangles": 4320,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 63,
+      "vertices": 336,
+      "referenced_vertices": 336,
+      "triangles": 668,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 64,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 65,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 66,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 67,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 68,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 69,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 70,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 71,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 72,
+      "vertices": 10,
+      "referenced_vertices": 10,
+      "triangles": 16,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 73,
+      "vertices": 202,
+      "referenced_vertices": 202,
+      "triangles": 400,
+      "rest_world_max_error": 1.2874603272372553e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 74,
+      "vertices": 256,
+      "referenced_vertices": 256,
+      "triangles": 512,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 75,
+      "vertices": 152,
+      "referenced_vertices": 152,
+      "triangles": 300,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 76,
+      "vertices": 98,
+      "referenced_vertices": 98,
+      "triangles": 192,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 77,
+      "vertices": 98,
+      "referenced_vertices": 98,
+      "triangles": 192,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 78,
+      "vertices": 98,
+      "referenced_vertices": 98,
+      "triangles": 192,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 79,
+      "vertices": 98,
+      "referenced_vertices": 98,
+      "triangles": 192,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 80,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 81,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 82,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 83,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 84,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 85,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 5.9604643443123e-10,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 86,
+      "vertices": 866,
+      "referenced_vertices": 866,
+      "triangles": 1728,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 87,
+      "vertices": 34,
+      "referenced_vertices": 34,
+      "triangles": 64,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 88,
+      "vertices": 34,
+      "referenced_vertices": 34,
+      "triangles": 64,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 89,
+      "vertices": 22,
+      "referenced_vertices": 22,
+      "triangles": 40,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 90,
+      "vertices": 182,
+      "referenced_vertices": 182,
+      "triangles": 360,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 91,
+      "vertices": 182,
+      "referenced_vertices": 182,
+      "triangles": 360,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 92,
+      "vertices": 182,
+      "referenced_vertices": 182,
+      "triangles": 360,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 93,
+      "vertices": 182,
+      "referenced_vertices": 182,
+      "triangles": 360,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 94,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 6.794929507947245e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 95,
+      "vertices": 2354,
+      "referenced_vertices": 2354,
+      "triangles": 4704,
+      "rest_world_max_error": 1.8931627793206118e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 96,
+      "vertices": 2354,
+      "referenced_vertices": 2354,
+      "triangles": 4704,
+      "rest_world_max_error": 1.8931627793206118e-08,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 97,
+      "vertices": 482,
+      "referenced_vertices": 482,
+      "triangles": 960,
+      "rest_world_max_error": 7.480410374460789e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 98,
+      "vertices": 482,
+      "referenced_vertices": 482,
+      "triangles": 960,
+      "rest_world_max_error": 3.278255444882916e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 99,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 3.278255444882916e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 100,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 3.278255444882916e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 101,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 3.278255444882916e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 102,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 3.278255444882916e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 103,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 3.278255444882916e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 104,
+      "vertices": 482,
+      "referenced_vertices": 482,
+      "triangles": 960,
+      "rest_world_max_error": 8.971853260320017e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 105,
+      "vertices": 482,
+      "referenced_vertices": 482,
+      "triangles": 960,
+      "rest_world_max_error": 9.536743172944284e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 106,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 9.536743172944284e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 107,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 9.536743172944284e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 108,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 9.536743172944284e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 109,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 9.536743172944284e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 110,
+      "vertices": 62,
+      "referenced_vertices": 62,
+      "triangles": 120,
+      "rest_world_max_error": 9.536743172944284e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 111,
+      "vertices": 1617,
+      "referenced_vertices": 1617,
+      "triangles": 2671,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 112,
+      "vertices": 2050,
+      "referenced_vertices": 2050,
+      "triangles": 4096,
+      "rest_world_max_error": 5.219767645892048e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 113,
+      "vertices": 36,
+      "referenced_vertices": 36,
+      "triangles": 12,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 114,
+      "vertices": 38,
+      "referenced_vertices": 38,
+      "triangles": 72,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 115,
+      "vertices": 36,
+      "referenced_vertices": 36,
+      "triangles": 12,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 116,
+      "vertices": 38,
+      "referenced_vertices": 38,
+      "triangles": 72,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 117,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 118,
+      "vertices": 66,
+      "referenced_vertices": 66,
+      "triangles": 128,
+      "rest_world_max_error": 3.5762786759763188e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 119,
+      "vertices": 266,
+      "referenced_vertices": 266,
+      "triangles": 528,
+      "rest_world_max_error": 5.574787270701265e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 120,
+      "vertices": 362,
+      "referenced_vertices": 362,
+      "triangles": 720,
+      "rest_world_max_error": 5.213223658318e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 121,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 5.252962870239131e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 122,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 5.2775193937204534e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 123,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 5.261751839791273e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 0,
+      "primitive": 124,
+      "vertices": 114,
+      "referenced_vertices": 114,
+      "triangles": 224,
+      "rest_world_max_error": 5.280924364470252e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 0,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 1,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 2,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 3,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 4,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 5,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 6,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    },
+    {
+      "mesh": 1,
+      "primitive": 7,
+      "vertices": 720,
+      "referenced_vertices": 720,
+      "triangles": 1440,
+      "rest_world_max_error": 2.384185793236071e-09,
+      "weight_sum_max_error": 0.0
+    }
+  ],
+  "clips": [
+    {
+      "name": "IdleBreath",
+      "duration": 3.5999999046325684,
+      "channels": 3
+    },
+    {
+      "name": "Walk",
+      "duration": 1.2000000476837158,
+      "channels": 12
+    }
+  ],
+  "actual_serialized_animation_CPU_samples": [
+    {
+      "clip": "IdleBreath",
+      "fraction": 0,
+      "time": 0.0,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 1.956056480145195e-08,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.125,
+      "time": 0.44999998807907104,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.005073084678786075,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.25,
+      "time": 0.8999999761581421,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.007177171424158345,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.375,
+      "time": 1.3499999642372131,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.005073084682627407,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.5,
+      "time": 1.7999999523162842,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 1.956056480145195e-08,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.625,
+      "time": 2.2499999403953552,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.005063621886115763,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.75,
+      "time": 2.6999999284744263,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.0071582404473205016,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 0.875,
+      "time": 3.1499999165534973,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.0050636229416800155,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "IdleBreath",
+      "fraction": 1,
+      "time": 3.5999999046325684,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 1.956056480145195e-08,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            1.2874603272372553e-08,
+            -2.086162567823261e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            1.2874603272372553e-08,
+            2.682209010451686e-09
+          ],
+          "min_world_Y": -0.444499986410141
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0,
+      "time": 0.0,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 3.359658488927358e-08,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            7.152557435219364e-10,
+            -1.4515136870230094e-09,
+            -2.3841857850388758e-09
+          ],
+          "min_world_Y": -0.44450000073625795
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.3974647539736225e-09,
+            -1.4515136870230094e-09,
+            2.384185793236071e-09
+          ],
+          "min_world_Y": -0.44450000073625795
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.125,
+      "time": 0.15000000596046448,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.043589588476998516,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            0.002475149007340305,
+            -0.002056294915610536,
+            0.011614926736886695
+          ],
+          "min_world_Y": -0.4480218629768012
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            0.002505453866918612,
+            -0.004863685744803646,
+            -0.03475115558807057
+          ],
+          "min_world_Y": -0.46207366797325533
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.25,
+      "time": 0.30000001192092896,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.06192832708695387,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            0.0034903139940763122,
+            -0.0033575254985365177,
+            0.01627794555353452
+          ],
+          "min_world_Y": -0.44993947802403755
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            0.003542551531969396,
+            -0.006629656674705422,
+            -0.04925465161129532
+          ],
+          "min_world_Y": -0.4689403214505435
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.375,
+      "time": 0.45000001788139343,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.04358958116768639,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            0.0024751488751323003,
+            -0.002056295045693258,
+            0.011614922895193159
+          ],
+          "min_world_Y": -0.44802186132849703
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            0.0025054537249061632,
+            -0.004863684962470082,
+            -0.03475114978792368
+          ],
+          "min_world_Y": -0.46207366512819964
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.5,
+      "time": 0.6000000238418579,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 3.447576190096995e-08,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            2.778427798120627e-10,
+            -2.4654001327675223e-09,
+            -8.458553994602579e-09
+          ],
+          "min_world_Y": -0.444500004037787
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -3.834877716992798e-09,
+            -1.683547650107868e-09,
+            4.466430958407014e-09
+          ],
+          "min_world_Y": -0.4445000012277361
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.625,
+      "time": 0.7500000298023224,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.043797797767518104,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -0.002509035249152246,
+            -0.005336299024426274,
+            -0.03476744041539964
+          ],
+          "min_world_Y": -0.46254628351353366
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -0.002474838041219118,
+            -0.0020702022407429344,
+            0.011605231059633021
+          ],
+          "min_world_Y": -0.4480357705144732
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.75,
+      "time": 0.9000000357627869,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.06222575361331478,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -0.0035497034862149906,
+            -0.007297407459312393,
+            -0.04928719236429013
+          ],
+          "min_world_Y": -0.4696080718836613
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -0.00348969656389155,
+            -0.003377858555981341,
+            0.016258579069293518
+          ],
+          "min_world_Y": -0.4499598110378186
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 0.875,
+      "time": 1.0500000417232513,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 0.04379777792231558,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -0.0025090341826361903,
+            -0.005336296184232838,
+            -0.03476742518690741
+          ],
+          "min_world_Y": -0.46254627492848605
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -0.0024748370006847844,
+            -0.002070200432721404,
+            0.01160522532968199
+          ],
+          "min_world_Y": -0.44803576726648225
+        }
+      }
+    },
+    {
+      "clip": "Walk",
+      "fraction": 1,
+      "time": 1.2000000476837158,
+      "all_active_primitives_finite": true,
+      "max_actual_drawn_vertex_world_displacement": 3.647635404848131e-08,
+      "actual_drawn_foot_groups": {
+        "L": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            1.590081669539202e-09,
+            -1.9108377406746e-09,
+            1.7803045367970102e-09
+          ],
+          "min_world_Y": -0.44450000171447035
+        },
+        "R": {
+          "referenced_drawn_vertices": 6088,
+          "mean_delta": [
+            -2.522638815621812e-09,
+            -3.3122564803348025e-09,
+            -9.764550675150053e-09
+          ],
+          "min_world_Y": -0.44450000717228594
+        }
+      }
+    }
+  ],
+  "real_alternating_actual_drawn_walk_foot_motion": true,
+  "both_clips_neutral_at_endpoints": true,
+  "input_content_mtime_unchanged": true,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "visual_motion_accepted": false,
+  "limits": [
+    "Manual inherited in-place walk has no foot IK/contact/collision guarantee.",
+    "CPU finite/rest/phase checks do not alone certify visual skin or clothing fit.",
+    "Inactive old rear-lock node is excluded from actual default-scene sampling."
+  ]
+}

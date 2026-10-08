@@ -1,0 +1,178 @@
+{
+  "schema": "crwt.alexia_high_polish_selected_delta.v1",
+  "selected": true,
+  "source_path": "evidence/selected-alexia/source/alexia-baseline-e88.glb",
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_path": "viewer/models/alexia.glb",
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "inputs": [
+    {
+      "path": "evidence/selected-alexia/source/alexia-baseline-e88.glb",
+      "sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52"
+    },
+    {
+      "path": "references/alexia-blue-v2-turnaround.png",
+      "sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933"
+    },
+    {
+      "path": "evidence/selected-alexia/hair-polish-proof.json",
+      "sha256": "ecf09bb42153b2b68dee010849cca6ee934e0156ba18a1c0851008410078235b"
+    },
+    {
+      "path": "evidence/selected-alexia/temple-material-proof.json",
+      "sha256": "52eb0ab56f9025d825746dc31919f10e01d5605157e569a7ba1f3fe0cbc8726c"
+    },
+    {
+      "path": "evidence/selected-alexia/temple-material-masks.npz",
+      "sha256": "4e82dd5bda947eabc754a7e4938d12f7d13aab7aabb72996ba6958ce9196189a"
+    },
+    {
+      "path": "evidence/selected-alexia/tailored-shirt-proof.json",
+      "sha256": "14961bb38a67d6f74eb42504c3fa279f30f24369200e79f836f0758aa9b4897b"
+    },
+    {
+      "path": "evidence/selected-alexia/tailored-shirt-masks.npz",
+      "sha256": "e8c175666daaad9fb253e8004431219e7f47fdeaf26b640d89885b9bf7a67710"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/build_polished_hair_final.py",
+      "sha256": "4f14e8cfe1d4f169f30464ed74abfaa489871e8e3cfab6878b18051d43899857"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/repair_temple_material_final.py",
+      "sha256": "02df168c8636e1e51668da78bd354a94355e4c38b48c8b61b405d0770201f167"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/build_tailored_shirt_final.py",
+      "sha256": "f7f0b60f47030c1e748eefcd830e306579a9812860575e459be9ea2b33baa825"
+    },
+    {
+      "path": "evidence/selected-alexia/recipes/rebuild_selected_delta.py",
+      "sha256": "8c3d226b0b283aa310dd9f9ca9c54049dd9e2319658fc13b8fee36784a3a0563"
+    },
+    {
+      "path": "tools/verify_selected_polish_source_final.py",
+      "sha256": "6a121d36f1522e0a72890956aff1ad885f89307c913991d38a136c6cf134488a"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe.py",
+      "sha256": "eaec41de0fa79fad88a5e0aef2d11e31bf1342fb0761280128a88cabd04b78ca"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_v2.py",
+      "sha256": "0a17eeef9c36290d13e76766dc95e0f47d2af7d470fc208fe5ff38c360d40c17"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_v3.py",
+      "sha256": "3584b07173a468afee34fa096e68c2cebc6fa0374341b4cd52e2b718ae9b0bef"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_v4.py",
+      "sha256": "f951ba5e8323707e5ae0d18e5c1a8881d55c854978ce28980b40cb88edaea198"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_recipe_final.py",
+      "sha256": "680ca35eaf46d94dc8e5250eb097398d8f9b44b14a0cf52cd1cfdbb4502df251"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/author_temple_final.py",
+      "sha256": "31184de86bb7c2e6092231e3fe9a25bce6d42395d8f327ce8a2eb301b27a0788"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair.py",
+      "sha256": "1f4a98408d7de2d37d4518d002700fbb57bca40fce5813c704398dfb3628c805"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair_v2.py",
+      "sha256": "45adb3d463d42128eb702b121a3de53e3b81bd387d29d7f5519ab4611af690e6"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair_v3.py",
+      "sha256": "67e37c5669c99fc67520c83b2c2fff7104b9622793b3d89aa7d94d99039664d6"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_polished_hair_v4.py",
+      "sha256": "e6e2e6673d32b9e6bcb0c44c28dcf825fc2317c30513e80fb3b825bdcd98a033"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/repair_temple_material.py",
+      "sha256": "f40f0fcb770448f858bb5b2d367567d808bc405c818793baa6033cd9bf3b5e38"
+    },
+    {
+      "path": "evidence/selected-alexia/authoring-provenance/build_clean_hair_final_waves.py",
+      "sha256": "b5287d8e22df208c8b7e0fa7a83d7ed33ce8bbc7cd4b03c8cd3bc5136f0ef02c"
+    }
+  ],
+  "shirt_mask": {
+    "path": "evidence/selected-alexia/tailored-shirt-masks.npz",
+    "sha256": "e8c175666daaad9fb253e8004431219e7f47fdeaf26b640d89885b9bf7a67710"
+  },
+  "temple_mask": {
+    "path": "evidence/selected-alexia/temple-material-masks.npz",
+    "sha256": "4e82dd5bda947eabc754a7e4938d12f7d13aab7aabb72996ba6958ce9196189a"
+  },
+  "runtime_helpers": [],
+  "replay_helper": {
+    "path": "evidence/selected-alexia/recipes/rebuild_selected_delta.py",
+    "sha256": "8c3d226b0b283aa310dd9f9ca9c54049dd9e2319658fc13b8fee36784a3a0563"
+  },
+  "steps": [
+    {
+      "id": "hair",
+      "recipe_path": "evidence/selected-alexia/recipes/build_polished_hair_final.py",
+      "recipe_sha256": "4f14e8cfe1d4f169f30464ed74abfaa489871e8e3cfab6878b18051d43899857",
+      "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+      "candidate_sha256": "45e8635c3097444e726eceab22ba0d4c4070202da129dbcfffa33022b5423328",
+      "proof_path": "evidence/selected-alexia/hair-polish-proof.json",
+      "proof_sha256": "ecf09bb42153b2b68dee010849cca6ee934e0156ba18a1c0851008410078235b",
+      "argv": [
+        "--source",
+        "{source}",
+        "--reference",
+        "{review}/references/alexia-blue-v2-turnaround.png",
+        "--output-parent",
+        "{output_parent}"
+      ],
+      "model_output": "alexia.glb"
+    },
+    {
+      "id": "temple",
+      "recipe_path": "evidence/selected-alexia/recipes/repair_temple_material_final.py",
+      "recipe_sha256": "02df168c8636e1e51668da78bd354a94355e4c38b48c8b61b405d0770201f167",
+      "source_sha256": "45e8635c3097444e726eceab22ba0d4c4070202da129dbcfffa33022b5423328",
+      "candidate_sha256": "2e4760bf2ac6d7b14ff82e9ac2d8e3ad70280d5ae242c5c95f5fc7a8787d5135",
+      "proof_path": "evidence/selected-alexia/temple-material-proof.json",
+      "proof_sha256": "52eb0ab56f9025d825746dc31919f10e01d5605157e569a7ba1f3fe0cbc8726c",
+      "argv": [
+        "--source",
+        "{source}",
+        "--output-parent",
+        "{output_parent}"
+      ],
+      "model_output": "alexia.glb"
+    },
+    {
+      "id": "shirt",
+      "recipe_path": "evidence/selected-alexia/recipes/build_tailored_shirt_final.py",
+      "recipe_sha256": "f7f0b60f47030c1e748eefcd830e306579a9812860575e459be9ea2b33baa825",
+      "source_sha256": "2e4760bf2ac6d7b14ff82e9ac2d8e3ad70280d5ae242c5c95f5fc7a8787d5135",
+      "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+      "proof_path": "evidence/selected-alexia/tailored-shirt-proof.json",
+      "proof_sha256": "14961bb38a67d6f74eb42504c3fa279f30f24369200e79f836f0758aa9b4897b",
+      "argv": [
+        "--source",
+        "{source}",
+        "--expected-source-sha256",
+        "2e4760bf2ac6d7b14ff82e9ac2d8e3ad70280d5ae242c5c95f5fc7a8787d5135",
+        "--output",
+        "{output_parent}"
+      ],
+      "model_output": "alexia.glb"
+    }
+  ],
+  "old_nine_stage_chain_replayed": false,
+  "authoring_provenance_not_executed": true,
+  "runtime_limits": "Exact replay is certified only by a separately recorded actual tested runtime. No hosted CI or cross-platform success is implied.",
+  "approved": false,
+  "gameIntegrated": false
+}

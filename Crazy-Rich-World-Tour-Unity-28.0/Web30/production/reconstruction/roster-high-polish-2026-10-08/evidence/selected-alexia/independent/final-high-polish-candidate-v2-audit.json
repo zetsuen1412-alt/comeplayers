@@ -1,0 +1,141 @@
+{
+  "schema": "crwt.alexia_high_polish_independent_selected_audit.v2_rear_coat_cleanup",
+  "passed": true,
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "candidate_bytes": 99699944,
+  "approved": false,
+  "gameIntegrated": false,
+  "production_ready": false,
+  "visual_accepted": true,
+  "visual_motion_accepted": true,
+  "render_proof_sha256": "75d4aa13a6f654c8e633fd864e3841119a968f8d7e89997dc9fc795fe39f91f3",
+  "actual_png_sha256": {
+    "front": "7eb1ff5630ad771c661e2ace0dcf179507fb6c125a09824255cbceac7f943013",
+    "left": "da7f227715834569dbbc403f9be8fb9ae6c23e8a52325b5874358bdb2770709e",
+    "right": "220379588daf63cad67b415c0de5692c5787ca59ca10aca96215930fb11efa0a",
+    "back": "d13e15f704512c621381e5d6e938f10cf998a1f875ce1a4b068b49f3cd46cac8",
+    "three-quarter": "46691000ee67afc895f240cc4e32b984fea49fc599a32c832c38a8d584430e3c"
+  },
+  "motion_render_proof_sha256": "22150a0e67f0c171ea0a245903bcdb72f5cb26e60cdd07787fc18340c0699fc0",
+  "actual_motion_png_sha256": {
+    "neutral-front": "218fffd26d6e4a970f74a8991c5933761f9080250b5e9981c387c153521ef3e2",
+    "walk-quarter": "08227652d367ac3ed7a93c61d67d546d5b659fe94623f76be655c122dcc3ff8b",
+    "walk-threequarter": "ccf7fef1720a8d7b82c416041141d336cdbe1e188afdd65aa2d6621f53326351",
+    "idle-quarter": "9ad0f52bdac26018e6e3a781c3b1cfa38b9c1137ef7fafdaa5d2e3b164cec5c6"
+  },
+  "reference_sha256": "935b1f8f7d2be4a6a453a089041844f2cd4470eb64be17d9d72568efb3708933",
+  "accepted_delta_count": 3,
+  "audit_sha256": {
+    "hair": "10af4ac20a8209449c455598f432242fbf0bd77c8a138b9c852c5e11727b1b7b",
+    "temple": "240e6cae91bab8c4550039a9879d2496f322661c58de0a0dec612f4187224f9f",
+    "shirt": "b458545d983d58c64f6840a4557d8e8e22708dc152902342ef22edf673368787",
+    "CPU": "9de61ea922619840dc61e3164e82e06946b5ea8dd5f521de45c5acef640af263"
+  },
+  "recipe_sha256": {
+    "hair": "4f14e8cfe1d4f169f30464ed74abfaa489871e8e3cfab6878b18051d43899857",
+    "temple": "02df168c8636e1e51668da78bd354a94355e4c38b48c8b61b405d0770201f167",
+    "shirt": "f7f0b60f47030c1e748eefcd830e306579a9812860575e459be9ea2b33baa825"
+  },
+  "proof_sha256": {
+    "hair": "ecf09bb42153b2b68dee010849cca6ee934e0156ba18a1c0851008410078235b",
+    "temple": "52eb0ab56f9025d825746dc31919f10e01d5605157e569a7ba1f3fe0cbc8726c",
+    "shirt": "14961bb38a67d6f74eb42504c3fa279f30f24369200e79f836f0758aa9b4897b"
+  },
+  "mask_sha256": {
+    "temple": "4e82dd5bda947eabc754a7e4938d12f7d13aab7aabb72996ba6958ce9196189a",
+    "shirt": "e8c175666daaad9fb253e8004431219e7f47fdeaf26b640d89885b9bf7a67710"
+  },
+  "checks": {
+    "all_three_original_meshes_stored": true,
+    "actual_default_scene_mesh_instances": 2,
+    "actual_active_primitives": 133,
+    "actual_active_triangles": 383130,
+    "original_e88_BIN_and_attribute_records_stored_exact": true,
+    "all_other_authored_body_hand_leg_case_cup_primitives_exact": true,
+    "central_face_eye_geometry_and_cup_geometry_preserved": true,
+    "nodes_19joint_hierarchy_2skins_IBM_and_2clip_streams_exact": true,
+    "hair_closed_components": 17,
+    "hair_vertices": 118674,
+    "hair_triangles": 237280,
+    "all_new_hair_Head5_weight1": true,
+    "temple_open_partition_triangles": 2671,
+    "temple_compact_source_rows": 1617,
+    "temple_retained_plus_patch_orientation_and_geometry_union_exact": true,
+    "shirt_removed_retained_core_triangles": 20271,
+    "shirt_new_closed_components": 13,
+    "shirt_actual_head_weighted_named_face_cup_Hand_over_25pct_incidence_removed": 0,
+    "shirt_masks_and_remaining_core_triangle_order_independently_reconstructed": true,
+    "new_closed_geometry_finite_unit_normals_normalized_weights_positive_faces_and_volumes": true,
+    "new_closed_geometry_exact_float32_welded_edges_two_and_opposed": true,
+    "new_closed_geometry_face_normal_disagreements": 0,
+    "CPU_actual_serialized_samples": 18,
+    "CPU_finite_rest_bind_endpoints_and_real_alternating_walk_feet": true,
+    "all_five_neutral_and_four_real_motion_frames_viewed": true,
+    "no_gross_new_tearing_in_inspected_actual_motion_frames": true,
+    "input_SHA_mtime_unchanged": true,
+    "bounded_Chest_Pelvis_weighted_rear_coat_removal_independently_reconstructed": true,
+    "same_13_shirt_component_streams_and_materials_as_superseded_candidate": true
+  },
+  "semantic_scope": {
+    "legacy_face_label_fully_immutable": false,
+    "legacy_hair_label_fully_immutable": false,
+    "legacy_face_label_vertices_routed_to_upper_lateral_temple_material": 114,
+    "shirt_named_legacy_incidence": {
+      "mandatory_face_indices": {
+        "removed_triangle_incidence": 3959,
+        "referenced_rows": 2756,
+        "Head_over_20pct_rows": 0,
+        "Hand_over_25pct_rows": 0
+      },
+      "hair_indices": {
+        "removed_triangle_incidence": 2069,
+        "referenced_rows": 1170,
+        "Head_over_20pct_rows": 1170,
+        "Hand_over_25pct_rows": 0
+      },
+      "cup_indices": {
+        "removed_triangle_incidence": 0,
+        "referenced_rows": 0,
+        "Head_over_20pct_rows": 0,
+        "Hand_over_25pct_rows": 0
+      },
+      "hands_indices": {
+        "removed_triangle_incidence": 289,
+        "referenced_rows": 160,
+        "Head_over_20pct_rows": 141,
+        "Hand_over_25pct_rows": 0
+      },
+      "cuff_indices": {
+        "removed_triangle_incidence": 66,
+        "referenced_rows": 37,
+        "Head_over_20pct_rows": 17,
+        "Hand_over_25pct_rows": 0
+      },
+      "jacket_indices": {
+        "removed_triangle_incidence": 230,
+        "referenced_rows": 137,
+        "Head_over_20pct_rows": 76,
+        "Hand_over_25pct_rows": 0
+      }
+    },
+    "description": "Only authored hair primitive1/material8 is replaced; dark upper lateral source triangles are material-partitioned with source geometry/weights exact. Bounded retained original shirt/cuff/rear litter triangles are intentionally removed and replaced by closed ivory/gold details. Original authored hands, calves, shoes, case, bands and precision cups remain exact.",
+    "rear_coat_predicate": "-.145<Y<.12,abs(X+.006)<.205,Z<.045,actual Chest+Pelvis>.5,zero protectedface/cup/Suitcase>=.5/Hand>.25 incidence; every removed triangle vertex inside chest|cuff|rear_litter|rear_coat"
+  },
+  "visual_findings": [
+    "Fresh final back and sides show removal of the conspicuous white projected jacket flake ring; the underlying authored charcoal coat is clean and continuous.",
+    "Final front and quarter views show a coherent ivory shirt, folded collar, gold necklace/buttons and no projected dangling cravat strip.",
+    "Final side hair is rounder, with finer hooked ends; the final back lowerline is more continuous and major interlock gaps are reduced.",
+    "The large dark upper temple wedges are lavender; a thin black border and coarse inherited fringe remain.",
+    "Actual Walk at .3/.9 seconds alternates legs while hair, cups, collar, shirt, hands and case remain attached."
+  ],
+  "limits": [
+    "Small pale lateral hair flakes, broad scalloped hair sections, a thin dark temple stripe, coarse cup/fringe boundaries and approximate inherited anatomy remain visible.",
+    "Closed components overlap; exhaustive self-intersection, collision, global manifoldness and production retopology are not certified.",
+    "Inherited manual in-place IdleBreath/Walk has no foot IK, grounded contact, cloth or hair simulation.",
+    "No hosted CI or cross-runtime authoring reproducibility is inferred; the superseded2709 replay is deliberately excluded as evidence for f562."
+  ],
+  "superseded_candidate_sha256": "27090dd4dd86ec28d7fba73819751e5997897ef78d043b694efc701527d2728c",
+  "superseded_acceptance_sha256": "fcc5a3182b2efabec5e41c72f286134c0fbf653295770d646a104eea4274cccf",
+  "current_three_recipe_byte_replay_bound_in_this_receipt": false
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "crwt.alexia_high_polish_browser_review.v1",
+  "passed": true,
+  "candidate_sha256": "f5628131fa622c2bfcb143f082f12610817dbf842142ccebb5b83135a43adf10",
+  "url": "http://127.0.0.1:8788/BUKA-REVIEW-MODEL.html",
+  "source_identity_display_verified": true,
+  "actual_five_camera_views_reviewed": true,
+  "actual_idle_and_walk_controls_reviewed": true,
+  "actual_balanced_and_warm_profiles_reviewed": true,
+  "reference_comparison_reviewed": true,
+  "rindi_baseline_switch_roundtrip_passed": true,
+  "console_errors": [],
+  "images": [
+    {
+      "name": "front-balanced",
+      "path": "browser/front-balanced.jpg",
+      "bytes": 87464,
+      "sha256": "e5b4585b13ce56cdefe6b3536b9c941865a1d51b266d6fb7b19c204dda02dcc7"
+    },
+    {
+      "name": "left-balanced",
+      "path": "browser/left-balanced.jpg",
+      "bytes": 76497,
+      "sha256": "2ac12074e433fbefc953e812fd92ae74edbb2f7125ab446c9af487547b40f65d"
+    },
+    {
+      "name": "right-balanced",
+      "path": "browser/right-balanced.jpg",
+      "bytes": 74598,
+      "sha256": "f1796b9f85bff39f8eea56db2e21aa30e2165b054584d6aa63de422e51ab64f5"
+    },
+    {
+      "name": "back-balanced",
+      "path": "browser/back-balanced.jpg",
+      "bytes": 75598,
+      "sha256": "dd5442bfddc61638153163582be0898ff2212d1725443043f5a393abbed5c1bf"
+    },
+    {
+      "name": "quarter-balanced",
+      "path": "browser/quarter-balanced.jpg",
+      "bytes": 82420,
+      "sha256": "9a8da3d68074cdd5a206342559fbbf9b411a9f39e1d245797ff1fcd54eacfc81"
+    },
+    {
+      "name": "idle-quarter",
+      "path": "browser/idle-quarter.jpg",
+      "bytes": 82364,
+      "sha256": "4db4e89829df5a401f20e1e67c5765a6f407d38d38e6a6f9bdc2ea910baacc46"
+    },
+    {
+      "name": "walk-quarter",
+      "path": "browser/walk-quarter.jpg",
+      "bytes": 82341,
+      "sha256": "02aeb9240e498fc237b8dbcb292088f779cd737857f0b791d69098f626068f28"
+    },
+    {
+      "name": "walk-quarter-later",
+      "path": "browser/walk-quarter-later.jpg",
+      "bytes": 82132,
+      "sha256": "58194406b05206d6f8764baa246dec9932c2c9424989d71057ceeaf1d161c8e4"
+    },
+    {
+      "name": "walk-quarter-warm",
+      "path": "browser/walk-quarter-warm.jpg",
+      "bytes": 81967,
+      "sha256": "fc62d189cedcbec5084c53b20a0a558ac3decd8638b8fbb7fc9904a5c95472ec"
+    },
+    {
+      "name": "reference-comparison",
+      "path": "browser/reference-comparison.jpg",
+      "bytes": 104227,
+      "sha256": "0e6c3fd3fcb8ca00b1259280ad04b45f3d92b7dec05039ef38a5c7f4663a0076"
+    },
+    {
+      "name": "rindi-baseline-check",
+      "path": "browser/rindi-baseline-check.jpg",
+      "bytes": 82144,
+      "sha256": "4aed1cfd68012691c413b8830ad0c73fdd0927dd47397908cc7dcbdd0b4624c8"
+    },
+    {
+      "name": "alexia-final-quarter",
+      "path": "browser/alexia-final-quarter.jpg",
+      "bytes": 82420,
+      "sha256": "9a8da3d68074cdd5a206342559fbbf9b411a9f39e1d245797ff1fcd54eacfc81"
+    }
+  ],
+  "limits": [
+    "Manual prototype clips have no foot IK or secondary simulation.",
+    "Original coarse temple edges and small lateral flakes remain."
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}

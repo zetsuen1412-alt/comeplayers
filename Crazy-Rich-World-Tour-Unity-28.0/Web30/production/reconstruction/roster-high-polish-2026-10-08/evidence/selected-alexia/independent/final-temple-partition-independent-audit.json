@@ -1,0 +1,45 @@
+{
+  "schema": "crwt.alexia_high_polish_temple_partition_independent_audit.v1",
+  "passed": true,
+  "source_sha256": "45e8635c3097444e726eceab22ba0d4c4070202da129dbcfffa33022b5423328",
+  "candidate_sha256": "2e4760bf2ac6d7b14ff82e9ac2d8e3ad70280d5ae242c5c95f5fc7a8787d5135",
+  "recipe_sha256": "02df168c8636e1e51668da78bd354a94355e4c38b48c8b61b405d0770201f167",
+  "mask_sha256": "4e82dd5bda947eabc754a7e4938d12f7d13aab7aabb72996ba6958ce9196189a",
+  "proof_sha256": "52eb0ab56f9025d825746dc31919f10e01d5605157e569a7ba1f3fe0cbc8726c",
+  "source_core_triangles": 68277,
+  "temple_patch_triangles": 2671,
+  "temple_patch_referenced_vertices": 1617,
+  "world_bounds": [
+    [
+      -0.1894713044166565,
+      0.33500587940216064,
+      0.050037503242492676
+    ],
+    [
+      0.14889103174209595,
+      0.4325644075870514,
+      0.14807674288749695
+    ]
+  ],
+  "checks": {
+    "original_BIN_accessor_bufferView_prefixes_exact": true,
+    "only_core_index_partition_and_appended_patch_material": true,
+    "all_other_primitives_materials_nodes_skins_clips_scene_exact": true,
+    "actual_retained_plus_patch_source_triangle_partition_exact": true,
+    "source_triangle_orientation_POSITION_NORMAL_JOINTS_WEIGHTS_exact": true,
+    "compact_1617_actual_attribute_rows_byte_exact": true,
+    "zero_geometric_holes_added_by_partition": true,
+    "upper_lateral_dark_Head1_non_skin_policy_exact": true,
+    "actual_NPZ_membership_exact": true,
+    "input_SHA_mtime_unchanged": true
+  },
+  "visual_accepted": false,
+  "visual_motion_accepted": false,
+  "approved": false,
+  "gameIntegrated": false,
+  "limits": [
+    "The patch is an open retained source surface; no new closed volume or remeshing is claimed.",
+    "Its material is intentionally changed; original UV/color/normal/position streams remain stored exactly.",
+    "Final combined face/temple appearance requires actual front/quarter renders."
+  ]
+}

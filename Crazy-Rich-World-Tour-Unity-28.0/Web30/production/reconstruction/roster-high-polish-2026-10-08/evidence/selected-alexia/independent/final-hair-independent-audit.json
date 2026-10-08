@@ -1,0 +1,58 @@
+{
+  "schema": "crwt.alexia_high_polish_hair_independent_audit.v1",
+  "passed": true,
+  "source_sha256": "e88b27e4a71058a4576fb4ab1b3d6d24a621d771175ce700a9a3e959729daf52",
+  "candidate_sha256": "45e8635c3097444e726eceab22ba0d4c4070202da129dbcfffa33022b5423328",
+  "recipe_sha256": "4f14e8cfe1d4f169f30464ed74abfaa489871e8e3cfab6878b18051d43899857",
+  "builder_proof_sha256": "ecf09bb42153b2b68dee010849cca6ee934e0156ba18a1c0851008410078235b",
+  "render_proof_sha256": "3380bd9455d7e25e12aa39e414385ff6997dffa35bec81fc588dfc1bb5bcea76",
+  "actual_png_sha256": {
+    "front": "daa54703e035aae8471aebf999bb446ccdcf1a5bbedd32e1d20342c9e3ae4e89",
+    "left": "74be8cfe5039474aa3d504dd69f104bfcf7afb889f158250f40f760dec8418b5",
+    "right": "27ef35372ca64fe5c75a5fcdc09eecefbb3955a6ab9c85717b797f2cb38dd8bc",
+    "back": "38f862411ed3236ddae52f99e7ae89993caf01dede22cf84d45dd5fd3f73438a",
+    "quarter": "224b3b0c3d32d02ce470614b3aa157bc5b906591eb44e6e8b3e76b0ac4ae3dd4"
+  },
+  "all_five_actual_views_inspected": true,
+  "hair_direction_visually_supported": true,
+  "final_combined_visual_accepted": false,
+  "checks": {
+    "original_BIN_prefix_exact": true,
+    "old_accessor_bufferView_records_exact": true,
+    "only_mesh0_primitive1_and_material8_document_edits": true,
+    "all_original_face_body_cup_streams_exact": true,
+    "nodes_skins_clips_default_scene_exact": true,
+    "new_hair_vertices": 118674,
+    "new_hair_triangles": 237280,
+    "closed_index_components": 17,
+    "all_index_edges_have_incidence_2": true,
+    "finite_vertices_normals_weights": true,
+    "minimum_triangle_area": 1.7023589324194449e-10,
+    "face_vs_mean_normal_disagreements": 0,
+    "all_hair_rows_actual_Head_slot5_weight1": true,
+    "world_bounds": [
+      [
+        -0.30672982335090637,
+        -0.11280439049005508,
+        -0.26969417929649353
+      ],
+      [
+        0.2947298288345337,
+        0.48399999737739563,
+        0.057999998331069946
+      ]
+    ],
+    "input_SHA_and_mtime_unchanged": true
+  },
+  "visual_findings": [
+    "Actual side waves are rounder with slimmer curled tips than the matched baseline.",
+    "Actual front identity, precision cups, authored palms and legs remain clear.",
+    "Back retains broad separated sheets and deep gaps; original shirt/neck/cuff artifacts remain."
+  ],
+  "limits": [
+    "Index-edge closure does not certify exhaustive component self-intersections.",
+    "Final combined actor and motion acceptance requires its own actual renders."
+  ],
+  "approved": false,
+  "gameIntegrated": false
+}
