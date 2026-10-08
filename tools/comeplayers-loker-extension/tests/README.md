@@ -1,5 +1,22 @@
 # Synthetic extension browser tests
 
+## Scan readiness regression tests — v1.3.7
+
+`scan-loading.test.cjs` runs 18 isolated synthetic DOM cases with Playwright
+and an installed Chromium/Edge browser. It blocks page network requests and
+verifies that scanning never requests dispatch or clicks send controls.
+Run with `node tests/scan-loading.test.cjs` when `playwright` is available;
+`PLAYWRIGHT_MODULE` can name an existing local Playwright installation and
+`CHROMIUM_PATH` can select an existing browser executable.
+
+Coverage includes first cards/permalinks appearing after 8 or 25 seconds,
+plain DIV and semantic posts, canonicalization, invalid/body/comment links,
+readiness errors, target changes, security checks, STOP and partial results.
+Use `node tests/scan-loading.test.cjs path/to/v1.3.6/facebook.js --baseline`
+to reproduce the two late-loading regressions in v1.3.6.
+The three empty negative cases in the Python suite now expect scan errors
+instead of a successful empty result.
+
 These tests execute `facebook.js` in isolated browser contexts using synthetic
 HTML. They do not connect to Facebook, use a logged-in profile, or send comments.
 Exact synthetic image assets are fulfilled in memory; every other page network

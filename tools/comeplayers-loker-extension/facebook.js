@@ -493,7 +493,11 @@
     const found = new Map();
     let idleRounds = 0;
     const deadline = Date.now() + 45000;
-    while (!cancelled && Date.now() < deadline && idleRounds < 5) {
+    const scanJob = { kind: 'group_scan', target: groupUrl, expiresAt: deadline };
+    // A complete document can still be waiting for Facebook's first feed card
+    // or timestamp permalink. Empty initial polls must not end the scan early.
+    while (!cancelled && Date.now() < deadline && (!found.size || idleRounds < 5)) {
+      check(scanJob);
       const before = found.size;
       for (const a of scanPostContexts(wanted.group)) {
         const ref = postUrlFromArticle(a, wanted.group);
@@ -501,9 +505,15 @@
         const message = norm(story(a)?.textContent || a.textContent || '');
         found.set(ref, { url: ref, preview: message.slice(0, 220) || 'Postingan tanpa teks' });
       }
-      idleRounds = found.size === before ? idleRounds + 1 : 0;
-      window.scrollBy(0, innerHeight * .9);
+      idleRounds = found.size > 0 && found.size === before ? idleRounds + 1 : 0;
+      if (found.size) window.scrollBy(0, innerHeight * .9);
       await sleep(900);
+    }
+    if (!found.size && !cancelled) {
+      const hasCards = scanPostContexts(wanted.group).some(visible);
+      throw failure(hasCards ? 'scan_layout_unrecognized' : 'scan_feed_not_ready', hasCards
+        ? 'Postingan terlihat tetapi tautan postingannya belum dikenali. Buka halaman Diskusi grup, lalu scan ulang.'
+        : 'Feed grup belum terbaca setelah 45 detik. Pastikan postingan tampil di tab Facebook, lalu scan ulang.');
     }
     return { items: [...found.values()] };
   }

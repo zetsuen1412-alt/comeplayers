@@ -1,4 +1,24 @@
-# ComePlayers Lowongan — browser bridge v1.3.6
+# ComePlayers Lowongan — browser bridge v1.3.7
+
+## Perbaikan scan v1.3.7 — 8 Oktober 2026
+
+Scan menunggu hingga 45 detik untuk postingan pertama dan tautan waktunya.
+Pada v1.3.6, lima pemeriksaan kosong dapat mengakhiri scan dalam sekitar
+4,5 detik meskipun feed masih memuat. Setelah menemukan postingan, scan tetap
+berhenti ketika tidak ada hasil baru dalam lima pemeriksaan berturut-turut.
+STOP tetap menghentikan scan; perubahan tujuan atau pemeriksaan keamanan
+Facebook menghentikannya dengan pesan yang sesuai. Jika feed belum terbaca,
+Admin menampilkan pesan yang dapat ditindaklanjuti.
+
+Muat folder v1.3.7 melalui Load unpacked, pastikan hanya satu salinan ekstensi
+aktif, hubungkan tab grup Facebook dan muat ulang Admin Lowongan. Periksa
+status **ekstensi v1.3.7**, lalu scan kembali. Komentar tetap memerlukan
+pemeriksaan daftar dan klik KIRIM KOMENTAR.
+
+Paket ini berisi perbaikan lokal dari commit v1.3.6
+`6f27b29ddb75579fd75e167e66aaaf73a2fe612d`.
+Pengujian scan menggunakan DOM sintetis dengan jaringan diblokir, bukan
+bukti bahwa postingan atau komentar berhasil pada akun Facebook nyata.
 
 Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia memakai tab Facebook yang sudah login dan tidak meminta password atau cookie Facebook.
 
@@ -19,7 +39,7 @@ Foto lowongan dapat berukuran sampai 5 MB (PNG/JPG/WebP).
 
 ## Pemeriksaan versi dan pengiriman
 
-Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.6**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
+Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.7**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
 
 Versi 1.3.6 juga mengenali postingan feed dalam container DIV biasa, apabila ada penanda isi postingan dan tautan header yang jelas. Tautan komentar/balasan dan tautan yang hanya disebut di isi postingan tidak digunakan sebagai bukti target. Untuk postingan yang disetujui, ekstensi dapat memakai feed grup yang sudah terbuka jika hanya ada satu postingan dengan tautan target dan kolom komentar utama yang cocok. Jika pemeriksaan ini tidak terpenuhi, ekstensi membuka tautan postingan secara langsung seperti sebelumnya.
 
