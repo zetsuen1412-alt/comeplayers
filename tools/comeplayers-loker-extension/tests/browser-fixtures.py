@@ -75,8 +75,8 @@ img[data-attachment-preview], [data-comment-id] img { width:200px; height:200px;
 
 def article(post="123", message="Status biasa", href=None):
     link = href or f'/groups/example/posts/{post}/'
-    return (f'<article role="article"><div data-ad-preview="message">{message}</div>'
-            f'<a href="{link}">Waktu</a></article>')
+    return (f'<article role="article"><a href="{link}">Waktu</a>'
+            f'<div data-ad-preview="message">{message}</div></article>')
 
 
 def comment_fixture(*, modal=False, placeholder="Tulis komentar publik...",
@@ -94,7 +94,7 @@ def comment_fixture(*, modal=False, placeholder="Tulis komentar publik...",
     """Real DOM attachment/send handlers with an observable irreversible click."""
     root = '<div role="dialog" aria-label="Postingan fixture">' if modal else '<article role="article">'
     close = '</div>' if modal else '</article>'
-    story = '<div data-ad-preview="message">Info loker apa aja</div><a href="/groups/example/posts/123/">Waktu</a>'
+    story = '<a href="/groups/example/posts/123/">Waktu</a><div data-ad-preview="message">Info loker apa aja</div>'
     comments = '<div id="comments" role="list" data-comment-list="true"><div role="listitem" data-comment-id="existing">Komentar sebelumnya</div></div>'
     if live_preview_structure:
         story='<h2>Postingan sintetis</h2>'+story
@@ -202,9 +202,11 @@ function bindSend(control) { control.onclick = e => {
       window.lastPreview={naturalWidth:image.naturalWidth,width:rect.width,height:rect.height,outsideForm:!document.getElementById('composer').contains(image)};
     }
   if (opts.outcome === 'success' || opts.outcome === 'nested' || opts.outcome === 'moved-preview') {
-    const c = document.createElement('div'); c.setAttribute('role', 'listitem'); c.setAttribute('data-comment-id', 'new-comment');
+    const c = document.createElement('div'); c.setAttribute('role', 'listitem'); c.setAttribute('data-comment-id', '1837828897215027');
     const actor = document.createElement('a'); actor.href = '/profile.php?id=' + (opts.actorMismatch ? '200' : '100'); actor.textContent='Profil';
-    c.append(actor, opts.outcome === 'moved-preview' ? preview.querySelector('img') : media());
+    const photo=document.createElement('a');photo.href='https://www.facebook.com/photo/?fbid=122122814811465799';
+    photo.append(opts.outcome === 'moved-preview' ? preview.querySelector('img') : media());
+    c.append(actor, photo);
     (opts.outcome === 'nested' ? comments.querySelector('[data-comment-id]') : comments).append(c);
     editor.textContent = ''; preview.replaceChildren();
   } else if (opts.outcome === 'lazy-image') {
@@ -253,7 +255,7 @@ def plain_comment_fixture(**options):
 
 def nested_reply_dialog_fixture():
     inner = comment_fixture(modal=True, placeholder='Tulis jawaban...')
-    inner = inner.replace('<div data-ad-preview="message">Info loker apa aja</div><a href="/groups/example/posts/123/">Waktu</a>', '')
+    inner = inner.replace('<a href="/groups/example/posts/123/">Waktu</a><div data-ad-preview="message">Info loker apa aja</div>', '')
     inner = inner.replace('aria-label="Postingan fixture"', 'aria-label="Balas komentar"')
     return ('<div role="dialog" aria-label="Postingan fixture"><div data-ad-preview="message">Status biasa</div>'
             '<a href="/groups/example/posts/123/">Waktu</a><div role="list" data-comment-list="true">'
@@ -394,7 +396,7 @@ def run_case(browser, script, case):
 
 
 def cases():
-    success = dict(status='sent', dispatches=1, sends=1, file_changes=1)
+    success = dict(status='verify_comment', dispatches=1, sends=1, file_changes=1)
     skipped = dict(status='skipped', dispatches=0, sends=0)
     uncertain = dict(status='uncertain', dispatches=1, sends=1)
     return [
@@ -470,9 +472,9 @@ def cases():
         dict(name='plain DIV draft remains intact on reviewed group feed', html=plain_comment_fixture().replace('id="editor"></div>', 'id="editor">Draf pengguna lama</div>'), url=GROUP, job_target=POST, use_existing_feed=True, status='failed', stage='composer_draft_present', dispatches=0, sends=0, file_changes=0, remove_clicks=0, preserved_text='Draf pengguna lama'),
         dict(name='plain DIV group feed refuses active reply overlay', html=plain_comment_fixture()+'<div role="dialog"><div contenteditable="true" role="textbox">Balas</div></div>', url=GROUP, job_target=POST, use_existing_feed=True, file_changes=0, **skipped),
         dict(name='plain DIV scan canonicalizes adjacent posts', scan=True, url=GROUP, html='<div role="feed">'+plain_article('123')+plain_article('124',href='https://web.facebook.com/groups/example/permalink/124/?x=1')+'</div>', items=[POST,GROUP+'posts/124/']),
-        dict(name='scan ignores comment and reply permalinks', scan=True, url=GROUP, html=article('123',href='/groups/example/posts/123/?comment_id=1')+plain_article('124',href='/groups/example/posts/124/?reply_comment_id=2'), items=[]),
-        dict(name='scan ignores permalink mentioned only in post body', scan=True, url=GROUP, html='<div><div data-ad-preview="message">Status <a href="/groups/example/posts/123/">URL</a></div></div>', items=[]),
-        dict(name='plain DIV nested-comment story cannot become a scanned post', scan=True, url=GROUP, html='<div role="listitem" data-comment-id="reply">'+plain_article()+'</div>', items=[]),
+        dict(name='scan ignores comment and reply permalinks', scan=True, scan_error=True, url=GROUP, html=article('123',href='/groups/example/posts/123/?comment_id=1')+plain_article('124',href='/groups/example/posts/124/?reply_comment_id=2'), items=[]),
+        dict(name='scan ignores permalink mentioned only in post body', scan=True, scan_error=True, url=GROUP, html='<div><div data-ad-preview="message">Status <a href="/groups/example/posts/123/">URL</a></div></div>', items=[]),
+        dict(name='plain DIV nested-comment story cannot become a scanned post', scan=True, scan_error=True, url=GROUP, html='<div role="listitem" data-comment-id="reply">'+plain_article()+'</div>', items=[]),
         dict(name='plain DIV hidden header cannot authorize existing feed reuse', html=plain_comment_fixture().replace('<a href="/groups/example/posts/123/">', '<a hidden href="/groups/example/posts/123/">'), url=GROUP, job_target=POST, probe=True, ready=False),
         dict(name='plain DIV feed boundary cannot combine unrelated story and header', html='<div role="feed">'+plain_comment_fixture().replace('<a href="/groups/example/posts/123/">Waktu</a>', '')+'<div><a href="/groups/example/posts/123/">Waktu tetangga</a></div></div>', url=GROUP, job_target=POST, probe=True, ready=False),
     ]
