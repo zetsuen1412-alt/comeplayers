@@ -78,6 +78,19 @@ export function validateWorkspace(value: unknown): WorkspaceState {
     if(catalogIdentities.has(key)) payrollFailure('Nama paket boosting duplikat untuk game yang sama.');
     catalogIdentities.add(key);
   }
+  for(const employee of list(workspaceKeys.employees)) {
+    const request=employee.sheetNameCorrection as Record<string,unknown>|undefined;
+    if(!request)continue;
+    const source=employee.sheetRosterSource as Record<string,unknown>|undefined;
+    if(!source||typeof source.spreadsheetId!=='string'||!source.spreadsheetId
+      ||!['PAYROLL-1','PAYROLL-2','PAYROLL-3'].includes(String(source.sheetName))
+      ||!Number.isSafeInteger(source.rowNumber)||Number(source.rowNumber)<3
+      ||typeof request.requestId!=='string'||!request.requestId
+      ||typeof request.oldName!=='string'||!request.oldName.trim()
+      ||typeof request.newName!=='string'||!request.newName.trim()||request.newName.length>160
+      ||typeof request.requestedAt!=='string'||!Number.isFinite(Date.parse(request.requestedAt))
+      ||typeof request.requestedBy!=='string'||!request.requestedBy) payrollFailure('Permintaan koreksi nama karyawan Sheet tidak valid.');
+  }
   const references=new Set<string>();
   for(const row of list(workspaceKeys.orders)) {
     if(row.assignmentMode!==undefined&&(!['leader','direct'].includes(String(row.assignmentMode))||!teams.includes(String(row.team)))) payrollFailure('Pilih divisi dan cara penentuan karyawan yang valid.');
@@ -128,13 +141,30 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   }
   return state;
 }
-export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState) {
+export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceState, sheetRenameSource?: "admin" | "sync") {
   validateWorkspace(next);
   if(previous[workspaceKeys.lock]) {
     const before={...previous},after={...next}; delete before[workspaceKeys.lock]; delete after[workspaceKeys.lock];
     if(canonical(before)!==canonical(after)) payrollFailure('Sistem dikunci. Buka kunci sebelum mengedit.',423);
   }
   if(canonical(previous[workspaceKeys.closings]??[])!==canonical(next[workspaceKeys.closings]??[])) payrollFailure('Closing hanya dapat dibuat melalui proses tutup buku.',409);
+  const previousEmployees=(previous[workspaceKeys.employees]??[]) as Employee[];
+  const nextEmployees=(next[workspaceKeys.employees]??[]) as Employee[];
+  for(const oldEmployee of previousEmployees) {
+    const latest=nextEmployees.find(e=>e.id===oldEmployee.id);
+    if(!latest)continue;
+    if(canonical(oldEmployee.sheetNameCorrection)===canonical(latest.sheetNameCorrection))continue;
+    if(sheetRenameSource==="admin" && !oldEmployee.sheetNameCorrection && latest.sheetNameCorrection
+       && oldEmployee.name===latest.name
+       && latest.sheetNameCorrection.oldName===oldEmployee.name
+       && latest.sheetRosterSource?.spreadsheetId===oldEmployee.sheetRosterSource?.spreadsheetId
+       && latest.sheetRosterSource?.rowNumber===oldEmployee.sheetRosterSource?.rowNumber
+       && latest.sheetRosterSource?.sheetName===oldEmployee.sheetRosterSource?.sheetName)continue;
+    if(sheetRenameSource==="sync" && oldEmployee.sheetNameCorrection && !latest.sheetNameCorrection
+       && latest.name.trim().toLocaleUpperCase('id-ID')===oldEmployee.sheetNameCorrection.newName.trim().toLocaleUpperCase('id-ID'))continue;
+    payrollFailure('Koreksi nama Sheet hanya bisa diubah melalui proses yang telah diverifikasi.',403);
+  }
+  if(!sheetRenameSource && nextEmployees.some(e=>e.sheetNameCorrection && !previousEmployees.some(old=>old.id===e.id && canonical(old.sheetNameCorrection)===canonical(e.sheetNameCorrection)))) payrollFailure('Permintaan koreksi nama Sheet tidak boleh dibuat dari penyimpanan biasa.',403);
   const oldOrders=(previous[workspaceKeys.orders]??[]) as Order[], newOrders=(next[workspaceKeys.orders]??[]) as Order[];
   const closingReferences=recordedClosingReferences(previous);
   for(const old of oldOrders) if(hasLegacyWholeClosing(old,closingReferences)
