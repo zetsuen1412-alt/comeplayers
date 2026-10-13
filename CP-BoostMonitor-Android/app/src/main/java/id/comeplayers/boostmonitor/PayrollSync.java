@@ -38,8 +38,12 @@ final class PayrollSync {
                 JSONObject input = new JSONObject();
                 input.put("action", "login"); input.put("email", email); input.put("password", password);
                 JSONObject result = call("POST", "/session", input, null);
+                // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
+                JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"));
+                db.syncRoster(roster);
                 session.save(result);
-                finish(callback, "Berhasil login. Mengambil karyawan payroll...", true);
+                finish(callback, "Berhasil mengambil " + db.payrollEmployees().size()
+                        + " nama karyawan dari Payroll Website (revisi " + roster.optLong("revision") + ").", true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }
@@ -60,8 +64,9 @@ final class PayrollSync {
                     snapshot = call("GET", "/roster", null, credentials.getString("accessToken"));
                 }
                 int[] changed = db.syncRoster(snapshot);
-                finish(callback, "Payroll tersinkron • baru " + changed[0] + ", diperbarui " + changed[1]
-                        + ", nonaktif " + changed[2], true);
+                finish(callback, "Payroll tersinkron: " + db.payrollEmployees().size() + " aktif"
+                        + " • baru " + changed[0] + ", diperbarui " + changed[1]
+                        + ", nonaktif " + changed[2] + " • revisi " + snapshot.optLong("revision"), true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }

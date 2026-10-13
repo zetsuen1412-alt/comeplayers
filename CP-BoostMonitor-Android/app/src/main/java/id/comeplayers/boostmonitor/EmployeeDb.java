@@ -75,6 +75,16 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     }
 
     public List<Employee> all() { return employees(false); }
+    /** Hanya identitas karyawan dari Payroll Website; data manual lama tidak ditampilkan. */
+    public List<Employee> payrollEmployees() {
+        List<Employee> result = new ArrayList<>();
+        try (Cursor c = getReadableDatabase().rawQuery(
+                "SELECT _id,name,position,status,task,note,status_since,created_at,payroll_id,payroll_code " +
+                "FROM employees WHERE payroll_active=1 AND payroll_id IS NOT NULL ORDER BY position,name COLLATE NOCASE", null)) {
+            while (c.moveToNext()) result.add(readEmployee(c));
+        }
+        return result;
+    }
     private List<Employee> employees(boolean includeInactive) {
         List<Employee> result = new ArrayList<>();
         String where = includeInactive ? "" : " WHERE payroll_active=1";
