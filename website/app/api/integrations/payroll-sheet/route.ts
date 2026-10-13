@@ -132,7 +132,7 @@ export async function POST(request: Request) {
       validateWorkspaceEdit(currentState, merged.state, "sync");
 
       const changed = merged.added + merged.updated + merged.archived
-        + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved + merged.conflictsUpdated;
+        + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved + merged.conflictsUpdated + merged.legacyArchived;
       if (!changed) {
         return response({
           ok: true,
@@ -176,6 +176,8 @@ export async function POST(request: Request) {
           rosterUpdated: merged.rosterUpdated,
           rosterRemoved: merged.rosterRemoved,
           conflictsUpdated: merged.conflictsUpdated,
+        legacyArchived: merged.legacyArchived,
+          legacyArchived: merged.legacyArchived,
           unchanged: merged.unchanged,
           skippedProtected: merged.skippedProtected,
           skippedConflicts: merged.skippedConflicts,
