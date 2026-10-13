@@ -14,6 +14,7 @@ export const workspaceKeys = {
   inventory: 'cp-ofs-demo-inventory-v4', movements: 'cp-ofs-demo-inventory-movements-v1',
   products: 'cp-ofs-demo-product-games-v1', boostingCatalog: 'cp-ofs-boosting-catalog-v1', history: 'cp-ofs-demo-mutation-history-v1',
   closings: 'cp-ofs-demo-closing-v1', lock: 'cp-ofs-demo-period-lock-v1',
+  sheetCodeConflicts: 'cp-ofs-payroll-sheet-code-conflicts-v1',
 } as const;
 export type WorkspaceState = Record<string, unknown>;
 export function payrollFailure(message: string, status = 400): never { throw Object.assign(new Error(message), {status}); }
@@ -57,12 +58,18 @@ export function validateWorkspace(value: unknown): WorkspaceState {
     visit(data);
   }
   const list=(key:string)=> (state[key]??[]) as Array<Record<string,unknown>>;
-  for(const key of [workspaceKeys.orders,workspaceKeys.employees,workspaceKeys.advances,workspaceKeys.inventory,workspaceKeys.movements,workspaceKeys.products,workspaceKeys.boostingCatalog,workspaceKeys.history,workspaceKeys.closings]) {
+  for(const key of [workspaceKeys.orders,workspaceKeys.employees,workspaceKeys.advances,workspaceKeys.inventory,workspaceKeys.movements,workspaceKeys.products,workspaceKeys.boostingCatalog,workspaceKeys.history,workspaceKeys.closings,workspaceKeys.sheetCodeConflicts]) {
     const ids=new Set<string>();
     for(const row of list(key)) {
       if(!row||typeof row!=='object'||Array.isArray(row)||typeof row.id!=='string'||!row.id||ids.has(row.id)) payrollFailure('Identitas baris payroll tidak valid atau duplikat.');
       ids.add(row.id);
     }
+  }
+  for(const row of list(workspaceKeys.sheetCodeConflicts)) {
+    if(typeof row.spreadsheetId!=='string'||!row.spreadsheetId||typeof row.code!=='string'||!row.code
+      ||typeof row.sourceRow!=='number'||!Number.isSafeInteger(row.sourceRow)||row.sourceRow<1
+      ||typeof row.message!=='string'||!row.message||row.message.length>420||typeof row.detectedAt!=='string'
+      ||!Number.isFinite(Date.parse(row.detectedAt))) payrollFailure('Peringatan konflik KODE Sheet tidak valid.');
   }
   const teams=['FH1','FH2','FH3','ADMIN','BANDAR'];
   const employeeCodes=new Set<string>();
@@ -148,6 +155,7 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
     if(canonical(before)!==canonical(after)) payrollFailure('Sistem dikunci. Buka kunci sebelum mengedit.',423);
   }
   if(canonical(previous[workspaceKeys.closings]??[])!==canonical(next[workspaceKeys.closings]??[])) payrollFailure('Closing hanya dapat dibuat melalui proses tutup buku.',409);
+  if(sheetRenameSource!=='sync'&&canonical(previous[workspaceKeys.sheetCodeConflicts]??[])!==canonical(next[workspaceKeys.sheetCodeConflicts]??[])) payrollFailure('Konflik KODE Sheet hanya diperbarui oleh sinkronisasi resmi.',403);
   const previousEmployees=(previous[workspaceKeys.employees]??[]) as Employee[];
   const nextEmployees=(next[workspaceKeys.employees]??[]) as Employee[];
   for(const oldEmployee of previousEmployees) {
