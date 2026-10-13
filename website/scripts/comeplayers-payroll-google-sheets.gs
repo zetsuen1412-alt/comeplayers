@@ -164,7 +164,7 @@ function applyComePlayersEmployeeNameCorrections_() {
       if (cell.getFormula()) { skipped++; return; }
       var oldName = String(item.oldName || '').trim().replace(/\s+/g, ' ');
       var newName = String(item.newName || '').trim().replace(/\s+/g, ' ');
-      if (!oldName || !newName || newName.length > 160 || /^[=+@\\-']/u.test(newName)) { skipped++; return; }
+      if (!oldName || !newName || newName.length > 160 || /^[=+@'-]/u.test(newName)) { skipped++; return; }
       var currentName = String(cell.getDisplayValue() || '').trim().replace(/\s+/g, ' ');
       if (currentName === newName) return; // Earlier write succeeded; reconciliation still pending.
       if (currentName !== oldName) { skipped++; return; } // Never overwrite a changed/moved row.
