@@ -1,8 +1,9 @@
 "use client";
 
 import { adminText } from "@/lib/adminLocale";
-import { closePayroll, flushPayroll } from "../lib/workspace-store";
-import { useMemo, useState } from "react";
+import { closePayroll, flushPayroll, payrollStorage } from "../lib/workspace-store";
+import { workspaceKeys } from "../lib/workspace-model";
+import { useEffect, useMemo, useState } from "react";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoPayrollSettings } from "@/features/payroll/lib/demo-payroll-settings-store";
@@ -12,7 +13,7 @@ import { useDemoClosings } from "@/features/payroll/lib/demo-closing-store";
 import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { buildLivePayrollRows, isPayrollEligible, type LivePayrollRow } from "@/features/payroll/lib/payroll-live";
 import { createDailyPayrollSlice, dailySegmentsForPeriod, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
-import { PAYROLL_NEW_BOOK_START, PAYROLL_NEW_BOOK_START_ISO, bookForOrder } from "@/features/payroll/lib/sheet-transfer-payroll";
+import { PAYROLL_NEW_BOOK_START, bookForOrder } from "@/features/payroll/lib/sheet-transfer-payroll";
 import { formatMoney } from "@/features/payroll/lib/money";
 import { exportClosingSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import {
@@ -56,6 +57,17 @@ function sourceBreakdown(orders: Order[]) {
 
 export function FortnightClosing() {
   const { allOrders } = useDemoOrders();
+  const [blockedCodes,setBlockedCodes]=useState<string[]>([]);
+  useEffect(()=>{
+    const load=()=>{
+      try{
+        const rows=JSON.parse(payrollStorage.getItem(workspaceKeys.sheetCodeConflicts)??"[]") as {code:string}[];
+        setBlockedCodes(Array.isArray(rows)?rows.map(row=>row.code.trim().toLowerCase()):[]);
+      }catch{setBlockedCodes([]);}
+    };
+    load();window.addEventListener("storage",load);
+    return()=>window.removeEventListener("storage",load);
+  },[]);
   const { inventory } = useDemoInventory();
   const { employees } = useDemoEmployees();
   const { settings } = useDemoPayrollSettings();
@@ -86,14 +98,14 @@ export function FortnightClosing() {
     const fromMs=Date.parse(jakartaDateTimeInputToISO(activeFrom));
     const toMs=Date.parse(jakartaDateTimeInputToISO(activeTo));
     return allOrders.flatMap(order=>{
-      if(!isPayrollEligible(order))return [];
+      if(blockedCodes.includes(order.externalReference.trim().toLowerCase()) || !isPayrollEligible(order))return [];
       if(isDailySettlementOrder(order)){
         const days=dailySegmentsForPeriod(order,fromMs,toMs);
         return days.length?[createDailyPayrollSlice(order,days)]:[];
       }
       return isIsoInsideRange(effectivePayrollTimestamp(order),activeFrom,activeTo)?[order]:[];
     });
-  }, [allOrders, activeFrom, activeTo]);
+  }, [allOrders, activeFrom, activeTo, blockedCodes]);
   const oldBook=useMemo(()=>allOrders.filter(order=>bookForOrder(order.orderedAt)==="old"),[allOrders]);
   const oldClosed=oldBook.filter(order=>Boolean(order.payrollClosedAt||order.payrollPeriodId));
   const oldPending=oldBook.filter(order=>!order.payrollClosedAt && !order.payrollPeriodId && order.transferStatus?.trim().toUpperCase()==="PENDING");
