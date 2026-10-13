@@ -442,10 +442,10 @@ export function OrderEntryForm() {
             <input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder={"Nama pembeli"} className={inputClass} required />
           </label>
           {orderType === "boosting" ? <label className="text-sm">Pilih dari Daftar Boosting (opsional)
-            <select value={boostingCatalogId} onChange={e=>{const id=e.target.value;setBoostingCatalogId(id);const plan=boostingPlans.find(p=>p.id===id);if(plan){setOrderName(plan.name);setRate(plan.rateMinor);}}} className={inputClass}>
-              <option value="">Isi nama dan harga manual</option>
-              {boostingPlans.filter(p=>p.gameId===selectedGameId).map(p=><option key={p.id} value={p.id}>{p.name} — {formatMoney(p.rateMinor)}</option>)}
-            </select><span className="mt-1 block text-xs text-zinc-400">Harga otomatis bisa diedit manual di bawah; harga mutasi dari Sheet tidak berubah. <Link href="/admin/payroll/boosting" className="text-yellow-300 underline">Kelola Daftar Boosting</Link>.</span>
+            <select value={boostingCatalogId} onChange={e=>{const id=e.target.value;const plan=boostingPlans.find(p=>p.id===id);if(plan){chooseGame(plan.gameId);setBoostingCatalogId(id);setOrderName(plan.name);setRate(plan.rateMinor);}else setBoostingCatalogId("");}} className={inputClass}>
+              <option value="">Pilih paket Boosting atau isi manual</option>
+              {boostingPlans.filter(p=>games.some(g=>g.id===p.gameId)).map(p=><option key={p.id} value={p.id}>{games.find(g=>g.id===p.gameId)?.name} · {p.name} — {formatMoney(p.rateMinor)}</option>)}
+            </select><span className="mt-1 block text-xs text-zinc-400">Memilih paket juga mengisi game, region, server, nama, dan harga default. Harga bisa diubah manual; RATE mutasi dari Sheet tidak berubah. <Link href="/admin/payroll/boosting" className="text-yellow-300 underline">Kelola Daftar Boosting</Link>.</span>
           </label> : null}
           {orderType !== "gold" ? (
             <label className="text-sm">Nama pesanan
