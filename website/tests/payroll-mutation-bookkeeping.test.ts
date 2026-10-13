@@ -7,7 +7,7 @@ import type { Order } from "../features/payroll/types/domain";
 const orderedAt="2026-10-06T18:15:00.000Z";
 function daily(): Order {
   return {
-    id:"sheet:X2754", externalReference:"X2754", source:"G2G",
+    id:"sheet:X2754", orderNumber:"X2754", externalReference:"X2754", source:"G2G",
     buyerName:"Customer 2754",orderName:"7 Days Package",game:"AION",service:"Boosting",
     scheduleMode:"daily",scheduleTotalDays:7,orderType:"boosting",
     quantity:7,grossMinor:700000,expectedPaymentMinor:700000,matchedPaymentMinor:0,
@@ -22,7 +22,7 @@ function daily(): Order {
   };
 }
 function simple(id:string,code:string): Order {
-  return {id,externalReference:code,source:"G2G",buyerName:"Buyer",orderName:"Boosting",game:"AION",
+  return {id,orderNumber:code,externalReference:code,source:"G2G",buyerName:"Buyer",orderName:"Boosting",game:"AION",
     service:"Boosting",quantity:1,grossMinor:125200,expectedPaymentMinor:125200,matchedPaymentMinor:0,
     operationalStatus:"verified",financeStatus:"pending",orderedAt,dueAt:orderedAt};
 }
