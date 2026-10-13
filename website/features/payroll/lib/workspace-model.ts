@@ -152,7 +152,15 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   const nextEmployees=(next[workspaceKeys.employees]??[]) as Employee[];
   for(const oldEmployee of previousEmployees) {
     const latest=nextEmployees.find(e=>e.id===oldEmployee.id);
-    if(!latest)continue;
+    if(!latest) {
+      if(oldEmployee.sheetNameCorrection) payrollFailure('Permintaan koreksi nama harus diselesaikan sebelum karyawan dihapus.',409);
+      continue;
+    }
+    if(oldEmployee.code!==latest.code || (oldEmployee.name!==latest.name && sheetRenameSource!=="admin" && sheetRenameSource!=="sync")
+      || (oldEmployee.sheetRosterSource && sheetRenameSource!=="sync" && canonical(oldEmployee.sheetRosterSource)!==canonical(latest.sheetRosterSource))) {
+      payrollFailure('Identitas, nama, atau sumber karyawan hanya dapat diperbarui melalui proses resmi.',403);
+    }
+    if(sheetRenameSource==="admin" && oldEmployee.sheetRosterSource && oldEmployee.name!==latest.name) payrollFailure('Nama karyawan Sheet wajib menunggu konfirmasi Sheet.',409);
     if(canonical(oldEmployee.sheetNameCorrection)===canonical(latest.sheetNameCorrection))continue;
     if(sheetRenameSource==="admin" && !oldEmployee.sheetNameCorrection && latest.sheetNameCorrection
        && oldEmployee.name===latest.name
