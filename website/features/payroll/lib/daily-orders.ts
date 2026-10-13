@@ -134,7 +134,7 @@ export function getDailyPayrollGrossMinor(order: Pick<Order, "dailyWork">, inclu
 export function getPayrollEligibleGrossMinor(order: Order, includeClosed = false) {
   if (!includeClosed && (order.payrollClosedAt || order.payrollPeriodId || order.financeStatus === "closed")) return 0;
   if (isDailySettlementOrder(order)) return getDailyPayrollGrossMinor(order, includeClosed);
-  if (order.operationalStatus !== "verified" || order.transferStatus?.trim().toUpperCase() === "PENDING") return 0;
+  if (order.operationalStatus !== "verified" || (order.id.startsWith("gsheet:") && order.transferStatus?.trim().toUpperCase() === "PENDING")) return 0;
   return order.grossMinor;
 }
 
