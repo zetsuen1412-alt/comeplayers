@@ -90,6 +90,14 @@ export interface Employee {
   };
   /** Retained identity when a referenced employee disappears from the Sheet. */
   sheetRosterMissingAt?: string;
+  /** Server-owned request awaiting verified write to PAYROLL-N column B. */
+  sheetNameCorrection?: {
+    requestId: string;
+    oldName: string;
+    newName: string;
+    requestedAt: string;
+    requestedBy: string;
+  };
 }
 
 export interface OrderWorkerAssignment {
