@@ -102,7 +102,7 @@ export function EmployeeManager() {
   async function saveEmployeeName(employee: Employee) {
     if (savingName) return;
     setActionMessage(null);
-    const newName = editedName.trim().replace(/\\s+/g, " ");
+    const newName = editedName.trim().replace(/\s+/g, " ");
     if (!newName || newName.length > 160) {
       setActionMessage("⚠ Nama karyawan harus diisi dan maksimal 160 karakter."); return;
     }
