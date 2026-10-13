@@ -67,7 +67,7 @@ function referencedEmployeeCodes(state: WorkspaceState, employees: Employee[]) {
 export function pruneUnreferencedSheetRosterEmployees(state: WorkspaceState, spreadsheetId: string) {
   const employees = (state[workspaceKeys.employees] ?? []) as Employee[];
   const referenced = referencedEmployeeCodes(state, employees);
-  const kept = employees.filter(employee => !employee.sheetRosterMissingAt
+  const kept = employees.filter(employee => !employee.sheetRosterMissingAt || Boolean(employee.sheetNameCorrection)
     || employee.sheetRosterSource?.spreadsheetId !== spreadsheetId || referenced.has(employee.code));
   state[workspaceKeys.employees] = kept;
   return employees.length - kept.length;
@@ -127,7 +127,7 @@ export function mergeGoogleSheetRoster(state: WorkspaceState, snapshot: GoogleSh
   }
   const nextEmployees = employees.filter(employee => {
     if (claimed.has(employee.id) || !/^FH[123]$/.test(employee.team)) return true;
-    if (employee.sheetRosterSource?.spreadsheetId === spreadsheetId && !referenced.has(employee.code)) { rosterRemoved++; return false; }
+    if (employee.sheetRosterSource?.spreadsheetId === spreadsheetId && !referenced.has(employee.code) && !employee.sheetNameCorrection) { rosterRemoved++; return false; }
     if (!employee.sheetRosterMissingAt) { employee.sheetRosterMissingAt = sentAt; rosterUpdated++; }
     return true;
   });
