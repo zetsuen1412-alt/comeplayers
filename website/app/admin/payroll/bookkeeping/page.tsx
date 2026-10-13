@@ -12,7 +12,7 @@ import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-e
 import { formatMutationDistribution, mutationDayLabel } from "@/features/payroll/lib/mutation-rows";
 
 export default function BookkeepingPage() {
-  const {allOrders} = useDemoOrders();
+  const {allOrders,archivedOrders} = useDemoOrders();
   const {closings} = useDemoClosings();
   const [period,setPeriod] = useState("all");
   const [search,setSearch] = useState("");
@@ -21,7 +21,7 @@ export default function BookkeepingPage() {
   const [transfer,setTransfer] = useState("all");
   const [expanded,setExpanded] = useState<string|null>(null);
   const [exporting,setExporting] = useState(false);
-  const entries = useMemo(()=>bookkeepingEntries(closings,allOrders),[closings,allOrders]);
+  const entries = useMemo(()=>bookkeepingEntries(closings,[...allOrders,...archivedOrders]),[closings,allOrders,archivedOrders]);
   const filtered = useMemo(()=>entries.filter(entry=>{
     const row=entry.row, order=row.order;
     if(period!=="all" && entry.closing.id!==period) return false;
