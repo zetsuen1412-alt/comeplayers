@@ -10,6 +10,7 @@ import { formatDateTimeID, toJakartaDateInput } from "@/features/payroll/lib/dat
 import { formatMoney } from "@/features/payroll/lib/money";
 import { exportMutationsSpreadsheet } from "@/features/payroll/lib/spreadsheet-export";
 import { formatMutationDistribution, mutationDayLabel } from "@/features/payroll/lib/mutation-rows";
+import { LegacyFHArchive } from "@/features/payroll/components/legacy-fh-archive";
 
 export default function BookkeepingPage() {
   const {allOrders,archivedOrders} = useDemoOrders();
@@ -44,11 +45,12 @@ export default function BookkeepingPage() {
     finally{setExporting(false);}
   }
   return <div className="space-y-5">
-    <PageHeader title="Data Pembukuan" description="Arsip mutasi yang sudah masuk Tutup Buku. Data tetap tersimpan dan tidak akan dihitung ulang ke payroll aktif."/>
+    <PageHeader title="Data Pembukuan" description="Arsip historis MUTASI FH sebelum X2754 serta snapshot Tutup Buku yang tercatat. Data lama tidak masuk kembali ke Gaji aktif."/>
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-sm text-zinc-400">Nilai berasal dari snapshot saat Closing. Untuk paket beberapa hari, hanya DAY yang masuk Closing tersebut yang ditampilkan.</p>
       <Link href="/admin/payroll/mutations" className="rounded-lg bg-zinc-800 px-4 py-2 text-sm">← Kembali ke Mutasi Aktif</Link>
     </div>
+    <LegacyFHArchive />
     <section className="cp-card p-4 sm:p-5">
       <h2 className="text-lg font-semibold">Cari arsip mutasi</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
