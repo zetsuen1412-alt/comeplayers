@@ -1,0 +1,71 @@
+name: Payroll employee name writeback checks
+on:
+  pull_request:
+    paths:
+      - website/app/admin/payroll/employees/**
+      - website/app/api/admin/payroll/employees/**
+      - website/app/api/integrations/payroll-employee-renames/**
+      - website/app/api/integrations/payroll-sheet/**
+      - website/features/payroll/components/employee-manager.tsx
+      - website/features/payroll/lib/employee-name-correction.ts
+      - website/features/payroll/lib/google-sheet-roster.ts
+      - website/features/payroll/lib/workspace-model.ts
+      - website/features/payroll/types/domain.ts
+      - website/scripts/comeplayers-payroll-google-sheets.gs
+      - website/tests/payroll-employee-name-correction.test.ts
+      - website/tests/payroll-google-sheet-script.test.ts
+      - .github/workflows/payroll-employee-name-writeback-checks.yml
+  push:
+    branches: [main]
+    paths:
+      - website/app/admin/payroll/employees/**
+      - website/app/api/admin/payroll/employees/**
+      - website/app/api/integrations/payroll-employee-renames/**
+      - website/features/payroll/lib/employee-name-correction.ts
+      - website/features/payroll/lib/google-sheet-roster.ts
+      - website/features/payroll/lib/workspace-model.ts
+      - website/features/payroll/types/domain.ts
+      - website/scripts/comeplayers-payroll-google-sheets.gs
+      - website/tests/payroll-employee-name-correction.test.ts
+      - website/tests/payroll-google-sheet-script.test.ts
+      - .github/workflows/payroll-employee-name-writeback-checks.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Resolve mobile crypto dependencies for existing typecheck
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const path=require('node:path');
+          const web=require('./package.json');
+          const mobile=require('../comeplayers-apps/apps/mobile/package.json');
+          for(const name of ['hpke','@panva/hpke-noble','@noble/curves','@noble/ciphers','@noble/hashes']){
+            if(web.dependencies[name]!==mobile.dependencies[name])throw Error('Incompatible crypto versions: '+name);
+            const target=path.resolve('node_modules',name);
+            const link=path.resolve('../comeplayers-apps/apps/mobile/node_modules',name);
+            fs.mkdirSync(path.dirname(link),{recursive:true});
+            if(!fs.existsSync(link))fs.symlinkSync(target,link,'dir');
+          }
+          NODE
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Verify roster, rename, Google Sheets script and regression
+        run: npx --no-install tsx --test tests/payroll-employee-name-correction.test.ts tests/payroll-google-sheet-roster.test.ts tests/payroll-google-sheet-script.test.ts tests/payroll-final-workspace.test.ts
