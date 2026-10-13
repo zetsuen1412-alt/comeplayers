@@ -14,7 +14,7 @@ function readLegacyRows():LegacyMutationSnapshot[] {
   }catch{return [];}
 }
 function csvCell(value:string|number) {
-  const content=String(value).replace(/^[=+@\-]/,"'$&");
+  const content=/^\s*[=+@-]/.test(String(value)) ? "\'"+String(value) : String(value);
   return '"'+content.replace(/"/g,'""')+'"';
 }
 
