@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const source = (data.payload as Record<string, unknown>)?.[workspaceKeys.employees];
     if (!Array.isArray(source)) return response({ error: 'Daftar karyawan payroll belum tersedia.' }, 503);
     const employees = mobilePayrollRoster(source as Employee[]);
-    return response({ schema: 1, revision: data.revision, updatedAt: data.updated_at, employees });
+    return response({ schema: 1, scope: 'FH3', revision: data.revision, updatedAt: data.updated_at, employees });
   } catch (error) {
     const status = adminErrorStatus(error);
     return response({ error: status === 401 ? 'Sesi habis; silakan login ulang.'

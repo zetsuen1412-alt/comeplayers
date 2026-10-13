@@ -9,7 +9,7 @@ const APK_URL = "/downloads/cp-boost-monitor.apk";
 const ZIP_URL = "/downloads/cp-boost-monitor.zip";
 const APK_SHA_URL = "/downloads/cp-boost-monitor.apk.sha256";
 type RosterRow = { id: string; code: string; name: string; team: string; active: boolean };
-type Roster = { schema: number; revision: number; updatedAt: string; employees: RosterRow[] };
+type Roster = { schema: number; scope: "FH3"; revision: number; updatedAt: string; employees: RosterRow[] };
 
 export default function BoostMonitorDownloadPage() {
   const actor = usePayrollActor();
@@ -51,8 +51,9 @@ export default function BoostMonitorDownloadPage() {
     setRosterError("");
     try {
       const data = await authenticatedFetchJson<Roster>("/api/admin/payroll/mobile/roster");
-      if (data.schema !== 1 || !Array.isArray(data.employees) || !Number.isSafeInteger(data.revision)) {
-        throw new Error("Format data roster website belum sesuai.");
+      if (data.schema !== 1 || data.scope !== "FH3" || !Array.isArray(data.employees)
+        || data.employees.some(employee => employee.team !== "FH3") || !Number.isSafeInteger(data.revision)) {
+        throw new Error("Roster dari website bukan khusus FH3.");
       }
       setRoster(data);
     } catch (error) {
@@ -73,11 +74,11 @@ export default function BoostMonitorDownloadPage() {
   return <div className="space-y-5">
     <PageHeader title="APK Karyawan — CP Boost Monitor" description="Unduh APK dari website ComePlayers, lalu cek sumber data karyawan yang akan tersinkron dengan aplikasi." />
     <section className="cp-card p-5 sm:p-6">
-      <div className="text-sm font-semibold text-emerald-300">Android · v1.2 · Build internal (debug)</div>
+      <div className="text-sm font-semibold text-emerald-300">Android · v1.3 · Khusus FH3 · Build internal (debug)</div>
       <h2 className="mt-2 text-xl font-semibold">CP Boost Monitor</h2>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">Aplikasi memantau Ready Boosting, Menganggur, Tidur, Tidur Terlalu Lama, dan Sedang Bekerja. Nama, kode dan FH otomatis diambil dari menu Payroll → Karyawan setelah login akun payroll di APK; tanpa input manual.</p>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">Aplikasi memantau Ready Boosting, Menganggur, Tidur, Tidur Terlalu Lama, dan Sedang Bekerja. Hanya nama dan kode karyawan FH3 diambil dari Payroll → Karyawan. FH1, FH2, ADMIN, dan BANDAR tidak ikut tersinkron ke APK.</p>
       <div className="mt-5 flex flex-wrap gap-3">
-        {available ? <a href={APK_URL} download="CP-Boost-Monitor-v1.2.apk" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-emerald-300">⬇ Download APK Android</a>
+        {available ? <a href={APK_URL} download="CP-Boost-Monitor-v1.3-FH3.apk" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-emerald-300">⬇ Download APK Android</a>
           : <span className="rounded-xl border border-zinc-700 px-5 py-3 text-sm text-zinc-400">{checking ? "Memeriksa file APK…" : "Download belum tersedia"}</span>}
         {zipAvailable && <a href={ZIP_URL} download="CP-Boost-Monitor-Android.zip" className="rounded-xl border border-emerald-500/70 px-5 py-3 text-sm font-semibold text-emerald-300 hover:bg-emerald-950">⬇ Download ZIP (Alternatif)</a>}
         <button type="button" disabled={checking} onClick={() => void checkFile()} className="rounded-xl border border-zinc-700 px-4 py-3 text-sm disabled:opacity-50">Cek file APK</button>
@@ -94,7 +95,7 @@ export default function BoostMonitorDownloadPage() {
       </div>
       {roster && <div role="status" className="mt-4 rounded-xl border border-emerald-500/30 p-4 text-sm">
         <strong className="text-emerald-300">✓ API payroll berhasil dibaca oleh akun admin</strong>
-        <div className="mt-2">Karyawan aktif: <strong>{active}</strong> dari total <strong>{roster.employees.length}</strong> · Revisi website: <strong>{roster.revision}</strong></div>
+        <div className="mt-2">Karyawan FH3 aktif: <strong>{active}</strong> dari total <strong>{roster.employees.length}</strong> · Revisi website: <strong>{roster.revision}</strong></div>
         <div className="mt-1 text-zinc-400">Pembaruan website: {roster.updatedAt ? new Date(roster.updatedAt).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) : "tidak tersedia"}</div>
       </div>}
       {rosterError && <p role="alert" className="mt-4 text-sm text-amber-300">Belum terverifikasi: {rosterError}</p>}
@@ -107,7 +108,7 @@ export default function BoostMonitorDownloadPage() {
         <li>Buka APK dan tekan <strong>Login &amp; Ambil Karyawan dari Website</strong>.</li>
         <li>Masuk dengan email/password akun ComePlayers yang memiliki akses payroll.</li>
         <li>Saat login berhasil, APK langsung mengambil daftar dari website. Tekan <strong>Ambil Nama Terbaru</strong> jika ingin refresh segera; otomatis diperbarui kira-kira tiap 2 menit selama aktif.</li>
-        <li>Cocokkan roster di APK dengan menu <strong>Karyawan</strong> pada website. Status boosting tetap lokal di HP, belum real-time lintas perangkat.</li>
+        <li>Cocokkan roster di APK dengan menu <strong>Karyawan</strong> → filter <strong>FH3</strong> pada website. Status boosting tetap lokal di HP, belum real-time lintas perangkat.</li>
       </ol>
     </section>
   </div>;

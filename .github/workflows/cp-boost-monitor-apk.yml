@@ -75,15 +75,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="cp-boost-monitor-android-v1.2-debug"
+          TAG="cp-boost-monitor-android-v1.3-fh3-debug"
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.2-debug.apk" --clobber
+            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.3-fh3-debug.apk" --clobber
           else
-            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.2-debug.apk" \
+            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.3-fh3-debug.apk" \
               --target "$GITHUB_SHA" \
-              --title "CP Boost Monitor Android v1.2 (internal debug)" \
+              --title "CP Boost Monitor Android v1.3 FH3 (internal debug)" \
               --notes "APK debug internal. Download mudah juga tersedia di Website Payroll Admin." \
               --prerelease
           fi
