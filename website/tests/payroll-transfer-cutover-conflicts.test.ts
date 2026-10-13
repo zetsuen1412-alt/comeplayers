@@ -114,10 +114,12 @@ test("closing old book before 01.15 keeps exact-boundary DELIVERED in the new li
    lockedBy:"Admin",lockedAt:"2026-10-13T06:00:00Z"};
  state[K.advances]=[];
  state[K.settings]={defaultSharePercent:50,employeeSharePercent:{},adjustments:{}};
- const closed=closeWorkspace(state,"2026-10-13T06:05:00Z");
- assert.deepEqual(closed.record.orderRefs,["OLD-X"]);
- const after=orders(closed.state);
- assert.ok(after.find(x=>x.externalReference==="OLD-X")?.payrollClosedAt);
+ // Legacy rows are now recorded as already closed by the admin's cutover.
+ // Do not execute another financial Closing or payroll Kasbon deduction.
+ assert.throws(()=>closeWorkspace(state,"2026-10-13T06:05:00Z"),/Tidak ada order/);
+ assert.equal(state[K.closings],undefined);
+ const after=orders(state);
+ assert.equal(isPayrollEligible(after.find(x=>x.externalReference==="OLD-X")!),false);
  assert.equal(after.find(x=>x.externalReference==="NEW-X")?.payrollClosedAt,undefined);
  assert.equal(isPayrollEligible(after.find(x=>x.externalReference==="NEW-X")!),true);
  assert.equal(isPayrollEligible(after.find(x=>x.externalReference==="WAIT-X")!),false);
