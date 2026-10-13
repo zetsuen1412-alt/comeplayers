@@ -106,11 +106,22 @@ export function FortnightClosing() {
       return isIsoInsideRange(effectivePayrollTimestamp(order),activeFrom,activeTo)?[order]:[];
     });
   }, [allOrders, activeFrom, activeTo, blockedCodes]);
-  const oldBook=useMemo(()=>allOrders.filter(order=>bookForOrder(order.orderedAt)==="old"),[allOrders]);
-  const oldClosed=oldBook.filter(order=>Boolean(order.payrollClosedAt||order.payrollPeriodId));
-  const oldPending=oldBook.filter(order=>!order.payrollClosedAt && !order.payrollPeriodId && order.transferStatus?.trim().toUpperCase()==="PENDING");
-  const newBook=allOrders.filter(order=>bookForOrder(order.orderedAt)==="new");
-  const oldestDate=oldBook.map(order=>order.orderedAt).sort()[0];
+  const workEntries=useMemo(()=>allOrders.flatMap(order=>{
+    if(isDailySettlementOrder(order) && order.dailyWork?.length){
+      return order.dailyWork.map(day=>({
+        time:day.sourceOrderedAt??order.orderedAt,
+        closed:Boolean(day.payrollClosedAt||day.payrollPeriodId||order.payrollClosedAt),
+        pending:day.sourceTransferStatus?.trim().toUpperCase()==="PENDING",
+      }));
+    }
+    return [{time:order.orderedAt,closed:Boolean(order.payrollClosedAt||order.payrollPeriodId),
+      pending:order.transferStatus?.trim().toUpperCase()==="PENDING"}];
+  }),[allOrders]);
+  const oldBook=workEntries.filter(entry=>bookForOrder(entry.time)==="old");
+  const oldClosed=oldBook.filter(entry=>entry.closed);
+  const oldPending=oldBook.filter(entry=>!entry.closed && entry.pending);
+  const newBook=workEntries.filter(entry=>bookForOrder(entry.time)==="new");
+  const oldestDate=oldBook.map(entry=>entry.time).sort()[0];
   function chooseOldPeriod(){
     if(isLocked)return;
     setFrom(oldestDate?toJakartaDateTimeInput(oldestDate):"2026-01-01T00:00");
@@ -193,8 +204,8 @@ export function FortnightClosing() {
       <section className="cp-card p-5 sm:p-6"><h2 className="text-xl font-semibold">Pemisahan periode payroll</h2>
         <p className="mt-1 text-sm text-zinc-400">Patokan: Mutasi Sheet. Buku lama = sebelum 06/10/2026 01.15 WIB. Buku baru = mulai tepat 06/10/2026 01.15 WIB dan berlanjut sampai admin melakukan Tutup Buku. Perubahan ini tidak otomatis menjalankan pembayaran.</p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <div className="rounded-xl border border-zinc-700 p-4"><div className="font-semibold">Arsip / Periode lama</div><p className="mt-2 text-sm text-zinc-300">{oldBook.length} order · {oldClosed.length} sudah di-Closing · {oldPending.length} Pending belum boleh digaji</p><button type="button" onClick={chooseOldPeriod} disabled={isLocked} className="mt-3 rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Siapkan Tutup Buku lama</button></div>
-          <div className="rounded-xl border border-emerald-500/30 p-4"><div className="font-semibold text-emerald-300">Buku baru · aktif</div><p className="mt-2 text-sm text-zinc-300">{newBook.length} order sejak 06/10/2026 01.15 WIB, termasuk baris tepat pada batas.</p><button type="button" onClick={chooseNewPeriod} disabled={isLocked} className="mt-3 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Tampilkan buku baru</button></div>
+          <div className="rounded-xl border border-zinc-700 p-4"><div className="font-semibold">Arsip / Periode lama</div><p className="mt-2 text-sm text-zinc-300">{oldBook.length} baris pekerjaan · {oldClosed.length} sudah di-Closing · {oldPending.length} Pending belum boleh digaji</p><button type="button" onClick={chooseOldPeriod} disabled={isLocked} className="mt-3 rounded-lg bg-zinc-800 px-3 py-2 text-sm disabled:opacity-40">Siapkan Tutup Buku lama</button></div>
+          <div className="rounded-xl border border-emerald-500/30 p-4"><div className="font-semibold text-emerald-300">Buku baru · aktif</div><p className="mt-2 text-sm text-zinc-300">{newBook.length} baris pekerjaan sejak 06/10/2026 01.15 WIB, termasuk baris tepat pada batas.</p><button type="button" onClick={chooseNewPeriod} disabled={isLocked} className="mt-3 rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-black disabled:opacity-40">Tampilkan buku baru</button></div>
         </div>
         <p className="mt-3 text-xs text-amber-200">Order lama yang Pending atau bermasalah tetap sebagai pekerjaan tertunda dan tidak dihitung sebagai gaji. Lihat Riwayat Tutup Buku di bawah untuk memeriksa snapshot yang benar-benar sudah ditutup. Periksa pratinjau sebelum menekan Tutup Buku.</p>
       </section>
