@@ -104,6 +104,24 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      {
+        // Force actual Android downloads, including browsers embedded in messaging apps.
+        source: "/downloads/cp-boost-monitor.apk",
+        headers: [
+          { key: "Content-Type", value: "application/vnd.android.package-archive" },
+          { key: "Content-Disposition", value: 'attachment; filename="CP-Boost-Monitor.apk"' },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        // ZIP alternative is more reliable on browsers that stall on .apk transfers.
+        source: "/downloads/cp-boost-monitor.zip",
+        headers: [
+          { key: "Content-Type", value: "application/zip" },
+          { key: "Content-Disposition", value: 'attachment; filename="CP-Boost-Monitor-Android.zip"' },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
     ];
   },
 };

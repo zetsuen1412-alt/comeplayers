@@ -6,6 +6,7 @@ import { usePayrollActor } from "@/features/payroll/lib/workspace-store";
 import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 
 const APK_URL = "/downloads/cp-boost-monitor.apk";
+const ZIP_URL = "/downloads/cp-boost-monitor.zip";
 const APK_SHA_URL = "/downloads/cp-boost-monitor.apk.sha256";
 type RosterRow = { id: string; code: string; name: string; team: string; active: boolean };
 type Roster = { schema: number; revision: number; updatedAt: string; employees: RosterRow[] };
@@ -13,6 +14,7 @@ type Roster = { schema: number; revision: number; updatedAt: string; employees: 
 export default function BoostMonitorDownloadPage() {
   const actor = usePayrollActor();
   const [available, setAvailable] = useState(false);
+  const [zipAvailable, setZipAvailable] = useState(false);
   const [checking, setChecking] = useState(true);
   const [fileError, setFileError] = useState("");
   const [digest, setDigest] = useState("");
@@ -28,6 +30,10 @@ export default function BoostMonitorDownloadPage() {
       if (!res.ok || size < 10000) throw new Error("APK belum tersedia di server website. Pastikan build APK GitHub berhasil dan website sudah dideploy.");
       setAvailable(true);
       setFileError("");
+      try {
+        const zip = await fetch(ZIP_URL, { method: "HEAD", cache: "no-store" });
+        setZipAvailable(zip.ok && Number(zip.headers.get("content-length") || 0) > 10000);
+      } catch { setZipAvailable(false); }
       const hashRes = await fetch(APK_SHA_URL, { cache: "no-store" });
       if (hashRes.ok) {
         const hash = (await hashRes.text()).trim().split(/\s+/)[0];
@@ -35,6 +41,7 @@ export default function BoostMonitorDownloadPage() {
       }
     } catch (error) {
       setAvailable(false);
+      setZipAvailable(false);
       setFileError(error instanceof Error ? error.message : "Tidak dapat memeriksa APK.");
     } finally { setChecking(false); }
   }, []);
@@ -72,8 +79,10 @@ export default function BoostMonitorDownloadPage() {
       <div className="mt-5 flex flex-wrap gap-3">
         {available ? <a href={APK_URL} download="CP-Boost-Monitor-v1.1.apk" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-emerald-300">⬇ Download APK Android</a>
           : <span className="rounded-xl border border-zinc-700 px-5 py-3 text-sm text-zinc-400">{checking ? "Memeriksa file APK…" : "Download belum tersedia"}</span>}
+        {zipAvailable && <a href={ZIP_URL} download="CP-Boost-Monitor-Android.zip" className="rounded-xl border border-emerald-500/70 px-5 py-3 text-sm font-semibold text-emerald-300 hover:bg-emerald-950">⬇ Download ZIP (Alternatif)</a>}
         <button type="button" disabled={checking} onClick={() => void checkFile()} className="rounded-xl border border-zinc-700 px-4 py-3 text-sm disabled:opacity-50">Cek file APK</button>
       </div>
+      <p className="mt-3 text-sm leading-6 text-zinc-400">Jika download APK berhenti di 100% dalam browser bawaan WhatsApp/Telegram, buka halaman ini di <strong>Chrome</strong> melalui menu ⋮ → Buka di browser. Alternatif: pilih <strong>Download ZIP</strong>, lalu buka File Manager → Download, ekstrak ZIP dan instal file APK di dalamnya.</p>
       {fileError && <p role="alert" className="mt-3 text-sm text-amber-300">{fileError}</p>}
       {digest && <p className="mt-3 break-all text-xs text-zinc-500">SHA-256 APK: <code>{digest}</code></p>}
       <p className="mt-4 text-xs leading-5 text-zinc-500">APK ini build debug untuk pengujian internal. Instal di HP Android yang diizinkan. Untuk distribusi produksi diperlukan APK release yang ditandatangani perusahaan.</p>

@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'website/public/downloads/cp-boost-monitor.apk'
+      - 'website/public/downloads/cp-boost-monitor.zip'
+      - 'website/next.config.ts'
       - 'website/app/api/admin/payroll/mobile/**'
       - 'website/app/admin/payroll/boost-monitor/**'
       - '.github/workflows/cp-boost-monitor-website-check.yml'
@@ -23,6 +25,9 @@ jobs:
           test -s website/public/downloads/cp-boost-monitor.apk
           (cd website/public/downloads && sha256sum -c cp-boost-monitor.apk.sha256)
           unzip -t website/public/downloads/cp-boost-monitor.apk | tail -n 1
+          test -s website/public/downloads/cp-boost-monitor.zip
+          unzip -t website/public/downloads/cp-boost-monitor.zip | tail -n 1
+          test "$(unzip -p website/public/downloads/cp-boost-monitor.zip CP-Boost-Monitor.apk | sha256sum | cut -d' ' -f1)" = "$(sha256sum website/public/downloads/cp-boost-monitor.apk | cut -d' ' -f1)"
       - name: Verify production website serves identical APK and guards payroll roster
         shell: bash
         run: |
@@ -31,12 +36,17 @@ jobs:
           expected="$(sha256sum website/public/downloads/cp-boost-monitor.apk | cut -d' ' -f1)"
           success=0
           for attempt in $(seq 1 25); do
-            apk_code="$(curl -sSL --connect-timeout 10 --max-time 25 -o /tmp/cp-boost-monitor.apk -w '%{http_code}' "$BASE/downloads/cp-boost-monitor.apk?check=${GITHUB_SHA}" || true)"
+            apk_code="$(curl -sSL --connect-timeout 10 --max-time 25 -D /tmp/cp-apk-headers -o /tmp/cp-boost-monitor.apk -w '%{http_code}' "$BASE/downloads/cp-boost-monitor.apk?check=${GITHUB_SHA}" || true)"
+            zip_code="$(curl -sSL --connect-timeout 10 --max-time 25 -D /tmp/cp-zip-headers -o /tmp/cp-boost-monitor.zip -w '%{http_code}' "$BASE/downloads/cp-boost-monitor.zip?check=${GITHUB_SHA}" || true)"
             roster_code="$(curl -sSL --connect-timeout 10 --max-time 25 -o /tmp/roster-check.json -w '%{http_code}' "$BASE/api/admin/payroll/mobile/roster?check=${GITHUB_SHA}" || true)"
             actual="$(test -s /tmp/cp-boost-monitor.apk && sha256sum /tmp/cp-boost-monitor.apk | cut -d' ' -f1 || true)"
-            echo "Attempt $attempt: APK HTTP $apk_code SHA-match $([[ "$expected" == "$actual" ]] && echo yes || echo no) / protected roster HTTP $roster_code"
-            if [[ "$apk_code" == "200" && "$expected" == "$actual" && "$roster_code" == "401" ]]; then
-              echo "Verified deployed APK integrity and unauthorized roster access is blocked."
+            expected_zip="$(sha256sum website/public/downloads/cp-boost-monitor.zip | cut -d' ' -f1)"
+            actual_zip="$(test -s /tmp/cp-boost-monitor.zip && sha256sum /tmp/cp-boost-monitor.zip | cut -d' ' -f1 || true)"
+            apk_attachment="$(grep -Eiq '^content-disposition:[[:space:]]*attachment' /tmp/cp-apk-headers && echo yes || echo no)"
+            zip_attachment="$(grep -Eiq '^content-disposition:[[:space:]]*attachment' /tmp/cp-zip-headers && echo yes || echo no)"
+            echo "Attempt $attempt: APK $apk_code SHA-match $([[ "$expected" == "$actual" ]] && echo yes || echo no) attachment $apk_attachment; ZIP $zip_code SHA-match $([[ "$expected_zip" == "$actual_zip" ]] && echo yes || echo no) attachment $zip_attachment; roster $roster_code"
+            if [[ "$apk_code" == "200" && "$expected" == "$actual" && "$apk_attachment" == "yes" && "$zip_code" == "200" && "$expected_zip" == "$actual_zip" && "$zip_attachment" == "yes" && "$roster_code" == "401" ]]; then
+              echo "Verified Android attachment downloads (APK/ZIP), both SHA-256 checksums and payroll API authorization."
               success=1
               break
             fi
