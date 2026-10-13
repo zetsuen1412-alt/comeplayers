@@ -47,7 +47,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         }
     }
 
-    public EmployeeDb(Context context) { super(context, "cp_boost_monitor.db", null, 2); }
+    public EmployeeDb(Context context) { super(context, "cp_boost_monitor.db", null, 3); }
 
     @Override public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE employees (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, position TEXT NOT NULL DEFAULT '', status TEXT NOT NULL, task TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', status_since INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, payroll_id TEXT UNIQUE, payroll_code TEXT, payroll_active INTEGER NOT NULL DEFAULT 1)");
@@ -61,6 +61,15 @@ public final class EmployeeDb extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE employees ADD COLUMN payroll_active INTEGER NOT NULL DEFAULT 1");
             db.execSQL("CREATE UNIQUE INDEX employee_payroll_idx ON employees(payroll_id)");
         }
+        if (oldVersion < 3) removeNonFH3(db);
+    }
+
+    /** Menghapus data non-FH3 HANYA pada SQLite HP, tidak pada website payroll. */
+    private static void removeNonFH3(SQLiteDatabase db) {
+        db.execSQL("DELETE FROM events WHERE employee_id IN (" +
+                "SELECT _id FROM employees WHERE payroll_id IS NULL OR position <> 'FH3')");
+        db.execSQL("DELETE FROM employees WHERE payroll_id IS NULL OR position <> 'FH3'");
+        db.execSQL("DELETE FROM events WHERE employee_id NOT IN (SELECT _id FROM employees)");
     }
 
     private static Employee readEmployee(Cursor c) {
@@ -80,7 +89,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         List<Employee> result = new ArrayList<>();
         try (Cursor c = getReadableDatabase().rawQuery(
                 "SELECT _id,name,position,status,task,note,status_since,created_at,payroll_id,payroll_code " +
-                "FROM employees WHERE payroll_active=1 AND payroll_id IS NOT NULL ORDER BY position,name COLLATE NOCASE", null)) {
+                "FROM employees WHERE payroll_active=1 AND payroll_id IS NOT NULL AND position='FH3' ORDER BY name COLLATE NOCASE", null)) {
             while (c.moveToNext()) result.add(readEmployee(c));
         }
         return result;
@@ -96,9 +105,10 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     }
     /** Menggabungkan roster lengkap tanpa mengubah status boosting, tugas, atau riwayat lama. */
     public int[] syncRoster(JSONObject snapshot) throws JSONException {
-        if (snapshot.optInt("schema") != 1 || !snapshot.has("revision")) throw new JSONException("Format payroll tidak dikenal.");
+        if (snapshot.optInt("schema") != 1 || !"FH3".equals(snapshot.optString("scope")) || !snapshot.has("revision"))
+            throw new JSONException("Roster bukan khusus FH3. Sinkronisasi dibatalkan.");
         JSONArray list = snapshot.getJSONArray("employees");
-        if (list.length() == 0 || list.length() > 15000) throw new JSONException("Daftar karyawan kosong/terlalu besar; data lama dipertahankan.");
+        if (list.length() > 15000) throw new JSONException("Daftar FH3 terlalu besar; data lama dipertahankan.");
         Set<String> keys = new HashSet<>();
         Set<String> codes = new HashSet<>();
         for (int i = 0; i < list.length(); i++) {
@@ -108,7 +118,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
             String name = x.getString("name").trim();
             String team = x.getString("team").trim();
             if (id.isEmpty() || id.length() > 200 || code.isEmpty() || code.length() > 100 || name.isEmpty() || name.length() > 160
-                    || !(team.equals("FH1") || team.equals("FH2") || team.equals("FH3") || team.equals("ADMIN") || team.equals("BANDAR"))
+                    || !team.equals("FH3")
                     || !keys.add(id) || !codes.add(code)) throw new JSONException("Data payroll duplikat/tidak valid. Sync dibatalkan.");
             x.getBoolean("active");
         }
@@ -154,13 +164,18 @@ public final class EmployeeDb extends SQLiteOpenHelper {
                     added++;
                 }
             }
-            // Hilang dari payroll => disembunyikan, bukan dihapus. Riwayat dan status tetap utuh.
-            try (Cursor c = database.rawQuery("SELECT _id,payroll_id FROM employees WHERE payroll_id IS NOT NULL AND payroll_active=1", null)) {
-                while (c.moveToNext()) if (!keys.contains(c.getString(1))) {
-                    ContentValues v = new ContentValues(); v.put("payroll_active", 0); v.put("updated_at", now);
-                    database.update("employees", v, "_id=?", new String[] {String.valueOf(c.getLong(0))}); deactivated++;
-                }
+            // ID di luar roster FH3 tidak boleh tertinggal di APK (mis. pindah divisi).
+            List<Long> missing = new ArrayList<>();
+            try (Cursor c = database.rawQuery("SELECT _id,payroll_id FROM employees WHERE payroll_id IS NOT NULL", null)) {
+                while (c.moveToNext()) if (!keys.contains(c.getString(1))) missing.add(c.getLong(0));
             }
+            for (Long id : missing) {
+                String[] args = {String.valueOf(id)};
+                database.delete("events", "employee_id=?", args);
+                database.delete("employees", "_id=?", args);
+                deactivated++;
+            }
+            removeNonFH3(database);
             database.setTransactionSuccessful();
         } finally { database.endTransaction(); }
         return new int[] {added, changed, deactivated};
@@ -308,6 +323,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
                 v.put("to_status", x.getString("toStatus")); v.put("note", x.optString("note", ""));
                 v.put("changed_at", x.getLong("changedAt")); db.insertOrThrow("events", null, v);
             }
+            removeNonFH3(db); // Backup versi lama tak boleh mengembalikan divisi lain.
             db.setTransactionSuccessful();
         } finally { db.endTransaction(); }
     }
