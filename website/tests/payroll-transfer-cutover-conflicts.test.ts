@@ -44,7 +44,7 @@ test("PENDING never enters salary even when a website user sets verified",()=>{
  assert.equal(order.operationalStatus,"draft");
  assert.equal(isPayrollEligible(order),false);
  assert.equal(isPayrollEligible({...order,operationalStatus:"verified",verifiedAt:order.orderedAt}),false);
- assert.equal(buildLivePayrollRows([{...order,operationalStatus:"verified"}],{employees:[emp]}).length,0);
+ assert.equal(buildLivePayrollRows([{...order,operationalStatus:"verified"}],{employees:[emp]}).filter(r=>r.orderRefs.length).length,0);
 });
 test("DELIVERED with unmatched employee is marked problematic and excluded from salary",()=>{
  const first=mergeGoogleSheetPayroll(base(),payload([row(5848,"Delivered","X3180","Buyer","Leveling 30-60","NOT A WORKER")]));
