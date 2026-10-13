@@ -5,6 +5,7 @@ on:
       - 'CP-BoostMonitor-Android/**'
       - '.github/workflows/cp-boost-monitor-apk.yml'
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,8 +17,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Prepare Android SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [[ ! -d "$ANDROID_HOME/platforms/android-35" || ! -d "$ANDROID_HOME/build-tools/35.0.0" ]]; then
+            (yes y || true) | "$SDKMANAGER" --licenses
+            "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+          fi
+          test -d "$ANDROID_HOME/platforms/android-35"
+          test -d "$ANDROID_HOME/build-tools/35.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
