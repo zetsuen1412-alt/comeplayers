@@ -761,7 +761,7 @@ test("all-existing identity preflight respects an explicit deletion disable", ()
 });
 
 test("approved employee rename writes only the linked PAYROLL-2 name and keeps the original employee code", () => {
-  const h = harness(0); h.properties.CP_SYNC_ROSTER = "true";
+  const h = harness(1); h.properties.CP_SYNC_ROSTER = "true";
   h.reconcile();
   const before = ((h.state[workspaceKeys.employees] ?? []) as Employee[]).find(e => e.name === "Irwan")!;
   assert.ok(before.sheetRosterSource);
@@ -780,7 +780,7 @@ test("approved employee rename writes only the linked PAYROLL-2 name and keeps t
 });
 
 test("employee Sheet name writeback never overwrites a row whose old name changed", () => {
-  const h = harness(0); h.properties.CP_SYNC_ROSTER = "true";
+  const h = harness(1); h.properties.CP_SYNC_ROSTER = "true";
   h.reconcile();
   const original = ((h.state[workspaceKeys.employees] ?? []) as Employee[]).find(e => e.name === "Irwan")!;
   original.sheetNameCorrection = {
