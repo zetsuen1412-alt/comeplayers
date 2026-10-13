@@ -23,14 +23,6 @@ export function canonical(value: unknown): string {
   return JSON.stringify(value) ?? 'null';
 }
 function recordedClosingReferences(state: WorkspaceState) {
-  const catalogIdentities=new Set<string>();
-  for(const plan of list(workspaceKeys.boostingCatalog)) {
-    if(typeof plan.gameId!=='string'||!plan.gameId.trim()||typeof plan.name!=='string'||!plan.name.trim()||plan.name.length>180
-      ||!Number.isSafeInteger(plan.rateMinor)||Number(plan.rateMinor)<0||typeof plan.active!=='boolean') payrollFailure('Data atau harga katalog boosting tidak valid.');
-    const key=String(plan.gameId).toLowerCase()+'|'+String(plan.name).trim().toLowerCase();
-    if(catalogIdentities.has(key)) payrollFailure('Nama paket boosting duplikat untuk game yang sama.');
-    catalogIdentities.add(key);
-  }
   const references=new Set<string>();
   for(const record of (state[workspaceKeys.closings]??[]) as Array<{orderRefs?:unknown;ordersSnapshot?:unknown}>) {
     for(const reference of Array.isArray(record.orderRefs)?record.orderRefs:[]) {
@@ -77,6 +69,14 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   for(const e of list(workspaceKeys.employees)) {
     if(typeof e.code!=='string'||!e.code||employeeCodes.has(e.code)||typeof e.name!=='string'||!teams.includes(String(e.team))||!['NEW','SHIFT','FULL','SAKIT','IJIN','RESIGN'].includes(String(e.workforceStatus))) payrollFailure('Data karyawan tidak valid.');
     employeeCodes.add(e.code);
+  }
+  const catalogIdentities=new Set<string>();
+  for(const plan of list(workspaceKeys.boostingCatalog)) {
+    if(typeof plan.gameId!=='string'||!plan.gameId.trim()||typeof plan.name!=='string'||!plan.name.trim()||plan.name.length>180
+      ||!Number.isSafeInteger(plan.rateMinor)||Number(plan.rateMinor)<0||typeof plan.active!=='boolean') payrollFailure('Data atau harga katalog boosting tidak valid.');
+    const key=String(plan.gameId).toLowerCase()+'|'+String(plan.name).trim().toLowerCase();
+    if(catalogIdentities.has(key)) payrollFailure('Nama paket boosting duplikat untuk game yang sama.');
+    catalogIdentities.add(key);
   }
   const references=new Set<string>();
   for(const row of list(workspaceKeys.orders)) {
