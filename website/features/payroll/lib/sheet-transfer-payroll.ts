@@ -60,9 +60,11 @@ export function automaticDailyDelivery(order: Order): Order {
   // Keep only source-proven rows. This does not fabricate the missing days.
   const completed=dailyWork.filter(day=>day.status==="verified").length;
   const isComplete=completed>0 && completed===order.scheduleTotalDays && dailyWork.length===order.scheduleTotalDays;
-  return {...order,dailyWork,operationalStatus:isComplete?"verified":completed?"partially_completed":"assigned",
+  // JSON workspace persistence omits undefined optional timestamps. Normalize
+  // here too so replaying the same Sheet cannot trigger a phantom change.
+  return JSON.parse(JSON.stringify({...order,dailyWork,operationalStatus:isComplete?"verified":completed?"partially_completed":"assigned",
     verifiedAt:isComplete?dailyWork.at(-1)?.verifiedAt:undefined,
-    completedAt:isComplete?dailyWork.at(-1)?.completedAt:undefined};
+    completedAt:isComplete?dailyWork.at(-1)?.completedAt:undefined})) as Order;
 }
 export function eligibleTransferForPayroll(order: Order, day?: OrderDailyWork) {
   if(!order.id.startsWith("gsheet:"))return true; // Existing manual verification rules remain intact.
