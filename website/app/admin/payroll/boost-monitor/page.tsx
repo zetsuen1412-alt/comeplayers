@@ -73,11 +73,11 @@ export default function BoostMonitorDownloadPage() {
   return <div className="space-y-5">
     <PageHeader title="APK Karyawan — CP Boost Monitor" description="Unduh APK dari website ComePlayers, lalu cek sumber data karyawan yang akan tersinkron dengan aplikasi." />
     <section className="cp-card p-5 sm:p-6">
-      <div className="text-sm font-semibold text-emerald-300">Android · v1.1 · Build internal (debug)</div>
+      <div className="text-sm font-semibold text-emerald-300">Android · v1.2 · Build internal (debug)</div>
       <h2 className="mt-2 text-xl font-semibold">CP Boost Monitor</h2>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">Aplikasi memantau Ready Boosting, Menganggur, Tidur, Tidur Terlalu Lama, dan Sedang Bekerja. Daftar nama, kode dan divisi mengikuti Payroll Website secara otomatis.</p>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">Aplikasi memantau Ready Boosting, Menganggur, Tidur, Tidur Terlalu Lama, dan Sedang Bekerja. Nama, kode dan FH otomatis diambil dari menu Payroll → Karyawan setelah login akun payroll di APK; tanpa input manual.</p>
       <div className="mt-5 flex flex-wrap gap-3">
-        {available ? <a href={APK_URL} download="CP-Boost-Monitor-v1.1.apk" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-emerald-300">⬇ Download APK Android</a>
+        {available ? <a href={APK_URL} download="CP-Boost-Monitor-v1.2.apk" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-emerald-300">⬇ Download APK Android</a>
           : <span className="rounded-xl border border-zinc-700 px-5 py-3 text-sm text-zinc-400">{checking ? "Memeriksa file APK…" : "Download belum tersedia"}</span>}
         {zipAvailable && <a href={ZIP_URL} download="CP-Boost-Monitor-Android.zip" className="rounded-xl border border-emerald-500/70 px-5 py-3 text-sm font-semibold text-emerald-300 hover:bg-emerald-950">⬇ Download ZIP (Alternatif)</a>}
         <button type="button" disabled={checking} onClick={() => void checkFile()} className="rounded-xl border border-zinc-700 px-4 py-3 text-sm disabled:opacity-50">Cek file APK</button>
@@ -85,7 +85,7 @@ export default function BoostMonitorDownloadPage() {
       <p className="mt-3 text-sm leading-6 text-zinc-400">Jika download APK berhenti di 100% dalam browser bawaan WhatsApp/Telegram, buka halaman ini di <strong>Chrome</strong> melalui menu ⋮ → Buka di browser. Alternatif: pilih <strong>Download ZIP</strong>, lalu buka File Manager → Download, ekstrak ZIP dan instal file APK di dalamnya.</p>
       {fileError && <p role="alert" className="mt-3 text-sm text-amber-300">{fileError}</p>}
       {digest && <p className="mt-3 break-all text-xs text-zinc-500">SHA-256 APK: <code>{digest}</code></p>}
-      <p className="mt-4 text-xs leading-5 text-zinc-500">APK ini build debug untuk pengujian internal. Instal di HP Android yang diizinkan. Untuk distribusi produksi diperlukan APK release yang ditandatangani perusahaan.</p>
+      <p className="mt-4 text-xs leading-5 text-zinc-500">APK ini build debug untuk pengujian internal. Instal di HP Android yang diizinkan. Jika APK debug lama gagal diperbarui karena tanda tangan berbeda, backup data sebelum uninstall. Untuk distribusi produksi diperlukan APK release dengan tanda tangan stabil.</p>
     </section>
     <section className="cp-card p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -104,9 +104,9 @@ export default function BoostMonitorDownloadPage() {
       <h2 className="text-lg font-semibold">Cara admin memasang APK</h2>
       <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-zinc-300">
         <li>Klik <strong>Download APK Android</strong> dari halaman ini dan instal pada Android admin.</li>
-        <li>Buka aplikasi → Pengaturan → <strong>Login &amp; Hubungkan Payroll</strong>.</li>
+        <li>Buka APK dan tekan <strong>Login &amp; Ambil Karyawan dari Website</strong>.</li>
         <li>Masuk dengan email/password akun ComePlayers yang memiliki akses payroll.</li>
-        <li>Tekan <strong>Perbarui dari Payroll</strong> untuk mengambil daftar nama terbaru. Saat aplikasi aktif, refresh otomatis kira-kira tiap 2 menit.</li>
+        <li>Saat login berhasil, APK langsung mengambil daftar dari website. Tekan <strong>Ambil Nama Terbaru</strong> jika ingin refresh segera; otomatis diperbarui kira-kira tiap 2 menit selama aktif.</li>
         <li>Cocokkan roster di APK dengan menu <strong>Karyawan</strong> pada website. Status boosting tetap lokal di HP, belum real-time lintas perangkat.</li>
       </ol>
     </section>
