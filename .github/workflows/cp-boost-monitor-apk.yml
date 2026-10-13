@@ -52,11 +52,19 @@ jobs:
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
           mkdir -p website/public/downloads
           cp "$APK" website/public/downloads/cp-boost-monitor.apk
+          # ZIP fallback allows Android users to download from embedded browsers blocking .apk.
+          cp "$APK" website/public/downloads/CP-Boost-Monitor.apk
+          (cd website/public/downloads && zip -q cp-boost-monitor.zip CP-Boost-Monitor.apk)
+          rm website/public/downloads/CP-Boost-Monitor.apk
           (cd website/public/downloads && sha256sum cp-boost-monitor.apk > cp-boost-monitor.apk.sha256)
+          unzip -t website/public/downloads/cp-boost-monitor.zip | tail -n 1
+          echo "ZIP includes the same APK verified by apksigner."
+          test "$(unzip -p website/public/downloads/cp-boost-monitor.zip CP-Boost-Monitor.apk | sha256sum | cut -d' ' -f1)" = "$(sha256sum "$APK" | cut -d' ' -f1)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f website/public/downloads/cp-boost-monitor.apk
           git add -f website/public/downloads/cp-boost-monitor.apk.sha256
+          git add -f website/public/downloads/cp-boost-monitor.zip
           if ! git diff --cached --quiet; then
             git commit -m "build(android): publish verified CP Boost Monitor APK for website admins"
             git push origin "HEAD:${GITHUB_REF_NAME}"
