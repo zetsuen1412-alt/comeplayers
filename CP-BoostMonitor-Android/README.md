@@ -1,39 +1,46 @@
-# CP Boost Monitor — Aplikasi Status Karyawan Android
+# CP Boost Monitor — Aplikasi Android Terintegrasi Payroll (v1.1)
 
-Aplikasi Android native **offline** (Java + SQLite) untuk mendata dan memantau karyawan tim boosting. Tidak butuh server, login, koneksi internet, atau langganan.
+Aplikasi Android (Java, SQLite) untuk memantau kesiapan tim boosting, dengan **nama/kode/divisi karyawan otomatis diambil dari Payroll ComePlayers**. Source of truth daftar karyawan ada di **website Payroll ComePlayers** (`www.comeplayers.com`), yang menerima roster dari Sheet `PAYROLL-1` / `PAYROLL-2` / `PAYROLL-3`.
 
-## Fitur versi 1.0
+## Integrasi payroll website
 
-- Dashboard jumlah karyawan **Ready Boosting**, **Menganggur**, **Tidur**, **Tidur Terlalu Lama**, dan **Sedang Bekerja**.
-- Waktu mulai status dan durasinya diperbarui di tampilan secara berkala (sekitar 1 menit).
-- **Tidur Terlalu Lama** dihitung otomatis dari status `Tidur`, bukan status yang ditulis manual. Default 120 menit dan bisa diatur 1–10080 menit. Pada ringkasan, Tidur = belum lewat batas; Tidur Lama = melewati batas.
-- Tambah, cari, filter, edit, dan hapus karyawan; catat jabatan, tugas/order, dan catatan.
-- Ubah status dengan log tanggal, jam, status lama, status baru, dan keterangan.
-- Riwayat 1500 perubahan terakhir di layar; cadangan JSON mengekspor **semua** riwayat.
-- Ekspor CSV untuk Excel/Google Sheets; backup dan restore JSON untuk memindahkan data manual.
-- Data SQLite disimpan hanya di perangkat. Riwayat tetap ada ketika data karyawan dihapus.
+- Login memakai email dan kata sandi akun ComePlayers yang **sudah diberi akses Payroll** (admin atau anggota yang diizinkan di `cp_payroll_access`). Tidak menggunakan token admin maupun service-role key dalam APK.
+- Setelah login, APK membaca endpoint terbatas `GET /api/admin/payroll/mobile/roster` dengan Bearer token Supabase. Endpoint hanya mengirim **ID, kode, nama, divisi, workforceStatus, active**. Data gaji, kasbon, order, dan detail spreadsheet **tidak dikirim**.
+- APK menyinkronkan roster otomatis saat dibuka dan setiap ±2 menit **selama aplikasi aktif**, juga lewat tombol **Sinkronkan Nama Sekarang**. Sinkronisasi Sheet → website tetap mengikuti mekanisme payroll website yang sudah ada; bila sinkronisasi Sheet belum berjalan, data APK mengikuti snapshot terakhir di website.
+- **Pencocokan menggunakan ID payroll** (bukan nama). Perubahan nama, kode, dan divisi dari website tidak menghapus status boosting, tugas, ataupun riwayat lokal. Migrasi baris manual di HP dicoba hanya jika kombinasi nama + divisi cocok tunggal; apabila ambigu dibuat identitas payroll baru (lebih aman daripada salah menggabungkan orang).
+- Karyawan `RESIGN`, hilang dari roster Sheet, atau terhapus dari workspace **disembunyikan** pada daftar aktif APK, tanpa menghapus riwayat dan data lokal. Ketika kembali dengan ID sama, status yang pernah tercatat tetap tersimpan.
+- Jika jaringan, akses, atau server gagal, data roster terakhir di perangkat tetap dapat ditampilkan; pesan dan waktu keberhasilan sinkron terakhir terlihat di dashboard. Sync yang gagal tidak menghapus data lokal.
+- Nama/divisi karyawan payroll **tidak bisa diedit atau dihapus di APK**; lakukan di website. Status boosting, durasi tidur, tugas, dan catatan status masih disimpan **lokal di HP** — belum sinkron antar-HP maupun ke database payroll website.
+- Sesi access/refresh token disimpan terenkripsi AES-GCM dengan Android Keystore, tidak menyimpan kata sandi. Hanya HTTPS, dan logout membuat aplikasi terhubung meminta login ulang. Status lokal tetap terlindungi dalam sandbox aplikasi, tetapi backup CSV/JSON adalah berkas biasa yang perlu disimpan dengan aman.
 
-## Build APK
+## Fitur utama
 
-**Cara mudah dengan GitHub Actions:** Buka tab `Actions`, jalankan workflow **Build CP Boost Monitor APK** / tunggu proses otomatis setelah push, lalu unduh artifact **CP-BoostMonitor-debug-APK**. Ekstrak ZIP artifact, install `app-debug.apk` ke HP Android. Android dapat meminta izin *Install unknown apps*.
+- Dashboard jumlah **Ready Boosting**, **Menganggur**, **Tidur**, **Tidur Terlalu Lama**, **Sedang Bekerja**.
+- Durasi status dihitung dari perubahan terakhir. Batas tidur lama default 120 menit (bisa disesuaikan 1–10080 menit).
+- Pencarian dan filter karyawan, ganti status, tugas/order, catatan, serta histori waktu perubahan.
+- Ekspor CSV dan backup/restore JSON schema 2 (mendukung pemulihan backup schema 1).
+- Fallback mode lokal bila belum menghubungkan payroll.
 
-**Android Studio:** Buka folder `CP-BoostMonitor-Android`, biarkan Gradle sync (Android SDK 35, JDK 17, Android Gradle Plugin 8.7.3), pilih **Build > Build APK(s)**. APK terletak di `app/build/outputs/apk/debug/app-debug.apk`.
+## Prasyarat rilis
 
-**CLI:** Pastikan Android SDK, platform 35, Java 17, dan Gradle 8.10.2 tersedia. Jalankan `gradle assembleDebug` dari folder proyek.
+1. Merge/deploy **endpoint website** dalam PR yang sama lebih dahulu atau bersamaan dengan APK (`website/app/api/admin/payroll/mobile/{session,roster}/route.ts`). Tanpa deploy, login APK akan gagal (404).
+2. Website memiliki variabel environment Supabase existing (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) dan tabel `cp_payroll_workspace`, `cp_payroll_access`, `profiles` seperti payroll aktif. Tidak memerlukan migrasi tabel baru untuk roster read-only.
+3. Akun payroll harus memiliki email/password Supabase. Login SSO-only atau MFA aktif mungkin memerlukan alur masuk mobile tambahan; **jangan** melonggarkan otorisasi payroll. Jika kebijakan **satu perangkat** aktif, login APK akan mengklaim sesi baru sesuai aturan website, sehingga sesi website pada perangkat lain dapat terputus.
+4. Website harus sudah menerima data Sheet sehingga `workspaceKeys.employees` ada. APK tidak membaca Google Sheet langsung; ini sengaja agar kontrol hak akses tetap berada di website.
+5. Uji integrasi akun yang benar, perubahan nama/divisi, resign, karyawan hilang, pemulihan akses, dan data offline di staging sebelum menyebarkan APK ke seluruh tim.
 
-`debug APK` dapat langsung dipasang untuk pengujian/internal tim. Untuk rilis publik jangka panjang gunakan APK release yang ditandatangani dengan kunci milik perusahaan; jangan membagikan keystore atau password.
+## Build debug APK
 
-## Catatan penting
+Dari GitHub Actions jalankan workflow **Build CP Boost Monitor APK** dan unduh artifact `CP-BoostMonitor-debug-APK` (berisi `app-debug.apk`). Atau buka folder `CP-BoostMonitor-Android` dengan Android Studio, JDK 17, Android SDK 35, kemudian **Build > Build APK(s)**. Debug APK hanya untuk pengujian internal; untuk distribusi resmi gunakan APK release yang ditandatangani oleh perusahaan.
 
-- **Offline / satu perangkat:** perubahan **tidak otomatis sinkron** ke HP karyawan/manajer lain. Untuk mode real-time multi-perangkat perlu backend, autentikasi/otorisasi, kebijakan data, dan mekanisme sinkronisasi.
-- **Tidak mendeteksi orang benar-benar tidur.** Status dipilih manual oleh operator; label Tidur Lama hanya berdasarkan selisih waktu sejak status dipasang. Tidak ada GPS/mikrofon/pelacakan aktivitas.
-- **Restore mengganti data yang ada.** Lakukan backup sebelum restore; backup JSON menyertakan nama karyawan dan sebaiknya disimpan secara aman.
-- Pada versi ini tidak ada login, multi-user, dan notifikasi push; penggunaan yang direkomendasikan untuk admin pada satu HP.
+## Catatan privasi dan alur
 
-## Struktur
+**Sinkronisasi yang dibuat pada v1.1 adalah satu arah untuk daftar karyawan, dari website menuju APK.** Status Ready/Tidur/Bekerja belum terlihat otomatis di website atau HP lain. Tidak ada GPS, mikrofon, ataupun deteksi orang benar-benar tidur; status dipilih manual.
 
-- `app/src/main/java/id/comeplayers/boostmonitor/MainActivity.java` — tampilan dashboard, manajemen karyawan, riwayat, setting, CSV/JSON.
-- `app/src/main/java/id/comeplayers/boostmonitor/EmployeeDb.java` — SQLite, transaksi, perubahan status, audit history, backup/restore.
-- `app/src/main/AndroidManifest.xml`, `app/src/main/res/values/styles.xml` — deklarasi aplikasi & tema.
+## Kode
 
-Lisensi: dibuat sebagai kode awal untuk penggunaan internal CP. Sesuaikan persyaratan operasional dan keamanan sebelum dipakai untuk data personal skala besar.
+- `EmployeeDb.java`: SQLite v2, roster merge atomik berdasarkan ID, status dan history tetap lokal.
+- `PayrollSync.java`: HTTPS autentikasi dan sinkronisasi roster.
+- `SecureSession.java`: penyimpanan token terenkripsi dengan Android Keystore.
+- `MainActivity.java`: dashboard, tombol login/sync, kontrol nama karyawan payroll, status dan backup.
+- `website/app/api/admin/payroll/mobile/`: API sesi dan roster yang menggunakan validasi izin payroll website yang telah ada.

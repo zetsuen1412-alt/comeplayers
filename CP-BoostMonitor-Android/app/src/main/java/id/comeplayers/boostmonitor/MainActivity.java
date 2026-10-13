@@ -37,7 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/** Native Java + SQLite, berjalan tanpa internet dan tanpa layanan pihak ketiga. */
+/** CP Boost Monitor: status lokal, identitas karyawan dari payroll website. */
 public final class MainActivity extends Activity {
     private static final int INK = Color.rgb(17, 24, 39);
     private static final int SUB = Color.rgb(107, 114, 128);
@@ -51,6 +51,14 @@ public final class MainActivity extends Activity {
 
     private EmployeeDb db;
     private SharedPreferences prefs;
+    private PayrollSync payroll;
+    private boolean syncBusy = false;
+    private final Runnable payrollTicker = new Runnable() {
+        @Override public void run() {
+            refreshPayroll(false);
+            handler.postDelayed(this, 120000L); // sepanjang aplikasi aktif
+        }
+    };
     private LinearLayout root, body, employeesContainer;
     private String page = "Dashboard", filter = "SEMUA", search = "";
     private long historyEmployee = 0;
@@ -63,11 +71,63 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         db = new EmployeeDb(this);
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        payroll = new PayrollSync(new SecureSession(this), db);
         render();
     }
-    @Override protected void onResume() { super.onResume(); handler.removeCallbacks(ticker); handler.postDelayed(ticker, 60000); }
-    @Override protected void onPause() { handler.removeCallbacks(ticker); super.onPause(); }
-    @Override protected void onDestroy() { db.close(); super.onDestroy(); }
+    @Override protected void onResume() {
+        super.onResume(); handler.removeCallbacks(ticker); handler.postDelayed(ticker, 60000);
+        handler.removeCallbacks(payrollTicker); handler.post(payrollTicker);
+    }
+    @Override protected void onPause() {
+        handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker); super.onPause();
+    }
+    @Override protected void onDestroy() { payroll.shutdown(); db.close(); super.onDestroy(); }
+
+    private boolean linked() { return prefs.getBoolean("payroll_linked", false); }
+    private void refreshPayroll(boolean manual) {
+        if (syncBusy || !linked() || !payroll.hasSession()) {
+            if (manual && !payroll.hasSession()) loginDialog();
+            return;
+        }
+        syncBusy = true;
+        payroll.sync((message, ok) -> {
+            syncBusy = false;
+            if (ok) prefs.edit().putLong("payroll_last_sync", now()).remove("payroll_sync_error").apply();
+            else prefs.edit().putString("payroll_sync_error", message).apply();
+            if (manual || !ok) toast(message);
+            render();
+        });
+    }
+
+    private void loginDialog() {
+        LinearLayout form = form();
+        form.addView(text("Masuk memakai email dan password akun yang memiliki akses Payroll ComePlayers.", 13, SUB, false));
+        space(form, 8);
+        EditText email = input("Email payroll", "");
+        email.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        EditText password = input("Password", "");
+        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        form.addView(email); form.addView(password);
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Hubungkan Payroll Website")
+                .setView(form).setNegativeButton("Batal", null).setPositiveButton("Login", null).create();
+        dialog.setOnShowListener(x -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            if (!trim(email).contains("@")) { email.setError("Masukkan email akun payroll."); return; }
+            if (trim(password).isEmpty()) { password.setError("Password harus diisi."); return; }
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            payroll.login(trim(email), password.getText().toString(), (message, ok) -> {
+                password.setText("");
+                if (ok) {
+                    prefs.edit().putBoolean("payroll_linked", true).apply();
+                    dialog.dismiss(); refreshPayroll(true);
+                } else {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    new AlertDialog.Builder(this).setTitle("Login gagal").setMessage(message)
+                            .setPositiveButton("OK", null).show();
+                }
+            });
+        }));
+        dialog.show();
+    }
 
     private int dp(float size) { return (int) (getResources().getDisplayMetrics().density * size + .5f); }
     private long threshold() { return prefs.getLong("sleep_limit", 120); }
@@ -127,6 +187,15 @@ public final class MainActivity extends Activity {
         space(header, 4);
         header.addView(text("Pantau kesiapan tim boosting", 12, 0xffc7d2fe, false));
         root.addView(header, lp(-1, -2));
+        if (linked() && !payroll.hasSession()) {
+            LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
+            gate.addView(text("Masuk ke Payroll ComePlayers", 23, INK, true));
+            space(gate, 12);
+            gate.addView(text("Sesi payroll tidak tersedia. Login untuk membuka daftar karyawan tersinkron di perangkat ini.", 14, SUB, false));
+            space(gate, 20);
+            Button login = button("Login Payroll", true); gate.addView(login, lp(-1, 48));
+            login.setOnClickListener(v -> loginDialog()); root.addView(gate); return;
+        }
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
         body = vertical(); body.setPadding(dp(15), dp(18), dp(15), dp(22));
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
@@ -160,6 +229,19 @@ public final class MainActivity extends Activity {
     private void dashboard() {
         List<EmployeeDb.Employee> all = db.all();
         heading("Dashboard Tim", "Ringkasan terbaru • " + time(now()));
+        if (linked()) {
+            String error = prefs.getString("payroll_sync_error", "");
+            long synced = prefs.getLong("payroll_last_sync", 0L);
+            info((error.isEmpty() ? "✓ Payroll tersambung" : "⚠ " + error)
+                + " • Update terakhir: " + (synced == 0L ? "belum ada" : time(synced)));
+            space(body, 8);
+            Button sync = button(syncBusy ? "Sedang sinkron..." : "↻ Perbarui dari Payroll", false);
+            sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 43));
+            sync.setOnClickListener(v -> refreshPayroll(true)); space(body, 16);
+        } else {
+            info("Mode lokal. Hubungkan Payroll Website melalui Pengaturan agar nama karyawan otomatis mengikuti website.");
+            space(body, 13);
+        }
         int ready = 0, idle = 0, sleeping = 0, late = 0, working = 0;
         List<EmployeeDb.Employee> priority = new ArrayList<>();
         List<EmployeeDb.Employee> available = new ArrayList<>();
@@ -175,8 +257,10 @@ public final class MainActivity extends Activity {
         summaryRow("🟠 Menganggur", idle, "IDLE", "🌙 Tidur", sleeping, "SLEEP");
         summarySingle("🚨 Tidur Terlalu Lama", late, "LATE");
         space(body, 18);
-        Button add = button("+ Tambah Karyawan", true); body.addView(add, lp(-1, 48));
-        add.setOnClickListener(v -> addDialog());
+        if (!linked()) {
+            Button add = button("+ Tambah Karyawan", true); body.addView(add, lp(-1, 48));
+            add.setOnClickListener(v -> addDialog());
+        }
         space(body, 23);
         body.addView(text("Perlu Diperhatikan", 18, INK, true)); space(body, 10);
         if (priority.isEmpty()) info("Tidak ada karyawan yang melewati batas waktu tidur.");
@@ -218,8 +302,12 @@ public final class MainActivity extends Activity {
 
     private void employeesPage() {
         heading("Data Karyawan", "Cari, ubah status, dan kelola anggota tim.");
-        Button add = button("+ Tambah Karyawan Baru", true);
-        body.addView(add, lp(-1, 48)); add.setOnClickListener(v -> addDialog());
+        if (!linked()) {
+            Button add = button("+ Tambah Karyawan Baru", true);
+            body.addView(add, lp(-1, 48)); add.setOnClickListener(v -> addDialog());
+        } else {
+            info("Nama dan divisi karyawan diatur dari website Payroll. Di APK cukup pilih status boosting.");
+        }
         space(body, 14);
         EditText searchField = input("Cari nama / jabatan / tugas", search);
         searchField.setSingleLine(true); searchField.setBackground(shape(WHITE, 11));
@@ -267,7 +355,7 @@ public final class MainActivity extends Activity {
         TextView status = text(e.visibleStatus(threshold(), now()), 11, overdue(e) ? 0xffb91c1c : tint(e.status), true);
         status.setBackground(shape(overdue(e) ? 0xffffe4e6 : 0xfff3f4f6, 9));
         status.setPadding(dp(9), dp(7), dp(9), dp(7)); title.addView(status); p.addView(title);
-        if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position, 13, SUB, false)); }
+        if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • Payroll" : ""), 13, SUB, false)); }
         space(p, 10);
         p.addView(text("⏱ " + duration(e.statusSince) + "  •  Sejak " + time(e.statusSince), 12, SUB, false));
         if (EmployeeDb.WORK.equals(e.status) && !e.task.isEmpty()) { space(p, 7); p.addView(text("Tugas: " + e.task, 13, INK, false)); }
@@ -278,12 +366,12 @@ public final class MainActivity extends Activity {
         if (management) {
             space(p, 8);
             LinearLayout actions = horizontal();
-            Button edit = button("Edit", false), history = button("Riwayat", false), del = button("Hapus", false);
+            Button edit = button(e.payrollManaged ? "Catatan" : "Edit", false), history = button("Riwayat", false), del = button("Hapus", false);
             actions.addView(edit, new LinearLayout.LayoutParams(0, dp(40), 1));
             View gap1 = new View(this); actions.addView(gap1, lp(7, 1));
             actions.addView(history, new LinearLayout.LayoutParams(0, dp(40), 1));
             View gap2 = new View(this); actions.addView(gap2, lp(7, 1));
-            actions.addView(del, new LinearLayout.LayoutParams(0, dp(40), 1));
+            if (!e.payrollManaged) actions.addView(del, new LinearLayout.LayoutParams(0, dp(40), 1));
             p.addView(actions);
             edit.setOnClickListener(v -> editDialog(e));
             history.setOnClickListener(v -> { historyEmployee = e.id; page = "Riwayat"; render(); });
@@ -317,6 +405,7 @@ public final class MainActivity extends Activity {
     private void editDialog(EmployeeDb.Employee e) {
         LinearLayout form = form();
         EditText name = input("Nama *", e.name), position = input("Jabatan", e.position);
+        if (e.payrollManaged) { name.setEnabled(false); position.setEnabled(false); }
         EditText task = input("Tugas", e.task), note = input("Catatan", e.note);
         form.addView(name); form.addView(position); form.addView(task); form.addView(note);
         AlertDialog d = new AlertDialog.Builder(this).setTitle("Edit Karyawan").setView(form)
@@ -370,7 +459,30 @@ public final class MainActivity extends Activity {
     }
 
     private void settingsPage() {
-        heading("Pengaturan & Data", "Atur batas tidur dan buat cadangan lokal.");
+        heading("Pengaturan & Data", "Integrasi payroll, batas tidur, dan backup.");
+        LinearLayout integration = panel();
+        integration.addView(text("Integrasi Payroll ComePlayers", 17, INK, true)); space(integration, 7);
+        integration.addView(text("Sumber: www.comeplayers.com • divisi FH1, FH2, FH3 dan data karyawan payroll lainnya.", 12, SUB, false));
+        space(integration, 7);
+        integration.addView(text(linked() ? "Status: terhubung • Sync setiap ±2 menit saat aplikasi aktif."
+                    : "Status: belum terhubung. Masuk dengan akun yang punya akses payroll.", 13, SUB, false));
+        space(integration, 11);
+        if (!linked()) {
+            Button login = button("Login & Hubungkan Payroll", true);
+            integration.addView(login, lp(-1, 44)); login.setOnClickListener(v -> loginDialog());
+        } else {
+            Button update = button("↻ Sinkronkan Nama Sekarang", true);
+            integration.addView(update, lp(-1, 44)); update.setOnClickListener(v -> refreshPayroll(true));
+            space(integration, 8);
+            Button logout = button("Keluar dari Akun Payroll", false);
+            integration.addView(logout, lp(-1, 44));
+            logout.setOnClickListener(v -> new AlertDialog.Builder(this).setTitle("Keluar dari Payroll?")
+                    .setMessage("Daftar dan riwayat lokal tidak dihapus, tetapi aplikasi akan meminta login ulang.")
+                    .setNegativeButton("Batal", null).setPositiveButton("Keluar", (d, w) -> {
+                        payroll.logout(); render();
+                    }).show());
+        }
+        body.addView(integration, lp(-1, -2)); space(body, 14);
         LinearLayout settings = panel();
         settings.addView(text("Batas Tidur Terlalu Lama", 16, INK, true)); space(settings, 7);
         settings.addView(text("Saat ini: " + threshold() + " menit. Status Tidur berubah menjadi Tidur Lama secara otomatis saat melewati batas.", 13, SUB, false));
@@ -399,7 +511,7 @@ public final class MainActivity extends Activity {
         body.addView(data, lp(-1, -2)); space(body, 12);
         LinearLayout privacy = panel();
         privacy.addView(text("Penyimpanan & Privasi", 16, INK, true)); space(privacy, 8);
-        privacy.addView(text("Data disimpan secara offline di HP ini. Tidak ada sinkronisasi otomatis antar perangkat, login online, pelacakan GPS, atau pengunggahan ke server. Gunakan backup JSON bila pindah HP.", 13, SUB, false));
+        privacy.addView(text("Nama, kode, dan divisi karyawan diambil dari Payroll Website setelah login. Status boosting, waktu tidur, pekerjaan, dan riwayat tetap lokal di HP ini; belum sinkron antar-HP atau kembali ke website. Backup JSON berisi data karyawan, simpan dengan aman.", 13, SUB, false));
         body.addView(privacy, lp(-1, -2));
     }
     private void thresholdDialog() {
