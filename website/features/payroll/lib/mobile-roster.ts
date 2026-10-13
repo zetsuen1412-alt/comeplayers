@@ -2,7 +2,7 @@ import type { Employee } from '@/features/payroll/types/domain';
 
 /** A deliberately minimal read model. Never return financial/order fields to mobile clients. */
 export function mobilePayrollRoster(employees: Employee[]) {
-  return employees.map(employee => ({
+  return employees.filter(employee => employee.team === 'FH3').map(employee => ({
     id: employee.id,
     code: employee.code,
     name: employee.name,
