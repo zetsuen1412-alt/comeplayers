@@ -5,6 +5,8 @@ import { test } from "node:test";
 import { createContext, runInContext } from "node:vm";
 import { mergeGoogleSheetPayroll, type GoogleSheetSyncPayload } from "../features/payroll/lib/google-sheet-sync";
 import { workspaceKeys, type WorkspaceState } from "../features/payroll/lib/workspace-model";
+import { listPendingSheetNameCorrections } from "../features/payroll/lib/employee-name-correction";
+import type { Employee } from "../features/payroll/types/domain";
 import type { Order } from "../features/payroll/types/domain";
 
 const script = readFileSync(new URL("../scripts/comeplayers-payroll-google-sheets.gs", import.meta.url), "utf8");
@@ -62,13 +64,16 @@ function harness(count = 3, digestDelayMs = 0) {
     return { getName: () => name, getSheetId: () => 200 + Number(name.slice(-1)), getLastRow: () => rosterCells[name].length,
       getRange: (row: number, column: number, rows = 1, columns = 1) => ({
         getDisplayValues: () => Array.from({ length: rows }, (_, r) => Array.from({ length: columns }, (_, c) => String(rosterCells[name][row - 1 + r]?.[column - 1 + c] ?? ""))),
+        getDisplayValue: () => String(rosterCells[name][row - 1]?.[column - 1] ?? ""),
+        getFormula: () => "",
+        setValue: (value: string) => { rosterCells[name][row - 1][column - 1] = value; },
       }) };
   }
   const spreadsheet = { getId: () => "test-book", getName: () => "Workbook", getSheetByName: (name: string) => name === "MUTASI FH" ? sheet : rosterSheet(name) };
   const context = createContext({
     Date: ScriptDate,
     PropertiesService: { getScriptProperties: () => propertyStore },
-    SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet, openById: () => spreadsheet },
+    SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet, openById: () => spreadsheet, flush: () => {} },
     LockService: { getScriptLock: () => { throw new Error("Payroll must not contend with the mirror script lock"); }, getUserLock: () => ({
       tryLock: (timeout: number) => { lockTimeouts.push(timeout); if (locked) return false; locked = true; return true; },
       waitLock: () => { if (locked) throw new Error("busy"); locked = true; },
@@ -97,11 +102,17 @@ function harness(count = 3, digestDelayMs = 0) {
         return builder;
       },
     },
-    UrlFetchApp: { fetch: (_url: string, options: { payload: string }) => {
+    UrlFetchApp: { fetch: (_url: string, options: { payload?: string }) => {
       assert.equal(locked, true, "network write must hold the script lock");
       requests++;
+      if (_url.includes("/payroll-employee-renames?")) {
+        const query = new URL(_url).searchParams.get("spreadsheetId") ?? "";
+        return {getResponseCode: () => 200, getContentText: () => JSON.stringify({
+          ok:true,renames:listPendingSheetNameCorrections(state,query),
+        })};
+      }
       if (fetchError) throw new Error(fetchError);
-      const payload = JSON.parse(options.payload) as GoogleSheetSyncPayload;
+      const payload = JSON.parse(options.payload!) as GoogleSheetSyncPayload;
       posts.push(payload);
       duringFetch?.();
       if (status !== 200) return { getResponseCode: () => status, getContentText: () => "upstream failure" };
@@ -747,4 +758,37 @@ test("all-existing identity preflight respects an explicit deletion disable", ()
   h.reconcile();
   assert.equal(h.posts.slice(before).some(post => post.presence), false);
   assert.equal((h.state[workspaceKeys.orders] as Order[]).some(order => order.sheetDeletedAt), false);
+});
+
+test("approved employee rename writes only the linked PAYROLL-2 name and keeps the original employee code", () => {
+  const h = harness(0); h.properties.CP_SYNC_ROSTER = "true";
+  h.reconcile();
+  const before = ((h.state[workspaceKeys.employees] ?? []) as Employee[]).find(e => e.name === "Irwan")!;
+  assert.ok(before.sheetRosterSource);
+  before.sheetNameCorrection = {
+    requestId:"a8b4aeb1-0912-47e4-86fb-4265905beb1b",oldName:"Irwan",newName:"Irwan Benar",
+    requestedAt:"2026-10-13T04:00:00Z",requestedBy:"admin-id",
+  };
+  h.properties.CP_ENABLE_EMPLOYEE_NAME_WRITEBACK = "true";
+  h.reconcile();
+  assert.equal(h.rosterCells["PAYROLL-2"][2][1], "Irwan Benar");
+  const corrected = (h.state[workspaceKeys.employees] as Employee[]).find(e => e.id === before.id)!;
+  assert.equal(corrected.code,before.code);
+  assert.equal(corrected.name,"Irwan Benar");
+  assert.equal(corrected.sheetNameCorrection,undefined);
+  assert.equal(h.rosterCells["PAYROLL-1"][2][1],"FH1 Worker");
+});
+
+test("employee Sheet name writeback never overwrites a row whose old name changed", () => {
+  const h = harness(0); h.properties.CP_SYNC_ROSTER = "true";
+  h.reconcile();
+  const original = ((h.state[workspaceKeys.employees] ?? []) as Employee[]).find(e => e.name === "Irwan")!;
+  original.sheetNameCorrection = {
+    requestId:"a8b4aeb1-0912-47e4-86fb-4265905beb1b",oldName:"Irwan",newName:"Irwan Correct",
+    requestedAt:"2026-10-13T04:00:00Z",requestedBy:"admin-id",
+  };
+  h.rosterCells["PAYROLL-2"][2][1] = "Someone Else";
+  h.properties.CP_ENABLE_EMPLOYEE_NAME_WRITEBACK = "true";
+  h.reconcile();
+  assert.equal(h.rosterCells["PAYROLL-2"][2][1],"Someone Else");
 });
