@@ -125,7 +125,7 @@ export function dailyProgress(order: Pick<Order, "dailyWork" | "scheduleTotalDay
 
 export function getDailyPayrollGrossMinor(order: Pick<Order, "dailyWork">, includeClosed = false) {
   return (order.dailyWork ?? []).reduce((sum, row) => {
-    if (row.status !== "verified") return sum;
+    if (row.status !== "verified" || row.sourceTransferStatus?.trim().toUpperCase() === "PENDING") return sum;
     if (!includeClosed && (row.payrollClosedAt || row.payrollPeriodId)) return sum;
     return sum + row.grossMinor;
   }, 0);
@@ -134,14 +134,14 @@ export function getDailyPayrollGrossMinor(order: Pick<Order, "dailyWork">, inclu
 export function getPayrollEligibleGrossMinor(order: Order, includeClosed = false) {
   if (!includeClosed && (order.payrollClosedAt || order.payrollPeriodId || order.financeStatus === "closed")) return 0;
   if (isDailySettlementOrder(order)) return getDailyPayrollGrossMinor(order, includeClosed);
-  if (order.operationalStatus !== "verified") return 0;
+  if (order.operationalStatus !== "verified" || order.transferStatus?.trim().toUpperCase() === "PENDING") return 0;
   return order.grossMinor;
 }
 
 export function dailySegmentsForPeriod(order: Order, from: number, to: number) {
   if (!isDailySettlementOrder(order)) return [];
   return (order.dailyWork ?? []).filter((row) => {
-    if (row.status !== "verified" || row.payrollClosedAt || row.payrollPeriodId || !row.verifiedAt) return false;
+    if (row.status !== "verified" || row.sourceTransferStatus?.trim().toUpperCase() === "PENDING" || row.payrollClosedAt || row.payrollPeriodId || !row.verifiedAt) return false;
     const verified = Date.parse(row.verifiedAt);
     return Number.isFinite(verified) && verified >= from && verified <= to;
   });
