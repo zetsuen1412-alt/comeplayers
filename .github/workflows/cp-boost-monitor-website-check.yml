@@ -1,0 +1,52 @@
+name: Verify CP Boost Monitor website
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/public/downloads/cp-boost-monitor.apk'
+      - 'website/app/api/admin/payroll/mobile/**'
+      - 'website/app/admin/payroll/boost-monitor/**'
+      - '.github/workflows/cp-boost-monitor-website-check.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Verify deployed APK and payroll API access
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify repository APK checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s website/public/downloads/cp-boost-monitor.apk
+          (cd website/public/downloads && sha256sum -c cp-boost-monitor.apk.sha256)
+          unzip -t website/public/downloads/cp-boost-monitor.apk | tail -n 1
+      - name: Verify production website serves identical APK and guards payroll roster
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://www.comeplayers.com"
+          expected="$(sha256sum website/public/downloads/cp-boost-monitor.apk | cut -d' ' -f1)"
+          success=0
+          for attempt in $(seq 1 25); do
+            apk_code="$(curl -sSL --connect-timeout 10 --max-time 25 -o /tmp/cp-boost-monitor.apk -w '%{http_code}' "$BASE/downloads/cp-boost-monitor.apk?check=${GITHUB_SHA}" || true)"
+            roster_code="$(curl -sSL --connect-timeout 10 --max-time 25 -o /tmp/roster-check.json -w '%{http_code}' "$BASE/api/admin/payroll/mobile/roster?check=${GITHUB_SHA}" || true)"
+            actual="$(test -s /tmp/cp-boost-monitor.apk && sha256sum /tmp/cp-boost-monitor.apk | cut -d' ' -f1 || true)"
+            echo "Attempt $attempt: APK HTTP $apk_code SHA-match $([[ "$expected" == "$actual" ]] && echo yes || echo no) / protected roster HTTP $roster_code"
+            if [[ "$apk_code" == "200" && "$expected" == "$actual" && "$roster_code" == "401" ]]; then
+              echo "Verified deployed APK integrity and unauthorized roster access is blocked."
+              success=1
+              break
+            fi
+            sleep 12
+          done
+          if [[ "$success" != "1" ]]; then
+            echo "::error::Production verification failed. Either website not deployed, APK SHA mismatched, or unauthorized payroll API not blocked (expected 401)."
+            exit 1
+          fi
+      - name: Limits of verification
+        run: |
+          echo "Production download is byte-identical to the signed debug APK."
+          echo "Production payroll roster endpoint refuses unauthenticated access."
+          echo "Authenticated roster sync still requires live payroll-admin login and a device test."
