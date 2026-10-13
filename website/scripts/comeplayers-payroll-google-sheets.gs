@@ -282,6 +282,43 @@ function comePlayersRoster_(spreadsheet) {
   return { complete: true, sheets: sheets };
 }
 
+/**
+ * One-time administrative cutover approved by the owner of EVO GAMING 2026.
+ * Refuse to backfill if any row has been moved: a wrong boundary could cause
+ * old payouts to reappear or newly delivered work to disappear.
+ */
+function comePlayersX2754Start_(sheet) {
+  var row = 5848;
+  if (sheet.getLastRow() < row || String(sheet.getRange(row,2).getDisplayValue()).trim().toUpperCase() !== 'X2754')
+    throw new Error('ARSIP DITUNDA: MUTASI FH!B5848 harus tetap X2754. Periksa baris dan pembukuan.');
+  var date = String(sheet.getRange(row,1).getDisplayValue() || '').trim();
+  if (!/^0?6\/10\/2026\s+0?1:15(?::\d{2})?$/.test(date))
+    throw new Error('ARSIP DITUNDA: A5848 harus 06/10/2026 pukul 01:15 WIB; ditemukan ' + date);
+  return row;
+}
+
+/**
+ * Activate ONLY after the website has been deployed and a backup is made.
+ * This is a read-only source backfill; it DOES NOT execute historical Gaji
+ * or a new payroll Closing on any archived row.
+ */
+function activateComePlayersX2754LegacyArchive() {
+  var props=PropertiesService.getScriptProperties();
+  if (!props.getProperty('CP_SPREADSHEET_ID')) throw new Error('Sumber payroll belum dikonfigurasi.');
+  var spreadsheet=SpreadsheetApp.openById(props.getProperty('CP_SPREADSHEET_ID'));
+  var sheet=spreadsheet.getSheetByName(props.getProperty('CP_SHEET_NAME') || 'MUTASI FH');
+  if (!sheet) throw new Error('MUTASI FH tidak ditemukan.');
+  comePlayersX2754Start_(sheet);
+  props.setProperties({
+    CP_SYNC_ALL_EXISTING:'true',
+    CP_LEGACY_BOOKKEEPING:'true',
+    CP_SYNC_ROSTER:'true',
+    CP_SYNC_DELETIONS:'true'
+  },false);
+  reinstallComePlayersPayrollRealtimeSync();
+  return syncComePlayersPayroll();
+}
+
 function comePlayersClosingStart_(sheet) {
   var dates = sheet.getRange(1, 1, Math.max(1, sheet.getLastRow()), 1).getDisplayValues();
   for (var i = dates.length - 1; i >= 0; i--) {
@@ -396,10 +433,12 @@ function syncComePlayersPayrollRows_(mode, event) {
   var headers = headerInfo.headers;
   // Keep header mapping independent from the first open-period data row.
   var allExisting = config.CP_SYNC_ALL_EXISTING === 'true';
+  var archiveLegacy = config.CP_LEGACY_BOOKKEEPING === 'true';
+  if (archiveLegacy && !allExisting) throw new Error('Arsip lama membutuhkan CP_SYNC_ALL_EXISTING=true.');
   var newOrdersStartRow;
   var dataStartRow = Number(config.CP_START_ROW || (headerRow + 1));
   if (allExisting) {
-    newOrdersStartRow = comePlayersClosingStart_(sheet);
+    newOrdersStartRow = archiveLegacy ? comePlayersX2754Start_(sheet) : comePlayersClosingStart_(sheet);
     dataStartRow = headerRow + 1;
   } else if (config.CP_START_AFTER_CLOSING === 'true') dataStartRow = comePlayersClosingStart_(sheet);
   if (!Number.isSafeInteger(dataStartRow) || dataStartRow <= headerRow) {
@@ -559,7 +598,7 @@ function syncComePlayersPayrollRows_(mode, event) {
     var packageGroup = dailyGroups[code.toLowerCase()];
     if (packageGroup && emittedPackages[code.toLowerCase()]) continue;
     var historical = allExisting && rowNumber < newOrdersStartRow;
-    if (!packageGroup && historical && (!tracked[code.toLowerCase()] || (globalCodeCounts[code.toLowerCase()] !== 1
+    if (!archiveLegacy && !packageGroup && historical && (!tracked[code.toLowerCase()] || (globalCodeCounts[code.toLowerCase()] !== 1
       && tracked[code.toLowerCase()].indexOf(rowNumber) < 0))) {
       summary.skippedHistorical++; continue;
     }
