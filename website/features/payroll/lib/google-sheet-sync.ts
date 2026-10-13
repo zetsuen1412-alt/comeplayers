@@ -1,4 +1,5 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
+import { automaticSingleDelivery, automaticDailyDelivery, sheetTransferStatus } from "./sheet-transfer-payroll";
 import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { mergeGoogleSheetRoster, pruneUnreferencedSheetRosterEmployees, validateGoogleSheetRoster, type GoogleSheetRosterSnapshot } from "./google-sheet-roster";
 import { buildGoogleSheetDailyOrder, mergeGoogleSheetDailyOrder, parseGoogleSheetBoostingDays } from "./google-sheet-daily";
@@ -308,6 +309,7 @@ function columnsFor(headers: string[]) {
     quantity: headerIndex(headers, ["JUMLAH", "QTY", "QUANTITY"], 10),
     rate: headerIndex(headers, ["RATE", "HARGA", "PRICE"], 11),
     total: headerIndex(headers, ["TOTAL", "TOTAL HARGA", "GROSS"], 12),
+    transfer: headerIndex(headers, ["STATUS TRANSFER", "TRANSFER STATUS", "STATUS TRANSFERAN"], -1),
     task: headerIndex(headers, ["TASK", "TUGAS", "KETERANGAN TASK"], -1),
     orderType: headerIndex(headers, ["JENIS ORDER", "JENIS", "ORDER TYPE", "TYPE"], -1),
   };
@@ -336,6 +338,7 @@ function parseIncomingOrder(input: {
   const task = displayAt(row, columns.task);
   const booster = displayAt(row, columns.booster);
   const status = displayAt(row, columns.status);
+  const transferStatus = displayAt(row, columns.transfer);
   const gameText = displayAt(row, columns.game);
   const process = displayAt(row, columns.process) || "LAINNYA";
   const quantity = parseUnit(rawAt(row, columns.quantity)) ?? parseUnit(displayAt(row, columns.quantity)) ?? 1;
@@ -406,6 +409,7 @@ function parseIncomingOrder(input: {
       rateMinor: rateMinor ?? undefined,
       grossMinor,
       workerAssignments: assignments,
+      transferStatus: transferStatus ? sheetTransferStatus(transferStatus) : undefined,
       operationalStatus: "draft",
       financeStatus: "pending",
       expectedPaymentMinor: grossMinor,
@@ -505,6 +509,7 @@ function parseIncomingDailyPackage(input: {
         order, sourceRow: source.rowNumber, days, quantity, workersByDay,
         totalMinor: parseIdr(rawAt(source, columns.total)) ?? parseIdr(displayAt(source, columns.total)),
         sourceStatus: displayAt(source, columns.status),
+        sourceTransferStatus: displayAt(source, columns.transfer) ? sheetTransferStatus(displayAt(source, columns.transfer)) : undefined,
       };
     });
     return { order: jsonClean(buildGoogleSheetDailyOrder(records)) };
@@ -544,6 +549,7 @@ function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
     importIssues: incoming.importIssues,
     importNeedsReview: incoming.importNeedsReview,
     importSourceRow: incoming.importSourceRow,
+    transferStatus: incoming.transferStatus,
   });
 }
 
@@ -683,7 +689,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       if (parsed.issue) issues.push(parsed.issue);
       continue;
     }
-    const incoming = parsed.order;
+    const incoming = dailyPackage ? automaticDailyDelivery(parsed.order) : automaticSingleDelivery(parsed.order);
     const refKey = incoming.externalReference.trim().toLowerCase();
     if ((!dailyPackage && row.duplicateCode) || (referenceCounts.get(refKey) ?? 0) > 1) {
       skippedConflicts++;
@@ -739,10 +745,12 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       continue;
     }
     let next = mergeSheetOwnedFields(existing, incoming);
+    if (!dailyPackage && incoming.transferStatus) next=automaticSingleDelivery({ ...next,
+      ...(incoming.transferStatus === "PENDING" ? {operationalStatus:"draft",verifiedAt:undefined,completedAt:undefined} : {}) });
     if (dailyPackage) {
       try {
-        next = jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
-          scheduleTotalDays: incoming.scheduleTotalDays, dailyHours: incoming.dailyHours, dailyWork: incoming.dailyWork }));
+        next = automaticDailyDelivery(jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
+          scheduleTotalDays: incoming.scheduleTotalDays, dailyHours: incoming.dailyHours, dailyWork: incoming.dailyWork })));
       } catch (error) {
         skippedConflicts++;
         rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
