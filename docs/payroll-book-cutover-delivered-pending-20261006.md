@@ -21,7 +21,7 @@
 - Periksa kode, buyer, nama paket, DAY, dan kemungkinan perubahan nomor baris di Sheet sumber; perbaiki di sumber, tunggu sinkronisasi, cek alert hilang. Jangan memberi dua transaksi berbeda satu kode.
 
 ## Prosedur admin — Tutup Buku awal (tidak otomatis)
-1. Buka `/admin/payroll/gaji`, pada bagian **Pemisahan periode payroll** pilih **Siapkan Tutup Buku lama**.
+1. Buka `/admin/payroll/finance/closing`, pada bagian **Pemisahan periode payroll** pilih **Siapkan Tutup Buku lama**.
 2. Periksa rentang waktu sampai **06/10/2026 01.14.59 WIB**. Pastikan hanya pekerjaan DELIVERED yang lolos validasi muncul pada daftar calon gaji. Pending, konflik KODE dan order bermasalah harus dibiarkan di pekerjaan tertunda.
 3. Bandingkan jumlah dan distribusi karyawan dengan spreadsheet sumber serta riwayat Closing yang sudah ada. Jangan melakukan pembayaran ganda.
 4. Gunakan **Kunci Periode**, kemudian **Tutup Buku** setelah diperiksa dan dikonfirmasi. Aksi ini mengunci snapshot gaji/potongan Kasbon dan tidak boleh dilakukan hanya untuk membersihkan layar.

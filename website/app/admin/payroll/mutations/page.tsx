@@ -762,7 +762,7 @@ export default function MutationsPage() {
   return (
     <>
       <PageHeader title="Mutasi" description={"Sheet: DELIVERED = pekerjaan selesai dan masuk payroll bila pembagiannya valid; PENDING = belum masuk gaji. Konflik KODE harus diperbaiki sebelum Closing."} />
-      <section className="cp-card mb-4 p-4"><div className="flex flex-wrap justify-between gap-3"><div><strong>Periode Mutasi aktif</strong><p className="mt-1 text-sm text-zinc-400">Buku baru dimulai ${PAYROLL_NEW_BOOK_START.replace("T"," ")} WIB. Periode lama dan snapshot Tutup Buku tetap dapat diperiksa.</p></div><Link href="/admin/payroll/gaji" className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Lihat Gaji / Tutup Buku →</Link></div></section>
+      <section className="cp-card mb-4 p-4"><div className="flex flex-wrap justify-between gap-3"><div><strong>Periode Mutasi aktif</strong><p className="mt-1 text-sm text-zinc-400">Buku baru dimulai ${PAYROLL_NEW_BOOK_START.replace("T"," ")} WIB. Periode lama dan snapshot Tutup Buku tetap dapat diperiksa.</p></div><Link href="/admin/payroll/finance/closing" className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Lihat Gaji / Tutup Buku →</Link></div></section>
       {codeConflicts.length ? <section className="mb-4 rounded-xl border border-red-500/50 bg-red-500/10 p-4" role="alert"><h2 className="font-semibold text-red-200">⚠ KODE Bermasalah dari Spreadsheet ({codeConflicts.length})</h2><p className="mt-1 text-sm text-zinc-300">KODE yang sama dipakai oleh baris yang tidak cocok. Tidak digabung otomatis; periksa buyer dan nama paket di Sheet lalu perbaiki KODE sumber.</p><div className="mt-3 space-y-2">{codeConflicts.slice(0,30).map(alert=><div key={alert.id} className="rounded-lg border border-red-500/25 p-3 text-sm"><strong>{alert.code} · Baris Sheet {alert.sourceRow}</strong><p className="mt-1 text-zinc-300">{alert.message}</p></div>)}</div>{codeConflicts.length>30?<p className="mt-2 text-xs">Menampilkan 30 konflik pertama.</p>:null}</section>:null}
 
       <section className="cp-card p-5 sm:p-6">
@@ -970,7 +970,7 @@ export default function MutationsPage() {
                             <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span>
                           ) : row.day.status === "verified" ? (
                             <>
-                              <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link>
+                              <Link href="/admin/payroll/finance/closing" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Hari ini masuk Gaji</Link>
                               <button disabled={bulkSaving || savingSyncLocks || isLocked || !canManageSync} onClick={() => { if (confirm(`Tarik ${order.externalReference} · Hari ${row.day?.sequence} dari Gaji untuk dikoreksi?`)) void pullDailyFromPayroll(row); }} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-200 disabled:opacity-40">↩ Tarik hari ini dari Gaji</button>
                             </>
                           ) : (
@@ -985,7 +985,7 @@ export default function MutationsPage() {
                           )}
                         </>
                       ) : order.payrollClosedAt ? <span className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-bold text-black">✓ Sudah masuk gajian</span> : order.operationalStatus === "verified" ? <>
-                        <Link href="/admin/payroll/gaji" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link>
+                        <Link href="/admin/payroll/finance/closing" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-200">✓ Menunggu Tutup Buku</Link>
                         <button onClick={() => confirm(`Tarik ${order.externalReference} dari Gaji untuk dikoreksi?`) && pullOrderFromPayroll(order)} className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-200">↩ Tarik dari Gaji</button>
                       </> : <>
                         <button onClick={() => setMutationStatus(order, "assigned")} className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-bold text-violet-100">Proses</button>
