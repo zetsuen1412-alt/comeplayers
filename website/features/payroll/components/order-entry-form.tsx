@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoProductGames } from "@/features/payroll/lib/demo-product-store";
+import { useBoostingCatalog } from "@/features/payroll/lib/boosting-catalog-store";
 import { searchGames, serversForRegion } from "@/features/payroll/lib/product-catalog";
 import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { getAvailableStock } from "@/features/payroll/lib/inventory";
@@ -45,6 +46,8 @@ export function OrderEntryForm() {
   const { inventory, reserveAllocations } = useDemoInventory();
   const { employees } = useDemoEmployees();
   const { games } = useDemoProductGames();
+  const { active: boostingPlans } = useBoostingCatalog();
+  const [boostingCatalogId, setBoostingCatalogId] = useState("");
   const [orderDateTime, setOrderDateTime] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("boosting");
   const [scheduleMode, setScheduleMode] = useState<OrderScheduleMode>("single");
@@ -188,6 +191,7 @@ export function OrderEntryForm() {
       setDivision(""); setWorkerRows([newWorkerRow(quantity)]);
     }
     if (value === "gold") setOrderName("");
+    setBoostingCatalogId("");
     if (value === "boosting") setStockRows([]);
     else {
       setScheduleMode("single");
@@ -199,6 +203,7 @@ export function OrderEntryForm() {
     const picked = games.find((row) => row.id === gameId);
     if (!picked) return;
     setSelectedGameId(picked.id);
+    setBoostingCatalogId("");
     setGameQuery(`${picked.name} (${picked.code})`);
     setShowGameSuggestions(false);
     const firstRegion = picked.regions[0]?.name ?? "";
@@ -316,6 +321,7 @@ export function OrderEntryForm() {
         source,
         buyerName: buyer.trim(),
         orderName: orderType === "gold" ? undefined : orderName.trim(),
+        boostingCatalogId: orderType === "boosting" ? boostingCatalogId || undefined : undefined,
         task: task.trim() || undefined,
         orderType,
         scheduleMode,
@@ -366,6 +372,7 @@ export function OrderEntryForm() {
       setManualCode("");
       setBuyer("");
       setOrderName("");
+      setBoostingCatalogId("");
       setTask("");
       setScheduleMode("single");
       setScheduleDays(7);
@@ -434,6 +441,12 @@ export function OrderEntryForm() {
           <label className="text-sm">Nama pembeli
             <input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder={"Nama pembeli"} className={inputClass} required />
           </label>
+          {orderType === "boosting" ? <label className="text-sm">Pilih dari Daftar Boosting (opsional)
+            <select value={boostingCatalogId} onChange={e=>{const id=e.target.value;setBoostingCatalogId(id);const plan=boostingPlans.find(p=>p.id===id);if(plan){setOrderName(plan.name);setRate(plan.rateMinor);}}} className={inputClass}>
+              <option value="">Isi nama dan harga manual</option>
+              {boostingPlans.filter(p=>p.gameId===selectedGameId).map(p=><option key={p.id} value={p.id}>{p.name} — {formatMoney(p.rateMinor)}</option>)}
+            </select><span className="mt-1 block text-xs text-zinc-400">Harga otomatis bisa diedit manual di bawah; harga mutasi dari Sheet tidak berubah. <Link href="/admin/payroll/boosting" className="text-yellow-300 underline">Kelola Daftar Boosting</Link>.</span>
+          </label> : null}
           {orderType !== "gold" ? (
             <label className="text-sm">Nama pesanan
               <input value={orderName} onChange={(e) => setOrderName(e.target.value)} placeholder={orderType === "item" ? "Contoh: Ancient Core x10" : "Contoh: Level 1-60"} className={inputClass} required />
