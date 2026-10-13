@@ -47,6 +47,7 @@ export function automaticDailyDelivery(order: Order): Order {
     const status=sheetTransferStatus(day.sourceTransferStatus);
     if(!day.sourceTransferStatus)return day; // Legacy manually verified DAYs remain unchanged until the source supplies a status.
     if(status!=="DELIVERED")return {...day,status:"pending" as const,completedAt:undefined,verifiedAt:undefined};
+    if(day.status==="verified" && day.verifiedAt) return day;
     const error=getDailyPayrollValidationError(order,day);
     const blocked=Boolean(error)||day.grossMinor<=0||!order.orderType||
       (day.issues??[]).some(entry=>criticalImportIssues.has(entry.code)||entry.severity==="high"||entry.severity==="critical");
