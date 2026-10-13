@@ -6,6 +6,12 @@ on:
     paths:
       - website/app/admin/payroll/mutations/**
       - website/app/admin/payroll/orders/**
+      - website/app/admin/payroll/daily/**
+      - website/app/admin/payroll/boosting/**
+      - website/features/payroll/lib/daily-dashboard.ts
+      - website/features/payroll/lib/boosting-catalog-store.ts
+      - website/features/payroll/lib/workspace-model.ts
+      - website/tests/payroll-boosting-daily-dashboard.test.ts
       - website/features/payroll/components/mutation-issue-modal.tsx
       - website/features/payroll/components/mutation-spreadsheet.*
       - website/features/payroll/components/order-entry-form.tsx
@@ -24,6 +30,12 @@ on:
     paths:
       - website/app/admin/payroll/mutations/**
       - website/app/admin/payroll/orders/**
+      - website/app/admin/payroll/daily/**
+      - website/app/admin/payroll/boosting/**
+      - website/features/payroll/lib/daily-dashboard.ts
+      - website/features/payroll/lib/boosting-catalog-store.ts
+      - website/features/payroll/lib/workspace-model.ts
+      - website/tests/payroll-boosting-daily-dashboard.test.ts
       - website/features/payroll/components/mutation-issue-modal.tsx
       - website/features/payroll/components/mutation-spreadsheet.*
       - website/features/payroll/components/order-entry-form.tsx
@@ -83,4 +95,4 @@ jobs:
       - name: Typecheck website
         run: npm run typecheck
       - name: Verify daily packages, gold distributions and issue explanations
-        run: npx --no-install tsx --test tests/payroll-daily-distribution.test.ts
+        run: npx --no-install tsx --test tests/payroll-daily-distribution.test.ts tests/payroll-boosting-daily-dashboard.test.ts

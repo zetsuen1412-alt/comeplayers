@@ -11,6 +11,8 @@ const links = [
   ["🧾", "Pesanan", "/admin/payroll/orders"],
   ["💵", "Penjualan", "/admin/payroll/sales"],
   ["🔄", "Mutasi", "/admin/payroll/mutations"],
+  ["📅", "Order Harian", "/admin/payroll/daily"],
+  ["⚡", "Daftar Boosting", "/admin/payroll/boosting"],
   ["✈️", "Telegram Booster", "/admin/payroll/telegram"],
   ["🕘", "Riwayat Perubahan", "/admin/payroll/history"],
   ["👥", "Karyawan", "/admin/payroll/employees"],

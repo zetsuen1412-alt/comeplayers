@@ -172,6 +172,8 @@ export interface Order {
   source: string;
   buyerName?: string;
   orderName?: string;
+  /** Optional link to the selected price list; order rate is always a saved snapshot. */
+  boostingCatalogId?: string;
   /** Optional task/instruction note shown in Pesanan and Mutasi. */
   task?: string;
   orderType?: OrderType;

@@ -12,7 +12,7 @@ export const workspaceKeys = {
   orders: 'cp-ofs-demo-user-orders-v3', employees: 'cp-ofs-demo-employees-v2',
   advances: 'cp-ofs-demo-kasbon-v2', settings: 'cp-ofs-demo-payroll-settings-v3',
   inventory: 'cp-ofs-demo-inventory-v4', movements: 'cp-ofs-demo-inventory-movements-v1',
-  products: 'cp-ofs-demo-product-games-v1', history: 'cp-ofs-demo-mutation-history-v1',
+  products: 'cp-ofs-demo-product-games-v1', boostingCatalog: 'cp-ofs-boosting-catalog-v1', history: 'cp-ofs-demo-mutation-history-v1',
   closings: 'cp-ofs-demo-closing-v1', lock: 'cp-ofs-demo-period-lock-v1',
 } as const;
 export type WorkspaceState = Record<string, unknown>;
@@ -57,7 +57,7 @@ export function validateWorkspace(value: unknown): WorkspaceState {
     visit(data);
   }
   const list=(key:string)=> (state[key]??[]) as Array<Record<string,unknown>>;
-  for(const key of [workspaceKeys.orders,workspaceKeys.employees,workspaceKeys.advances,workspaceKeys.inventory,workspaceKeys.movements,workspaceKeys.products,workspaceKeys.history,workspaceKeys.closings]) {
+  for(const key of [workspaceKeys.orders,workspaceKeys.employees,workspaceKeys.advances,workspaceKeys.inventory,workspaceKeys.movements,workspaceKeys.products,workspaceKeys.boostingCatalog,workspaceKeys.history,workspaceKeys.closings]) {
     const ids=new Set<string>();
     for(const row of list(key)) {
       if(!row||typeof row!=='object'||Array.isArray(row)||typeof row.id!=='string'||!row.id||ids.has(row.id)) payrollFailure('Identitas baris payroll tidak valid atau duplikat.');
@@ -69,6 +69,14 @@ export function validateWorkspace(value: unknown): WorkspaceState {
   for(const e of list(workspaceKeys.employees)) {
     if(typeof e.code!=='string'||!e.code||employeeCodes.has(e.code)||typeof e.name!=='string'||!teams.includes(String(e.team))||!['NEW','SHIFT','FULL','SAKIT','IJIN','RESIGN'].includes(String(e.workforceStatus))) payrollFailure('Data karyawan tidak valid.');
     employeeCodes.add(e.code);
+  }
+  const catalogIdentities=new Set<string>();
+  for(const plan of list(workspaceKeys.boostingCatalog)) {
+    if(typeof plan.gameId!=='string'||!plan.gameId.trim()||typeof plan.name!=='string'||!plan.name.trim()||plan.name.length>180
+      ||!Number.isSafeInteger(plan.rateMinor)||Number(plan.rateMinor)<0||typeof plan.active!=='boolean') payrollFailure('Data atau harga katalog boosting tidak valid.');
+    const key=String(plan.gameId).toLowerCase()+'|'+String(plan.name).trim().toLowerCase();
+    if(catalogIdentities.has(key)) payrollFailure('Nama paket boosting duplikat untuk game yang sama.');
+    catalogIdentities.add(key);
   }
   const references=new Set<string>();
   for(const row of list(workspaceKeys.orders)) {
