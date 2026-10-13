@@ -45,6 +45,7 @@ export function automaticDailyDelivery(order: Order): Order {
   if(order.scheduleMode!=="daily")return order;
   const dailyWork=(order.dailyWork??[]).map(day=>{
     const status=sheetTransferStatus(day.sourceTransferStatus);
+    if(!day.sourceTransferStatus)return day; // Legacy manually verified DAYs remain unchanged until the source supplies a status.
     if(status!=="DELIVERED")return {...day,status:"pending" as const,completedAt:undefined,verifiedAt:undefined};
     const error=getDailyPayrollValidationError(order,day);
     const blocked=Boolean(error)||day.grossMinor<=0||!order.orderType||
@@ -66,5 +67,5 @@ export function eligibleTransferForPayroll(order: Order, day?: OrderDailyWork) {
   const status=sheetTransferStatus(day?day.sourceTransferStatus:order.transferStatus);
   // Legacy/manual orders lacking a transfer field preserve their established
   // admin-verification workflow; a KNOWN PENDING must never become salary.
-  return status!=="PENDING";
+  return status!=="PENDING" && (status!=="UNKNOWN" || !(day?day.sourceTransferStatus:order.transferStatus));
 }
