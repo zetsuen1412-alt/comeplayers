@@ -239,6 +239,8 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
       const segments=dailySegmentsForPeriod(order,from,to);
       if(segments.length) {
         for(const day of segments) {
+          if((day.issues??[]).some(issue=>issue.severity==="high"||issue.severity==="critical"))
+            payrollFailure(`Hari pesanan ${order.externalReference} masih bermasalah; periksa Mutasi Sheet sebelum Closing.`,409);
           const error=getDailyPayrollValidationError(order,day);
           if(error) payrollFailure(`Pesanan ${order.externalReference}: ${error} Koreksi hari ini sebelum Closing.`,409);
         }
