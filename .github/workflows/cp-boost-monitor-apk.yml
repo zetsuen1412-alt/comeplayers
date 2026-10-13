@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -31,7 +31,20 @@ jobs:
         with:
           gradle-version: '8.10.2'
       - run: gradle --no-daemon -p CP-BoostMonitor-Android assembleDebug
-      - uses: actions/upload-artifact@v4
-        with:
-          name: CP-BoostMonitor-debug-APK
-          path: CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Publish internal debug APK to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          TAG="cp-boost-monitor-android-v1.1-debug"
+          APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.1-debug.apk" --clobber
+          else
+            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.1-debug.apk" \
+              --target "$GITHUB_SHA" \
+              --title "CP Boost Monitor Android v1.1 (internal debug)" \
+              --notes "APK debug internal untuk pengujian sinkronisasi roster Payroll Website. Bukan release produksi." \
+              --prerelease
+          fi
