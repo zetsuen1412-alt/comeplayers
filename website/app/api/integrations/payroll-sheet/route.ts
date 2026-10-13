@@ -129,7 +129,7 @@ export async function POST(request: Request) {
       const currentState = current.payload as WorkspaceState;
       const merged = mergeGoogleSheetPayroll(currentState, payload);
       validateWorkspace(merged.state);
-      validateWorkspaceEdit(currentState, merged.state);
+      validateWorkspaceEdit(currentState, merged.state, "sync");
 
       const changed = merged.added + merged.updated + merged.archived
         + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved;
