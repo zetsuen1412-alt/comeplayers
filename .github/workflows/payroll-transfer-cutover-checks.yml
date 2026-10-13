@@ -3,6 +3,11 @@ on:
   pull_request:
     paths:
       - website/features/payroll/lib/google-sheet-sync.ts
+      - website/features/payroll/lib/legacy-fh-cutover.ts
+      - website/features/payroll/components/legacy-fh-archive.tsx
+      - website/app/admin/payroll/bookkeeping/**
+      - website/scripts/comeplayers-payroll-google-sheets.gs
+      - website/tests/payroll-legacy-x2754-cutover.test.ts
       - website/features/payroll/lib/google-sheet-daily.ts
       - website/features/payroll/lib/sheet-transfer-payroll.ts
       - website/features/payroll/lib/sheet-code-collision.ts
@@ -56,4 +61,4 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Verify transfer and daily payroll safety
-        run: npx --no-install tsx --test tests/payroll-transfer-cutover-conflicts.test.ts tests/payroll-google-sheet-sync.test.ts tests/payroll-google-sheet-daily.test.ts tests/payroll-daily-orders.test.ts tests/payroll-final-workspace.test.ts
+        run: npx --no-install tsx --test tests/payroll-legacy-x2754-cutover.test.ts tests/payroll-transfer-cutover-conflicts.test.ts tests/payroll-google-sheet-sync.test.ts tests/payroll-google-sheet-daily.test.ts tests/payroll-daily-orders.test.ts tests/payroll-final-workspace.test.ts
