@@ -24,7 +24,8 @@ export default function ControlCenterPage() {
 
   const steps = [
     ["1", "Pesanan", "Catat pesanan satu kali", "/admin/payroll/orders"],
-    ["2", "Mutasi", "Cek & tandai selesai", "/admin/payroll/mutations"],
+    ["2", "Order Harian", "Cek pekerjaan & pembagian per hari", "/admin/payroll/daily"],
+    ["2b", "Mutasi", "Cek & tandai selesai", "/admin/payroll/mutations"],
     ["3", "Gaji", "Atur % & potongan", "/admin/payroll/gaji"],
     ["4", "Kasbon", "Catat pinjaman karyawan", "/admin/payroll/advances"],
     ["5", "Keuangan", "Cek uang & masalah", "/admin/payroll/finance"],
@@ -34,7 +35,7 @@ export default function ControlCenterPage() {
 
   return (
     <>
-      <PageHeader title="Beranda" description="Alur sederhana: Pesanan → Mutasi → Gaji/Kasbon → AI Cek → Keuangan → Tutup Buku." />
+      <PageHeader title="Beranda" description="Mulai dari Order Harian untuk melihat pekerjaan per tanggal, lalu gunakan Mutasi untuk mengubah status dan menyelesaikan Gaji." />
 
       <div className="cp-grid sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard label="Uang masuk" value={formatMoney(cash)} />
@@ -51,7 +52,9 @@ export default function ControlCenterPage() {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-3 md:grid-cols-5">
+      <section className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <Link href="/admin/payroll/daily" className="cp-card p-4"><div className="font-semibold">📅 Order Harian</div><div className="mt-1 text-sm text-zinc-500">Lihat baris pekerjaan, progres hari, dan pembagian karyawan tanpa filter rumit.</div></Link>
+        <Link href="/admin/payroll/boosting" className="cp-card p-4"><div className="font-semibold">⚡ Daftar Boosting</div><div className="mt-1 text-sm text-zinc-500">Kelola harga default paket boosting untuk form Pesanan manual.</div></Link>
         <Link href="/admin/payroll/mutations" className="cp-card p-4"><div className="font-semibold">🔄 Mutasi</div><div className="mt-1 text-sm text-zinc-500">Klik selesai supaya otomatis masuk Gaji.</div></Link>
         <Link href="/admin/payroll/gaji" className="cp-card p-4"><div className="font-semibold">💰 Gaji</div><div className="mt-1 text-sm text-zinc-500">Pendapatan pesanan selesai dihitung otomatis.</div></Link>
         <Link href="/admin/payroll/ai" className="cp-card p-4"><div className="font-semibold">🤖 Asisten AI</div><div className="mt-1 text-sm text-zinc-500">Cek Mutasi, Gaji, dan kesiapan Tutup Buku.</div></Link>
