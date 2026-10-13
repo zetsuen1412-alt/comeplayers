@@ -104,3 +104,29 @@ test("mixed daily transfers only put DELIVERED day in payroll, never the PENDING
  const later=mergeGoogleSheetPayroll(result.state,payload([allDone]));
  assert.equal(orders(later.state)[0].dailyWork?.filter(day=>day.status==="verified").length,2);
 });
+
+test("closing old book before 01.15 keeps exact-boundary DELIVERED in the new live book and PENDING outside salary",()=>{
+ const old=row(5847,"DELIVERED","OLD-X","Customer Rahmat","Leveling 30-60","RANGGA","06/10/2026 1:14");
+ const newOrder=row(5848,"DELIVERED","NEW-X","Customer Rahmat","Leveling 30-60","RANGGA","06/10/2026 1:15");
+ const pending=row(5849,"PENDING","WAIT-X","Customer Rahmat","Leveling 30-60","RANGGA","06/10/2026 1:16");
+ const state=mergeGoogleSheetPayroll(base(),payload([old,newOrder,pending])).state;
+ state[K.lock]={id:"lock-historical",from:"2026-10-01T00:00",to:"2026-10-06T01:14:59",
+   lockedBy:"Admin",lockedAt:"2026-10-13T06:00:00Z"};
+ state[K.advances]=[];
+ state[K.settings]={defaultSharePercent:50,employeeSharePercent:{},adjustments:{}};
+ const closed=closeWorkspace(state,"2026-10-13T06:05:00Z");
+ assert.deepEqual(closed.record.orderRefs,["OLD-X"]);
+ const after=orders(closed.state);
+ assert.ok(after.find(x=>x.externalReference==="OLD-X")?.payrollClosedAt);
+ assert.equal(after.find(x=>x.externalReference==="NEW-X")?.payrollClosedAt,undefined);
+ assert.equal(isPayrollEligible(after.find(x=>x.externalReference==="NEW-X")!),true);
+ assert.equal(isPayrollEligible(after.find(x=>x.externalReference==="WAIT-X")!),false);
+});
+test("unresolved duplicate code cannot be paid even if original source order was DELIVERED",()=>{
+ const initial=mergeGoogleSheetPayroll(base(),payload([row(5848,"DELIVERED")])).state;
+ initial[K.sheetCodeConflicts]=[{id:"sheet-code-conflict:book-source:X3180",spreadsheetId:"book-source",code:"X3180",
+   sourceRow:5849,message:"Buyer dan order lain memakai kode ini",detectedAt:"2026-10-13T06:00:00Z"}];
+ initial[K.lock]={id:"book-lock",from:"2026-10-06T01:15",to:"2026-10-13T23:59",
+   lockedBy:"Admin",lockedAt:"2026-10-13T06:00:00Z"};
+ assert.throws(()=>closeWorkspace(initial,"2026-10-13T06:05:00Z"),/Tidak ada order/);
+});
