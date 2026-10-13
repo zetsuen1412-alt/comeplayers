@@ -168,7 +168,14 @@ export function mergeGoogleSheetDailyOrder(existing: Order, incoming: Order): Or
     const old = oldDays.get(day.sequence);
     oldDays.delete(day.sequence);
     if (!old) return { ...day };
-    if (isSettledGoogleSheetDay(old)) return old;
+    if (isSettledGoogleSheetDay(old)) {
+      // Preserve verified financial amounts, workers and timestamps. Before Closing,
+      // a changed source transfer is the only field allowed through: PENDING must
+      // withdraw an unclosed DAY from live payroll.
+      if (!old.payrollClosedAt && !old.payrollPeriodId && day.sourceTransferStatus)
+        return { ...old, sourceTransferStatus: day.sourceTransferStatus };
+      return old;
+    }
     return { ...old, ...day, id: old.id, status: old.status, completedAt: old.completedAt, verifiedAt: old.verifiedAt,
       issues: uniqueIssues([...(day.issues ?? []), ...(old.issues ?? []).filter(issue => issue.source === "manual")]) };
   });
