@@ -186,6 +186,10 @@ function activateComePlayersEmployeeNameWriteback() {
   if (props.getProperty('CP_SYNC_ROSTER') !== 'true') throw new Error('Aktifkan sinkronisasi roster PAYROLL-1/2/3 dahulu.');
   var id = props.getProperty('CP_SPREADSHEET_ID');
   if (!id) throw new Error('Spreadsheet sumber belum dikonfigurasi.');
+  var mirror = JSON.parse(props.getProperty('EGM_CONFIG') || '{}');
+  if (mirror.sourceId && mirror.targetId && id !== mirror.sourceId) {
+    throw new Error('Writeback ditolak: konfigurasi payroll masih menunjuk ke spreadsheet mirror/target, bukan sumber.');
+  }
   var spreadsheet = SpreadsheetApp.openById(id);
   ['PAYROLL-1','PAYROLL-2','PAYROLL-3'].forEach(function(name) {
     var sheet = spreadsheet.getSheetByName(name);
