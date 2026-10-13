@@ -1,0 +1,43 @@
+name: Payroll sheet transfer and book cutover checks
+on:
+  pull_request:
+    paths:
+      - website/features/payroll/lib/google-sheet-sync.ts
+      - website/features/payroll/lib/google-sheet-daily.ts
+      - website/features/payroll/lib/sheet-transfer-payroll.ts
+      - website/features/payroll/lib/sheet-code-collision.ts
+      - website/features/payroll/lib/daily-orders.ts
+      - website/features/payroll/lib/payroll-live.ts
+      - website/features/payroll/lib/workspace-model.ts
+      - website/features/payroll/types/domain.ts
+      - website/features/payroll/components/fortnight-closing.tsx
+      - website/app/admin/payroll/mutations/**
+      - website/tests/payroll-transfer-cutover-conflicts.test.ts
+      - .github/workflows/payroll-transfer-cutover-checks.yml
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Verify transfer and daily payroll safety
+        run: npx --no-install tsx --test tests/payroll-transfer-cutover-conflicts.test.ts tests/payroll-google-sheet-sync.test.ts tests/payroll-google-sheet-daily.test.ts tests/payroll-daily-orders.test.ts tests/payroll-final-workspace.test.ts
