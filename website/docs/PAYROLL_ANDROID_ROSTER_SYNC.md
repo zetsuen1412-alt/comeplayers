@@ -27,3 +27,10 @@ Endpoint dilindungi oleh kontrol otorisasi payroll yang sama dengan website. Ket
 4. Tambah/ganti nama/kode/divisi di website, jalankan sinkronisasi di APK; identitas/status dan history lama harus tetap terjaga.
 5. Uji `RESIGN`, pegawai hilang dari Sheet, offline, pembaruan token, logout, backup/restore, serta upgrade SQLite v1→v2.
 6. Build dan uji APK debug dari GitHub Actions, lalu buat signing release khusus internal.
+## Distribusi APK langsung dari website
+
+- Menu **APK Karyawan** khusus admin berada di `/admin/payroll/boost-monitor`. Tombol unduh mengarah ke `/downloads/cp-boost-monitor.apk` (domain website sendiri).
+- Workflow GitHub Actions mengompilasi, memeriksa tanda tangan APK debug dan integritas ZIP, lalu menyalin file APK ke `website/public/downloads/cp-boost-monitor.apk` beserta SHA-256; setelah commit ter-deploy ke website, admin dapat mengunduh tanpa akun GitHub.
+- **Perhatian:** APK statis dapat diunduh siapa pun yang mengetahui URL langsung. Tidak ada kredensial dalam binary; akun payroll tetap perlu izin dan login. Halaman navigasi hanya terlihat oleh admin.
+- Halaman admin menguji ketersediaan berkas serta `GET /api/admin/payroll/mobile/roster` dengan token akun admin saat ini, menampilkan jumlah karyawan aktif dan revisi workspace. Ini *tidak* sama dengan pengujian sinkronisasi HP end-to-end; lakukan pengecekan login/sinkron di perangkat nyata dan cocokkan roster.
+- APK debug adalah rilis internal, bukan signed release produksi. Jangan bagikan secara publik sebelum rilis ditandatangani dan diuji.

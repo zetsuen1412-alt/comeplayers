@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePayrollActor } from "@/features/payroll/lib/workspace-store";
 import { KpiCard } from "@/features/payroll/components/kpi-card";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { financeIssues } from "@/features/payroll/lib/demo-data";
@@ -12,6 +13,7 @@ import { buildLivePayrollRows } from "@/features/payroll/lib/payroll-live";
 import { formatMoney } from "@/features/payroll/lib/money";
 
 export default function ControlCenterPage() {
+  const actor = usePayrollActor();
   const { allOrders } = useDemoOrders();
   const { employees } = useDemoEmployees();
   const { settings } = useDemoPayrollSettings();
@@ -56,6 +58,7 @@ export default function ControlCenterPage() {
         <Link href="/admin/payroll/gaji" className="cp-card p-4"><div className="font-semibold">💰 Gaji</div><div className="mt-1 text-sm text-zinc-500">Pendapatan pesanan selesai dihitung otomatis.</div></Link>
         <Link href="/admin/payroll/ai" className="cp-card p-4"><div className="font-semibold">🤖 Asisten AI</div><div className="mt-1 text-sm text-zinc-500">Cek Mutasi, Gaji, dan kesiapan Tutup Buku.</div></Link>
         <Link href="/admin/payroll/finance/closing" className="cp-card p-4"><div className="font-semibold">📕 Tutup Buku</div><div className="mt-1 text-sm text-zinc-500">Atur periode sendiri & download Excel.</div></Link>
+        {actor?.isAdmin && <Link href="/admin/payroll/boost-monitor" className="cp-card border border-emerald-500/40 p-4"><div className="font-semibold">📱 Download APK Karyawan</div><div className="mt-1 text-sm text-zinc-500">Unduh CP Boost Monitor, cek versi, dan verifikasi roster payroll yang akan disinkronkan.</div></Link>}
         <Link href="/admin/payroll/inventory" className="cp-card p-4"><div className="font-semibold">📦 Stok / Gudang</div><div className="mt-1 text-sm text-zinc-500">Gabungan gudang permainan.</div></Link>
       </section>
     </>

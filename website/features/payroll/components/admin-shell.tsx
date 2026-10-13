@@ -14,6 +14,7 @@ const links = [
   ["✈️", "Telegram Booster", "/admin/payroll/telegram"],
   ["🕘", "Riwayat Perubahan", "/admin/payroll/history"],
   ["👥", "Karyawan", "/admin/payroll/employees"],
+  ["📱", "APK Karyawan", "/admin/payroll/boost-monitor"],
   ["💰", "Gaji", "/admin/payroll/gaji"],
   ["💳", "Kasbon", "/admin/payroll/advances"],
   ["📊", "Keuangan", "/admin/payroll/finance"],
@@ -53,7 +54,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="mt-4 rounded-xl bg-zinc-900 p-3 text-xs text-zinc-400"><span className="block font-semibold text-zinc-100">{actor?.name}</span>{actor?.isAdmin ? "Administrator" : "Akses khusus penggajian"}</div>
         {actor?.isAdmin && <><Link href="/admin/payroll/access" className="mt-4 block rounded-xl border border-yellow-500/30 p-3 text-sm font-semibold text-yellow-300">Kelola akses & tautan</Link><Link href="/admin/payroll/legacy" className="mt-4 block text-xs text-zinc-400">Arsip penggajian sebelumnya</Link></>}
         <nav className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">
-          {links.map(([icon, label, href]) => (
+          {links.filter(([, , href]) => href !== "/admin/payroll/boost-monitor" || actor?.isAdmin).map(([icon, label, href]) => (
             <Link key={href} href={href} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800 hover:text-white">
               <span className="text-base" aria-hidden>{icon}</span><span>{label}</span>
             </Link>

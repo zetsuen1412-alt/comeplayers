@@ -13,6 +13,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -30,7 +32,32 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - run: gradle --no-daemon -p CP-BoostMonitor-Android assembleDebug
+      - name: Compile Android APK
+        run: gradle --no-daemon -p CP-BoostMonitor-Android assembleDebug
+      - name: Verify APK format and signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          unzip -t "$APK" | tail -n 1
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          sha256sum "$APK"
+      - name: Publish same APK to website downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
+          mkdir -p website/public/downloads
+          cp "$APK" website/public/downloads/cp-boost-monitor.apk
+          (cd website/public/downloads && sha256sum cp-boost-monitor.apk > cp-boost-monitor.apk.sha256)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website/public/downloads/cp-boost-monitor.apk website/public/downloads/cp-boost-monitor.apk.sha256
+          if ! git diff --cached --quiet; then
+            git commit -m "build(android): publish verified CP Boost Monitor APK for website admins"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
       - name: Publish internal debug APK to GitHub Releases
         env:
           GH_TOKEN: ${{ github.token }}
@@ -45,6 +72,6 @@ jobs:
             gh release create "$TAG" "$APK#CP-BoostMonitor-v1.1-debug.apk" \
               --target "$GITHUB_SHA" \
               --title "CP Boost Monitor Android v1.1 (internal debug)" \
-              --notes "APK debug internal untuk pengujian sinkronisasi roster Payroll Website. Bukan release produksi." \
+              --notes "APK debug internal. Download mudah juga tersedia di Website Payroll Admin." \
               --prerelease
           fi
