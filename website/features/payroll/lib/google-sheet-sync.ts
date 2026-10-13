@@ -1,5 +1,6 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { automaticSingleDelivery, automaticDailyDelivery, sheetTransferStatus } from "./sheet-transfer-payroll";
+import { conflictRecord, unrelatedCodeIdentity, type SheetCodeConflict } from "./sheet-code-collision";
 import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { mergeGoogleSheetRoster, pruneUnreferencedSheetRosterEmployees, validateGoogleSheetRoster, type GoogleSheetRosterSnapshot } from "./google-sheet-roster";
 import { buildGoogleSheetDailyOrder, mergeGoogleSheetDailyOrder, parseGoogleSheetBoostingDays } from "./google-sheet-daily";
@@ -61,6 +62,7 @@ export type GoogleSheetSyncMergeResult = {
   skippedConflicts: number;
   skippedInvalid: number;
   skippedHistorical: number;
+  conflictsUpdated: number;
   issues: GoogleSheetSyncIssue[];
   rowResults: { rowNumber: number; status: "added" | "updated" | "unchanged" | "skippedProtected" | "skippedConflicts" | "skippedInvalid" | "skippedHistorical" }[];
 };
@@ -618,6 +620,26 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const games = (state[workspaceKeys.products] ?? []) as ProductGame[];
   const columns = columnsFor(payload.headers);
   const issues: GoogleSheetSyncIssue[] = [];
+  const previousAlerts=(state[workspaceKeys.sheetCodeConflicts]??[]) as SheetCodeConflict[];
+  const alerts=new Map(previousAlerts.map(alert=>[alert.id,alert]));
+  function clearAlert(code:string) {
+    alerts.delete(conflictRecord(payload.spreadsheetId,code,1,"",payload.sentAt).id);
+  }
+  function recordCodeProblem(code:string,rowNumber:number,message:string) {
+    if(!code.trim())return;
+    const entry=conflictRecord(payload.spreadsheetId,code,rowNumber,message,payload.sentAt);
+    const old=alerts.get(entry.id);
+    if(old?.sourceRow!==entry.sourceRow||old.message!==entry.message)alerts.set(entry.id,entry);
+    const ix=orders.findIndex(order=>order.externalReference.trim().toLowerCase()===code.trim().toLowerCase()
+      && isGoogleSheetOrder(order) && !protectedFromSheet(order,closingReferences));
+    if(ix>=0) {
+      const item=orders[ix], sourceIssues=(item.importIssues??[]).filter(problem=>problem.code!=="sheet_code_collision");
+      const next={...item,operationalStatus:"on_hold" as const,importNeedsReview:true,importIssues:[...sourceIssues,
+        {code:"sheet_code_collision",title:"KODE ganda tidak cocok",description:message,
+          severity:"high" as const,source:"import" as const}]};
+      if(canonical(item)!==canonical(next)){orders[ix]=next;updated++;}
+    }
+  }
   const rowResults: GoogleSheetSyncMergeResult["rowResults"] = [];
   const dailyPackages = new Map<GoogleSheetSyncRow, ReturnType<typeof parseIncomingDailyPackage>>();
   for (const row of payload.rows) if (row.dailyPackage) dailyPackages.set(row, parseIncomingDailyPackage({ payload, row, columns, employees, games }));
@@ -667,7 +689,10 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     if (dailyPackage && !dailyPackage.order) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
-      if (dailyPackage.issue) issues.push(dailyPackage.issue);
+      if (dailyPackage.issue) {
+        issues.push(dailyPackage.issue);
+        recordCodeProblem(dailyPackage.issue.code??"",row.rowNumber,dailyPackage.issue.message);
+      }
       continue;
     }
     if (historicalRowIsUnrelated(row)) {
@@ -695,6 +720,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE duplikat di payload sinkronisasi." });
+      recordCodeProblem(incoming.externalReference,row.rowNumber,"KODE sama dipakai lebih dari satu baris non-paket. Periksa NAMA BUYER dan NAMA ORDER; kode yang sama hanya untuk hari paket yang sama.");
       continue;
     }
     const index = orders.findIndex(order => order.externalReference.trim().toLowerCase() === refKey);
@@ -712,12 +738,21 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
         continue;
       }
       orders.push(incoming);
+      clearAlert(incoming.externalReference);
       added++;
       rowResults.push({ rowNumber: row.rowNumber, status: "added" });
       continue;
     }
 
     const existing = orders[index];
+    if (unrelatedCodeIdentity(existing,incoming)) {
+      skippedConflicts++;
+      rowResults.push({rowNumber:row.rowNumber,status:"skippedConflicts"});
+      const message=`KODE ${incoming.externalReference} sama tetapi nama buyer atau nama order tidak mirip dengan pesanan yang sudah tersimpan. Jangan gabungkan kedua transaksi; koreksi KODE di Sheet.`;
+      issues.push({rowNumber:row.rowNumber,code:incoming.externalReference,message});
+      recordCodeProblem(incoming.externalReference,row.rowNumber,message);
+      continue;
+    }
     if (!isGoogleSheetOrder(existing) || !existing.id.startsWith(sheetSourcePrefix(payload))) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
@@ -758,6 +793,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
         continue;
       }
     }
+    clearAlert(incoming.externalReference);
     if (canonical(existing) === canonical(next)) {
       unchanged++;
       rowResults.push({ rowNumber: row.rowNumber, status: "unchanged" });
@@ -792,9 +828,12 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     const protectedOrder = order.scheduleMode === "daily" ? protectedFromDailySheet(order, closingReferences) : protectedFromSheet(order, closingReferences);
     if (!protectedOrder) refreshReferences.push(order.externalReference);
   }
+  const currentAlerts=[...alerts.values()].sort((a,b)=>a.id.localeCompare(b.id));
+  const conflictsUpdated=canonical(previousAlerts)!==canonical(currentAlerts)?1:0;
+  if(currentAlerts.length||state[workspaceKeys.sheetCodeConflicts]) state[workspaceKeys.sheetCodeConflicts]=currentAlerts;
   state[workspaceKeys.orders] = orders;
   if (payload.roster) rosterResult.rosterRemoved += pruneUnreferencedSheetRosterEmployees(state, payload.spreadsheetId);
   const trackedRows = orders.filter(order => order.id.startsWith(sheetSourcePrefix(payload)))
     .map(order => ({ reference: order.externalReference, ...(order.importSourceRow ? { rowNumber: order.importSourceRow } : {}) }));
-  return { state, ...rosterResult, added, updated, archived, restored, refreshReferences, trackedRows, unchanged, skippedProtected, skippedConflicts, skippedInvalid, skippedHistorical, issues: issues.slice(0, 100), rowResults };
+  return { state, ...rosterResult, added, updated, archived, restored, refreshReferences, trackedRows, unchanged, skippedProtected, skippedConflicts, skippedInvalid, skippedHistorical, conflictsUpdated, issues: issues.slice(0, 100), rowResults };
 }
