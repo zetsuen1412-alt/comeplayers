@@ -29,7 +29,7 @@ export type LegacyMutationSnapshot = {
 };
 
 export function isPreX2754SheetOrder(order: Pick<Order,"id"|"importSourceRow">) {
- return order.id.startsWith("gsheet:") && order.id.toUpperCase().includes("MUTASI")
+ return typeof order.id==="string" && order.id.startsWith("gsheet:") && order.id.toUpperCase().includes("MUTASI")
    && Number.isSafeInteger(order.importSourceRow) && Number(order.importSourceRow) < FH_NEW_BOOK_ROW;
 }
 export function isPreX2754SheetDay(order: Pick<Order,"id">, day: {sourceRow?:number}) {
