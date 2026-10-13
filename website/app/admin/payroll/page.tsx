@@ -33,6 +33,7 @@ export default function ControlCenterPage() {
     ["5", "Keuangan", "Cek uang & masalah", "/admin/payroll/finance"],
     ["6", "AI Cek", "Cari data yang aneh", "/admin/payroll/ai"],
     ["7", "Tutup Buku", "Atur periode & Excel", "/admin/payroll/finance/closing"],
+    ["8", "Data Pembukuan", "Periksa arsip mutasi yang sudah ditutup", "/admin/payroll/bookkeeping"],
   ];
 
   return (
@@ -49,7 +50,7 @@ export default function ControlCenterPage() {
 
       <section className="cp-card mt-6 p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-semibold">Alur kerja</h2><p className="mt-1 text-sm text-zinc-400">Ikuti dari kiri ke kanan.</p></div><Link href="/admin/payroll/guide" className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-semibold text-black">Buka Panduan</Link></div>
-        <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-7">
+        <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-8">
           {steps.map(([number, title, text, href]) => <Link key={number} href={href} className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4 transition hover:border-yellow-500/40"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-400 font-bold text-black">{number}</div><div className="mt-3 font-semibold">{title}</div><div className="mt-1 text-sm leading-5 text-zinc-500">{text}</div></Link>)}
         </div>
       </section>
@@ -57,7 +58,8 @@ export default function ControlCenterPage() {
       <section className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-5">
         <Link href="/admin/payroll/daily" className="cp-card p-4"><div className="font-semibold">📅 Order Harian</div><div className="mt-1 text-sm text-zinc-500">Lihat baris pekerjaan, progres hari, dan pembagian karyawan tanpa filter rumit.</div></Link>
         <Link href="/admin/payroll/boosting" className="cp-card p-4"><div className="font-semibold">⚡ Daftar Boosting</div><div className="mt-1 text-sm text-zinc-500">Kelola harga default paket boosting untuk form Pesanan manual.</div></Link>
-        <Link href="/admin/payroll/mutations" className="cp-card p-4"><div className="font-semibold">🔄 Mutasi</div><div className="mt-1 text-sm text-zinc-500">Klik selesai supaya otomatis masuk Gaji.</div></Link>
+        <Link href="/admin/payroll/mutations" className="cp-card p-4"><div className="font-semibold">🔄 Mutasi Aktif</div><div className="mt-1 text-sm text-zinc-500">Pekerjaan yang belum Tutup Buku; Delivered masuk Gaji bila valid.</div></Link>
+        <Link href="/admin/payroll/bookkeeping" className="cp-card p-4"><div className="font-semibold">📚 Data Pembukuan</div><div className="mt-1 text-sm text-zinc-500">Lihat kembali mutasi yang sudah ditutup tanpa menghitung gaji ulang.</div></Link>
         <Link href="/admin/payroll/gaji" className="cp-card p-4"><div className="font-semibold">💰 Gaji</div><div className="mt-1 text-sm text-zinc-500">Pendapatan pesanan selesai dihitung otomatis.</div></Link>
         <Link href="/admin/payroll/ai" className="cp-card p-4"><div className="font-semibold">🤖 Asisten AI</div><div className="mt-1 text-sm text-zinc-500">Cek Mutasi, Gaji, dan kesiapan Tutup Buku.</div></Link>
         <Link href="/admin/payroll/finance/closing" className="cp-card p-4"><div className="font-semibold">📕 Tutup Buku</div><div className="mt-1 text-sm text-zinc-500">Atur periode sendiri & download Excel.</div></Link>
