@@ -10,7 +10,8 @@ const links = [
   ["🏠", "Beranda", "/admin/payroll"],
   ["🧾", "Pesanan", "/admin/payroll/orders"],
   ["💵", "Penjualan", "/admin/payroll/sales"],
-  ["🔄", "Mutasi", "/admin/payroll/mutations"],
+  ["🔄", "Mutasi Aktif", "/admin/payroll/mutations"],
+  ["📚", "Data Pembukuan", "/admin/payroll/bookkeeping"],
   ["📅", "Order Harian", "/admin/payroll/daily"],
   ["⚡", "Daftar Boosting", "/admin/payroll/boosting"],
   ["✈️", "Telegram Booster", "/admin/payroll/telegram"],
@@ -31,7 +32,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const actor = usePayrollActor();
   const pathname = usePathname();
   const { lock, isLocked } = useDemoPeriodLock();
-  const readOnlyAllowedPage = pathname === "/admin/payroll/finance/closing" || pathname === "/admin/payroll/export" || pathname === "/admin/payroll/history" || pathname === "/admin/payroll/access";
+  const readOnlyAllowedPage = pathname === "/admin/payroll/finance/closing" || pathname === "/admin/payroll/bookkeeping" || pathname === "/admin/payroll/export" || pathname === "/admin/payroll/history" || pathname === "/admin/payroll/access";
   const readOnly = isLocked && !readOnlyAllowedPage;
 
   return (
@@ -65,7 +66,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-6 hidden rounded-xl bg-zinc-900/80 p-3 text-xs leading-5 text-zinc-400 lg:block">
           <div className="font-semibold text-zinc-200">Urutan paling mudah</div>
-          <div className="mt-1">Pesanan → Penjualan → Mutasi → Riwayat → Gaji/Kasbon → AI Cek → Keuangan → Tutup Buku</div>
+          <div className="mt-1">Pesanan → Mutasi Aktif → Gaji/Kasbon → Tutup Buku → Data Pembukuan</div>
         </div>
       </aside>
       <main className="min-w-0 p-4 sm:p-6 lg:p-8">

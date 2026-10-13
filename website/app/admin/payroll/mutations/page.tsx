@@ -17,6 +17,8 @@ import { compareMutationOrders, compareMutationRowRates, defaultMutationSort, mu
 import { useDemoPeriodLock } from "@/features/payroll/lib/demo-period-lock-store";
 import { MutationEditModal } from "@/features/payroll/components/mutation-edit-modal";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
+import { useDemoClosings } from "@/features/payroll/lib/demo-closing-store";
+import { activeMutationRows } from "@/features/payroll/lib/mutation-bookkeeping";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoInventory } from "@/features/payroll/lib/demo-inventory-store";
 import { formatMoney } from "@/features/payroll/lib/money";
@@ -376,7 +378,8 @@ export default function MutationsPage() {
   const [telegramStatuses, setTelegramStatuses] = useState<Record<string, TelegramMutationStatus>>({});
   const [telegramEvidenceOrder, setTelegramEvidenceOrder] = useState<string | null>(null);
   const canManageSync = getPayrollActor()?.isAdmin === true;
-  const allMutationRows = useMemo(() => expandMutationRows(allOrders), [allOrders]);
+  const { closings } = useDemoClosings();
+  const allMutationRows = useMemo(() => activeMutationRows(allOrders, closings), [allOrders, closings]);
   const allRowsById = useMemo(() => new Map(allMutationRows.map(row => [row.id, row])), [allMutationRows]);
 
   useEffect(() => {
@@ -460,14 +463,14 @@ export default function MutationsPage() {
     return true;
   }), [allOrders, buyer, game, type]);
 
-  const periodRows = useMemo(() => expandMutationRows(filteredOrders).filter((row) => {
+  const periodRows = useMemo(() => activeMutationRows(filteredOrders, closings).filter((row) => {
     const day = toJakartaDateInput(row.orderedAt);
     if (mode === "today" && day !== today) return false;
     if (mode === "week" && !(day >= dateDaysAgo(today, 6) && day <= today)) return false;
     if (mode === "month" && !(day >= monthStart(today) && day <= today)) return false;
     if (mode === "range" && !(day >= from && day <= to)) return false;
     return true;
-  }), [filteredOrders, from, mode, to, today]);
+  }), [filteredOrders, closings, from, mode, to, today]);
 
   const rows = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -761,7 +764,11 @@ export default function MutationsPage() {
 
   return (
     <>
-      <PageHeader title="Mutasi" description={"Sheet: DELIVERED = pekerjaan selesai dan masuk payroll bila pembagiannya valid; PENDING = belum masuk gaji. Konflik KODE harus diperbaiki sebelum Closing."} />
+      <PageHeader title="Mutasi Aktif" description={"Hanya pekerjaan yang belum masuk Tutup Buku. DELIVERED masuk Gaji jika data valid; PENDING tetap tertunda. Sesudah Closing, data dipindahkan ke tampilan Data Pembukuan tanpa menghapus mutasi Sheet."} />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/25 bg-zinc-900/60 p-4">
+        <p className="text-sm text-zinc-300">Baris yang sudah Tutup Buku otomatis tidak muncul lagi di sini. Untuk paket berhari-hari hanya DAY yang sudah ditutup yang disembunyikan.</p>
+        <Link href="/admin/payroll/bookkeeping" className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-black">📚 Buka Data Pembukuan →</Link>
+      </div>
       <section className="cp-card mb-4 p-4"><div className="flex flex-wrap justify-between gap-3"><div><strong>Periode Mutasi aktif</strong><p className="mt-1 text-sm text-zinc-400">Buku baru dimulai ${PAYROLL_NEW_BOOK_START.replace("T"," ")} WIB. Periode lama dan snapshot Tutup Buku tetap dapat diperiksa.</p></div><Link href="/admin/payroll/finance/closing" className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Lihat Gaji / Tutup Buku →</Link></div></section>
       {codeConflicts.length ? <section className="mb-4 rounded-xl border border-red-500/50 bg-red-500/10 p-4" role="alert"><h2 className="font-semibold text-red-200">⚠ KODE Bermasalah dari Spreadsheet ({codeConflicts.length})</h2><p className="mt-1 text-sm text-zinc-300">KODE yang sama dipakai oleh baris yang tidak cocok. Tidak digabung otomatis; periksa buyer dan nama paket di Sheet lalu perbaiki KODE sumber.</p><div className="mt-3 space-y-2">{codeConflicts.slice(0,30).map(alert=><div key={alert.id} className="rounded-lg border border-red-500/25 p-3 text-sm"><strong>{alert.code} · Baris Sheet {alert.sourceRow}</strong><p className="mt-1 text-zinc-300">{alert.message}</p></div>)}</div>{codeConflicts.length>30?<p className="mt-2 text-xs">Menampilkan 30 konflik pertama.</p>:null}</section>:null}
 

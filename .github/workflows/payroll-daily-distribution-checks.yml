@@ -5,13 +5,18 @@ on:
     branches: [main]
     paths:
       - website/app/admin/payroll/mutations/**
+      - website/app/admin/payroll/bookkeeping/**
+      - website/features/payroll/lib/mutation-bookkeeping.ts
+      - website/features/payroll/components/fortnight-closing.tsx
+      - website/features/payroll/components/admin-shell.tsx
+      - website/tests/payroll-mutation-bookkeeping.test.ts
       - website/app/admin/payroll/orders/**
       - website/app/admin/payroll/daily/**
       - website/app/admin/payroll/boosting/**
       - website/features/payroll/lib/daily-dashboard.ts
       - website/features/payroll/lib/boosting-catalog-store.ts
       - website/features/payroll/lib/workspace-model.ts
-      - website/tests/payroll-boosting-daily-dashboard.test.ts
+      - website/tests/payroll-boosting-daily-dashboard.test.ts tests/payroll-mutation-bookkeeping.test.ts
       - website/features/payroll/components/mutation-issue-modal.tsx
       - website/features/payroll/components/mutation-spreadsheet.*
       - website/features/payroll/components/order-entry-form.tsx
@@ -29,6 +34,11 @@ on:
   pull_request:
     paths:
       - website/app/admin/payroll/mutations/**
+      - website/app/admin/payroll/bookkeeping/**
+      - website/features/payroll/lib/mutation-bookkeeping.ts
+      - website/features/payroll/components/fortnight-closing.tsx
+      - website/features/payroll/components/admin-shell.tsx
+      - website/tests/payroll-mutation-bookkeeping.test.ts
       - website/app/admin/payroll/orders/**
       - website/app/admin/payroll/daily/**
       - website/app/admin/payroll/boosting/**
