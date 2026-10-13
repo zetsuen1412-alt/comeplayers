@@ -32,9 +32,11 @@ export function isPreX2754SheetOrder(order: Pick<Order,"id"|"importSourceRow">) 
  return typeof order.id==="string" && order.id.startsWith("gsheet:") && order.id.toUpperCase().includes("MUTASI")
    && Number.isSafeInteger(order.importSourceRow) && Number(order.importSourceRow) < FH_NEW_BOOK_ROW;
 }
-export function isPreX2754SheetDay(order: Pick<Order,"id">, day: {sourceRow?:number}) {
- return order.id.startsWith("gsheet:") && order.id.toUpperCase().includes("MUTASI")
-   && Number.isSafeInteger(day.sourceRow) && Number(day.sourceRow) < FH_NEW_BOOK_ROW;
+export function isPreX2754SheetDay(order: Pick<Order,"id"> & {importSourceRow?:number}, day: {sourceRow?:number}) {
+ if(typeof order.id!=="string" || !order.id.startsWith("gsheet:") || !order.id.toUpperCase().includes("MUTASI"))return false;
+ // Legacy DAYs without source row cannot safely be classified as new work.
+ if(day.sourceRow===undefined)return isPreX2754SheetOrder(order);
+ return Number.isSafeInteger(day.sourceRow) && Number(day.sourceRow) < FH_NEW_BOOK_ROW;
 }
 export function belongsInLegacyArchive(order: Pick<Order,"id"|"importSourceRow">, day?: {sourceRow?:number}) {
  return day ? isPreX2754SheetDay(order,day) : isPreX2754SheetOrder(order);
