@@ -16,11 +16,11 @@ function related(a:string,b:string){
   if(!left.length||!right.length)return false;
   return left.some(t=>right.includes(t)&&t.length>=2);
 }
-/** Fail closed when either buyer OR service has no meaningful resemblance. */
+/** A reused KODE is clearly unrelated when BOTH buyer and service differ. */
 export function unrelatedCodeIdentity(a:Pick<Order,"buyerName"|"orderName"|"service">,b:Pick<Order,"buyerName"|"orderName"|"service">) {
   const buyerA=a.buyerName??"",buyerB=b.buyerName??"";
   const titleA=a.orderName??a.service,titleB=b.orderName??b.service;
-  return !related(buyerA,buyerB)||!related(titleA,titleB);
+  return !related(buyerA,buyerB)&&!related(titleA,titleB);
 }
 export function conflictRecord(spreadsheetId:string,code:string,rowNumber:number,message:string,sentAt:string):SheetCodeConflict {
   return {id:`sheet-code-conflict:${encodeURIComponent(spreadsheetId)}:${encodeURIComponent(code.toUpperCase())}`,
