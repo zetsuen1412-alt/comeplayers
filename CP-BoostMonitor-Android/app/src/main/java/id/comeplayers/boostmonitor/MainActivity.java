@@ -195,7 +195,7 @@ public final class MainActivity extends Activity {
             LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
             gate.addView(text("Hubungkan Karyawan Payroll", 23, INK, true));
             space(gate, 12);
-            gate.addView(text("Nama, kode dan FH otomatis dari ComePlayers → Payroll → Karyawan. Tidak perlu tambah karyawan manual.", 14, SUB, false));
+            gate.addView(text("Hanya nama karyawan FH3 dari Payroll → Karyawan. Divisi lain dibersihkan dari APK.", 14, SUB, false));
             space(gate, 14);
             gate.addView(text("Login sekali dengan akun yang memiliki izin Payroll. Data diambil saat login, lalu diperbarui tiap 2 menit selama APK aktif.", 13, SUB, false));
             space(gate, 20);
@@ -235,11 +235,11 @@ public final class MainActivity extends Activity {
 
     private void dashboard() {
         List<EmployeeDb.Employee> all = db.payrollEmployees();
-        heading("Dashboard Tim", "Karyawan dari Payroll Website • " + time(now()));
+        heading("Dashboard Tim", "Karyawan FH3 dari Payroll Website • " + time(now()));
         if (linked()) {
             String error = prefs.getString("payroll_sync_error", "");
             long synced = prefs.getLong("payroll_last_sync", 0L);
-            info((error.isEmpty() ? "✓ " + all.size() + " karyawan dari Payroll Website"
+            info((error.isEmpty() ? "✓ " + all.size() + " karyawan FH3 dari Payroll Website"
                     : "⚠ Sinkron gagal: " + error + " (data terakhir tetap tersimpan)")
                 + " • Update terakhir: " + (synced == 0L ? "belum ada" : time(synced)));
             space(body, 8);
@@ -302,8 +302,8 @@ public final class MainActivity extends Activity {
     }
 
     private void employeesPage() {
-        heading("Karyawan Payroll (" + db.payrollEmployees().size() + ")", "Sumber: ComePlayers → Payroll → Karyawan.");
-        info("Nama, kode, dan FH otomatis mengikuti website. Ubah nama di website; di APK cukup pilih status boosting.");
+        heading("Karyawan FH3 (" + db.payrollEmployees().size() + ")", "Sumber: ComePlayers → Payroll → Karyawan → FH3.");
+        info("Hanya nama dan kode FH3 otomatis mengikuti website. Ubah nama di website; di APK cukup pilih status boosting.");
         space(body, 9);
         Button syncNames = button(syncBusy ? "Sedang memperbarui nama..." : "↻ Ambil Nama Terbaru", true);
         syncNames.setEnabled(!syncBusy); body.addView(syncNames, lp(-1, 43));
@@ -464,7 +464,7 @@ public final class MainActivity extends Activity {
         integration.addView(text("Integrasi Payroll ComePlayers", 17, INK, true)); space(integration, 7);
         integration.addView(text("Sumber: www.comeplayers.com • divisi FH1, FH2, FH3 dan data karyawan payroll lainnya.", 12, SUB, false));
         space(integration, 7);
-        integration.addView(text(linked() ? "✓ " + db.payrollEmployees().size() + " nama dari website • sinkron setiap 2 menit saat aktif."
+        integration.addView(text(linked() ? "✓ " + db.payrollEmployees().size() + " nama FH3 dari website • sinkron setiap 2 menit saat aktif."
                     : "Belum login ke Payroll ComePlayers.", 13, SUB, false));
         space(integration, 11);
         if (!linked()) {
