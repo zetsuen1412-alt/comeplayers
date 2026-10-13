@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify repository APK checksum
+        # For every production deploy, compare the exact bytes served with the tracked binary.
         shell: bash
         run: |
           set -euo pipefail
