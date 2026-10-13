@@ -2,6 +2,7 @@ import type { Employee, Order, OrderWorkerAssignment } from "@/features/payroll/
 import { calculateWorkerEarning } from "@/features/payroll/lib/finance";
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import { getDailyAssignments, getDailyPayrollValidationError, getPayrollEligibleGrossMinor, isDailySettlementOrder } from "@/features/payroll/lib/daily-orders";
+import { eligibleTransferForPayroll } from "./sheet-transfer-payroll";
 
 export type PayrollAdjustmentInput = {
   operationalMinor?: number;
@@ -44,13 +45,16 @@ export type PayrollBuildOptions = {
 
 function eligibleDailyRows(order: Order, includeClosed = false) {
   return (order.dailyWork ?? []).filter((row) =>
-    row.status === "verified" && (includeClosed || !(row.payrollClosedAt || row.payrollPeriodId))
-      && !getDailyPayrollValidationError(order, row),
+    row.status === "verified" && eligibleTransferForPayroll(order,row) && (includeClosed || !(row.payrollClosedAt || row.payrollPeriodId))
+      && !getDailyPayrollValidationError(order, row)
+      && !(row.issues??[]).some(issue=>issue.severity==="high"||issue.severity==="critical"),
   );
 }
 
 export function isPayrollEligible(order: Order, includeClosed = false) {
   if (order.sheetDeletedAt || order.websiteDeletedAt) return false;
+  if(order.id.startsWith("gsheet:") && (order.importIssues??[]).some(issue=>issue.severity==="high"||issue.severity==="critical"))return false;
+  if (!isDailySettlementOrder(order) && !eligibleTransferForPayroll(order)) return false;
   if (getPayrollEligibleGrossMinor(order, includeClosed) <= 0) return false;
   if (isDailySettlementOrder(order)) {
     return eligibleDailyRows(order, includeClosed).length > 0;

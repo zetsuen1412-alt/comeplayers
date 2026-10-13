@@ -50,6 +50,8 @@ export interface OrderDailyWork {
   sourceRow?: number;
   sourceOrderedAt?: string;
   sourceStatus?: string;
+  /** STATUS TRANSFER asli dari baris Sheet. */
+  sourceTransferStatus?: string;
   issues?: OrderIssue[];
   completedAt?: string;
   verifiedAt?: string;

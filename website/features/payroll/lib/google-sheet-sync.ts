@@ -1,4 +1,6 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
+import { automaticSingleDelivery, automaticDailyDelivery, sheetTransferStatus } from "./sheet-transfer-payroll";
+import { conflictRecord, unrelatedCodeIdentity, type SheetCodeConflict } from "./sheet-code-collision";
 import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { mergeGoogleSheetRoster, pruneUnreferencedSheetRosterEmployees, validateGoogleSheetRoster, type GoogleSheetRosterSnapshot } from "./google-sheet-roster";
 import { buildGoogleSheetDailyOrder, mergeGoogleSheetDailyOrder, parseGoogleSheetBoostingDays } from "./google-sheet-daily";
@@ -60,6 +62,7 @@ export type GoogleSheetSyncMergeResult = {
   skippedConflicts: number;
   skippedInvalid: number;
   skippedHistorical: number;
+  conflictsUpdated: number;
   issues: GoogleSheetSyncIssue[];
   rowResults: { rowNumber: number; status: "added" | "updated" | "unchanged" | "skippedProtected" | "skippedConflicts" | "skippedInvalid" | "skippedHistorical" }[];
 };
@@ -308,6 +311,7 @@ function columnsFor(headers: string[]) {
     quantity: headerIndex(headers, ["JUMLAH", "QTY", "QUANTITY"], 10),
     rate: headerIndex(headers, ["RATE", "HARGA", "PRICE"], 11),
     total: headerIndex(headers, ["TOTAL", "TOTAL HARGA", "GROSS"], 12),
+    transfer: headerIndex(headers, ["STATUS TRANSFER", "TRANSFER STATUS", "STATUS TRANSFERAN"], -1),
     task: headerIndex(headers, ["TASK", "TUGAS", "KETERANGAN TASK"], -1),
     orderType: headerIndex(headers, ["JENIS ORDER", "JENIS", "ORDER TYPE", "TYPE"], -1),
   };
@@ -336,6 +340,7 @@ function parseIncomingOrder(input: {
   const task = displayAt(row, columns.task);
   const booster = displayAt(row, columns.booster);
   const status = displayAt(row, columns.status);
+  const transferStatus = displayAt(row, columns.transfer);
   const gameText = displayAt(row, columns.game);
   const process = displayAt(row, columns.process) || "LAINNYA";
   const quantity = parseUnit(rawAt(row, columns.quantity)) ?? parseUnit(displayAt(row, columns.quantity)) ?? 1;
@@ -406,6 +411,7 @@ function parseIncomingOrder(input: {
       rateMinor: rateMinor ?? undefined,
       grossMinor,
       workerAssignments: assignments,
+      transferStatus: transferStatus ? sheetTransferStatus(transferStatus) : undefined,
       operationalStatus: "draft",
       financeStatus: "pending",
       expectedPaymentMinor: grossMinor,
@@ -505,6 +511,7 @@ function parseIncomingDailyPackage(input: {
         order, sourceRow: source.rowNumber, days, quantity, workersByDay,
         totalMinor: parseIdr(rawAt(source, columns.total)) ?? parseIdr(displayAt(source, columns.total)),
         sourceStatus: displayAt(source, columns.status),
+        sourceTransferStatus: displayAt(source, columns.transfer) ? sheetTransferStatus(displayAt(source, columns.transfer)) : undefined,
       };
     });
     return { order: jsonClean(buildGoogleSheetDailyOrder(records)) };
@@ -544,6 +551,7 @@ function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
     importIssues: incoming.importIssues,
     importNeedsReview: incoming.importNeedsReview,
     importSourceRow: incoming.importSourceRow,
+    transferStatus: incoming.transferStatus,
   });
 }
 
@@ -612,6 +620,26 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const games = (state[workspaceKeys.products] ?? []) as ProductGame[];
   const columns = columnsFor(payload.headers);
   const issues: GoogleSheetSyncIssue[] = [];
+  const previousAlerts=(state[workspaceKeys.sheetCodeConflicts]??[]) as SheetCodeConflict[];
+  const alerts=new Map(previousAlerts.map(alert=>[alert.id,alert]));
+  function clearAlert(code:string) {
+    alerts.delete(conflictRecord(payload.spreadsheetId,code,1,"",payload.sentAt).id);
+  }
+  function recordCodeProblem(code:string,rowNumber:number,message:string) {
+    if(!code.trim())return;
+    const entry=conflictRecord(payload.spreadsheetId,code,rowNumber,message,payload.sentAt);
+    const old=alerts.get(entry.id);
+    if(old?.sourceRow!==entry.sourceRow||old.message!==entry.message)alerts.set(entry.id,entry);
+    const ix=orders.findIndex(order=>order.externalReference.trim().toLowerCase()===code.trim().toLowerCase()
+      && isGoogleSheetOrder(order) && !protectedFromSheet(order,closingReferences));
+    if(ix>=0) {
+      const item=orders[ix], sourceIssues=(item.importIssues??[]).filter(problem=>problem.code!=="sheet_code_collision");
+      const next={...item,operationalStatus:"on_hold" as const,importNeedsReview:true,importIssues:[...sourceIssues,
+        {code:"sheet_code_collision",title:"KODE ganda tidak cocok",description:message,
+          severity:"high" as const,source:"import" as const}]};
+      if(canonical(item)!==canonical(next)){orders[ix]=next;updated++;}
+    }
+  }
   const rowResults: GoogleSheetSyncMergeResult["rowResults"] = [];
   const dailyPackages = new Map<GoogleSheetSyncRow, ReturnType<typeof parseIncomingDailyPackage>>();
   for (const row of payload.rows) if (row.dailyPackage) dailyPackages.set(row, parseIncomingDailyPackage({ payload, row, columns, employees, games }));
@@ -661,7 +689,10 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     if (dailyPackage && !dailyPackage.order) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
-      if (dailyPackage.issue) issues.push(dailyPackage.issue);
+      if (dailyPackage.issue) {
+        issues.push(dailyPackage.issue);
+        recordCodeProblem(dailyPackage.issue.code??"",row.rowNumber,dailyPackage.issue.message);
+      }
       continue;
     }
     if (historicalRowIsUnrelated(row)) {
@@ -683,12 +714,13 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       if (parsed.issue) issues.push(parsed.issue);
       continue;
     }
-    const incoming = parsed.order;
+    const incoming = dailyPackage ? automaticDailyDelivery(parsed.order) : automaticSingleDelivery(parsed.order);
     const refKey = incoming.externalReference.trim().toLowerCase();
     if ((!dailyPackage && row.duplicateCode) || (referenceCounts.get(refKey) ?? 0) > 1) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
       issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE duplikat di payload sinkronisasi." });
+      recordCodeProblem(incoming.externalReference,row.rowNumber,"KODE sama dipakai lebih dari satu baris non-paket. Periksa NAMA BUYER dan NAMA ORDER; kode yang sama hanya untuk hari paket yang sama.");
       continue;
     }
     const index = orders.findIndex(order => order.externalReference.trim().toLowerCase() === refKey);
@@ -706,12 +738,21 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
         continue;
       }
       orders.push(incoming);
+      clearAlert(incoming.externalReference);
       added++;
       rowResults.push({ rowNumber: row.rowNumber, status: "added" });
       continue;
     }
 
     const existing = orders[index];
+    if (unrelatedCodeIdentity(existing,incoming)) {
+      skippedConflicts++;
+      rowResults.push({rowNumber:row.rowNumber,status:"skippedConflicts"});
+      const message=`KODE ${incoming.externalReference} sama tetapi nama buyer atau nama order tidak mirip dengan pesanan yang sudah tersimpan. Jangan gabungkan kedua transaksi; koreksi KODE di Sheet.`;
+      issues.push({rowNumber:row.rowNumber,code:incoming.externalReference,message});
+      recordCodeProblem(incoming.externalReference,row.rowNumber,message);
+      continue;
+    }
     if (!isGoogleSheetOrder(existing) || !existing.id.startsWith(sheetSourcePrefix(payload))) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
@@ -739,10 +780,12 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
       continue;
     }
     let next = mergeSheetOwnedFields(existing, incoming);
+    if (!dailyPackage && incoming.transferStatus) next=automaticSingleDelivery({ ...next,
+      ...(incoming.transferStatus === "PENDING" ? {operationalStatus:"draft",verifiedAt:undefined,completedAt:undefined} : {}) });
     if (dailyPackage) {
       try {
-        next = jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
-          scheduleTotalDays: incoming.scheduleTotalDays, dailyHours: incoming.dailyHours, dailyWork: incoming.dailyWork }));
+        next = automaticDailyDelivery(jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
+          scheduleTotalDays: incoming.scheduleTotalDays, dailyHours: incoming.dailyHours, dailyWork: incoming.dailyWork })));
       } catch (error) {
         skippedConflicts++;
         rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
@@ -750,6 +793,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
         continue;
       }
     }
+    clearAlert(incoming.externalReference);
     if (canonical(existing) === canonical(next)) {
       unchanged++;
       rowResults.push({ rowNumber: row.rowNumber, status: "unchanged" });
@@ -784,9 +828,12 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     const protectedOrder = order.scheduleMode === "daily" ? protectedFromDailySheet(order, closingReferences) : protectedFromSheet(order, closingReferences);
     if (!protectedOrder) refreshReferences.push(order.externalReference);
   }
+  const currentAlerts=[...alerts.values()].sort((a,b)=>a.id.localeCompare(b.id));
+  const conflictsUpdated=canonical(previousAlerts)!==canonical(currentAlerts)?1:0;
+  if(currentAlerts.length||state[workspaceKeys.sheetCodeConflicts]) state[workspaceKeys.sheetCodeConflicts]=currentAlerts;
   state[workspaceKeys.orders] = orders;
   if (payload.roster) rosterResult.rosterRemoved += pruneUnreferencedSheetRosterEmployees(state, payload.spreadsheetId);
   const trackedRows = orders.filter(order => order.id.startsWith(sheetSourcePrefix(payload)))
     .map(order => ({ reference: order.externalReference, ...(order.importSourceRow ? { rowNumber: order.importSourceRow } : {}) }));
-  return { state, ...rosterResult, added, updated, archived, restored, refreshReferences, trackedRows, unchanged, skippedProtected, skippedConflicts, skippedInvalid, skippedHistorical, issues: issues.slice(0, 100), rowResults };
+  return { state, ...rosterResult, added, updated, archived, restored, refreshReferences, trackedRows, unchanged, skippedProtected, skippedConflicts, skippedInvalid, skippedHistorical, conflictsUpdated, issues: issues.slice(0, 100), rowResults };
 }

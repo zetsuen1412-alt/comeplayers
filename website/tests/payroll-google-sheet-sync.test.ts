@@ -553,7 +553,14 @@ test("same-period duplicate and all financial locks still protect historical ref
   source.rows[0].duplicateCode = true;
   const result = mergeGoogleSheetPayroll(before.state, source);
   assert.equal(result.skippedConflicts, 1);
-  assert.deepEqual(result.state, before.state);
+  // A true duplicate now adds an admin review alert and blocks an unclosed
+  // order, but never rewrites its original financial source amounts.
+  const oldOrder=(before.state[workspaceKeys.orders] as Order[])[0];
+  const stored=(result.state[workspaceKeys.orders] as Order[])[0];
+  assert.equal(stored.id,oldOrder.id);
+  assert.equal(stored.grossMinor,oldOrder.grossMinor);
+  assert.equal(stored.rateMinor,oldOrder.rateMinor);
+  assert.equal((result.state[workspaceKeys.sheetCodeConflicts] as unknown[]).length,1);
 });
 
 test("all-period complete presence archives missing unprotected history and keeps Closing protected orders", () => {

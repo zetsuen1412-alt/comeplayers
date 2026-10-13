@@ -35,7 +35,7 @@ test("X2685 seven historical source days create one parent without copying RATE 
   const rows = [4858, 4990, 5038, 5086, 5136, 5232, 5276].map((number, index) => row(number, `DAVA D${index + 1}`));
   const original = base(), input = payload(rows), before = structuredClone(input);
   const result = mergeGoogleSheetPayroll(original, input), order = firstOrder(result.state);
-  assert.equal(result.added, 1); assert.equal(result.skippedHistorical, 0); assert.equal(result.skippedConflicts, 0);
+  assert.equal(result.added, 1, JSON.stringify(result.issues)); assert.equal(result.skippedHistorical, 0, JSON.stringify(result.issues)); assert.equal(result.skippedConflicts, 0, JSON.stringify(result.issues));
   assert.equal(order.scheduleMode, "daily"); assert.equal(order.scheduleTotalDays, 7); assert.equal(order.dailyHours, 6);
   assert.equal(order.quantity, 7); assert.equal(order.rateMinor, 160000); assert.equal(order.grossMinor, 1120000);
   assert.deepEqual(order.dailyWork?.map(day => [day.sequence, day.quantity, day.rateMinor, day.grossMinor, day.sourceRow, day.workerAssignments?.[0].employeeName]), rows.map((source, index) => [index + 1, 1, 160000, 160000, source.rowNumber, "DAVA"]));

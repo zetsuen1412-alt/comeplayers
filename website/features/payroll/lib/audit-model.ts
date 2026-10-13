@@ -6,6 +6,7 @@ export const auditSections: Record<string,string> = {
   [K.orders]: "Pesanan", [K.employees]: "Karyawan", [K.advances]: "Kasbon", [K.settings]: "Pengaturan gaji",
   [K.inventory]: "Stok / Gudang", [K.movements]: "Pergerakan stok", [K.products]: "Produk / Game",
   [K.history]: "Catatan mutasi", [K.closings]: "Tutup buku", [K.lock]: "Kunci periode",
+  [K.sheetCodeConflicts]: "Konflik KODE dari Sheet",
 };
 export type AuditChange = { section: string; record: string; field: string; before: string; after: string };
 export type AuditRecord = { revision: number; actor_id: string; actor_name: string | null; actor_email: string | null; action: string; changed_keys: string[] | null; created_at: string };
