@@ -306,6 +306,9 @@ function activateComePlayersX2754LegacyArchive() {
   var props=PropertiesService.getScriptProperties();
   if (!props.getProperty('CP_SPREADSHEET_ID')) throw new Error('Sumber payroll belum dikonfigurasi.');
   var spreadsheet=SpreadsheetApp.openById(props.getProperty('CP_SPREADSHEET_ID'));
+  var mirror=JSON.parse(props.getProperty('EGM_CONFIG') || '{}');
+  if (mirror.sourceId && spreadsheet.getId() !== mirror.sourceId)
+    throw new Error('Arsip ditolak: CP_SPREADSHEET_ID harus workbook SUMBER, bukan mirror/target.');
   var sheet=spreadsheet.getSheetByName(props.getProperty('CP_SHEET_NAME') || 'MUTASI FH');
   if (!sheet) throw new Error('MUTASI FH tidak ditemukan.');
   comePlayersX2754Start_(sheet);
@@ -616,7 +619,7 @@ function syncComePlayersPayrollRows_(mode, event) {
         boosterBlack: leader.boosterBlack, codeOccurrences: packageGroup.rows.length,
         dailyPackage: { complete: true, rows: packageGroup.rows } };
     } else if (allExisting) row.codeOccurrences = globalCodeCounts[code.toLowerCase()];
-    var signature = comePlayersSignature_([url, actorEmail, sheetName, headers, row, newOrdersStartRow, rosterSignature]);
+    var signature = comePlayersSignature_([url, actorEmail, sheetName, headers, row, newOrdersStartRow, rosterSignature, archiveLegacy]);
     var bucket = buckets[cacheKey(row.rowNumber)] || {};
     var cached = String(bucket[row.rowNumber] || "");
     var retryMinute = cached.indexOf(":") >= 0 ? parseInt(cached.split(":")[1], 36) : 0;
