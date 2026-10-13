@@ -83,16 +83,16 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onDestroy() { payroll.shutdown(); db.close(); super.onDestroy(); }
 
-    private boolean linked() { return prefs.getBoolean("payroll_linked", false); }
+    private boolean linked() { return payroll.hasSession(); }
     private void refreshPayroll(boolean manual) {
-        if (syncBusy || !linked() || !payroll.hasSession()) {
-            if (manual && !payroll.hasSession()) loginDialog();
+        if (syncBusy || !linked()) {
+            if (manual && !linked()) loginDialog();
             return;
         }
         syncBusy = true;
         payroll.sync((message, ok) -> {
             syncBusy = false;
-            if (ok) prefs.edit().putLong("payroll_last_sync", now()).remove("payroll_sync_error").apply();
+            if (ok) prefs.edit().putLong("payroll_last_sync", now()).putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
             else prefs.edit().putString("payroll_sync_error", message).apply();
             if (manual || !ok) toast(message);
             render();
@@ -117,8 +117,11 @@ public final class MainActivity extends Activity {
             payroll.login(trim(email), password.getText().toString(), (message, ok) -> {
                 password.setText("");
                 if (ok) {
-                    prefs.edit().putBoolean("payroll_linked", true).apply();
-                    dialog.dismiss(); refreshPayroll(true);
+                    prefs.edit().putBoolean("payroll_linked", true).putLong("payroll_last_sync", now())
+                            .putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
+                    dialog.dismiss();
+                    filter = "SEMUA"; search = ""; page = "Karyawan";
+                    render(); toast(message);
                 } else {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                     new AlertDialog.Builder(this).setTitle("Login gagal").setMessage(message)
@@ -187,13 +190,17 @@ public final class MainActivity extends Activity {
         space(header, 4);
         header.addView(text("Pantau kesiapan tim boosting", 12, 0xffc7d2fe, false));
         root.addView(header, lp(-1, -2));
-        if (linked() && !payroll.hasSession()) {
+        // Selalu gunakan roster payroll, jangan tampilkan angka nol mode lokal tanpa login.
+        if (!linked()) {
             LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
-            gate.addView(text("Masuk ke Payroll ComePlayers", 23, INK, true));
+            gate.addView(text("Hubungkan Karyawan Payroll", 23, INK, true));
             space(gate, 12);
-            gate.addView(text("Sesi payroll tidak tersedia. Login untuk membuka daftar karyawan tersinkron di perangkat ini.", 14, SUB, false));
+            gate.addView(text("Nama, kode dan FH otomatis dari ComePlayers → Payroll → Karyawan. Tidak perlu tambah karyawan manual.", 14, SUB, false));
+            space(gate, 14);
+            gate.addView(text("Login sekali dengan akun yang memiliki izin Payroll. Data diambil saat login, lalu diperbarui tiap 2 menit selama APK aktif.", 13, SUB, false));
             space(gate, 20);
-            Button login = button("Login Payroll", true); gate.addView(login, lp(-1, 48));
+            Button login = button("Login & Ambil Karyawan dari Website", true);
+            gate.addView(login, lp(-1, 55));
             login.setOnClickListener(v -> loginDialog()); root.addView(gate); return;
         }
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
@@ -227,20 +234,18 @@ public final class MainActivity extends Activity {
     }
 
     private void dashboard() {
-        List<EmployeeDb.Employee> all = db.all();
-        heading("Dashboard Tim", "Ringkasan terbaru • " + time(now()));
+        List<EmployeeDb.Employee> all = db.payrollEmployees();
+        heading("Dashboard Tim", "Karyawan dari Payroll Website • " + time(now()));
         if (linked()) {
             String error = prefs.getString("payroll_sync_error", "");
             long synced = prefs.getLong("payroll_last_sync", 0L);
-            info((error.isEmpty() ? "✓ Payroll tersambung" : "⚠ " + error)
+            info((error.isEmpty() ? "✓ " + all.size() + " karyawan dari Payroll Website"
+                    : "⚠ Sinkron gagal: " + error + " (data terakhir tetap tersimpan)")
                 + " • Update terakhir: " + (synced == 0L ? "belum ada" : time(synced)));
             space(body, 8);
             Button sync = button(syncBusy ? "Sedang sinkron..." : "↻ Perbarui dari Payroll", false);
             sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 43));
             sync.setOnClickListener(v -> refreshPayroll(true)); space(body, 16);
-        } else {
-            info("Mode lokal. Hubungkan Payroll Website melalui Pengaturan agar nama karyawan otomatis mengikuti website.");
-            space(body, 13);
         }
         int ready = 0, idle = 0, sleeping = 0, late = 0, working = 0;
         List<EmployeeDb.Employee> priority = new ArrayList<>();
@@ -257,10 +262,6 @@ public final class MainActivity extends Activity {
         summaryRow("🟠 Menganggur", idle, "IDLE", "🌙 Tidur", sleeping, "SLEEP");
         summarySingle("🚨 Tidur Terlalu Lama", late, "LATE");
         space(body, 18);
-        if (!linked()) {
-            Button add = button("+ Tambah Karyawan", true); body.addView(add, lp(-1, 48));
-            add.setOnClickListener(v -> addDialog());
-        }
         space(body, 23);
         body.addView(text("Perlu Diperhatikan", 18, INK, true)); space(body, 10);
         if (priority.isEmpty()) info("Tidak ada karyawan yang melewati batas waktu tidur.");
@@ -301,13 +302,12 @@ public final class MainActivity extends Activity {
     }
 
     private void employeesPage() {
-        heading("Data Karyawan", "Cari, ubah status, dan kelola anggota tim.");
-        if (!linked()) {
-            Button add = button("+ Tambah Karyawan Baru", true);
-            body.addView(add, lp(-1, 48)); add.setOnClickListener(v -> addDialog());
-        } else {
-            info("Nama dan divisi karyawan diatur dari website Payroll. Di APK cukup pilih status boosting.");
-        }
+        heading("Karyawan Payroll (" + db.payrollEmployees().size() + ")", "Sumber: ComePlayers → Payroll → Karyawan.");
+        info("Nama, kode, dan FH otomatis mengikuti website. Ubah nama di website; di APK cukup pilih status boosting.");
+        space(body, 9);
+        Button syncNames = button(syncBusy ? "Sedang memperbarui nama..." : "↻ Ambil Nama Terbaru", true);
+        syncNames.setEnabled(!syncBusy); body.addView(syncNames, lp(-1, 43));
+        syncNames.setOnClickListener(v -> refreshPayroll(true));
         space(body, 14);
         EditText searchField = input("Cari nama / jabatan / tugas", search);
         searchField.setSingleLine(true); searchField.setBackground(shape(WHITE, 11));
@@ -336,9 +336,9 @@ public final class MainActivity extends Activity {
         if (employeesContainer == null) return;
         employeesContainer.removeAllViews();
         int n = 0;
-        for (EmployeeDb.Employee e : db.all()) {
+        for (EmployeeDb.Employee e : db.payrollEmployees()) {
             if (!"SEMUA".equals(filter) && !("LATE".equals(filter) ? overdue(e) : filter.equals(e.status) && !("SLEEP".equals(filter) && overdue(e)))) continue;
-            String haystack = (e.name + " " + e.position + " " + e.task).toLowerCase(Locale.ROOT);
+            String haystack = (e.name + " " + e.payrollCode + " " + e.position + " " + e.task).toLowerCase(Locale.ROOT);
             if (!haystack.contains(search.toLowerCase(Locale.ROOT).trim())) continue;
             employeeCard(employeesContainer, e, true); n++;
         }
@@ -355,7 +355,7 @@ public final class MainActivity extends Activity {
         TextView status = text(e.visibleStatus(threshold(), now()), 11, overdue(e) ? 0xffb91c1c : tint(e.status), true);
         status.setBackground(shape(overdue(e) ? 0xffffe4e6 : 0xfff3f4f6, 9));
         status.setPadding(dp(9), dp(7), dp(9), dp(7)); title.addView(status); p.addView(title);
-        if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • Payroll" : ""), 13, SUB, false)); }
+        if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • " + e.payrollCode + " • Payroll" : ""), 13, SUB, false)); }
         space(p, 10);
         p.addView(text("⏱ " + duration(e.statusSince) + "  •  Sejak " + time(e.statusSince), 12, SUB, false));
         if (EmployeeDb.WORK.equals(e.status) && !e.task.isEmpty()) { space(p, 7); p.addView(text("Tugas: " + e.task, 13, INK, false)); }
@@ -464,8 +464,8 @@ public final class MainActivity extends Activity {
         integration.addView(text("Integrasi Payroll ComePlayers", 17, INK, true)); space(integration, 7);
         integration.addView(text("Sumber: www.comeplayers.com • divisi FH1, FH2, FH3 dan data karyawan payroll lainnya.", 12, SUB, false));
         space(integration, 7);
-        integration.addView(text(linked() ? "Status: terhubung • Sync setiap ±2 menit saat aplikasi aktif."
-                    : "Status: belum terhubung. Masuk dengan akun yang punya akses payroll.", 13, SUB, false));
+        integration.addView(text(linked() ? "✓ " + db.payrollEmployees().size() + " nama dari website • sinkron setiap 2 menit saat aktif."
+                    : "Belum login ke Payroll ComePlayers.", 13, SUB, false));
         space(integration, 11);
         if (!linked()) {
             Button login = button("Login & Hubungkan Payroll", true);
@@ -479,7 +479,7 @@ public final class MainActivity extends Activity {
             logout.setOnClickListener(v -> new AlertDialog.Builder(this).setTitle("Keluar dari Payroll?")
                     .setMessage("Daftar dan riwayat lokal tidak dihapus, tetapi aplikasi akan meminta login ulang.")
                     .setNegativeButton("Batal", null).setPositiveButton("Keluar", (d, w) -> {
-                        payroll.logout(); render();
+                        payroll.logout(); prefs.edit().remove("payroll_linked").apply(); render();
                     }).show());
         }
         body.addView(integration, lp(-1, -2)); space(body, 14);
