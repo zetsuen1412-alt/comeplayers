@@ -1,5 +1,6 @@
 import type { Order } from "../types/domain";
 import { expandMutationRows, type MutationViewRow } from "./mutation-rows";
+import { belongsInLegacyArchive } from "./legacy-fh-cutover";
 
 /** Immutable bookkeeping periods saved by the trusted Closing endpoint. */
 export type BookkeepingClosing = {
@@ -21,6 +22,7 @@ export type BookkeepingClosing = {
  */
 export function isBookedMutationRow(row: MutationViewRow, closings: BookkeepingClosing[] = []) {
   const order = row.order;
+  if(belongsInLegacyArchive(order,row.day))return true; // Source-row cutover, not a new financial Closing.
   if (row.day) {
     if (row.day.payrollClosedAt || row.day.payrollPeriodId || order.payrollClosedAt || order.payrollPeriodId) return true;
     return closings.some(closing => (closing.ordersSnapshot ?? []).some(snapshot =>
