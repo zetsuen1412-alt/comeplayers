@@ -65,6 +65,7 @@ export function automaticDailyDelivery(order: Order): Order {
     completedAt:isComplete?dailyWork.at(-1)?.completedAt:undefined};
 }
 export function eligibleTransferForPayroll(order: Order, day?: OrderDailyWork) {
+  if(!order.id.startsWith("gsheet:"))return true; // Existing manual verification rules remain intact.
   const status=sheetTransferStatus(day?day.sourceTransferStatus:order.transferStatus);
   // Legacy/manual orders lacking a transfer field preserve their established
   // admin-verification workflow; a KNOWN PENDING must never become salary.
