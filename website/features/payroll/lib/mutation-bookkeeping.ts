@@ -27,7 +27,7 @@ export function isBookedMutationRow(row: MutationViewRow, closings: BookkeepingC
       snapshot.id === order.id && (snapshot.dailyWork ?? []).some(day =>
         day.id === row.day?.id || day.sequence === row.day?.sequence)));
   }
-  if (order.payrollClosedAt || order.payrollPeriodId || order.financeStatus === "closed") return true;
+  if (order.payrollClosedAt || order.payrollPeriodId) return true;
   return closings.some(closing =>
     closing.orderRefs?.some(ref => ref.trim().toLowerCase() === order.externalReference.trim().toLowerCase()) ||
     closing.ordersSnapshot?.some(snapshot => snapshot.id === order.id && snapshot.scheduleMode !== "daily"));
