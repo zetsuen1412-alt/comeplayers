@@ -361,6 +361,7 @@ export default function MutationsPage() {
   const [priceSort, setPriceSort] = useState<"down" | "up" | null>(null);
   const [sortState, setSortState] = useState<MutationSortState>(defaultMutationSort);
   const [search, setSearch] = useState("");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
@@ -776,27 +777,37 @@ export default function MutationsPage() {
           ) : null}
         </div>
 
-        <div className="mt-5 border-t border-zinc-800 pt-5">
-          <div className="text-sm font-semibold">Tampilkan Mutasi berdasarkan</div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="text-sm">Sumber<select value={source} onChange={(e) => setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
-            <label className="text-sm">Jenis<select value={type} onChange={(e) => setType(e.target.value as TypeFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua jenis</option><option value="gold">Gold</option><option value="item">Item</option><option value="boosting">Boosting</option></select></label>
-            <label className="text-sm">Pembeli<select value={buyer} onChange={(e) => setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
-            <label className="text-sm">GAME<select value={game} onChange={(e) => setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map((value) => <option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+        <div className="mt-4 border-t border-zinc-800 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><div className="font-semibold">Cari dan saring Mutasi</div><p className="mt-1 text-xs text-zinc-400">Filter utama ditampilkan terlebih dahulu agar mudah digunakan admin.</p></div>
+            <button type="button" onClick={resetFilters} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Atur ulang filter</button>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="text-sm">Karyawan<select value={employee} onChange={(e) => setEmployee(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua karyawan</option>{employeeNames.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-            <label className="text-sm">Divisi<select value={division} onChange={(e) => setDivision(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua divisi</option>{divisions.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-            <label className="text-sm">Masalah<select value={problem} onChange={(e) => setProblem(e.target.value as ProblemFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua status</option><option value="BERMASALAH">Hanya Bermasalah</option><option value="NORMAL">Tidak bermasalah</option></select></label>
-            <label className="text-sm">Rate<select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value as PriceFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{(["SEMUA", "TURUN", "10", "20", "30", "NAIK", "NAIK_10", "NAIK_20", "NAIK_30"] as PriceFilter[]).map(value => <option key={value} value={value}>{priceFilterLabels[value]}</option>)}</select></label>
-            <label className="text-sm">Cari kode / nama / divisi / masalah<input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Contoh: X1151, ANGGA, FH2, bermasalah" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" /></label>
-            <label className="text-sm">Sortir / urutkan<select value={selectedSortMode} onChange={(e) => { const value = e.target.value as PriceSortMode; setPriceSort(value === "price_drop" ? "down" : value === "price_rise" ? "up" : null); if (value !== "price_drop" && value !== "price_rise" && sortPresets[value]) setSortState(sortPresets[value]); }} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode === "custom" ? <option value="custom" disabled>{mutationSortLabel(sortState)}</option> : null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Total terbesar</option><option value="lowest">Total terkecil</option><option value="rate_highest">Rate tertinggi</option><option value="rate_lowest">Rate terendah</option><option value="price_drop">Penurunan rate terbesar</option><option value="price_rise">Kenaikan rate terbesar</option><option value="employee_az">Karyawan A-Z</option><option value="employee_za">Karyawan Z-A</option><option value="division_az">Divisi A-Z</option><option value="division_za">Divisi Z-A</option><option value="source_az">Sumber A-Z</option><option value="buyer_az">Pembeli A-Z</option><option value="game_az">Permainan A-Z</option></select></label>
-            <button onClick={resetFilters} className="self-end rounded-xl bg-zinc-800 px-4 py-3 text-sm font-semibold">Atur Ulang filter</button>
+            <label className="text-sm">Cari kode, paket, karyawan atau masalah
+              <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Contoh: X1151 / FH2 / Hari 3" className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400" />
+            </label>
+            <label className="text-sm">Sumber
+              <select value={source} onChange={e=>setSource(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua sumber</option>{sources.map(value=><option key={value} value={value}>{adminLabel(value)}</option>)}</select>
+            </label>
+            <label className="text-sm">Jenis
+              <select value={type} onChange={e=>setType(e.target.value as TypeFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua jenis</option><option value="gold">Gold</option><option value="item">Item</option><option value="boosting">Boosting</option></select>
+            </label>
+            <label className="text-sm">Status masalah
+              <select value={problem} onChange={e=>setProblem(e.target.value as ProblemFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua status</option><option value="BERMASALAH">Hanya bermasalah</option><option value="NORMAL">Tidak bermasalah</option></select>
+            </label>
           </div>
-          {activePriceGroup ? <div className="mutation-price-active-group" role="status">
-            <span>Pesanan sejenis: <strong>{activePriceGroup.label}</strong></span>
-            <button type="button" onClick={() => setActivePriceGroup(null)} aria-label="Tampilkan semua kelompok rate">Keluar kelompok</button>
+          <button type="button" onClick={()=>setShowMoreFilters(x=>!x)} aria-expanded={showMoreFilters} className="mt-3 rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-200">
+            {showMoreFilters ? "Sembunyikan filter lanjutan" : "Tampilkan filter lanjutan"} {buyer!=="SEMUA"||game!=="SEMUA"||employee!=="SEMUA"||division!=="SEMUA"||priceFilter!=="SEMUA"||priceSort||sortModeFromState(sortState)!=="newest"?"· ada filter/urutan aktif":""}
+          </button>
+          {showMoreFilters ? <div className="mt-3 grid gap-3 rounded-xl border border-zinc-800 p-3 sm:grid-cols-2 xl:grid-cols-3">
+            <label className="text-sm">Pembeli<select value={buyer} onChange={e=>setBuyer(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua pembeli</option>{buyers.map(value=><option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+            <label className="text-sm">GAME<select value={game} onChange={e=>setGame(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua permainan</option>{games.map(value=><option key={value} value={value}>{adminLabel(value)}</option>)}</select></label>
+            <label className="text-sm">Karyawan<select value={employee} onChange={e=>setEmployee(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua karyawan</option>{employeeNames.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Divisi<select value={division} onChange={e=>setDivision(e.target.value)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3"><option value="SEMUA">Semua divisi</option>{divisions.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <label className="text-sm">Perbedaan RATE<select value={priceFilter} onChange={e=>setPriceFilter(e.target.value as PriceFilter)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{(["SEMUA","TURUN","10","20","30","NAIK","NAIK_10","NAIK_20","NAIK_30"] as PriceFilter[]).map(value=><option key={value} value={value}>{priceFilterLabels[value]}</option>)}</select></label>
+            <label className="text-sm">Urutan<select value={selectedSortMode} onChange={e=>{const value=e.target.value as PriceSortMode;setPriceSort(value==="price_drop"?"down":value==="price_rise"?"up":null);if(value!=="price_drop"&&value!=="price_rise"&&sortPresets[value])setSortState(sortPresets[value]);}} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3">{selectedSortMode==="custom"?<option value="custom" disabled>{mutationSortLabel(sortState)}</option>:null}<option value="newest">Terbaru</option><option value="oldest">Terlama</option><option value="highest">Total terbesar</option><option value="lowest">Total terkecil</option><option value="rate_highest">Rate tertinggi</option><option value="rate_lowest">Rate terendah</option><option value="price_drop">Penurunan RATE terbesar</option><option value="price_rise">Kenaikan RATE terbesar</option><option value="employee_az">Karyawan A–Z</option><option value="employee_za">Karyawan Z–A</option><option value="division_az">Divisi A–Z</option><option value="division_za">Divisi Z–A</option><option value="source_az">Sumber A–Z</option><option value="buyer_az">Pembeli A–Z</option><option value="game_az">Permainan A–Z</option></select></label>
           </div> : null}
+          {activePriceGroup ? <div className="mutation-price-active-group" role="status"><span>Pesanan sejenis: <strong>{activePriceGroup.label}</strong></span><button type="button" onClick={()=>setActivePriceGroup(null)} aria-label="Tampilkan semua kelompok rate">Keluar kelompok</button></div> : null}
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-zinc-800 pt-5">
