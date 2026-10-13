@@ -227,10 +227,12 @@ export function closeWorkspace(previous: WorkspaceState, now=new Date().toISOStr
   const orders=(next[workspaceKeys.orders]??[]) as Order[], employees=(next[workspaceKeys.employees]??[]) as Employee[], advances=(next[workspaceKeys.advances]??[]) as KasbonRecord[];
   const settings=(next[workspaceKeys.settings]??{defaultSharePercent:50,employeeSharePercent:{},adjustments:{}}) as PayrollSettings;
   const closingReferences=recordedClosingReferences(next);
+  const codeConflicts=new Set(((next[workspaceKeys.sheetCodeConflicts]??[]) as {code:string}[]).map(row=>row.code.trim().toLowerCase()));
   const from=Date.parse(jakartaDateTimeInputToISO(lock.from)), to=Date.parse(jakartaDateTimeInputToISO(lock.to));
   const eligible:Order[]=[];
   const dailyByOrder=new Map<string,ReturnType<typeof dailySegmentsForPeriod>>();
   for(const order of orders) {
+    if(codeConflicts.has(order.externalReference.trim().toLowerCase())) continue;
     if(order.sheetDeletedAt || order.websiteDeletedAt || order.payrollClosedAt || order.payrollPeriodId
       || order.financeStatus==='closed' || hasLegacyWholeClosing(order,closingReferences)) continue;
     if(isDailySettlementOrder(order)) {
