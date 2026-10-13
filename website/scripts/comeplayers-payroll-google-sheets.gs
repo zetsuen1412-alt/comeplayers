@@ -125,7 +125,66 @@ function reinstallComePlayersPayrollRealtimeSync() {
 function installComePlayersPayrollHourlyTrigger() { reinstallComePlayersPayrollRealtimeSync(); }
 function removeComePlayersPayrollHourlyTrigger() { removeComePlayersPayrollSyncTriggers(); }
 
-function syncComePlayersPayroll() { return runComePlayersPayrollSync_("reconcile", null); }
+/**
+ * Pull admin-approved name corrections and write ONLY column B of the exact
+ * PAYROLL-N roster row. Source and expected old name must both match.
+ * This runs under the existing account's spreadsheet permission; no Google
+ * credentials are ever sent to the website.
+ */
+function applyComePlayersEmployeeNameCorrections_() {
+  var props = PropertiesService.getScriptProperties();
+  var config = props.getProperties();
+  if (config.CP_SYNC_ROSTER !== 'true') return { applied: 0, skipped: 'roster_sync_disabled' };
+  var secret = config.CP_SYNC_SECRET || '';
+  if (secret.length < 24) throw new Error('Secret sinkronisasi belum dikonfigurasi.');
+  var sourceId = config.CP_SPREADSHEET_ID;
+  if (!sourceId) throw new Error('Sumber Spreadsheet tidak tersedia.');
+  var spreadsheet = SpreadsheetApp.openById(sourceId);
+  var namespaceId = config.CP_SYNC_NAMESPACE_ID || spreadsheet.getId();
+  var url = config.CP_RENAME_URL || 'https://www.comeplayers.com/api/integrations/payroll-employee-renames';
+  var mutex = LockService.getScriptLock();
+  if (!mutex.tryLock(1000)) return { applied: 0, skipped: 'busy' };
+  try {
+    var reply = UrlFetchApp.fetch(url + '?spreadsheetId=' + encodeURIComponent(namespaceId), {
+      method: 'get', headers: { Authorization: 'Bearer ' + secret }, muteHttpExceptions: true
+    });
+    if (reply.getResponseCode() !== 200) throw new Error('Gagal memuat permintaan koreksi nama (HTTP ' + reply.getResponseCode() + ').');
+    var payload = JSON.parse(reply.getContentText());
+    if (!payload.ok || !Array.isArray(payload.renames) || payload.renames.length > 1000) throw new Error('Respons permintaan koreksi tidak valid.');
+    var applied = 0, skipped = 0;
+    payload.renames.forEach(function(item) {
+      if (!item || !/^[a-f0-9-]{36}$/i.test(String(item.requestId || ''))) { skipped++; return; }
+      if (['PAYROLL-1','PAYROLL-2','PAYROLL-3'].indexOf(item.sheetName) < 0
+        || !Number.isSafeInteger(item.rowNumber) || item.rowNumber < 3) { skipped++; return; }
+      var sheet = spreadsheet.getSheetByName(item.sheetName);
+      if (!sheet || item.rowNumber > sheet.getLastRow()) { skipped++; return; }
+      if (String(sheet.getRange(2, 2).getDisplayValue()).trim().toUpperCase() !== 'NAMA') { skipped++; return; }
+      var cell = sheet.getRange(item.rowNumber, 2);
+      if (cell.getFormula()) { skipped++; return; }
+      var oldName = String(item.oldName || '').trim().replace(/\\s+/g, ' ');
+      var newName = String(item.newName || '').trim().replace(/\\s+/g, ' ');
+      if (!oldName || !newName || newName.length > 160 || /^[=+@\\-']/u.test(newName)) { skipped++; return; }
+      var currentName = String(cell.getDisplayValue() || '').trim().replace(/\\s+/g, ' ');
+      if (currentName === newName) return; // Earlier write succeeded; reconciliation still pending.
+      if (currentName !== oldName) { skipped++; return; } // Never overwrite a changed/moved row.
+      var names = sheet.getRange(3, 2, Math.max(1, sheet.getLastRow() - 2), 1).getDisplayValues();
+      if (names.some(function(row, index) {
+        return (index + 3) !== item.rowNumber
+          && String(row[0] || '').trim().replace(/\\s+/g, ' ').toUpperCase() === newName.toUpperCase();
+      })) { skipped++; return; }
+      try { cell.setValue(newName); applied++; } catch (error) { skipped++; }
+    });
+    if (applied) SpreadsheetApp.flush();
+    return { applied: applied, skipped: skipped };
+  } finally { mutex.releaseLock(); }
+}
+
+function syncComePlayersPayroll() {
+  // A failed writeback must never disable the existing Sheet-to-website sync.
+  try { applyComePlayersEmployeeNameCorrections_(); }
+  catch (error) { console.error('Koreksi nama karyawan belum dapat diterapkan: ' + String(error)); }
+  return runComePlayersPayrollSync_("reconcile", null);
+}
 
 // Installable trigger only: a simple onEdit cannot authorize UrlFetchApp.
 function onComePlayersPayrollEdit(event) {
