@@ -15,6 +15,7 @@ export const workspaceKeys = {
   products: 'cp-ofs-demo-product-games-v1', boostingCatalog: 'cp-ofs-boosting-catalog-v1', history: 'cp-ofs-demo-mutation-history-v1',
   closings: 'cp-ofs-demo-closing-v1', lock: 'cp-ofs-demo-period-lock-v1',
   sheetCodeConflicts: 'cp-ofs-payroll-sheet-code-conflicts-v1',
+  legacyFhArchive: 'cp-ofs-legacy-mutasi-fh-before-x2754-v1',
 } as const;
 export type WorkspaceState = Record<string, unknown>;
 export function payrollFailure(message: string, status = 400): never { throw Object.assign(new Error(message), {status}); }
@@ -58,12 +59,21 @@ export function validateWorkspace(value: unknown): WorkspaceState {
     visit(data);
   }
   const list=(key:string)=> (state[key]??[]) as Array<Record<string,unknown>>;
-  for(const key of [workspaceKeys.orders,workspaceKeys.employees,workspaceKeys.advances,workspaceKeys.inventory,workspaceKeys.movements,workspaceKeys.products,workspaceKeys.boostingCatalog,workspaceKeys.history,workspaceKeys.closings,workspaceKeys.sheetCodeConflicts]) {
+  for(const key of [workspaceKeys.orders,workspaceKeys.employees,workspaceKeys.advances,workspaceKeys.inventory,workspaceKeys.movements,workspaceKeys.products,workspaceKeys.boostingCatalog,workspaceKeys.history,workspaceKeys.closings,workspaceKeys.sheetCodeConflicts,workspaceKeys.legacyFhArchive]) {
     const ids=new Set<string>();
     for(const row of list(key)) {
       if(!row||typeof row!=='object'||Array.isArray(row)||typeof row.id!=='string'||!row.id||ids.has(row.id)) payrollFailure('Identitas baris payroll tidak valid atau duplikat.');
       ids.add(row.id);
     }
+  }
+  for(const row of list(workspaceKeys.legacyFhArchive)) {
+    if(row.archiveType!=='legacy-before-X2754'||row.sheetName!=='MUTASI FH'
+      ||typeof row.spreadsheetId!=='string'||!row.spreadsheetId
+      ||!Number.isSafeInteger(row.sourceRow)||Number(row.sourceRow)<3||Number(row.sourceRow)>=5848
+      ||typeof row.code!=='string'||!row.code||row.code.length>160
+      ||!['sourceDate','source','buyerName','orderName','booster','team','game','process','transferStatus','importedAt'].every(key=>typeof row[key]==='string'&&String(row[key]).length<=300)
+      ||!['quantity','rateMinor','grossMinor'].every(key=>typeof row[key]==='number'&&Number.isFinite(row[key])&&Math.abs(Number(row[key]))<=1e13)
+    )payrollFailure('Data arsip Mutasi FH sebelum X2754 tidak valid.');
   }
   for(const row of list(workspaceKeys.sheetCodeConflicts)) {
     if(typeof row.spreadsheetId!=='string'||!row.spreadsheetId||typeof row.code!=='string'||!row.code
@@ -156,6 +166,7 @@ export function validateWorkspaceEdit(previous: WorkspaceState, next: WorkspaceS
   }
   if(canonical(previous[workspaceKeys.closings]??[])!==canonical(next[workspaceKeys.closings]??[])) payrollFailure('Closing hanya dapat dibuat melalui proses tutup buku.',409);
   if(sheetRenameSource!=='sync'&&canonical(previous[workspaceKeys.sheetCodeConflicts]??[])!==canonical(next[workspaceKeys.sheetCodeConflicts]??[])) payrollFailure('Konflik KODE Sheet hanya diperbarui oleh sinkronisasi resmi.',403);
+  if(sheetRenameSource!=='sync'&&canonical(previous[workspaceKeys.legacyFhArchive]??[])!==canonical(next[workspaceKeys.legacyFhArchive]??[])) payrollFailure('Arsip Mutasi FH hanya diperbarui oleh sinkronisasi sumber resmi.',403);
   const previousEmployees=(previous[workspaceKeys.employees]??[]) as Employee[];
   const nextEmployees=(next[workspaceKeys.employees]??[]) as Employee[];
   for(const oldEmployee of previousEmployees) {
