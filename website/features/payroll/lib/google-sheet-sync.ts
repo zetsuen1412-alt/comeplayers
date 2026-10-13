@@ -717,6 +717,14 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   let skippedHistorical = 0;
 
   for (const row of payload.rows) {
+    // Complete historic packages are archived day-by-day above and must not
+    // be admitted as a fresh order. Cross-boundary packages retain newer days.
+    if(payload.sheetName==="MUTASI FH" && payload.newOrdersStartRow===FH_NEW_BOOK_ROW &&
+       row.dailyPackage?.rows.every(day=>day.rowNumber<FH_NEW_BOOK_ROW)){
+      skippedHistorical++;
+      rowResults.push({rowNumber:row.rowNumber,status:"skippedHistorical"});
+      continue;
+    }
     const dailyPackage = dailyPackages.get(row);
     // Rows preceding X2754 must not enter live Mutasi or payroll, even if
     // they were part of a group of identical KODEs.
