@@ -53,7 +53,8 @@ export function jakartaDateTimeLocalNow() {
 }
 
 export function jakartaDateTimeInputToISO(value: string) {
-  return new Date(`${value}:00+07:00`).toISOString();
+  const precise=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(value);
+  return new Date(`${value}${precise?"":":00"}+07:00`).toISOString();
 }
 
 export function toJakartaDateTimeInput(value: string) {
