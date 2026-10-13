@@ -37,7 +37,7 @@ import {
 } from "@/features/payroll/lib/mutation-rows";
 import type { Order, OrderIssue, InventoryMovement } from "@/features/payroll/types/domain";
 import type { SheetCodeConflict } from "@/features/payroll/lib/sheet-code-collision";
-import { PAYROLL_NEW_BOOK_START, bookForOrder } from "@/features/payroll/lib/sheet-transfer-payroll";
+import { PAYROLL_NEW_BOOK_START } from "@/features/payroll/lib/sheet-transfer-payroll";
 
 const bulkActionLabels: Record<BulkMutationAction, string> = {
   complete: "Pesanan selesai", delete: "Hapus pesanan", problem: "Bermasalah", process: "Proses", working: "Dikerjakan",
