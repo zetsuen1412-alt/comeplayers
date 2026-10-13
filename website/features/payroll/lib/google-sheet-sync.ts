@@ -1,6 +1,7 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { automaticSingleDelivery, automaticDailyDelivery, sheetTransferStatus } from "./sheet-transfer-payroll";
 import { conflictRecord, unrelatedCodeIdentity, type SheetCodeConflict } from "./sheet-code-collision";
+import { FH_NEW_BOOK_ROW, legacyRowId, type LegacyMutationSnapshot } from "./legacy-fh-cutover";
 import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { mergeGoogleSheetRoster, pruneUnreferencedSheetRosterEmployees, validateGoogleSheetRoster, type GoogleSheetRosterSnapshot } from "./google-sheet-roster";
 import { buildGoogleSheetDailyOrder, mergeGoogleSheetDailyOrder, parseGoogleSheetBoostingDays } from "./google-sheet-daily";
@@ -63,6 +64,7 @@ export type GoogleSheetSyncMergeResult = {
   skippedInvalid: number;
   skippedHistorical: number;
   conflictsUpdated: number;
+  legacyArchived: number;
   issues: GoogleSheetSyncIssue[];
   rowResults: { rowNumber: number; status: "added" | "updated" | "unchanged" | "skippedProtected" | "skippedConflicts" | "skippedInvalid" | "skippedHistorical" }[];
 };
@@ -620,6 +622,36 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const games = (state[workspaceKeys.products] ?? []) as ProductGame[];
   const columns = columnsFor(payload.headers);
   const issues: GoogleSheetSyncIssue[] = [];
+  const previousLegacy=(state[workspaceKeys.legacyFhArchive]??[]) as LegacyMutationSnapshot[];
+  const legacyRows=new Map(previousLegacy.map(record=>[record.id,record]));
+  let legacyArchived=0;
+  if(payload.sheetName==="MUTASI FH" && payload.newOrdersStartRow===FH_NEW_BOOK_ROW) {
+    // This is a separate legacy SOURCE ledger. No financial Closing is created
+    // and no old row is passed to the live payroll importer.
+    for(const item of payload.rows) for(const source of (item.dailyPackage?.rows ?? [item])) {
+      if(source.rowNumber>=FH_NEW_BOOK_ROW || source.rowNumber<3)continue;
+      const code=displayAt(source,columns.code)||normalize(rawAt(source,columns.code));
+      if(!code || code.length>160)continue;
+      const id=legacyRowId(payload.spreadsheetId,source.rowNumber);
+      if(legacyRows.has(id))continue; // Immutable historical row snapshot.
+      const safe=(value:string)=>value.slice(0,300);
+      const number=(column:number)=> {
+        const val=rawAt(source,column);
+        return typeof val==="number"&&Number.isFinite(val)?val:parseIdr(val)??0;
+      };
+      legacyRows.set(id,{id,spreadsheetId:payload.spreadsheetId,sheetName:"MUTASI FH",
+        sourceRow:source.rowNumber,code,sourceDate:safe(displayAt(source,columns.orderedAt)),
+        source:safe(displayAt(source,columns.source)),
+        buyerName:safe(displayAt(source,columns.buyer)),orderName:safe(displayAt(source,columns.orderName)),
+        booster:safe(displayAt(source,columns.booster)),team:safe(displayAt(source,columns.team)),
+        game:safe(displayAt(source,columns.game)),process:safe(displayAt(source,columns.process)),
+        quantity:number(columns.quantity),rateMinor:number(columns.rate),grossMinor:number(columns.total),
+        transferStatus:safe(displayAt(source,columns.transfer)),archiveType:"legacy-before-X2754",
+        importedAt:payload.sentAt});
+      legacyArchived++;
+    }
+  }
+  if(legacyArchived)state[workspaceKeys.legacyFhArchive]=[...legacyRows.values()].sort((a,b)=>a.sourceRow-b.sourceRow);
   const previousAlerts=(state[workspaceKeys.sheetCodeConflicts]??[]) as SheetCodeConflict[];
   const alerts=new Map(previousAlerts.map(alert=>[alert.id,alert]));
   function clearAlert(code:string) {
@@ -686,6 +718,13 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
 
   for (const row of payload.rows) {
     const dailyPackage = dailyPackages.get(row);
+    // Rows preceding X2754 must not enter live Mutasi or payroll, even if
+    // they were part of a group of identical KODEs.
+    if(payload.sheetName==="MUTASI FH" && row.rowNumber<FH_NEW_BOOK_ROW && payload.newOrdersStartRow===FH_NEW_BOOK_ROW && !row.dailyPackage) {
+      skippedHistorical++;
+      rowResults.push({rowNumber:row.rowNumber,status:"skippedHistorical"});
+      continue;
+    }
     if (dailyPackage && !dailyPackage.order) {
       skippedConflicts++;
       rowResults.push({ rowNumber: row.rowNumber, status: "skippedConflicts" });
@@ -835,5 +874,5 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   if (payload.roster) rosterResult.rosterRemoved += pruneUnreferencedSheetRosterEmployees(state, payload.spreadsheetId);
   const trackedRows = orders.filter(order => order.id.startsWith(sheetSourcePrefix(payload)))
     .map(order => ({ reference: order.externalReference, ...(order.importSourceRow ? { rowNumber: order.importSourceRow } : {}) }));
-  return { state, ...rosterResult, added, updated, archived, restored, refreshReferences, trackedRows, unchanged, skippedProtected, skippedConflicts, skippedInvalid, skippedHistorical, conflictsUpdated, issues: issues.slice(0, 100), rowResults };
+  return { state, ...rosterResult, added, updated, archived, restored, refreshReferences, trackedRows, unchanged, skippedProtected, skippedConflicts, skippedInvalid, skippedHistorical, conflictsUpdated, legacyArchived, issues: issues.slice(0, 100), rowResults };
 }
