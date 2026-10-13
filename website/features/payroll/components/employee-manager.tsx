@@ -227,7 +227,7 @@ export function EmployeeManager() {
               <div className="mt-1 text-xs text-zinc-500">Status ini otomatis ikut tampil di menu Gaji.</div>
             </div>
             <div className="mt-4 text-sm text-zinc-400">Beban kerja saat ini: <strong className="text-white">{employee.utilization}%</strong></div>
-            <button type="button" onClick={() => deleteEmployee(employee)} className="mt-4 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 hover:bg-red-500/20">Hapus Karyawan</button>
+            <button type="button" onClick={() => deleteEmployee(employee)} disabled={Boolean(employee.sheetNameCorrection) || savingName} title={employee.sheetNameCorrection ? "Selesaikan koreksi nama di Sheet terlebih dahulu." : undefined} className="mt-4 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 hover:bg-red-500/20 disabled:opacity-40">Hapus Karyawan</button>
           </section>
         ))}
       </div>
