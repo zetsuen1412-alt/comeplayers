@@ -134,7 +134,7 @@ function removeComePlayersPayrollHourlyTrigger() { removeComePlayersPayrollSyncT
 function applyComePlayersEmployeeNameCorrections_() {
   var props = PropertiesService.getScriptProperties();
   var config = props.getProperties();
-  if (config.CP_SYNC_ROSTER !== 'true') return { applied: 0, skipped: 'roster_sync_disabled' };
+  if (config.CP_SYNC_ROSTER !== 'true' || config.CP_ENABLE_EMPLOYEE_NAME_WRITEBACK !== 'true') return { applied: 0, skipped: 'writeback_disabled' };
   var secret = config.CP_SYNC_SECRET || '';
   if (secret.length < 24) throw new Error('Secret sinkronisasi belum dikonfigurasi.');
   var sourceId = config.CP_SPREADSHEET_ID;
@@ -142,7 +142,8 @@ function applyComePlayersEmployeeNameCorrections_() {
   var spreadsheet = SpreadsheetApp.openById(sourceId);
   var namespaceId = config.CP_SYNC_NAMESPACE_ID || spreadsheet.getId();
   var url = config.CP_RENAME_URL || 'https://www.comeplayers.com/api/integrations/payroll-employee-renames';
-  var mutex = LockService.getScriptLock();
+  // The existing payroll installer uses UserLock; do not contend with mirror's ScriptLock.
+  var mutex = LockService.getUserLock();
   if (!mutex.tryLock(1000)) return { applied: 0, skipped: 'busy' };
   try {
     var reply = UrlFetchApp.fetch(url + '?spreadsheetId=' + encodeURIComponent(namespaceId), {
@@ -179,10 +180,27 @@ function applyComePlayersEmployeeNameCorrections_() {
   } finally { mutex.releaseLock(); }
 }
 
+/** Enable ONLY after verifying this script points at the EDITABLE source workbook. */
+function activateComePlayersEmployeeNameWriteback() {
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('CP_SYNC_ROSTER') !== 'true') throw new Error('Aktifkan sinkronisasi roster PAYROLL-1/2/3 dahulu.');
+  var id = props.getProperty('CP_SPREADSHEET_ID');
+  if (!id) throw new Error('Spreadsheet sumber belum dikonfigurasi.');
+  var spreadsheet = SpreadsheetApp.openById(id);
+  ['PAYROLL-1','PAYROLL-2','PAYROLL-3'].forEach(function(name) {
+    var sheet = spreadsheet.getSheetByName(name);
+    if (!sheet || String(sheet.getRange(2,2).getDisplayValue()).trim().toUpperCase() !== 'NAMA') {
+      throw new Error('Header kolom B: NAMA tidak tersedia di ' + name);
+    }
+  });
+  props.setProperty('CP_ENABLE_EMPLOYEE_NAME_WRITEBACK', 'true');
+  return syncComePlayersPayroll();
+}
+
 function syncComePlayersPayroll() {
   // A failed writeback must never disable the existing Sheet-to-website sync.
   try { applyComePlayersEmployeeNameCorrections_(); }
-  catch (error) { console.error('Koreksi nama karyawan belum dapat diterapkan: ' + String(error)); }
+  catch (error) { console.log('Koreksi nama karyawan belum dapat diterapkan: ' + String(error)); }
   return runComePlayersPayrollSync_("reconcile", null);
 }
 
