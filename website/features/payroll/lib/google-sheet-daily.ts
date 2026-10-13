@@ -9,6 +9,7 @@ export type GoogleSheetDailyRecord = {
   quantity: number | null;
   totalMinor: number | null;
   sourceStatus: string;
+  sourceTransferStatus?: string;
   workersByDay?: { sequence: number; assignments: OrderWorkerAssignment[]; issues?: OrderIssue[] }[];
 };
 
@@ -134,7 +135,7 @@ export function buildGoogleSheetDailyOrder(records: GoogleSheetDailyRecord[]): O
       if (days.has(day)) throw new Error(`Hari ${day} muncul lebih dari sekali untuk KODE ${first.externalReference}.`);
       days.set(day, {
         id: `sheet-day:${day}`, sequence: day, workDate, sourceRow: record.sourceRow,
-        sourceOrderedAt: order.orderedAt, sourceStatus: record.sourceStatus,
+        sourceOrderedAt: order.orderedAt, sourceStatus: record.sourceStatus, sourceTransferStatus: record.sourceTransferStatus,
         grossMinor: base + (index < remainder ? 1 : 0), rateMinor: order.rateMinor,
         quantity: quantityPerDay, hours: plan.dailyHours, status: "pending",
         workerAssignments: (record.workersByDay?.find(work => work.sequence === day)?.assignments ?? order.workerAssignments ?? [])
