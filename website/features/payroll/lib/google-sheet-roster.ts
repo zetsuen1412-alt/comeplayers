@@ -67,7 +67,7 @@ function referencedEmployeeCodes(state: WorkspaceState, employees: Employee[]) {
 export function pruneUnreferencedSheetRosterEmployees(state: WorkspaceState, spreadsheetId: string) {
   const employees = (state[workspaceKeys.employees] ?? []) as Employee[];
   const referenced = referencedEmployeeCodes(state, employees);
-  const kept = employees.filter(employee => !employee.sheetRosterMissingAt
+  const kept = employees.filter(employee => !employee.sheetRosterMissingAt || Boolean(employee.sheetNameCorrection)
     || employee.sheetRosterSource?.spreadsheetId !== spreadsheetId || referenced.has(employee.code));
   state[workspaceKeys.employees] = kept;
   return employees.length - kept.length;
@@ -92,6 +92,16 @@ export function mergeGoogleSheetRoster(state: WorkspaceState, snapshot: GoogleSh
         const incomingMatches = sheet.rows.filter(item => suffixAlias(item.name, team) === alias);
         if (incomingMatches.length === 1) matches = original.filter(employee => employee.team === team && suffixAlias(employee.name, team) === alias);
       }
+      // A website-authorized rename may match a different name ONLY at its
+      // exact original spreadsheet tab and row. Unsolicited renames retain
+      // the old conservative behavior (new identity), never guessed by row.
+      if (!matches.length) {
+        matches = original.filter(employee => employee.sheetNameCorrection
+          && folded(employee.sheetNameCorrection.newName) === key
+          && employee.sheetRosterSource?.spreadsheetId === spreadsheetId
+          && employee.sheetRosterSource?.sheetName === sheet.sheetName
+          && employee.sheetRosterSource?.rowNumber === row.rowNumber);
+      }
       if (matches.length > 1 || (matches[0] && claimed.has(matches[0].id))) throw new Error("Identitas karyawan Sheet ambigu; data payroll tidak diubah.");
       const type = row.type?.trim() || undefined;
       const source: NonNullable<Employee["sheetRosterSource"]> = { spreadsheetId, sheetName: sheet.sheetName, rowNumber: row.rowNumber, ...(type ? { type } : {}) };
@@ -100,6 +110,7 @@ export function mergeGoogleSheetRoster(state: WorkspaceState, snapshot: GoogleSh
         const existing = employees.find(employee => employee.id === matches[0].id)!;
         const next = { ...existing, name, sheetRosterSource: source, ...(status ? { workforceStatus: status } : {}) };
         delete next.sheetRosterMissingAt;
+        if (next.sheetNameCorrection && folded(name) === folded(next.sheetNameCorrection.newName)) delete next.sheetNameCorrection;
         if (canonical(existing) !== canonical(next)) { employees[employees.indexOf(existing)] = next; rosterUpdated++; }
         claimed.add(existing.id);
       } else {
@@ -116,7 +127,7 @@ export function mergeGoogleSheetRoster(state: WorkspaceState, snapshot: GoogleSh
   }
   const nextEmployees = employees.filter(employee => {
     if (claimed.has(employee.id) || !/^FH[123]$/.test(employee.team)) return true;
-    if (employee.sheetRosterSource?.spreadsheetId === spreadsheetId && !referenced.has(employee.code)) { rosterRemoved++; return false; }
+    if (employee.sheetRosterSource?.spreadsheetId === spreadsheetId && !referenced.has(employee.code) && !employee.sheetNameCorrection) { rosterRemoved++; return false; }
     if (!employee.sheetRosterMissingAt) { employee.sheetRosterMissingAt = sentAt; rosterUpdated++; }
     return true;
   });

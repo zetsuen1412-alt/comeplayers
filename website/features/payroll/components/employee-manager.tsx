@@ -2,6 +2,8 @@
 
 import { adminLabel, adminText } from "@/lib/adminLocale";
 import { FormEvent, useMemo, useState } from "react";
+import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
+import { flushPayroll, loadPayroll, usePayrollActor } from "@/features/payroll/lib/workspace-store";
 import { useDemoEmployees } from "@/features/payroll/lib/demo-employee-store";
 import { useDemoOrders } from "@/features/payroll/lib/demo-order-store";
 import { useDemoAdvances } from "@/features/payroll/lib/demo-advance-store";
@@ -23,6 +25,10 @@ function statusClass(status: EmployeeWorkStatus) {
 
 export function EmployeeManager() {
   const { employees, addEmployee, updateEmployeeStatus, removeEmployee, resetEmployees } = useDemoEmployees();
+  const actor = usePayrollActor();
+  const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
+  const [editedName, setEditedName] = useState("");
+  const [savingName, setSavingName] = useState(false);
   const { allOrders } = useDemoOrders();
   const { records: kasbonRecords } = useDemoAdvances();
   const { inventory, movements } = useDemoInventory();
@@ -93,6 +99,30 @@ export function EmployeeManager() {
     setActionMessage(`✓ ${employee.name} (${employee.code}) berhasil dihapus dari daftar Karyawan.`);
   }
 
+  async function saveEmployeeName(employee: Employee) {
+    if (savingName) return;
+    setActionMessage(null);
+    const newName = editedName.trim().replace(/\s+/g, " ");
+    if (!newName || newName.length > 160) {
+      setActionMessage("⚠ Nama karyawan harus diisi dan maksimal 160 karakter."); return;
+    }
+    setSavingName(true);
+    try {
+      await flushPayroll();
+      const response = await authenticatedFetchJson<{ok:boolean;pendingSheet:boolean;name:string;requestedName?:string}>(
+        "/api/admin/payroll/employees/rename",
+        { method: "POST", body: JSON.stringify({employeeId:employee.id,expectedName:employee.name,newName}) },
+      );
+      await loadPayroll();
+      setEditingEmployeeId(null);
+      setActionMessage(response.pendingSheet
+        ? `✓ Koreksi ${employee.name} → ${response.requestedName} dikirim. Menunggu Apps Script memperbarui sel nama di PAYROLL Sheet, lalu sinkronisasi mengonfirmasi perubahan. Kode karyawan dan riwayat tetap sama.`
+        : `✓ Nama karyawan diperbaiki menjadi ${response.name}. Kode dan riwayat karyawan tetap sama.`);
+    } catch (error) {
+      setActionMessage(`⚠ ${error instanceof Error ? error.message : "Koreksi nama belum tersimpan."}`);
+    } finally { setSavingName(false); }
+  }
+
   const inputClass = "mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 outline-none focus:border-yellow-400";
 
   return (
@@ -155,9 +185,35 @@ export function EmployeeManager() {
                 <h2 className="text-xl font-semibold">{employee.name}</h2>
                 <div className="mt-1 text-sm text-zinc-500">{employee.team} · {employee.code}</div>
                 {employee.sheetRosterMissingAt ? <p className="mt-2 text-xs text-amber-300">Tidak ada di Sheet · riwayat tetap tersimpan</p> : null}
+                {employee.sheetRosterSource ? <p className="mt-1 text-xs text-zinc-500">Sumber: {employee.sheetRosterSource.sheetName} · baris {employee.sheetRosterSource.rowNumber}</p> : null}
+                {employee.sheetNameCorrection ? <p className="mt-2 text-xs font-semibold text-amber-300">Menunggu Sheet: {employee.sheetNameCorrection.newName}</p> : null}
               </div>
               <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(employee.workforceStatus)}`}>{adminLabel(employee.workforceStatus)}</span>
             </div>
+
+            {actor?.isAdmin ? <div className="mt-4">
+              {editingEmployeeId === employee.id ? (
+                <form onSubmit={event=>{event.preventDefault();void saveEmployeeName(employee);}} className="rounded-xl border border-yellow-400/40 bg-zinc-950/70 p-3">
+                  <label className="text-sm text-zinc-300">Perbaiki nama karyawan
+                    <input autoFocus required maxLength={160} disabled={savingName} value={editedName}
+                      onChange={event=>setEditedName(event.target.value)} className={inputClass}/>
+                  </label>
+                  <p className="mt-2 text-xs text-zinc-400">{employee.sheetRosterSource
+                    ? `Nama dikirim untuk memperbarui kolom B di ${employee.sheetRosterSource.sheetName}. Tunggu konfirmasi sinkronisasi sebelum mengedit lagi.`
+                    : "Perubahan tersimpan pada data karyawan website. Kode karyawan tidak berubah."}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="submit" disabled={savingName} className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-bold text-black disabled:opacity-50">{savingName?"Menyimpan...":"Simpan Perbaikan"}</button>
+                    <button type="button" disabled={savingName} onClick={()=>setEditingEmployeeId(null)} className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Batal</button>
+                  </div>
+                </form>
+              ) : (
+                <button type="button" disabled={Boolean(employee.sheetNameCorrection)||savingName}
+                  onClick={()=>{setEditingEmployeeId(employee.id);setEditedName(employee.name);setActionMessage(null);}}
+                  className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-semibold disabled:opacity-50">
+                  ✏️ Edit Nama
+                </button>
+              )}
+            </div> : null}
 
             <label className="mt-5 block text-sm text-zinc-400">Ubah status kapan saja
               <select value={employee.workforceStatus} onChange={(event) => updateEmployeeStatus(employee.id, event.target.value as EmployeeWorkStatus)} className="mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-3 font-semibold text-white">
@@ -171,7 +227,7 @@ export function EmployeeManager() {
               <div className="mt-1 text-xs text-zinc-500">Status ini otomatis ikut tampil di menu Gaji.</div>
             </div>
             <div className="mt-4 text-sm text-zinc-400">Beban kerja saat ini: <strong className="text-white">{employee.utilization}%</strong></div>
-            <button type="button" onClick={() => deleteEmployee(employee)} className="mt-4 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 hover:bg-red-500/20">Hapus Karyawan</button>
+            <button type="button" onClick={() => deleteEmployee(employee)} disabled={Boolean(employee.sheetNameCorrection) || savingName} title={employee.sheetNameCorrection ? "Selesaikan koreksi nama di Sheet terlebih dahulu." : undefined} className="mt-4 w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-200 hover:bg-red-500/20 disabled:opacity-40">Hapus Karyawan</button>
           </section>
         ))}
       </div>
