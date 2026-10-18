@@ -15,6 +15,16 @@ const activeTelegramStates = ["assigned", "in_progress", "paused", "problem"] as
 const taskLimit = 15000;
 const pageSize = 1000;
 
+type AssignmentRow = {
+  order_ref: string;
+  employee_code: string;
+  division: string;
+  status: string;
+  quantity: number | string | null;
+  updated_at: string;
+};
+type TelegramOrderRow = { order_ref: string; state: string };
+
 function key(value: unknown) {
   return String(value ?? "").trim().toUpperCase();
 }
@@ -29,7 +39,7 @@ function display(value: unknown, fallback: string, limit: number) {
   return text || fallback;
 }
 
-async function readPages<T>(read: (from: number, to: number) => Promise<{ data: T[] | null; error: unknown }>) {
+async function readPages<T>(read: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>) {
   const rows: T[] = [];
   for (let from = 0; from <= taskLimit; from += pageSize) {
     const { data, error } = await read(from, from + pageSize - 1);
@@ -51,7 +61,7 @@ export async function GET(request: Request) {
     const { supabaseAdmin } = await requirePayrollAccess(request);
     const [{ data: workspace, error: workspaceError }, assignmentsResult, telegramOrdersResult] = await Promise.all([
       supabaseAdmin.from("cp_payroll_workspace").select("payload,revision,updated_at").eq("id", 1).single(),
-      readPages((from, to) => supabaseAdmin.from("cp_payroll_telegram_assignments")
+      readPages<AssignmentRow>((from, to) => supabaseAdmin.from("cp_payroll_telegram_assignments")
         .select("order_ref,employee_code,division,status,quantity,updated_at")
         .eq("division", "FH3")
         .in("status", [...activeTelegramStates])
@@ -59,7 +69,7 @@ export async function GET(request: Request) {
         .order("order_ref", { ascending: true })
         .order("employee_code", { ascending: true })
         .range(from, to)),
-      readPages((from, to) => supabaseAdmin.from("cp_payroll_telegram_orders")
+      readPages<TelegramOrderRow>((from, to) => supabaseAdmin.from("cp_payroll_telegram_orders")
         .select("order_ref,state")
         .in("state", [...activeTelegramStates])
         .order("order_ref", { ascending: true })
