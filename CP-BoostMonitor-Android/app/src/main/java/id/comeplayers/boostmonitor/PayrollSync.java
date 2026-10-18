@@ -41,9 +41,10 @@ final class PayrollSync {
                 // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
                 JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"));
                 db.syncRoster(roster);
+                int tasks = syncTasks(result.getString("accessToken"));
                 session.save(result);
                 finish(callback, "Berhasil mengambil " + db.payrollEmployees().size()
-                        + " nama karyawan dari Payroll Website (revisi " + roster.optLong("revision") + ").", true);
+                        + " nama karyawan dan " + tasks + " tugas aktif dari Payroll Website (revisi " + roster.optLong("revision") + ").", true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }
@@ -64,9 +65,11 @@ final class PayrollSync {
                     snapshot = call("GET", "/roster", null, credentials.getString("accessToken"));
                 }
                 int[] changed = db.syncRoster(snapshot);
+                int tasks = syncTasks(credentials.getString("accessToken"));
                 finish(callback, "Payroll tersinkron: " + db.payrollEmployees().size() + " aktif"
                         + " • baru " + changed[0] + ", diperbarui " + changed[1]
-                        + ", nonaktif " + changed[2] + " • revisi " + snapshot.optLong("revision"), true);
+                        + ", nonaktif " + changed[2] + " • tugas aktif " + tasks
+                        + " • revisi " + snapshot.optLong("revision"), true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }
@@ -76,6 +79,18 @@ final class PayrollSync {
         payload.put("refreshToken", credentials.getString("refreshToken"));
         JSONObject fresh = call("POST", "/session", payload, null);
         session.save(fresh); return fresh;
+    }
+
+    /** Fetches the sanitized active order snapshot. Older servers may not expose it yet. */
+    private int syncTasks(String token) throws Exception {
+        try {
+            JSONObject snapshot = call("GET", "/tasks", null, token);
+            return db.syncTasks(snapshot);
+        } catch (ApiException error) {
+            // Keep roster login compatible while the website endpoint is rolled out.
+            if (error.status == 404 || error.status == 405) return 0;
+            throw error;
+        }
     }
 
     private void finish(Done cb, String message, boolean ok) { main.post(() -> cb.accept(message, ok)); }
