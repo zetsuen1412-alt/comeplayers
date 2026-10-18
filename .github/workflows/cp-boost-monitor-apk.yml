@@ -44,8 +44,8 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           sha256sum "$APK"
       - name: Publish same APK to website downloads
-        # The PR branch publishes the downloadable APK; main keeps that exact, reviewed binary.
-        if: github.ref != 'refs/heads/main'
+        # Publish the verified APK from main so the production download stays current.
+        if: github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
@@ -70,7 +70,7 @@ jobs:
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
       - name: Publish internal debug APK to GitHub Releases
-        if: github.ref != 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
