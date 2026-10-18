@@ -6,6 +6,7 @@
 
 - `POST /api/admin/payroll/mobile/session`: `{"action":"login","email":"...","password":"..."}` atau `{"action":"refresh","refreshToken":"..."}`. Menggunakan Supabase Auth dan memvalidasi izin `requirePayrollAccess`, mengembalikan accessToken/refreshToken/expiresAt **hanya** untuk akun yang berizin. JWT tidak ditulis ke log. Permintaan dibatasi 8 KiB dan respon tidak di-cache.
 - `GET /api/admin/payroll/mobile/roster`: `Authorization: Bearer <accessToken>`. Memvalidasi user dan akses payroll melalui `requirePayrollAccess`, membaca snapshot workspace server-side, kemudian memproyeksikan hanya `id`, `code`, `name`, `team`, `workforceStatus`, `active`. Tidak ada nilai uang atau informasi pribadi tambahan yang dibuka.
+- `GET /api/admin/payroll/mobile/tasks`: `Authorization: Bearer <accessToken>`. Mengembalikan tugas Telegram aktif untuk karyawan FH3 yang ditugaskan, dengan proyeksi `employeeId`, `employeeCode`, `employeeName`, `orderRef`, `orderName`, `game`, `buyer`, `task`, `division`, `quantity`, `status`, dan `updatedAt`. Nilai `buyer` berasal dari `buyerName` pada order payroll (termasuk hasil sinkronisasi Sheet); token bot, spreadsheet mentah, gaji, kasbon, dan mutasi keuangan tidak pernah dikirim ke APK. Tugas berstatus `done`/`replaced` tidak ikut dikirim.
 
 ## Keamanan
 
@@ -15,7 +16,7 @@ Endpoint dilindungi oleh kontrol otorisasi payroll yang sama dengan website. Ket
 
 - Android menyimpan access/refresh token terenkripsi Android Keystore (AES/GCM).
 - Roster diperbarui otomatis saat aplikasi aktif setiap ±2 menit dan saat aplikasi masuk ke foreground; kegagalan tetap mempertahankan snapshot lokal.
-- Baris lokal memakai `payroll_id` unik. Nama/divisi mengikuti website; status boosting (ready, menganggur, tidur, bekerja) dan riwayat tetap di SQLite lokal.
+- Baris lokal memakai `payroll_id` unik. Nama/divisi mengikuti website; status boosting (ready, Farming, tidur, bekerja) dan riwayat tetap di SQLite lokal. Tugas aktif dipolling dari endpoint tasks dan ditampilkan sebagai Order, Game, Buyer, serta TASK pada kartu karyawan.
 - `active=false` atau ID yang tidak lagi ada di snapshot membuat pekerja tersembunyi, bukan menghapus riwayat.
 - Tidak ada push status dari APK ke payroll pada rilis ini; perlu tabel/endpoint dan perizinan khusus untuk fitur tersebut.
 
