@@ -76,7 +76,7 @@ export default function BoostMonitorDownloadPage() {
     <section className="cp-card p-5 sm:p-6">
       <div className="text-sm font-semibold text-emerald-300">Android · v1.3 · Khusus FH3 · Build internal (debug)</div>
       <h2 className="mt-2 text-xl font-semibold">CP Boost Monitor</h2>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">Aplikasi memantau Ready Boosting, Farming, Tidur, Tidur Terlalu Lama, dan Sedang Bekerja. Order aktif dari Telegram menampilkan Order, Game, dan Buyer pada karyawan yang ditugaskan. Hanya nama dan kode karyawan FH3 diambil dari Payroll → Karyawan. FH1, FH2, ADMIN, dan BANDAR tidak ikut tersinkron ke APK.</p>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">Aplikasi memantau Ready Boosting, Farming, Tidur, dan Sedang Bekerja. Order aktif dari Telegram menampilkan Order, Game, dan Buyer pada karyawan yang ditugaskan. Hanya nama dan kode karyawan FH3 diambil dari Payroll → Karyawan. FH1, FH2, ADMIN, dan BANDAR tidak ikut tersinkron ke APK.</p>
       <div className="mt-5 flex flex-wrap gap-3">
         {available ? <a href={APK_URL} download="CP-Boost-Monitor-v1.3-FH3.apk" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 hover:bg-emerald-300">⬇ Download APK Android</a>
           : <span className="rounded-xl border border-zinc-700 px-5 py-3 text-sm text-zinc-400">{checking ? "Memeriksa file APK…" : "Download belum tersedia"}</span>}
