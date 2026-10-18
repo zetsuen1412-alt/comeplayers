@@ -13,6 +13,7 @@ const response = (body: unknown, status = 200) => Response.json(body, {
 
 const activeTelegramStates = ["assigned", "in_progress", "paused", "problem"] as const;
 const taskLimit = 15000;
+const pageSize = 1000;
 
 function key(value: unknown) {
   return String(value ?? "").trim().toUpperCase();
@@ -28,6 +29,19 @@ function display(value: unknown, fallback: string, limit: number) {
   return text || fallback;
 }
 
+async function readPages<T>(read: (from: number, to: number) => Promise<{ data: T[] | null; error: unknown }>) {
+  const rows: T[] = [];
+  for (let from = 0; from <= taskLimit; from += pageSize) {
+    const { data, error } = await read(from, from + pageSize - 1);
+    if (error) throw error;
+    const page = data ?? [];
+    if (from >= taskLimit && page.length > 0) throw new Error("Terlalu banyak tugas aktif untuk satu snapshot.");
+    rows.push(...page);
+    if (page.length < pageSize) return rows;
+  }
+  throw new Error("Terlalu banyak tugas aktif untuk satu snapshot.");
+}
+
 /**
  * Minimal FH3 work projection for CP Boost Monitor. Telegram credentials,
  * payroll amounts, mutation history, and raw spreadsheet rows never leave the server.
@@ -35,27 +49,25 @@ function display(value: unknown, fallback: string, limit: number) {
 export async function GET(request: Request) {
   try {
     const { supabaseAdmin } = await requirePayrollAccess(request);
-    const [{ data: workspace, error: workspaceError }, { data: assignments, error: assignmentError }, { data: telegramOrders, error: telegramOrderError }] = await Promise.all([
+    const [{ data: workspace, error: workspaceError }, assignmentsResult, telegramOrdersResult] = await Promise.all([
       supabaseAdmin.from("cp_payroll_workspace").select("payload,revision,updated_at").eq("id", 1).single(),
-      supabaseAdmin.from("cp_payroll_telegram_assignments")
+      readPages((from, to) => supabaseAdmin.from("cp_payroll_telegram_assignments")
         .select("order_ref,employee_code,division,status,quantity,updated_at")
         .eq("division", "FH3")
         .in("status", [...activeTelegramStates])
         .order("updated_at", { ascending: false })
-        // The Android client validates up to 15,000 rows. Do not mark a
-        // truncated response as complete and silently clear local tasks.
-        .limit(taskLimit + 1),
-      supabaseAdmin.from("cp_payroll_telegram_orders")
+        .order("order_ref", { ascending: true })
+        .order("employee_code", { ascending: true })
+        .range(from, to)),
+      readPages((from, to) => supabaseAdmin.from("cp_payroll_telegram_orders")
         .select("order_ref,state")
         .in("state", [...activeTelegramStates])
-        .limit(taskLimit + 1),
+        .order("order_ref", { ascending: true })
+        .range(from, to)),
     ]);
     if (workspaceError || !workspace) throw workspaceError ?? new Error("Workspace tidak ditemukan");
-    if (assignmentError) throw assignmentError;
-    if (telegramOrderError) throw telegramOrderError;
-    if ((assignments?.length ?? 0) > taskLimit || (telegramOrders?.length ?? 0) > taskLimit) {
-      return response({ error: "Terlalu banyak tugas aktif untuk satu snapshot. Kurangi tugas aktif lalu coba lagi." }, 503);
-    }
+    const assignments = assignmentsResult;
+    const telegramOrders = telegramOrdersResult;
 
     const payload = workspace.payload as Record<string, unknown>;
     const employees = (Array.isArray(payload[workspaceKeys.employees]) ? payload[workspaceKeys.employees] : []) as Employee[];
@@ -82,7 +94,7 @@ export async function GET(request: Request) {
         orderName: display(order.orderName || order.service, "—", 500),
         game: display(order.gameName || order.game, "—", 200),
         buyer: display(order.buyerName, "—", 240),
-        task: display(order.task, "—", 1000),
+        task: display(order.task, "—", 500),
         division: "FH3",
         quantity: assignment.quantity == null || !Number.isFinite(Number(assignment.quantity)) ? null : Number(assignment.quantity),
         status: assignment.status,
