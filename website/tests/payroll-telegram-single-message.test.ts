@@ -12,7 +12,7 @@ import { parsePayrollTelegramUpdate, payrollTelegramKeyboard, type TelegramNotic
 
 const order = {
   externalReference: "X3092", orderName: "1 Week Package (12 Hours/Day)",
-  game: "AION", team: "FH3", task: "Complete daily activities",
+  buyerName: "ShumzSG", game: "AION", team: "FH3", task: "Complete daily activities",
   workerAssignments: [{ employeeName: "ASTRI" }],
 };
 const workflow: PayrollTelegramCardWorkflow = {
@@ -32,7 +32,8 @@ function recorder() {
 
 test("employee picker retains the order details and edits the canonical message", async () => {
   const notice = buildPayrollTelegramOrderNotice(order, workflow, { text: "PILIH KARYAWAN", keyboard: "picker", page: 0, employees });
-  for (const value of ["X3092", order.orderName, "AION", "FH3", "ASTRI", order.task, "HALAMAN 1"]) assert.ok(notice.text.includes(value));
+  assert.ok(notice.text.includes(`Buyer : ${order.buyerName}`));
+  for (const value of ["X3092", order.orderName, order.buyerName, "AION", "FH3", "ASTRI", order.task, "HALAMAN 1"]) assert.ok(notice.text.includes(value));
   const calls = recorder();
   assert.deepEqual(await deliverPayrollTelegramMessage({ chatId: -100300, notice, orderNotice: true, initialDispatch: false, messageId: 42 }, calls.transport), { message_id: 42 });
   assert.equal(calls.sent.length, 0);
