@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Status boosting dan riwayat tersimpan di perangkat; identitas dapat berasal dari payroll website. */
 public final class EmployeeDb extends SQLiteOpenHelper {
@@ -25,6 +27,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     public static final class Employee {
         public long id, statusSince, createdAt;
         public String name, position, status, task, note, payrollId, payrollCode;
+        public String orderRef, orderName, game, buyer;
         public boolean payrollManaged;
         public String visibleStatus(long overdueMinutes, long now) {
             if (SLEEP.equals(status) && Math.max(0, now - statusSince) >= overdueMinutes * 60000L) return "Tidur Lama";
@@ -40,17 +43,17 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     public static String label(String s) {
         switch (s) {
             case READY: return "Ready Boosting";
-            case IDLE: return "Menganggur";
+            case IDLE: return "Farming";
             case SLEEP: return "Tidur";
-            case WORK: return "Bekerja";
+            case WORK: return "Sedang Bekerja";
             default: return s == null ? "-" : s;
         }
     }
 
-    public EmployeeDb(Context context) { super(context, "cp_boost_monitor.db", null, 3); }
+    public EmployeeDb(Context context) { super(context, "cp_boost_monitor.db", null, 4); }
 
     @Override public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE employees (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, position TEXT NOT NULL DEFAULT '', status TEXT NOT NULL, task TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', status_since INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, payroll_id TEXT UNIQUE, payroll_code TEXT, payroll_active INTEGER NOT NULL DEFAULT 1)");
+        db.execSQL("CREATE TABLE employees (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, position TEXT NOT NULL DEFAULT '', status TEXT NOT NULL, task TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', status_since INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, payroll_id TEXT UNIQUE, payroll_code TEXT, payroll_active INTEGER NOT NULL DEFAULT 1, order_ref TEXT NOT NULL DEFAULT '', order_name TEXT NOT NULL DEFAULT '', game TEXT NOT NULL DEFAULT '', buyer TEXT NOT NULL DEFAULT '')");
         db.execSQL("CREATE TABLE events (_id INTEGER PRIMARY KEY AUTOINCREMENT, employee_id INTEGER NOT NULL, employee_name TEXT NOT NULL, from_status TEXT NOT NULL, to_status TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', changed_at INTEGER NOT NULL)");
         db.execSQL("CREATE INDEX events_employee_idx ON events(employee_id, changed_at)");
     }
@@ -62,6 +65,12 @@ public final class EmployeeDb extends SQLiteOpenHelper {
             db.execSQL("CREATE UNIQUE INDEX employee_payroll_idx ON employees(payroll_id)");
         }
         if (oldVersion < 3) removeNonFH3(db);
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE employees ADD COLUMN order_ref TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE employees ADD COLUMN order_name TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE employees ADD COLUMN game TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE employees ADD COLUMN buyer TEXT NOT NULL DEFAULT ''");
+        }
     }
 
     /** Menghapus data non-FH3 HANYA pada SQLite HP, tidak pada website payroll. */
@@ -79,6 +88,8 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         e.statusSince = c.getLong(6); e.createdAt = c.getLong(7);
         e.payrollId = c.isNull(8) ? null : c.getString(8);
         e.payrollCode = c.isNull(9) ? null : c.getString(9);
+        e.orderRef = c.getString(10); e.orderName = c.getString(11);
+        e.game = c.getString(12); e.buyer = c.getString(13);
         e.payrollManaged = e.payrollId != null;
         return e;
     }
@@ -88,7 +99,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     public List<Employee> payrollEmployees() {
         List<Employee> result = new ArrayList<>();
         try (Cursor c = getReadableDatabase().rawQuery(
-                "SELECT _id,name,position,status,task,note,status_since,created_at,payroll_id,payroll_code " +
+                "SELECT _id,name,position,status,task,note,status_since,created_at,payroll_id,payroll_code,order_ref,order_name,game,buyer " +
                 "FROM employees WHERE payroll_active=1 AND payroll_id IS NOT NULL AND position='FH3' ORDER BY name COLLATE NOCASE", null)) {
             while (c.moveToNext()) result.add(readEmployee(c));
         }
@@ -98,7 +109,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         List<Employee> result = new ArrayList<>();
         String where = includeInactive ? "" : " WHERE payroll_active=1";
         try (Cursor c = getReadableDatabase().rawQuery(
-                "SELECT _id,name,position,status,task,note,status_since,created_at,payroll_id,payroll_code FROM employees" + where + " ORDER BY name COLLATE NOCASE", null)) {
+                "SELECT _id,name,position,status,task,note,status_since,created_at,payroll_id,payroll_code,order_ref,order_name,game,buyer FROM employees" + where + " ORDER BY name COLLATE NOCASE", null)) {
             while (c.moveToNext()) result.add(readEmployee(c));
         }
         return result;
@@ -181,6 +192,98 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         return new int[] {added, changed, deactivated};
     }
 
+    /**
+     * Applies the active Telegram/boosting assignment snapshot. The endpoint must return
+     * only FH3 assignments and identify employees by payroll id or code, never by name.
+     */
+    public int syncTasks(JSONObject snapshot) throws JSONException {
+        if (snapshot.optInt("schema") != 1 || !"FH3".equals(snapshot.optString("scope"))
+                || !snapshot.has("revision")) {
+            throw new JSONException("Snapshot tugas bukan khusus FH3. Sinkronisasi dibatalkan.");
+        }
+        JSONArray list = snapshot.optJSONArray("tasks");
+        if (list == null || list.length() > 15000) throw new JSONException("Daftar tugas tidak valid.");
+        Map<String, java.util.List<JSONObject>> assignments = new HashMap<>();
+        for (int i = 0; i < list.length(); i++) {
+            JSONObject x = list.getJSONObject(i);
+            String taskStatus = first(x, "status").toLowerCase();
+            if (!x.optBoolean("active", true) || "completed".equals(taskStatus) || "cancelled".equals(taskStatus)
+                    || "canceled".equals(taskStatus) || "done".equals(taskStatus) || "closed".equals(taskStatus)) continue;
+            String id = first(x, "employeeId", "payrollId");
+            String code = first(x, "employeeCode", "payrollCode", "code");
+            String key = !id.isEmpty() ? "id:" + id : (!code.isEmpty() ? "code:" + code : "");
+            if (key.isEmpty()) throw new JSONException("Tugas tidak memiliki identitas karyawan.");
+            java.util.List<JSONObject> employeeTasks = assignments.get(key);
+            if (employeeTasks == null) { employeeTasks = new ArrayList<>(); assignments.put(key, employeeTasks); }
+            employeeTasks.add(x);
+            for (String field : new String[] {"orderRef", "orderName", "game", "buyer", "task"}) {
+                String value = first(x, field);
+                if (value.length() > 500) throw new JSONException("Data tugas terlalu panjang.");
+            }
+        }
+        boolean replace = snapshot.optBoolean("complete", true) || snapshot.optBoolean("replace", false);
+        SQLiteDatabase database = getWritableDatabase();
+        database.beginTransaction();
+        int updated = 0;
+        try {
+            long now = System.currentTimeMillis();
+            if (replace) {
+                ContentValues clear = new ContentValues();
+                clear.put("task", ""); clear.put("order_ref", ""); clear.put("order_name", "");
+                clear.put("game", ""); clear.put("buyer", ""); clear.put("updated_at", now);
+                database.update("employees", clear,
+                        "payroll_id IS NOT NULL AND payroll_active=1 AND "
+                                + "(task<>'' OR order_ref<>'' OR order_name<>'' OR game<>'' OR buyer<>'')", null);
+            }
+            for (Map.Entry<String, java.util.List<JSONObject>> entry : assignments.entrySet()) {
+                java.util.List<JSONObject> employeeTasks = entry.getValue();
+                JSONObject x = employeeTasks.get(0);
+                String id = first(x, "employeeId", "payrollId");
+                String code = first(x, "employeeCode", "payrollCode", "code");
+                String where; String[] args;
+                if (!id.isEmpty()) { where = "payroll_id=?"; args = new String[] {id}; }
+                else { where = "payroll_code=?"; args = new String[] {code}; }
+                ContentValues v = new ContentValues();
+                String orderRef = joinUnique(employeeTasks, "orderRef", "order", "orderId");
+                String orderName = joinUnique(employeeTasks, "orderName", "orderTitle");
+                String game = joinUnique(employeeTasks, "game");
+                String buyer = joinUnique(employeeTasks, "buyer", "buyerName");
+                String task = joinUnique(employeeTasks, "task");
+                v.put("task", task.isEmpty() ? orderRef : task);
+                v.put("order_ref", orderRef); v.put("order_name", orderName);
+                v.put("game", game); v.put("buyer", buyer);
+                v.put("updated_at", now);
+                int count = database.update("employees", v, where + " AND payroll_active=1 AND position='FH3'", args);
+                updated += count;
+            }
+            if (!assignments.isEmpty() && updated == 0) {
+                throw new JSONException("Tugas tidak cocok dengan roster FH3 di perangkat.");
+            }
+            database.setTransactionSuccessful();
+        } finally { database.endTransaction(); }
+        return updated;
+    }
+
+    private static String first(JSONObject object, String... names) {
+        for (String name : names) {
+            String value = object.optString(name, "").trim();
+            if (!value.isEmpty() && !"null".equalsIgnoreCase(value)) return value;
+        }
+        return "";
+    }
+
+    private static String joinUnique(java.util.List<JSONObject> objects, String... names) {
+        StringBuilder result = new StringBuilder();
+        Set<String> seen = new HashSet<>();
+        for (JSONObject object : objects) {
+            String value = first(object, names);
+            if (value.isEmpty() || !seen.add(value)) continue;
+            if (result.length() > 0) result.append(" • ");
+            result.append(value);
+        }
+        return result.toString();
+    }
+
     public long add(String name, String position, String status, String task, String note) {
         long now = System.currentTimeMillis();
         SQLiteDatabase db = getWritableDatabase();
@@ -215,6 +318,9 @@ public final class EmployeeDb extends SQLiteOpenHelper {
             ContentValues v = new ContentValues();
             v.put("status", next); v.put("status_since", now); v.put("updated_at", now);
             v.put("task", WORK.equals(next) ? task : "");
+            if (!WORK.equals(next)) {
+                v.put("order_ref", ""); v.put("order_name", ""); v.put("game", ""); v.put("buyer", "");
+            }
             db.update("employees", v, "_id=?", new String[]{String.valueOf(e.id)});
             log(db, e.id, e.name, e.status, next, note, now);
             db.setTransactionSuccessful();
@@ -255,12 +361,14 @@ public final class EmployeeDb extends SQLiteOpenHelper {
 
     public JSONObject backup(long thresholdMinutes) throws JSONException {
         JSONObject root = new JSONObject();
-        root.put("schema", 2); root.put("sleepThresholdMinutes", thresholdMinutes);
+        root.put("schema", 3); root.put("sleepThresholdMinutes", thresholdMinutes);
         JSONArray employees = new JSONArray(), events = new JSONArray();
         for (Employee e : employees(true)) {
             JSONObject o = new JSONObject();
             o.put("id", e.id); o.put("name", e.name); o.put("position", e.position);
             o.put("status", e.status); o.put("task", e.task); o.put("note", e.note);
+            o.put("orderRef", e.orderRef); o.put("orderName", e.orderName);
+            o.put("game", e.game); o.put("buyer", e.buyer);
             o.put("statusSince", e.statusSince); o.put("createdAt", e.createdAt);
             o.put("payrollId", e.payrollId == null ? JSONObject.NULL : e.payrollId);
             o.put("payrollCode", e.payrollCode == null ? JSONObject.NULL : e.payrollCode);
@@ -282,7 +390,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     }
 
     public void restore(JSONObject root) throws JSONException {
-        if (root.optInt("schema", -1) != 1 && root.optInt("schema", -1) != 2) throw new JSONException("Versi backup tidak didukung");
+        if (root.optInt("schema", -1) != 1 && root.optInt("schema", -1) != 2 && root.optInt("schema", -1) != 3) throw new JSONException("Versi backup tidak didukung");
         JSONArray employees = root.getJSONArray("employees");
         JSONArray events = root.getJSONArray("events");
         // Validasi seluruh data sebelum transaksi untuk mencegah backup rusak menimpa data.
@@ -307,9 +415,15 @@ public final class EmployeeDb extends SQLiteOpenHelper {
                 v.put("_id", x.getLong("id")); v.put("name", x.getString("name"));
                 v.put("position", x.optString("position", "")); v.put("status", x.getString("status"));
                 v.put("task", x.optString("task", "")); v.put("note", x.optString("note", ""));
+                if (root.optInt("schema") >= 3) {
+                    v.put("order_ref", x.optString("orderRef", ""));
+                    v.put("order_name", x.optString("orderName", ""));
+                    v.put("game", x.optString("game", ""));
+                    v.put("buyer", x.optString("buyer", ""));
+                }
                 v.put("status_since", x.getLong("statusSince")); v.put("created_at", x.getLong("createdAt"));
                 v.put("updated_at", now);
-                if (root.optInt("schema") == 2) {
+                if (root.optInt("schema") >= 2) {
                     if (!x.isNull("payrollId")) v.put("payroll_id", x.getString("payrollId"));
                     if (!x.isNull("payrollCode")) v.put("payroll_code", x.getString("payrollCode"));
                     v.put("payroll_active", x.optBoolean("payrollActive", true) ? 1 : 0);
