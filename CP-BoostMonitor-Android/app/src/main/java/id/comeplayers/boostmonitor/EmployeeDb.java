@@ -41,12 +41,13 @@ public final class EmployeeDb extends SQLiteOpenHelper {
     }
 
     public static String label(String s) {
+        if (s == null) return "-";
         switch (s) {
             case READY: return "Ready Boosting";
             case IDLE: return "Farming";
             case SLEEP: return "Tidur";
             case WORK: return "Sedang Bekerja";
-            default: return s == null ? "-" : s;
+            default: return s;
         }
     }
 
@@ -233,7 +234,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
                 clear.put("game", ""); clear.put("buyer", ""); clear.put("updated_at", now);
                 database.update("employees", clear,
                         "payroll_id IS NOT NULL AND payroll_active=1 AND "
-                                + "(task<>'' OR order_ref<>'' OR order_name<>'' OR game<>'' OR buyer<>'')", null);
+                                + "(order_ref<>'' OR order_name<>'' OR game<>'' OR buyer<>'')", null);
             }
             for (Map.Entry<String, java.util.List<JSONObject>> entry : assignments.entrySet()) {
                 java.util.List<JSONObject> employeeTasks = entry.getValue();
@@ -317,10 +318,8 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         try {
             ContentValues v = new ContentValues();
             v.put("status", next); v.put("status_since", now); v.put("updated_at", now);
-            v.put("task", WORK.equals(next) ? task : "");
-            if (!WORK.equals(next)) {
-                v.put("order_ref", ""); v.put("order_name", ""); v.put("game", ""); v.put("buyer", "");
-            }
+            // Keep server-provided order context when a user changes only local status.
+            if (WORK.equals(next) && task != null && !task.trim().isEmpty()) v.put("task", task.trim());
             db.update("employees", v, "_id=?", new String[]{String.valueOf(e.id)});
             log(db, e.id, e.name, e.status, next, note, now);
             db.setTransactionSuccessful();

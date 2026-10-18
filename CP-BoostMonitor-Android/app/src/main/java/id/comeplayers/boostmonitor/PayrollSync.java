@@ -41,10 +41,13 @@ final class PayrollSync {
                 // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
                 JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"));
                 db.syncRoster(roster);
-                int tasks = syncTasks(result.getString("accessToken"));
                 session.save(result);
+                int tasks = 0;
+                String taskWarning = "";
+                try { tasks = syncTasks(result.getString("accessToken")); }
+                catch (Exception taskError) { taskWarning = " Tugas order belum tersinkron; coba Perbarui dari Payroll."; }
                 finish(callback, "Berhasil mengambil " + db.payrollEmployees().size()
-                        + " nama karyawan dan " + tasks + " tugas aktif dari Payroll Website (revisi " + roster.optLong("revision") + ").", true);
+                        + " nama karyawan dan " + tasks + " tugas aktif dari Payroll Website (revisi " + roster.optLong("revision") + ")." + taskWarning, true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }
@@ -65,11 +68,14 @@ final class PayrollSync {
                     snapshot = call("GET", "/roster", null, credentials.getString("accessToken"));
                 }
                 int[] changed = db.syncRoster(snapshot);
-                int tasks = syncTasks(credentials.getString("accessToken"));
+                int tasks = 0;
+                String taskWarning = "";
+                try { tasks = syncTasks(credentials.getString("accessToken")); }
+                catch (Exception taskError) { taskWarning = " • tugas order belum tersinkron"; }
                 finish(callback, "Payroll tersinkron: " + db.payrollEmployees().size() + " aktif"
                         + " • baru " + changed[0] + ", diperbarui " + changed[1]
                         + ", nonaktif " + changed[2] + " • tugas aktif " + tasks
-                        + " • revisi " + snapshot.optLong("revision"), true);
+                        + taskWarning + " • revisi " + snapshot.optLong("revision"), true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }
@@ -128,7 +134,13 @@ final class PayrollSync {
                     data.write(buffer, 0, n);
                 }
             }
-            JSONObject result = new JSONObject(new String(data.toByteArray(), StandardCharsets.UTF_8));
+            JSONObject result;
+            try { result = new JSONObject(new String(data.toByteArray(), StandardCharsets.UTF_8)); }
+            catch (org.json.JSONException error) {
+                if (status < 200 || status >= 300)
+                    throw new ApiException(status, "Akses payroll ditolak (" + status + ").");
+                throw error;
+            }
             if (status < 200 || status >= 300) throw new ApiException(status, result.optString("error", "Akses payroll ditolak (" + status + ")."));
             return result;
         } finally { c.disconnect(); }
