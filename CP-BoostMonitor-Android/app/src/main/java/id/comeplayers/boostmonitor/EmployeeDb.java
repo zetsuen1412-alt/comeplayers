@@ -29,10 +29,8 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         public String name, position, status, task, note, payrollId, payrollCode;
         public String orderRef, orderName, game, buyer;
         public boolean payrollManaged;
-        public String visibleStatus(long overdueMinutes, long now) {
-            if (SLEEP.equals(status) && Math.max(0, now - statusSince) >= overdueMinutes * 60000L) return "Tidur Lama";
-            return label(status);
-        }
+        /** Visible status stays stable; sleep duration is shown beside the status in the card. */
+        public String visibleStatus() { return label(status); }
     }
 
     public static final class Event {

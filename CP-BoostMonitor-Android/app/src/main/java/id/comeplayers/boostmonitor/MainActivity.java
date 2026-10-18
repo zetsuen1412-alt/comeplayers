@@ -133,7 +133,6 @@ public final class MainActivity extends Activity {
     }
 
     private int dp(float size) { return (int) (getResources().getDisplayMetrics().density * size + .5f); }
-    private long threshold() { return prefs.getLong("sleep_limit", 120); }
     private long now() { return System.currentTimeMillis(); }
     private String time(long millis) { return new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("id", "ID")).format(new Date(millis)); }
     private String duration(long since) {
@@ -143,7 +142,6 @@ public final class MainActivity extends Activity {
         if (hours < 24) return hours + " jam " + minutes % 60 + " menit";
         return (hours / 24) + " hari " + (hours % 24) + " jam";
     }
-    private boolean overdue(EmployeeDb.Employee e) { return EmployeeDb.SLEEP.equals(e.status) && Math.max(0, now() - e.statusSince) >= threshold() * 60000L; }
     private int tint(String status) {
         if (EmployeeDb.READY.equals(status)) return 0xff047857;
         if (EmployeeDb.IDLE.equals(status)) return 0xffa16207;
@@ -247,27 +245,25 @@ public final class MainActivity extends Activity {
             sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 43));
             sync.setOnClickListener(v -> refreshPayroll(true)); space(body, 16);
         }
-        int ready = 0, idle = 0, sleeping = 0, late = 0, working = 0;
-        List<EmployeeDb.Employee> priority = new ArrayList<>();
+        int ready = 0, idle = 0, sleeping = 0, working = 0;
+        List<EmployeeDb.Employee> sleepingEmployees = new ArrayList<>();
         List<EmployeeDb.Employee> available = new ArrayList<>();
         for (EmployeeDb.Employee e : all) {
             switch (e.status) {
                 case EmployeeDb.READY: ready++; available.add(e); break;
                 case EmployeeDb.IDLE: idle++; break;
-                case EmployeeDb.SLEEP: if (overdue(e)) { late++; priority.add(e); } else sleeping++; break;
+                case EmployeeDb.SLEEP: sleeping++; sleepingEmployees.add(e); break;
                 case EmployeeDb.WORK: working++; break;
             }
         }
         summaryRow("🟢 Ready Boosting", ready, "READY", "🔵 Sedang Bekerja", working, "WORK");
         summaryRow("🟠 Farming", idle, "IDLE", "🌙 Tidur", sleeping, "SLEEP");
-        summarySingle("🚨 Tidur Terlalu Lama", late, "LATE");
-        space(body, 18);
         space(body, 23);
-        body.addView(text("Perlu Diperhatikan", 18, INK, true)); space(body, 10);
-        if (priority.isEmpty()) info("Tidak ada karyawan yang melewati batas waktu tidur.");
+        body.addView(text("Sedang Tidur", 18, INK, true)); space(body, 10);
+        if (sleepingEmployees.isEmpty()) info("Tidak ada karyawan yang sedang tidur.");
         else {
-            priority.sort((a, b) -> Long.compare(a.statusSince, b.statusSince));
-            for (EmployeeDb.Employee e : priority) employeeCard(body, e, false);
+            sleepingEmployees.sort((a, b) -> Long.compare(a.statusSince, b.statusSince));
+            for (EmployeeDb.Employee e : sleepingEmployees) employeeCard(body, e, false);
         }
         space(body, 20);
         body.addView(text("Siap Menerima Boosting", 18, INK, true)); space(body, 10);
@@ -321,7 +317,7 @@ public final class MainActivity extends Activity {
         LinearLayout wraps = vertical();
         LinearLayout first = horizontal(), second = horizontal();
         addChip(first, "Semua", "SEMUA"); addChip(first, "Ready", "READY"); addChip(first, "Bekerja", "WORK");
-        addChip(second, "Farming", "IDLE"); addChip(second, "Tidur", "SLEEP"); addChip(second, "Tidur Lama", "LATE");
+        addChip(second, "Farming", "IDLE"); addChip(second, "Tidur", "SLEEP");
         wraps.addView(first); space(wraps, 8); wraps.addView(second);
         chipScroll.addView(wraps); body.addView(chipScroll, lp(-1, -2)); space(body, 14);
         employeesContainer = vertical(); body.addView(employeesContainer, lp(-1, -2)); fillEmployees();
@@ -337,7 +333,7 @@ public final class MainActivity extends Activity {
         employeesContainer.removeAllViews();
         int n = 0;
         for (EmployeeDb.Employee e : db.payrollEmployees()) {
-            if (!"SEMUA".equals(filter) && !("LATE".equals(filter) ? overdue(e) : filter.equals(e.status) && !("SLEEP".equals(filter) && overdue(e)))) continue;
+            if (!"SEMUA".equals(filter) && !filter.equals(e.status)) continue;
             String haystack = (e.name + " " + e.payrollCode + " " + e.position + " " + e.task + " "
                     + e.orderRef + " " + e.orderName + " " + e.game + " " + e.buyer).toLowerCase(Locale.ROOT);
             if (!haystack.contains(search.toLowerCase(Locale.ROOT).trim())) continue;
@@ -353,12 +349,15 @@ public final class MainActivity extends Activity {
         LinearLayout title = horizontal();
         TextView name = text(e.name, 17, INK, true);
         title.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView status = text(e.visibleStatus(threshold(), now()), 11, overdue(e) ? 0xffb91c1c : tint(e.status), true);
-        status.setBackground(shape(overdue(e) ? 0xffffe4e6 : 0xfff3f4f6, 9));
+        TextView status = text(e.visibleStatus(), 11, tint(e.status), true);
+        status.setBackground(shape(0xfff3f4f6, 9));
         status.setPadding(dp(9), dp(7), dp(9), dp(7)); title.addView(status); p.addView(title);
         if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • " + e.payrollCode + " • Payroll" : ""), 13, SUB, false)); }
         space(p, 10);
-        p.addView(text("⏱ " + duration(e.statusSince) + "  •  Sejak " + time(e.statusSince), 12, SUB, false));
+        String elapsed = EmployeeDb.SLEEP.equals(e.status)
+                ? "Tidur selama " + duration(e.statusSince)
+                : "⏱ " + duration(e.statusSince);
+        p.addView(text(elapsed + "  •  Sejak " + time(e.statusSince), 12, SUB, false));
         if (!e.task.isEmpty() || !e.orderRef.isEmpty() || !e.orderName.isEmpty() || !e.game.isEmpty() || !e.buyer.isEmpty()) {
             space(p, 7);
             if (!e.orderRef.isEmpty()) p.addView(text("Order: " + e.orderRef, 13, INK, false));
@@ -492,11 +491,8 @@ public final class MainActivity extends Activity {
         }
         body.addView(integration, lp(-1, -2)); space(body, 14);
         LinearLayout settings = panel();
-        settings.addView(text("Batas Tidur Terlalu Lama", 16, INK, true)); space(settings, 7);
-        settings.addView(text("Saat ini: " + threshold() + " menit. Status Tidur berubah menjadi Tidur Lama secara otomatis saat melewati batas.", 13, SUB, false));
-        space(settings, 11);
-        Button change = button("Ubah Batas Tidur", true); settings.addView(change, lp(-1, 43));
-        change.setOnClickListener(v -> thresholdDialog());
+        settings.addView(text("Status tidur", 16, INK, true)); space(settings, 7);
+        settings.addView(text("Status Tidur tetap ditampilkan sebagai Tidur. Durasi tidur berjalan terlihat langsung pada kartu karyawan.", 13, SUB, false));
         body.addView(settings, lp(-1, -2)); space(body, 12);
         LinearLayout data = panel();
         data.addView(text("Ekspor & Backup", 16, INK, true)); space(data, 7);
@@ -522,20 +518,6 @@ public final class MainActivity extends Activity {
         privacy.addView(text("Nama, kode, dan divisi karyawan serta ringkasan order aktif diambil dari Payroll Website setelah login. Status boosting, waktu tidur, dan riwayat tetap lokal di HP ini. Backup JSON berisi data karyawan dan ringkasan order, simpan dengan aman.", 13, SUB, false));
         body.addView(privacy, lp(-1, -2));
     }
-    private void thresholdDialog() {
-        LinearLayout form = form(); EditText minutes = input("Menit", String.valueOf(threshold()));
-        minutes.setInputType(InputType.TYPE_CLASS_NUMBER); form.addView(minutes);
-        AlertDialog d = new AlertDialog.Builder(this).setTitle("Batas Tidur Lama (menit)").setView(form)
-                .setNegativeButton("Batal", null).setPositiveButton("Simpan", null).create();
-        d.setOnShowListener(x -> d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            try {
-                long value = Long.parseLong(trim(minutes));
-                if (value < 1 || value > 10080) { minutes.setError("Masukkan 1–10080 menit"); return; }
-                prefs.edit().putLong("sleep_limit", value).apply(); d.dismiss(); render();
-            } catch (NumberFormatException ex) { minutes.setError("Isi angka yang valid"); }
-        })); d.show();
-    }
-
     private void createDocument(int request, String mime, String filename) {
         Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE); i.setType(mime); i.putExtra(Intent.EXTRA_TITLE, filename);
@@ -550,7 +532,7 @@ public final class MainActivity extends Activity {
     private String csvContent() {
         StringBuilder csv = new StringBuilder("Nama,Jabatan,Status,Durasi Status (menit),Mulai Status,Order,Nama Order,Game,Buyer,Tugas,Catatan\r\n");
         for (EmployeeDb.Employee e : db.all()) {
-            String[] cols = {e.name, e.position, e.visibleStatus(threshold(), now()),
+            String[] cols = {e.name, e.position, e.visibleStatus(),
                     String.valueOf(Math.max(0, (now() - e.statusSince) / 60000)),
                     time(e.statusSince), e.orderRef, e.orderName, e.game, e.buyer, e.task, e.note};
             for (int i = 0; i < cols.length; i++) {
@@ -566,7 +548,7 @@ public final class MainActivity extends Activity {
         Uri uri = data.getData();
         try {
             if (requestCode == CSV || requestCode == BACKUP) {
-                String contents = requestCode == CSV ? "\ufeff" + csvContent() : db.backup(threshold()).toString(2);
+                String contents = requestCode == CSV ? "\ufeff" + csvContent() : db.backup(0).toString(2);
                 try (OutputStream out = getContentResolver().openOutputStream(uri, "w")) {
                     if (out == null) throw new Exception("Tidak dapat membuka file");
                     out.write(contents.getBytes(StandardCharsets.UTF_8)); out.flush();
