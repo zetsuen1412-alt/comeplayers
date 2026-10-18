@@ -5,6 +5,8 @@ export type PayrollTelegramCardOrder = {
   externalReference: string;
   orderName?: string;
   service?: string;
+  buyerName?: string;
+  buyer?: string;
   gameName?: string;
   game?: string;
   team?: string;
@@ -61,6 +63,7 @@ export function buildPayrollTelegramOrderNotice(
   const employees = (order.workerAssignments ?? []).map(worker => worker.employeeName).filter(Boolean).join(", ");
   const lines = [title, `Order : ${telegramMessageText(order.externalReference, 180)}`,
     `Nama : ${telegramMessageText(order.orderName || order.service || "—", 400)}`,
+    `Buyer : ${telegramMessageText(order.buyerName || order.buyer || "—", 240)}`,
     `Game : ${telegramMessageText(order.gameName || order.game || "—", 200)}`,
     `Divisi : ${workflow.division || order.team || "—"}`,
     `Karyawan : ${telegramMessageText(employees || order.employeeName || "Ditentukan leader", 400)}`,
