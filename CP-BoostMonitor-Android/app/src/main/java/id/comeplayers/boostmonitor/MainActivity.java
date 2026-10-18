@@ -46,7 +46,7 @@ public final class MainActivity extends Activity {
     private static final int BORDER = Color.rgb(229, 231, 235);
     private static final int WHITE = Color.WHITE;
     private static final String[] STATUS = {EmployeeDb.READY, EmployeeDb.IDLE, EmployeeDb.SLEEP, EmployeeDb.WORK};
-    private static final String[] STATUS_LABEL = {"Ready Boosting", "Menganggur", "Tidur", "Sedang Bekerja"};
+    private static final String[] STATUS_LABEL = {"Ready Boosting", "Farming", "Tidur", "Sedang Bekerja"};
     private static final int CSV = 401, BACKUP = 402, RESTORE = 403;
 
     private EmployeeDb db;
@@ -259,7 +259,7 @@ public final class MainActivity extends Activity {
             }
         }
         summaryRow("🟢 Ready Boosting", ready, "READY", "🔵 Sedang Bekerja", working, "WORK");
-        summaryRow("🟠 Menganggur", idle, "IDLE", "🌙 Tidur", sleeping, "SLEEP");
+        summaryRow("🟠 Farming", idle, "IDLE", "🌙 Tidur", sleeping, "SLEEP");
         summarySingle("🚨 Tidur Terlalu Lama", late, "LATE");
         space(body, 18);
         space(body, 23);
@@ -321,7 +321,7 @@ public final class MainActivity extends Activity {
         LinearLayout wraps = vertical();
         LinearLayout first = horizontal(), second = horizontal();
         addChip(first, "Semua", "SEMUA"); addChip(first, "Ready", "READY"); addChip(first, "Bekerja", "WORK");
-        addChip(second, "Menganggur", "IDLE"); addChip(second, "Tidur", "SLEEP"); addChip(second, "Tidur Lama", "LATE");
+        addChip(second, "Farming", "IDLE"); addChip(second, "Tidur", "SLEEP"); addChip(second, "Tidur Lama", "LATE");
         wraps.addView(first); space(wraps, 8); wraps.addView(second);
         chipScroll.addView(wraps); body.addView(chipScroll, lp(-1, -2)); space(body, 14);
         employeesContainer = vertical(); body.addView(employeesContainer, lp(-1, -2)); fillEmployees();
@@ -338,7 +338,8 @@ public final class MainActivity extends Activity {
         int n = 0;
         for (EmployeeDb.Employee e : db.payrollEmployees()) {
             if (!"SEMUA".equals(filter) && !("LATE".equals(filter) ? overdue(e) : filter.equals(e.status) && !("SLEEP".equals(filter) && overdue(e)))) continue;
-            String haystack = (e.name + " " + e.payrollCode + " " + e.position + " " + e.task).toLowerCase(Locale.ROOT);
+            String haystack = (e.name + " " + e.payrollCode + " " + e.position + " " + e.task + " "
+                    + e.orderRef + " " + e.orderName + " " + e.game + " " + e.buyer).toLowerCase(Locale.ROOT);
             if (!haystack.contains(search.toLowerCase(Locale.ROOT).trim())) continue;
             employeeCard(employeesContainer, e, true); n++;
         }
@@ -358,7 +359,14 @@ public final class MainActivity extends Activity {
         if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • " + e.payrollCode + " • Payroll" : ""), 13, SUB, false)); }
         space(p, 10);
         p.addView(text("⏱ " + duration(e.statusSince) + "  •  Sejak " + time(e.statusSince), 12, SUB, false));
-        if (EmployeeDb.WORK.equals(e.status) && !e.task.isEmpty()) { space(p, 7); p.addView(text("Tugas: " + e.task, 13, INK, false)); }
+        if (!e.task.isEmpty() || !e.orderRef.isEmpty() || !e.orderName.isEmpty() || !e.game.isEmpty() || !e.buyer.isEmpty()) {
+            space(p, 7);
+            if (!e.orderRef.isEmpty()) p.addView(text("Order: " + e.orderRef, 13, INK, false));
+            if (!e.orderName.isEmpty()) p.addView(text("Nama order: " + e.orderName, 13, INK, false));
+            if (!e.game.isEmpty()) p.addView(text("Game: " + e.game, 13, INK, false));
+            if (!e.buyer.isEmpty()) p.addView(text("Buyer: " + e.buyer, 13, INK, false));
+            if (!e.task.isEmpty() && !e.task.equals(e.orderRef)) p.addView(text("Tugas: " + e.task, 13, INK, false));
+        }
         if (!e.note.isEmpty()) { space(p, 5); p.addView(text("Catatan: " + e.note, 12, SUB, false)); }
         space(p, 12);
         Button change = button("Ubah Status", true); p.addView(change, lp(-1, 42));
@@ -511,7 +519,7 @@ public final class MainActivity extends Activity {
         body.addView(data, lp(-1, -2)); space(body, 12);
         LinearLayout privacy = panel();
         privacy.addView(text("Penyimpanan & Privasi", 16, INK, true)); space(privacy, 8);
-        privacy.addView(text("Nama, kode, dan divisi karyawan diambil dari Payroll Website setelah login. Status boosting, waktu tidur, pekerjaan, dan riwayat tetap lokal di HP ini; belum sinkron antar-HP atau kembali ke website. Backup JSON berisi data karyawan, simpan dengan aman.", 13, SUB, false));
+        privacy.addView(text("Nama, kode, dan divisi karyawan serta ringkasan order aktif diambil dari Payroll Website setelah login. Status boosting, waktu tidur, dan riwayat tetap lokal di HP ini. Backup JSON berisi data karyawan dan ringkasan order, simpan dengan aman.", 13, SUB, false));
         body.addView(privacy, lp(-1, -2));
     }
     private void thresholdDialog() {
@@ -540,11 +548,11 @@ public final class MainActivity extends Activity {
         return "\"" + s.replace("\"", "\"\"") + "\"";
     }
     private String csvContent() {
-        StringBuilder csv = new StringBuilder("Nama,Jabatan,Status,Durasi Status (menit),Mulai Status,Tugas,Catatan\r\n");
+        StringBuilder csv = new StringBuilder("Nama,Jabatan,Status,Durasi Status (menit),Mulai Status,Order,Nama Order,Game,Buyer,Tugas,Catatan\r\n");
         for (EmployeeDb.Employee e : db.all()) {
             String[] cols = {e.name, e.position, e.visibleStatus(threshold(), now()),
                     String.valueOf(Math.max(0, (now() - e.statusSince) / 60000)),
-                    time(e.statusSince), e.task, e.note};
+                    time(e.statusSince), e.orderRef, e.orderName, e.game, e.buyer, e.task, e.note};
             for (int i = 0; i < cols.length; i++) {
                 if (i > 0) csv.append(','); csv.append(escapeCsv(cols[i]));
             }
