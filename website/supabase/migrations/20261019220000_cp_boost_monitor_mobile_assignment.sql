@@ -1,5 +1,5 @@
--- CP Boost Monitor FH3: atomic mobile assignment, separate from Telegram update IDs.
--- Deliberately limited to one not-yet-started Boosting/Item worker per order.
+-- CP Boost Monitor FH3: website -> Android -> website; independent of Telegram tables.
+-- Audit records + assignment use the same locked Payroll workspace transaction.
 create table public.cp_mobile_assignment_audit (
   id bigint generated always as identity primary key,
   order_ref text not null,
@@ -19,82 +19,88 @@ declare
   w jsonb;
   item jsonb;
   employee jsonb;
-  o public.cp_payroll_telegram_orders;
-  assigned_code text;
+  updated_orders jsonb;
+  ref text;
+  existing_worker text;
 begin
   if p_actor_id is null or nullif(btrim(p_order_ref), '') is null
     or nullif(btrim(p_employee_code), '') is null then
-    raise exception 'Order, karyawan, dan pelaku harus diisi.';
+    raise exception 'Order, karyawan, dan admin wajib diisi.';
   end if;
-
-  -- Lock order always AFTER workspace (same order as Telegram webhook RPC).
+  -- Atomic compare-and-set. All website edits/assignments update this same row.
   select payload into w from public.cp_payroll_workspace where id = 1 for update;
   if w is null then raise exception 'Payroll workspace tidak tersedia.'; end if;
-  select * into o from public.cp_payroll_telegram_orders
-    where lower(order_ref) = lower(btrim(p_order_ref)) for update;
-  if o.order_ref is null then raise exception 'Order Telegram tidak ditemukan.'; end if;
-  select value into item
-    from jsonb_array_elements(coalesce(w->'cp-ofs-demo-user-orders-v3', '[]'::jsonb))
-    where lower(value->>'externalReference') = lower(o.order_ref);
-  if item is null or o.division <> 'FH3' or item->>'team' <> 'FH3'
-    or o.order_type not in ('boosting','item') or item->>'orderType' <> o.order_type
-    or nullif(item->>'sheetDeletedAt', '') is not null
-    or nullif(item->>'websiteDeletedAt', '') is not null
-    or item->>'operationalStatus' = 'cancelled'
-    or public.cp_telegram_terminal(item, w) then
-    raise exception 'Order tidak aktif atau bukan Boosting/Item FH3.';
-  end if;
 
-  select value into employee
-    from jsonb_array_elements(coalesce(w->'cp-ofs-demo-employees-v2', '[]'::jsonb))
+  select value into item from jsonb_array_elements(
+    coalesce(w->'cp-ofs-demo-user-orders-v3', '[]'::jsonb))
+    where lower(value->>'externalReference') = lower(btrim(p_order_ref));
+  if item is null then raise exception 'Order tidak ditemukan.'; end if;
+  ref := item->>'externalReference';
+
+  select value into employee from jsonb_array_elements(
+    coalesce(w->'cp-ofs-demo-employees-v2', '[]'::jsonb))
     where upper(value->>'code') = upper(btrim(p_employee_code))
-      and value->>'team' = 'FH3'
-      and coalesce(value->>'workforceStatus', 'SHIFT') in ('NEW', 'SHIFT', 'FULL')
-      and nullif(value->>'sheetRosterMissingAt', '') is null;
+      and value->>'team'='FH3'
+      and coalesce(value->>'workforceStatus','SHIFT') in ('NEW','SHIFT','FULL')
+      and nullif(value->>'sheetRosterMissingAt','') is null;
   if employee is null then raise exception 'Karyawan FH3 tidak aktif.'; end if;
 
-  if o.state = 'assigned' then
-    select employee_code into assigned_code from public.cp_payroll_telegram_assignments
-      where order_ref = o.order_ref and status = 'assigned' limit 1;
-    if assigned_code = employee->>'code' then
-      return jsonb_build_object('ok', true, 'alreadyAssigned', true, 'orderRef', o.order_ref,
-        'employeeCode', assigned_code, 'employeeName', employee->>'name');
-    end if;
-  end if;
-  if o.state <> 'waiting' or exists (
-    select 1 from public.cp_payroll_telegram_assignments
-      where order_ref=o.order_ref and status in ('assigned','in_progress','paused','problem')
-  ) then
-    raise exception 'Order sudah ditugaskan atau dikerjakan. Muat ulang daftar order.';
+  -- Safe client retry: identical previously committed mobile assignment is a no-op.
+  if item->>'operationalStatus'='assigned'
+    and item->'workerAssignments'->0->>'employeeCode'=employee->>'code'
+    and item->'workerAssignments'->0->>'id' like 'mobile:%'
+    and jsonb_array_length(coalesce(item->'workerAssignments','[]'::jsonb))=1 then
+    return jsonb_build_object('ok',true,'alreadyAssigned',true,'orderRef',ref,
+      'employeeCode',employee->>'code','employeeName',employee->>'name');
   end if;
 
-  -- No Telegram identity impersonation; employee assignment uses trusted website roster.
-  perform public.cp_telegram_refresh_roster(w);
-  insert into public.cp_payroll_telegram_assignments
-    (order_ref,employee_code,division,telegram_user_id)
-    select o.order_ref, employee->>'code', 'FH3', t.telegram_user_id
-    from (select 1) n left join public.cp_payroll_telegram_employees t
-      on t.employee_code=employee->>'code' and t.division='FH3' and t.active;
-  update public.cp_payroll_telegram_orders
-    set state='assigned', updated_at=now(), last_event_at=now()
-    where order_ref=o.order_ref;
-  -- Existing helper increments revision and syncs the website Mutasi worker.
-  perform public.cp_telegram_save_worker(o.order_ref, employee);
+  if item->>'team'<>'FH3' or item->>'orderType' not in ('boosting','item')
+    or item->>'operationalStatus' not in ('draft','confirmed','assignment_pending')
+    or coalesce((item->>'importNeedsReview')::boolean,false)
+    or item->>'scheduleMode'='daily'
+    or coalesce(jsonb_array_length(item->'workerAssignments'),0)<>0
+    or nullif(item->>'employeeCode','') is not null
+    or nullif(item->>'employeeName','') is not null
+    or nullif(item->>'sheetDeletedAt','') is not null
+    or nullif(item->>'websiteDeletedAt','') is not null
+    or nullif(item->>'verifiedAt','') is not null
+    or nullif(item->>'payrollClosedAt','') is not null
+    or nullif(item->>'payrollPeriodId','') is not null
+    or item->>'financeStatus'='closed'
+    or exists (
+      select 1 from jsonb_array_elements(coalesce(w->'cp-ofs-demo-closing-v1','[]'::jsonb)) c,
+        jsonb_array_elements_text(coalesce(c->'orderRefs','[]'::jsonb)) r
+      where lower(r)=lower(ref)
+    ) then
+    raise exception 'Order tidak tersedia untuk penugasan. Muat ulang data.';
+  end if;
+  -- Use existing Payroll assignment shape: no Telegram identity or session.
+  select jsonb_agg(
+    case when j->>'externalReference'=ref then j || jsonb_build_object(
+      'employeeCode',employee->>'code',
+      'employeeName',employee->>'name',
+      'assignmentMode','direct',
+      'workerAssignments',jsonb_build_array(jsonb_build_object(
+        'id','mobile:'||ref||':'||(employee->>'code'),
+        'employeeCode',employee->>'code',
+        'employeeName',employee->>'name',
+        'team','FH3',
+        'process',coalesce(nullif(j->>'process',''),nullif(j->>'service',''),'JOKI'),
+        'quantity',coalesce((j->>'quantity')::numeric,1)
+      )),
+      'operationalStatus','assigned'
+    ) else j end order by n
+  ) into updated_orders from jsonb_array_elements(w->'cp-ofs-demo-user-orders-v3')
+    with ordinality as x(j,n);
+  update public.cp_payroll_workspace
+    set payload=jsonb_set(w,'{cp-ofs-demo-user-orders-v3}',updated_orders),
+        revision=revision+1,updated_at=clock_timestamp()
+    where id=1;
   insert into public.cp_mobile_assignment_audit(order_ref,employee_code,actor_id)
-    values(o.order_ref, employee->>'code', p_actor_id);
-  insert into public.cp_payroll_telegram_outbox(event_key,order_ref,chat_id,payload)
-    select 'mobile-assigned:'||o.order_ref||':'||c.chat_id,o.order_ref,c.chat_id,
-      jsonb_build_object('text', '✅ Karyawan ditentukan melalui CP Boost Monitor oleh admin website.',
-        'keyboard',o.order_type,'orderId',o.callback_id)
-    from public.cp_payroll_telegram_order_chats c
-    join public.cp_payroll_telegram_divisions d
-      on d.division=c.division and d.chat_id=c.chat_id and d.active
-    where c.order_ref=o.order_ref and c.division='FH3' and c.message_id is not null
-    on conflict(event_key) do nothing;
-  return jsonb_build_object('ok', true, 'alreadyAssigned', false, 'orderRef', o.order_ref,
-    'employeeCode', employee->>'code', 'employeeName', employee->>'name');
+    values(ref,employee->>'code',p_actor_id);
+  return jsonb_build_object('ok',true,'alreadyAssigned',false,'orderRef',ref,
+    'employeeCode',employee->>'code','employeeName',employee->>'name');
 end;
 $$;
-
 revoke all on function public.cp_mobile_assign_fh3(text,text,uuid) from public, anon, authenticated;
 grant execute on function public.cp_mobile_assign_fh3(text,text,uuid) to service_role;
