@@ -346,9 +346,9 @@ public final class MainActivity extends Activity {
         LinearLayout p = panel(); p.addView(text(s, 13, SUB, false)); body.addView(p, lp(-1, -2));
     }
 
-    /** Telegram-created FH3 orders appear here until an admin assigns a worker. */
+    /** Direct Payroll FH3 orders appear here until an admin assigns a worker. */
     private void ordersPage() {
-        heading("Order Baru FH3", "Dari Telegram Payroll / website. Pilih karyawan; penugasan langsung tersimpan di website.");
+        heading("Order Baru FH3", "Order langsung dari Payroll Website. Pilih karyawan untuk menyimpan penugasan.");
         info("Khusus admin dan order Boosting/Item yang belum dikerjakan. Daftar diperbarui ketika halaman dibuka dan setiap sinkronisasi.");
         space(body, 10);
         Button sync = button(pendingBusy ? "Memuat order..." : "↻ Ambil Order Terbaru", true);
