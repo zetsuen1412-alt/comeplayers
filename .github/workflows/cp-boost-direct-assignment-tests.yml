@@ -6,6 +6,7 @@ on:
       - 'website/features/payroll/lib/google-sheet-sync.ts'
       - 'website/supabase/migrations/2026101922000*_cp_boost_monitor*.sql'
       - 'website/tests/payroll-mobile-assignment*.test.ts'
+      - 'website/tests/payroll-mobile-direct-routing.test.ts'
       - '.github/workflows/cp-boost-direct-assignment-tests.yml'
   workflow_dispatch:
 permissions:
@@ -29,6 +30,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Test website API and real PostgreSQL migration
-        run: npx --no-install tsx --test tests/payroll-mobile-assignment.test.ts tests/payroll-mobile-assignment-database.test.ts
+        run: npx --no-install tsx --test tests/payroll-mobile-assignment.test.ts tests/payroll-mobile-assignment-database.test.ts tests/payroll-mobile-direct-routing.test.ts
       - name: Typecheck website
         run: npm run typecheck
