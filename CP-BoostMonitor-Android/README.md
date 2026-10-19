@@ -7,7 +7,7 @@ Aplikasi memantau status lokal (Ready Boosting, Farming, Tidur, Bekerja) serta m
 - Roster karyawan FH3 dibaca dari menu Payroll → Karyawan di website (GET /mobile/roster).
 - Tugas aktif karyawan dibaca langsung dari order Payroll Website (GET /mobile/tasks), tanpa tabel Telegram.
 - Order Boosting/Item FH3 yang belum memiliki karyawan muncul di tab **Order Baru** (GET /mobile/pending). Khusus admin dapat memilih pekerja untuk menyimpan assignment (POST /mobile/assign).
-- Daftar order refresh setiap sekitar 30 detik selama halaman terbuka. Roster dan tugas disinkronkan ketika aplikasi aktif setiap sekitar 2 menit atau melalui tombol refresh.
+- Daftar order refresh sekitar setiap 30 detik selama aplikasi aktif, dengan jumlah order baru terlihat pada Dashboard. Roster dan tugas disinkronkan ketika aplikasi aktif setiap sekitar 2 menit atau melalui tombol refresh.
 - Order yang ditugaskan melalui APK tersimpan ke website dan muncul di kartu karyawan setelah sinkronisasi.
 - Status Ready/Farming/Tidur/Bekerja beserta historinya tetap di SQLite perangkat. Tidak ada perubahan gaji, kasbon, atau status Payroll dari tombol status lokal.
 
