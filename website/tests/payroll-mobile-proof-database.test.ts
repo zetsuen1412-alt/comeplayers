@@ -48,7 +48,7 @@ test("mobile START + photo and DONE + photo advance website only after delivery 
     // The group must be an admin-configured FH3 destination, never supplied by APK.
     await db.exec("insert into cp_payroll_telegram_divisions(division,chat_id,chat_title) values('FH3',-123456,'EVO Ilham FH3')");
     const begin = async (action: string) => (await db.query<{ result: {
-      eventId: string; caption: string; chatId: number; alreadySent: boolean;
+      eventId: string; caption: string; chatId: number; alreadySent: boolean; replyToMessageId?: number;
     } }>("select cp_mobile_proof_begin('X4671','F001',$1,$2::uuid) result",
     [action,actor])).rows[0].result;
     const start = await begin("start");
@@ -63,6 +63,7 @@ test("mobile START + photo and DONE + photo advance website only after delivery 
     assert.equal((await getOrder(db)).operationalStatus, "in_progress");
     const done = await begin("done");
     assert.equal(done.caption, "x4671/mulyana/done");
+    assert.equal(done.replyToMessageId, 101, "DONE should reply to START proof if no original order message is mapped");
     assert.equal((await getOrder(db)).operationalStatus, "in_progress");
     await db.query("select cp_mobile_proof_finish($1::uuid,$2::uuid,102,'telegram-photo-id-2')",
       [done.eventId,actor]);
