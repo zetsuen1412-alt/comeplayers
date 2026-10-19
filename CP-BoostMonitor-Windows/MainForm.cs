@@ -20,14 +20,14 @@ public sealed class MainForm : Form
     private bool _seenInitialQueue;
     private HashSet<string> _lastRefs = new(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly Color Background = Color.FromArgb(15, 23, 42);
-    private static readonly Color Sidebar = Color.FromArgb(20, 31, 51);
-    private static readonly Color PanelColor = Color.FromArgb(30, 43, 65);
-    private static readonly Color PanelLine = Color.FromArgb(58, 73, 99);
-    private static readonly Color Fore = Color.FromArgb(245, 248, 252);
-    private static readonly Color Muted = Color.FromArgb(165, 182, 204);
-    private static readonly Color Accent = Color.FromArgb(249, 184, 61);
-    private static readonly Color Success = Color.FromArgb(88, 217, 159);
+    private static readonly Color Background = LuxuryPalette.Background;
+    private static readonly Color Sidebar = LuxuryPalette.Sidebar;
+    private static readonly Color PanelColor = LuxuryPalette.Surface;
+    private static readonly Color PanelLine = LuxuryPalette.Border;
+    private static readonly Color Fore = LuxuryPalette.Text;
+    private static readonly Color Muted = LuxuryPalette.Muted;
+    private static readonly Color Accent = LuxuryPalette.Gold;
+    private static readonly Color Success = LuxuryPalette.Success;
 
     private readonly Panel _content = new() { Dock = DockStyle.Fill, BackColor = Background };
     private readonly FlowLayoutPanel _nav = new()
@@ -109,10 +109,10 @@ public sealed class MainForm : Form
         layout.Controls.Add(_nav, 0, 0);
         layout.Controls.Add(_content, 1, 0);
 
-        var logo = StyledText("⚡ CP BOOST", 19, true, Accent);
-        logo.Margin = new Padding(12, 4, 0, 2);
+        var logo = StyledText("✦  CP BOOST", 21, true, Accent);
+        logo.Margin = new Padding(12, 12, 0, 5);
         _nav.Controls.Add(logo);
-        var division = StyledText("MONITOR  •  FH3", 10, true, Muted);
+        var division = StyledText("E X E C U T I V E   C O N T R O L", 8, true, Muted);
         division.Margin = new Padding(12, 0, 0, 28);
         _nav.Controls.Add(division);
         foreach (var name in new[] { "Dashboard", "Order Baru", "Tugas Aktif", "Karyawan", "Riwayat", "Pengaturan" })
@@ -122,20 +122,29 @@ public sealed class MainForm : Form
             _navigation[name] = button;
             button.Click += (_, _) => ShowPage(name);
         }
-        var account = StyledText("●  Payroll Website", 10, false, Success);
-        account.Margin = new Padding(12, 34, 0, 3);
+        var account = StyledText("●  PAYROLL  /  FH3", 10, true, Success);
+        account.Margin = new Padding(12, 32, 0, 4);
         _nav.Controls.Add(account);
         _connection.Text = "Login belum aktif";
         _connection.Margin = new Padding(12, 0, 0, 0);
         _nav.Controls.Add(_connection);
 
-        var header = new Panel { Dock = DockStyle.Top, Height = 108, Padding = new Padding(26, 17, 26, 6), BackColor = Background };
+        var header = new Panel { Dock = DockStyle.Top, Height = 128,
+            Padding = new Padding(26, 14, 26, 6), BackColor = Background };
+        var breadcrumb = StyledText("COMEPLAYERS   /   FH3 OPERATIONS CENTER", 9, true, Accent);
+        breadcrumb.Location = new Point(27, 12);
+        header.Controls.Add(breadcrumb);
         _headline.Text = "Dashboard FH3";
-        _headline.Location = new Point(27, 15);
+        _headline.Font = new Font("Segoe UI", 23, FontStyle.Bold);
+        _headline.Location = new Point(27, 37);
         header.Controls.Add(_headline);
-        _metrics.Location = new Point(29, 60);
-        _metrics.Text = "Order langsung dari Payroll Website  •  Telegram: EVO Ilham FH3";
+        _metrics.Location = new Point(29, 96);
+        _metrics.Text = "Order dari Payroll Website  •  Telegram: EVO Ilham FH3";
         header.Controls.Add(_metrics);
+        header.Paint += (_, e) => {
+            using var pen = new Pen(Color.FromArgb(91, 73, 48), 1);
+            e.Graphics.DrawLine(pen, 27, header.Height - 1, header.Width - 28, header.Height - 1);
+        };
         var footer = new Panel { Dock = DockStyle.Bottom, Height = 36, Padding = new Padding(18, 0, 8, 0), BackColor = Sidebar };
         _appStatus.Text = "Siap. Screenshot dikirim hanya setelah tombol START/DONE dikonfirmasi.";
         footer.Controls.Add(_appStatus);
@@ -165,8 +174,9 @@ public sealed class MainForm : Form
         var page = ScrollingPage();
         var form = Card();
         form.Width = 610; form.Height = 365;
-        form.Controls.Add(MakeLabel("Hubungkan akun Payroll", 22, 24, 20, true, Fore));
-        form.Controls.Add(MakeLabel("Email dan password dipakai untuk masuk, tidak disimpan di PC.", 12, 24, 62, false, Muted));
+        form.Controls.Add(MakeLabel("SECURE ACCESS  /  FH3", 10, 24, 16, true, Accent));
+        form.Controls.Add(MakeLabel("Hubungkan akun Payroll", 22, 24, 43, true, Fore));
+        form.Controls.Add(MakeLabel("Identitas aman • Sesi terenkripsi pada perangkat", 11, 24, 80, false, Muted));
         _email.SetBounds(24, 108, 548, 38);
         FormatInput(_email, false);
         _email.PlaceholderText = "Email admin Payroll";
@@ -200,31 +210,64 @@ public sealed class MainForm : Form
     private Control BuildDashboard()
     {
         var page = ScrollingPage();
-        var summary = Card();
-        summary.Width = 860; summary.Height = 224;
-        summary.Controls.Add(MakeLabel("OPERASIONAL HARI INI", 11, 22, 18, true, Accent));
-        _pendingCount.SetBounds(23, 66, 780, 36);
-        _taskCount.SetBounds(23, 108, 780, 36);
-        _employeeCount.SetBounds(23, 150, 780, 36);
-        summary.Controls.Add(_pendingCount);
-        summary.Controls.Add(_taskCount);
-        summary.Controls.Add(_employeeCount);
-        page.Controls.Add(summary);
 
-        var panel = Card();
-        panel.Width = 860; panel.Height = 250;
-        panel.Controls.Add(MakeLabel("Alur kerja langsung", 16, 22, 17, true, Fore));
-        panel.Controls.Add(MakeLabel("1   Website Payroll menerima order → muncul di Order Baru.", 12, 22, 67));
-        panel.Controls.Add(MakeLabel("2   Pilih karyawan FH3 → penugasan tersimpan di website.", 12, 22, 103));
-        panel.Controls.Add(MakeLabel("3   START + Screenshot → foto ke Telegram, order menjadi in_progress.", 12, 22, 139));
-        panel.Controls.Add(MakeLabel("4   DONE + Screenshot → foto ke Telegram, order menjadi completed.", 12, 22, 175));
-        page.Controls.Add(panel);
+        var welcome = new LuxuryCard { Hero = true, Width = 864, Height = 154, Margin = new Padding(0, 0, 0, 18) };
+        welcome.Controls.Add(MakeLabel("●  LIVE  /  EXECUTIVE OVERVIEW", 11, 21, 18, true, Success));
+        welcome.Controls.Add(MakeLabel("Semua operasional FH3. Satu pusat kendali.", 19, 21, 49, true, Fore));
+        welcome.Controls.Add(MakeLabel("Penugasan langsung di Payroll  •  Bukti START/DONE dikirim ke 🔥 EVO🔥 Ilham FH3", 11, 21, 104, false, Muted));
+        page.Controls.Add(welcome);
 
-        var refresh = ActionButton("⟳ Segarkan seluruh data", true);
-        refresh.Width = 250; refresh.Height = 43;
+        var metrics = new FlowLayoutPanel
+        {
+            Width = 870, Height = 168, FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false, Margin = new Padding(0, 0, 0, 16), AutoScroll = true,
+            BackColor = Background,
+        };
+        metrics.Controls.Add(MetricCard("01 / NEW ORDERS", "Order Baru", _pendingCount, Accent));
+        metrics.Controls.Add(MetricCard("02 / IN PROGRESS", "Tugas Aktif", _taskCount, Success));
+        metrics.Controls.Add(MetricCard("03 / WORKFORCE", "Karyawan FH3", _employeeCount, Color.FromArgb(146, 183, 248)));
+        page.Controls.Add(metrics);
+
+        var actions = new LuxuryCard { Width = 864, Height = 166, Margin = new Padding(0, 0, 0, 18) };
+        actions.Controls.Add(MakeLabel("QUICK ACTIONS", 11, 21, 14, true, Accent));
+        actions.Controls.Add(MakeLabel("Mulai tugas dari daftar order atau cek hasil bukti Telegram.", 11, 21, 46, false, Muted));
+        var openOrders = ActionButton("▣  Lihat Order Baru", true);
+        openOrders.SetBounds(20, 91, 198, 44);
+        openOrders.Click += (_, _) => ShowPage("Order Baru");
+        actions.Controls.Add(openOrders);
+        var openTasks = ActionButton("▶  Kelola Tugas Aktif", false);
+        openTasks.SetBounds(227, 91, 220, 44);
+        openTasks.Click += (_, _) => ShowPage("Tugas Aktif");
+        actions.Controls.Add(openTasks);
+        var refresh = ActionButton("↻  Sinkronkan", false);
+        refresh.SetBounds(456, 91, 173, 44);
         refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
-        page.Controls.Add(refresh);
+        actions.Controls.Add(refresh);
+        page.Controls.Add(actions);
+
+        var info = new LuxuryCard { Width = 864, Height = 184 };
+        info.Controls.Add(MakeLabel("WORKFLOW  /  4 STEPS", 11, 21, 14, true, Accent));
+        info.Controls.Add(MakeLabel("01   Website menerima order → tampil di Order Baru", 11, 21, 51));
+        info.Controls.Add(MakeLabel("02   Pilih karyawan → penugasan disimpan secara atomik", 11, 21, 78));
+        info.Controls.Add(MakeLabel("03   START + Screenshot → Telegram dan status In Progress", 11, 21, 105));
+        info.Controls.Add(MakeLabel("04   DONE + Screenshot → Telegram dan status Completed", 11, 21, 132));
+        page.Controls.Add(info);
         return page;
+    }
+
+    private static Panel MetricCard(string eyebrow, string heading, Label number, Color tone)
+    {
+        var card = new LuxuryCard
+        {
+            Width = 271, Height = 156, Margin = new Padding(0, 0, 16, 0),
+        };
+        card.Controls.Add(MakeLabel(eyebrow, 9, 18, 14, true, tone));
+        card.Controls.Add(MakeLabel(heading, 11, 18, 44, false, Muted));
+        number.SetBounds(18, 74, 233, 59);
+        number.Font = new Font("Segoe UI", 31, FontStyle.Bold);
+        number.ForeColor = tone;
+        card.Controls.Add(number);
+        return card;
     }
 
     private Control BuildOrders()
@@ -522,9 +565,9 @@ public sealed class MainForm : Form
                 e.Code.Equals(selectedWorker, StringComparison.OrdinalIgnoreCase));
             if (previous != null) _workerPicker.SelectedItem = previous;
         }
-        _pendingCount.Text = $"📦  {_pending.Count} order baru menunggu karyawan";
-        _taskCount.Text = $"▶  {_tasks.Count} tugas aktif di website";
-        _employeeCount.Text = $"♟  {_employees.Count} karyawan FH3 aktif";
+        _pendingCount.Text = _pending.Count.ToString();
+        _taskCount.Text = _tasks.Count.ToString();
+        _employeeCount.Text = _employees.Count.ToString();
         var history = _statusStore.History;
         _history.Text = history.Count == 0 ? "Belum ada perubahan status boosting pada PC ini."
             : string.Join(Environment.NewLine, history.Select(x =>
@@ -616,10 +659,10 @@ public sealed class MainForm : Form
         FlowDirection = FlowDirection.TopDown, WrapContents = false, BackColor = Background,
     };
 
-    private static Panel Card() => new()
+    private static Panel Card() => new LuxuryCard
     {
         BackColor = PanelColor, Margin = new Padding(0, 0, 0, 22),
-        Padding = new Padding(12), BorderStyle = BorderStyle.FixedSingle,
+        Padding = new Padding(16),
     };
 
     private static Label StyledText(string content, float fontSize, bool bold = false, Color? color = null) => new()
@@ -644,27 +687,25 @@ public sealed class MainForm : Form
         return label;
     }
 
-    private static Button NavButton(string title) => new()
+    private static Button NavButton(string title) => new LuxuryButton
     {
-        Text = "  ▸  " + title, Width = 195, Height = 47,
-        Margin = new Padding(5, 2, 4, 5),
-        FlatStyle = FlatStyle.Flat, FlatAppearance = { BorderSize = 0 },
-        TextAlign = ContentAlignment.MiddleLeft, BackColor = Sidebar,
-        ForeColor = Fore, Cursor = Cursors.Hand, Font = new Font("Segoe UI", 10, FontStyle.Bold),
+        Navigation = true, Text = "    ▸  " + title, Width = 198, Height = 49,
+        Margin = new Padding(4, 2, 4, 5),
+        BackColor = Sidebar, ForeColor = Fore,
+        TextAlign = ContentAlignment.MiddleLeft,
     };
 
     private static Button ActionButton(string label, bool primary)
     {
-        var btn = new Button
+        return new LuxuryButton
         {
-            Text = label, AutoSize = false, Height = 39,
-            Width = Math.Max(144, label.Length * 8 + 26),
-            FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand,
-            BackColor = primary ? Accent : PanelColor, ForeColor = primary ? Background : Fore,
-            Font = new Font("Segoe UI", 9.5f, FontStyle.Bold), Margin = new Padding(5, 4, 9, 4),
+            Primary = primary, Text = label, Height = 43,
+            Width = Math.Max(152, label.Length * 8 + 28),
+            BackColor = primary ? Accent : LuxuryPalette.SurfaceRaised,
+            ForeColor = primary ? Background : Fore,
+            Font = new Font("Segoe UI Semibold", 10f, FontStyle.Bold),
+            Margin = new Padding(5, 4, 9, 4),
         };
-        btn.FlatAppearance.BorderColor = primary ? Accent : PanelLine;
-        return btn;
     }
 
     private static void FormatInput(TextBox input, bool password)
@@ -688,6 +729,8 @@ public sealed class MainForm : Form
             ColumnHeadersHeight = 48, RowTemplate = { Height = 42 },
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
         };
+        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(28, 41, 60);
+        grid.AlternatingRowsDefaultCellStyle.ForeColor = Fore;
         grid.DefaultCellStyle.BackColor = PanelColor;
         grid.DefaultCellStyle.ForeColor = Fore;
         grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(65, 89, 120);
@@ -697,7 +740,16 @@ public sealed class MainForm : Form
         grid.ColumnHeadersDefaultCellStyle.BackColor = Sidebar;
         grid.ColumnHeadersDefaultCellStyle.ForeColor = Accent;
         grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-        grid.RowTemplate.Height = 42;
+        grid.RowTemplate.Height = 47;
+        grid.CellFormatting += (_, e) => {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            var column = grid.Columns[e.ColumnIndex].DataPropertyName;
+            if (column != "Status" && column != "DisplayLocalStatus") return;
+            var status = e.Value?.ToString()?.ToLowerInvariant() ?? "";
+            e.CellStyle.ForeColor = status.Contains("progress") || status.Contains("bekerja") ||
+                status.Contains("ready") ? Success : Accent;
+            e.CellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
+        };
         return grid;
     }
 
