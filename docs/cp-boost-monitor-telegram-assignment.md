@@ -1,30 +1,40 @@
-# Penugasan Telegram melalui CP Boost Monitor (FH3)
+# CP Boost Monitor: order langsung dari Payroll Website (FH3)
 
-## Alur
-1. Order **Boosting/Item** FH3 yang baru dibuat di Payroll (manual / Sheet) diproses oleh trigger Telegram yang sudah ada.
-2. Ketika order masih berstatus `waiting`, admin dapat membuka **Order Baru** di CP Boost Monitor Android untuk melihat Order, nama pesanan, Game, Buyer, dan TASK.
-3. Admin memilih satu karyawan FH3 aktif melalui dialog konfirmasi. **Satu karyawan aktif per order** sesuai unique active assignment di Telegram Payroll.
-4. `POST /api/admin/payroll/mobile/assign` menggunakan akun Payroll admin yang sedang login. RPC `cp_mobile_assign_fh3` mengunci workspace/order, menolak order yang sudah mulai, mencatat histori audit aktor, dan menulis karyawan ke workspace Payroll serta assignment Telegram **dalam satu transaksi**.
-5. Website Pesanan/Mutasi melihat revisi dan penugasan baru. Order keluar dari antrean Android setelah refresh, tugas tampil pada kartu karyawan pada sinkronisasi berikutnya. Bot memperbarui **pesan order Telegram yang sama** lewat outbox dan cron yang sudah ada.
+## Alur baru (tanpa bot Telegram)
+1. Order Boosting/Item FH3 masuk Payroll Website melalui input manual atau sinkronisasi Google Sheets yang sudah ada.
+2. Selama order masih belum memiliki pekerja, belum selesai/diarsipkan, dan tidak ditandai perlu review, order langsung tersedia di endpoint `GET /api/admin/payroll/mobile/pending`. Tidak diperlukan tabel Telegram, akun leader, atau bot.
+3. CP Boost Monitor Android membuka tab **Order Baru**, menyegarkan antrean sekitar setiap 30 detik selama halaman terbuka, dan menampilkan kode order, nama order, game, buyer, dan TASK.
+4. Admin memilih karyawan FH3 yang aktif dan menyetujui penugasan.
+5. `POST /api/admin/payroll/mobile/assign` memvalidasi token admin Payroll dan memanggil `cp_mobile_assign_fh3`. Transaksi mengunci satu row workspace, memvalidasi state/employee lagi, menyimpan `workerAssignments`, `employeeCode`, `employeeName`, `assignmentMode=direct`, dan `operationalStatus=assigned`, menambah revision, dan mencatat aktor ke audit.
+6. Order hilang dari antrean, lalu muncul pada kartu karyawan setelah sync berikutnya. Website Pesanan/Mutasi membaca assignment yang sama.
 
-## Endpoint
-- `GET /api/admin/payroll/mobile/pending`: khusus website admin, scope FH3, hanya order Boosting/Item `waiting`, tanpa uang, token Telegram, atau spreadsheet.
-- `POST /api/admin/payroll/mobile/assign`: khusus admin, JSON `{"orderRef":"X1234","employeeCode":"EMP001"}`. Server mengambil actor ID dari token login, tidak dari payload. Balasan konflik 409 meminta reload bila order sudah diambil orang lain.
-- Keduanya memerlukan autentikasi yang sama dengan aplikasi Payroll dan memakai `Cache-Control: no-store`.
+## Endpoint admin
+- `GET /api/admin/payroll/mobile/pending`: langsung dari `cp_payroll_workspace.payload[orders]`; JSON `{schema:2,source:"payroll",scope:"FH3",revision,pending:[...]}`.
+- `POST /api/admin/payroll/mobile/assign`: JSON `{"orderRef":"X1234","employeeCode":"EMP001"}`; admin ID diambil dari sesi login, bukan dari klien. Jika orang lain sudah menugaskan pekerja berbeda, akan gagal 409 dan user diminta refresh.
+- `GET /api/admin/payroll/mobile/tasks`: kartu tugas yang sudah ditugaskan berasal langsung dari Payroll workspace, bukan dari Telegram.
+- `GET /api/admin/payroll/mobile/roster`: roster FH3 dari Payroll seperti semula.
+- Data gaji, gaji bersih, kasbon, token bot Telegram, dan isi spreadsheet mentah tidak dikirim ke APK.
 
-## Keamanan dan batasan
-- Tidak ada service role, token bot, atau password di APK. API server memeriksa akses admin untuk setiap permintaan.
-- Aplikasi **tidak** mengedit status kerja Payroll melalui fitur lokal Ready / Farming / Tidur / Sedang Bekerja.
-- **Bukan push real-time**: antrean Order Baru diperiksa setiap ±30 detik saat halaman itu terbuka; roster/tugas disinkronkan ±2 menit ketika aplikasi aktif, atau lewat tombol refresh. Assignment tersimpan segera setelah server menerima request; kartu Telegram diperbarui oleh outbox worker.
-- Penugasan melalui Android saat ini hanya order baru FH3 jenis Boosting/Item dan **satu karyawan**. Gold, multiple active workers, penggantian karyawan yang sedang mengerjakan, serta FH1/FH2 memerlukan perluasan workflow terpisah.
-- Order berstatus started/paused/done/verified, ditutup, dibatalkan, atau diarsipkan tidak dapat ditugaskan melalui Android.
-- Perubahan website dan Android harus dideploy bersama migrasi `20261019220000_cp_boost_monitor_mobile_assignment.sql`. Jangan aktifkan tombol Android sebelum migrasi sukses.
-- Build ulang APK Android dan periksa signing/signature sebelum distribusi. File `website/public/downloads/cp-boost-monitor.apk` dalam repository tidak otomatis berubah hanya karena source Java berubah.
+## Batasan desain
+- Rilis ini khusus **FH3**, jenis order **Boosting/Item**, satu karyawan per order, serta order satu kali (non-DAY). Gold, FH1/FH2, order harian DAY, dan pembagian ke beberapa karyawan memerlukan versi lanjutan.
+- Antrean menerima status `draft`, `confirmed`, atau `assignment_pending` selama tidak dalam review dan belum ditugaskan.
+- Status Ready/Farming/Tidur/Bekerja tetap dikelola lokal dan tidak menjadi status resmi `operationalStatus` Payroll.
+- Belum menggunakan Android push notification saat aplikasi tidak aktif. Tab Order Baru poll sekitar 30 detik; roster/tugas setiap ±2 menit selama aplikasi aktif atau manual refresh.
+- Admin yang berbeda tidak dapat menimpa assignment yang sudah tersimpan. Repeated submit untuk pekerja sama dijawab sukses tanpa membuat penugasan duplikat.
+- Sinkronisasi Sheet mempertahankan pilihan worker dari aplikasi selama kolom BOOSTER sumber kosong; worker yang eksplisit ditentukan Sheet tetap mengambil prioritas pada import berikutnya.
 
-## Uji sebelum produksi
-1. Jalankan migrasi pada database staging, lalu tes route dan uji simultan dua admin pada order yang sama.
-2. Pastikan user payroll non-admin ditolak (403), request tanpa sesi ditolak (401), dan konflik menghasilkan 409.
-3. Buat satu order Boosting FH3 `waiting`; pilih pekerja dari APK lalu periksa `cp_payroll_telegram_assignments`, `cp_mobile_assignment_audit`, dan tampilan Pesanan/Mutasi.
-4. Pastikan satu pesan Telegram di-update (bukan muncul pesan order ganda) setelah cron berjalan.
-5. Verifikasi bahwa status lokal karyawan dan riwayat SQLite tidak hilang, serta tugas karyawan muncul setelah sync.
-6. Uji item, order diarsipkan, resign, assignment bersamaan, logout/token kedaluwarsa, dan koneksi internet putus.
+## Migrasi, kompatibilitas, dan Telegram lama
+1. Jalankan `20261019220000_cp_boost_monitor_mobile_assignment.sql` untuk assignment langsung dan audit.
+2. Jalankan `20261019220001_cp_boost_monitor_direct_fh3_routing.sql` untuk mencegah dispatch Telegram **baru** pada Boosting/Item FH3. Pending unsent Telegram notices untuk order FH3 yang belum dimulai dibatalkan. Pekerjaan Telegram lama yang sudah `in_progress` dipertahankan hingga selesai, dan divisi lain maupun Gold tetap memakai workflow lamanya.
+3. Deploy website API, kemudian install APK Android versi 1.4.0. Jangan gunakan APK baru jika migrasi belum diterapkan.
+4. Workflow GitHub Actions menghasilkan APK debug internal. APK yang diunduh dari website hanya berubah setelah build dari main dan publish berhasil. Jangan mengasumsikan APK produksi otomatis terbarui dari PR.
+
+## Checklist pengujian
+- [ ] Unit test endpoint, database PGlite dan typecheck: `npx tsx --test tests/payroll-mobile-assignment*.test.ts` serta `npm run typecheck`.
+- [ ] Sinkronisasi order baru manual dan dari Sheet muncul di tab Android tanpa Telegram.
+- [ ] Admin memilih karyawan aktif; assignment muncul di website dan kartu karyawan di APK.
+- [ ] Dua admin memilih berbeda bersamaan; hanya pemenang pertama berhasil, lainnya konflik.
+- [ ] Refresh Sheet dengan booster kosong mempertahankan assignment mobile.
+- [ ] Order verify/closed/archived/review/resign/daily dan akun non-admin ditolak.
+- [ ] Uji Android fisik, keystore/upgrade APK, logout, token kedaluwarsa dan internet putus.
+- [ ] Yakinkan order baru FH3 tidak mengirim pesan Telegram, dan workflow lama lintas divisi tidak rusak.
