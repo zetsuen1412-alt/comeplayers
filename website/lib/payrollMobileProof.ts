@@ -5,6 +5,44 @@ export class MobileTelegramError extends Error {
   constructor(message: string, readonly outcome: "failed" | "unknown") { super(message); }
 }
 
+/**
+ * The screenshot names the target group, but never reveals its numeric Telegram chat ID.
+ * A Telegram admin must bind the real group via /bind FH3. Validate the real live
+ * group from Telegram (not an untrusted cached DB display label) on every upload.
+ * Canonical comparison tolerates emojis and spacing: "🔥 EVO🔥 Ilham FH3".
+ */
+export const FH3_PROOF_GROUP = "EVO Ilham FH3";
+export const normalizeTelegramGroupTitle = (name: string) =>
+  name.normalize("NFKC").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+export async function verifyFH3ProofGroup(chatId: number): Promise<string> {
+  if (!Number.isSafeInteger(chatId) || chatId >= 0)
+    throw new MobileTelegramError("Tujuan FH3 masih berupa chat pribadi. Hubungkan grup 🔥 EVO🔥 Ilham FH3 lewat /bind FH3.", "failed");
+  const token = String(process.env.TELEGRAM_BOT_TOKEN ?? "").trim();
+  if (token.length < 20)
+    throw new MobileTelegramError("Bot Telegram belum dikonfigurasi di server.", "failed");
+  let response: Response;
+  try {
+    response = await fetch("https://api.telegram.org/bot" + token + "/getChat", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId }), cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    throw new MobileTelegramError("Grup Telegram belum dapat diverifikasi. Foto belum dikirim.", "failed");
+  }
+  let payload: { ok?: boolean; result?: { id?: number; type?: string; title?: string } };
+  try { payload = await response.json(); }
+  catch { throw new MobileTelegramError("Respons pemeriksaan grup Telegram tidak valid.", "failed"); }
+  if (!response.ok || !payload.ok || !payload.result)
+    throw new MobileTelegramError("Bot belum bisa mengakses grup FH3. Tambahkan bot dan hubungkan grup lewat /bind FH3.", "failed");
+  const { id, type, title } = payload.result;
+  if (id !== chatId || (type !== "group" && type !== "supergroup")
+    || !title || normalizeTelegramGroupTitle(title) !== normalizeTelegramGroupTitle(FH3_PROOF_GROUP))
+    throw new MobileTelegramError("Grup FH3 terhubung bukan 🔥 EVO🔥 Ilham FH3. Foto tidak dikirim ke grup lain.", "failed");
+  return title;
+}
+
 export function isSupportedProofImage(bytes: Uint8Array, mime: string) {
   if (mime === "image/jpeg")
     return bytes.length >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8
