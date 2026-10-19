@@ -5,8 +5,12 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +21,8 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -40,11 +46,14 @@ import java.util.Locale;
 
 /** CP Boost Monitor: status lokal, identitas karyawan dari payroll website. */
 public final class MainActivity extends Activity {
-    private static final int INK = Color.rgb(17, 24, 39);
-    private static final int SUB = Color.rgb(107, 114, 128);
-    private static final int BG = Color.rgb(247, 248, 252);
-    private static final int PURPLE = Color.rgb(79, 70, 229);
-    private static final int BORDER = Color.rgb(229, 231, 235);
+    // Shared Executive Dark Luxury identity for Android and Windows.
+    private static final int INK = 0xfff8fafc;
+    private static final int SUB = 0xffaab9cd;
+    private static final int BG = 0xff0b101a;
+    private static final int PURPLE = 0xffd4af37; // Legacy symbol, now champagne gold
+    private static final int BORDER = 0xff34445c;
+    private static final int CARD = 0xff192437;
+    private static final int NAV_BG = 0xff111a2a;
     private static final int WHITE = Color.WHITE;
     private static final String[] STATUS = {EmployeeDb.READY, EmployeeDb.IDLE, EmployeeDb.SLEEP, EmployeeDb.WORK};
     private static final String[] STATUS_LABEL = {"Ready Boosting", "Farming", "Tidur", "Sedang Bekerja"};
@@ -246,6 +255,20 @@ public final class MainActivity extends Activity {
     private GradientDrawable shape(int color, int radius) {
         GradientDrawable d = new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp(radius)); return d;
     }
+    private GradientDrawable outline(int color, int radius, int stroke) {
+        GradientDrawable d = shape(color, radius); d.setStroke(dp(1), stroke); return d;
+    }
+    private GradientDrawable hero() {
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[] { 0xff27364e, 0xff172238, 0xff111b2d });
+        d.setCornerRadius(dp(22)); d.setStroke(dp(1), 0xff465271); return d;
+    }
+    private TextView pill(String label, int foreground, int background) {
+        TextView labelView = text(label, 11, foreground, true);
+        labelView.setBackground(outline(background, 24, 0xff40506b));
+        labelView.setPadding(dp(11), dp(7), dp(11), dp(7));
+        return labelView;
+    }
     private LinearLayout vertical() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); return l; }
     private LinearLayout horizontal() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); l.setGravity(Gravity.CENTER_VERTICAL); return l; }
     private TextView text(String s, int size, int color, boolean bold) {
@@ -256,19 +279,25 @@ public final class MainActivity extends Activity {
     private LinearLayout.LayoutParams lp(int width, int height) { return new LinearLayout.LayoutParams(width == -1 ? -1 : dp(width), height == -1 || height == -2 ? height : dp(height)); }
     private void space(LinearLayout parent, int height) { View v = new View(this); parent.addView(v, lp(1, height)); }
     private LinearLayout panel() {
-        LinearLayout p = vertical(); p.setBackground(shape(WHITE, 17)); pad(p, 16, 15);
-        p.setElevation(dp(2)); return p;
+        LinearLayout p = vertical(); p.setBackground(outline(CARD, 20, BORDER)); pad(p, 17, 17);
+        p.setElevation(dp(3)); return p;
     }
     private Button button(String label, boolean primary) {
-        Button b = new Button(this); b.setAllCaps(false); b.setText(label); b.setTextSize(13);
-        b.setTextColor(primary ? WHITE : INK); b.setBackground(shape(primary ? PURPLE : 0xffeef2ff, 12));
-        b.setMinHeight(dp(42)); b.setMinimumHeight(dp(42)); b.setPadding(dp(12), 0, dp(12), 0);
-        return b;
+        Button btn = new Button(this); btn.setAllCaps(false); btn.setText(label); btn.setTextSize(13);
+        btn.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        btn.setLetterSpacing(.012f);
+        btn.setTextColor(primary ? BG : INK);
+        GradientDrawable fill = outline(primary ? PURPLE : 0xff243247, 14,
+                primary ? 0xfff3d77b : 0xff40506a);
+        btn.setBackground(new RippleDrawable(ColorStateList.valueOf(primary ? 0x447b611c : 0x5590a7c2), fill, null));
+        btn.setMinHeight(dp(45)); btn.setMinimumHeight(dp(45)); btn.setPadding(dp(13), 0, dp(13), 0);
+        return btn;
     }
     private EditText input(String hint, String value) {
         EditText e = new EditText(this); e.setSingleLine(true); e.setTextSize(15); e.setTextColor(INK);
-        e.setHint(hint); e.setText(value); e.setSelectAllOnFocus(false);
-        e.setPadding(dp(9), dp(11), dp(9), dp(11)); return e;
+        e.setHintTextColor(SUB); e.setHint(hint); e.setText(value); e.setSelectAllOnFocus(false);
+        e.setBackground(outline(0xff202d42, 14, BORDER));
+        e.setPadding(dp(15), dp(13), dp(15), dp(13)); return e;
     }
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }
     private String trim(EditText e) { return e.getText().toString().trim(); }
@@ -276,27 +305,42 @@ public final class MainActivity extends Activity {
     private void render() {
         root = vertical(); root.setBackgroundColor(BG);
         setContentView(root);
-        LinearLayout header = vertical(); header.setBackgroundColor(INK);
-        header.setPadding(dp(19), dp(19), dp(19), dp(17));
-        header.addView(text("CP  /  BOOST MONITOR", 20, WHITE, true));
-        space(header, 4);
-        header.addView(text("Pantau kesiapan tim boosting", 12, 0xffc7d2fe, false));
+        LinearLayout header = vertical();
+        header.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{0xff1b2a40, 0xff0d1728}));
+        header.setPadding(dp(20), dp(17), dp(20), dp(17));
+        LinearLayout brand = horizontal();
+        TextView symbol = pill("✦  CP", PURPLE, 0xff26334b);
+        brand.addView(symbol);
+        View gap = new View(this); brand.addView(gap, lp(10, 1));
+        brand.addView(text("BOOST MONITOR", 18, INK, true),
+                new LinearLayout.LayoutParams(0, -2, 1));
+        brand.addView(pill(linked() ? "● LIVE FH3" : "○ OFFLINE",
+                linked() ? 0xff6ee7b7 : SUB, 0xff192b38));
+        header.addView(brand); space(header, 8);
+        header.addView(text("EXECUTIVE OPERATIONS  /  PAYROLL CONTROL", 10, SUB, true));
         root.addView(header, lp(-1, -2));
-        // Selalu gunakan roster payroll, jangan tampilkan angka nol mode lokal tanpa login.
+        View line = new View(this); line.setBackgroundColor(0xff927629);
+        root.addView(line, lp(-1, 1));
         if (!linked()) {
-            LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
-            gate.addView(text("Hubungkan Karyawan Payroll", 23, INK, true));
-            space(gate, 12);
-            gate.addView(text("Hanya nama karyawan FH3 dari Payroll → Karyawan. Divisi lain dibersihkan dari APK.", 14, SUB, false));
-            space(gate, 14);
-            gate.addView(text("Login sekali dengan akun yang memiliki izin Payroll. Data diambil saat login, lalu diperbarui tiap 2 menit selama APK aktif.", 13, SUB, false));
-            space(gate, 20);
-            Button login = button("Login & Ambil Karyawan dari Website", true);
-            gate.addView(login, lp(-1, 55));
-            login.setOnClickListener(v -> loginDialog()); root.addView(gate); return;
+            ScrollView gateScroll = new ScrollView(this);
+            LinearLayout gate = vertical(); gate.setPadding(dp(21), dp(32), dp(21), dp(25));
+            LinearLayout hero = panel(); hero.setBackground(hero());
+            hero.addView(pill("SECURE ACCESS", PURPLE, 0xff283246)); space(hero, 18);
+            hero.addView(text("Selamat datang di\\nCP Boost Monitor", 26, INK, true));
+            space(hero, 10);
+            hero.addView(text("Pusat kendali order, karyawan, dan bukti pekerjaan FH3. Login menggunakan akun Payroll ComePlayers.", 14, SUB, false));
+            space(hero, 23);
+            Button login = button("Masuk ke Dashboard  →", true);
+            hero.addView(login, lp(-1, 51));
+            login.setOnClickListener(v -> loginDialog());
+            gate.addView(hero); space(gate, 16);
+            gate.addView(text("Koneksi terenkripsi • Status kerja disimpan pada perangkat • Telegram melalui backend website", 12, SUB, false));
+            gateScroll.addView(gate); root.addView(gateScroll, new LinearLayout.LayoutParams(-1, 0, 1));
+            return;
         }
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
-        body = vertical(); body.setPadding(dp(15), dp(18), dp(15), dp(22));
+        body = vertical(); body.setPadding(dp(17), dp(21), dp(17), dp(25));
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("Dashboard".equals(page)) dashboard();
         else if ("Order Baru".equals(page)) ordersPage();
@@ -308,29 +352,40 @@ public final class MainActivity extends Activity {
     }
 
     private void navigation() {
-        LinearLayout nav = horizontal(); nav.setBackgroundColor(WHITE);
+        HorizontalScrollView bar = new HorizontalScrollView(this);
+        bar.setHorizontalScrollBarEnabled(false); bar.setFillViewport(true);
+        bar.setBackgroundColor(NAV_BG);
+        LinearLayout nav = horizontal(); nav.setPadding(dp(7), dp(7), dp(7), dp(5));
         String[] pages = {"Dashboard", "Order Baru", "Tugas", "Karyawan", "Riwayat", "Pengaturan"};
-        String[] symbols = {"▦", "✉", "▶", "♙", "◷", "⚙"};
+        String[] symbols = {"◈", "▣", "▶", "♙", "◷", "⚙"};
         for (int i = 0; i < pages.length; i++) {
-            final String dest = pages[i];
-            TextView t = text(symbols[i] + "\n" + dest, 11, page.equals(dest) ? PURPLE : SUB, page.equals(dest));
-            t.setGravity(Gravity.CENTER); t.setPadding(0, dp(11), 0, dp(11));
-            nav.addView(t, new LinearLayout.LayoutParams(0, dp(62), 1));
-            t.setOnClickListener(v -> {
-                page = dest;
-                if (!"Riwayat".equals(dest)) historyEmployee = 0;
+            final String dest = pages[i]; boolean selected = page.equals(dest);
+            LinearLayout item = vertical(); item.setGravity(Gravity.CENTER);
+            item.setBackground(outline(selected ? 0xff27364b : NAV_BG, 12,
+                    selected ? 0xff796a3c : NAV_BG));
+            TextView sym = text(symbols[i], 19, selected ? PURPLE : SUB, selected);
+            sym.setGravity(Gravity.CENTER);
+            item.addView(sym);
+            TextView label = text(dest, 10, selected ? INK : SUB, selected);
+            label.setGravity(Gravity.CENTER); item.addView(label);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(76), dp(57));
+            params.setMargins(dp(2), 0, dp(2), 0);
+            nav.addView(item, params);
+            item.setOnClickListener(v -> {
+                page = dest; if (!"Riwayat".equals(dest)) historyEmployee = 0;
                 render();
                 if ("Order Baru".equals(dest)) loadPendingOrders(false);
                 if ("Tugas".equals(dest)) loadActiveTasks(false);
             });
         }
-        root.addView(nav, lp(-1, -2));
+        bar.addView(nav); root.addView(bar, lp(-1, 71));
     }
 
     private void heading(String title, String sub) {
-        body.addView(text(title, 23, INK, true));
-        if (!sub.isEmpty()) { space(body, 5); body.addView(text(sub, 13, SUB, false)); }
-        space(body, 17);
+        body.addView(text("FH3  /  OPERATIONAL CONTROL", 10, PURPLE, true)); space(body, 7);
+        body.addView(text(title, 25, INK, true));
+        if (!sub.isEmpty()) { space(body, 7); body.addView(text(sub, 13, SUB, false)); }
+        space(body, 20);
     }
 
     private void dashboard() {
