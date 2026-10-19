@@ -57,7 +57,7 @@ begin
     or nullif(item->>'verifiedAt','') is not null
     or nullif(item->>'payrollClosedAt','') is not null
     or nullif(item->>'payrollPeriodId','') is not null
-    or item->>'financeStatus'='closed' then
+    or item->>'financeStatus' in ('verified','reconciled','ready_to_close','closed') then
     raise exception 'Order tidak memenuhi syarat pengiriman bukti.';
   end if;
   select value into worker from jsonb_array_elements(coalesce(w->'cp-ofs-demo-employees-v2','[]'::jsonb))
@@ -77,6 +77,11 @@ begin
   select * into dest from public.cp_payroll_telegram_divisions
     where division='FH3' and active for share;
   if dest.chat_id is null then raise exception 'Grup Telegram FH3 belum dikonfigurasi di website.'; end if;
+  if p_action='done' and exists (
+    select 1 from public.cp_mobile_order_proof initial
+    where initial.order_ref=ref and initial.action='start' and initial.status='sent'
+      and initial.chat_id<>dest.chat_id
+  ) then raise exception 'Grup FH3 berubah sejak START. Kembalikan konfigurasi grup atau rekonsiliasi admin.'; end if;
   slug:=regexp_replace(lower(btrim(worker->>'name')),'[^a-z0-9]+','-','g');
   slug:=btrim(slug,'-');
   if slug='' then raise exception 'Nama karyawan tidak valid untuk caption.'; end if;
@@ -96,9 +101,13 @@ begin
     insert into public.cp_mobile_order_proof
       (order_ref,employee_code,action,actor_id,chat_id,chat_title,caption,reply_to_message_id)
       values(ref,code,p_action,p_actor_id,dest.chat_id,dest.chat_title,caption,
-        (select chats.message_id from public.cp_payroll_telegram_order_chats chats
-          where chats.order_ref=ref and chats.division='FH3'
-            and chats.chat_id=dest.chat_id limit 1))
+        coalesce(
+          (select chats.message_id from public.cp_payroll_telegram_order_chats chats
+            where chats.order_ref=ref and chats.division='FH3'
+              and chats.chat_id=dest.chat_id limit 1),
+          (select evidence.telegram_message_id from public.cp_mobile_order_proof evidence
+            where p_action='done' and evidence.order_ref=ref and evidence.action='start'
+              and evidence.status='sent' and evidence.chat_id=dest.chat_id limit 1)))
       returning * into r;
   else
     update public.cp_mobile_order_proof
