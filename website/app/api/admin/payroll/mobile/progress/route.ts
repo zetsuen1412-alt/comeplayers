@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     for (const chunk of chunks) { raw.set(chunk, index); index += chunk.byteLength; }
     const parsed = await new Request(request.url, {
       method: "POST", headers: { "Content-Type": request.headers.get("content-type")! },
-      body: raw,
+      body: raw as unknown as BodyInit,
     }).formData();
     const ref = parsed.get("orderRef");
     const code = parsed.get("employeeCode");
