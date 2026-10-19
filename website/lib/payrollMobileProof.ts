@@ -15,7 +15,7 @@ export function isSupportedProofImage(bytes: Uint8Array, mime: string) {
 }
 
 export async function sendMobileProofPhoto(input: {
-  chatId: number; caption: string; bytes: Uint8Array; mime: string;
+  chatId: number; caption: string; bytes: Uint8Array; mime: string; replyToMessageId?: number;
 }): Promise<{ messageId: number; fileId: string }> {
   const token = String(process.env.TELEGRAM_BOT_TOKEN ?? "").trim();
   if (token.length < 20) throw new MobileTelegramError("Bot Telegram belum dikonfigurasi di server.", "failed");
@@ -24,6 +24,8 @@ export async function sendMobileProofPhoto(input: {
   const form = new FormData();
   form.set("chat_id", String(input.chatId));
   form.set("caption", input.caption);
+  if (input.replyToMessageId && Number.isSafeInteger(input.replyToMessageId))
+    form.set("reply_parameters", JSON.stringify({ message_id: input.replyToMessageId, allow_sending_without_reply: true }));
   // Buffer.from yields a concrete ArrayBuffer-backed copy accepted by Node Blob.
   form.set("photo", new Blob([Buffer.from(input.bytes)], { type: input.mime }),
     input.mime === "image/png" ? "evidence.png" : "evidence.jpg");
