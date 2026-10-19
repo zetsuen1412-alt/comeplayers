@@ -132,14 +132,13 @@ public sealed class MainForm : Form
         _metrics.Location = new Point(29, 60);
         _metrics.Text = "Order langsung dari Payroll Website  •  Telegram: EVO Ilham FH3";
         header.Controls.Add(_metrics);
-        _content.Controls.Add(header);
         var footer = new Panel { Dock = DockStyle.Bottom, Height = 36, Padding = new Padding(18, 0, 8, 0), BackColor = Sidebar };
         _appStatus.Text = "Siap. Screenshot dikirim hanya setelah tombol START/DONE dikonfirmasi.";
         footer.Controls.Add(_appStatus);
-        _content.Controls.Add(footer);
         var area = new Panel { Dock = DockStyle.Fill, BackColor = Background };
         _content.Controls.Add(area);
-        area.BringToFront();
+        _content.Controls.Add(footer);
+        _content.Controls.Add(header);
 
         _pages["Login"] = BuildLogin();
         _pages["Dashboard"] = BuildDashboard();
