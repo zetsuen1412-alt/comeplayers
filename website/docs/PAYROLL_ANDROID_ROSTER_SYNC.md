@@ -13,7 +13,7 @@
 Semua API memvalidasi sesi & izin Payroll; aksi penugasan hanya untuk role admin. Access/refresh token disimpan terenkripsi dalam Android Keystore. Jangan menanam Supabase service-role key atau token bot dalam APK. Tidak ada payroll amounts, gaji, kasbon, dan spreadsheet mentah yang dibuka untuk Android.
 
 ## Perilaku dan deployment
-Tab Order Baru memeriksa ulang setiap ±30 detik saat terlihat. Roster/tugas diperbarui ketika app dibuka, tiap ±2 menit ketika aktif, dan manual. Penugasan segera disimpan di website setelah API sukses. Ini polling, bukan push notification Android.
+Jumlah antrean terlihat pada Dashboard dan diperbarui tiap ±30 detik selama aplikasi aktif. Roster/tugas diperbarui ketika app dibuka, tiap ±2 menit ketika aktif, dan manual. Penugasan segera disimpan di website setelah API sukses. Ini polling, bukan push notification Android.
 
 Server menolak assignment jika order telah ditugaskan, selesai, dibatalkan, ditutup, diarsipkan, perlu review, atau bersifat harian; dan menolak pekerja tidak aktif. Karyawan lain dalam divisi selain FH3 tidak ditampilkan. Status boosting dan historinya di SQLite tidak disinkronkan balik ke Payroll.
 
