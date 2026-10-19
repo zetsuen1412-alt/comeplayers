@@ -70,6 +70,24 @@ jobs:
               --notes "Internal development APK only. Requires staging migrations, matching website API and test Telegram group setup. Debug signature may not match the existing installation; back up local data before changing APK. Not for production work." \
               --prerelease
           fi
+      - name: Publish Android v1.6 luxury preview APK
+        if: github.ref == 'refs/heads/feature/cp-boost-android-luxury-ui-20261020'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="cp-boost-monitor-android-v1.6-luxury-preview"
+          APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.6-LUXURY-PREVIEW.apk" --clobber
+          else
+            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.6-LUXURY-PREVIEW.apk" \
+              --target "$GITHUB_SHA" --title "CP Boost Monitor Android v1.6 • Executive Luxury Preview" \
+              --notes "Internal preview Android FH3 luxury redesign. APK debug may be signed differently than installed production build. Back up local status/history before installation; no Telegram photo tests on real customer orders." \
+              --prerelease
+          fi
       - name: Publish same APK to website downloads
         # Publish the verified APK from main so the production download stays current.
         if: github.ref == 'refs/heads/main'
