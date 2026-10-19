@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'CP-BoostMonitor-Windows/**'
+      - 'CP-BoostMonitor-Windows.Tests/**'
       - '.github/workflows/cp-boost-monitor-windows.yml'
   pull_request:
     paths:
@@ -29,6 +30,9 @@ jobs:
       - name: Restore dependencies
         shell: pwsh
         run: dotnet restore CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -r win-x64
+      - name: Verify pure Windows search/filter behavior
+        shell: pwsh
+        run: dotnet run --project CP-BoostMonitor-Windows.Tests/CPBoostMonitor.Windows.Tests.csproj -c Release
       - name: Compile native Windows app
         shell: pwsh
         run: dotnet build CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release -r win-x64 --no-restore
@@ -41,9 +45,9 @@ jobs:
           if (!(Test-Path $exe)) { throw "CPBoostMonitor.exe not found" }
           if ((Get-Item $exe).Length -lt 3000000) { throw "EXE unexpectedly small" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/CP-Boost-Monitor-Windows-v1.0.0-x64.zip" -Force
+          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/CP-Boost-Monitor-Windows-v1.1.0-x64.zip" -Force
           Get-FileHash -Algorithm SHA256 $exe | Format-Table
-          Get-FileHash -Algorithm SHA256 "dist/CP-Boost-Monitor-Windows-v1.0.0-x64.zip" | Format-Table
+          Get-FileHash -Algorithm SHA256 "dist/CP-Boost-Monitor-Windows-v1.1.0-x64.zip" | Format-Table
       - name: Publish Windows preview on development branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/feature/cp-boost-monitor-windows-v1'
         shell: pwsh
@@ -51,14 +55,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-          $tag = "cp-boost-monitor-windows-v1-preview"
-          $zip = "dist/CP-Boost-Monitor-Windows-v1.0.0-x64.zip"
+          $tag = "cp-boost-monitor-windows-v1.1-preview"
+          $zip = "dist/CP-Boost-Monitor-Windows-v1.1.0-x64.zip"
           $exe = "dist/cp-boost-monitor-windows/CPBoostMonitor.exe"
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
-            gh release upload $tag "$zip#CP-Boost-Monitor-Windows-v1.0.0-x64.zip" "$exe#CPBoostMonitor-Windows-v1.0.0-PREVIEW.exe" --clobber
+            gh release upload $tag "$zip#CP-Boost-Monitor-Windows-v1.1.0-x64.zip" "$exe#CPBoostMonitor-Windows-v1.1.0-PREVIEW.exe" --clobber
           } else {
-            gh release create $tag "$zip#CP-Boost-Monitor-Windows-v1.0.0-x64.zip" "$exe#CPBoostMonitor-Windows-v1.0.0-PREVIEW.exe" --target "$env:GITHUB_SHA" --title "CP Boost Monitor Windows v1.0 — PREVIEW" --notes "Native Windows 10/11 64-bit app. Login using Payroll admin account. Compatible with existing FH3 production API; START/DONE screenshots post to real Telegram group. Only use test orders for initial validation. No code-signing certificate (SmartScreen may warn)." --prerelease
+            gh release create $tag "$zip#CP-Boost-Monitor-Windows-v1.1.0-x64.zip" "$exe#CPBoostMonitor-Windows-v1.1.0-PREVIEW.exe" --target "$env:GITHUB_SHA" --title "CP Boost Monitor Windows v1.1 — PREVIEW" --notes "Native Windows 10/11 64-bit app. Login using Payroll admin account. Compatible with existing FH3 production API; START/DONE screenshots post to real Telegram group. Only use test orders for initial validation. No code-signing certificate (SmartScreen may warn)." --prerelease
           }
       - name: No production publication from pull request
         if: github.event_name == 'pull_request'
