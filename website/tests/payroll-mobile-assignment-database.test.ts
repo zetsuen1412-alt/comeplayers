@@ -27,6 +27,12 @@ async function assign(ref: string, code: string) {
     "select public.cp_mobile_assign_fh3($1,$2,$3::uuid) result", [ref, code, actor]);
   return result.rows[0].result;
 }
+async function rejectAssignment(ref: string, code: string, expected: RegExp) {
+  await db.exec("savepoint expected_rejection");
+  await assert.rejects(assign(ref, code), expected);
+  await db.exec("rollback to savepoint expected_rejection");
+  await db.exec("release savepoint expected_rejection");
+}
 async function orderRow() {
   const { rows } = await db.query<{ payload: Record<string, unknown> }>(
     "select payload from public.cp_payroll_workspace where id=1");
@@ -69,17 +75,17 @@ test("same worker retry is idempotent, different worker cannot take assigned ord
   await assign("X100", "FH3001");
   assert.equal((await assign("X100", "FH3001")).alreadyAssigned, true);
   assert.equal(await auditCount(), 1);
-  await assert.rejects(assign("X100", "FH3002"), /tidak tersedia/i);
+  await rejectAssignment("X100", "FH3002", /tidak tersedia/i);
   assert.equal((await orderRow()).employeeCode, "FH3001");
 });
 
 test("wrong division, resigned worker, verified order and review draft are blocked", async () => {
-  await assert.rejects(assign("X100", "FH2001"), /tidak aktif/i);
-  await assert.rejects(assign("X100", "FH3003"), /tidak aktif/i);
+  await rejectAssignment("X100", "FH2001", /tidak aktif/i);
+  await rejectAssignment("X100", "FH3003", /tidak aktif/i);
   await write([{ ...baseOrder, operationalStatus: "verified" }]);
-  await assert.rejects(assign("X100", "FH3001"), /tidak tersedia/i);
+  await rejectAssignment("X100", "FH3001", /tidak tersedia/i);
   await write([{ ...baseOrder, operationalStatus: "draft", importNeedsReview: true }]);
-  await assert.rejects(assign("X100", "FH3001"), /tidak tersedia/i);
+  await rejectAssignment("X100", "FH3001", /tidak tersedia/i);
   assert.equal(await auditCount(), 0);
 });
 
@@ -87,9 +93,9 @@ test("closings and already assigned order are never overwritten", async () => {
   await write([{ ...baseOrder, workerAssignments: [{
     id: "other", employeeCode: "FH3002", employeeName: "Budi", team: "FH3", process: "JOKI", quantity: 1,
   }] }]);
-  await assert.rejects(assign("X100", "FH3001"), /tidak tersedia/i);
+  await rejectAssignment("X100", "FH3001", /tidak tersedia/i);
   await db.query("update cp_payroll_workspace set payload=jsonb_set(payload,'{cp-ofs-demo-closing-v1}',$1::jsonb) where id=1",
     [JSON.stringify([{ orderRefs: ["X100"] }])]);
-  await assert.rejects(assign("X100", "FH3001"), /tidak tersedia/i);
+  await rejectAssignment("X100", "FH3001", /tidak tersedia/i);
   assert.equal(await auditCount(), 0);
 });
