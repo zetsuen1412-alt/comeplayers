@@ -45,8 +45,11 @@ function formRequest(action = "start") {
   form.set("orderRef", "X4671");
   form.set("employeeCode", "F001");
   form.set("action", action);
-  form.set("photo", new File([new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,0,0,0,0,0])],
-    "proof.png", { type: "image/png" }));
+  // Node's File is structurally incompatible with DOM Blob in TypeScript 5.9,
+  // even though the same object is accepted by Node FormData at runtime.
+  const file = new File([new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,0,0,0,0,0])],
+    "proof.png", { type: "image/png" });
+  form.set("photo", file as unknown as Blob, "proof.png");
   return new Request("https://www.comeplayers.com/api/admin/payroll/mobile/progress",
     { method: "POST", body: form });
 }
