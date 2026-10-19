@@ -141,6 +141,13 @@ public final class MainActivity extends Activity {
                 loadPendingOrders(false);
                 loadActiveTasks(false);
                 refreshPayroll(false);
+                new AlertDialog.Builder(this)
+                    .setTitle("Karyawan berhasil ditugaskan")
+                    .setMessage("Langsung mulai order " + orderRef + " dengan screenshot bukti awal? Foto akan dikirim ke grup Telegram FH3.")
+                    .setNegativeButton("Nanti dari Tugas", null)
+                    .setPositiveButton("START + Foto", (dialog, which) ->
+                        pickProofPhoto(orderRef, employeeCode, "start"))
+                    .show();
             }
             render();
         });
