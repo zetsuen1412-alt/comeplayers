@@ -1,5 +1,17 @@
 -- CP Boost Monitor FH3: atomic mobile assignment, separate from Telegram update IDs.
 -- Deliberately limited to one not-yet-started Boosting/Item worker per order.
+create table public.cp_mobile_assignment_audit (
+  id bigint generated always as identity primary key,
+  order_ref text not null,
+  employee_code text not null,
+  actor_id uuid not null,
+  created_at timestamptz not null default now()
+);
+alter table public.cp_mobile_assignment_audit enable row level security;
+revoke all on public.cp_mobile_assignment_audit from public, anon, authenticated;
+grant select, insert on public.cp_mobile_assignment_audit to service_role;
+grant usage, select on sequence public.cp_mobile_assignment_audit_id_seq to service_role;
+
 create function public.cp_mobile_assign_fh3(p_order_ref text, p_employee_code text, p_actor_id uuid)
 returns jsonb
 language plpgsql security definer set search_path = '' as $$
@@ -68,6 +80,8 @@ begin
     where order_ref=o.order_ref;
   -- Existing helper increments revision and syncs the website Mutasi worker.
   perform public.cp_telegram_save_worker(o.order_ref, employee);
+  insert into public.cp_mobile_assignment_audit(order_ref,employee_code,actor_id)
+    values(o.order_ref, employee->>'code', p_actor_id);
   insert into public.cp_payroll_telegram_outbox(event_key,order_ref,chat_id,payload)
     select 'mobile-assigned:'||o.order_ref||':'||c.chat_id,o.order_ref,c.chat_id,
       jsonb_build_object('text', '✅ Karyawan ditentukan melalui CP Boost Monitor oleh admin website.',
