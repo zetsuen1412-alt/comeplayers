@@ -76,6 +76,7 @@ export async function POST(request: Request) {
     eventId = claim.eventId;
     const uploaded = await sendMobileProofPhoto({
       chatId: claim.chatId, caption: claim.caption, bytes, mime: picture.type,
+      replyToMessageId: Number.isSafeInteger(claim.replyToMessageId) ? claim.replyToMessageId : undefined,
     });
     deliveryConfirmed = true;
     const { data: result, error: commitError } = await supabaseAdmin.rpc("cp_mobile_proof_finish", {
