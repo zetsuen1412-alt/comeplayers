@@ -63,6 +63,12 @@ public final class MainActivity extends Activity {
             handler.postDelayed(this, 120000L); // sepanjang aplikasi aktif
         }
     };
+    private final Runnable pendingTicker = new Runnable() {
+        @Override public void run() {
+            if ("Order Baru".equals(page)) loadPendingOrders(false);
+            handler.postDelayed(this, 30000L);
+        }
+    };
     private LinearLayout root, body, employeesContainer;
     private String page = "Dashboard", filter = "SEMUA", search = "";
     private long historyEmployee = 0;
@@ -81,10 +87,12 @@ public final class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume(); handler.removeCallbacks(ticker); handler.postDelayed(ticker, 60000);
         handler.removeCallbacks(payrollTicker); handler.post(payrollTicker);
+        handler.removeCallbacks(pendingTicker); handler.postDelayed(pendingTicker, 30000L);
         if ("Order Baru".equals(page)) loadPendingOrders(false);
     }
     @Override protected void onPause() {
-        handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker); super.onPause();
+        handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker);
+        handler.removeCallbacks(pendingTicker); super.onPause();
     }
     @Override protected void onDestroy() { payroll.shutdown(); db.close(); super.onDestroy(); }
 
