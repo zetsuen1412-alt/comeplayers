@@ -1,11 +1,14 @@
 package id.comeplayers.boostmonitor;
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -117,7 +120,7 @@ final class PayrollSync {
         });
     }
 
-    /** Persist to website/Telegram atomically; caller refreshes tasks after success. */
+    /** Persist assignment directly to Payroll website; caller refreshes tasks after success. */
     void assignOrder(String orderRef, String employeeCode, Done callback) {
         executor.execute(() -> {
             try {
@@ -130,6 +133,114 @@ final class PayrollSync {
                         + result.optString("employeeName", employeeCode) + " dan tersimpan di website.", true);
             } catch (Exception error) { finish(callback, friendly(error), false); }
         });
+    }
+
+    /** Individual active order cards (not a merged text field on the employee row). */
+    void loadActiveTasks(DataDone callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject result = authorizedCall("GET", "/tasks", null);
+                if (result.optInt("schema") != 1 || !"FH3".equals(result.optString("scope"))
+                        || !"payroll".equals(result.optString("source"))
+                        || result.optJSONArray("tasks") == null)
+                    throw new IOException("Daftar tugas aktif tidak valid.");
+                main.post(() -> callback.accept(result, "", true));
+            } catch (Exception error) {
+                main.post(() -> callback.accept(null, friendly(error), false));
+            }
+        });
+    }
+
+    /**
+     * User-selected screenshot is sent straight to the website over HTTPS.
+     * The website exclusively owns Telegram credentials and resolves the trusted FH3 chat.
+     * No automatic retries for photo uploads: Telegram does not support idempotency keys.
+     */
+    void sendProof(String orderRef, String employeeCode, String action,
+                   Uri photo, ContentResolver resolver, Done callback) {
+        executor.execute(() -> {
+            try {
+                if (!"start".equals(action) && !"done".equals(action))
+                    throw new IOException("Aksi order tidak valid.");
+                String mime = resolver.getType(photo);
+                if (!"image/png".equals(mime) && !"image/jpeg".equals(mime))
+                    throw new IOException("Pilih foto PNG atau JPEG.");
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                try (InputStream input = resolver.openInputStream(photo)) {
+                    if (input == null) throw new IOException("Tidak dapat membaca foto.");
+                    byte[] chunk = new byte[8192]; int count;
+                    while ((count = input.read(chunk)) != -1) {
+                        if (buffer.size() + count > 7 * 1024 * 1024)
+                            throw new IOException("Foto melebihi 7 MB. Pilih gambar lebih kecil.");
+                        buffer.write(chunk, 0, count);
+                    }
+                }
+                byte[] bytes = buffer.toByteArray();
+                if (bytes.length < 16) throw new IOException("Gambar kosong/tidak lengkap.");
+                JSONObject credentials = session.load();
+                if (credentials == null) throw new IOException("Login Payroll diperlukan.");
+                if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L)
+                    credentials = refresh(credentials);
+                JSONObject result = sendPhotoRequest(orderRef, employeeCode, action, mime, bytes,
+                        credentials.getString("accessToken"));
+                if (!result.optBoolean("ok")) throw new IOException("Website belum mengonfirmasi foto.");
+                finish(callback, "✓ " + result.optString("caption", orderRef + "/" + action)
+                        + "\\nBukti telah diterima grup Telegram "
+                        + result.optString("chatTitle", "FH3") + " dan status disimpan di website.", true);
+            } catch (Exception error) {
+                finish(callback, error.getMessage() == null ? "Pengiriman bukti gagal; periksa Telegram sebelum mengulang."
+                        : error.getMessage(), false);
+            }
+        });
+    }
+
+    private static JSONObject sendPhotoRequest(String orderRef, String employeeCode,
+            String action, String mime, byte[] photo, String token) throws Exception {
+        final String boundary = "cpProof" + Long.toHexString(System.nanoTime());
+        HttpURLConnection connection = (HttpURLConnection) new URL(BASE + "/progress").openConnection();
+        connection.setInstanceFollowRedirects(false);
+        connection.setConnectTimeout(14000); connection.setReadTimeout(45000);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", "Bearer " + token);
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Cache-Control", "no-store");
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        connection.setDoOutput(true);
+        connection.setChunkedStreamingMode(8192);
+        try {
+            try (OutputStream output = connection.getOutputStream()) {
+                writeField(output, boundary, "orderRef", orderRef);
+                writeField(output, boundary, "employeeCode", employeeCode);
+                writeField(output, boundary, "action", action);
+                String header = "--" + boundary + "\\r\\nContent-Disposition: form-data; name=\\\"photo\\\"; filename=\\\"evidence.jpg\\\"\\r\\n"
+                        + "Content-Type: " + mime + "\\r\\n\\r\\n";
+                output.write(header.getBytes(StandardCharsets.UTF_8));
+                output.write(photo);
+                output.write(("\\r\\n--" + boundary + "--\\r\\n").getBytes(StandardCharsets.UTF_8));
+            }
+            int status = connection.getResponseCode();
+            InputStream stream = status < 400 ? connection.getInputStream() : connection.getErrorStream();
+            if (stream == null) throw new IOException("Website tidak memberi jawaban; periksa grup Telegram.");
+            ByteArrayOutputStream reply = new ByteArrayOutputStream();
+            try (InputStream input = stream) {
+                byte[] chunk = new byte[4096]; int n;
+                while ((n = input.read(chunk)) != -1) {
+                    if (reply.size() + n > 64 * 1024) throw new IOException("Respons server terlalu besar.");
+                    reply.write(chunk, 0, n);
+                }
+            }
+            JSONObject result = new JSONObject(new String(reply.toByteArray(), StandardCharsets.UTF_8));
+            if (status < 200 || status >= 300)
+                throw new ApiException(status, result.optString("error",
+                        "Pengiriman belum dikonfirmasi; cek grup Telegram sebelum mengulang."));
+            return result;
+        } finally { connection.disconnect(); }
+    }
+
+    private static void writeField(OutputStream output, String boundary,
+                                    String name, String value) throws IOException {
+        output.write(("--" + boundary + "\\r\\nContent-Disposition: form-data; name=\\\""
+                + name + "\\\"\\r\\n\\r\\n" + value + "\\r\\n").getBytes(StandardCharsets.UTF_8));
     }
 
     private JSONObject authorizedCall(String method, String path, JSONObject payload) throws Exception {
