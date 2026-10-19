@@ -3,7 +3,7 @@
 ## Alur baru (tanpa bot Telegram)
 1. Order Boosting/Item FH3 masuk Payroll Website melalui input manual atau sinkronisasi Google Sheets yang sudah ada.
 2. Selama order masih belum memiliki pekerja, belum selesai/diarsipkan, dan tidak ditandai perlu review, order langsung tersedia di endpoint `GET /api/admin/payroll/mobile/pending`. Tidak diperlukan tabel Telegram, akun leader, atau bot.
-3. CP Boost Monitor Android membuka tab **Order Baru**, menyegarkan antrean sekitar setiap 30 detik selama halaman terbuka, dan menampilkan kode order, nama order, game, buyer, dan TASK.
+3. CP Boost Monitor Android membuka tab **Order Baru**, menyegarkan antrean sekitar setiap 30 detik selama aplikasi aktif, dan menampilkan kode order, nama order, game, buyer, dan TASK.
 4. Admin memilih karyawan FH3 yang aktif dan menyetujui penugasan.
 5. `POST /api/admin/payroll/mobile/assign` memvalidasi token admin Payroll dan memanggil `cp_mobile_assign_fh3`. Transaksi mengunci satu row workspace, memvalidasi state/employee lagi, menyimpan `workerAssignments`, `employeeCode`, `employeeName`, `assignmentMode=direct`, dan `operationalStatus=assigned`, menambah revision, dan mencatat aktor ke audit.
 6. Order hilang dari antrean, lalu muncul pada kartu karyawan setelah sync berikutnya. Website Pesanan/Mutasi membaca assignment yang sama.
@@ -19,7 +19,7 @@
 - Rilis ini khusus **FH3**, jenis order **Boosting/Item**, satu karyawan per order, serta order satu kali (non-DAY). Gold, FH1/FH2, order harian DAY, dan pembagian ke beberapa karyawan memerlukan versi lanjutan.
 - Antrean menerima status `draft`, `confirmed`, atau `assignment_pending` selama tidak dalam review dan belum ditugaskan.
 - Status Ready/Farming/Tidur/Bekerja tetap dikelola lokal dan tidak menjadi status resmi `operationalStatus` Payroll.
-- Belum menggunakan Android push notification saat aplikasi tidak aktif. Tab Order Baru poll sekitar 30 detik; roster/tugas setiap ±2 menit selama aplikasi aktif atau manual refresh.
+- Belum menggunakan Android push notification saat aplikasi tidak aktif. Order Baru diperiksa sekitar 30 detik selama aplikasi aktif (termasuk Dashboard); roster/tugas setiap ±2 menit atau manual refresh.
 - Admin yang berbeda tidak dapat menimpa assignment yang sudah tersimpan. Repeated submit untuk pekerja sama dijawab sukses tanpa membuat penugasan duplikat.
 - Sinkronisasi Sheet mempertahankan pilihan worker dari aplikasi selama kolom BOOSTER sumber kosong; worker yang eksplisit ditentukan Sheet tetap mengambil prioritas pada import berikutnya.
 
