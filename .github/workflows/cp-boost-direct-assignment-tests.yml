@@ -6,9 +6,10 @@ on:
       - 'website/features/payroll/lib/google-sheet-sync.ts'
       - 'website/supabase/migrations/2026101922000*_cp_boost_monitor*.sql'
       - 'website/tests/payroll-mobile-assignment*.test.ts'
-      - 'website/tests/payroll-mobile-direct-routing.test.ts tests/payroll-mobile-proof-database.test.ts tests/payroll-mobile-proof-api.test.ts'
+      - 'website/tests/payroll-mobile-direct-routing.test.ts tests/payroll-mobile-proof-database.test.ts tests/payroll-mobile-proof-api.test.ts tests/payroll-mobile-proof-group.test.ts'
       - 'website/tests/payroll-mobile-proof-database.test.ts'
       - 'website/tests/payroll-mobile-proof-api.test.ts'
+      - 'website/tests/payroll-mobile-proof-group.test.ts'
       - 'website/lib/payrollMobileProof.ts'
       - '.github/workflows/cp-boost-direct-assignment-tests.yml'
   workflow_dispatch:
