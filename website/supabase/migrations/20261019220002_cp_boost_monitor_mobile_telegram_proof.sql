@@ -77,6 +77,9 @@ begin
   select * into dest from public.cp_payroll_telegram_divisions
     where division='FH3' and active for share;
   if dest.chat_id is null then raise exception 'Grup Telegram FH3 belum dikonfigurasi di website.'; end if;
+  if dest.chat_id>=0 then
+    raise exception 'Tujuan FH3 masih chat pribadi leader. Hubungkan grup EVO Ilham FH3 lewat /bind FH3.';
+  end if;
   if p_action='done' and exists (
     select 1 from public.cp_mobile_order_proof initial
     where initial.order_ref=ref and initial.action='start' and initial.status='sent'
