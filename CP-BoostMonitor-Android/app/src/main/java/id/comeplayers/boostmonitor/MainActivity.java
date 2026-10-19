@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -53,6 +54,9 @@ public final class MainActivity extends Activity {
     private SharedPreferences prefs;
     private PayrollSync payroll;
     private boolean syncBusy = false;
+    private boolean pendingBusy = false, assignmentBusy = false;
+    private JSONArray pendingOrders = new JSONArray();
+    private String pendingError = "";
     private final Runnable payrollTicker = new Runnable() {
         @Override public void run() {
             refreshPayroll(false);
@@ -77,6 +81,7 @@ public final class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume(); handler.removeCallbacks(ticker); handler.postDelayed(ticker, 60000);
         handler.removeCallbacks(payrollTicker); handler.post(payrollTicker);
+        if ("Order Baru".equals(page)) loadPendingOrders(false);
     }
     @Override protected void onPause() {
         handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker); super.onPause();
@@ -95,6 +100,36 @@ public final class MainActivity extends Activity {
             if (ok) prefs.edit().putLong("payroll_last_sync", now()).putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
             else prefs.edit().putString("payroll_sync_error", message).apply();
             if (manual || !ok) toast(message);
+            if (ok && "Order Baru".equals(page)) loadPendingOrders(false);
+            render();
+        });
+    }
+
+    private void loadPendingOrders(boolean manual) {
+        if (pendingBusy || !linked()) return;
+        pendingBusy = true;
+        payroll.loadPendingOrders((data, message, ok) -> {
+            pendingBusy = false;
+            if (ok) {
+                pendingOrders = data.optJSONArray("pending");
+                pendingError = "";
+            } else pendingError = message;
+            if (manual && !ok) toast(message);
+            if ("Order Baru".equals(page)) render();
+        });
+    }
+
+    private void sendAssignment(String orderRef, String employeeCode) {
+        if (assignmentBusy) return;
+        assignmentBusy = true;
+        render();
+        payroll.assignOrder(orderRef, employeeCode, (message, ok) -> {
+            assignmentBusy = false;
+            toast(message);
+            if (ok) {
+                loadPendingOrders(false);
+                refreshPayroll(false);
+            }
             render();
         });
     }
@@ -205,6 +240,7 @@ public final class MainActivity extends Activity {
         body = vertical(); body.setPadding(dp(15), dp(18), dp(15), dp(22));
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("Dashboard".equals(page)) dashboard();
+        else if ("Order Baru".equals(page)) ordersPage();
         else if ("Karyawan".equals(page)) employeesPage();
         else if ("Riwayat".equals(page)) historyPage();
         else settingsPage();
@@ -213,14 +249,19 @@ public final class MainActivity extends Activity {
 
     private void navigation() {
         LinearLayout nav = horizontal(); nav.setBackgroundColor(WHITE);
-        String[] pages = {"Dashboard", "Karyawan", "Riwayat", "Pengaturan"};
-        String[] symbols = {"▦", "♙", "◷", "⚙"};
+        String[] pages = {"Dashboard", "Order Baru", "Karyawan", "Riwayat", "Pengaturan"};
+        String[] symbols = {"▦", "✉", "♙", "◷", "⚙"};
         for (int i = 0; i < pages.length; i++) {
             final String dest = pages[i];
             TextView t = text(symbols[i] + "\n" + dest, 11, page.equals(dest) ? PURPLE : SUB, page.equals(dest));
             t.setGravity(Gravity.CENTER); t.setPadding(0, dp(11), 0, dp(11));
             nav.addView(t, new LinearLayout.LayoutParams(0, dp(62), 1));
-            t.setOnClickListener(v -> { page = dest; if (!"Riwayat".equals(dest)) historyEmployee = 0; render(); });
+            t.setOnClickListener(v -> {
+                page = dest;
+                if (!"Riwayat".equals(dest)) historyEmployee = 0;
+                render();
+                if ("Order Baru".equals(dest)) loadPendingOrders(false);
+            });
         }
         root.addView(nav, lp(-1, -2));
     }
@@ -295,6 +336,71 @@ public final class MainActivity extends Activity {
     }
     private void info(String s) {
         LinearLayout p = panel(); p.addView(text(s, 13, SUB, false)); body.addView(p, lp(-1, -2));
+    }
+
+    /** Telegram-created FH3 orders appear here until an admin assigns a worker. */
+    private void ordersPage() {
+        heading("Order Baru FH3", "Dari Telegram Payroll / website. Pilih karyawan; penugasan langsung tersimpan di website.");
+        info("Khusus admin dan order Boosting/Item yang belum dikerjakan. Daftar diperbarui ketika halaman dibuka dan setiap sinkronisasi.");
+        space(body, 10);
+        Button sync = button(pendingBusy ? "Memuat order..." : "↻ Ambil Order Terbaru", true);
+        sync.setEnabled(!pendingBusy && !assignmentBusy);
+        body.addView(sync, lp(-1, 44));
+        sync.setOnClickListener(v -> loadPendingOrders(true));
+        space(body, 15);
+        if (!pendingError.isEmpty()) {
+            info("⚠ " + pendingError);
+            space(body, 10);
+        }
+        if (pendingOrders == null || pendingOrders.length() == 0) {
+            info(pendingBusy ? "Memuat order baru dari website..." : "Belum ada order FH3 yang menunggu karyawan.");
+            return;
+        }
+        for (int i = 0; i < pendingOrders.length(); i++) {
+            JSONObject order = pendingOrders.optJSONObject(i);
+            if (order == null) continue;
+            final String ref = order.optString("orderRef", "").trim();
+            if (ref.isEmpty()) continue;
+            LinearLayout card = panel();
+            card.addView(text("📦 " + ref + "  •  " + order.optString("orderType", "boosting").toUpperCase(Locale.ROOT), 15, INK, true));
+            space(card, 7);
+            card.addView(text("Nama: " + order.optString("orderName", "—"), 13, SUB, false));
+            card.addView(text("Game: " + order.optString("game", "—"), 13, SUB, false));
+            card.addView(text("Buyer: " + order.optString("buyer", "—"), 13, SUB, false));
+            card.addView(text("TASK: " + order.optString("task", "—"), 13, SUB, false));
+            space(card, 11);
+            Button assign = button(assignmentBusy ? "Menyimpan penugasan..." : "Pilih Karyawan", true);
+            assign.setEnabled(!assignmentBusy);
+            card.addView(assign, lp(-1, 44));
+            assign.setOnClickListener(v -> chooseWorker(ref));
+            body.addView(card, lp(-1, -2));
+            space(body, 11);
+        }
+    }
+
+    private void chooseWorker(String orderRef) {
+        List<EmployeeDb.Employee> workers = db.payrollEmployees();
+        if (workers.isEmpty()) {
+            new AlertDialog.Builder(this).setTitle("Belum ada karyawan")
+                    .setMessage("Sinkronkan karyawan FH3 dari Payroll Website terlebih dahulu.")
+                    .setPositiveButton("OK", null).show();
+            return;
+        }
+        String[] labels = new String[workers.size()];
+        for (int i = 0; i < workers.size(); i++) {
+            EmployeeDb.Employee e = workers.get(i);
+            labels[i] = e.name + "  •  " + e.payrollCode + "  •  " + e.visibleStatus();
+        }
+        new AlertDialog.Builder(this).setTitle("Pilih karyawan untuk " + orderRef)
+                .setItems(labels, (dialog, which) -> {
+                    EmployeeDb.Employee selected = workers.get(which);
+                    new AlertDialog.Builder(this).setTitle("Konfirmasi Penugasan")
+                            .setMessage("Order: " + orderRef + "\nKaryawan: " + selected.name
+                                    + " (" + selected.payrollCode + ")\n\nSimpan penugasan ke Payroll Website?")
+                            .setNegativeButton("Batal", null)
+                            .setPositiveButton("Tugaskan", (confirm, button) -> sendAssignment(orderRef, selected.payrollCode))
+                            .show();
+                }).setNegativeButton("Batal", null).show();
     }
 
     private void employeesPage() {
