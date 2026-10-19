@@ -30,6 +30,10 @@ function endpoint(access: () => unknown, rpc: (name: string, args: Record<string
         isSupportedProofImage: () => true,
         MobileTelegramError: TransportError,
         sendMobileProofPhoto: telegram,
+        verifyFH3ProofGroup: async (chatId: number) => {
+          assert.ok(Number.isSafeInteger(chatId) && chatId < 0);
+          return "🔥 EVO🔥 Ilham FH3";
+        },
       };
       throw new Error("Unexpected import: " + name);
     },
