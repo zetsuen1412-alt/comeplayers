@@ -26,3 +26,11 @@ Endpoint `POST /api/admin/payroll/mobile/progress` adalah akses admin-only, mene
 Server melakukan klaim atomik melalui `cp_mobile_proof_begin`, mengirim foto dengan Telegram `sendPhoto`, lalu menyimpan `message_id`/file_id dan transisi website melalui `cp_mobile_proof_finish`. START → `in_progress`, DONE → `completed` (butuh START sebelumnya). Setiap order/action hanya satu bukti; bila hasil pengiriman tidak pasti, status `unknown` dan perlu rekonsiliasi manual, bukan retry otomatis.
 
 Migrasi tambahan `20261019220002_cp_boost_monitor_mobile_telegram_proof.sql`; perbarui APK ke **1.5.0** setelah backend deploy dan pengujian di grup Telegram uji.
+
+## Grup Telegram khusus FH3 (dikonfirmasi dari screenshot)
+Tujuan resmi seluruh bukti START dan DONE order Boosting/Item FH3 adalah **🔥 EVO🔥 Ilham FH3** (judul Telegram bisa memiliki perbedaan spasi/emoji). Foto tidak boleh dikirim ke chat pribadi leader maupun grup FH2/grup FH3 lain.
+
+**Cara menghubungkan grup yang tepat:** (1) tambahkan bot Payroll ComePlayers yang aktif ke grup tersebut dan izinkan mengirim media; (2) sebagai admin Telegram yang ID-nya tercantum dalam `TELEGRAM_ADMIN_USER_IDS`, kirim pesan `/bind FH3` **di dalam grup itu**; (3) pastikan bot membalas `✅ Grup dihubungkan ke FH3`; (4) di Payroll Website → Telegram Booster, pastikan baris FH3 menampilkan ID grup negatif dan nama grup yang cocok. Chat ID numeriknya tidak terlihat dari screenshot dan **tidak boleh ditebak atau di-hardcode**.
+
+Saat upload START/DONE, backend mengecek chat ID dari baris FH3, menolak ID positif/chat pribadi, lalu memanggil Telegram `getChat` untuk memvalidasi bahwa jenis chat `group/supergroup` dan judul grup (tanpa beda spasi/emoji) adalah *EVO Ilham FH3*. Jika tidak cocok, **foto tidak dikirim** dan status order website tidak diubah. Token bot tetap di server, bukan di APK.
+
