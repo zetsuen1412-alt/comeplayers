@@ -179,7 +179,7 @@ public final class MainActivity extends Activity {
             proofBusy = false;
             new AlertDialog.Builder(this)
                 .setTitle(ok ? "Bukti terkirim" : "Bukti belum dikonfirmasi")
-                .setMessage(message + (ok ? "" : "\\n\\nPeriksa grup Telegram sebelum mencoba lagi."))
+                .setMessage(message + (ok ? "" : "\n\nPeriksa grup Telegram sebelum mencoba lagi."))
                 .setPositiveButton("OK", null).show();
             if (ok) { loadActiveTasks(false); refreshPayroll(false); }
             render();
@@ -293,6 +293,7 @@ public final class MainActivity extends Activity {
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("Dashboard".equals(page)) dashboard();
         else if ("Order Baru".equals(page)) ordersPage();
+        else if ("Tugas".equals(page)) tasksPage();
         else if ("Karyawan".equals(page)) employeesPage();
         else if ("Riwayat".equals(page)) historyPage();
         else settingsPage();
@@ -759,8 +760,8 @@ public final class MainActivity extends Activity {
         if (requestCode == PROOF_PHOTO) {
             String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
             new AlertDialog.Builder(this).setTitle("Kirim screenshot " + actionLabel + "?")
-                .setMessage("Order: " + proofOrderRef + "\\nKaryawan: " + proofEmployeeCode
-                    + "\\n\\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
+                .setMessage("Order: " + proofOrderRef + "\nKaryawan: " + proofEmployeeCode
+                    + "\n\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
                 .setNegativeButton("Batal", null)
                 .setPositiveButton("Kirim Foto", (dialog, which) -> uploadProgress(uri))
                 .show();
