@@ -1,4 +1,4 @@
-# CP Boost Monitor — Windows v1.1.0 (Native .NET 8)
+# CP Boost Monitor — Windows v1.2.0 (Native .NET 8)
 
 CP Boost Monitor untuk Windows 10/11 (64-bit). Aplikasi native **WinForms** dengan UI desktop; tidak memakai browser atau layanan desktop terpisah.
 
@@ -21,8 +21,8 @@ CP Boost Monitor untuk Windows 10/11 (64-bit). Aplikasi native **WinForms** deng
 - Status lokal tersimpan `%LOCALAPPDATA%\ComePlayers\CPBoostMonitor\local-status.json`, terpisah dari data Android.
 
 ## Unduh / pasang
-1. Pada GitHub Releases proyek ComePlayers, buka **CP Boost Monitor Windows v1.1 — PREVIEW**.
-2. Unduh `CP-Boost-Monitor-Windows-v1.1.0-x64.zip` atau `CPBoostMonitor-Windows-v1.1.0-PREVIEW.exe`.
+1. Pada GitHub Releases proyek ComePlayers, buka **CP Boost Monitor Windows v1.2 — PREVIEW**.
+2. Unduh `CP-Boost-Monitor-Windows-v1.2.0-x64.zip` atau `CPBoostMonitor-Windows-v1.2.0-PREVIEW.exe`.
 3. Ekstrak ZIP, lalu jalankan `CPBoostMonitor.exe`. Tidak perlu memasang .NET secara terpisah karena dipaketkan *self-contained*. Untuk versi .exe preview, jalankan langsung.
 4. Login memakai akun admin Payroll, klik **Tugas Aktif → Periksa grup FH3**, kemudian baru uji menggunakan **order khusus percobaan**.
 5. Tidak ada installer MSIX/certificate code-signing pada rilis pertama. Windows SmartScreen dapat menampilkan peringatan untuk file belum ditandatangani; jangan menonaktifkan keamanan Windows. Periksa asal berkas GitHub dan hash SHA-256 dari build resmi.
@@ -37,13 +37,17 @@ Hasil: `dist\windows\CPBoostMonitor.exe`. GitHub Actions `.github/workflows/cp-b
 ## Ruang lingkup v1
 Khusus FH3, order Boosting/Item non-DAY, satu pekerja per order dan admin yang memiliki izin Payroll. Tidak ada sinkronisasi status lokal Android↔PC, belum ada offline queue, dan belum ada auto-update. Perubahan order/START/DONE selalu online melalui website. Aplikasi Windows **tidak** menggantikan Payroll Website atau Telegram.
 
-## Perubahan v1.1
+## Perubahan v1.2
 - Pencarian order baru langsung pada tabel: kode order, game, buyer, jenis order dan TASK.
 - Pencarian tugas aktif: kode, nama/kode karyawan, status, game dan TASK, ditambah filter **Semua Status / assigned / in_progress / on_hold**.
 - Pencarian karyawan menurut nama, kode, divisi dan status lokal.
 - **Preview screenshot sebelum pengiriman**: gambar file/clipboard muncul pada layar konfirmasi. Admin harus menekan tombol **Kirim Foto START/DONE** sebelum backend dihubungi. Foto tidak disimpan oleh aplikasi.
 - Pencarian tidak mempengaruhi data Payroll atau sinkronisasi berkala dan tidak mengubah urutan tugas.
 - Test filter dapat dijalankan tanpa akses ke data pelanggan: `dotnet run --project CP-BoostMonitor-Windows.Tests/CPBoostMonitor.Windows.Tests.csproj -c Release`.
-- GitHub Actions Windows menjalankan tes tersebut sebelum menghasilkan EXE/ZIP v1.1.
+- GitHub Actions Windows menjalankan tes tersebut sebelum menghasilkan EXE/ZIP v1.2.
 
 Catatan: aplikasi Windows tetap memerlukan login admin untuk menugaskan dan mengirim bukti Telegram. Build CI belum menggantikan pemeriksaan pada PC sungguhan. Screenshot yang dipilih pengguna dikirim hanya setelah konfirmasi.
+
+
+## Executive Dark Luxury v1.2
+Tampilan desktop memakai palet bersama Android: charcoal #0B101A, panel #192437, champagne gold #D4AF37, border halus dan tekstur warna gelap bertingkat. Dashboard baru memiliki hero status Payroll, tiga KPI live (Order Baru, Tugas Aktif, Karyawan FH3), quick actions serta langkah operasional. Sidebar, tabel dan tombol memakai komponen native WinForms bergaya premium. Dialog screenshot tetap mengharuskan konfirmasi sebelum mengirim foto ke grup FH3.
