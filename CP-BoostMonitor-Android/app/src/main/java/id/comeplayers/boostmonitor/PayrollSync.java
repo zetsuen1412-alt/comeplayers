@@ -151,6 +151,20 @@ final class PayrollSync {
         });
     }
 
+    /** Check website's actual Telegram bot and FH3 group without sending any photos. */
+    void checkProofGroup(Done callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject result = authorizedCall("GET", "/proof-setup", null);
+                if (!result.optBoolean("ready")) throw new IOException(
+                        result.optString("error", "Grup Telegram FH3 belum siap."));
+                finish(callback, "✓ Grup Telegram terhubung: "
+                        + result.optString("liveTitle", "EVO Ilham FH3")
+                        + "\nBot Payroll Website dapat mengakses grup. Belum ada foto yang dikirim.", true);
+            } catch (Exception error) { finish(callback, friendly(error), false); }
+        });
+    }
+
     /**
      * User-selected screenshot is sent straight to the website over HTTPS.
      * The website exclusively owns Telegram credentials and resolves the trusted FH3 chat.
