@@ -1,41 +1,20 @@
-# Sinkronisasi daftar karyawan Payroll → CP Boost Monitor Android
+# Integrasi CP Boost Monitor Android ↔ Payroll Website (FH3)
 
-**Sumber data:** `cp_payroll_workspace.payload[workspaceKeys.employees]` dari Payroll Website ComePlayers. Google Sheets PAYROLL-1/-2/-3 sudah memiliki proses sinkronisasi tersendiri ke daftar karyawan website; jalur aplikasi Android tidak boleh mengakses file Sheets, saldo payroll, mutasi, atau kasbon secara langsung.
+## Arsitektur tanpa Telegram
+- Payroll Website (Supabase `cp_payroll_workspace`) merupakan sumber tunggal karyawan, order baru, dan penugasan karyawan.
+- `POST /api/admin/payroll/mobile/session` login/refresh akun payroll berizin.
+- `GET /api/admin/payroll/mobile/roster` mengirim hanya identitas karyawan FH3 dan status aktif.
+- `GET /api/admin/payroll/mobile/pending` mengirim daftar order Boosting/Item FH3 yang belum ditugaskan, tidak menyertakan nilai uang atau detail privat.
+- `POST /api/admin/payroll/mobile/assign` khusus admin, menugaskan satu karyawan langsung pada order Payroll melalui transaksi terproteksi serta audit pelaku.
+- `GET /api/admin/payroll/mobile/tasks` mengirim ringkasan tugas aktif langsung dari `workerAssignments` order Payroll.
+- Tidak ada proses Telegram, Telegram ID, token bot, atau tabel Telegram pada ketiga API roster/pending/assign/tasks.
 
-## Penugasan baru dari Android (fitur admin saja)
+## Keamanan dan penyimpanan
+Semua API memvalidasi sesi & izin Payroll; aksi penugasan hanya untuk role admin. Access/refresh token disimpan terenkripsi dalam Android Keystore. Jangan menanam Supabase service-role key atau token bot dalam APK. Tidak ada payroll amounts, gaji, kasbon, dan spreadsheet mentah yang dibuka untuk Android.
 
-Source terbaru menyediakan `GET /api/admin/payroll/mobile/pending` dan `POST /api/admin/payroll/mobile/assign` untuk admin; keduanya tidak mengubah aturan API roster/tasks yang tetap read-only. Penugasan dibatasi satu pekerja per order Boosting/Item FH3 berstatus `waiting`. Aktif setelah migrasi dan APK baru dideploy. Rincian [panduan penugasan Telegram](../../../docs/cp-boost-monitor-telegram-assignment.md).
+## Perilaku dan deployment
+Tab Order Baru memeriksa ulang setiap ±30 detik saat terlihat. Roster/tugas diperbarui ketika app dibuka, tiap ±2 menit ketika aktif, dan manual. Penugasan segera disimpan di website setelah API sukses. Ini polling, bukan push notification Android.
 
-## API read-only
+Server menolak assignment jika order telah ditugaskan, selesai, dibatalkan, ditutup, diarsipkan, perlu review, atau bersifat harian; dan menolak pekerja tidak aktif. Karyawan lain dalam divisi selain FH3 tidak ditampilkan. Status boosting dan historinya di SQLite tidak disinkronkan balik ke Payroll.
 
-- `POST /api/admin/payroll/mobile/session`: `{"action":"login","email":"...","password":"..."}` atau `{"action":"refresh","refreshToken":"..."}`. Menggunakan Supabase Auth dan memvalidasi izin `requirePayrollAccess`, mengembalikan accessToken/refreshToken/expiresAt **hanya** untuk akun yang berizin. JWT tidak ditulis ke log. Permintaan dibatasi 8 KiB dan respon tidak di-cache.
-- `GET /api/admin/payroll/mobile/roster`: `Authorization: Bearer <accessToken>`. Memvalidasi user dan akses payroll melalui `requirePayrollAccess`, membaca snapshot workspace server-side, kemudian memproyeksikan hanya `id`, `code`, `name`, `team`, `workforceStatus`, `active`. Tidak ada nilai uang atau informasi pribadi tambahan yang dibuka.
-- `GET /api/admin/payroll/mobile/tasks`: `Authorization: Bearer <accessToken>`. Mengembalikan tugas Telegram aktif untuk karyawan FH3 yang ditugaskan, dengan proyeksi `employeeId`, `employeeCode`, `employeeName`, `orderRef`, `orderName`, `game`, `buyer`, `task`, `division`, `quantity`, `status`, dan `updatedAt`. Nilai `buyer` berasal dari `buyerName` pada order payroll (termasuk hasil sinkronisasi Sheet); token bot, spreadsheet mentah, gaji, kasbon, dan mutasi keuangan tidak pernah dikirim ke APK. Tugas berstatus `done`/`replaced` tidak ikut dikirim.
-
-## Keamanan
-
-Endpoint dilindungi oleh kontrol otorisasi payroll yang sama dengan website. Ketika kebijakan satu sesi aktif, login APK memverifikasi identity/MFA lalu mengklaim sesi melalui `cp_claim_account_session` seperti halaman website; sesi web lama pada perangkat lain bisa terputus sesuai kebijakan. Jangan membuat API publik tanpa autentikasi, memberikan service-role key kepada HP, atau membypass MFA hanya demi APK. Login SSO-only / MFA yang membutuhkan challenge khusus masih memerlukan alur login mobile tambahan.
-
-## Perilaku APK
-
-- Android menyimpan access/refresh token terenkripsi Android Keystore (AES/GCM).
-- Roster diperbarui otomatis saat aplikasi aktif setiap ±2 menit dan saat aplikasi masuk ke foreground; kegagalan tetap mempertahankan snapshot lokal.
-- Baris lokal memakai `payroll_id` unik. Nama/divisi mengikuti website; status boosting (ready, Farming, tidur, bekerja) dan riwayat tetap di SQLite lokal. Tugas aktif dipolling dari endpoint tasks dan ditampilkan sebagai Order, Game, Buyer, serta TASK pada kartu karyawan.
-- `active=false` atau ID yang tidak lagi ada di snapshot membuat pekerja tersembunyi, bukan menghapus riwayat.
-- Status Ready/Farming/Tidur/Sedang Bekerja masih lokal dan **tidak** dikirim ke Payroll. Penugasan order baru adalah fitur write khusus admin yang terpisah.
-
-## Checklist rilis
-
-1. Jalankan `npm run typecheck` dan `npm run test -- --test-name-pattern=payroll` pada website di lingkungan dengan dependensi terpasang (atau `npm test` seluruhnya).
-2. Deploy endpoint ke staging, lalu login dengan akun admin/petugas payroll dan pastikan akses non-payroll ditolak (401/403).
-3. Pastikan roster tanpa gaji, data sheet ID, kasbon, atau detail order.
-4. Tambah/ganti nama/kode/divisi di website, jalankan sinkronisasi di APK; identitas/status dan history lama harus tetap terjaga.
-5. Uji `RESIGN`, pegawai hilang dari Sheet, offline, pembaruan token, logout, backup/restore, serta upgrade SQLite v1→v2.
-6. Build dan uji APK debug dari GitHub Actions, lalu buat signing release khusus internal.
-## Distribusi APK langsung dari website
-
-- Menu **APK Karyawan** khusus admin berada di `/admin/payroll/boost-monitor`. Tombol unduh mengarah ke `/downloads/cp-boost-monitor.apk` (domain website sendiri).
-- Workflow GitHub Actions mengompilasi, memeriksa tanda tangan APK debug dan integritas ZIP, lalu menyalin file APK ke `website/public/downloads/cp-boost-monitor.apk` beserta SHA-256; setelah commit ter-deploy ke website, admin dapat mengunduh tanpa akun GitHub.
-- **Perhatian:** APK statis dapat diunduh siapa pun yang mengetahui URL langsung. Tidak ada kredensial dalam binary; akun payroll tetap perlu izin dan login. Halaman navigasi hanya terlihat oleh admin.
-- Halaman admin menguji ketersediaan berkas serta `GET /api/admin/payroll/mobile/roster` dengan token akun admin saat ini, menampilkan jumlah karyawan aktif dan revisi workspace. Ini *tidak* sama dengan pengujian sinkronisasi HP end-to-end; lakukan pengecekan login/sinkron di perangkat nyata dan cocokkan roster.
-- APK debug adalah rilis internal, bukan signed release produksi. Jangan bagikan secara publik sebelum rilis ditandatangani dan diuji.
+Migrasi `20261019220000_cp_boost_monitor_mobile_assignment.sql` dan `20261019220001_cp_boost_monitor_direct_fh3_routing.sql` diperlukan sebelum APK 1.4.0. Routing FH3 Boosting/Item baru melewati Telegram; divisi lain/Gold serta pekerjaan Telegram lama yang sudah dimulai tetap aman. Detail: [panduan CP Boost Monitor langsung](../../../docs/cp-boost-monitor-telegram-assignment.md).
