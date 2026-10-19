@@ -1,4 +1,4 @@
-# CP Boost Monitor Android v1.4 — FH3
+# CP Boost Monitor Android v1.5 — FH3
 
 Aplikasi memantau status lokal (Ready Boosting, Farming, Tidur, Bekerja) serta menerima **order baru langsung dari Payroll Website**. Tidak memerlukan bot Telegram untuk menerima atau menugaskan order.
 
@@ -18,3 +18,13 @@ Token sesi disimpan menggunakan Android Keystore. Token bot Telegram dan Supabas
 Unduh APK dari menu [APK Karyawan](https://www.comeplayers.com/admin/payroll/boost-monitor) **setelah** migrasi backend dan deployment versi baru selesai. GitHub Actions membangun APK debug, tetapi update pada branch PR belum otomatis memperbarui APK yang tersedia di website produksi.
 
 Detail backend dan batasan: [Panduan direct mobile assignment](../docs/cp-boost-monitor-telegram-assignment.md).
+
+
+## Bukti screenshot ke grup Telegram FH3 (v1.5)
+- Setelah memilih karyawan pada menu **Order Baru**, tekan **START + Foto** untuk memilih screenshot awal dari galeri.
+- Pada menu **Tugas**, setiap order assigned memiliki tombol **▶ START + Screenshot**, dan order in_progress memiliki tombol **✅ DONE + Screenshot**.
+- Pesan foto dikirim otomatis dari backend Payroll ke **grup Telegram FH3 yang dikonfigurasi admin**. Caption contoh: `x4671/mulyana/start` dan `x4671/mulyana/done`.
+- Nama pekerja yang tampil pada caption berasal dari roster website; user tidak dapat menuliskan nama/Chat ID palsu.
+- Setelah Telegram sukses, status order di website berubah menjadi `in_progress` (START) atau `completed` (DONE). Gaji/verification tidak langsung berubah.
+- File PNG/JPEG maksimum 7 MB. Saat koneksi tidak pasti, **cek grup Telegram sebelum mencoba lagi**.
+- Fitur membutuhkan website API `/mobile/progress`, konfigurasi grup dan bot Telegram di server, serta migration `20261019220002_cp_boost_monitor_mobile_telegram_proof.sql`. APK bukan klien Telegram dan tidak menyimpan bot token. Tidak perlu aplikasi Telegram pada HP untuk upload.
