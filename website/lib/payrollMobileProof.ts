@@ -27,7 +27,7 @@ export async function sendMobileProofPhoto(input: {
   if (input.replyToMessageId && Number.isSafeInteger(input.replyToMessageId))
     form.set("reply_parameters", JSON.stringify({ message_id: input.replyToMessageId, allow_sending_without_reply: true }));
   // Buffer.from yields a concrete ArrayBuffer-backed copy accepted by Node Blob.
-  form.set("photo", new Blob([Buffer.from(input.bytes)], { type: input.mime }),
+  form.set("photo", new Blob([Buffer.from(input.bytes) as unknown as BlobPart], { type: input.mime }),
     input.mime === "image/png" ? "evidence.png" : "evidence.jpg");
   let reply: Response;
   try {
