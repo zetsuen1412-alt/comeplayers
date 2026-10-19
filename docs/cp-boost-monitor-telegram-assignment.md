@@ -60,3 +60,6 @@ Tujuan resmi seluruh bukti START dan DONE order Boosting/Item FH3 adalah **🔥 
 
 Saat upload START/DONE, backend mengecek chat ID dari baris FH3, menolak ID positif/chat pribadi, lalu memanggil Telegram `getChat` untuk memvalidasi bahwa jenis chat `group/supergroup` dan judul grup (tanpa beda spasi/emoji) adalah *EVO Ilham FH3*. Jika tidak cocok, **foto tidak dikirim** dan status order website tidak diubah. Token bot tetap di server, bukan di APK.
 
+
+### Verifikasi grup tanpa mengirim foto
+Setelah backend terdeploy, login sebagai admin Payroll lalu buka tab **Tugas** di APK dan tekan **Periksa Koneksi Grup EVO Ilham FH3**. Endpoint read-only `GET /api/admin/payroll/mobile/proof-setup` memeriksa koneksi menggunakan bot Telegram website serta menolak grup tidak cocok/chat pribadi. Pemeriksaan ini **tidak mengirim foto, tidak membuat order, dan tidak mengubah status**. Lakukan tes START/DONE hanya pada order uji yang dibuat admin setelah pemeriksaan berhasil.
