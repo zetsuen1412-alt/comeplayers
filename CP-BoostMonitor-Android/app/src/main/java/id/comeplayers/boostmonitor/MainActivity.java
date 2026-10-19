@@ -449,6 +449,17 @@ public final class MainActivity extends Activity {
         heading("Tugas FH3", "Pilih order, sisipkan screenshot, lalu kirim START / DONE ke grup Telegram FH3.");
         info("Status asli order tersimpan di Payroll Website. Foto wajib diunggah sebelum START atau DONE.");
         space(body, 10);
+        Button checkGroup = button("✓ Periksa Koneksi Grup EVO Ilham FH3", false);
+        body.addView(checkGroup, lp(-1, 42));
+        checkGroup.setOnClickListener(v -> {
+            checkGroup.setEnabled(false);
+            payroll.checkProofGroup((message, ok) -> {
+                checkGroup.setEnabled(true);
+                new AlertDialog.Builder(this).setTitle(ok ? "Grup FH3 Siap" : "Grup FH3 Belum Siap")
+                    .setMessage(message).setPositiveButton("OK", null).show();
+            });
+        });
+        space(body, 10);
         Button refresh = button(tasksBusy ? "Memuat tugas..." : "↻ Segarkan Tugas", false);
         refresh.setEnabled(!tasksBusy && !proofBusy);
         body.addView(refresh, lp(-1, 42));
