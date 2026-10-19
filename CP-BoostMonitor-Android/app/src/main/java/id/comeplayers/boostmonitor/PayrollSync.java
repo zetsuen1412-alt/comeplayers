@@ -212,7 +212,8 @@ final class PayrollSync {
                 writeField(output, boundary, "orderRef", orderRef);
                 writeField(output, boundary, "employeeCode", employeeCode);
                 writeField(output, boundary, "action", action);
-                String header = "--" + boundary + "\r\nContent-Disposition: form-data; name=\\"photo\\"; filename=\\"evidence.jpg\\"\r\n"
+                String header = "--" + boundary + "\r\nContent-Disposition: form-data; name=" + (char)34 + "photo" + (char)34
+                        + "; filename=" + (char)34 + "evidence.jpg" + (char)34 + "\r\n"
                         + "Content-Type: " + mime + "\r\n\r\n";
                 output.write(header.getBytes(StandardCharsets.UTF_8));
                 output.write(photo);
@@ -239,8 +240,9 @@ final class PayrollSync {
 
     private static void writeField(OutputStream output, String boundary,
                                     String name, String value) throws IOException {
-        output.write(("--" + boundary + "\r\nContent-Disposition: form-data; name=\\""
-                + name + "\\"\r\n\r\n" + value + "\r\n").getBytes(StandardCharsets.UTF_8));
+        output.write(("--" + boundary + "\r\nContent-Disposition: form-data; name="
+                + (char)34 + name + (char)34 + "\r\n\r\n" + value + "\r\n")
+                .getBytes(StandardCharsets.UTF_8));
     }
 
     private JSONObject authorizedCall(String method, String path, JSONObject payload) throws Exception {
