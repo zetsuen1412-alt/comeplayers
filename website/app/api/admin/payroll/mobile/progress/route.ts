@@ -1,6 +1,6 @@
 import { requirePayrollAccess } from "@/lib/payrollAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
-import { MobileTelegramError, isSupportedProofImage, sendMobileProofPhoto } from "@/lib/payrollMobileProof";
+import { MobileTelegramError, isSupportedProofImage, sendMobileProofPhoto, verifyFH3ProofGroup } from "@/lib/payrollMobileProof";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -74,6 +74,8 @@ export async function POST(request: Request) {
       || !Number.isSafeInteger(claim.chatId) || typeof claim.caption !== "string")
       throw new Error("Claim bukti tidak valid");
     eventId = claim.eventId;
+    // Fail closed if the database still points to a private leader chat or another Telegram group.
+    await verifyFH3ProofGroup(claim.chatId);
     const uploaded = await sendMobileProofPhoto({
       chatId: claim.chatId, caption: claim.caption, bytes, mime: picture.type,
       replyToMessageId: Number.isSafeInteger(claim.replyToMessageId) ? claim.replyToMessageId : undefined,
