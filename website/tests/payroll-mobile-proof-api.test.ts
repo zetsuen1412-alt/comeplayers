@@ -5,6 +5,10 @@ import { runInNewContext } from "node:vm";
 import { File } from "node:buffer";
 import ts from "typescript";
 
+class TransportError extends Error {
+  constructor(message: string, readonly outcome: "failed" | "unknown") { super(message); }
+}
+
 const source = readFileSync(new URL("../app/api/admin/payroll/mobile/progress/route.ts", import.meta.url), "utf8");
 function endpoint(access: () => unknown, rpc: (name: string, args: Record<string, unknown>) => Promise<unknown>,
     telegram: (input: Record<string, unknown>) => Promise<unknown>) {
@@ -24,9 +28,7 @@ function endpoint(access: () => unknown, rpc: (name: string, args: Record<string
       if (name === "@/lib/adminSecurity") return { adminErrorStatus: (error: { status?: number }) => error.status ?? 500 };
       if (name === "@/lib/payrollMobileProof") return {
         isSupportedProofImage: () => true,
-        MobileTelegramError: class extends Error {
-          constructor(message: string, readonly outcome: string) { super(message); }
-        },
+        MobileTelegramError: TransportError,
         sendMobileProofPhoto: telegram,
       };
       throw new Error("Unexpected import: " + name);
@@ -92,8 +94,8 @@ test("Telegram rejection does not mutate Payroll and marks proof failed", async 
       if (name === "cp_mobile_proof_mark") return { data: true, error: null };
       throw new Error("Unexpected RPC " + name);
     },
-    async () => { throw Object.assign(new Error("Bot failed"), { outcome: "failed" }); });
+    async () => { throw new TransportError("Bot failed", "failed"); });
   const response = await send(formRequest());
-  assert.equal(response.status, 503);
+  assert.equal(response.status, 502);
   assert.deepEqual(calls, ["cp_mobile_proof_begin", "cp_mobile_proof_mark"]);
 });
