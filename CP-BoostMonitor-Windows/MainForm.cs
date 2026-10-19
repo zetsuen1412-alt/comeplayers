@@ -44,13 +44,13 @@ public sealed class MainForm : Form
     private readonly DataGridView _rosterGrid = Grid();
     private readonly ComboBox _workerPicker = new();
     private readonly ComboBox _statusPicker = new();
-    private readonly Label _pendingCount = Text("Order belum ditugaskan: 0", 13, true);
-    private readonly Label _taskCount = Text("Tugas aktif: 0", 13, true);
-    private readonly Label _employeeCount = Text("Karyawan FH3: 0", 13, true);
+    private readonly Label _pendingCount = StyledText("Order belum ditugaskan: 0", 13, true);
+    private readonly Label _taskCount = StyledText("Tugas aktif: 0", 13, true);
+    private readonly Label _employeeCount = StyledText("Karyawan FH3: 0", 13, true);
     private readonly TextBox _email = new();
     private readonly TextBox _password = new();
     private readonly Button _loginButton = ActionButton("LOGIN PAYROLL", true);
-    private readonly Label _loginFeedback = Text("Gunakan akun admin Payroll ComePlayers.", 10);
+    private readonly Label _loginFeedback = StyledText("Gunakan akun admin Payroll ComePlayers.", 10);
     private readonly RichTextBox _history = new() { ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = PanelColor, ForeColor = Fore, Font = new Font("Consolas", 10.5f) };
     private string _activePage = "Dashboard";
 
@@ -105,10 +105,10 @@ public sealed class MainForm : Form
         layout.Controls.Add(_nav, 0, 0);
         layout.Controls.Add(_content, 1, 0);
 
-        var logo = Text("⚡ CP BOOST", 19, true, Accent);
+        var logo = StyledText("⚡ CP BOOST", 19, true, Accent);
         logo.Margin = new Padding(12, 4, 0, 2);
         _nav.Controls.Add(logo);
-        var division = Text("MONITOR  •  FH3", 10, true, Muted);
+        var division = StyledText("MONITOR  •  FH3", 10, true, Muted);
         division.Margin = new Padding(12, 0, 0, 28);
         _nav.Controls.Add(division);
         foreach (var name in new[] { "Dashboard", "Order Baru", "Tugas Aktif", "Karyawan", "Riwayat", "Pengaturan" })
@@ -118,7 +118,7 @@ public sealed class MainForm : Form
             _navigation[name] = button;
             button.Click += (_, _) => ShowPage(name);
         }
-        var account = Text("●  Payroll Website", 10, false, Success);
+        var account = StyledText("●  Payroll Website", 10, false, Success);
         account.Margin = new Padding(12, 34, 0, 3);
         _nav.Controls.Add(account);
         _connection.Text = "Login belum aktif";
@@ -577,7 +577,7 @@ public sealed class MainForm : Form
         Padding = new Padding(12), BorderStyle = BorderStyle.FixedSingle,
     };
 
-    private static Label Text(string content, float fontSize, bool bold = false, Color? color = null) => new()
+    private static Label StyledText(string content, float fontSize, bool bold = false, Color? color = null) => new()
     {
         Text = content, AutoSize = true, ForeColor = color ?? Fore,
         Font = new Font("Segoe UI", fontSize, bold ? FontStyle.Bold : FontStyle.Regular),
@@ -586,14 +586,14 @@ public sealed class MainForm : Form
 
     private static Label MakeLabel(string content, float fontSize, int x, int y, bool bold = false, Color? color = null)
     {
-        var label = Text(content, fontSize, bold, color);
+        var label = StyledText(content, fontSize, bold, color);
         label.Location = new Point(x, y);
         return label;
     }
 
     private static Label MakeToolbarText(string content, int width)
     {
-        var label = Text(content, 10, false, Muted);
+        var label = StyledText(content, 10, false, Muted);
         label.Width = width; label.AutoSize = false;
         label.Height = 40; label.TextAlign = ContentAlignment.MiddleLeft;
         return label;
