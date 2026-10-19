@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -47,16 +48,28 @@ public final class MainActivity extends Activity {
     private static final int WHITE = Color.WHITE;
     private static final String[] STATUS = {EmployeeDb.READY, EmployeeDb.IDLE, EmployeeDb.SLEEP, EmployeeDb.WORK};
     private static final String[] STATUS_LABEL = {"Ready Boosting", "Farming", "Tidur", "Sedang Bekerja"};
-    private static final int CSV = 401, BACKUP = 402, RESTORE = 403;
+    private static final int CSV = 401, BACKUP = 402, RESTORE = 403, PROOF_PHOTO = 404;
 
     private EmployeeDb db;
     private SharedPreferences prefs;
     private PayrollSync payroll;
     private boolean syncBusy = false;
+    private boolean pendingBusy = false, assignmentBusy = false;
+    private JSONArray pendingOrders = new JSONArray();
+    private JSONArray activeTasks = new JSONArray();
+    private boolean tasksBusy = false, proofBusy = false;
+    private String proofOrderRef = "", proofEmployeeCode = "", proofAction = "";
+    private String pendingError = "";
     private final Runnable payrollTicker = new Runnable() {
         @Override public void run() {
             refreshPayroll(false);
             handler.postDelayed(this, 120000L); // sepanjang aplikasi aktif
+        }
+    };
+    private final Runnable pendingTicker = new Runnable() {
+        @Override public void run() {
+            if (linked()) { loadPendingOrders(false); loadActiveTasks(false); }
+            handler.postDelayed(this, 30000L);
         }
     };
     private LinearLayout root, body, employeesContainer;
@@ -77,9 +90,12 @@ public final class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume(); handler.removeCallbacks(ticker); handler.postDelayed(ticker, 60000);
         handler.removeCallbacks(payrollTicker); handler.post(payrollTicker);
+        handler.removeCallbacks(pendingTicker); handler.postDelayed(pendingTicker, 30000L);
+        if (linked()) { loadPendingOrders(false); loadActiveTasks(false); }
     }
     @Override protected void onPause() {
-        handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker); super.onPause();
+        handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker);
+        handler.removeCallbacks(pendingTicker); super.onPause();
     }
     @Override protected void onDestroy() { payroll.shutdown(); db.close(); super.onDestroy(); }
 
@@ -95,6 +111,84 @@ public final class MainActivity extends Activity {
             if (ok) prefs.edit().putLong("payroll_last_sync", now()).putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
             else prefs.edit().putString("payroll_sync_error", message).apply();
             if (manual || !ok) toast(message);
+            if (ok) { loadPendingOrders(false); loadActiveTasks(false); }
+            render();
+        });
+    }
+
+    private void loadPendingOrders(boolean manual) {
+        if (pendingBusy || !linked()) return;
+        pendingBusy = true;
+        payroll.loadPendingOrders((data, message, ok) -> {
+            pendingBusy = false;
+            if (ok) {
+                pendingOrders = data.optJSONArray("pending");
+                pendingError = "";
+            } else pendingError = message;
+            if (manual && !ok) toast(message);
+            if ("Order Baru".equals(page)) render();
+        });
+    }
+
+    private void sendAssignment(String orderRef, String employeeCode) {
+        if (assignmentBusy) return;
+        assignmentBusy = true;
+        render();
+        payroll.assignOrder(orderRef, employeeCode, (message, ok) -> {
+            assignmentBusy = false;
+            toast(message);
+            if (ok) {
+                loadPendingOrders(false);
+                loadActiveTasks(false);
+                refreshPayroll(false);
+                new AlertDialog.Builder(this)
+                    .setTitle("Karyawan berhasil ditugaskan")
+                    .setMessage("Langsung mulai order " + orderRef + " dengan screenshot bukti awal? Foto akan dikirim ke grup Telegram FH3.")
+                    .setNegativeButton("Nanti dari Tugas", null)
+                    .setPositiveButton("START + Foto", (dialog, which) ->
+                        pickProofPhoto(orderRef, employeeCode, "start"))
+                    .show();
+            }
+            render();
+        });
+    }
+
+    private void loadActiveTasks(boolean manual) {
+        if (tasksBusy || !linked()) return;
+        tasksBusy = true;
+        payroll.loadActiveTasks((data, message, ok) -> {
+            tasksBusy = false;
+            if (ok) {
+                activeTasks = data.optJSONArray("tasks");
+                if (activeTasks == null) activeTasks = new JSONArray();
+            } else if (manual) toast(message);
+            if ("Tugas".equals(page) || "Dashboard".equals(page)) render();
+        });
+    }
+
+    private void pickProofPhoto(String ref, String code, String action) {
+        if (!linked() || proofBusy) return;
+        proofOrderRef = ref; proofEmployeeCode = code; proofAction = action;
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/jpeg","image/png"});
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(intent, PROOF_PHOTO);
+    }
+
+    private void uploadProgress(Uri photo) {
+        if (proofBusy) return;
+        proofBusy = true;
+        final String ref = proofOrderRef, code = proofEmployeeCode, action = proofAction;
+        render();
+        payroll.sendProof(ref, code, action, photo, getContentResolver(), (message, ok) -> {
+            proofBusy = false;
+            new AlertDialog.Builder(this)
+                .setTitle(ok ? "Bukti terkirim" : "Bukti belum dikonfirmasi")
+                .setMessage(message + (ok ? "" : "\n\nPeriksa grup Telegram sebelum mencoba lagi."))
+                .setPositiveButton("OK", null).show();
+            if (ok) { loadActiveTasks(false); refreshPayroll(false); }
             render();
         });
     }
@@ -205,6 +299,8 @@ public final class MainActivity extends Activity {
         body = vertical(); body.setPadding(dp(15), dp(18), dp(15), dp(22));
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("Dashboard".equals(page)) dashboard();
+        else if ("Order Baru".equals(page)) ordersPage();
+        else if ("Tugas".equals(page)) tasksPage();
         else if ("Karyawan".equals(page)) employeesPage();
         else if ("Riwayat".equals(page)) historyPage();
         else settingsPage();
@@ -213,14 +309,20 @@ public final class MainActivity extends Activity {
 
     private void navigation() {
         LinearLayout nav = horizontal(); nav.setBackgroundColor(WHITE);
-        String[] pages = {"Dashboard", "Karyawan", "Riwayat", "Pengaturan"};
-        String[] symbols = {"▦", "♙", "◷", "⚙"};
+        String[] pages = {"Dashboard", "Order Baru", "Tugas", "Karyawan", "Riwayat", "Pengaturan"};
+        String[] symbols = {"▦", "✉", "▶", "♙", "◷", "⚙"};
         for (int i = 0; i < pages.length; i++) {
             final String dest = pages[i];
             TextView t = text(symbols[i] + "\n" + dest, 11, page.equals(dest) ? PURPLE : SUB, page.equals(dest));
             t.setGravity(Gravity.CENTER); t.setPadding(0, dp(11), 0, dp(11));
             nav.addView(t, new LinearLayout.LayoutParams(0, dp(62), 1));
-            t.setOnClickListener(v -> { page = dest; if (!"Riwayat".equals(dest)) historyEmployee = 0; render(); });
+            t.setOnClickListener(v -> {
+                page = dest;
+                if (!"Riwayat".equals(dest)) historyEmployee = 0;
+                render();
+                if ("Order Baru".equals(dest)) loadPendingOrders(false);
+                if ("Tugas".equals(dest)) loadActiveTasks(false);
+            });
         }
         root.addView(nav, lp(-1, -2));
     }
@@ -235,6 +337,12 @@ public final class MainActivity extends Activity {
         List<EmployeeDb.Employee> all = db.payrollEmployees();
         heading("Dashboard Tim", "Karyawan FH3 dari Payroll Website • " + time(now()));
         if (linked()) {
+            Button newOrders = button("📨 Order Baru FH3 (" + (pendingOrders == null ? 0 : pendingOrders.length()) + ")", true);
+            body.addView(newOrders, lp(-1, 48)); space(body, 12);
+            newOrders.setOnClickListener(v -> { page = "Order Baru"; render(); loadPendingOrders(false); });
+            Button activeButton = button("📷 Tugas Aktif (" + activeTasks.length() + ") • START / DONE", false);
+            body.addView(activeButton, lp(-1, 48)); space(body, 12);
+            activeButton.setOnClickListener(v -> { page = "Tugas"; render(); loadActiveTasks(false); });
             String error = prefs.getString("payroll_sync_error", "");
             long synced = prefs.getLong("payroll_last_sync", 0L);
             info((error.isEmpty() ? "✓ " + all.size() + " karyawan FH3 dari Payroll Website"
@@ -295,6 +403,127 @@ public final class MainActivity extends Activity {
     }
     private void info(String s) {
         LinearLayout p = panel(); p.addView(text(s, 13, SUB, false)); body.addView(p, lp(-1, -2));
+    }
+
+    /** Direct Payroll FH3 orders appear here until an admin assigns a worker. */
+    private void ordersPage() {
+        heading("Order Baru FH3", "Order langsung dari Payroll Website. Pilih karyawan untuk menyimpan penugasan.");
+        info("Khusus admin dan order Boosting/Item yang belum dikerjakan. Daftar diperbarui ketika halaman dibuka dan setiap sinkronisasi.");
+        space(body, 10);
+        Button sync = button(pendingBusy ? "Memuat order..." : "↻ Ambil Order Terbaru", true);
+        sync.setEnabled(!pendingBusy && !assignmentBusy);
+        body.addView(sync, lp(-1, 44));
+        sync.setOnClickListener(v -> loadPendingOrders(true));
+        space(body, 15);
+        if (!pendingError.isEmpty()) {
+            info("⚠ " + pendingError);
+            space(body, 10);
+        }
+        if (pendingOrders == null || pendingOrders.length() == 0) {
+            info(pendingBusy ? "Memuat order baru dari website..." : "Belum ada order FH3 yang menunggu karyawan.");
+            return;
+        }
+        for (int i = 0; i < pendingOrders.length(); i++) {
+            JSONObject order = pendingOrders.optJSONObject(i);
+            if (order == null) continue;
+            final String ref = order.optString("orderRef", "").trim();
+            if (ref.isEmpty()) continue;
+            LinearLayout card = panel();
+            card.addView(text("📦 " + ref + "  •  " + order.optString("orderType", "boosting").toUpperCase(Locale.ROOT), 15, INK, true));
+            space(card, 7);
+            card.addView(text("Nama: " + order.optString("orderName", "—"), 13, SUB, false));
+            card.addView(text("Game: " + order.optString("game", "—"), 13, SUB, false));
+            card.addView(text("Buyer: " + order.optString("buyer", "—"), 13, SUB, false));
+            card.addView(text("TASK: " + order.optString("task", "—"), 13, SUB, false));
+            space(card, 11);
+            Button assign = button(assignmentBusy ? "Menyimpan penugasan..." : "Pilih Karyawan", true);
+            assign.setEnabled(!assignmentBusy);
+            card.addView(assign, lp(-1, 44));
+            assign.setOnClickListener(v -> chooseWorker(ref));
+            body.addView(card, lp(-1, -2));
+            space(body, 11);
+        }
+    }
+
+    private void tasksPage() {
+        heading("Tugas FH3", "Pilih order, sisipkan screenshot, lalu kirim START / DONE ke grup Telegram FH3.");
+        info("Status asli order tersimpan di Payroll Website. Foto wajib diunggah sebelum START atau DONE.");
+        space(body, 10);
+        Button checkGroup = button("✓ Periksa Koneksi Grup EVO Ilham FH3", false);
+        body.addView(checkGroup, lp(-1, 42));
+        checkGroup.setOnClickListener(v -> {
+            checkGroup.setEnabled(false);
+            payroll.checkProofGroup((message, ok) -> {
+                checkGroup.setEnabled(true);
+                new AlertDialog.Builder(this).setTitle(ok ? "Grup FH3 Siap" : "Grup FH3 Belum Siap")
+                    .setMessage(message).setPositiveButton("OK", null).show();
+            });
+        });
+        space(body, 10);
+        Button refresh = button(tasksBusy ? "Memuat tugas..." : "↻ Segarkan Tugas", false);
+        refresh.setEnabled(!tasksBusy && !proofBusy);
+        body.addView(refresh, lp(-1, 42));
+        refresh.setOnClickListener(v -> loadActiveTasks(true));
+        space(body, 14);
+        if (activeTasks.length() == 0) {
+            info(tasksBusy ? "Memuat tugas..." : "Tidak ada order aktif yang ditugaskan ke FH3.");
+            return;
+        }
+        for (int i = 0; i < activeTasks.length(); i++) {
+            JSONObject task = activeTasks.optJSONObject(i);
+            if (task == null) continue;
+            final String ref = task.optString("orderRef", "").trim();
+            final String code = task.optString("employeeCode", "").trim();
+            final String status = task.optString("status", "").trim();
+            if (ref.isEmpty() || code.isEmpty()) continue;
+            LinearLayout card = panel();
+            card.addView(text("📦 " + ref + " • " + status.toUpperCase(Locale.ROOT), 16, INK, true));
+            space(card, 5);
+            card.addView(text("Karyawan: " + task.optString("employeeName", "—")
+                    + " (" + code + ")", 13, SUB, false));
+            card.addView(text("Order: " + task.optString("orderName", "—"), 13, SUB, false));
+            card.addView(text("Game: " + task.optString("game", "—"), 13, SUB, false));
+            card.addView(text("Buyer: " + task.optString("buyer", "—"), 13, SUB, false));
+            card.addView(text("TASK: " + task.optString("task", "—"), 13, SUB, false));
+            space(card, 10);
+            if ("assigned".equals(status) || "in_progress".equals(status)) {
+                boolean start = "assigned".equals(status);
+                String action = start ? "start" : "done";
+                Button send = button(proofBusy ? "Mengirim bukti..." :
+                        (start ? "▶ START + Screenshot" : "✅ DONE + Screenshot"), true);
+                send.setEnabled(!proofBusy);
+                card.addView(send, lp(-1, 46));
+                send.setOnClickListener(v -> pickProofPhoto(ref, code, action));
+            } else {
+                card.addView(text("Status ini belum mendukung pengiriman foto.", 12, SUB, false));
+            }
+            body.addView(card, lp(-1, -2)); space(body, 10);
+        }
+    }
+
+    private void chooseWorker(String orderRef) {
+        List<EmployeeDb.Employee> workers = db.payrollEmployees();
+        if (workers.isEmpty()) {
+            new AlertDialog.Builder(this).setTitle("Belum ada karyawan")
+                    .setMessage("Sinkronkan karyawan FH3 dari Payroll Website terlebih dahulu.")
+                    .setPositiveButton("OK", null).show();
+            return;
+        }
+        String[] labels = new String[workers.size()];
+        for (int i = 0; i < workers.size(); i++) {
+            EmployeeDb.Employee e = workers.get(i);
+            labels[i] = e.name + "  •  " + e.payrollCode + "  •  " + e.visibleStatus();
+        }
+        new AlertDialog.Builder(this).setTitle("Pilih karyawan untuk " + orderRef)
+                .setItems(labels, (dialog, which) -> {
+                    EmployeeDb.Employee selected = workers.get(which);
+                    new AlertDialog.Builder(this).setTitle("Konfirmasi Penugasan")
+                            .setMessage("Order: " + orderRef + "\nKaryawan: " + selected.name
+                                    + " (" + selected.payrollCode + ")\n\nSimpan penugasan ke Payroll Website?")
+                            .setNegativeButton("Batal", null)
+                            .setPositiveButton("Tugaskan", (confirm, button) -> sendAssignment(orderRef, selected.payrollCode))
+                            .show();
+                }).setNegativeButton("Batal", null).show();
     }
 
     private void employeesPage() {
@@ -546,6 +775,16 @@ public final class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
+        if (requestCode == PROOF_PHOTO) {
+            String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
+            new AlertDialog.Builder(this).setTitle("Kirim screenshot " + actionLabel + "?")
+                .setMessage("Order: " + proofOrderRef + "\nKaryawan: " + proofEmployeeCode
+                    + "\n\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
+                .setNegativeButton("Batal", null)
+                .setPositiveButton("Kirim Foto", (dialog, which) -> uploadProgress(uri))
+                .show();
+            return;
+        }
         try {
             if (requestCode == CSV || requestCode == BACKUP) {
                 String contents = requestCode == CSV ? "\ufeff" + csvContent() : db.backup(0).toString(2);

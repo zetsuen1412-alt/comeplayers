@@ -43,6 +43,33 @@ jobs:
           unzip -t "$APK" | tail -n 1
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           sha256sum "$APK"
+      - name: Upload verified APK for branch testing
+        continue-on-error: true # GitHub Actions artifact quota is currently full
+        uses: actions/upload-artifact@v4
+        with:
+          name: CP-BoostMonitor-v1.5.0-verified-debug
+          path: CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish isolated PR preview APK to GitHub Releases
+        if: github.ref == 'refs/heads/feature/boost-monitor-mobile-assignment-20261019'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="cp-boost-monitor-v1.5-fh3-proof-preview"
+          APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-PREVIEW.apk" --clobber
+          else
+            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-PREVIEW.apk" \
+              --target "$GITHUB_SHA" \
+              --title "CP Boost Monitor 1.5 FH3 proof — PREVIEW ONLY" \
+              --notes "Internal development APK only. Requires staging migrations, matching website API and test Telegram group setup. Debug signature may not match the existing installation; back up local data before changing APK. Not for production work." \
+              --prerelease
+          fi
       - name: Publish same APK to website downloads
         # Publish the verified APK from main so the production download stays current.
         if: github.ref == 'refs/heads/main'
@@ -75,15 +102,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="cp-boost-monitor-android-v1.3-fh3-debug"
+          TAG="cp-boost-monitor-android-v1.5-fh3-proof-debug"
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.3-fh3-debug.apk" --clobber
+            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-debug.apk" --clobber
           else
-            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.3-fh3-debug.apk" \
+            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-debug.apk" \
               --target "$GITHUB_SHA" \
-              --title "CP Boost Monitor Android v1.3 FH3 (internal debug)" \
+              --title "CP Boost Monitor Android v1.5 FH3 Screenshot Proof (internal debug)" \
               --notes "APK debug internal. Download mudah juga tersedia di Website Payroll Admin." \
               --prerelease
           fi
