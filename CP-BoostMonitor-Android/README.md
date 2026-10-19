@@ -31,3 +31,6 @@ Detail backend dan batasan: [Panduan direct mobile assignment](../docs/cp-boost-
 
 ## Grup tujuan yang wajib dipilih admin
 Grup bukti screenshot FH3: **🔥 EVO🔥 Ilham FH3**. Bot harus bergabung dan admin Telegram mengirim `/bind FH3` di grup ini agar server tahu chat ID asli. Upload START/DONE gagal dengan aman apabila tujuan FH3 bukan grup tersebut (misalnya sebelumnya disetel sebagai chat pribadi leader). Judul saja pada screenshot tidak berisi chat ID.
+
+### Tes koneksi grup tanpa pengiriman foto
+Buka tab **Tugas** → **Periksa Koneksi Grup EVO Ilham FH3**. Tombol ini hanya memeriksa apakah bot Telegram yang dipakai website dapat mengakses grup FH3 yang benar; tidak mengirim foto. Jika gagal, periksa konfigurasi `/bind FH3` dan `TELEGRAM_BOT_TOKEN` di backend.
