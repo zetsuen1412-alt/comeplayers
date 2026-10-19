@@ -202,6 +202,60 @@ public final class MainActivity extends Activity {
         });
     }
 
+    private void previewProof(Uri photoUri) {
+        String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
+        Bitmap bitmap = null;
+        try {
+            BitmapFactory.Options bounds = new BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            try (InputStream stream = getContentResolver().openInputStream(photoUri)) {
+                if (stream == null) throw new IllegalStateException("Gambar tidak dapat dibuka.");
+                BitmapFactory.decodeStream(stream, null, bounds);
+            }
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0
+                    || (long) bounds.outWidth * bounds.outHeight > 48000000L)
+                throw new IllegalArgumentException("Resolusi gambar tidak didukung (maksimal 48 MP).");
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            int largest = Math.max(bounds.outWidth, bounds.outHeight);
+            options.inSampleSize = 1;
+            while (largest / options.inSampleSize > 1600) options.inSampleSize *= 2;
+            try (InputStream stream = getContentResolver().openInputStream(photoUri)) {
+                if (stream == null) throw new IllegalStateException("Gambar tidak dapat dibuka.");
+                bitmap = BitmapFactory.decodeStream(stream, null, options);
+            }
+            if (bitmap == null) throw new IllegalStateException("Preview gambar tidak dapat dibuat.");
+            LinearLayout preview = vertical(); pad(preview, 16, 10);
+            preview.addView(pill("BUKTI " + actionLabel, PURPLE, 0xff27344a)); space(preview, 9);
+            preview.addView(text(proofOrderRef + "  •  " + proofEmployeeCode, 15, INK, true));
+            space(preview, 7);
+            preview.addView(text("Tujuan: 🔥 EVO🔥 Ilham FH3", 12, SUB, false));
+            space(preview, 13);
+            ImageView picture = new ImageView(this);
+            picture.setImageBitmap(bitmap);
+            picture.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            picture.setBackground(outline(0xff111927, 15, BORDER));
+            preview.addView(picture, lp(-1, 250));
+            space(preview, 11);
+            preview.addView(text("Periksa bahwa screenshot benar. Foto hanya dikirim setelah konfirmasi dan tidak dikirim ulang otomatis.", 12, SUB, false));
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Review Screenshot • " + actionLabel)
+                    .setView(preview).setNegativeButton("Batal", null)
+                    .setPositiveButton("Kirim Bukti " + actionLabel, (d, which) -> uploadProgress(photoUri))
+                    .create();
+            final Bitmap forCleanup = bitmap;
+            dialog.setOnDismissListener(d -> {
+                picture.setImageDrawable(null);
+                if (!forCleanup.isRecycled()) forCleanup.recycle();
+            });
+            dialog.show();
+        } catch (Exception exception) {
+            if (bitmap != null && !bitmap.isRecycled()) bitmap.recycle();
+            new AlertDialog.Builder(this).setTitle("Screenshot tidak dapat dipratinjau")
+                    .setMessage(exception.getMessage() == null ? "Pilih PNG/JPEG lain." : exception.getMessage())
+                    .setPositiveButton("OK", null).show();
+        }
+    }
+
     private void loginDialog() {
         LinearLayout form = form();
         form.addView(text("Masuk memakai email dan password akun yang memiliki akses Payroll ComePlayers.", 13, SUB, false));
@@ -327,7 +381,7 @@ public final class MainActivity extends Activity {
             LinearLayout gate = vertical(); gate.setPadding(dp(21), dp(32), dp(21), dp(25));
             LinearLayout hero = panel(); hero.setBackground(hero());
             hero.addView(pill("SECURE ACCESS", PURPLE, 0xff283246)); space(hero, 18);
-            hero.addView(text("Selamat datang di\\nCP Boost Monitor", 26, INK, true));
+            hero.addView(text("Selamat datang di\nCP Boost Monitor", 26, INK, true));
             space(hero, 10);
             hero.addView(text("Pusat kendali order, karyawan, dan bukti pekerjaan FH3. Login menggunakan akun Payroll ComePlayers.", 14, SUB, false));
             space(hero, 23);
@@ -870,13 +924,7 @@ public final class MainActivity extends Activity {
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         if (requestCode == PROOF_PHOTO) {
-            String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
-            new AlertDialog.Builder(this).setTitle("Kirim screenshot " + actionLabel + "?")
-                .setMessage("Order: " + proofOrderRef + "\nKaryawan: " + proofEmployeeCode
-                    + "\n\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Kirim Foto", (dialog, which) -> uploadProgress(uri))
-                .show();
+            previewProof(uri);
             return;
         }
         try {
