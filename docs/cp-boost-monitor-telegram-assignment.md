@@ -52,3 +52,11 @@ Alur penugasan tetap **Payroll Website → Android → Payroll Website**, bukan 
 **Persiapan operasional:** masukkan bot dengan izin mengirim foto ke grup tujuan (misalnya *EVO Ilham FH3*), konfigurasikan chat ID grup tersebut sebagai divisi FH3 di pengaturan Telegram Payroll Website, dan pastikan `TELEGRAM_BOT_TOKEN` di server telah diset. Nama dan chat ID grup dari screenshot saja tidak cukup untuk menghubungkannya secara otomatis. Jangan menaruh token bot di aplikasi Android.
 
 **Migrasi tambahan:** jalankan `20261019220002_cp_boost_monitor_mobile_telegram_proof.sql` setelah dua migrasi direct-assignment sebelumnya. Endpoint `POST /api/admin/payroll/mobile/progress` menerima multipart `orderRef`, `employeeCode`, `action`, `photo`, memerlukan akun admin dan membalas hasil konfirmasi. Status lokal Ready/Farming/Tidur/Bekerja tetap independen. Uji di staging dengan grup uji terlebih dahulu sebelum menggunakan grup produksi.
+
+## Grup Telegram khusus FH3 (dikonfirmasi dari screenshot)
+Tujuan resmi seluruh bukti START dan DONE order Boosting/Item FH3 adalah **🔥 EVO🔥 Ilham FH3** (judul Telegram bisa memiliki perbedaan spasi/emoji). Foto tidak boleh dikirim ke chat pribadi leader maupun grup FH2/grup FH3 lain.
+
+**Cara menghubungkan grup yang tepat:** (1) tambahkan bot Payroll ComePlayers yang aktif ke grup tersebut dan izinkan mengirim media; (2) sebagai admin Telegram yang ID-nya tercantum dalam `TELEGRAM_ADMIN_USER_IDS`, kirim pesan `/bind FH3` **di dalam grup itu**; (3) pastikan bot membalas `✅ Grup dihubungkan ke FH3`; (4) di Payroll Website → Telegram Booster, pastikan baris FH3 menampilkan ID grup negatif dan nama grup yang cocok. Chat ID numeriknya tidak terlihat dari screenshot dan **tidak boleh ditebak atau di-hardcode**.
+
+Saat upload START/DONE, backend mengecek chat ID dari baris FH3, menolak ID positif/chat pribadi, lalu memanggil Telegram `getChat` untuk memvalidasi bahwa jenis chat `group/supergroup` dan judul grup (tanpa beda spasi/emoji) adalah *EVO Ilham FH3*. Jika tidak cocok, **foto tidak dikirim** dan status order website tidak diubah. Token bot tetap di server, bukan di APK.
+
