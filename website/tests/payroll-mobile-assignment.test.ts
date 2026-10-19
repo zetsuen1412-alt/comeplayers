@@ -12,108 +12,133 @@ function load(file: string, mocks: Record<string, unknown>) {
   const exports: { GET?: (request: Request) => Promise<Response>; POST?: (request: Request) => Promise<Response> } = {};
   runInNewContext(compiled, {
     exports, Request, Response, Error, SyntaxError,
-    require: (name: string) => {
-      assert.ok(name in mocks, `Unexpected module: ${name}`);
-      return mocks[name];
-    },
+    require: (name: string) => { assert.ok(name in mocks, `Unexpected module: ${name}`); return mocks[name]; },
   });
   return exports;
 }
 const url = "https://example.com/api/admin/payroll/mobile";
-
-test("mobile pending rejects non-admin before querying any order", async () => {
+const order = (externalReference: string, patch: Record<string, unknown> = {}) => ({
+  externalReference, team: "FH3", orderType: "boosting", operationalStatus: "assignment_pending",
+  orderedAt: "2026-10-19T09:00:00.000Z", financeStatus: "pending",
+  orderName: "Boost Rank", game: "Mobile Legends", buyerName: "Buyer", task: "Joki",
+  workerAssignments: [], grossMinor: 2000, ...patch,
+});
+const workspace = (orders: unknown[], employees: unknown[] = []) =>
+  { return { payload: { orders, employees }, revision: 7, updated_at: "2026-10-19T10:00:00Z" }; };
+const client = (data: unknown) => ({
+  from: (table: string) => {
+    assert.equal(table, "cp_payroll_workspace", "mobile endpoint must never query Telegram tables");
+    return { select: () => ({ eq: () => ({ single: async () => ({ data }) }) }) };
+  },
+});
+const common = {
+  "@/lib/adminSecurity": { adminErrorStatus: (e: { status?: number }) => e.status ?? 500 },
+  "@/features/payroll/lib/workspace-model": { workspaceKeys: { orders: "orders", employees: "employees" } },
+};
+test("pending endpoint blocks non-admin before reading order details", async () => {
   let reads = 0;
   const route = load("app/api/admin/payroll/mobile/pending/route.ts", {
-    "@/lib/payrollAccess": { requirePayrollAccess: async () => ({ actor: { isAdmin: false }, supabaseAdmin: { from: () => { reads++; } } }) },
-    "@/lib/adminSecurity": { adminErrorStatus: () => 500 },
-    "@/features/payroll/lib/workspace-model": { workspaceKeys: { orders: "orders" } },
+    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+      actor: { isAdmin: false }, supabaseAdmin: { from: () => { reads++; } },
+    }) },
   });
-  const result = await route.GET!(new Request(url + "/pending"));
-  assert.equal(result.status, 403);
+  assert.equal((await route.GET!(new Request(url + "/pending"))).status, 403);
   assert.equal(reads, 0);
 });
 
-test("mobile pending only shows waiting FH3 Boosting/Item, without sensitive financial fields", async () => {
-  const seen: string[] = [];
-  const workspace = { payload: { orders: [
-    { externalReference: "X100", team: "FH3", orderType: "boosting", orderName: "Boost Rank", game: "Mobile Legends", buyerName: "Buyer", task: "Joki", grossMinor: 12345 },
-    { externalReference: "X200", team: "FH2", orderType: "boosting", orderName: "Unrelated" },
-    { externalReference: "X300", team: "FH3", orderType: "item", sheetDeletedAt: "2026-10-01" },
-  ] }, revision: 7 };
-  const query = (table: string) => {
-    const q = {
-      select: (_fields: string) => q,
-      eq: (field: string, val: unknown) => { seen.push(`${table}:${field}=${val}`); return q; },
-      in: () => q,
-      order: () => q,
-      limit: async () => ({ data: [
-        { order_ref: "X100", order_type: "boosting", state: "waiting" },
-        { order_ref: "X200", order_type: "boosting", state: "waiting" },
-        { order_ref: "X300", order_type: "item", state: "waiting" },
-      ] }),
-      single: async () => ({ data: workspace }),
-    };
-    return q;
-  };
+test("new orders are read directly from Payroll (including imported draft), never Telegram", async () => {
+  const rows = [
+    order("X100"), order("X200", { operationalStatus: "draft" }),
+    order("X300", { operationalStatus: "assigned" }),
+    order("X400", { team: "FH2" }),
+    order("X500", { workerAssignments: [{ employeeCode: "E" }] }),
+    order("X600", { importNeedsReview: true }),
+    order("X700", { sheetDeletedAt: "2026-10-18T00:00:00Z" }),
+    order("X800", { scheduleMode: "daily" }),
+    order("X900", { orderType: "item", operationalStatus: "confirmed" }),
+  ];
   const route = load("app/api/admin/payroll/mobile/pending/route.ts", {
-    "@/lib/payrollAccess": { requirePayrollAccess: async () => ({ actor: { isAdmin: true }, supabaseAdmin: { from: query } }) },
-    "@/lib/adminSecurity": { adminErrorStatus: () => 500 },
-    "@/features/payroll/lib/workspace-model": { workspaceKeys: { orders: "orders" } },
+    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+      actor: { isAdmin: true }, supabaseAdmin: client(workspace(rows)),
+    }) },
   });
   const response = await route.GET!(new Request(url + "/pending"));
   assert.equal(response.status, 200);
-  const data = await response.json();
-  assert.equal(data.pending.length, 1);
-  assert.equal(data.pending[0].orderRef, "X100");
-  assert.equal(data.pending[0].buyer, "Buyer");
-  assert.ok(seen.includes("cp_payroll_telegram_orders:division=FH3"));
-  assert.ok(seen.includes("cp_payroll_telegram_orders:state=waiting"));
-  assert.doesNotMatch(JSON.stringify(data), /grossMinor|telegram_user_id|salary|kasbon|refreshToken/);
+  const result = await response.json();
+  assert.equal(result.schema, 2);
+  assert.equal(result.source, "payroll");
+  assert.deepEqual(result.pending.map((x: { orderRef: string }) => x.orderRef), ["X100","X200","X900"]);
+  assert.equal(result.pending[0].buyer, "Buyer");
+  assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_user_id|salary|kasbon|refreshToken/);
 });
 
-test("mobile assignment requires admin and a valid order/employee before the database RPC", async () => {
+test("assignment endpoint checks admin, validates payload, and uses website actor identity", async () => {
   let isAdmin = false;
   const calls: unknown[] = [];
   const route = load("app/api/admin/payroll/mobile/assign/route.ts", {
-    "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
       actor: { isAdmin, id: "e120c2e4-99bb-42b0-9d08-a8e71ebef76a" },
-      supabaseAdmin: { rpc: async (name: string, args: unknown) => { calls.push({ name, args }); return { data: { ok: true, orderRef: "X100" } }; } },
+      supabaseAdmin: { rpc: async (name: string, args: unknown) => {
+        calls.push({ name, args }); return { data: { ok: true, orderRef: "X100" } };
+      } },
     }) },
-    "@/lib/adminSecurity": { adminErrorStatus: () => 500 },
   });
-  const send = (body: unknown) => new Request(url + "/assign", { method: "POST", body: JSON.stringify(body) });
-  assert.equal((await route.POST!(send({ orderRef: "X100", employeeCode: "EMP1" }))).status, 403);
+  const request = (body: unknown) => new Request(url + "/assign", {
+    method: "POST", body: JSON.stringify(body),
+  });
+  assert.equal((await route.POST!(request({ orderRef: "X100", employeeCode: "E" }))).status, 403);
   isAdmin = true;
-  assert.equal((await route.POST!(send({ orderRef: "", employeeCode: "EMP1" }))).status, 400);
+  assert.equal((await route.POST!(request({ orderRef: "", employeeCode: "E" }))).status, 400);
   assert.equal(calls.length, 0);
-  const response = await route.POST!(send({ orderRef: "X100", employeeCode: "EMP1" }));
-  assert.equal(response.status, 200);
-  assert.equal(calls.length, 1);
-  assert.deepEqual(JSON.parse(JSON.stringify(calls[0])), {
+  assert.equal((await route.POST!(request({ orderRef: "X100", employeeCode: "E" }))).status, 200);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls)), [{
     name: "cp_mobile_assign_fh3",
-    args: { p_order_ref: "X100", p_employee_code: "EMP1", p_actor_id: "e120c2e4-99bb-42b0-9d08-a8e71ebef76a" },
-  });
+    args: { p_order_ref: "X100", p_employee_code: "E", p_actor_id: "e120c2e4-99bb-42b0-9d08-a8e71ebef76a" },
+  }]);
 });
 
-test("mobile assignment maps concurrent assignment conflicts to reload instead of overwriting", async () => {
+test("concurrent assignment conflicts are surfaced instead of overwriting work", async () => {
   const route = load("app/api/admin/payroll/mobile/assign/route.ts", {
-    "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
       actor: { isAdmin: true, id: "e120c2e4-99bb-42b0-9d08-a8e71ebef76a" },
       supabaseAdmin: { rpc: async () => ({ error: { code: "P0001" } }) },
     }) },
-    "@/lib/adminSecurity": { adminErrorStatus: () => 500 },
   });
-  const request = new Request(url + "/assign", { method: "POST", body: JSON.stringify({ orderRef: "X100", employeeCode: "EMP1" }) });
+  const request = new Request(url + "/assign", {
+    method: "POST", body: JSON.stringify({ orderRef: "X100", employeeCode: "E" }),
+  });
   assert.equal((await route.POST!(request)).status, 409);
 });
 
-test("mobile assignment SQL cannot overwrite started/done work and records audit actor", () => {
+test("active tasks project directly from assigned Payroll orders", async () => {
+  const e = { id: "uid-1", code: "FH3001", name: "Andi", team: "FH3", workforceStatus: "SHIFT" };
+  const rows = [
+    order("X100", { operationalStatus: "assigned", workerAssignments: [
+      { employeeCode: "FH3001", employeeName: "Andi", team: "FH3", quantity: 1 },
+    ] }),
+    order("X200", { operationalStatus: "assignment_pending" }),
+  ];
+  const route = load("app/api/admin/payroll/mobile/tasks/route.ts", {
+    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+      supabaseAdmin: client(workspace(rows, [e])),
+    }) },
+  });
+  const response = await route.GET!(new Request(url + "/tasks"));
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.source, "payroll");
+  assert.equal(result.tasks.length, 1);
+  assert.equal(result.tasks[0].employeeCode, "FH3001");
+  assert.equal(result.tasks[0].orderRef, "X100");
+  assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_file_id|telegram_chat_id/);
+});
+
+test("direct database migrations contain no Telegram assignment or outbox writes", () => {
   const sql = readFileSync(new URL("../supabase/migrations/20261019220000_cp_boost_monitor_mobile_assignment.sql", import.meta.url), "utf8");
-  assert.match(sql, /for update/);
-  assert.match(sql, /o\.state <> 'waiting'/);
-  assert.match(sql, /cp_telegram_terminal\(item, w\)/);
+  const routing = readFileSync(new URL("../supabase/migrations/20261019220001_cp_boost_monitor_direct_fh3_routing.sql", import.meta.url), "utf8");
+  assert.match(sql, /cp_payroll_workspace where id = 1 for update/);
   assert.match(sql, /cp_mobile_assignment_audit/);
-  assert.match(sql, /p_actor_id/);
-  assert.match(sql, /revoke all on function public\.cp_mobile_assign_fh3/);
-  assert.doesNotMatch(sql, /cp_telegram_process_update\(/);
+  assert.doesNotMatch(sql, /cp_payroll_telegram_/);
+  assert.match(routing, /p_order->>'team'='FH3'/);
+  assert.match(routing, /then return; end if/);
 });
