@@ -10,6 +10,7 @@ create table public.cp_mobile_order_proof (
   chat_id bigint not null,
   chat_title text,
   caption text not null,
+  reply_to_message_id bigint,
   telegram_message_id bigint,
   telegram_file_id text,
   created_at timestamptz not null default now(),
@@ -80,6 +81,8 @@ begin
   slug:=btrim(slug,'-');
   if slug='' then raise exception 'Nama karyawan tidak valid untuk caption.'; end if;
   caption:=lower(ref)||'/'||left(slug,65)||'/'||p_action;
+  -- Reply in-thread when this bot already knows the order's original message.
+  -- An unrelated manually written Telegram message cannot be guessed safely.
   select * into r from public.cp_mobile_order_proof
     where order_ref=ref and action=p_action for update;
   if r.id is not null and r.status='sent' then
@@ -91,8 +94,11 @@ begin
   end if;
   if r.id is null then
     insert into public.cp_mobile_order_proof
-      (order_ref,employee_code,action,actor_id,chat_id,chat_title,caption)
-      values(ref,code,p_action,p_actor_id,dest.chat_id,dest.chat_title,caption)
+      (order_ref,employee_code,action,actor_id,chat_id,chat_title,caption,reply_to_message_id)
+      values(ref,code,p_action,p_actor_id,dest.chat_id,dest.chat_title,caption,
+        (select chats.message_id from public.cp_payroll_telegram_order_chats chats
+          where chats.order_ref=ref and chats.division='FH3'
+            and chats.chat_id=dest.chat_id limit 1))
       returning * into r;
   else
     update public.cp_mobile_order_proof
@@ -101,7 +107,8 @@ begin
       where id=r.id returning * into r;
   end if;
   return jsonb_build_object('ok',true,'alreadySent',false,'eventId',r.id,
-    'caption',caption,'chatId',r.chat_id,'chatTitle',r.chat_title);
+    'caption',caption,'chatId',r.chat_id,'chatTitle',r.chat_title,
+    'replyToMessageId',r.reply_to_message_id);
 end;
 $$;
 
