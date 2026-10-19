@@ -1,10 +1,13 @@
-# CP Boost Monitor v1.3 — Khusus karyawan FH3
+# CP Boost Monitor — Khusus karyawan FH3
 
 **Sumber data:** menu [Payroll → Karyawan](https://www.comeplayers.com/admin/payroll/employees),
 filter Bagian/FH **FH3**. Endpoint roster hanya mengirim identitas dan status anggota FH3.
 Endpoint tugas terpisah mengirim proyeksi minimal order aktif yang sudah ditugaskan:
 Order, nama order, Game, Buyer, TASK, kode/ID karyawan, dan status pengerjaan.
 Token bot Telegram, gaji, kasbon, mutasi, serta spreadsheet mentah **tidak** dikirim ke APK.
+
+## Penugasan order baru (fitur source terbaru, perlu deploy)
+Admin Payroll dapat membuka tab **Order Baru** untuk memilih satu karyawan FH3 aktif untuk order Boosting/Item `waiting`. Penugasan disimpan secara atomik ke website, assignment Telegram, dan audit; bot memperbarui pesan order ketika worker outbox berjalan. Perlu migrasi database dan APK baru sebelum digunakan di produksi. Detail: [panduan penugasan Telegram](../docs/cp-boost-monitor-telegram-assignment.md).
 
 ## Pembaruan otomatis
 1. Instal APK terbaru melalui [APK Karyawan](https://www.comeplayers.com/admin/payroll/boost-monitor).
