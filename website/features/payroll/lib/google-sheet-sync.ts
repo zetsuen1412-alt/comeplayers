@@ -524,6 +524,11 @@ function parseIncomingDailyPackage(input: {
 }
 
 function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
+  // A blank Sheet BOOSTER must not erase an employee assigned in CP Boost Monitor.
+  // An explicit Sheet worker still takes precedence, keeping source corrections possible.
+  const retainMobileAssignment = existing.workerAssignments?.length === 1
+    && existing.workerAssignments[0].id.startsWith("mobile:")
+    && !incoming.workerAssignments?.length;
   return jsonClean({
     ...existing,
     sheetDeletedAt: undefined,
@@ -540,13 +545,13 @@ function mergeSheetOwnedFields(existing: Order, incoming: Order): Order {
     gameName: incoming.gameName,
     service: incoming.service,
     process: incoming.process,
-    employeeCode: incoming.employeeCode,
-    employeeName: incoming.employeeName,
+    employeeCode: retainMobileAssignment ? existing.employeeCode : incoming.employeeCode,
+    employeeName: retainMobileAssignment ? existing.employeeName : incoming.employeeName,
     team: incoming.team,
     quantity: incoming.quantity,
     rateMinor: incoming.rateMinor,
     grossMinor: incoming.grossMinor,
-    workerAssignments: incoming.workerAssignments,
+    workerAssignments: retainMobileAssignment ? existing.workerAssignments : incoming.workerAssignments,
     expectedPaymentMinor: incoming.grossMinor,
     orderedAt: incoming.orderedAt,
     dueAt: incoming.dueAt,
@@ -829,6 +834,12 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     let next = mergeSheetOwnedFields(existing, incoming);
     if (!dailyPackage && incoming.transferStatus) next=automaticSingleDelivery({ ...next,
       ...(incoming.transferStatus === "PENDING" ? {operationalStatus:"draft",verifiedAt:undefined,completedAt:undefined} : {}) });
+    // Preserve a still-active direct mobile assignment across benign PENDING Sheet refreshes.
+    if (!dailyPackage && next.operationalStatus === "draft" && incoming.transferStatus === "PENDING"
+      && existing.operationalStatus === "assigned"
+      && existing.workerAssignments?.length === 1
+      && existing.workerAssignments[0].id.startsWith("mobile:")
+      && !incoming.workerAssignments?.length) next = { ...next, operationalStatus: "assigned" };
     if (dailyPackage) {
       try {
         next = automaticDailyDelivery(jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
