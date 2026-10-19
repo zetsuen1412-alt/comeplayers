@@ -65,7 +65,7 @@ public final class MainActivity extends Activity {
     };
     private final Runnable pendingTicker = new Runnable() {
         @Override public void run() {
-            if ("Order Baru".equals(page)) loadPendingOrders(false);
+            if (linked()) loadPendingOrders(false);
             handler.postDelayed(this, 30000L);
         }
     };
@@ -88,7 +88,7 @@ public final class MainActivity extends Activity {
         super.onResume(); handler.removeCallbacks(ticker); handler.postDelayed(ticker, 60000);
         handler.removeCallbacks(payrollTicker); handler.post(payrollTicker);
         handler.removeCallbacks(pendingTicker); handler.postDelayed(pendingTicker, 30000L);
-        if ("Order Baru".equals(page)) loadPendingOrders(false);
+        if (linked()) loadPendingOrders(false);
     }
     @Override protected void onPause() {
         handler.removeCallbacks(ticker); handler.removeCallbacks(payrollTicker);
@@ -284,6 +284,9 @@ public final class MainActivity extends Activity {
         List<EmployeeDb.Employee> all = db.payrollEmployees();
         heading("Dashboard Tim", "Karyawan FH3 dari Payroll Website • " + time(now()));
         if (linked()) {
+            Button newOrders = button("📨 Order Baru FH3 (" + (pendingOrders == null ? 0 : pendingOrders.length()) + ")", true);
+            body.addView(newOrders, lp(-1, 48)); space(body, 12);
+            newOrders.setOnClickListener(v -> { page = "Order Baru"; render(); loadPendingOrders(false); });
             String error = prefs.getString("payroll_sync_error", "");
             long synced = prefs.getLong("payroll_last_sync", 0L);
             info((error.isEmpty() ? "✓ " + all.size() + " karyawan FH3 dari Payroll Website"
