@@ -26,7 +26,7 @@
 ## Migrasi, kompatibilitas, dan Telegram lama
 1. Jalankan `20261019220000_cp_boost_monitor_mobile_assignment.sql` untuk assignment langsung dan audit.
 2. Jalankan `20261019220001_cp_boost_monitor_direct_fh3_routing.sql` untuk mencegah dispatch Telegram **baru** pada Boosting/Item FH3. Pending unsent Telegram notices untuk order FH3 yang belum dimulai dibatalkan. Pekerjaan Telegram lama yang sudah `in_progress` dipertahankan hingga selesai, dan divisi lain maupun Gold tetap memakai workflow lamanya.
-3. Deploy website API, kemudian install APK Android versi 1.4.0. Jangan gunakan APK baru jika migrasi belum diterapkan.
+3. Deploy website API, kemudian install APK Android versi 1.5.0. Jangan gunakan APK baru jika migrasi belum diterapkan.
 4. Workflow GitHub Actions menghasilkan APK debug internal. APK yang diunduh dari website hanya berubah setelah build dari main dan publish berhasil. Jangan mengasumsikan APK produksi otomatis terbarui dari PR.
 
 ## Checklist pengujian
@@ -38,3 +38,17 @@
 - [ ] Order verify/closed/archived/review/resign/daily dan akun non-admin ditolak.
 - [ ] Uji Android fisik, keystore/upgrade APK, logout, token kedaluwarsa dan internet putus.
 - [ ] Yakinkan order baru FH3 tidak mengirim pesan Telegram, dan workflow lama lintas divisi tidak rusak.
+
+
+## START dan DONE dari CP Boost Monitor (v1.5)
+Alur penugasan tetap **Payroll Website → Android → Payroll Website**, bukan bot sebagai sumber order. Telegram hanya dipakai untuk **pengiriman foto bukti** dengan token bot yang tersimpan aman di backend.
+1. Admin memilih karyawan FH3 pada order Boosting/Item. Aplikasi menawarkan **START + Foto**; foto dipilih dari galeri, lalu dikonfirmasi.
+2. Website mengecek penugasan, status, dan tujuan Telegram berdasarkan konfigurasi grup aktif **FH3** pada `cp_payroll_telegram_divisions`. APK tidak dapat memasukkan chat ID sembarang. Bukti dikirim memakai `sendPhoto` bot server dengan caption otomatis `x4671/mulyana/start`.
+3. Telegram harus mengembalikan `message_id` sebelum website mengubah `operationalStatus` menjadi `in_progress`. Referensi pesan dan file Telegram dicatat di tabel `cp_mobile_order_proof`.
+4. Pada halaman **Tugas**, tekan **DONE + Screenshot**, pilih foto akhir, konfirmasi. Setelah Telegram berhasil mengirim `x4671/mulyana/done` + foto, status website berubah menjadi `completed` dan `completedAt` terisi (belum otomatis diverifikasi atau dimasukkan ke gaji).
+5. Satu order/aksi hanya dapat memiliki satu bukti terkirim; tindakan paralel ditolak. Foto wajib PNG/JPEG maksimal 7 MB. Jika respons Telegram tidak pasti, aksi ditahan untuk pemeriksaan manual dan tidak diulang otomatis.
+6. Jika pesan awal order tercatat dengan `message_id` di `cp_payroll_telegram_order_chats` untuk grup yang sama, bukti dikirim sebagai **reply**. Jika order awal diketik manual di Telegram tanpa tautan ID, bukti tetap dikirim ke grup tetapi berupa pesan foto baru, bukan reply berutas.
+
+**Persiapan operasional:** masukkan bot dengan izin mengirim foto ke grup tujuan (misalnya *EVO Ilham FH3*), konfigurasikan chat ID grup tersebut sebagai divisi FH3 di pengaturan Telegram Payroll Website, dan pastikan `TELEGRAM_BOT_TOKEN` di server telah diset. Nama dan chat ID grup dari screenshot saja tidak cukup untuk menghubungkannya secara otomatis. Jangan menaruh token bot di aplikasi Android.
+
+**Migrasi tambahan:** jalankan `20261019220002_cp_boost_monitor_mobile_telegram_proof.sql` setelah dua migrasi direct-assignment sebelumnya. Endpoint `POST /api/admin/payroll/mobile/progress` menerima multipart `orderRef`, `employeeCode`, `action`, `photo`, memerlukan akun admin dan membalas hasil konfirmasi. Status lokal Ready/Farming/Tidur/Bekerja tetap independen. Uji di staging dengan grup uji terlebih dahulu sebelum menggunakan grup produksi.
