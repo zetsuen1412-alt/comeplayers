@@ -28,3 +28,6 @@ Detail backend dan batasan: [Panduan direct mobile assignment](../docs/cp-boost-
 - Setelah Telegram sukses, status order di website berubah menjadi `in_progress` (START) atau `completed` (DONE). Gaji/verification tidak langsung berubah.
 - File PNG/JPEG maksimum 7 MB. Saat koneksi tidak pasti, **cek grup Telegram sebelum mencoba lagi**.
 - Fitur membutuhkan website API `/mobile/progress`, konfigurasi grup dan bot Telegram di server, serta migration `20261019220002_cp_boost_monitor_mobile_telegram_proof.sql`. APK bukan klien Telegram dan tidak menyimpan bot token. Tidak perlu aplikasi Telegram pada HP untuk upload.
+
+## Grup tujuan yang wajib dipilih admin
+Grup bukti screenshot FH3: **🔥 EVO🔥 Ilham FH3**. Bot harus bergabung dan admin Telegram mengirim `/bind FH3` di grup ini agar server tahu chat ID asli. Upload START/DONE gagal dengan aman apabila tujuan FH3 bukan grup tersebut (misalnya sebelumnya disetel sebagai chat pribadi leader). Judul saja pada screenshot tidak berisi chat ID.
