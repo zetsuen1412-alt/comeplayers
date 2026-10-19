@@ -185,7 +185,7 @@ final class PayrollSync {
                         credentials.getString("accessToken"));
                 if (!result.optBoolean("ok")) throw new IOException("Website belum mengonfirmasi foto.");
                 finish(callback, "✓ " + result.optString("caption", orderRef + "/" + action)
-                        + "\\nBukti telah diterima grup Telegram "
+                        + "\nBukti telah diterima grup Telegram "
                         + result.optString("chatTitle", "FH3") + " dan status disimpan di website.", true);
             } catch (Exception error) {
                 finish(callback, error.getMessage() == null ? "Pengiriman bukti gagal; periksa Telegram sebelum mengulang."
@@ -212,11 +212,11 @@ final class PayrollSync {
                 writeField(output, boundary, "orderRef", orderRef);
                 writeField(output, boundary, "employeeCode", employeeCode);
                 writeField(output, boundary, "action", action);
-                String header = "--" + boundary + "\\r\\nContent-Disposition: form-data; name=\\\"photo\\\"; filename=\\\"evidence.jpg\\\"\\r\\n"
-                        + "Content-Type: " + mime + "\\r\\n\\r\\n";
+                String header = "--" + boundary + "\r\nContent-Disposition: form-data; name=\\"photo\\"; filename=\\"evidence.jpg\\"\r\n"
+                        + "Content-Type: " + mime + "\r\n\r\n";
                 output.write(header.getBytes(StandardCharsets.UTF_8));
                 output.write(photo);
-                output.write(("\\r\\n--" + boundary + "--\\r\\n").getBytes(StandardCharsets.UTF_8));
+                output.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
             }
             int status = connection.getResponseCode();
             InputStream stream = status < 400 ? connection.getInputStream() : connection.getErrorStream();
@@ -239,8 +239,8 @@ final class PayrollSync {
 
     private static void writeField(OutputStream output, String boundary,
                                     String name, String value) throws IOException {
-        output.write(("--" + boundary + "\\r\\nContent-Disposition: form-data; name=\\\""
-                + name + "\\\"\\r\\n\\r\\n" + value + "\\r\\n").getBytes(StandardCharsets.UTF_8));
+        output.write(("--" + boundary + "\r\nContent-Disposition: form-data; name=\\""
+                + name + "\\"\r\n\r\n" + value + "\r\n").getBytes(StandardCharsets.UTF_8));
     }
 
     private JSONObject authorizedCall(String method, String path, JSONObject payload) throws Exception {
