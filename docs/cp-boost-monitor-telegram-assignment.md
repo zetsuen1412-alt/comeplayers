@@ -15,7 +15,7 @@
 ## Keamanan dan batasan
 - Tidak ada service role, token bot, atau password di APK. API server memeriksa akses admin untuk setiap permintaan.
 - Aplikasi **tidak** mengedit status kerja Payroll melalui fitur lokal Ready / Farming / Tidur / Sedang Bekerja.
-- **Bukan push real-time**: ketika aplikasi aktif sinkronisasi ±2 menit, atau tombol refresh. Assignment tersimpan segera setelah server menerima request; kartu Telegram diperbarui oleh outbox worker.
+- **Bukan push real-time**: antrean Order Baru diperiksa setiap ±30 detik saat halaman itu terbuka; roster/tugas disinkronkan ±2 menit ketika aplikasi aktif, atau lewat tombol refresh. Assignment tersimpan segera setelah server menerima request; kartu Telegram diperbarui oleh outbox worker.
 - Penugasan melalui Android saat ini hanya order baru FH3 jenis Boosting/Item dan **satu karyawan**. Gold, multiple active workers, penggantian karyawan yang sedang mengerjakan, serta FH1/FH2 memerlukan perluasan workflow terpisah.
 - Order berstatus started/paused/done/verified, ditutup, dibatalkan, atau diarsipkan tidak dapat ditugaskan melalui Android.
 - Perubahan website dan Android harus dideploy bersama migrasi `20261019220000_cp_boost_monitor_mobile_assignment.sql`. Jangan aktifkan tombol Android sebelum migrasi sukses.
