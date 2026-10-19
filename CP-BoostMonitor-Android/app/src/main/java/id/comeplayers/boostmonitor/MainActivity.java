@@ -257,7 +257,7 @@ public final class MainActivity extends Activity {
             }
         }
         summaryRow("🟢 Ready Boosting", ready, "READY", "🔵 Sedang Bekerja", working, "WORK");
-        summaryRow("🟠 Farming", idle, "IDLE", "🌙 Tidur", sleeping, "SLEEP");
+        summaryRow("⚪ Semua", all.size(), "SEMUA", "🌙 Tidur", sleeping, "SLEEP");
         space(body, 23);
         body.addView(text("Sedang Tidur", 18, INK, true)); space(body, 10);
         if (sleepingEmployees.isEmpty()) info("Tidak ada karyawan yang sedang tidur.");
