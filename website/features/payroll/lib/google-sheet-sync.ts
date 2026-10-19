@@ -834,12 +834,14 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     let next = mergeSheetOwnedFields(existing, incoming);
     if (!dailyPackage && incoming.transferStatus) next=automaticSingleDelivery({ ...next,
       ...(incoming.transferStatus === "PENDING" ? {operationalStatus:"draft",verifiedAt:undefined,completedAt:undefined} : {}) });
-    // Preserve a still-active direct mobile assignment across benign PENDING Sheet refreshes.
+    // Sheet BOOSTER is still blank: don't erase START/DONE proofs or the assigned worker.
+    // Explicit Sheet worker assignments remain authoritative when supplied.
     if (!dailyPackage && next.operationalStatus === "draft" && incoming.transferStatus === "PENDING"
-      && existing.operationalStatus === "assigned"
+      && ["assigned","in_progress","completed"].includes(existing.operationalStatus)
       && existing.workerAssignments?.length === 1
       && existing.workerAssignments[0].id.startsWith("mobile:")
-      && !incoming.workerAssignments?.length) next = { ...next, operationalStatus: "assigned" };
+      && !incoming.workerAssignments?.length)
+      next = { ...next, operationalStatus: existing.operationalStatus, completedAt: existing.completedAt };
     if (dailyPackage) {
       try {
         next = automaticDailyDelivery(jsonClean(mergeGoogleSheetDailyOrder(existing, { ...next, scheduleMode: incoming.scheduleMode,
