@@ -43,6 +43,13 @@ jobs:
           unzip -t "$APK" | tail -n 1
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           sha256sum "$APK"
+      - name: Upload verified APK for branch testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: CP-BoostMonitor-v1.5.0-verified-debug
+          path: CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+          if-no-files-found: error
       - name: Publish same APK to website downloads
         # Publish the verified APK from main so the production download stays current.
         if: github.ref == 'refs/heads/main'
@@ -81,7 +88,7 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-debug.apk" --clobber
           else
-            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.3-fh3-debug.apk" \
+            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-debug.apk" \
               --target "$GITHUB_SHA" \
               --title "CP Boost Monitor Android v1.5 FH3 Screenshot Proof (internal debug)" \
               --notes "APK debug internal. Download mudah juga tersedia di Website Payroll Admin." \
