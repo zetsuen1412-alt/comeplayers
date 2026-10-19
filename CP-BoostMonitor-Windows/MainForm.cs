@@ -44,6 +44,10 @@ public sealed class MainForm : Form
     private readonly DataGridView _rosterGrid = Grid();
     private readonly ComboBox _workerPicker = new();
     private readonly ComboBox _statusPicker = new();
+    private readonly TextBox _orderSearch = new();
+    private readonly TextBox _taskSearch = new();
+    private readonly TextBox _rosterSearch = new();
+    private readonly ComboBox _taskStatusFilter = new();
     private readonly Label _pendingCount = StyledText("Order belum ditugaskan: 0", 13, true);
     private readonly Label _taskCount = StyledText("Tugas aktif: 0", 13, true);
     private readonly Label _employeeCount = StyledText("Karyawan FH3: 0", 13, true);
@@ -238,6 +242,10 @@ public sealed class MainForm : Form
         var refresh = ActionButton("↻ Refresh", false);
         refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
         toolbar.Controls.Add(refresh);
+        toolbar.Controls.Add(MakeToolbarText("Cari order:", 85));
+        PrepareSearch(_orderSearch, "Kode, game, nama order, buyer atau TASK...", 335);
+        _orderSearch.TextChanged += (_, _) => BindFilteredTables();
+        toolbar.Controls.Add(_orderSearch);
         toolbar.Controls.Add(MakeToolbarText("Pilih order pada tabel. Hanya admin Payroll yang dapat menugaskan.", 610));
         panel.Controls.Add(_pendingGrid);
         panel.Controls.Add(toolbar);
@@ -268,7 +276,18 @@ public sealed class MainForm : Form
         });
         refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
         toolbar.Controls.Add(start); toolbar.Controls.Add(done); toolbar.Controls.Add(preflight); toolbar.Controls.Add(refresh);
-        toolbar.Controls.Add(MakeToolbarText("Ambil screenshot dengan Win+Shift+S, lalu pilih Clipboard saat START/DONE.", 740));
+        toolbar.Controls.Add(MakeToolbarText("Cari:", 45));
+        PrepareSearch(_taskSearch, "Kode, karyawan, game, TASK...", 255);
+        _taskSearch.TextChanged += (_, _) => BindFilteredTables();
+        toolbar.Controls.Add(_taskSearch);
+        _taskStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+        _taskStatusFilter.BackColor = PanelColor; _taskStatusFilter.ForeColor = Fore;
+        _taskStatusFilter.Width = 180;
+        _taskStatusFilter.Items.AddRange(new object[] { "Semua Status", "assigned", "in_progress", "on_hold" });
+        _taskStatusFilter.SelectedIndex = 0;
+        _taskStatusFilter.SelectedIndexChanged += (_, _) => BindFilteredTables();
+        toolbar.Controls.Add(_taskStatusFilter);
+        toolbar.Controls.Add(MakeToolbarText("Win+Shift+S → Clipboard; preview foto sebelum dikirim ke Telegram.", 620));
         panel.Controls.Add(_tasksGrid);
         panel.Controls.Add(toolbar);
         AddColumn(_tasksGrid, "Kode Order", "OrderRef", 125);
@@ -295,6 +314,10 @@ public sealed class MainForm : Form
         refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
         toolbar.Controls.Add(MakeToolbarText("Status:", 66));
         toolbar.Controls.Add(_statusPicker); toolbar.Controls.Add(save); toolbar.Controls.Add(refresh);
+        toolbar.Controls.Add(MakeToolbarText("Cari:", 45));
+        PrepareSearch(_rosterSearch, "Nama, kode atau status...", 255);
+        _rosterSearch.TextChanged += (_, _) => BindFilteredTables();
+        toolbar.Controls.Add(_rosterSearch);
         toolbar.Controls.Add(MakeToolbarText("Status boosting hanya tersimpan pada PC ini; tidak mengubah website dan Android.", 780));
         _rosterGrid.SelectionChanged += (_, _) =>
         {
@@ -393,11 +416,9 @@ public sealed class MainForm : Form
         var (bytes, mime) = image.Value;
         if (!PayrollApi.ValidImage(bytes, mime))
             throw new InvalidOperationException("Screenshot PNG/JPEG tidak valid atau lebih besar dari 7 MB.");
-        string caption = $"{order.OrderRef.ToLowerInvariant()}/{order.EmployeeName}/{action}";
-        var confirm = MessageBox.Show(
-            $"Order: {order.OrderRef}\nKaryawan: {order.EmployeeName}\nAksi: {action.ToUpperInvariant()}\nBukti: {Math.Round(bytes.Length / 1024d)} KB\n\nFoto akan dikirim ke grup Telegram EVO Ilham FH3 dan mengubah status order di website setelah berhasil. Lanjut?",
-            "Konfirmasi bukti foto", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-        if (confirm != DialogResult.Yes) return;
+        // Show the exact selected screenshot at full preview before any network request.
+        // Backend constructs the canonical caption from its FH3 roster.
+        if (!ProofPreviewDialog.Confirm(this, bytes, mime, order, action)) return;
         // No retries. Any network timeout might mean Telegram has already accepted the photo.
         try
         {
@@ -491,11 +512,16 @@ public sealed class MainForm : Form
 
     private void BindTables()
     {
-        Rebind(_pendingGrid, _pending);
-        Rebind(_tasksGrid, _tasks);
-        Rebind(_rosterGrid, _employees);
+        BindFilteredTables();
+        var selectedWorker = (_workerPicker.SelectedItem as Employee)?.Code;
         _workerPicker.DataSource = null;
         _workerPicker.DataSource = _employees.OrderBy(e => e.Name).ToList();
+        if (selectedWorker != null)
+        {
+            var previous = _employees.FirstOrDefault(e =>
+                e.Code.Equals(selectedWorker, StringComparison.OrdinalIgnoreCase));
+            if (previous != null) _workerPicker.SelectedItem = previous;
+        }
         _pendingCount.Text = $"📦  {_pending.Count} order baru menunggu karyawan";
         _taskCount.Text = $"▶  {_tasks.Count} tugas aktif di website";
         _employeeCount.Text = $"♟  {_employees.Count} karyawan FH3 aktif";
@@ -506,6 +532,26 @@ public sealed class MainForm : Form
         _metrics.Text = $"{_pending.Count} order baru  •  {_tasks.Count} tugas aktif  •  {_employees.Count} karyawan FH3";
         if (_navigation.TryGetValue("Order Baru", out var orders))
             orders.Text = $"  📦   Order Baru  ({_pending.Count})";
+    }
+
+    private void BindFilteredTables()
+    {
+        // Filtering changes UI only; background polling keeps the complete snapshots intact.
+        Rebind(_pendingGrid, OrderFilters.Pending(_pending, _orderSearch.Text).ToList());
+        Rebind(_tasksGrid, OrderFilters.Active(_tasks, _taskSearch.Text,
+            _taskStatusFilter.SelectedItem as string ?? "Semua Status").ToList());
+        Rebind(_rosterGrid, OrderFilters.Employees(_employees, _rosterSearch.Text).ToList());
+    }
+
+    private static void PrepareSearch(TextBox control, string placeholder, int width)
+    {
+        control.Width = width;
+        control.Height = 32;
+        control.Font = new Font("Segoe UI", 10);
+        control.BackColor = PanelColor;
+        control.ForeColor = Fore;
+        control.BorderStyle = BorderStyle.FixedSingle;
+        control.PlaceholderText = placeholder;
     }
 
     private async Task RunBusyAsync(Func<Task> action, bool quiet = false)
