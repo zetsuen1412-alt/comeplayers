@@ -2,6 +2,10 @@
 
 **Sumber data:** `cp_payroll_workspace.payload[workspaceKeys.employees]` dari Payroll Website ComePlayers. Google Sheets PAYROLL-1/-2/-3 sudah memiliki proses sinkronisasi tersendiri ke daftar karyawan website; jalur aplikasi Android tidak boleh mengakses file Sheets, saldo payroll, mutasi, atau kasbon secara langsung.
 
+## Penugasan baru dari Android (fitur admin saja)
+
+Source terbaru menyediakan `GET /api/admin/payroll/mobile/pending` dan `POST /api/admin/payroll/mobile/assign` untuk admin; keduanya tidak mengubah aturan API roster/tasks yang tetap read-only. Penugasan dibatasi satu pekerja per order Boosting/Item FH3 berstatus `waiting`. Aktif setelah migrasi dan APK baru dideploy. Rincian [panduan penugasan Telegram](../../../docs/cp-boost-monitor-telegram-assignment.md).
+
 ## API read-only
 
 - `POST /api/admin/payroll/mobile/session`: `{"action":"login","email":"...","password":"..."}` atau `{"action":"refresh","refreshToken":"..."}`. Menggunakan Supabase Auth dan memvalidasi izin `requirePayrollAccess`, mengembalikan accessToken/refreshToken/expiresAt **hanya** untuk akun yang berizin. JWT tidak ditulis ke log. Permintaan dibatasi 8 KiB dan respon tidak di-cache.
@@ -18,7 +22,7 @@ Endpoint dilindungi oleh kontrol otorisasi payroll yang sama dengan website. Ket
 - Roster diperbarui otomatis saat aplikasi aktif setiap ±2 menit dan saat aplikasi masuk ke foreground; kegagalan tetap mempertahankan snapshot lokal.
 - Baris lokal memakai `payroll_id` unik. Nama/divisi mengikuti website; status boosting (ready, Farming, tidur, bekerja) dan riwayat tetap di SQLite lokal. Tugas aktif dipolling dari endpoint tasks dan ditampilkan sebagai Order, Game, Buyer, serta TASK pada kartu karyawan.
 - `active=false` atau ID yang tidak lagi ada di snapshot membuat pekerja tersembunyi, bukan menghapus riwayat.
-- Tidak ada push status dari APK ke payroll pada rilis ini; perlu tabel/endpoint dan perizinan khusus untuk fitur tersebut.
+- Status Ready/Farming/Tidur/Sedang Bekerja masih lokal dan **tidak** dikirim ke Payroll. Penugasan order baru adalah fitur write khusus admin yang terpisah.
 
 ## Checklist rilis
 
