@@ -135,7 +135,7 @@ public final class MainActivity extends Activity {
                 pendingError = "";
             } else pendingError = message;
             if (manual && !ok) toast(message);
-            if ("Order Baru".equals(page)) render();
+            if ("Order Baru".equals(page) || "Dashboard".equals(page)) render();
         });
     }
 
@@ -390,50 +390,73 @@ public final class MainActivity extends Activity {
 
     private void dashboard() {
         List<EmployeeDb.Employee> all = db.payrollEmployees();
-        heading("Dashboard Tim", "Karyawan FH3 dari Payroll Website • " + time(now()));
-        if (linked()) {
-            Button newOrders = button("📨 Order Baru FH3 (" + (pendingOrders == null ? 0 : pendingOrders.length()) + ")", true);
-            body.addView(newOrders, lp(-1, 48)); space(body, 12);
-            newOrders.setOnClickListener(v -> { page = "Order Baru"; render(); loadPendingOrders(false); });
-            Button activeButton = button("📷 Tugas Aktif (" + activeTasks.length() + ") • START / DONE", false);
-            body.addView(activeButton, lp(-1, 48)); space(body, 12);
-            activeButton.setOnClickListener(v -> { page = "Tugas"; render(); loadActiveTasks(false); });
-            String error = prefs.getString("payroll_sync_error", "");
-            long synced = prefs.getLong("payroll_last_sync", 0L);
-            info((error.isEmpty() ? "✓ " + all.size() + " karyawan FH3 dari Payroll Website"
-                    : "⚠ Sinkron gagal: " + error + " (data terakhir tetap tersimpan)")
-                + " • Update terakhir: " + (synced == 0L ? "belum ada" : time(synced)));
-            space(body, 8);
-            Button sync = button(syncBusy ? "Sedang sinkron..." : "↻ Perbarui dari Payroll", false);
-            sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 43));
-            sync.setOnClickListener(v -> refreshPayroll(true)); space(body, 16);
-        }
-        int ready = 0, idle = 0, sleeping = 0, working = 0;
-        List<EmployeeDb.Employee> sleepingEmployees = new ArrayList<>();
+        heading("Dashboard", "Gambaran operasional FH3 • " + time(now()));
+        int ready = 0, sleeping = 0, working = 0, idle = 0;
         List<EmployeeDb.Employee> available = new ArrayList<>();
+        List<EmployeeDb.Employee> sleepingEmployees = new ArrayList<>();
         for (EmployeeDb.Employee e : all) {
             switch (e.status) {
                 case EmployeeDb.READY: ready++; available.add(e); break;
-                case EmployeeDb.IDLE: idle++; break;
                 case EmployeeDb.SLEEP: sleeping++; sleepingEmployees.add(e); break;
+                case EmployeeDb.IDLE: idle++; break;
                 case EmployeeDb.WORK: working++; break;
             }
         }
-        summaryRow("🟢 Ready Boosting", ready, "READY", "🔵 Sedang Bekerja", working, "WORK");
-        summaryRow("⚪ Semua", all.size(), "SEMUA", "🌙 Tidur", sleeping, "SLEEP");
-        space(body, 23);
-        body.addView(text("Sedang Tidur", 18, INK, true)); space(body, 10);
-        if (sleepingEmployees.isEmpty()) info("Tidak ada karyawan yang sedang tidur.");
+        LinearLayout heroCard = panel(); heroCard.setBackground(hero()); pad(heroCard, 20, 20);
+        heroCard.addView(pill("● LIVE  /  COMEPLAYERS FH3", 0xff88e6c2, 0xff1b3840));
+        space(heroCard, 14);
+        heroCard.addView(text("Operations Overview", 21, INK, true));
+        space(heroCard, 5);
+        heroCard.addView(text("Seluruh penugasan dan bukti screenshot terhubung ke Payroll Website.", 13, SUB, false));
+        space(heroCard, 17);
+        LinearLayout heroNumbers = horizontal();
+        heroNumbers.addView(heroNumber(String.valueOf(pendingOrders == null ? 0 : pendingOrders.length()),
+                "ORDER BARU"), new LinearLayout.LayoutParams(0, -2, 1));
+        View divider = new View(this); divider.setBackgroundColor(BORDER);
+        heroNumbers.addView(divider, lp(1, 57));
+        heroNumbers.addView(heroNumber(String.valueOf(activeTasks.length()), "TUGAS AKTIF"),
+                new LinearLayout.LayoutParams(0, -2, 1));
+        heroCard.addView(heroNumbers);
+        space(heroCard, 14);
+        heroCard.addView(text("●  Telegram: 🔥 EVO🔥 Ilham FH3", 12, PURPLE, true));
+        body.addView(heroCard, lp(-1, -2)); space(body, 16);
+
+        body.addView(text("RINGKASAN KARYAWAN", 11, SUB, true)); space(body, 10);
+        summaryRow("● Ready Boosting", ready, "READY", "● Bekerja", working, "WORK");
+        summaryRow("● Total FH3", all.size(), "SEMUA", "● Tidur", sleeping, "SLEEP");
+        space(body, 7);
+        body.addView(text("AKSI CEPAT", 11, SUB, true)); space(body, 10);
+        Button newOrders = button("▣   Kelola Order Baru  (" + (pendingOrders == null ? 0 : pendingOrders.length()) + ")", true);
+        body.addView(newOrders, lp(-1, 50)); space(body, 9);
+        newOrders.setOnClickListener(view -> { page = "Order Baru"; render(); loadPendingOrders(false); });
+        Button tasks = button("▶   Tugas Aktif & Bukti Telegram  (" + activeTasks.length() + ")", false);
+        body.addView(tasks, lp(-1, 50)); space(body, 9);
+        tasks.setOnClickListener(view -> { page = "Tugas"; render(); loadActiveTasks(false); });
+        Button sync = button(syncBusy ? "Memperbarui Payroll..." : "↻   Perbarui Data Payroll", false);
+        sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 46));
+        sync.setOnClickListener(view -> refreshPayroll(true)); space(body, 14);
+        String error = prefs.getString("payroll_sync_error", "");
+        long synced = prefs.getLong("payroll_last_sync", 0L);
+        info((error.isEmpty() ? "✓  " + all.size() + " karyawan terhubung" : "⚠  " + error)
+                + "\nTerakhir sinkron: " + (synced == 0L ? "belum pernah" : time(synced)));
+        space(body, 22);
+        body.addView(text("SEDANG TIDUR", 16, INK, true)); space(body, 11);
+        if (sleepingEmployees.isEmpty()) info("Belum ada karyawan berstatus tidur.");
         else {
             sleepingEmployees.sort((a, b) -> Long.compare(a.statusSince, b.statusSince));
-            for (EmployeeDb.Employee e : sleepingEmployees) employeeCard(body, e, false);
+            for (EmployeeDb.Employee employee : sleepingEmployees) employeeCard(body, employee, false);
         }
-        space(body, 20);
-        body.addView(text("Siap Menerima Boosting", 18, INK, true)); space(body, 10);
+        space(body, 18);
+        body.addView(text("SIAP MENERIMA ORDER", 16, INK, true)); space(body, 11);
         if (available.isEmpty()) info("Belum ada karyawan berstatus Ready Boosting.");
-        else for (EmployeeDb.Employee e : available) employeeCard(body, e, false);
+        else for (EmployeeDb.Employee employee : available) employeeCard(body, employee, false);
     }
-
+    private LinearLayout heroNumber(String value, String label) {
+        LinearLayout area = vertical(); area.setGravity(Gravity.CENTER_VERTICAL);
+        area.addView(text(value, 35, PURPLE, true));
+        area.addView(text(label, 10, SUB, true));
+        return area;
+    }
     private void summaryRow(String one, int a, String filterA, String two, int b, String filterB) {
         LinearLayout r = horizontal(); r.setGravity(Gravity.TOP);
         summaryCard(r, one, a, filterA);
@@ -442,17 +465,18 @@ public final class MainActivity extends Activity {
         body.addView(r, lp(-1, -2)); space(body, 11);
     }
     private void summaryCard(LinearLayout row, String title, int count, String targetFilter) {
-        LinearLayout p = panel(); p.setElevation(dp(1));
-        p.addView(text(String.valueOf(count), 28, INK, true)); space(p, 5);
-        p.addView(text(title, 12, SUB, true));
+        LinearLayout p = panel(); p.setElevation(dp(2));
+        TextView number = text(String.valueOf(count), 28, PURPLE, true);
+        p.addView(number); space(p, 7);
+        p.addView(text(title, 11, SUB, true));
         row.addView(p, new LinearLayout.LayoutParams(0, -2, 1));
         p.setOnClickListener(v -> { filter = targetFilter; page = "Karyawan"; render(); });
     }
     private void summarySingle(String label, int n, String targetFilter) {
-        LinearLayout p = panel(); p.setBackground(shape(0xfffff1f2, 15));
+        LinearLayout p = panel(); p.setBackground(outline(0xff302333, 15, 0xff664456));
         LinearLayout r = horizontal();
-        r.addView(text(label, 15, 0xff991b1b, true), new LinearLayout.LayoutParams(0, -2, 1));
-        r.addView(text(String.valueOf(n), 25, 0xffb91c1c, true)); p.addView(r);
+        r.addView(text(label, 15, 0xfff0a5ae, true), new LinearLayout.LayoutParams(0, -2, 1));
+        r.addView(text(String.valueOf(n), 25, 0xfff0a5ae, true)); p.addView(r);
         body.addView(p, lp(-1, -2));
         p.setOnClickListener(v -> { filter = targetFilter; page = "Karyawan"; render(); });
     }
@@ -484,8 +508,12 @@ public final class MainActivity extends Activity {
             final String ref = order.optString("orderRef", "").trim();
             if (ref.isEmpty()) continue;
             LinearLayout card = panel();
-            card.addView(text("📦 " + ref + "  •  " + order.optString("orderType", "boosting").toUpperCase(Locale.ROOT), 15, INK, true));
-            space(card, 7);
+            LinearLayout title = horizontal();
+            title.addView(text("▣  " + ref, 17, INK, true), new LinearLayout.LayoutParams(0, -2, 1));
+            title.addView(pill(order.optString("orderType", "boosting").toUpperCase(Locale.ROOT),
+                    PURPLE, 0xff27344a));
+            card.addView(title); space(card, 12);
+            card.addView(pill("MENUNGGU PENUGASAN", 0xffe7b969, 0xff332d28)); space(card, 10);
             card.addView(text("Nama: " + order.optString("orderName", "—"), 13, SUB, false));
             card.addView(text("Game: " + order.optString("game", "—"), 13, SUB, false));
             card.addView(text("Buyer: " + order.optString("buyer", "—"), 13, SUB, false));
@@ -532,8 +560,13 @@ public final class MainActivity extends Activity {
             final String status = task.optString("status", "").trim();
             if (ref.isEmpty() || code.isEmpty()) continue;
             LinearLayout card = panel();
-            card.addView(text("📦 " + ref + " • " + status.toUpperCase(Locale.ROOT), 16, INK, true));
-            space(card, 5);
+            LinearLayout title = horizontal();
+            title.addView(text("▣  " + ref, 17, INK, true), new LinearLayout.LayoutParams(0, -2, 1));
+            title.addView(pill("assigned".equals(status) ? "ASSIGNED" :
+                            "in_progress".equals(status) ? "IN PROGRESS" : status.toUpperCase(Locale.ROOT),
+                    "in_progress".equals(status) ? 0xff7de3c0 : PURPLE,
+                    "in_progress".equals(status) ? 0xff1b3539 : 0xff313147));
+            card.addView(title); space(card, 12);
             card.addView(text("Karyawan: " + task.optString("employeeName", "—")
                     + " (" + code + ")", 13, SUB, false));
             card.addView(text("Order: " + task.optString("orderName", "—"), 13, SUB, false));
@@ -590,7 +623,7 @@ public final class MainActivity extends Activity {
         syncNames.setOnClickListener(v -> refreshPayroll(true));
         space(body, 14);
         EditText searchField = input("Cari nama / jabatan / tugas", search);
-        searchField.setSingleLine(true); searchField.setBackground(shape(WHITE, 11));
+        searchField.setSingleLine(true);
         body.addView(searchField, lp(-1, 49)); space(body, 13);
         searchField.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -631,10 +664,16 @@ public final class MainActivity extends Activity {
     private void employeeCard(LinearLayout parent, EmployeeDb.Employee e, boolean management) {
         LinearLayout p = panel();
         LinearLayout title = horizontal();
+        TextView avatar = text(e.name.isEmpty() ? "FH" : e.name.substring(0, 1).toUpperCase(Locale.ROOT),
+                17, PURPLE, true);
+        avatar.setGravity(Gravity.CENTER);
+        avatar.setBackground(outline(0xff2e3951, 14, 0xff56516a));
+        title.addView(avatar, lp(42, 42));
+        View spacer = new View(this); title.addView(spacer, lp(11, 1));
         TextView name = text(e.name, 17, INK, true);
         title.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
         TextView status = text(e.visibleStatus(), 11, tint(e.status), true);
-        status.setBackground(shape(0xfff3f4f6, 9));
+        status.setBackground(outline(0xff25354a, 12, 0xff354b64));
         status.setPadding(dp(9), dp(7), dp(9), dp(7)); title.addView(status); p.addView(title);
         if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • " + e.payrollCode + " • Payroll" : ""), 13, SUB, false)); }
         space(p, 10);
