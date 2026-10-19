@@ -88,7 +88,7 @@ final class PayrollSync {
         session.save(fresh); return fresh;
     }
 
-    /** Fetches the sanitized active order snapshot. Older servers may not expose it yet. */
+    /** Fetches active tasks directly from Payroll. Older servers may not expose it yet. */
     private int syncTasks(String token) throws Exception {
         try {
             JSONObject snapshot = call("GET", "/tasks", null, token);
@@ -105,7 +105,8 @@ final class PayrollSync {
         executor.execute(() -> {
             try {
                 JSONObject result = authorizedCall("GET", "/pending", null);
-                if (result.optInt("schema") != 1 || !"FH3".equals(result.optString("scope"))
+                if (result.optInt("schema") != 2 || !"FH3".equals(result.optString("scope"))
+                        || !"payroll".equals(result.optString("source"))
                         || result.optJSONArray("pending") == null)
                     throw new IllegalStateException("Daftar order tidak valid.");
                 main.post(() -> callback.accept(result, "", true));
