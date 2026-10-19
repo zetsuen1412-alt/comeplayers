@@ -1,0 +1,66 @@
+name: Build CP Boost Monitor Windows
+on:
+  push:
+    paths:
+      - 'CP-BoostMonitor-Windows/**'
+      - '.github/workflows/cp-boost-monitor-windows.yml'
+  pull_request:
+    paths:
+      - 'CP-BoostMonitor-Windows/**'
+      - '.github/workflows/cp-boost-monitor-windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        shell: pwsh
+        run: dotnet restore CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -r win-x64
+      - name: Compile native Windows app
+        shell: pwsh
+        run: dotnet build CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release -r win-x64 --no-restore
+      - name: Publish Windows x64 single EXE
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          dotnet publish CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release -r win-x64 --self-contained true --no-restore --no-build -p:PublishSingleFile=true -p:PublishTrimmed=false -o dist/cp-boost-monitor-windows
+          $exe = "dist/cp-boost-monitor-windows/CPBoostMonitor.exe"
+          if (!(Test-Path $exe)) { throw "CPBoostMonitor.exe not found" }
+          if ((Get-Item $exe).Length -lt 3000000) { throw "EXE unexpectedly small" }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/CP-Boost-Monitor-Windows-v1.0.0-x64.zip" -Force
+          Get-FileHash -Algorithm SHA256 $exe | Format-Table
+          Get-FileHash -Algorithm SHA256 "dist/CP-Boost-Monitor-Windows-v1.0.0-x64.zip" | Format-Table
+      - name: Publish Windows preview on development branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/cp-boost-monitor-windows-v1'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $tag = "cp-boost-monitor-windows-v1-preview"
+          $zip = "dist/CP-Boost-Monitor-Windows-v1.0.0-x64.zip"
+          $exe = "dist/cp-boost-monitor-windows/CPBoostMonitor.exe"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag "$zip#CP-Boost-Monitor-Windows-v1.0.0-x64.zip" "$exe#CPBoostMonitor-Windows-v1.0.0-PREVIEW.exe" --clobber
+          } else {
+            gh release create $tag "$zip#CP-Boost-Monitor-Windows-v1.0.0-x64.zip" "$exe#CPBoostMonitor-Windows-v1.0.0-PREVIEW.exe" --target "$env:GITHUB_SHA" --title "CP Boost Monitor Windows v1.0 — PREVIEW" --notes "Native Windows 10/11 64-bit app. Login using Payroll admin account. Compatible with existing FH3 production API; START/DONE screenshots post to real Telegram group. Only use test orders for initial validation. No code-signing certificate (SmartScreen may warn)." --prerelease
+          }
+      - name: No production publication from pull request
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        run: Write-Output "PR build verified. Production Windows download is not updated."
