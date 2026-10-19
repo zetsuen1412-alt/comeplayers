@@ -565,10 +565,10 @@ public sealed class MainForm : Form
         MessageBox.Show("Riwayat lokal berhasil diekspor.", "CP Boost Monitor");
     }
 
-    private static Panel ScrollingPage() => new()
+    private static FlowLayoutPanel ScrollingPage() => new()
     {
         Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(22, 14, 22, 22),
-        BackColor = Background,
+        FlowDirection = FlowDirection.TopDown, WrapContents = false, BackColor = Background,
     };
 
     private static Panel Card() => new()
