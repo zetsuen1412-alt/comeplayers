@@ -22,36 +22,37 @@ public static class ProofPreviewDialog
 
         using var dialog = new Form
         {
-            Text = "Konfirmasi Bukti " + action.ToUpperInvariant() + " — CP Boost Monitor",
+            Text = "Bukti Telegram  /  " + action.ToUpperInvariant() + " — CP Boost Monitor",
             Size = new Size(810, 660),
             MinimumSize = new Size(650, 520),
             StartPosition = FormStartPosition.CenterParent,
-            BackColor = Color.FromArgb(15, 23, 42),
-            ForeColor = Color.White,
+            BackColor = LuxuryPalette.Background,
+            ForeColor = LuxuryPalette.Text,
             Font = new Font("Segoe UI", 10),
             MaximizeBox = false, MinimizeBox = false,
             ShowInTaskbar = false,
         };
-        var toolbar = new Panel { Dock = DockStyle.Bottom, Height = 82, BackColor = Color.FromArgb(22, 34, 55) };
+        var toolbar = new Panel { Dock = DockStyle.Bottom, Height = 82, BackColor = LuxuryPalette.Sidebar };
         var warning = new Label
         {
             Dock = DockStyle.Top, Height = 56, TextAlign = ContentAlignment.MiddleLeft,
             Padding = new Padding(16, 0, 10, 0),
-            ForeColor = Color.FromArgb(255, 202, 108),
-            Text = "Foto akan dikirim ke 🔥 EVO🔥 Ilham FH3. Setelah dikirim, pesan Telegram tidak bisa dibatalkan dari aplikasi.",
+            ForeColor = LuxuryPalette.GoldBright,
+            Text = "●  TARGET: 🔥 EVO🔥 Ilham FH3  •  Kiriman foto tidak dapat ditarik kembali oleh aplikasi.",
         };
-        var cancel = new Button
+        var cancel = new LuxuryButton
         {
-            Text = "Batal", Width = 125, Height = 40,
+            Text = "Batal", Width = 125, Height = 44,
             Location = new Point(14, 21), DialogResult = DialogResult.Cancel,
-            BackColor = Color.FromArgb(45, 60, 82), ForeColor = Color.White,
+            BackColor = LuxuryPalette.SurfaceRaised, ForeColor = Color.White,
             FlatStyle = FlatStyle.Flat, Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
         };
-        var send = new Button
+        var send = new LuxuryButton
         {
-            Text = "Kirim Foto " + action.ToUpperInvariant(), Width = 190, Height = 40,
+            Primary = true,
+            Text = "Kirim Foto " + action.ToUpperInvariant(), Width = 190, Height = 44,
             Location = new Point(585, 21), DialogResult = DialogResult.OK,
-            BackColor = Color.FromArgb(249, 184, 61), ForeColor = Color.FromArgb(15, 23, 42),
+            BackColor = LuxuryPalette.Gold, ForeColor = Color.FromArgb(15, 23, 42),
             FlatStyle = FlatStyle.Flat, Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
         };
         toolbar.Controls.Add(cancel);
@@ -63,14 +64,14 @@ public static class ProofPreviewDialog
         var title = new Label
         {
             Dock = DockStyle.Top, Height = 82, Padding = new Padding(16, 12, 8, 0),
-            Font = new Font("Segoe UI", 11, FontStyle.Bold),
+            Font = new Font("Segoe UI", 12, FontStyle.Bold),
             Text = $"{order.OrderRef} / {order.EmployeeName} / {action.ToUpperInvariant()}\n" +
                    $"{order.OrderName} • {(bytes.Length / 1024d):F0} KB",
         };
         var picture = new PictureBox
         {
             Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom,
-            BackColor = Color.FromArgb(30, 43, 65),
+            BackColor = LuxuryPalette.Surface,
             Image = previewImage,
         };
         dialog.Controls.Add(picture);
