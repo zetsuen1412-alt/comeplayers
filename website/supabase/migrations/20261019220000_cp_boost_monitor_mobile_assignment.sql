@@ -54,8 +54,8 @@ begin
       'employeeCode',employee->>'code','employeeName',employee->>'name');
   end if;
 
-  if item->>'team'<>'FH3' or item->>'orderType' not in ('boosting','item')
-    or item->>'operationalStatus' not in ('draft','confirmed','assignment_pending')
+  if coalesce(item->>'team','')<>'FH3' or coalesce(item->>'orderType','') not in ('boosting','item')
+    or coalesce(item->>'operationalStatus','') not in ('draft','confirmed','assignment_pending')
     or coalesce((item->>'importNeedsReview')::boolean,false)
     or item->>'scheduleMode'='daily'
     or coalesce(jsonb_array_length(item->'workerAssignments'),0)<>0
