@@ -47,7 +47,7 @@ Alur penugasan tetap **Payroll Website → Android → Payroll Website**, bukan 
 3. Telegram harus mengembalikan `message_id` sebelum website mengubah `operationalStatus` menjadi `in_progress`. Referensi pesan dan file Telegram dicatat di tabel `cp_mobile_order_proof`.
 4. Pada halaman **Tugas**, tekan **DONE + Screenshot**, pilih foto akhir, konfirmasi. Setelah Telegram berhasil mengirim `x4671/mulyana/done` + foto, status website berubah menjadi `completed` dan `completedAt` terisi (belum otomatis diverifikasi atau dimasukkan ke gaji).
 5. Satu order/aksi hanya dapat memiliki satu bukti terkirim; tindakan paralel ditolak. Foto wajib PNG/JPEG maksimal 7 MB. Jika respons Telegram tidak pasti, aksi ditahan untuk pemeriksaan manual dan tidak diulang otomatis.
-6. Jika pesan awal order tercatat dengan `message_id` di `cp_payroll_telegram_order_chats` untuk grup yang sama, bukti dikirim sebagai **reply**. Jika order awal diketik manual di Telegram tanpa tautan ID, bukti tetap dikirim ke grup tetapi berupa pesan foto baru, bukan reply berutas.
+6. Jika pesan awal order tercatat dengan `message_id` di `cp_payroll_telegram_order_chats` untuk grup yang sama, bukti dikirim sebagai **reply**. Jika pesan awal diketik manual tanpa tautan ID, foto START muncul sebagai pesan baru di grup dan foto DONE akan membalas pesan foto START tersebut.
 
 **Persiapan operasional:** masukkan bot dengan izin mengirim foto ke grup tujuan (misalnya *EVO Ilham FH3*), konfigurasikan chat ID grup tersebut sebagai divisi FH3 di pengaturan Telegram Payroll Website, dan pastikan `TELEGRAM_BOT_TOKEN` di server telah diset. Nama dan chat ID grup dari screenshot saja tidak cukup untuk menghubungkannya secara otomatis. Jangan menaruh token bot di aplikasi Android.
 
