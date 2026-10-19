@@ -1,0 +1,34 @@
+name: Verify CP Boost Monitor direct assignment
+on:
+  pull_request:
+    paths:
+      - 'website/app/api/admin/payroll/mobile/**'
+      - 'website/features/payroll/lib/google-sheet-sync.ts'
+      - 'website/supabase/migrations/2026101922000*_cp_boost_monitor*.sql'
+      - 'website/tests/payroll-mobile-assignment*.test.ts'
+      - '.github/workflows/cp-boost-direct-assignment-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  direct-payroll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Test website API and real PostgreSQL migration
+        run: npx --no-install tsx --test tests/payroll-mobile-assignment.test.ts tests/payroll-mobile-assignment-database.test.ts
+      - name: Typecheck website
+        run: npm run typecheck
