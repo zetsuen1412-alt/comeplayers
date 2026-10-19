@@ -19,6 +19,7 @@ final class PayrollSync {
     private static final String BASE = "https://www.comeplayers.com/api/admin/payroll/mobile";
     private static final int MAX_BYTES = 2 * 1024 * 1024;
     interface Done { void accept(String message, boolean ok); }
+    interface DataDone { void accept(JSONObject data, String message, boolean ok); }
 
     private final SecureSession session;
     private final EmployeeDb db;
@@ -96,6 +97,51 @@ final class PayrollSync {
             // Keep roster login compatible while the website endpoint is rolled out.
             if (error.status == 404 || error.status == 405) return 0;
             throw error;
+        }
+    }
+
+    /** Only website admins may read/assign pending FH3 orders. Never persist the queue in SQLite. */
+    void loadPendingOrders(DataDone callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject result = authorizedCall("GET", "/pending", null);
+                if (result.optInt("schema") != 1 || !"FH3".equals(result.optString("scope"))
+                        || result.optJSONArray("pending") == null)
+                    throw new IllegalStateException("Daftar order tidak valid.");
+                main.post(() -> callback.accept(result, "", true));
+            } catch (Exception error) {
+                String message = friendly(error);
+                main.post(() -> callback.accept(null, message, false));
+            }
+        });
+    }
+
+    /** Persist to website/Telegram atomically; caller refreshes tasks after success. */
+    void assignOrder(String orderRef, String employeeCode, Done callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject input = new JSONObject();
+                input.put("orderRef", orderRef);
+                input.put("employeeCode", employeeCode);
+                JSONObject result = authorizedCall("POST", "/assign", input);
+                if (!result.optBoolean("ok")) throw new IllegalStateException("Penugasan belum dikonfirmasi website.");
+                finish(callback, "Order " + result.optString("orderRef", orderRef) + " ditugaskan ke "
+                        + result.optString("employeeName", employeeCode) + " dan tersimpan di website.", true);
+            } catch (Exception error) { finish(callback, friendly(error), false); }
+        });
+    }
+
+    private JSONObject authorizedCall(String method, String path, JSONObject payload) throws Exception {
+        JSONObject credentials = session.load();
+        if (credentials == null) throw new ApiException(401, "Login Payroll diperlukan.");
+        if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L)
+            credentials = refresh(credentials);
+        try {
+            return call(method, path, payload, credentials.getString("accessToken"));
+        } catch (ApiException error) {
+            if (error.status != 401) throw error;
+            credentials = refresh(credentials);
+            return call(method, path, payload, credentials.getString("accessToken"));
         }
     }
 
