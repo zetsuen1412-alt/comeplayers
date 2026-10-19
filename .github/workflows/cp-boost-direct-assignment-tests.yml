@@ -1,4 +1,4 @@
-name: Verify CP Boost Monitor direct assignment
+name: Verify CP Boost Monitor direct assignment and photo proof
 on:
   pull_request:
     paths:
@@ -6,7 +6,7 @@ on:
       - 'website/features/payroll/lib/google-sheet-sync.ts'
       - 'website/supabase/migrations/2026101922000*_cp_boost_monitor*.sql'
       - 'website/tests/payroll-mobile-assignment*.test.ts'
-      - 'website/tests/payroll-mobile-direct-routing.test.ts tests/payroll-mobile-proof-database.test.ts tests/payroll-mobile-proof-api.test.ts tests/payroll-mobile-proof-group.test.ts'
+      - 'website/tests/payroll-mobile-direct-routing.test.ts'
       - 'website/tests/payroll-mobile-proof-database.test.ts'
       - 'website/tests/payroll-mobile-proof-api.test.ts'
       - 'website/tests/payroll-mobile-proof-group.test.ts'
@@ -33,7 +33,30 @@ jobs:
           cache-dependency-path: website/package-lock.json
       - name: Install dependencies
         run: npm ci --ignore-scripts
-      - name: Test website API and real PostgreSQL migration
-        run: npx --no-install tsx --test tests/payroll-mobile-assignment.test.ts tests/payroll-mobile-assignment-database.test.ts tests/payroll-mobile-direct-routing.test.ts
+      - name: Test website API and PostgreSQL migrations
+        run: >-
+          npx --no-install tsx --test
+          tests/payroll-mobile-assignment.test.ts
+          tests/payroll-mobile-assignment-database.test.ts
+          tests/payroll-mobile-direct-routing.test.ts
+          tests/payroll-mobile-proof-database.test.ts
+          tests/payroll-mobile-proof-api.test.ts
+          tests/payroll-mobile-proof-group.test.ts
+      - name: Resolve mobile crypto dependencies for existing shared typecheck
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const path=require('node:path');
+          const web=require('./package.json');
+          const mobile=require('../comeplayers-apps/apps/mobile/package.json');
+          for(const name of ['hpke','@panva/hpke-noble','@noble/curves','@noble/ciphers','@noble/hashes']){
+            if(web.dependencies[name]!==mobile.dependencies[name])throw Error('Crypto version mismatch: '+name);
+            const target=path.resolve('node_modules',name);
+            const link=path.resolve('../comeplayers-apps/apps/mobile/node_modules',name);
+            if(!fs.existsSync(target))throw Error('Dependency missing: '+name);
+            fs.mkdirSync(path.dirname(link),{recursive:true});
+            if(!fs.existsSync(link))fs.symlinkSync(target,link,'dir');
+          }
+          NODE
       - name: Typecheck website
         run: npm run typecheck
