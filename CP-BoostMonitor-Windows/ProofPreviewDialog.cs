@@ -22,7 +22,7 @@ public static class ProofPreviewDialog
 
         using var dialog = new Form
         {
-            Text = "Bukti Telegram  /  " + action.ToUpperInvariant() + " — CP Boost Monitor",
+            Text = "Review Bukti " + action.ToUpperInvariant() + "  |  EVOGAMING Monitor",
             Size = new Size(810, 660),
             MinimumSize = new Size(650, 520),
             StartPosition = FormStartPosition.CenterParent,
@@ -38,21 +38,21 @@ public static class ProofPreviewDialog
             Dock = DockStyle.Top, Height = 56, TextAlign = ContentAlignment.MiddleLeft,
             Padding = new Padding(16, 0, 10, 0),
             ForeColor = LuxuryPalette.GoldBright,
-            Text = "●  TARGET: 🔥 EVO🔥 Ilham FH3  •  Kiriman foto tidak dapat ditarik kembali oleh aplikasi.",
+            Text = "●  TARGET TELEGRAM: 🔥 EVO🔥 Ilham FH3  •  Pastikan screenshot benar sebelum dikirim.",
         };
         var cancel = new LuxuryButton
         {
             Text = "Batal", Width = 125, Height = 44,
             Location = new Point(14, 21), DialogResult = DialogResult.Cancel,
-            BackColor = LuxuryPalette.SurfaceRaised, ForeColor = Color.White,
+            BackColor = LuxuryPalette.SurfaceRaised, ForeColor = LuxuryPalette.Text,
             FlatStyle = FlatStyle.Flat, Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
         };
         var send = new LuxuryButton
         {
             Primary = true,
-            Text = "Kirim Foto " + action.ToUpperInvariant(), Width = 190, Height = 44,
+            Text = "Kirim Bukti " + action.ToUpperInvariant(), Width = 190, Height = 44,
             Location = new Point(585, 21), DialogResult = DialogResult.OK,
-            BackColor = LuxuryPalette.Gold, ForeColor = Color.FromArgb(15, 23, 42),
+            BackColor = LuxuryPalette.Gold, ForeColor = LuxuryPalette.Text,
             FlatStyle = FlatStyle.Flat, Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
         };
         toolbar.Controls.Add(cancel);
