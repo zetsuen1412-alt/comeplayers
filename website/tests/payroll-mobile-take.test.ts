@@ -24,8 +24,13 @@ test("TAKE must be sent before START and captions come from Payroll roster", asy
     await db.exec(`create table public.cp_payroll_workspace(
       id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now());
       insert into cp_payroll_workspace(id,payload) values(1,'{}'::jsonb);`);
-    for (const file of files) await db.exec(readFileSync(
-      new URL(`../supabase/migrations/${file}`, import.meta.url),"utf8"));
+    for (const file of files) {
+      try {
+        await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8"));
+      } catch (error) {
+        throw new Error("Migration failed: " + file + ": " + String(error), { cause: error });
+      }
+    }
     const payload = {
       "cp-ofs-demo-user-orders-v3": [{
         id: "manual:X4671",externalReference: "X4671",team:"FH3",
