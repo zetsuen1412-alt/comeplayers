@@ -5,8 +5,12 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +21,8 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,13 +44,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/** CP Boost Monitor: status lokal, identitas karyawan dari payroll website. */
+/** EVOGAMING Monitor: status lokal, identitas karyawan dari payroll website. */
 public final class MainActivity extends Activity {
-    private static final int INK = Color.rgb(17, 24, 39);
-    private static final int SUB = Color.rgb(107, 114, 128);
-    private static final int BG = Color.rgb(247, 248, 252);
-    private static final int PURPLE = Color.rgb(79, 70, 229);
-    private static final int BORDER = Color.rgb(229, 231, 235);
+    // EVOGAMING Future Silver identity, shared with Windows.
+    private static final int INK = 0xff18324a; // Deep navy text
+    private static final int SUB = 0xff607c96; // Secondary ink
+    private static final int BG = 0xffeef4fa;  // Silver-white background
+    private static final int PURPLE = 0xff277eae; // Legacy identifier: vivid blue
+    private static final int ACCENT_BLUE = 0xff8fd3ff;
+    private static final int BORDER = 0xffbcd0e0;
+    private static final int CARD = 0xfff8fbff;
+    private static final int NAV_BG = 0xffdce7f3;
     private static final int WHITE = Color.WHITE;
     private static final String[] STATUS = {EmployeeDb.READY, EmployeeDb.IDLE, EmployeeDb.SLEEP, EmployeeDb.WORK};
     private static final String[] STATUS_LABEL = {"Ready Boosting", "Farming", "Tidur", "Sedang Bekerja"};
@@ -126,7 +136,7 @@ public final class MainActivity extends Activity {
                 pendingError = "";
             } else pendingError = message;
             if (manual && !ok) toast(message);
-            if ("Order Baru".equals(page)) render();
+            if ("Order Baru".equals(page) || "Dashboard".equals(page)) render();
         });
     }
 
@@ -148,6 +158,15 @@ public final class MainActivity extends Activity {
                     .setPositiveButton("START + Foto", (dialog, which) ->
                         pickProofPhoto(orderRef, employeeCode, "start"))
                     .show();
+            } else {
+                // Assignment can have committed even when Telegram TAKE fails.
+                // Refresh both queues so operator can recover from Tugas without repeating assignment.
+                loadPendingOrders(false);
+                loadActiveTasks(false);
+                new AlertDialog.Builder(this)
+                    .setTitle("Periksa TAKE Telegram")
+                    .setMessage(message + "\\n\\nJika order sudah terdaftar, buka Tugas dan gunakan Kirim/Cek TAKE. Jangan kirim berulang sebelum memeriksa grup.")
+                    .setPositiveButton("OK", null).show();
             }
             render();
         });
@@ -191,6 +210,60 @@ public final class MainActivity extends Activity {
             if (ok) { loadActiveTasks(false); refreshPayroll(false); }
             render();
         });
+    }
+
+    private void previewProof(Uri photoUri) {
+        String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
+        Bitmap bitmap = null;
+        try {
+            BitmapFactory.Options bounds = new BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            try (InputStream stream = getContentResolver().openInputStream(photoUri)) {
+                if (stream == null) throw new IllegalStateException("Gambar tidak dapat dibuka.");
+                BitmapFactory.decodeStream(stream, null, bounds);
+            }
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0
+                    || (long) bounds.outWidth * bounds.outHeight > 48000000L)
+                throw new IllegalArgumentException("Resolusi gambar tidak didukung (maksimal 48 MP).");
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            int largest = Math.max(bounds.outWidth, bounds.outHeight);
+            options.inSampleSize = 1;
+            while (largest / options.inSampleSize > 1600) options.inSampleSize *= 2;
+            try (InputStream stream = getContentResolver().openInputStream(photoUri)) {
+                if (stream == null) throw new IllegalStateException("Gambar tidak dapat dibuka.");
+                bitmap = BitmapFactory.decodeStream(stream, null, options);
+            }
+            if (bitmap == null) throw new IllegalStateException("Preview gambar tidak dapat dibuat.");
+            LinearLayout preview = vertical(); pad(preview, 16, 10);
+            preview.addView(pill("BUKTI " + actionLabel, PURPLE, 0xffe1f2fe)); space(preview, 9);
+            preview.addView(text(proofOrderRef + "  •  " + proofEmployeeCode, 15, INK, true));
+            space(preview, 7);
+            preview.addView(text("Tujuan: 🔥 EVO🔥 Ilham FH3", 12, SUB, false));
+            space(preview, 13);
+            ImageView picture = new ImageView(this);
+            picture.setImageBitmap(bitmap);
+            picture.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            picture.setBackground(outline(0xffeaf2fa, 15, BORDER));
+            preview.addView(picture, lp(-1, 250));
+            space(preview, 11);
+            preview.addView(text("Periksa bahwa screenshot benar. Foto hanya dikirim setelah konfirmasi dan tidak dikirim ulang otomatis.", 12, SUB, false));
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Review Screenshot • " + actionLabel)
+                    .setView(preview).setNegativeButton("Batal", null)
+                    .setPositiveButton("Kirim Bukti " + actionLabel, (d, which) -> uploadProgress(photoUri))
+                    .create();
+            final Bitmap forCleanup = bitmap;
+            dialog.setOnDismissListener(d -> {
+                picture.setImageDrawable(null);
+                if (!forCleanup.isRecycled()) forCleanup.recycle();
+            });
+            dialog.show();
+        } catch (Exception exception) {
+            if (bitmap != null && !bitmap.isRecycled()) bitmap.recycle();
+            new AlertDialog.Builder(this).setTitle("Screenshot tidak dapat dipratinjau")
+                    .setMessage(exception.getMessage() == null ? "Pilih PNG/JPEG lain." : exception.getMessage())
+                    .setPositiveButton("OK", null).show();
+        }
     }
 
     private void loginDialog() {
@@ -246,6 +319,20 @@ public final class MainActivity extends Activity {
     private GradientDrawable shape(int color, int radius) {
         GradientDrawable d = new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp(radius)); return d;
     }
+    private GradientDrawable outline(int color, int radius, int stroke) {
+        GradientDrawable d = shape(color, radius); d.setStroke(dp(1), stroke); return d;
+    }
+    private GradientDrawable hero() {
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[] { 0xfffbfdff, 0xffeaf4fc, 0xffd9edfa });
+        d.setCornerRadius(dp(22)); d.setStroke(dp(1), 0xffa7ccdf); return d;
+    }
+    private TextView pill(String label, int foreground, int background) {
+        TextView labelView = text(label, 11, foreground, true);
+        labelView.setBackground(outline(background, 24, 0xffc4d8e8));
+        labelView.setPadding(dp(11), dp(7), dp(11), dp(7));
+        return labelView;
+    }
     private LinearLayout vertical() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); return l; }
     private LinearLayout horizontal() { LinearLayout l = new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); l.setGravity(Gravity.CENTER_VERTICAL); return l; }
     private TextView text(String s, int size, int color, boolean bold) {
@@ -256,19 +343,25 @@ public final class MainActivity extends Activity {
     private LinearLayout.LayoutParams lp(int width, int height) { return new LinearLayout.LayoutParams(width == -1 ? -1 : dp(width), height == -1 || height == -2 ? height : dp(height)); }
     private void space(LinearLayout parent, int height) { View v = new View(this); parent.addView(v, lp(1, height)); }
     private LinearLayout panel() {
-        LinearLayout p = vertical(); p.setBackground(shape(WHITE, 17)); pad(p, 16, 15);
-        p.setElevation(dp(2)); return p;
+        LinearLayout p = vertical(); p.setBackground(outline(CARD, 20, BORDER)); pad(p, 17, 17);
+        p.setElevation(dp(3)); return p;
     }
     private Button button(String label, boolean primary) {
-        Button b = new Button(this); b.setAllCaps(false); b.setText(label); b.setTextSize(13);
-        b.setTextColor(primary ? WHITE : INK); b.setBackground(shape(primary ? PURPLE : 0xffeef2ff, 12));
-        b.setMinHeight(dp(42)); b.setMinimumHeight(dp(42)); b.setPadding(dp(12), 0, dp(12), 0);
-        return b;
+        Button btn = new Button(this); btn.setAllCaps(false); btn.setText(label); btn.setTextSize(13);
+        btn.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        btn.setLetterSpacing(.012f);
+        btn.setTextColor(INK);
+        GradientDrawable fill = outline(primary ? ACCENT_BLUE : 0xffedf5fc, 14,
+                primary ? 0xff84b9d8 : BORDER);
+        btn.setBackground(new RippleDrawable(ColorStateList.valueOf(primary ? 0x4474c1ea : 0x558aa7c2), fill, null));
+        btn.setMinHeight(dp(45)); btn.setMinimumHeight(dp(45)); btn.setPadding(dp(13), 0, dp(13), 0);
+        return btn;
     }
     private EditText input(String hint, String value) {
         EditText e = new EditText(this); e.setSingleLine(true); e.setTextSize(15); e.setTextColor(INK);
-        e.setHint(hint); e.setText(value); e.setSelectAllOnFocus(false);
-        e.setPadding(dp(9), dp(11), dp(9), dp(11)); return e;
+        e.setHintTextColor(SUB); e.setHint(hint); e.setText(value); e.setSelectAllOnFocus(false);
+        e.setBackground(outline(0xffffffff, 14, BORDER));
+        e.setPadding(dp(15), dp(13), dp(15), dp(13)); return e;
     }
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }
     private String trim(EditText e) { return e.getText().toString().trim(); }
@@ -276,27 +369,42 @@ public final class MainActivity extends Activity {
     private void render() {
         root = vertical(); root.setBackgroundColor(BG);
         setContentView(root);
-        LinearLayout header = vertical(); header.setBackgroundColor(INK);
-        header.setPadding(dp(19), dp(19), dp(19), dp(17));
-        header.addView(text("CP  /  BOOST MONITOR", 20, WHITE, true));
-        space(header, 4);
-        header.addView(text("Pantau kesiapan tim boosting", 12, 0xffc7d2fe, false));
+        LinearLayout header = vertical();
+        header.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{0xffedf6fd, 0xffdcebf8}));
+        header.setPadding(dp(20), dp(17), dp(20), dp(17));
+        LinearLayout brand = horizontal();
+        TextView symbol = pill("✧ EVO", PURPLE, 0xffe0f0fc);
+        brand.addView(symbol);
+        View gap = new View(this); brand.addView(gap, lp(10, 1));
+        brand.addView(text("EVOGAMING MONITOR", 18, INK, true),
+                new LinearLayout.LayoutParams(0, -2, 1));
+        brand.addView(pill(linked() ? "● LIVE FH3" : "○ OFFLINE",
+                linked() ? 0xff11816e : SUB, 0xffe2f7f1));
+        header.addView(brand); space(header, 8);
+        header.addView(text("FUTURE CONTROL PANEL  /  FH3 OPERATIONS", 10, SUB, true));
         root.addView(header, lp(-1, -2));
-        // Selalu gunakan roster payroll, jangan tampilkan angka nol mode lokal tanpa login.
+        View line = new View(this); line.setBackgroundColor(0xffa6d8f5);
+        root.addView(line, lp(-1, 1));
         if (!linked()) {
-            LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
-            gate.addView(text("Hubungkan Karyawan Payroll", 23, INK, true));
-            space(gate, 12);
-            gate.addView(text("Hanya nama karyawan FH3 dari Payroll → Karyawan. Divisi lain dibersihkan dari APK.", 14, SUB, false));
-            space(gate, 14);
-            gate.addView(text("Login sekali dengan akun yang memiliki izin Payroll. Data diambil saat login, lalu diperbarui tiap 2 menit selama APK aktif.", 13, SUB, false));
-            space(gate, 20);
-            Button login = button("Login & Ambil Karyawan dari Website", true);
-            gate.addView(login, lp(-1, 55));
-            login.setOnClickListener(v -> loginDialog()); root.addView(gate); return;
+            ScrollView gateScroll = new ScrollView(this);
+            LinearLayout gate = vertical(); gate.setPadding(dp(21), dp(32), dp(21), dp(25));
+            LinearLayout hero = panel(); hero.setBackground(hero());
+            hero.addView(pill("SECURE ACCESS", PURPLE, 0xffe6f3fc)); space(hero, 18);
+            hero.addView(text("Selamat datang di\nEVOGAMING Monitor", 26, INK, true));
+            space(hero, 10);
+            hero.addView(text("Pusat kendali order, karyawan, dan bukti pekerjaan FH3. Login menggunakan akun Payroll ComePlayers.", 14, SUB, false));
+            space(hero, 23);
+            Button login = button("Masuk ke Dashboard  →", true);
+            hero.addView(login, lp(-1, 51));
+            login.setOnClickListener(v -> loginDialog());
+            gate.addView(hero); space(gate, 16);
+            gate.addView(text("Koneksi terenkripsi • Status kerja disimpan pada perangkat • Telegram melalui backend website", 12, SUB, false));
+            gateScroll.addView(gate); root.addView(gateScroll, new LinearLayout.LayoutParams(-1, 0, 1));
+            return;
         }
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
-        body = vertical(); body.setPadding(dp(15), dp(18), dp(15), dp(22));
+        body = vertical(); body.setPadding(dp(17), dp(21), dp(17), dp(25));
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("Dashboard".equals(page)) dashboard();
         else if ("Order Baru".equals(page)) ordersPage();
@@ -308,77 +416,111 @@ public final class MainActivity extends Activity {
     }
 
     private void navigation() {
-        LinearLayout nav = horizontal(); nav.setBackgroundColor(WHITE);
+        HorizontalScrollView bar = new HorizontalScrollView(this);
+        bar.setHorizontalScrollBarEnabled(false); bar.setFillViewport(true);
+        bar.setBackgroundColor(NAV_BG);
+        LinearLayout nav = horizontal(); nav.setPadding(dp(7), dp(7), dp(7), dp(5));
         String[] pages = {"Dashboard", "Order Baru", "Tugas", "Karyawan", "Riwayat", "Pengaturan"};
-        String[] symbols = {"▦", "✉", "▶", "♙", "◷", "⚙"};
+        String[] symbols = {"◈", "▣", "▶", "♙", "◷", "⚙"};
         for (int i = 0; i < pages.length; i++) {
-            final String dest = pages[i];
-            TextView t = text(symbols[i] + "\n" + dest, 11, page.equals(dest) ? PURPLE : SUB, page.equals(dest));
-            t.setGravity(Gravity.CENTER); t.setPadding(0, dp(11), 0, dp(11));
-            nav.addView(t, new LinearLayout.LayoutParams(0, dp(62), 1));
-            t.setOnClickListener(v -> {
-                page = dest;
-                if (!"Riwayat".equals(dest)) historyEmployee = 0;
+            final String dest = pages[i]; boolean selected = page.equals(dest);
+            LinearLayout item = vertical(); item.setGravity(Gravity.CENTER);
+            item.setBackground(outline(selected ? 0xfff5fbff : NAV_BG, 12,
+                    selected ? 0xff91cbea : NAV_BG));
+            TextView sym = text(symbols[i], 19, selected ? PURPLE : SUB, selected);
+            sym.setGravity(Gravity.CENTER);
+            item.addView(sym);
+            TextView label = text(dest, 10, selected ? INK : SUB, selected);
+            label.setGravity(Gravity.CENTER); item.addView(label);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(76), dp(57));
+            params.setMargins(dp(2), 0, dp(2), 0);
+            nav.addView(item, params);
+            item.setOnClickListener(v -> {
+                page = dest; if (!"Riwayat".equals(dest)) historyEmployee = 0;
                 render();
                 if ("Order Baru".equals(dest)) loadPendingOrders(false);
                 if ("Tugas".equals(dest)) loadActiveTasks(false);
             });
         }
-        root.addView(nav, lp(-1, -2));
+        bar.addView(nav); root.addView(bar, lp(-1, 71));
     }
 
     private void heading(String title, String sub) {
-        body.addView(text(title, 23, INK, true));
-        if (!sub.isEmpty()) { space(body, 5); body.addView(text(sub, 13, SUB, false)); }
-        space(body, 17);
+        body.addView(text("FH3  /  OPERATIONAL CONTROL", 10, PURPLE, true)); space(body, 7);
+        body.addView(text(title, 25, INK, true));
+        if (!sub.isEmpty()) { space(body, 7); body.addView(text(sub, 13, SUB, false)); }
+        space(body, 20);
     }
 
     private void dashboard() {
         List<EmployeeDb.Employee> all = db.payrollEmployees();
-        heading("Dashboard Tim", "Karyawan FH3 dari Payroll Website • " + time(now()));
-        if (linked()) {
-            Button newOrders = button("📨 Order Baru FH3 (" + (pendingOrders == null ? 0 : pendingOrders.length()) + ")", true);
-            body.addView(newOrders, lp(-1, 48)); space(body, 12);
-            newOrders.setOnClickListener(v -> { page = "Order Baru"; render(); loadPendingOrders(false); });
-            Button activeButton = button("📷 Tugas Aktif (" + activeTasks.length() + ") • START / DONE", false);
-            body.addView(activeButton, lp(-1, 48)); space(body, 12);
-            activeButton.setOnClickListener(v -> { page = "Tugas"; render(); loadActiveTasks(false); });
-            String error = prefs.getString("payroll_sync_error", "");
-            long synced = prefs.getLong("payroll_last_sync", 0L);
-            info((error.isEmpty() ? "✓ " + all.size() + " karyawan FH3 dari Payroll Website"
-                    : "⚠ Sinkron gagal: " + error + " (data terakhir tetap tersimpan)")
-                + " • Update terakhir: " + (synced == 0L ? "belum ada" : time(synced)));
-            space(body, 8);
-            Button sync = button(syncBusy ? "Sedang sinkron..." : "↻ Perbarui dari Payroll", false);
-            sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 43));
-            sync.setOnClickListener(v -> refreshPayroll(true)); space(body, 16);
-        }
-        int ready = 0, idle = 0, sleeping = 0, working = 0;
-        List<EmployeeDb.Employee> sleepingEmployees = new ArrayList<>();
+        heading("Dashboard", "Gambaran operasional FH3 • " + time(now()));
+        int ready = 0, sleeping = 0, working = 0, idle = 0;
         List<EmployeeDb.Employee> available = new ArrayList<>();
+        List<EmployeeDb.Employee> sleepingEmployees = new ArrayList<>();
         for (EmployeeDb.Employee e : all) {
             switch (e.status) {
                 case EmployeeDb.READY: ready++; available.add(e); break;
-                case EmployeeDb.IDLE: idle++; break;
                 case EmployeeDb.SLEEP: sleeping++; sleepingEmployees.add(e); break;
+                case EmployeeDb.IDLE: idle++; break;
                 case EmployeeDb.WORK: working++; break;
             }
         }
-        summaryRow("🟢 Ready Boosting", ready, "READY", "🔵 Sedang Bekerja", working, "WORK");
-        summaryRow("⚪ Semua", all.size(), "SEMUA", "🌙 Tidur", sleeping, "SLEEP");
-        space(body, 23);
-        body.addView(text("Sedang Tidur", 18, INK, true)); space(body, 10);
-        if (sleepingEmployees.isEmpty()) info("Tidak ada karyawan yang sedang tidur.");
+        LinearLayout heroCard = panel(); heroCard.setBackground(hero()); pad(heroCard, 20, 20);
+        heroCard.addView(pill("● LIVE  /  EVOGAMING FH3", 0xff147d67, 0xffe2f7f1));
+        space(heroCard, 14);
+        heroCard.addView(text("Operations Overview", 21, INK, true));
+        space(heroCard, 5);
+        heroCard.addView(text("Seluruh penugasan dan bukti screenshot terhubung ke Payroll Website.", 13, SUB, false));
+        space(heroCard, 17);
+        LinearLayout heroNumbers = horizontal();
+        heroNumbers.addView(heroNumber(String.valueOf(pendingOrders == null ? 0 : pendingOrders.length()),
+                "ORDER BARU"), new LinearLayout.LayoutParams(0, -2, 1));
+        View divider = new View(this); divider.setBackgroundColor(BORDER);
+        heroNumbers.addView(divider, lp(1, 57));
+        heroNumbers.addView(heroNumber(String.valueOf(activeTasks.length()), "TUGAS AKTIF"),
+                new LinearLayout.LayoutParams(0, -2, 1));
+        heroCard.addView(heroNumbers);
+        space(heroCard, 14);
+        heroCard.addView(text("●  Telegram: 🔥 EVO🔥 Ilham FH3", 12, PURPLE, true));
+        body.addView(heroCard, lp(-1, -2)); space(body, 16);
+
+        body.addView(text("RINGKASAN KARYAWAN", 11, SUB, true)); space(body, 10);
+        summaryRow("● Ready Boosting", ready, "READY", "● Bekerja", working, "WORK");
+        summaryRow("● Total FH3", all.size(), "SEMUA", "● Tidur", sleeping, "SLEEP");
+        space(body, 7);
+        body.addView(text("AKSI CEPAT", 11, SUB, true)); space(body, 10);
+        Button newOrders = button("▣   Kelola Order Baru  (" + (pendingOrders == null ? 0 : pendingOrders.length()) + ")", true);
+        body.addView(newOrders, lp(-1, 50)); space(body, 9);
+        newOrders.setOnClickListener(view -> { page = "Order Baru"; render(); loadPendingOrders(false); });
+        Button tasks = button("▶   Tugas Aktif & Bukti Telegram  (" + activeTasks.length() + ")", false);
+        body.addView(tasks, lp(-1, 50)); space(body, 9);
+        tasks.setOnClickListener(view -> { page = "Tugas"; render(); loadActiveTasks(false); });
+        Button sync = button(syncBusy ? "Memperbarui Payroll..." : "↻   Perbarui Data Payroll", false);
+        sync.setEnabled(!syncBusy); body.addView(sync, lp(-1, 46));
+        sync.setOnClickListener(view -> refreshPayroll(true)); space(body, 14);
+        String error = prefs.getString("payroll_sync_error", "");
+        long synced = prefs.getLong("payroll_last_sync", 0L);
+        info((error.isEmpty() ? "✓  " + all.size() + " karyawan terhubung" : "⚠  " + error)
+                + "\nTerakhir sinkron: " + (synced == 0L ? "belum pernah" : time(synced)));
+        space(body, 22);
+        body.addView(text("SEDANG TIDUR", 16, INK, true)); space(body, 11);
+        if (sleepingEmployees.isEmpty()) info("Belum ada karyawan berstatus tidur.");
         else {
             sleepingEmployees.sort((a, b) -> Long.compare(a.statusSince, b.statusSince));
-            for (EmployeeDb.Employee e : sleepingEmployees) employeeCard(body, e, false);
+            for (EmployeeDb.Employee employee : sleepingEmployees) employeeCard(body, employee, false);
         }
-        space(body, 20);
-        body.addView(text("Siap Menerima Boosting", 18, INK, true)); space(body, 10);
+        space(body, 18);
+        body.addView(text("SIAP MENERIMA ORDER", 16, INK, true)); space(body, 11);
         if (available.isEmpty()) info("Belum ada karyawan berstatus Ready Boosting.");
-        else for (EmployeeDb.Employee e : available) employeeCard(body, e, false);
+        else for (EmployeeDb.Employee employee : available) employeeCard(body, employee, false);
     }
-
+    private LinearLayout heroNumber(String value, String label) {
+        LinearLayout area = vertical(); area.setGravity(Gravity.CENTER_VERTICAL);
+        area.addView(text(value, 35, PURPLE, true));
+        area.addView(text(label, 10, SUB, true));
+        return area;
+    }
     private void summaryRow(String one, int a, String filterA, String two, int b, String filterB) {
         LinearLayout r = horizontal(); r.setGravity(Gravity.TOP);
         summaryCard(r, one, a, filterA);
@@ -387,17 +529,18 @@ public final class MainActivity extends Activity {
         body.addView(r, lp(-1, -2)); space(body, 11);
     }
     private void summaryCard(LinearLayout row, String title, int count, String targetFilter) {
-        LinearLayout p = panel(); p.setElevation(dp(1));
-        p.addView(text(String.valueOf(count), 28, INK, true)); space(p, 5);
-        p.addView(text(title, 12, SUB, true));
+        LinearLayout p = panel(); p.setElevation(dp(2));
+        TextView number = text(String.valueOf(count), 28, PURPLE, true);
+        p.addView(number); space(p, 7);
+        p.addView(text(title, 11, SUB, true));
         row.addView(p, new LinearLayout.LayoutParams(0, -2, 1));
         p.setOnClickListener(v -> { filter = targetFilter; page = "Karyawan"; render(); });
     }
     private void summarySingle(String label, int n, String targetFilter) {
-        LinearLayout p = panel(); p.setBackground(shape(0xfffff1f2, 15));
+        LinearLayout p = panel(); p.setBackground(outline(0xfffff7f7, 15, 0xffe8c9ce));
         LinearLayout r = horizontal();
-        r.addView(text(label, 15, 0xff991b1b, true), new LinearLayout.LayoutParams(0, -2, 1));
-        r.addView(text(String.valueOf(n), 25, 0xffb91c1c, true)); p.addView(r);
+        r.addView(text(label, 15, 0xffb05063, true), new LinearLayout.LayoutParams(0, -2, 1));
+        r.addView(text(String.valueOf(n), 25, 0xfff0a5ae, true)); p.addView(r);
         body.addView(p, lp(-1, -2));
         p.setOnClickListener(v -> { filter = targetFilter; page = "Karyawan"; render(); });
     }
@@ -429,8 +572,12 @@ public final class MainActivity extends Activity {
             final String ref = order.optString("orderRef", "").trim();
             if (ref.isEmpty()) continue;
             LinearLayout card = panel();
-            card.addView(text("📦 " + ref + "  •  " + order.optString("orderType", "boosting").toUpperCase(Locale.ROOT), 15, INK, true));
-            space(card, 7);
+            LinearLayout title = horizontal();
+            title.addView(text("▣  " + ref, 17, INK, true), new LinearLayout.LayoutParams(0, -2, 1));
+            title.addView(pill(order.optString("orderType", "boosting").toUpperCase(Locale.ROOT),
+                    PURPLE, 0xffe1f2fe));
+            card.addView(title); space(card, 12);
+            card.addView(pill("MENUNGGU PENUGASAN", 0xff956620, 0xfffff2dc)); space(card, 10);
             card.addView(text("Nama: " + order.optString("orderName", "—"), 13, SUB, false));
             card.addView(text("Game: " + order.optString("game", "—"), 13, SUB, false));
             card.addView(text("Buyer: " + order.optString("buyer", "—"), 13, SUB, false));
@@ -446,7 +593,7 @@ public final class MainActivity extends Activity {
     }
 
     private void tasksPage() {
-        heading("Tugas FH3", "Pilih order, sisipkan screenshot, lalu kirim START / DONE ke grup Telegram FH3.");
+        heading("Tugas FH3", "Urutan Telegram: TAKE → START + screenshot → DONE + screenshot.");
         info("Status asli order tersimpan di Payroll Website. Foto wajib diunggah sebelum START atau DONE.");
         space(body, 10);
         Button checkGroup = button("✓ Periksa Koneksi Grup EVO Ilham FH3", false);
@@ -477,8 +624,13 @@ public final class MainActivity extends Activity {
             final String status = task.optString("status", "").trim();
             if (ref.isEmpty() || code.isEmpty()) continue;
             LinearLayout card = panel();
-            card.addView(text("📦 " + ref + " • " + status.toUpperCase(Locale.ROOT), 16, INK, true));
-            space(card, 5);
+            LinearLayout title = horizontal();
+            title.addView(text("▣  " + ref, 17, INK, true), new LinearLayout.LayoutParams(0, -2, 1));
+            title.addView(pill("assigned".equals(status) ? "ASSIGNED" :
+                            "in_progress".equals(status) ? "IN PROGRESS" : status.toUpperCase(Locale.ROOT),
+                    "in_progress".equals(status) ? 0xff11816e : PURPLE,
+                    "in_progress".equals(status) ? 0xffe4f7f0 : 0xffe1f2fe));
+            card.addView(title); space(card, 12);
             card.addView(text("Karyawan: " + task.optString("employeeName", "—")
                     + " (" + code + ")", 13, SUB, false));
             card.addView(text("Order: " + task.optString("orderName", "—"), 13, SUB, false));
@@ -486,6 +638,24 @@ public final class MainActivity extends Activity {
             card.addView(text("Buyer: " + task.optString("buyer", "—"), 13, SUB, false));
             card.addView(text("TASK: " + task.optString("task", "—"), 13, SUB, false));
             space(card, 10);
+            if ("assigned".equals(status)) {
+                Button takeButton = button("↗ Kirim/Cek TAKE Telegram", false);
+                takeButton.setEnabled(!proofBusy && !assignmentBusy);
+                card.addView(takeButton, lp(-1, 43));
+                space(card, 7);
+                takeButton.setOnClickListener(v -> new AlertDialog.Builder(this)
+                    .setTitle("Kirim/Cek TAKE?")
+                    .setMessage("Order: " + ref + "\\nKaryawan: " + code
+                            + "\\n\\nServer tidak akan mengirim ulang TAKE yang sudah terkonfirmasi.")
+                    .setNegativeButton("Batal", null)
+                    .setPositiveButton("Periksa/Kirim", (d, w) ->
+                        payroll.sendTake(ref, code, (message, ok) ->
+                            new AlertDialog.Builder(this)
+                                .setTitle(ok ? "TAKE terkonfirmasi" : "TAKE belum terkonfirmasi")
+                                .setMessage(message + (ok ? "" : "\\nCek grup Telegram sebelum mengulang."))
+                                .setPositiveButton("OK", null).show()))
+                    .show());
+            }
             if ("assigned".equals(status) || "in_progress".equals(status)) {
                 boolean start = "assigned".equals(status);
                 String action = start ? "start" : "done";
@@ -535,7 +705,7 @@ public final class MainActivity extends Activity {
         syncNames.setOnClickListener(v -> refreshPayroll(true));
         space(body, 14);
         EditText searchField = input("Cari nama / jabatan / tugas", search);
-        searchField.setSingleLine(true); searchField.setBackground(shape(WHITE, 11));
+        searchField.setSingleLine(true);
         body.addView(searchField, lp(-1, 49)); space(body, 13);
         searchField.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -576,10 +746,16 @@ public final class MainActivity extends Activity {
     private void employeeCard(LinearLayout parent, EmployeeDb.Employee e, boolean management) {
         LinearLayout p = panel();
         LinearLayout title = horizontal();
+        TextView avatar = text(e.name.isEmpty() ? "FH" : e.name.substring(0, 1).toUpperCase(Locale.ROOT),
+                17, PURPLE, true);
+        avatar.setGravity(Gravity.CENTER);
+        avatar.setBackground(outline(0xffe6f3fc, 14, BORDER));
+        title.addView(avatar, lp(42, 42));
+        View spacer = new View(this); title.addView(spacer, lp(11, 1));
         TextView name = text(e.name, 17, INK, true);
         title.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
         TextView status = text(e.visibleStatus(), 11, tint(e.status), true);
-        status.setBackground(shape(0xfff3f4f6, 9));
+        status.setBackground(outline(0xffedf5fc, 12, BORDER));
         status.setPadding(dp(9), dp(7), dp(9), dp(7)); title.addView(status); p.addView(title);
         if (!e.position.isEmpty()) { space(p, 5); p.addView(text(e.position + (e.payrollManaged ? " • " + e.payrollCode + " • Payroll" : ""), 13, SUB, false)); }
         space(p, 10);
@@ -776,13 +952,7 @@ public final class MainActivity extends Activity {
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         if (requestCode == PROOF_PHOTO) {
-            String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
-            new AlertDialog.Builder(this).setTitle("Kirim screenshot " + actionLabel + "?")
-                .setMessage("Order: " + proofOrderRef + "\nKaryawan: " + proofEmployeeCode
-                    + "\n\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Kirim Foto", (dialog, which) -> uploadProgress(uri))
-                .show();
+            previewProof(uri);
             return;
         }
         try {

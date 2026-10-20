@@ -129,8 +129,24 @@ final class PayrollSync {
                 input.put("employeeCode", employeeCode);
                 JSONObject result = authorizedCall("POST", "/assign", input);
                 if (!result.optBoolean("ok")) throw new IllegalStateException("Penugasan belum dikonfirmasi website.");
-                finish(callback, "Order " + result.optString("orderRef", orderRef) + " ditugaskan ke "
-                        + result.optString("employeeName", employeeCode) + " dan tersimpan di website.", true);
+                finish(callback, "✓ " + result.optString("caption", orderRef + "/take")
+                        + "\\nPenugasan disimpan di Payroll dan pesan TAKE terkirim ke Telegram FH3.", true);
+            } catch (Exception error) { finish(callback, friendly(error), false); }
+        });
+    }
+
+    /** Idempotent TAKE status message; website will NOT duplicate a previously sent TAKE. */
+    void sendTake(String orderRef, String employeeCode, Done callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject input = new JSONObject();
+                input.put("orderRef", orderRef);
+                input.put("employeeCode", employeeCode);
+                JSONObject result = authorizedCall("POST", "/take", input);
+                if (!result.optBoolean("ok") || !result.optBoolean("takeSent"))
+                    throw new IOException("Pesan TAKE belum terkonfirmasi Telegram.");
+                finish(callback, "✓ " + result.optString("caption", orderRef + "/take") +
+                        "\\nTAKE telah dikonfirmasi oleh grup Telegram FH3.", true);
             } catch (Exception error) { finish(callback, friendly(error), false); }
         });
     }
