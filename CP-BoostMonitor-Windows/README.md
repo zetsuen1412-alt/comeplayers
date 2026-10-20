@@ -54,3 +54,14 @@ Tampilan desktop memakai palet bersama Android: charcoal #0B101A, panel #192437,
 
 ## EVOGAMING Monitor v1.3 • Future Silver
 Identitas baru **EVOGAMING Monitor** dengan palet silver #EEF4FA, putih #F8FBFF, biru muda #8FD3FF, teks navy #18324A. Tampilan login yang lebih lega, tombol gradasi, sidebar dan tabel elegan, serta titlebar silver pada Windows 11 yang mendukungnya. Endpoint tetap menggunakan ComePlayers Payroll, tidak mengubah database, token, status order, atau Telegram.
+
+## EVOGAMING Monitor Windows v1.4 — Take Order Workspace
+Tema utama adalah **Dark Soft Blue** (background #111827, sidebar #0F172A, panel #1E293B, aksen #60A5FA). Menggantikan dashboard silver terang dan hero/KPI yang melelahkan mata.
+
+**Halaman pertama setelah login: Take Order.** Karyawan FH3 ditampilkan di **kolom kiri (40%)** dan order baru Payroll Website di **kolom kanan (60%)**, tanpa KPI atau blok dashboard. Masing-masing memiliki pencarian; kolom karyawan punya filter status lokal. Admin klik satu baris karyawan dan satu baris order, lalu tombol **TAKE ORDER** di panel bawah aktif. Penugasan tetap melalui RPC Payroll website, perlu konfirmasi final, tidak mengirim bukti Telegram sampai operator melakukan START di menu Tugas Aktif.
+
+Pilihan yang menghilang dari pembaruan Payroll atau disembunyikan melalui filter dibersihkan otomatis agar tidak salah menugaskan order. Setelah sukses, pilihan dikosongkan, order diperbarui, dan admin dapat membuka Tugas Aktif untuk mengirim screenshot START/DONE seperti sebelumnya.
+
+**Cara uji:** pilih karyawan dan order uji yang benar-benar diizinkan. Tidak ada assignment saat sekadar memilih atau memfilter baris. Gunakan tombol konfirmasi TAKE ORDER untuk menulis ke backend. Jangan gunakan order pelanggan sebagai percobaan. Menu Tugas Aktif, Karyawan, Riwayat dan Pengaturan tetap tersedia.
+
+Rilis pratinjau: https://github.com/zetsuen1412-alt/comeplayers/releases/tag/evogaming-monitor-windows-v1.4-take-order-preview. Berkas ZIP berisi `EVOGAMINGMonitor.exe`; EXE self-contained tidak perlu instal .NET. Belum code-signed dan tidak mengubah website/Android produksi.
