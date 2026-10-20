@@ -1,4 +1,4 @@
-name: Build CP Boost Monitor APK
+name: Build EVOGAMING Monitor APK
 on:
   push:
     paths:
@@ -70,22 +70,24 @@ jobs:
               --notes "Internal development APK only. Requires staging migrations, matching website API and test Telegram group setup. Debug signature may not match the existing installation; back up local data before changing APK. Not for production work." \
               --prerelease
           fi
-      - name: Publish Android v1.6 luxury preview APK
+      - name: Publish EVOGAMING Monitor Android v1.7 silver preview
         if: github.ref == 'refs/heads/feature/cp-boost-android-luxury-ui-20261020'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          TAG="cp-boost-monitor-android-v1.6-luxury-preview"
+          TAG="evogaming-monitor-android-v1.7-silver-preview"
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
+          cp "$APK" EVOGAMING-Monitor-Android-v1.7-preview.apk
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.6-LUXURY-PREVIEW.apk" --clobber
+            gh release upload "$TAG" EVOGAMING-Monitor-Android-v1.7-preview.apk --clobber
           else
-            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.6-LUXURY-PREVIEW.apk" \
-              --target "$GITHUB_SHA" --title "CP Boost Monitor Android v1.6 • Executive Luxury Preview" \
-              --notes "Internal preview Android FH3 luxury redesign. APK debug may be signed differently than installed production build. Back up local status/history before installation; no Telegram photo tests on real customer orders." \
+            gh release create "$TAG" EVOGAMING-Monitor-Android-v1.7-preview.apk \
+              --target "$GITHUB_SHA" \
+              --title "EVOGAMING Monitor Android 1.7 — Silver & Ice Blue Preview" \
+              --notes "FH3 preview with silver-light-blue design. The APK is debug-signed and not production; back up on-device local data before switching installations. Telegram and Payroll API are unchanged." \
               --prerelease
           fi
       - name: Publish same APK to website downloads
