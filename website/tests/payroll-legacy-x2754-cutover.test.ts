@@ -87,3 +87,32 @@ test("manual order with same or older numeric KODE is never archived based on KO
  assert.equal(isPreX2754SheetOrder(manual),false);
  assert.equal(activeMutationRows([manual],[]).length,1);
 });
+
+// The configured production namespace historically imported pre-X2754 rows
+// when a legacy Apps Script sent no boundary (or a shifted mirror row index).
+test("primary EVO FH sync ignores old rows even without a start boundary", () => {
+ const payload = {...send([item(74,"EGX8330"), item(5847,"OLD-PERIOD"), item(5849,"X2754"), item(5850,"X3085","PENDING")]),
+   spreadsheetId:"1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ", newOrdersStartRow:undefined};
+ const result=mergeGoogleSheetPayroll(base(),payload);
+ assert.deepEqual(orders(result.state).map(o=>o.externalReference),["X2754","X3085"]);
+ assert.equal(result.skippedHistorical,2);
+ assert.equal(result.state[K.sheetCodeConflicts],undefined);
+});
+
+test("primary EVO FH sync does not re-create historic days from an old daily package",()=>{
+ const oldPackage={...item(100,"EGX9000"), codeOccurrences:2,
+   dailyPackage:{complete:true as const,rows:[item(100,"EGX9000"),item(101,"EGX9000")]}};
+ const payload={...send([oldPackage,item(5849,"X2754")]),
+   spreadsheetId:"1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ", newOrdersStartRow:5849};
+ const result=mergeGoogleSheetPayroll(base(),payload);
+ assert.deepEqual(orders(result.state).map(o=>o.externalReference),["X2754"]);
+ assert.equal(result.skippedHistorical,1);
+ assert.equal(result.state[K.sheetCodeConflicts],undefined);
+});
+
+test("other spreadsheet namespaces retain their independently configured boundary",()=>{
+ const payload={...send([item(30,"OTHER-WORK"),item(5849,"X2754")]),
+   spreadsheetId:"unrelated-payroll",newOrdersStartRow:3};
+ const result=mergeGoogleSheetPayroll(base(),payload);
+ assert.deepEqual(orders(result.state).map(o=>o.externalReference),["OTHER-WORK","X2754"]);
+});

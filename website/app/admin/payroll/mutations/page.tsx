@@ -38,7 +38,6 @@ import {
   type MutationViewRow,
 } from "@/features/payroll/lib/mutation-rows";
 import type { Order, OrderIssue, InventoryMovement } from "@/features/payroll/types/domain";
-import type { SheetCodeConflict } from "@/features/payroll/lib/sheet-code-collision";
 import { PAYROLL_NEW_BOOK_START } from "@/features/payroll/lib/sheet-transfer-payroll";
 
 const bulkActionLabels: Record<BulkMutationAction, string> = {
@@ -346,8 +345,6 @@ function PriceDetailModal({ row, price, onClose, onShowGroup }: {
 export default function MutationsPage() {
   const { allOrders, archivedOrders, updateOrder, applyBulkAction, previewBulkAction, withdrawDailyFromPayroll: withdrawStoredDailyFromPayroll } = useDemoOrders();
   const { employees } = useDemoEmployees();
-  const [codeConflicts,setCodeConflicts]=useState<SheetCodeConflict[]>([]);
-  useEffect(()=>{const load=()=>{try{const value=JSON.parse(payrollStorage.getItem(workspaceKeys.sheetCodeConflicts)??"[]");setCodeConflicts(Array.isArray(value)?value:[]);}catch{setCodeConflicts([]);}};load();window.addEventListener("storage",load);return()=>window.removeEventListener("storage",load);},[]);
   const { isLocked } = useDemoPeriodLock();
   const { consumeAllocations } = useDemoInventory();
   const { addHistory, countsByOrder } = useDemoMutationHistory();
@@ -770,7 +767,6 @@ export default function MutationsPage() {
         <Link href="/admin/payroll/bookkeeping" className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-black">📚 Buka Data Pembukuan →</Link>
       </div>
       <section className="cp-card mb-4 p-4"><div className="flex flex-wrap justify-between gap-3"><div><strong>Periode Mutasi aktif</strong><p className="mt-1 text-sm text-zinc-400">Mutasi FH lama berakhir di baris 5847. Buku baru dimulai pada KODE X2754 (baris 5848, 06/10/2026 01.15 WIB). Arsip lama dan snapshot Tutup Buku bisa diperiksa di Data Pembukuan.</p></div><Link href="/admin/payroll/finance/closing" className="rounded-lg bg-zinc-800 px-3 py-2 text-sm">Lihat Gaji / Tutup Buku →</Link></div></section>
-      {codeConflicts.length ? <section className="mb-4 rounded-xl border border-red-500/50 bg-red-500/10 p-4" role="alert"><h2 className="font-semibold text-red-200">⚠ KODE Bermasalah dari Spreadsheet ({codeConflicts.length})</h2><p className="mt-1 text-sm text-zinc-300">KODE yang sama dipakai oleh baris yang tidak cocok. Tidak digabung otomatis; periksa buyer dan nama paket di Sheet lalu perbaiki KODE sumber.</p><div className="mt-3 space-y-2">{codeConflicts.slice(0,30).map(alert=><div key={alert.id} className="rounded-lg border border-red-500/25 p-3 text-sm"><strong>{alert.code} · Baris Sheet {alert.sourceRow}</strong><p className="mt-1 text-zinc-300">{alert.message}</p></div>)}</div>{codeConflicts.length>30?<p className="mt-2 text-xs">Menampilkan 30 konflik pertama.</p>:null}</section>:null}
 
       <section className="cp-card p-5 sm:p-6">
         <div>
