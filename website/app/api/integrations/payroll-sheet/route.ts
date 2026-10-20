@@ -1,4 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
+import {
+  loadPayrollXlsxBootstrapBatch,
+  advancePayrollXlsxBootstrap,
+} from "@/features/payroll/lib/xlsx-bootstrap";
+
 import { dispatchAddedSheetOrders } from "@/lib/payrollTelegram";
 import { FH_NEW_BOOK_ROW, FH_PRIMARY_SYNC_NAMESPACE } from "@/features/payroll/lib/legacy-fh-cutover";
 import { mergeResetReimportRefresh } from "@/features/payroll/lib/reset-reimport-refresh";
@@ -130,8 +135,15 @@ export async function POST(request: Request) {
 
       const currentState = current.payload as WorkspaceState;
       const merged = mergeGoogleSheetPayroll(currentState, payload);
-      validateWorkspace(merged.state);
-      validateWorkspaceEdit(currentState, merged.state, "sync");
+      const bootstrap = await loadPayrollXlsxBootstrapBatch(supabaseAdmin, payload);
+      // Apply the uploaded historical workbook using exactly the same merge and
+      // validation paths as live Google Sheets, without resetting newer orders.
+      const fileMerged = bootstrap
+        ? mergeGoogleSheetPayroll(merged.state, bootstrap.payload)
+        : null;
+      const effectiveState = fileMerged?.state ?? merged.state;
+      validateWorkspace(effectiveState);
+      validateWorkspaceEdit(currentState, effectiveState, "sync");
 
       // After an audited reset, Apps Script can still have old per-row signatures
       // and skip re-sending rows even though they no longer exist in Payroll.
@@ -155,13 +167,29 @@ export async function POST(request: Request) {
       }
 
       const changed = merged.added + merged.updated + merged.archived
-        + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved + merged.conflictsUpdated + merged.legacyArchived;
+        + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved + merged.conflictsUpdated + merged.legacyArchived
+        + (fileMerged ? fileMerged.added + fileMerged.updated + fileMerged.archived
+          + fileMerged.rosterAdded + fileMerged.rosterUpdated + fileMerged.rosterRemoved
+          + fileMerged.conflictsUpdated + fileMerged.legacyArchived : 0);
+      const bootstrapSummary = bootstrap && fileMerged ? {
+        source: "uploaded-xlsx",
+        fromRow: 5848,
+        toRow: 7536,
+        processedTasks: bootstrap.nextCursor,
+        totalTasks: bootstrap.totalTasks,
+        added: fileMerged.added,
+        updated: fileMerged.updated,
+        skippedConflicts: fileMerged.skippedConflicts,
+        skippedInvalid: fileMerged.skippedInvalid,
+      } : null;
       if (!changed) {
+        if (bootstrap) await advancePayrollXlsxBootstrap(supabaseAdmin, bootstrap);
         return response({
           ok: true,
           saved: false,
           syncMode,
           revision: current.revision,
+          ...(bootstrapSummary ? { bootstrap: bootstrapSummary } : {}),
           ...merged,
           refreshReferences,
           state: undefined,
@@ -170,15 +198,19 @@ export async function POST(request: Request) {
 
       const { data: saved, error: saveError } = await supabaseAdmin.rpc("cp_save_payroll_workspace", {
         p_revision: current.revision,
-        p_payload: merged.state,
+        p_payload: effectiveState,
         p_actor: actor.id,
         p_action: "save",
       });
 
       if (saveError?.code === "40001" && attempt < 2) continue;
       if (saveError) throw saveError;
+      // Revision-guarded save succeeded; this is now safe to advance the
+      // durable spreadsheet import cursor. A crash before advancing merely
+      // retries the same idempotent group, never loses work.
+      if (bootstrap) await advancePayrollXlsxBootstrap(supabaseAdmin, bootstrap);
 
-      const telegramDispatch = await dispatchAddedSheetOrders(supabaseAdmin, merged.state, merged.rowResults);
+      const telegramDispatch = await dispatchAddedSheetOrders(supabaseAdmin, effectiveState, merged.rowResults);
 
       await recordAdminAudit({
         adminId: actor.id,
@@ -207,6 +239,7 @@ export async function POST(request: Request) {
           skippedInvalid: merged.skippedInvalid,
           skippedHistorical: merged.skippedHistorical,
           telegramDispatched: telegramDispatch.sent,
+          ...(bootstrapSummary ? { xlsxBootstrap: bootstrapSummary } : {}),
         },
       });
 
@@ -232,6 +265,7 @@ export async function POST(request: Request) {
         skippedInvalid: merged.skippedInvalid,
         skippedHistorical: merged.skippedHistorical,
         telegramDispatched: telegramDispatch.sent,
+        ...(bootstrapSummary ? { bootstrap: bootstrapSummary } : {}),
         issues: merged.issues,
         rowResults: merged.rowResults,
       });
