@@ -1,7 +1,7 @@
 import { manualOrderCode } from "@/features/payroll/lib/manual-order-code";
 import { automaticSingleDelivery, automaticDailyDelivery, sheetTransferStatus } from "./sheet-transfer-payroll";
 import { conflictRecord, unrelatedCodeIdentity, type SheetCodeConflict } from "./sheet-code-collision";
-import { FH_NEW_BOOK_ROW, legacyRowId, type LegacyMutationSnapshot } from "./legacy-fh-cutover";
+import { FH_NEW_BOOK_ROW, FH_PRIMARY_SYNC_NAMESPACE, legacyRowId, type LegacyMutationSnapshot } from "./legacy-fh-cutover";
 import { hasAutomaticSheetProtection } from "./sheet-sync-policy";
 import { mergeGoogleSheetRoster, pruneUnreferencedSheetRosterEmployees, validateGoogleSheetRoster, type GoogleSheetRosterSnapshot } from "./google-sheet-roster";
 import { buildGoogleSheetDailyOrder, mergeGoogleSheetDailyOrder, parseGoogleSheetBoostingDays } from "./google-sheet-daily";
@@ -625,7 +625,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   // pre-X2754 ledger as payable, active mutations.
   // The namespace is the existing sync identity (not a credential).
   const primaryFhBook = payload.sheetName === "MUTASI FH"
-    && payload.spreadsheetId === "1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ";
+    && payload.spreadsheetId === FH_PRIMARY_SYNC_NAMESPACE;
   const liveStartRow = primaryFhBook ? FH_NEW_BOOK_ROW : payload.newOrdersStartRow;
   const state = structuredClone(current);
   const rosterResult = payload.roster ? mergeGoogleSheetRoster(state, payload.roster, payload.spreadsheetId, payload.sentAt)

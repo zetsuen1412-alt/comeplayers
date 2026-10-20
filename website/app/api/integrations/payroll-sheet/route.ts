@@ -1,5 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { dispatchAddedSheetOrders } from "@/lib/payrollTelegram";
+import { FH_NEW_BOOK_ROW, FH_PRIMARY_SYNC_NAMESPACE } from "@/features/payroll/lib/legacy-fh-cutover";
+import { mergeResetReimportRefresh } from "@/features/payroll/lib/reset-reimport-refresh";
 import { recordAdminAudit } from "@/lib/adminSecurity";
 import { createSupabaseAdmin } from "@/lib/serverSupabase";
 import {
@@ -131,6 +133,27 @@ export async function POST(request: Request) {
       validateWorkspace(merged.state);
       validateWorkspaceEdit(currentState, merged.state, "sync");
 
+      // After an audited reset, Apps Script can still have old per-row signatures
+      // and skip re-sending rows even though they no longer exist in Payroll.
+      // The presence preflight carries the source CODE inventory; respond with
+      // absent post-X2754 references from the last two backed-up resets so the
+      // existing Apps Script refreshReferences mechanism invalidates only those
+      // signatures and re-reads the live Google Sheet.
+      let refreshReferences = merged.refreshReferences;
+      if (payload.rows.length === 0 && payload.presence?.complete
+        && payload.sheetName === "MUTASI FH"
+        && payload.spreadsheetId === FH_PRIMARY_SYNC_NAMESPACE) {
+        const { data: missing, error: missingError } = await supabaseAdmin
+          .rpc("cp_missing_payroll_reset_reimport_refs", {
+            p_namespace: FH_PRIMARY_SYNC_NAMESPACE, p_start_row: FH_NEW_BOOK_ROW,
+          });
+        if (missingError) throw missingError;
+        refreshReferences = mergeResetReimportRefresh(
+          merged.refreshReferences, Array.isArray(missing) ? missing : [],
+          payload.presence.references,
+        );
+      }
+
       const changed = merged.added + merged.updated + merged.archived
         + merged.rosterAdded + merged.rosterUpdated + merged.rosterRemoved + merged.conflictsUpdated + merged.legacyArchived;
       if (!changed) {
@@ -140,6 +163,7 @@ export async function POST(request: Request) {
           syncMode,
           revision: current.revision,
           ...merged,
+          refreshReferences,
           state: undefined,
         });
       }
@@ -200,7 +224,7 @@ export async function POST(request: Request) {
         rosterRemoved: merged.rosterRemoved,
         conflictsUpdated: merged.conflictsUpdated,
         legacyArchived: merged.legacyArchived,
-        refreshReferences: merged.refreshReferences,
+        refreshReferences,
         trackedRows: merged.trackedRows,
         unchanged: merged.unchanged,
         skippedProtected: merged.skippedProtected,
