@@ -145,7 +145,7 @@ begin
    src:=replace(src,marker,
      '  if p_action=''start'' and not exists ('||E'\n'||
      '    select 1 from public.cp_mobile_order_take tk where tk.order_ref=ref'||E'\n'||
-     '      and tk.employee_code=code and tk.status=''sent'' and tk.chat_id<0)'||E'\n'||
+     '      and tk.employee_code=code and tk.status=''sent'' and tk.chat_id<0'||E'\n'||
      '  ) then raise exception ''Kirim TAKE ke Telegram terlebih dahulu sebelum START.''; end if;'||E'\n'||
      marker);
    -- Prefer TAKE message_id over legacy order card when replying to START.
