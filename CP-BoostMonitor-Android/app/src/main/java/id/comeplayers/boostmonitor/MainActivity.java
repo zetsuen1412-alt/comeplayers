@@ -158,6 +158,15 @@ public final class MainActivity extends Activity {
                     .setPositiveButton("START + Foto", (dialog, which) ->
                         pickProofPhoto(orderRef, employeeCode, "start"))
                     .show();
+            } else {
+                // Assignment can have committed even when Telegram TAKE fails.
+                // Refresh both queues so operator can recover from Tugas without repeating assignment.
+                loadPendingOrders(false);
+                loadActiveTasks(false);
+                new AlertDialog.Builder(this)
+                    .setTitle("Periksa TAKE Telegram")
+                    .setMessage(message + "\\n\\nJika order sudah terdaftar, buka Tugas dan gunakan Kirim/Cek TAKE. Jangan kirim berulang sebelum memeriksa grup.")
+                    .setPositiveButton("OK", null).show();
             }
             render();
         });
@@ -584,7 +593,7 @@ public final class MainActivity extends Activity {
     }
 
     private void tasksPage() {
-        heading("Tugas FH3", "Pilih order, sisipkan screenshot, lalu kirim START / DONE ke grup Telegram FH3.");
+        heading("Tugas FH3", "Urutan Telegram: TAKE → START + screenshot → DONE + screenshot.");
         info("Status asli order tersimpan di Payroll Website. Foto wajib diunggah sebelum START atau DONE.");
         space(body, 10);
         Button checkGroup = button("✓ Periksa Koneksi Grup EVO Ilham FH3", false);
@@ -629,6 +638,24 @@ public final class MainActivity extends Activity {
             card.addView(text("Buyer: " + task.optString("buyer", "—"), 13, SUB, false));
             card.addView(text("TASK: " + task.optString("task", "—"), 13, SUB, false));
             space(card, 10);
+            if ("assigned".equals(status)) {
+                Button takeButton = button("↗ Kirim/Cek TAKE Telegram", false);
+                takeButton.setEnabled(!proofBusy && !assignmentBusy);
+                card.addView(takeButton, lp(-1, 43));
+                space(card, 7);
+                takeButton.setOnClickListener(v -> new AlertDialog.Builder(this)
+                    .setTitle("Kirim/Cek TAKE?")
+                    .setMessage("Order: " + ref + "\\nKaryawan: " + code
+                            + "\\n\\nServer tidak akan mengirim ulang TAKE yang sudah terkonfirmasi.")
+                    .setNegativeButton("Batal", null)
+                    .setPositiveButton("Periksa/Kirim", (d, w) ->
+                        payroll.sendTake(ref, code, (message, ok) ->
+                            new AlertDialog.Builder(this)
+                                .setTitle(ok ? "TAKE terkonfirmasi" : "TAKE belum terkonfirmasi")
+                                .setMessage(message + (ok ? "" : "\\nCek grup Telegram sebelum mengulang."))
+                                .setPositiveButton("OK", null).show()))
+                    .show());
+            }
             if ("assigned".equals(status) || "in_progress".equals(status)) {
                 boolean start = "assigned".equals(status);
                 String action = start ? "start" : "done";
