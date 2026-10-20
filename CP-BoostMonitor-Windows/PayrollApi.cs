@@ -197,6 +197,25 @@ public sealed class PayrollApi : IDisposable
             ? name.GetString() ?? employeeCode : employeeCode;
     }
 
+    /// <summary>Idempotent TAKE proof. The backend responds alreadySent without duplicate message.</summary>
+    public async Task<string> TakeNoticeAsync(string orderRef, string employeeCode)
+    {
+        if (string.IsNullOrWhiteSpace(orderRef) || string.IsNullOrWhiteSpace(employeeCode))
+            throw new InvalidOperationException("Pilih satu tugas aktif terlebih dahulu.");
+        var token = await TokenAsync();
+        using var request = new HttpRequestMessage(HttpMethod.Post, "take")
+        {
+            Content = JsonContent.Create(new { orderRef, employeeCode }, options: _json),
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        // Do NOT auto-retry ambiguous Telegram requests.
+        using var response = await _http.SendAsync(request);
+        var result = await ParseAsync<JsonElement>(response);
+        var caption = result.TryGetProperty("caption", out var value)
+            ? value.GetString() ?? "" : "";
+        return caption;
+    }
+
     /// <summary>Send proof photo exactly once. Network ambiguity must be checked in Telegram, not retried.</summary>
     public async Task<ProofResult> ProgressAsync(string orderRef, string employeeCode,
         string action, byte[] image, string mime)
