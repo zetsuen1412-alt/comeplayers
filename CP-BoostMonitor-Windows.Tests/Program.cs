@@ -81,7 +81,7 @@ try
     catch (InvalidOperationException) { Assert(true, "sleep limit 1440 minutes enforced"); }
 
     var legacyPath = Path.Combine(tempRoot, "old-status.json");
-    File.WriteAllText(legacyPath, "{\"Status\":{\"LEGACY\":\"SLEEP\"},\"Events\":[]}");
+    File.WriteAllText(legacyPath, """{"Status":{"LEGACY":"SLEEP"},"Events":[]}""");
     var legacy = new LocalStatusStore(legacyPath);
     Assert(legacy.Get("LEGACY") == "SLEEP", "legacy status file still readable");
     Assert(legacy.Display("LEGACY", DateTimeOffset.UtcNow) == "Tidur • manual",
