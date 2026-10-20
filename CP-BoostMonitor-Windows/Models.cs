@@ -9,13 +9,27 @@ public sealed class Employee
     public string WorkforceStatus { get; set; } = "";
     public bool Active { get; set; }
     public string LocalStatus { get; set; } = "READY";
-    public string DisplayLocalStatus => LocalStatus switch
+    public DateTimeOffset? SleepUntil { get; set; }
+    public bool SleepAutoReady { get; set; }
+    public string DisplayLocalStatus
     {
-        "IDLE" => "Farming",
-        "SLEEP" => "Tidur",
-        "WORK" => "Sedang Bekerja",
-        _ => "Ready Boosting",
-    };
+        get
+        {
+            if (LocalStatus != "SLEEP") return LocalStatus switch
+            {
+                "IDLE" => "Farming", "WORK" => "Sedang Bekerja",
+                "BREAK" => "Istirahat", "OFFLINE" => "Offline",
+                _ => "Ready Boosting",
+            };
+            if (!SleepUntil.HasValue) return "Tidur • manual";
+            var remaining = SleepUntil.Value - DateTimeOffset.UtcNow;
+            if (remaining <= TimeSpan.Zero) return SleepAutoReady ?
+                "Tidur • menunggu auto Ready" : "Tidur • waktu habis";
+            var minutes = (int)Math.Ceiling(remaining.TotalMinutes);
+            return minutes >= 60 ? $"Tidur • {minutes / 60}j {minutes % 60}m lagi" :
+                $"Tidur • {minutes}m lagi";
+        }
+    }
     public override string ToString() => $"{Name} • {Code} • {DisplayLocalStatus}";
 }
 public sealed class PayrollOrder
