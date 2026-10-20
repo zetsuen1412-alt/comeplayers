@@ -88,3 +88,7 @@ Tabel menampilkan sisa durasi, contohnya **Tidur • 52m lagi**, dengan pembarua
 Uji otomatis di `CP-BoostMonitor-Windows.Tests` mencakup jadwal tidur, expiry, auto-ready, manual, batas 1–1440 menit, persistensi/restart dan pembacaan status lokal versi sebelumnya.
 
 Unduh preview v1.5 setelah Windows CI lulus: https://github.com/zetsuen1412-alt/comeplayers/releases/tag/evogaming-monitor-windows-v1.5-one-page-preview. Tidak memutakhirkan aplikasi produksi.
+
+
+## v1.6 — TAKE → START → DONE
+Klik **TAKE ORDER** mengirim pesan Telegram teks `x4671/mulyana/take` melalui API Payroll setelah penugasan tersimpan. Screenshot START dan DONE tetap dikirim manual. Jika penugasan tersimpan tetapi pesan TAKE belum terkonfirmasi, periksa grup lalu gunakan tombol **Kirim/Cek TAKE** pada panel Tugas Aktif. Tombol ini tidak akan mengirim duplikat setelah TAKE tercatat sukses. START membutuhkan TAKE terkonfirmasi.
