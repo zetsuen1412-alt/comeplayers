@@ -71,6 +71,8 @@ public sealed class MainForm : Form
         _takePanel.StatusRequested += (_, choice) => UpdateWorkerStatus(choice);
         _takePanel.ProofRequested += async (_, choice) =>
             await RunBusyAsync(() => SendProofForAsync(choice.Task, choice.Action));
+        _takePanel.TakeTelegramRequested += async (_, task) =>
+            await RunBusyAsync(() => CheckOrSendTakeAsync(task));
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
         _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
@@ -419,14 +421,39 @@ public sealed class MainForm : Form
             var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code);
             _takePanel.ClearChoices();
             await RefreshDataAsync();
-            SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}.");
+            SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}, pesan TAKE dikonfirmasi Telegram.");
             MessageBox.Show(
                 $"Order {order.OrderRef} berhasil ditugaskan ke {assignedName}.\n\n" +
-                "Tugas langsung tersedia di panel Tugas Aktif bagian kanan bawah. " +
-                "Pilih tugas tersebut untuk mengirim START + Foto.",
+                "Pesan TAKE sudah dikirim otomatis ke grup Telegram FH3. " +
+                "Pilih tugas di panel kanan bawah untuk mengirim START + Foto.",
                 "TAKE ORDER berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         finally { _takePanel.SetWorking(false); }
+    }
+
+    private async Task CheckOrSendTakeAsync(PayrollOrder task)
+    {
+        if (task.Status != "assigned")
+            throw new InvalidOperationException("TAKE hanya tersedia untuk tugas yang belum START.");
+        if (MessageBox.Show(
+            $"Order: {task.OrderRef}\nKaryawan: {task.EmployeeName}\n\n" +
+            "Periksa apakah TAKE sudah dikirim; server tidak akan mengirim duplikat. Lanjut?",
+            "Kirim/Cek TAKE", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            return;
+        try
+        {
+            var caption = await _api.TakeNoticeAsync(task.OrderRef, task.EmployeeCode);
+            MessageBox.Show("Telegram TAKE terkonfirmasi: " + caption +
+                "\nSekarang boleh mengirim START + Screenshot.",
+                "TAKE berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch
+        {
+            MessageBox.Show("TAKE belum terkonfirmasi. Periksa grup Telegram dan status di website sebelum mencoba lagi. " +
+                "Jika pengiriman tidak pasti, jangan tekan berulang.",
+                "Periksa pengiriman", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            throw;
+        }
     }
 
     private async Task SendProofAsync(string action)
