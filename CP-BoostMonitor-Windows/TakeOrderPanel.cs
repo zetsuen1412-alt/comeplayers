@@ -31,6 +31,11 @@ internal sealed class TakeOrderPanel : UserControl
         Text = "Ubah Status", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
         MinimumSize = new Size(113, 39),
     };
+    private readonly Button _takeTelegram = new LuxuryButton
+    {
+        Text = "Kirim/Cek TAKE", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
+        Height = 36, Dock = DockStyle.Fill,
+    };
     private readonly Button _start = new LuxuryButton
     {
         Text = "START + Foto", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
@@ -63,6 +68,7 @@ internal sealed class TakeOrderPanel : UserControl
     public event EventHandler<AssignmentRequest>? TakeRequested;
     public event EventHandler<StatusRequest>? StatusRequested;
     public event EventHandler<ProofRequest>? ProofRequested;
+    public event EventHandler<PayrollOrder>? TakeTelegramRequested;
 
     public TakeOrderPanel()
     {
@@ -151,6 +157,11 @@ internal sealed class TakeOrderPanel : UserControl
             if (_binding) return;
             _taskRef = (_tasks.CurrentRow?.DataBoundItem as PayrollOrder)?.OrderRef;
             UpdateSelection();
+        };
+        _takeTelegram.Click += (_, _) =>
+        {
+            if (SelectedTask is { Status: "assigned" } task)
+                TakeTelegramRequested?.Invoke(this, task);
         };
         _start.Click += (_, _) =>
         {
@@ -288,12 +299,14 @@ internal sealed class TakeOrderPanel : UserControl
         var actions = new TableLayoutPanel
         {
             Dock = DockStyle.Fill, BackColor = LuxuryPalette.Surface,
-            ColumnCount = 2, RowCount = 1, Padding = new Padding(0, 5, 0, 0),
+            ColumnCount = 3, RowCount = 1, Padding = new Padding(0, 5, 0, 0),
         };
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        actions.Controls.Add(_start, 0, 0);
-        actions.Controls.Add(_done, 1, 0);
+        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
+        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
+        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
+        actions.Controls.Add(_takeTelegram, 0, 0);
+        actions.Controls.Add(_start, 1, 0);
+        actions.Controls.Add(_done, 2, 0);
         body.Controls.Add(actions, 0, 2);
         card.Controls.Add(body);
         return card;
@@ -437,6 +450,7 @@ internal sealed class TakeOrderPanel : UserControl
         _take.Enabled = !_working && worker != null && order != null;
         _statusSave.Enabled = !_working && worker != null;
         var task = SelectedTask;
+        _takeTelegram.Enabled = !_working && task?.Status == "assigned";
         _start.Enabled = !_working && task?.Status == "assigned";
         _done.Enabled = !_working && task?.Status == "in_progress";
         _take.Text = _working ? "MENGIRIM..." : "TAKE ORDER  →";
