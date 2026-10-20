@@ -65,3 +65,26 @@ Pilihan yang menghilang dari pembaruan Payroll atau disembunyikan melalui filter
 **Cara uji:** pilih karyawan dan order uji yang benar-benar diizinkan. Tidak ada assignment saat sekadar memilih atau memfilter baris. Gunakan tombol konfirmasi TAKE ORDER untuk menulis ke backend. Jangan gunakan order pelanggan sebagai percobaan. Menu Tugas Aktif, Karyawan, Riwayat dan Pengaturan tetap tersedia.
 
 Rilis pratinjau: https://github.com/zetsuen1412-alt/comeplayers/releases/tag/evogaming-monitor-windows-v1.4-take-order-preview. Berkas ZIP berisi `EVOGAMINGMonitor.exe`; EXE self-contained tidak perlu instal .NET. Belum code-signed dan tidak mengubah website/Android produksi.
+
+## v1.5 — Semua Operasional dalam Satu Halaman
+
+Setelah login, halaman utama **Take Order** memperlihatkan tiga panel sekaligus:
+
+- **Kiri (40%)**: daftar karyawan FH3, pencarian, filter status, **ubah status karyawan langsung**.
+- **Kanan atas**: Order Baru, pencarian dan pilihan order.
+- **Kanan bawah**: Tugas Aktif, pilih tugas → **START + Foto** / **DONE + Foto**.
+- **Bawah**: ringkasan karyawan+order pilihan dan tombol **TAKE ORDER**. Pemilihan baris saja tidak mengirim perintah; operator harus menekan dan mengonfirmasi TAKE ORDER.
+
+Menu kiri disederhanakan menjadi **Take Order / Riwayat / Pengaturan**. Seluruh data order dan tugas tetap bersumber dari Payroll Website; bukti screenshot tetap menggunakan endpoint resmi ke Telegram FH3. TAKE ORDER tidak mengirim foto START secara otomatis.
+
+### Status karyawan dan durasi Tidur
+
+Pilih satu karyawan pada panel kiri, pilih **Ready Boosting / Sedang Bekerja / Tidur / Farming / Istirahat / Offline**, lalu tekan **Ubah Status**. Untuk status Tidur, pilih durasi **30 menit, 1 jam, 2 jam, 4 jam, atau Custom (1–1440 menit)** serta centang atau nonaktifkan **Otomatis kembali ke Ready Boosting**.
+
+Tabel menampilkan sisa durasi, contohnya **Tidur • 52m lagi**, dengan pembaruan hitung mundur berkala. Jika auto Ready diaktifkan, karyawan kembali Ready setelah batas waktu, juga bila aplikasi baru dinyalakan setelah waktu habis. Jika auto Ready tidak diaktifkan, status tetap **Tidur • durasi habis** sampai operator mengubahnya. Perubahan otomatis dicatat pada riwayat lokal.
+
+**PENTING:** Status, countdown dan histori ini disimpan pada **PC Windows ini saja** (file lokal lama kompatibel). Saat ini **tidak disinkronkan** ke Payroll Website, Android, atau Windows PC lain. Status tidak mengubah penugasan order yang sudah berjalan. Untuk mencegah salah penugasan, karyawan berstatus Tidur, Istirahat atau Offline diminta diubah ke Ready sebelum TAKE ORDER.
+
+Uji otomatis di `CP-BoostMonitor-Windows.Tests` mencakup jadwal tidur, expiry, auto-ready, manual, batas 1–1440 menit, persistensi/restart dan pembacaan status lokal versi sebelumnya.
+
+Unduh preview v1.5 setelah Windows CI lulus: https://github.com/zetsuen1412-alt/comeplayers/releases/tag/evogaming-monitor-windows-v1.5-one-page-preview. Tidak memutakhirkan aplikasi produksi.
