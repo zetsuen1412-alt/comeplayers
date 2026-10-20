@@ -2,6 +2,8 @@ import type { Order } from "../types/domain";
 
 /** Verified against EVO GAMING 2026 upload: MUTASI FH row 5848 is X2754. */
 export const FH_NEW_BOOK_ROW = 5848;
+/** Legacy sync namespace of the original EVO GAMING 2026 FH source. This is not an API secret. */
+export const FH_PRIMARY_SYNC_NAMESPACE = "1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ";
 export const FH_NEW_BOOK_CODE = "X2754";
 export const FH_LEGACY_ARCHIVE_ID = "legacy-mutasi-fh-before-X2754";
 
