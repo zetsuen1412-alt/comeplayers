@@ -25,7 +25,7 @@ export type XlsxBootstrapBatch = {
 
 export async function loadPayrollXlsxBootstrapBatch(
   supabaseAdmin: Admin,
-  currentPayload: GoogleSheetSyncPayload,
+  currentPayload: Pick<GoogleSheetSyncPayload, "spreadsheetId" | "sheetName">,
 ): Promise<XlsxBootstrapBatch | null> {
   if (currentPayload.sheetName !== "MUTASI FH" || currentPayload.spreadsheetId !== FH_PRIMARY_SYNC_NAMESPACE) return null;
 
