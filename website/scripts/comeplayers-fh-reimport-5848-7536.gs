@@ -11,7 +11,7 @@
  * Note: the site must have already been reset through the audited admin reset
  * endpoint, otherwise incoming rows update existing orders, not remove them.
  */
-var CP_FH_REIMPORT_SOURCE_ID_20261020 = '1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrIBmH6Lrdo';
+var CP_FH_REIMPORT_SOURCE_ID_20261020 = '1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo';
 var CP_FH_REIMPORT_NAMESPACE_20261020 = '1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ';
 var CP_FH_REIMPORT_START_20261020 = 5848;
 var CP_FH_REIMPORT_END_20261020 = 7536;
@@ -20,6 +20,15 @@ var CP_FH_REIMPORT_PROGRESS_20261020 = 'CP_FH_REIMPORT_5848_7536_LAST_RESULT';
 var CP_FH_REIMPORT_TRIGGER_20261020 = 'continueComePlayersFH5848To7536Reimport';
 
 function cpFHReimportVerifySource_20261020() {
+  var props = PropertiesService.getScriptProperties();
+  var mirrorConfigText = props.getProperty('EGM_CONFIG');
+  if (mirrorConfigText) {
+    var mirrorConfig = JSON.parse(mirrorConfigText);
+    if (mirrorConfig.sourceId !== CP_FH_REIMPORT_SOURCE_ID_20261020
+        || mirrorConfig.targetId !== CP_FH_REIMPORT_NAMESPACE_20261020) {
+      throw new Error('Konfigurasi mirror tidak cocok dengan sumber EVO dan target OTOMATIS. Periksa EGM_CONFIG sebelum mengimpor.');
+    }
+  }
   var ss = SpreadsheetApp.openById(CP_FH_REIMPORT_SOURCE_ID_20261020);
   var sheet = ss.getSheetByName('MUTASI FH');
   if (!sheet || sheet.getLastRow() < CP_FH_REIMPORT_END_20261020) {
