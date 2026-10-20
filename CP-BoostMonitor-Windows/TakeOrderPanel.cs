@@ -299,7 +299,7 @@ internal sealed class TakeOrderPanel : UserControl
         return card;
     }
 
-    private static Control BuildColumn(string number, string title, TextBox search,
+    private Control BuildColumn(string number, string title, TextBox search,
         ComboBox? filter, DataGridView grid, Label counter, bool isOrder)
     {
         var card = new LuxuryCard
