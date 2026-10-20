@@ -6,9 +6,14 @@ ComePlayers payroll uses a Google Apps Script in the owner's Google account to p
 
 The fix for the website and missing-reference refresh was deployed separately in PR #73 and #74. **This helper is required if the original bound script still does not transmit rows before its latest CLOSING boundary.** Google Drive available to the connected admin account could not read the source spreadsheet, so no direct remote Sheets access is assumed.
 
+
+## Confirmed workbook mapping (source vs copy)
+
+`website/scripts/evo-gaming-mirror.gs` declares **EVO GAMING 2026** (source): `1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo` and **OTOMATIS EVO GAMING 2026** (target/mirror): `1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ`. The screenshot showing `OTOMATIS` is the mirror, not the configured original source. The database prefix uses the *target* ID as the historical namespace, even though the script is configured to read source rows; do not change the namespace. A prior version of this helper accidentally wrote a capital `I` instead of a lowercase `l` in the source ID and would fail to open the original workbook; corrected here.
+
 ## Bounded procedure
 
-1. Use **EVO GAMING 2026** original workbook (ID `1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrIBmH6Lrdo`), not the mirror.
+1. Use **EVO GAMING 2026** original workbook (ID `1i8agw507TPoVd66TcMooDhOTzZvoUcFuqrlBmH6Lrdo`), not the mirror.
 2. Validate `MUTASI FH!B5848 = X2754` and `B7536 = X4688`. The helper refuses a moved boundary.
 3. Keep all Gaji, Kasbon, employees, saved Closing and existing archived reset receipts unchanged.
 4. Paste the complete **`comeplayers-fh-reimport-5848-7536.gs`** into a new file in **Extensions → Apps Script** of the **existing payroll sync project**. Do not create a different project and do not replace existing payroll code.
