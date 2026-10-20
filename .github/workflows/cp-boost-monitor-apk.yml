@@ -70,23 +70,23 @@ jobs:
               --notes "Internal development APK only. Requires staging migrations, matching website API and test Telegram group setup. Debug signature may not match the existing installation; back up local data before changing APK. Not for production work." \
               --prerelease
           fi
-      - name: Publish EVOGAMING Monitor Android v1.7 silver preview
+      - name: Publish EVOGAMING Monitor Android v1.8 silver preview
         if: github.ref == 'refs/heads/feature/cp-boost-android-luxury-ui-20261020'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          TAG="evogaming-monitor-android-v1.7-silver-preview"
+          TAG="evogaming-monitor-android-v1.8-silver-preview"
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          cp "$APK" EVOGAMING-Monitor-Android-v1.7-preview.apk
+          cp "$APK" EVOGAMING-Monitor-Android-v1.8-preview.apk
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" EVOGAMING-Monitor-Android-v1.7-preview.apk --clobber
+            gh release upload "$TAG" EVOGAMING-Monitor-Android-v1.8-preview.apk --clobber
           else
-            gh release create "$TAG" EVOGAMING-Monitor-Android-v1.7-preview.apk \
+            gh release create "$TAG" EVOGAMING-Monitor-Android-v1.8-preview.apk \
               --target "$GITHUB_SHA" \
-              --title "EVOGAMING Monitor Android 1.7 — Silver & Ice Blue Preview" \
+              --title "EVOGAMING Monitor Android 1.8 — Silver & Ice Blue Preview" \
               --notes "FH3 preview with silver-light-blue design. The APK is debug-signed and not production; back up on-device local data before switching installations. Telegram and Payroll API are unchanged." \
               --prerelease
           fi
