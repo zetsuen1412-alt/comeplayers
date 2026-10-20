@@ -10,6 +10,7 @@ public sealed class MainForm : Form
     private readonly PayrollApi _api = new();
     private readonly LocalStatusStore _statusStore = new();
     private readonly System.Windows.Forms.Timer _poll = new() { Interval = 30_000 };
+    private readonly System.Windows.Forms.Timer _sleepClock = new() { Interval = 15_000 };
     private readonly NotifyIcon _tray = new();
     private readonly Dictionary<string, Control> _pages = new();
     private readonly Dictionary<string, Button> _navigation = new();
@@ -67,6 +68,11 @@ public sealed class MainForm : Form
         BuildLayout();
         Shown += (_, _) => WindowChrome.ApplyDarkCaption(this);
         _takePanel.TakeRequested += async (_, choice) => await RunBusyAsync(() => TakeOrderAsync(choice));
+        _takePanel.StatusRequested += (_, choice) => UpdateWorkerStatus(choice);
+        _takePanel.ProofRequested += async (_, choice) =>
+            await RunBusyAsync(() => SendProofForAsync(choice.Task, choice.Action));
+        _sleepClock.Tick += (_, _) => RefreshSleepTimers();
+        _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
         _tray.Icon = SystemIcons.Application;
         _tray.Text = "EVOGAMING Monitor FH3";
@@ -75,7 +81,7 @@ public sealed class MainForm : Form
         _tray.ContextMenuStrip.Items.Add("Buka EVOGAMING Monitor", null, (_, _) => RestoreWindow());
         _tray.ContextMenuStrip.Items.Add("Keluar", null, (_, _) => Close());
         _tray.DoubleClick += (_, _) => RestoreWindow();
-        FormClosed += (_, _) => { _poll.Stop(); _tray.Visible = false; _tray.Dispose(); _api.Dispose(); };
+        FormClosed += (_, _) => { _poll.Stop(); _sleepClock.Stop(); _tray.Visible = false; _tray.Dispose(); _api.Dispose(); };
         Shown += async (_, _) =>
         {
             if (_api.LoggedIn)
@@ -112,7 +118,7 @@ public sealed class MainForm : Form
         var division = StyledText("MONITOR   /   FH3", 9, true, Muted);
         division.Margin = new Padding(12, 0, 0, 28);
         _nav.Controls.Add(division);
-        foreach (var name in new[] { "Take Order", "Tugas Aktif", "Karyawan", "Riwayat", "Pengaturan" })
+        foreach (var name in new[] { "Take Order", "Riwayat", "Pengaturan" })
         {
             var button = NavButton(name);
             _nav.Controls.Add(button);
@@ -152,8 +158,6 @@ public sealed class MainForm : Form
 
         _pages["Login"] = BuildLogin();
         _pages["Take Order"] = _takePanel;
-        _pages["Tugas Aktif"] = BuildTasks();
-        _pages["Karyawan"] = BuildEmployees();
         _pages["Riwayat"] = BuildHistory();
         _pages["Pengaturan"] = BuildSettings();
 
@@ -192,7 +196,7 @@ public sealed class MainForm : Form
             {
                 await _api.LoginAsync(_email.Text, password);
                 _password.Clear();
-                ShowPage("Dashboard");
+                ShowPage("Take Order");
                 await RefreshDataAsync();
             }
             finally { _password.Clear(); }
@@ -325,6 +329,73 @@ public sealed class MainForm : Form
         return page;
     }
 
+    private void ApplyLocalState(Employee employee)
+    {
+        employee.LocalStatus = _statusStore.Get(employee.Code);
+        var sleep = _statusStore.GetSleep(employee.Code);
+        employee.SleepUntil = sleep?.Until;
+        employee.SleepAutoReady = sleep?.AutoReady ?? false;
+    }
+
+    private void RefreshSleepTimers()
+    {
+        if (IsDisposed) return;
+        try
+        {
+            if (_statusStore.ApplyExpired(DateTimeOffset.UtcNow))
+            {
+                foreach (var worker in _employees) ApplyLocalState(worker);
+                BindTables();
+                SetStatus("Durasi tidur selesai. Status karyawan telah kembali ke Ready (lokal PC).");
+            }
+            else _takePanel.TickCountdown();
+        }
+        catch (IOException error)
+        {
+            SetStatus("Gagal menyimpan perubahan status tidur lokal: " + error.Message);
+        }
+    }
+
+    private void UpdateWorkerStatus(StatusRequest request)
+    {
+        try
+        {
+            var employee = _employees.FirstOrDefault(e =>
+                e.Code.Equals(request.Worker.Code, StringComparison.OrdinalIgnoreCase));
+            if (employee is null) throw new InvalidOperationException("Karyawan tidak lagi tersedia.");
+            int? minutes = null;
+            bool autoReady = false;
+            if (request.Status == "SLEEP")
+            {
+                var choice = SleepSettingsDialog.Show(this, employee);
+                if (choice is null) return;
+                minutes = choice.Minutes;
+                autoReady = choice.AutoReady;
+            }
+            var description = request.Status == "SLEEP"
+                ? $"Tidur selama {minutes} menit" + (autoReady ? " (otomatis Ready)" : " (kembali manual)")
+                : request.Status switch
+                {
+                    "READY" => "Ready Boosting", "WORK" => "Sedang Bekerja",
+                    "IDLE" => "Farming", "BREAK" => "Istirahat", _ => "Offline",
+                };
+            if (MessageBox.Show(
+                $"Karyawan: {employee.Name}\nStatus baru: {description}\n\n" +
+                "Status ini disimpan pada PC Windows ini saja, bukan Payroll atau Android. Lanjut?",
+                "Konfirmasi Status Karyawan", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                != DialogResult.Yes) return;
+            _statusStore.Set(employee, request.Status, minutes, autoReady);
+            foreach (var person in _employees) ApplyLocalState(person);
+            BindTables();
+            SetStatus($"Status {employee.Name}: {description} (lokal PC).");
+        }
+        catch (Exception error)
+        {
+            MessageBox.Show(error.Message, "Status Karyawan",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
     private async Task TakeOrderAsync(AssignmentRequest selection)
     {
         // Re-validate against the live client snapshot. Server RPC enforces atomic assignment.
@@ -338,6 +409,10 @@ public sealed class MainForm : Form
             "Tetapkan order ini ke karyawan tersebut di Payroll Website?",
             "Konfirmasi TAKE ORDER", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (answer != DialogResult.Yes) return;
+        if (employee.LocalStatus is "SLEEP" or "BREAK" or "OFFLINE")
+            throw new InvalidOperationException(
+                $"Karyawan {employee.Name} masih berstatus {employee.DisplayLocalStatus}. " +
+                "Ubah ke Ready Boosting terlebih dahulu sebelum TAKE ORDER.");
         _takePanel.SetWorking(true);
         try
         {
@@ -345,12 +420,11 @@ public sealed class MainForm : Form
             _takePanel.ClearChoices();
             await RefreshDataAsync();
             SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}.");
-            if (MessageBox.Show(
+            MessageBox.Show(
                 $"Order {order.OrderRef} berhasil ditugaskan ke {assignedName}.\n\n" +
-                "Buka Tugas Aktif untuk mengirim screenshot START?",
-                "TAKE ORDER berhasil", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
-                == DialogResult.Yes)
-                ShowPage("Tugas Aktif");
+                "Tugas langsung tersedia di panel Tugas Aktif bagian kanan bawah. " +
+                "Pilih tugas tersebut untuk mengirim START + Foto.",
+                "TAKE ORDER berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         finally { _takePanel.SetWorking(false); }
     }
@@ -429,9 +503,15 @@ public sealed class MainForm : Form
         {
             1 => "IDLE", 2 => "SLEEP", 3 => "WORK", _ => "READY",
         };
-        _statusStore.Set(employee, value);
+        if (value == "SLEEP")
+        {
+            var selected = SleepSettingsDialog.Show(this, employee);
+            if (selected == null) return Task.CompletedTask;
+            _statusStore.Set(employee, value, selected.Minutes, selected.AutoReady);
+        }
+        else _statusStore.Set(employee, value);
         foreach (var item in _employees.Where(e => e.Code.Equals(employee.Code, StringComparison.OrdinalIgnoreCase)))
-            item.LocalStatus = value;
+            ApplyLocalState(item);
         BindTables();
         SetStatus($"Status {employee.Name}: {employee.DisplayLocalStatus} (hanya PC ini).");
         return Task.CompletedTask;
@@ -443,7 +523,8 @@ public sealed class MainForm : Form
         var newRoster = await _api.RosterAsync();
         var freshPending = await _api.PendingAsync();
         var freshTasks = await _api.TasksAsync();
-        foreach (var employee in newRoster) employee.LocalStatus = _statusStore.Get(employee.Code);
+        _statusStore.ApplyExpired(DateTimeOffset.UtcNow);
+        foreach (var employee in newRoster) ApplyLocalState(employee);
         _employees = newRoster;
         _tasks = freshTasks;
         var newRefs = freshPending.Select(order => order.OrderRef).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -468,7 +549,7 @@ public sealed class MainForm : Form
 
     private void BindTables()
     {
-        _takePanel.BindData(_employees, _pending);
+        _takePanel.BindData(_employees, _pending, _tasks);
         BindFilteredTables();
         var history = _statusStore.History;
         _history.Text = history.Count == 0 ? "Belum ada perubahan status karyawan pada PC ini."
