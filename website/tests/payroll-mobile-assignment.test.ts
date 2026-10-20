@@ -32,6 +32,12 @@ const client = (data: unknown) => ({
   },
 });
 const common = {
+  "@/lib/payrollMobileTake": {
+    deliverTakeNotice: async () => ({ ok: true, takeSent: true, caption: "x100/andi/take" }),
+    TakeNoticeError: class TakeNoticeError extends Error {
+      constructor(message: string, public uncertain: boolean) { super(message); }
+    },
+  },
   "@/lib/adminSecurity": { adminErrorStatus: (e: { status?: number }) => e.status ?? 500 },
   "@/features/payroll/lib/workspace-model": { workspaceKeys: { orders: "orders", employees: "employees" } },
 };

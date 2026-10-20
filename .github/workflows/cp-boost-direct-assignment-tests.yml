@@ -9,6 +9,10 @@ on:
       - 'website/tests/payroll-mobile-direct-routing.test.ts'
       - 'website/tests/payroll-mobile-proof-database.test.ts'
       - 'website/tests/payroll-mobile-proof-api.test.ts'
+      - 'website/tests/payroll-mobile-take.test.ts'
+      - 'website/app/api/admin/payroll/mobile/take/**'
+      - 'website/lib/payrollMobileTake.ts'
+      - 'website/supabase/migrations/20261020140000_fh3_take_before_photo_start.sql'
       - 'website/tests/payroll-mobile-proof-group.test.ts'
       - 'website/tests/payroll-mobile-proof-setup.test.ts'
       - 'website/lib/payrollMobileProof.ts'
@@ -42,6 +46,7 @@ jobs:
           tests/payroll-mobile-direct-routing.test.ts
           tests/payroll-mobile-proof-database.test.ts
           tests/payroll-mobile-proof-api.test.ts
+          tests/payroll-mobile-take.test.ts
           tests/payroll-mobile-proof-group.test.ts
           tests/payroll-mobile-proof-setup.test.ts
       - name: Resolve mobile crypto dependencies for existing shared typecheck

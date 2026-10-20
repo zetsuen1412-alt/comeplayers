@@ -1,5 +1,6 @@
 import { requirePayrollAccess } from "@/lib/payrollAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
+import { deliverTakeNotice, TakeNoticeError } from "@/lib/payrollMobileTake";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,7 +32,22 @@ export async function POST(request: Request) {
       }
       throw error;
     }
-    return respond(data);
+    // TAKE is an intentional action performed by the admin in the app,
+    // not a Telegram NEW ORDER notification. Payroll assignment commits first.
+    try {
+      const take = await deliverTakeNotice(supabaseAdmin, actor.id,
+        String(data.orderRef || ref), String(data.employeeCode || code));
+      return respond({ ...data, ...take, ok: true });
+    } catch (error) {
+      if (error instanceof TakeNoticeError)
+        return respond({ ok: false, assigned: true, takeSent: false,
+          uncertain: error.uncertain,
+          error: "Order sudah ditugaskan di Payroll, tetapi TAKE belum terkonfirmasi Telegram. " +
+            error.message + " Gunakan tombol TAKE di Tugas Aktif setelah memeriksa grup." },
+          error.uncertain ? 409 : 502);
+      return respond({ ok: false, assigned: true, takeSent: false,
+        error: "Order tersimpan di Payroll; TAKE gagal diproses. Periksa grup dan gunakan tombol TAKE di Tugas Aktif." }, 503);
+    }
   } catch (error) {
     const status = error instanceof SyntaxError ? 400 : adminErrorStatus(error);
     return respond({ error: status === 400 ? "Format data tidak valid."
