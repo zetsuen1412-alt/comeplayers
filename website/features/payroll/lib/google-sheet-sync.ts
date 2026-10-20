@@ -619,6 +619,14 @@ export function validateGoogleSheetSyncPayload(value: unknown): GoogleSheetSyncP
 
 export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unknown): GoogleSheetSyncMergeResult {
   const payload = validateGoogleSheetSyncPayload(rawPayload);
+  // This production namespace belongs to the EVO GAMING 2026 MUTASI FH
+  // workbook. Older sync installations can omit newOrdersStartRow or use
+  // the moving CLOSING boundary. Never let those settings resurrect the
+  // pre-X2754 ledger as payable, active mutations.
+  // The namespace is the existing sync identity (not a credential).
+  const primaryFhBook = payload.sheetName === "MUTASI FH"
+    && payload.spreadsheetId === "1dcw71cfqrJnLUOd27bcDlP5EhFqer1xL6OnWuojbRMQ";
+  const liveStartRow = primaryFhBook ? FH_NEW_BOOK_ROW : payload.newOrdersStartRow;
   const state = structuredClone(current);
   const rosterResult = payload.roster ? mergeGoogleSheetRoster(state, payload.roster, payload.spreadsheetId, payload.sentAt)
     : { rosterAdded: 0, rosterUpdated: 0, rosterRemoved: 0 };
@@ -630,7 +638,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const previousLegacy=(state[workspaceKeys.legacyFhArchive]??[]) as LegacyMutationSnapshot[];
   const legacyRows=new Map(previousLegacy.map(record=>[record.id,record]));
   let legacyArchived=0;
-  if(payload.sheetName==="MUTASI FH" && payload.newOrdersStartRow===FH_NEW_BOOK_ROW) {
+  if(payload.sheetName==="MUTASI FH" && payload.newOrdersStartRow===FH_NEW_BOOK_ROW && !primaryFhBook) {
     // This is a separate legacy SOURCE ledger. No financial Closing is created
     // and no old row is passed to the live payroll importer.
     for(const item of payload.rows) for(const source of (item.dailyPackage?.rows ?? [item])) {
@@ -687,7 +695,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   }
   function historicalRowIsUnrelated(row: GoogleSheetSyncRow) {
     if (row.dailyPackage) return false; // Invalid groups are reported as conflicts; valid complete groups may recover history.
-    if (payload.newOrdersStartRow === undefined || row.rowNumber >= payload.newOrdersStartRow) return false;
+    if (liveStartRow === undefined || row.rowNumber >= liveStartRow) return false;
     const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).trim().toLowerCase();
     const matches = existingByReference.get(key) ?? [];
     if (!matches.length) return true;
@@ -697,7 +705,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   }
   function conflictsWithTrackedRow(row: GoogleSheetSyncRow) {
     if (row.dailyPackage) return false; // Full-CODE validation replaces physical-row identity only for this atomic group.
-    if (payload.newOrdersStartRow === undefined || (row.codeOccurrences ?? 0) <= 1) return false;
+    if (liveStartRow === undefined || (row.codeOccurrences ?? 0) <= 1) return false;
     const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).trim().toLowerCase();
     const matches = existingByReference.get(key) ?? [];
     return matches.length === 1 && matches[0].id.startsWith(sheetSourcePrefix(payload))
@@ -707,6 +715,9 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   const packageReferences = new Set(payload.rows.filter(row => row.dailyPackage)
     .map(row => folded(displayAt(row, columns.code) || rawAt(row, columns.code))));
   for (const row of payload.rows) {
+    if (primaryFhBook && (row.dailyPackage
+      ? row.dailyPackage.rows.every(day => day.rowNumber < FH_NEW_BOOK_ROW)
+      : row.rowNumber < FH_NEW_BOOK_ROW)) continue;
     if (!packageReferences.has(folded(displayAt(row, columns.code) || rawAt(row, columns.code)))
       && (historicalRowIsUnrelated(row) || conflictsWithTrackedRow(row))) continue;
     const key = (displayAt(row, columns.code) || normalize(rawAt(row, columns.code))).toLowerCase();
@@ -724,8 +735,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
   for (const row of payload.rows) {
     // Complete historic packages are archived day-by-day above and must not
     // be admitted as a fresh order. Cross-boundary packages retain newer days.
-    if(payload.sheetName==="MUTASI FH" && payload.newOrdersStartRow===FH_NEW_BOOK_ROW &&
-       row.dailyPackage?.rows.every(day=>day.rowNumber<FH_NEW_BOOK_ROW)){
+    if(primaryFhBook && row.dailyPackage?.rows.every(day=>day.rowNumber<FH_NEW_BOOK_ROW)){
       skippedHistorical++;
       rowResults.push({rowNumber:row.rowNumber,status:"skippedHistorical"});
       continue;
@@ -733,7 +743,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
     const dailyPackage = dailyPackages.get(row);
     // Rows preceding X2754 must not enter live Mutasi or payroll, even if
     // they were part of a group of identical KODEs.
-    if(payload.sheetName==="MUTASI FH" && row.rowNumber<FH_NEW_BOOK_ROW && payload.newOrdersStartRow===FH_NEW_BOOK_ROW && !row.dailyPackage) {
+    if(primaryFhBook && row.rowNumber<FH_NEW_BOOK_ROW && !row.dailyPackage) {
       skippedHistorical++;
       rowResults.push({rowNumber:row.rowNumber,status:"skippedHistorical"});
       continue;
@@ -784,7 +794,7 @@ export function mergeGoogleSheetPayroll(current: WorkspaceState, rawPayload: unk
         issues.push({ rowNumber: row.rowNumber, code: incoming.externalReference, message: "KODE sudah tercatat dalam Closing; identitas yang hilang tidak dibuat ulang sebagai pekerjaan belum digaji." });
         continue;
       }
-      if (!dailyPackage && payload.newOrdersStartRow !== undefined && row.rowNumber < payload.newOrdersStartRow) {
+      if (!dailyPackage && liveStartRow !== undefined && row.rowNumber < liveStartRow) {
         skippedHistorical++;
         rowResults.push({ rowNumber: row.rowNumber, status: "skippedHistorical" });
         continue;
