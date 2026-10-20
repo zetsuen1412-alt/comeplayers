@@ -6,10 +6,6 @@
       "schedule": "* * * * *"
     },
     {
-      "path": "/api/cron/payroll-xlsx-bootstrap",
-      "schedule": "* * * * *"
-    },
-    {
       "path": "/api/cron/release-escrow",
       "schedule": "0 3 * * *"
     },
