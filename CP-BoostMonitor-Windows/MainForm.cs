@@ -60,7 +60,7 @@ public sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CP Boost Monitor — FH3 | Windows";
+        Text = "EVOGAMING Monitor — FH3 | Windows";
         MinimumSize = new Size(1000, 680);
         StartPosition = FormStartPosition.CenterScreen;
         Size = new Size(1240, 800);
@@ -70,12 +70,13 @@ public sealed class MainForm : Form
         Icon = SystemIcons.Application;
 
         BuildLayout();
+        Shown += (_, _) => WindowChrome.ApplySilverCaption(this);
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
         _tray.Icon = SystemIcons.Application;
-        _tray.Text = "CP Boost Monitor FH3";
+        _tray.Text = "EVOGAMING Monitor FH3";
         _tray.Visible = true;
         _tray.ContextMenuStrip = new ContextMenuStrip();
-        _tray.ContextMenuStrip.Items.Add("Buka CP Boost Monitor", null, (_, _) => RestoreWindow());
+        _tray.ContextMenuStrip.Items.Add("Buka EVOGAMING Monitor", null, (_, _) => RestoreWindow());
         _tray.ContextMenuStrip.Items.Add("Keluar", null, (_, _) => Close());
         _tray.DoubleClick += (_, _) => RestoreWindow();
         FormClosed += (_, _) => { _poll.Stop(); _tray.Visible = false; _tray.Dispose(); _api.Dispose(); };
@@ -109,10 +110,10 @@ public sealed class MainForm : Form
         layout.Controls.Add(_nav, 0, 0);
         layout.Controls.Add(_content, 1, 0);
 
-        var logo = StyledText("✦  CP BOOST", 21, true, Accent);
+        var logo = StyledText("✦  EVOGAMING", 21, true, Accent);
         logo.Margin = new Padding(12, 12, 0, 5);
         _nav.Controls.Add(logo);
-        var division = StyledText("E X E C U T I V E   C O N T R O L", 8, true, Muted);
+        var division = StyledText("F U T U R E   C O N T R O L   P A N E L", 8, true, Muted);
         division.Margin = new Padding(12, 0, 0, 28);
         _nav.Controls.Add(division);
         foreach (var name in new[] { "Dashboard", "Order Baru", "Tugas Aktif", "Karyawan", "Riwayat", "Pengaturan" })
@@ -131,7 +132,7 @@ public sealed class MainForm : Form
 
         var header = new Panel { Dock = DockStyle.Top, Height = 128,
             Padding = new Padding(26, 14, 26, 6), BackColor = Background };
-        var breadcrumb = StyledText("COMEPLAYERS   /   FH3 OPERATIONS CENTER", 9, true, Accent);
+        var breadcrumb = StyledText("EVOGAMING   /   FH3 OPERATIONS CENTER", 9, true, Accent);
         breadcrumb.Location = new Point(27, 12);
         header.Controls.Add(breadcrumb);
         _headline.Text = "Dashboard FH3";
@@ -142,7 +143,7 @@ public sealed class MainForm : Form
         _metrics.Text = "Order dari Payroll Website  •  Telegram: EVO Ilham FH3";
         header.Controls.Add(_metrics);
         header.Paint += (_, e) => {
-            using var pen = new Pen(Color.FromArgb(91, 73, 48), 1);
+            using var pen = new Pen(Color.FromArgb(162, 197, 220), 1);
             e.Graphics.DrawLine(pen, 27, header.Height - 1, header.Width - 28, header.Height - 1);
         };
         var footer = new Panel { Dock = DockStyle.Bottom, Height = 36, Padding = new Padding(18, 0, 8, 0), BackColor = Sidebar };
@@ -173,23 +174,25 @@ public sealed class MainForm : Form
     {
         var page = ScrollingPage();
         var form = Card();
-        form.Width = 610; form.Height = 365;
-        form.Controls.Add(MakeLabel("SECURE ACCESS  /  FH3", 10, 24, 16, true, Accent));
-        form.Controls.Add(MakeLabel("Hubungkan akun Payroll", 22, 24, 43, true, Fore));
-        form.Controls.Add(MakeLabel("Identitas aman • Sesi terenkripsi pada perangkat", 11, 24, 80, false, Muted));
-        _email.SetBounds(24, 108, 548, 38);
+        form.Width = 642; form.Height = 420;
+        form.Controls.Add(MakeLabel("SECURE ACCESS  /  FH3", 10, 26, 18, true, Accent));
+        form.Controls.Add(MakeLabel("Hubungkan akun Payroll", 22, 26, 49, true, Fore));
+        form.Controls.Add(MakeLabel("Akses aman ke sistem operasional EVOGAMING", 11, 26, 97, false, Muted));
+        _email.SetBounds(26, 149, 584, 42);
         FormatInput(_email, false);
         _email.PlaceholderText = "Email admin Payroll";
+        form.Controls.Add(MakeLabel("EMAIL ADMIN PAYROLL", 9, 27, 126, true, Muted));
         form.Controls.Add(_email);
-        _password.SetBounds(24, 160, 548, 38);
+        _password.SetBounds(26, 216, 584, 42);
         FormatInput(_password, true);
         _password.PlaceholderText = "Password";
+        form.Controls.Add(MakeLabel("PASSWORD", 9, 27, 193, true, Muted));
         form.Controls.Add(_password);
-        _loginButton.SetBounds(24, 215, 548, 43);
+        _loginButton.SetBounds(26, 292, 584, 47);
         _loginButton.Click += async (_, _) => await RunBusyAsync(async () =>
         {
             var password = _password.Text;
-            _loginFeedback.Text = "Menghubungkan ke website...";
+            _loginFeedback.Text = "Menghubungkan ke Payroll Website...";
             try
             {
                 await _api.LoginAsync(_email.Text, password);
@@ -200,8 +203,8 @@ public sealed class MainForm : Form
             finally { _password.Clear(); }
         });
         form.Controls.Add(_loginButton);
-        _loginFeedback.Location = new Point(24, 278);
-        _loginFeedback.Width = 550;
+        _loginFeedback.Location = new Point(27, 358);
+        _loginFeedback.Width = 574;
         form.Controls.Add(_loginFeedback);
         page.Controls.Add(form);
         return page;
@@ -212,8 +215,8 @@ public sealed class MainForm : Form
         var page = ScrollingPage();
 
         var welcome = new LuxuryCard { Hero = true, Width = 864, Height = 154, Margin = new Padding(0, 0, 0, 18) };
-        welcome.Controls.Add(MakeLabel("●  LIVE  /  EXECUTIVE OVERVIEW", 11, 21, 18, true, Success));
-        welcome.Controls.Add(MakeLabel("Semua operasional FH3. Satu pusat kendali.", 19, 21, 49, true, Fore));
+        welcome.Controls.Add(MakeLabel("●  ONLINE  /  FUTURE CONTROL", 11, 21, 18, true, Success));
+        welcome.Controls.Add(MakeLabel("EVOGAMING Operations Overview", 19, 21, 49, true, Fore));
         welcome.Controls.Add(MakeLabel("Penugasan langsung di Payroll  •  Bukti START/DONE dikirim ke 🔥 EVO🔥 Ilham FH3", 11, 21, 104, false, Muted));
         page.Controls.Add(welcome);
 
@@ -225,7 +228,7 @@ public sealed class MainForm : Form
         };
         metrics.Controls.Add(MetricCard("01 / NEW ORDERS", "Order Baru", _pendingCount, Accent));
         metrics.Controls.Add(MetricCard("02 / IN PROGRESS", "Tugas Aktif", _taskCount, Success));
-        metrics.Controls.Add(MetricCard("03 / WORKFORCE", "Karyawan FH3", _employeeCount, Color.FromArgb(146, 183, 248)));
+        metrics.Controls.Add(MetricCard("03 / WORKFORCE", "Karyawan FH3", _employeeCount, Color.FromArgb(50, 131, 193)));
         page.Controls.Add(metrics);
 
         var actions = new LuxuryCard { Width = 864, Height = 166, Margin = new Padding(0, 0, 0, 18) };
@@ -399,7 +402,7 @@ public sealed class MainForm : Form
         var page = ScrollingPage();
         var card = Card();
         card.Width = 860; card.Height = 310;
-        card.Controls.Add(MakeLabel("Koneksi CP Boost Monitor", 18, 22, 15, true, Fore));
+        card.Controls.Add(MakeLabel("Koneksi EVOGAMING Monitor", 18, 22, 15, true, Fore));
         card.Controls.Add(MakeLabel("Website: https://www.comeplayers.com", 12, 22, 63));
         card.Controls.Add(MakeLabel("Divisi: FH3  •  Bukti Telegram: 🔥 EVO🔥 Ilham FH3", 12, 22, 101));
         card.Controls.Add(MakeLabel("Sesi login dienkripsi menggunakan Windows DPAPI (CurrentUser).", 12, 22, 139));
@@ -547,7 +550,7 @@ public sealed class MainForm : Form
         SetStatus($"Payroll tersinkron {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.");
         if (additions.Count > 0)
         {
-            _tray.BalloonTipTitle = $"CP Boost Monitor — {additions.Count} order FH3 baru";
+            _tray.BalloonTipTitle = $"EVOGAMING Monitor — {additions.Count} order FH3 baru";
             _tray.BalloonTipText = string.Join(", ", additions.Take(4));
             _tray.ShowBalloonTip(7000);
         }
@@ -574,7 +577,7 @@ public sealed class MainForm : Form
                 $"{x.ChangedAt:dd/MM/yyyy HH:mm:ss}    {x.EmployeeName} ({x.EmployeeCode}): {x.From} → {x.To}"));
         _metrics.Text = $"{_pending.Count} order baru  •  {_tasks.Count} tugas aktif  •  {_employees.Count} karyawan FH3";
         if (_navigation.TryGetValue("Order Baru", out var orders))
-            orders.Text = $"  📦   Order Baru  ({_pending.Count})";
+            orders.Text = $"    ▸  Order Baru  ({_pending.Count})";
     }
 
     private void BindFilteredTables()
@@ -608,7 +611,7 @@ public sealed class MainForm : Form
             if (_activePage == "Login") _loginFeedback.Text = error.Message;
             SetStatus(error.Message);
             if (!quiet && !IsDisposed)
-                MessageBox.Show(error.Message, "CP Boost Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(error.Message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         finally { _busy = false; UseWaitCursor = false; }
     }
@@ -625,9 +628,9 @@ public sealed class MainForm : Form
         foreach (var entry in _navigation)
         {
             entry.Value.BackColor = entry.Key == name ? PanelColor : Sidebar;
-            entry.Value.ForeColor = entry.Key == name ? Accent : Fore;
+            entry.Value.ForeColor = Fore;
         }
-        _headline.Text = name == "Login" ? "CP Boost Monitor • Login" : name + " FH3";
+        _headline.Text = "EVOGAMING Monitor • " + name;
         if (name == "Riwayat") BindTables();
     }
 
@@ -650,7 +653,7 @@ public sealed class MainForm : Form
                 Quote(entry.From), Quote(entry.To),
             }));
         File.WriteAllText(dialog.FileName, csv.ToString(), new UTF8Encoding(true));
-        MessageBox.Show("Riwayat lokal berhasil diekspor.", "CP Boost Monitor");
+        MessageBox.Show("Riwayat lokal berhasil diekspor.", "EVOGAMING Monitor");
     }
 
     private static FlowLayoutPanel ScrollingPage() => new()
@@ -711,7 +714,7 @@ public sealed class MainForm : Form
     private static void FormatInput(TextBox input, bool password)
     {
         input.BorderStyle = BorderStyle.FixedSingle;
-        input.BackColor = PanelColor; input.ForeColor = Fore;
+        input.BackColor = Color.White; input.ForeColor = Fore;
         input.Font = new Font("Segoe UI", 12);
         input.UseSystemPasswordChar = password;
     }
@@ -729,16 +732,16 @@ public sealed class MainForm : Form
             ColumnHeadersHeight = 48, RowTemplate = { Height = 42 },
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
         };
-        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(28, 41, 60);
+        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(239, 247, 252);
         grid.AlternatingRowsDefaultCellStyle.ForeColor = Fore;
         grid.DefaultCellStyle.BackColor = PanelColor;
         grid.DefaultCellStyle.ForeColor = Fore;
-        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(65, 89, 120);
+        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(207, 237, 255);
         grid.DefaultCellStyle.SelectionForeColor = Fore;
         grid.DefaultCellStyle.Font = new Font("Segoe UI", 10);
         grid.DefaultCellStyle.Padding = new Padding(6, 3, 4, 3);
         grid.ColumnHeadersDefaultCellStyle.BackColor = Sidebar;
-        grid.ColumnHeadersDefaultCellStyle.ForeColor = Accent;
+        grid.ColumnHeadersDefaultCellStyle.ForeColor = Fore;
         grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
         grid.RowTemplate.Height = 47;
         grid.CellFormatting += (_, e) => {
