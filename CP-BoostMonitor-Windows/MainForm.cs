@@ -39,29 +39,24 @@ public sealed class MainForm : Form
     private readonly Label _headline = new() { AutoSize = true, Font = new Font("Segoe UI", 18, FontStyle.Bold), ForeColor = Fore };
     private readonly Label _metrics = new() { AutoSize = true, ForeColor = Muted };
     private readonly Label _appStatus = new() { AutoSize = false, Dock = DockStyle.Fill, ForeColor = Muted, TextAlign = ContentAlignment.MiddleLeft };
-    private readonly DataGridView _pendingGrid = Grid();
     private readonly DataGridView _tasksGrid = Grid();
     private readonly DataGridView _rosterGrid = Grid();
-    private readonly ComboBox _workerPicker = new();
     private readonly ComboBox _statusPicker = new();
-    private readonly TextBox _orderSearch = new();
     private readonly TextBox _taskSearch = new();
     private readonly TextBox _rosterSearch = new();
     private readonly ComboBox _taskStatusFilter = new();
-    private readonly Label _pendingCount = StyledText("Order belum ditugaskan: 0", 13, true);
-    private readonly Label _taskCount = StyledText("Tugas aktif: 0", 13, true);
-    private readonly Label _employeeCount = StyledText("Karyawan FH3: 0", 13, true);
     private readonly TextBox _email = new();
     private readonly TextBox _password = new();
     private readonly Button _loginButton = ActionButton("LOGIN PAYROLL", true);
     private readonly Label _loginFeedback = StyledText("Gunakan akun admin Payroll ComePlayers.", 10);
     private readonly RichTextBox _history = new() { ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = PanelColor, ForeColor = Fore, Font = new Font("Consolas", 10.5f) };
-    private string _activePage = "Dashboard";
+    private readonly TakeOrderPanel _takePanel = new();
+    private string _activePage = "Take Order";
 
     public MainForm()
     {
         Text = "EVOGAMING Monitor — FH3 | Windows";
-        MinimumSize = new Size(1000, 680);
+        MinimumSize = new Size(1030, 660);
         StartPosition = FormStartPosition.CenterScreen;
         Size = new Size(1240, 800);
         BackColor = Background;
@@ -70,7 +65,8 @@ public sealed class MainForm : Form
         Icon = SystemIcons.Application;
 
         BuildLayout();
-        Shown += (_, _) => WindowChrome.ApplySilverCaption(this);
+        Shown += (_, _) => WindowChrome.ApplyDarkCaption(this);
+        _takePanel.TakeRequested += async (_, choice) => await RunBusyAsync(() => TakeOrderAsync(choice));
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
         _tray.Icon = SystemIcons.Application;
         _tray.Text = "EVOGAMING Monitor FH3";
@@ -84,7 +80,7 @@ public sealed class MainForm : Form
         {
             if (_api.LoggedIn)
             {
-                ShowPage("Dashboard");
+                ShowPage("Take Order");
                 await RunBusyAsync(RefreshDataAsync);
             }
             else ShowPage("Login");
@@ -104,19 +100,19 @@ public sealed class MainForm : Form
         {
             Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = Padding.Empty,
         };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 232));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 190));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         Controls.Add(layout);
         layout.Controls.Add(_nav, 0, 0);
         layout.Controls.Add(_content, 1, 0);
 
-        var logo = StyledText("✦  EVOGAMING", 21, true, Accent);
+        var logo = StyledText("◈  EVOGAMING", 16, true, Accent);
         logo.Margin = new Padding(12, 12, 0, 5);
         _nav.Controls.Add(logo);
-        var division = StyledText("F U T U R E   C O N T R O L   P A N E L", 8, true, Muted);
+        var division = StyledText("MONITOR   /   FH3", 9, true, Muted);
         division.Margin = new Padding(12, 0, 0, 28);
         _nav.Controls.Add(division);
-        foreach (var name in new[] { "Dashboard", "Order Baru", "Tugas Aktif", "Karyawan", "Riwayat", "Pengaturan" })
+        foreach (var name in new[] { "Take Order", "Tugas Aktif", "Karyawan", "Riwayat", "Pengaturan" })
         {
             var button = NavButton(name);
             _nav.Controls.Add(button);
@@ -130,21 +126,21 @@ public sealed class MainForm : Form
         _connection.Margin = new Padding(12, 0, 0, 0);
         _nav.Controls.Add(_connection);
 
-        var header = new Panel { Dock = DockStyle.Top, Height = 128,
-            Padding = new Padding(26, 14, 26, 6), BackColor = Background };
-        var breadcrumb = StyledText("EVOGAMING   /   FH3 OPERATIONS CENTER", 9, true, Accent);
-        breadcrumb.Location = new Point(27, 12);
+        var header = new Panel { Dock = DockStyle.Top, Height = 101,
+            Padding = new Padding(20, 9, 20, 4), BackColor = Background };
+        var breadcrumb = StyledText("EVOGAMING   /   FH3 OPERATIONS", 9, true, Accent);
+        breadcrumb.Location = new Point(19, 9);
         header.Controls.Add(breadcrumb);
-        _headline.Text = "Dashboard FH3";
-        _headline.Font = new Font("Segoe UI", 23, FontStyle.Bold);
-        _headline.Location = new Point(27, 37);
+        _headline.Text = "Take Order";
+        _headline.Font = new Font("Segoe UI", 20, FontStyle.Bold);
+        _headline.Location = new Point(19, 29);
         header.Controls.Add(_headline);
-        _metrics.Location = new Point(29, 96);
-        _metrics.Text = "Order dari Payroll Website  •  Telegram: EVO Ilham FH3";
+        _metrics.Location = new Point(21, 73);
+        _metrics.Text = "Pilih karyawan + pilih order  •  klik TAKE ORDER";
         header.Controls.Add(_metrics);
         header.Paint += (_, e) => {
-            using var pen = new Pen(Color.FromArgb(162, 197, 220), 1);
-            e.Graphics.DrawLine(pen, 27, header.Height - 1, header.Width - 28, header.Height - 1);
+            using var pen = new Pen(PanelLine, 1);
+            e.Graphics.DrawLine(pen, 19, header.Height - 1, header.Width - 19, header.Height - 1);
         };
         var footer = new Panel { Dock = DockStyle.Bottom, Height = 36, Padding = new Padding(18, 0, 8, 0), BackColor = Sidebar };
         _appStatus.Text = "Siap. Screenshot dikirim hanya setelah tombol START/DONE dikonfirmasi.";
@@ -155,8 +151,7 @@ public sealed class MainForm : Form
         _content.Controls.Add(header);
 
         _pages["Login"] = BuildLogin();
-        _pages["Dashboard"] = BuildDashboard();
-        _pages["Order Baru"] = BuildOrders();
+        _pages["Take Order"] = _takePanel;
         _pages["Tugas Aktif"] = BuildTasks();
         _pages["Karyawan"] = BuildEmployees();
         _pages["Riwayat"] = BuildHistory();
@@ -208,100 +203,6 @@ public sealed class MainForm : Form
         form.Controls.Add(_loginFeedback);
         page.Controls.Add(form);
         return page;
-    }
-
-    private Control BuildDashboard()
-    {
-        var page = ScrollingPage();
-
-        var welcome = new LuxuryCard { Hero = true, Width = 864, Height = 154, Margin = new Padding(0, 0, 0, 18) };
-        welcome.Controls.Add(MakeLabel("●  ONLINE  /  FUTURE CONTROL", 11, 21, 18, true, Success));
-        welcome.Controls.Add(MakeLabel("EVOGAMING Operations Overview", 19, 21, 49, true, Fore));
-        welcome.Controls.Add(MakeLabel("Penugasan langsung di Payroll  •  Bukti START/DONE dikirim ke 🔥 EVO🔥 Ilham FH3", 11, 21, 104, false, Muted));
-        page.Controls.Add(welcome);
-
-        var metrics = new FlowLayoutPanel
-        {
-            Width = 870, Height = 168, FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false, Margin = new Padding(0, 0, 0, 16), AutoScroll = true,
-            BackColor = Background,
-        };
-        metrics.Controls.Add(MetricCard("01 / NEW ORDERS", "Order Baru", _pendingCount, Accent));
-        metrics.Controls.Add(MetricCard("02 / IN PROGRESS", "Tugas Aktif", _taskCount, Success));
-        metrics.Controls.Add(MetricCard("03 / WORKFORCE", "Karyawan FH3", _employeeCount, Color.FromArgb(50, 131, 193)));
-        page.Controls.Add(metrics);
-
-        var actions = new LuxuryCard { Width = 864, Height = 166, Margin = new Padding(0, 0, 0, 18) };
-        actions.Controls.Add(MakeLabel("QUICK ACTIONS", 11, 21, 14, true, Accent));
-        actions.Controls.Add(MakeLabel("Mulai tugas dari daftar order atau cek hasil bukti Telegram.", 11, 21, 46, false, Muted));
-        var openOrders = ActionButton("▣  Lihat Order Baru", true);
-        openOrders.SetBounds(20, 91, 198, 44);
-        openOrders.Click += (_, _) => ShowPage("Order Baru");
-        actions.Controls.Add(openOrders);
-        var openTasks = ActionButton("▶  Kelola Tugas Aktif", false);
-        openTasks.SetBounds(227, 91, 220, 44);
-        openTasks.Click += (_, _) => ShowPage("Tugas Aktif");
-        actions.Controls.Add(openTasks);
-        var refresh = ActionButton("↻  Sinkronkan", false);
-        refresh.SetBounds(456, 91, 173, 44);
-        refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
-        actions.Controls.Add(refresh);
-        page.Controls.Add(actions);
-
-        var info = new LuxuryCard { Width = 864, Height = 184 };
-        info.Controls.Add(MakeLabel("WORKFLOW  /  4 STEPS", 11, 21, 14, true, Accent));
-        info.Controls.Add(MakeLabel("01   Website menerima order → tampil di Order Baru", 11, 21, 51));
-        info.Controls.Add(MakeLabel("02   Pilih karyawan → penugasan disimpan secara atomik", 11, 21, 78));
-        info.Controls.Add(MakeLabel("03   START + Screenshot → Telegram dan status In Progress", 11, 21, 105));
-        info.Controls.Add(MakeLabel("04   DONE + Screenshot → Telegram dan status Completed", 11, 21, 132));
-        page.Controls.Add(info);
-        return page;
-    }
-
-    private static Panel MetricCard(string eyebrow, string heading, Label number, Color tone)
-    {
-        var card = new LuxuryCard
-        {
-            Width = 271, Height = 156, Margin = new Padding(0, 0, 16, 0),
-        };
-        card.Controls.Add(MakeLabel(eyebrow, 9, 18, 14, true, tone));
-        card.Controls.Add(MakeLabel(heading, 11, 18, 44, false, Muted));
-        number.SetBounds(18, 74, 233, 59);
-        number.Font = new Font("Segoe UI", 31, FontStyle.Bold);
-        number.ForeColor = tone;
-        card.Controls.Add(number);
-        return card;
-    }
-
-    private Control BuildOrders()
-    {
-        var panel = new Panel { Padding = new Padding(20, 8, 20, 12) };
-        var toolbar = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 116, FlowDirection = FlowDirection.LeftToRight, WrapContents = true, AutoScroll = true };
-        toolbar.Controls.Add(MakeToolbarText("Karyawan:", 98));
-        _workerPicker.DropDownStyle = ComboBoxStyle.DropDownList;
-        _workerPicker.Width = 290; _workerPicker.Height = 33;
-        _workerPicker.BackColor = PanelColor; _workerPicker.ForeColor = Fore;
-        toolbar.Controls.Add(_workerPicker);
-        var assign = ActionButton("Tugaskan karyawan", true);
-        assign.Click += async (_, _) => await RunBusyAsync(AssignSelectedAsync);
-        toolbar.Controls.Add(assign);
-        var refresh = ActionButton("↻ Refresh", false);
-        refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
-        toolbar.Controls.Add(refresh);
-        toolbar.Controls.Add(MakeToolbarText("Cari order:", 85));
-        PrepareSearch(_orderSearch, "Kode, game, nama order, buyer atau TASK...", 335);
-        _orderSearch.TextChanged += (_, _) => BindFilteredTables();
-        toolbar.Controls.Add(_orderSearch);
-        toolbar.Controls.Add(MakeToolbarText("Pilih order pada tabel. Hanya admin Payroll yang dapat menugaskan.", 610));
-        panel.Controls.Add(_pendingGrid);
-        panel.Controls.Add(toolbar);
-        AddColumn(_pendingGrid, "Kode Order", "OrderRef", 130);
-        AddColumn(_pendingGrid, "Jenis", "OrderType", 92);
-        AddColumn(_pendingGrid, "Nama Order", "OrderName", 230);
-        AddColumn(_pendingGrid, "Game", "Game", 130);
-        AddColumn(_pendingGrid, "Buyer", "Buyer", 120);
-        AddColumn(_pendingGrid, "TASK", "Task", 255);
-        return panel;
     }
 
     private Control BuildTasks()
@@ -424,25 +325,34 @@ public sealed class MainForm : Form
         return page;
     }
 
-    private async Task AssignSelectedAsync()
+    private async Task TakeOrderAsync(AssignmentRequest selection)
     {
-        if (_pendingGrid.CurrentRow?.DataBoundItem is not PayrollOrder order)
-            throw new InvalidOperationException("Pilih order di tabel terlebih dahulu.");
-        if (_workerPicker.SelectedItem is not Employee employee)
-            throw new InvalidOperationException("Pilih karyawan FH3.");
-        var accepted = MessageBox.Show(
-            $"Order: {order.OrderRef}\nNama: {order.OrderName}\nKaryawan: {employee.Name} ({employee.Code})\n\nSimpan penugasan langsung ke Payroll Website?",
-            "Konfirmasi penugasan", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (accepted != DialogResult.Yes) return;
-        await _api.AssignAsync(order.OrderRef, employee.Code);
-        await RefreshDataAsync();
-        if (MessageBox.Show($"Order {order.OrderRef} berhasil ditugaskan ke {employee.Name}.\n\nKirim foto START sekarang?",
-            "Penugasan berhasil", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            await SendProofForAsync(new PayrollOrder
-            {
-                OrderRef = order.OrderRef, EmployeeCode = employee.Code,
-                EmployeeName = employee.Name, Status = "assigned",
-            }, "start");
+        // Re-validate against the live client snapshot. Server RPC enforces atomic assignment.
+        var employee = _employees.FirstOrDefault(e => e.Code == selection.Worker.Code && e.Active);
+        var order = _pending.FirstOrDefault(o => o.OrderRef == selection.Order.OrderRef);
+        if (employee is null || order is null)
+            throw new InvalidOperationException("Karyawan atau order sudah berubah. Segarkan data dan pilih lagi.");
+        var answer = MessageBox.Show(
+            $"Karyawan: {employee.Name} ({employee.Code})\n" +
+            $"Order: {order.OrderRef}\nGame: {order.Game}\nTASK: {order.Task}\n\n" +
+            "Tetapkan order ini ke karyawan tersebut di Payroll Website?",
+            "Konfirmasi TAKE ORDER", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        if (answer != DialogResult.Yes) return;
+        _takePanel.SetWorking(true);
+        try
+        {
+            var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code);
+            _takePanel.ClearChoices();
+            await RefreshDataAsync();
+            SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}.");
+            if (MessageBox.Show(
+                $"Order {order.OrderRef} berhasil ditugaskan ke {assignedName}.\n\n" +
+                "Buka Tugas Aktif untuk mengirim screenshot START?",
+                "TAKE ORDER berhasil", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+                == DialogResult.Yes)
+                ShowPage("Tugas Aktif");
+        }
+        finally { _takePanel.SetWorking(false); }
     }
 
     private async Task SendProofAsync(string action)
@@ -558,32 +468,19 @@ public sealed class MainForm : Form
 
     private void BindTables()
     {
+        _takePanel.BindData(_employees, _pending);
         BindFilteredTables();
-        var selectedWorker = (_workerPicker.SelectedItem as Employee)?.Code;
-        _workerPicker.DataSource = null;
-        _workerPicker.DataSource = _employees.OrderBy(e => e.Name).ToList();
-        if (selectedWorker != null)
-        {
-            var previous = _employees.FirstOrDefault(e =>
-                e.Code.Equals(selectedWorker, StringComparison.OrdinalIgnoreCase));
-            if (previous != null) _workerPicker.SelectedItem = previous;
-        }
-        _pendingCount.Text = _pending.Count.ToString();
-        _taskCount.Text = _tasks.Count.ToString();
-        _employeeCount.Text = _employees.Count.ToString();
         var history = _statusStore.History;
-        _history.Text = history.Count == 0 ? "Belum ada perubahan status boosting pada PC ini."
+        _history.Text = history.Count == 0 ? "Belum ada perubahan status karyawan pada PC ini."
             : string.Join(Environment.NewLine, history.Select(x =>
                 $"{x.ChangedAt:dd/MM/yyyy HH:mm:ss}    {x.EmployeeName} ({x.EmployeeCode}): {x.From} → {x.To}"));
-        _metrics.Text = $"{_pending.Count} order baru  •  {_tasks.Count} tugas aktif  •  {_employees.Count} karyawan FH3";
-        if (_navigation.TryGetValue("Order Baru", out var orders))
-            orders.Text = $"    ▸  Order Baru  ({_pending.Count})";
+        _metrics.Text = $"{_pending.Count} order baru   •   {_tasks.Count} tugas aktif   •   {_employees.Count} karyawan FH3";
+        if (_navigation.TryGetValue("Take Order", out var item))
+            item.Text = $"    ▸  Take Order  ({_pending.Count})";
     }
 
     private void BindFilteredTables()
     {
-        // Filtering changes UI only; background polling keeps the complete snapshots intact.
-        Rebind(_pendingGrid, OrderFilters.Pending(_pending, _orderSearch.Text).ToList());
         Rebind(_tasksGrid, OrderFilters.Active(_tasks, _taskSearch.Text,
             _taskStatusFilter.SelectedItem as string ?? "Semua Status").ToList());
         Rebind(_rosterGrid, OrderFilters.Employees(_employees, _rosterSearch.Text).ToList());
@@ -630,7 +527,7 @@ public sealed class MainForm : Form
             entry.Value.BackColor = entry.Key == name ? PanelColor : Sidebar;
             entry.Value.ForeColor = Fore;
         }
-        _headline.Text = "EVOGAMING Monitor • " + name;
+        _headline.Text = name == "Login" ? "Masuk ke EVOGAMING Monitor" : name;
         if (name == "Riwayat") BindTables();
     }
 
@@ -670,7 +567,7 @@ public sealed class MainForm : Form
 
     private static Label StyledText(string content, float fontSize, bool bold = false, Color? color = null) => new()
     {
-        Text = content, AutoSize = true, ForeColor = color ?? Fore,
+        Text = content, AutoSize = true, BackColor = Color.Transparent, ForeColor = color ?? Fore,
         Font = new Font("Segoe UI", fontSize, bold ? FontStyle.Bold : FontStyle.Regular),
         Padding = new Padding(0, 3, 0, 4),
     };
@@ -692,7 +589,7 @@ public sealed class MainForm : Form
 
     private static Button NavButton(string title) => new LuxuryButton
     {
-        Navigation = true, Text = "    ▸  " + title, Width = 198, Height = 49,
+        Navigation = true, Text = "    ▸  " + title, Width = 158, Height = 49,
         Margin = new Padding(4, 2, 4, 5),
         BackColor = Sidebar, ForeColor = Fore,
         TextAlign = ContentAlignment.MiddleLeft,
@@ -714,7 +611,7 @@ public sealed class MainForm : Form
     private static void FormatInput(TextBox input, bool password)
     {
         input.BorderStyle = BorderStyle.FixedSingle;
-        input.BackColor = Color.White; input.ForeColor = Fore;
+        input.BackColor = PanelColor; input.ForeColor = Fore;
         input.Font = new Font("Segoe UI", 12);
         input.UseSystemPasswordChar = password;
     }
@@ -732,16 +629,16 @@ public sealed class MainForm : Form
             ColumnHeadersHeight = 48, RowTemplate = { Height = 42 },
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
         };
-        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(239, 247, 252);
+        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(36, 50, 71);
         grid.AlternatingRowsDefaultCellStyle.ForeColor = Fore;
         grid.DefaultCellStyle.BackColor = PanelColor;
         grid.DefaultCellStyle.ForeColor = Fore;
-        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(207, 237, 255);
+        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(44, 75, 112);
         grid.DefaultCellStyle.SelectionForeColor = Fore;
         grid.DefaultCellStyle.Font = new Font("Segoe UI", 10);
         grid.DefaultCellStyle.Padding = new Padding(6, 3, 4, 3);
         grid.ColumnHeadersDefaultCellStyle.BackColor = Sidebar;
-        grid.ColumnHeadersDefaultCellStyle.ForeColor = Fore;
+        grid.ColumnHeadersDefaultCellStyle.ForeColor = Muted;
         grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
         grid.RowTemplate.Height = 47;
         grid.CellFormatting += (_, e) => {
