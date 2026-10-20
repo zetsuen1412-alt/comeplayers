@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAuthStorage } from "@/lib/auth/sessionStorage";
+import { browserAuthTransport } from "@/lib/auth/browserAuthTransport";
 
 let browserClient: SupabaseClient | null = null;
 
@@ -12,16 +13,20 @@ function requiredPublicEnv(name: string, value: string | undefined) {
 
 export function getSupabaseBrowserClient(): SupabaseClient {
   if (!browserClient) {
+    const supabaseUrl = requiredPublicEnv(
+      "NEXT_PUBLIC_SUPABASE_URL",
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+    );
     browserClient = createClient(
-      requiredPublicEnv(
-        "NEXT_PUBLIC_SUPABASE_URL",
-        process.env.NEXT_PUBLIC_SUPABASE_URL
-      ),
+      supabaseUrl,
       requiredPublicEnv(
         "NEXT_PUBLIC_SUPABASE_ANON_KEY",
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       ),
       {
+        global: typeof window === "undefined"
+          ? {}
+          : { fetch: browserAuthTransport(supabaseUrl, window.location.origin, fetch) },
         auth: {
           persistSession: true,
           autoRefreshToken: true,

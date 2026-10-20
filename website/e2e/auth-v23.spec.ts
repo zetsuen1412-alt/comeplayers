@@ -17,7 +17,7 @@ test.describe("auth V23.1 UX", () => {
         body: "null",
       });
     });
-    await page.route("**/auth/v1/signup**", async (route) => {
+    await page.route("**/api/auth/mobile/signup**", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -46,7 +46,7 @@ test.describe("auth V23.1 UX", () => {
   });
 
   test("forgot password sends users through the auth callback URL", async ({ page }) => {
-    await page.route("**/auth/v1/recover**", async (route) => {
+    await page.route("**/api/auth/mobile/recover**", async (route) => {
       const request = route.request();
       expect(request.postData() || "").toContain("/auth/confirm");
       await route.fulfill({
@@ -67,7 +67,7 @@ test.describe("auth V23.1 UX", () => {
   test("email verification callback verifies token hash and keeps redirect local", async ({
     page,
   }) => {
-    await page.route("**/auth/v1/verify**", async (route) => {
+    await page.route("**/api/auth/mobile/verify**", async (route) => {
       const body = route.request().postDataJSON() as {
         token_hash?: string;
         type?: string;
