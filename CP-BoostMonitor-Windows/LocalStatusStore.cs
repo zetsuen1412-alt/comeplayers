@@ -33,13 +33,14 @@ public sealed class LocalStatusStore
         public string Note { get; set; } = "";
     }
 
-    private readonly string _file = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "ComePlayers", "CPBoostMonitor", "local-status.json");
+    private readonly string _file;
     private Snapshot _data = new();
 
-    public LocalStatusStore()
+    public LocalStatusStore(string? storagePath = null)
     {
+        _file = storagePath ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "ComePlayers", "CPBoostMonitor", "local-status.json");
         try
         {
             if (File.Exists(_file))
