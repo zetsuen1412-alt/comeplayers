@@ -45,9 +45,9 @@ jobs:
           if (!(Test-Path $exe)) { throw "EVOGAMINGMonitor.exe not found" }
           if ((Get-Item $exe).Length -lt 3000000) { throw "EXE unexpectedly small" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/EVOGAMING-Monitor-Windows-v1.5.0-x64.zip" -Force
+          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/EVOGAMING-Monitor-Windows-v1.6.0-x64.zip" -Force
           Get-FileHash -Algorithm SHA256 $exe | Format-Table
-          Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v1.5.0-x64.zip" | Format-Table
+          Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v1.6.0-x64.zip" | Format-Table
       - name: Publish Windows preview on development branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/feature/cp-boost-monitor-windows-v1'
         shell: pwsh
@@ -55,12 +55,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-          $tag = "evogaming-monitor-windows-v1.5-one-page-preview"
-          $zip = "dist/EVOGAMING-Monitor-Windows-v1.5.0-x64.zip"
+          $tag = "evogaming-monitor-windows-v1.6-take-telegram-preview"
+          $zip = "dist/EVOGAMING-Monitor-Windows-v1.6.0-x64.zip"
           gh release view $tag *> $null
           if ($LASTEXITCODE -ne 0) {
             # Separate release creation from asset upload to avoid newly-created release race.
-            gh release create $tag --target "$env:GITHUB_SHA" --title "EVOGAMING Monitor Windows v1.5 — ONE-PAGE OPERATIONS + SLEEP TIMER" --notes "Windows 10/11 x64. Extract EVOGAMINGMonitor.exe from ZIP. Dark Soft Blue unified operations: workers, orders, tasks, START/DONE and timed sleep on one screen. Preview only; sign in with admin Payroll. Unsigned EXE may trigger Windows SmartScreen." --prerelease
+            gh release create $tag --target "$env:GITHUB_SHA" --title "EVOGAMING Monitor Windows v1.6 — TAKE → START → DONE FH3" --notes "Windows 10/11 x64. Extract EVOGAMINGMonitor.exe from ZIP. Dark Soft Blue unified operations: workers, orders, tasks, START/DONE and timed sleep on one screen. Preview only; sign in with admin Payroll. Unsigned EXE may trigger Windows SmartScreen." --prerelease
             if ($LASTEXITCODE -ne 0) { throw "Cannot create Windows preview release" }
             Start-Sleep -Seconds 8
           }
@@ -79,8 +79,8 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: EVOGAMING-Monitor-Windows-v1.5-x64
-          path: dist/EVOGAMING-Monitor-Windows-v1.5.0-x64.zip
+          name: EVOGAMING-Monitor-Windows-v1.6-x64
+          path: dist/EVOGAMING-Monitor-Windows-v1.6.0-x64.zip
           retention-days: 14
           if-no-files-found: error
       - name: Optional standalone EXE attachment
@@ -90,8 +90,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "evogaming-monitor-windows-v1.5-one-page-preview"
-          gh release upload $tag "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe#EVOGAMINGMonitor-Windows-v1.5.0-PREVIEW.exe" --clobber
+          $tag = "evogaming-monitor-windows-v1.6-take-telegram-preview"
+          gh release upload $tag "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe#EVOGAMINGMonitor-Windows-v1.6.0-PREVIEW.exe" --clobber
       - name: No production publication from pull request
         if: github.event_name == 'pull_request'
         shell: pwsh
