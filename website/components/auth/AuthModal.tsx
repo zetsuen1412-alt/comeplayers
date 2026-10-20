@@ -23,6 +23,7 @@ import {
   setRememberMePreference,
 } from "@/lib/auth/sessionStorage";
 import { buildAuthCallbackUrl } from "@/lib/auth/redirect";
+import { readableAuthError } from "@/lib/auth/browserAuthTransport";
 import { supabase } from "@/lib/supabase";
 import ComePlayersLogo from "@/components/brand/ComePlayersLogo";
 import PasswordStrengthMeter from "@/components/auth/PasswordStrengthMeter";
@@ -349,12 +350,19 @@ export default function AuthModal({
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: finalEmail,
-        password,
-      });
+      let loginError: unknown = null;
+      try {
+        const result = await supabase.auth.signInWithPassword({
+          email: finalEmail,
+          password,
+        });
+        loginError = result.error;
+      } catch (reason) {
+        // Network failures must not leave the login button stuck loading.
+        loginError = reason;
+      }
 
-      if (error) {
+      if (loginError) {
         const nextFailures = loginFailures + 1;
 
         if (nextFailures >= MAX_LOGIN_FAILURES) {
@@ -371,7 +379,7 @@ export default function AuthModal({
           });
         } else {
           setLoginFailures(nextFailures);
-          handleProviderError(error.message);
+          handleProviderError(readableAuthError(loginError));
         }
 
         setLoading(false);
