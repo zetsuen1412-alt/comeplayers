@@ -39,6 +39,9 @@ export async function POST(request: Request) {
       p_order_ref: ref, p_employee_code: code, p_actor_id: actor.id,
     });
     if (error) {
+      if (/order tidak ditemukan/i.test(String(error.message ?? ""))) {
+        return respond({ error: "Order ada di Telegram FH3, tetapi belum dicatat di Payroll. Input order ke Payroll sebelum TAKE." }, 409);
+      }
       if (error.code === "P0001" || error.code === "23505" || error.code === "23514") {
         return respond({ error: "Order sudah berubah atau karyawan tidak lagi memenuhi syarat. Muat ulang daftar order." }, 409);
       }
