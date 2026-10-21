@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { createSupabaseAdmin } from "@/lib/serverSupabase";
 import { flushPayrollTelegramOutbox, restorePayrollTelegramOrder, isTelegramAdmin, telegramAnswerCallback, telegramDeleteMessage, telegramWebhookSecret } from "@/lib/payrollTelegram";
 import { parsePayrollTelegramUpdate, type PayrollTelegramUpdate } from "@/lib/payrollTelegramProtocol";
+import { captureManualFH3Telegram } from "@/lib/fh3ManualTelegramIntake";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,9 +29,12 @@ export async function POST(request: Request) {
       }
     } finally { reader.releaseLock(); }
     update = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    const supabase = createSupabaseAdmin();
+    // Capture manual FH3 orders and photo captions BEFORE legacy media handling.
+    // The legacy media handler may delete a processed photo from the group.
+    if (await captureManualFH3Telegram(update, supabase)) return response({ ok: true });
     const event = parsePayrollTelegramUpdate(update);
     if (!event) return response({ ok: true });
-    const supabase = createSupabaseAdmin();
     if (event.action === "back" && update.callback_query) {
       const restored = await restorePayrollTelegramOrder(supabase, String(event.orderId ?? ""), event.chatId);
       try { await telegramAnswerCallback(update.callback_query.id, restored ? "Kembali ke order." : "Order tidak tersedia di percakapan ini.", !restored); }
