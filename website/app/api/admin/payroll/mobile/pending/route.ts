@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     }
     const { data: manual, error: manualError } = await supabaseAdmin
       .from("cp_fh3_telegram_manual_orders")
-      .select("order_ref,chat_id,message_id,game,server_name,duration,task")
+      .select("order_ref,chat_id,message_id,game,server_name,duration,task,posted_at")
       .eq("chat_id", group.chat_id).limit(1000);
     if (manualError) throw manualError; // Missing migration = no orders, not a fallback.
     const verified = new Map((manual ?? []).map(item => [String(item.order_ref).toUpperCase(), item]));
@@ -50,12 +50,20 @@ export async function GET(request: Request) {
     ).sort((left, right) =>
       Date.parse(right.orderedAt || "") - Date.parse(left.orderedAt || "")
     );
-    if (pending.length > 200) return respond({ error: "Terlalu banyak order baru, periksa Payroll Website." }, 503);
+    // Telegram orders without a Payroll sale must still be visible to FH3,
+    // but cannot be assigned until an admin registers the accounting record.
+    // Never auto-create a zero-value sale in Payroll.
+    const payrollRefs = new Set(orders.map(order => String(order.externalReference ?? "").trim().toUpperCase()));
+    const inboxOnly = (manual ?? [])
+      .filter(item => !payrollRefs.has(String(item.order_ref).toUpperCase()))
+      .sort((left, right) => Date.parse(right.posted_at) - Date.parse(left.posted_at));
+    if (pending.length + inboxOnly.length > 200)
+      return respond({ error: "Terlalu banyak order Telegram FH3, periksa order lama." }, 503);
     return respond({
       // source remains "payroll" for existing Windows v1.6 clients;
       // only Telegram-verified order refs are included.
       schema: 2, scope: "FH3", source: "payroll", sourceOfTruth: "telegram_fh3_manual", revision: workspace.revision,
-      pending: pending.map(order => ({
+      pending: [...pending.map(order => ({
         orderRef: clean(order.externalReference, 180),
         orderType: order.orderType,
         // Never forward Telegram passwords/buyer credentials into the queue.
@@ -64,7 +72,18 @@ export async function GET(request: Request) {
         buyer: "",
         task: clean(verified.get(order.externalReference.trim().toUpperCase())?.task || "", 400),
         division: "FH3",
-      })),
+        canTake: true,
+      })), ...inboxOnly.map(item => ({
+        orderRef: clean(item.order_ref, 180),
+        orderType: "boosting",
+        orderName: clean("[BUTUH INPUT PAYROLL] " + (item.duration || "Order Telegram"), 300),
+        game: clean(item.game, 150),
+        buyer: "",
+        task: clean(item.task, 400),
+        division: "FH3",
+        canTake: false,
+        unlinkedPayroll: true,
+      }))],
     });
   } catch (error) {
     const status = adminErrorStatus(error);
