@@ -1,4 +1,14 @@
-# CP Boost Monitor Android v1.5 — FH3
+# EVOGAMING Monitor Android v1.6 — FH3
+
+Current behavior: [Telegram + Payroll guide](../docs/monitor-telegram-payroll-2026-10-22.md).
+Orders/TASK come only from @evogamings in the verified FH3 group. TAKE is followed
+by screenshot START/DONE, with safe delivery states and no automatic resend.
+Unpriced work is recorded separately without creating a financial sale. Payroll
+shows verified earnings and paged work history for every employee after login
+with Payroll access. This new package installs alongside 1.5 and preserves it.
+
+The earlier v1.5 notes below are historical; the current guide supersedes their
+old Payroll-only source and description of missing income data.
 
 Aplikasi memantau status lokal (Ready Boosting, Farming, Tidur, Bekerja) serta menerima **order baru langsung dari Payroll Website**. Tidak memerlukan bot Telegram untuk menerima atau menugaskan order.
 

@@ -4,6 +4,8 @@ import { test } from "node:test";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { loadFH3ManualOrders } from "../lib/fh3ManualTelegramQueue";
+import { mobileWorkflow } from "../lib/payrollMobileWorkflow";
+import { loadFH3MonitorJobs } from "../lib/fh3MonitorJobs";
 
 function load(file: string, mocks: Record<string, unknown>) {
   const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
@@ -31,7 +33,7 @@ const manual = (orderRef: string, patch: Record<string, unknown> = {}) => ({
   game: "aion2", duration: "8hours", server_name: "Triniel",
   task: "TASK from Telegram", posted_at: "2026-10-20T04:00:00Z", ...patch,
 });
-const client = (data: unknown, telegramOrders: unknown[] = []) => ({
+const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] = [], takes: unknown[] = []) => ({
   from: (table: string) => {
     if (table === "cp_payroll_workspace") {
       return { select: () => ({ eq: () => ({ single: async () => ({ data }) }) }) };
@@ -52,10 +54,16 @@ const client = (data: unknown, telegramOrders: unknown[] = []) => ({
       };
       return query;
     }
+    if (["cp_mobile_order_take", "cp_mobile_order_proof"].includes(table)) {
+      return { select: () => ({ in: async () => ({ data: table === "cp_mobile_order_take" ? takes : [], error: null }) }) };
+    }
+    if (table === "cp_fh3_monitor_jobs") return { select: () => ({ order: () => ({ range: async () => ({ data: jobs, error: null }) }) }) };
     throw new Error("Unexpected table: " + table);
   },
 });
 const common = {
+  "@/lib/fh3MonitorJobs": { loadFH3MonitorJobs },
+  "@/lib/payrollMobileWorkflow": { mobileWorkflow },
   "@/lib/fh3ManualTelegramQueue": { loadFH3ManualOrders },
   "@/lib/payrollMobileTake": {
     deliverTakeNotice: async () => ({ ok: true, takeSent: true, caption: "x100/andi/take" }),
@@ -102,8 +110,10 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
   assert.equal(result.pending[0].buyer, "");
   assert.equal(result.pending[0].task, "TASK from Telegram");
   assert.equal(result.pending[2].unlinkedPayroll, true);
-  assert.equal(result.pending[2].canTake, false);
-  assert.match(result.pending[2].orderName, /BUTUH INPUT PAYROLL/);
+  assert.equal(result.pending[2].canTake, true);
+  assert.equal(result.pending[2].canTakeWithoutPayroll, true);
+  assert.equal(result.pending[2].needsValuation, true);
+  assert.match(result.pending[2].orderName, /NILAI PAYROLL BELUM DIISI/);
   assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_user_id|salary|kasbon|refreshToken/);
 });
 
@@ -170,6 +180,23 @@ test("active tasks require an admin Telegram post and use its TASK, not Payroll-
   assert.equal(result.tasks[0].task, "TASK from Telegram");
   assert.equal(result.tasks[0].buyer, "");
   assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_file_id|telegram_chat_id/);
+});
+
+test("unpriced jobs leave pending, retain their worker, and expose only the next confirmed Telegram action", async () => {
+  const worker = { id: "e1", code: "F001", name: "Andi", team: "FH3", workforceStatus: "SHIFT" };
+  const job = { order_ref: "X9001", chat_id: -100123, employee_id: "e1", employee_code: "F001",
+    employee_name: "Andi", status: "assigned", created_at: "2026-10-22T00:00:00Z", cp_fh3_telegram_manual_orders: { active: true } };
+  const takes = [{ order_ref: "X9001", employee_code: "F001", chat_id: -100123, status: "sent" }];
+  const service = client(workspace([], [worker]), [manual("X9001")], [job], takes);
+  const mocks = { ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({ actor: { isAdmin: true }, supabaseAdmin: service }) } };
+  const pending = load("app/api/admin/payroll/mobile/pending/route.ts", mocks);
+  assert.equal((await (await pending.GET!(new Request(url))).json()).pending.length, 0);
+  const tasks = load("app/api/admin/payroll/mobile/tasks/route.ts", mocks);
+  const body = await (await tasks.GET!(new Request(url))).json();
+  assert.equal(body.tasks.length, 1); assert.equal(body.tasks[0].employeeCode, "F001");
+  assert.equal(body.tasks[0].source, "telegram_job"); assert.equal(body.tasks[0].needsValuation, true);
+  assert.equal(body.tasks[0].canTake, false); assert.equal(body.tasks[0].canStart, true); assert.equal(body.tasks[0].canDone, false);
+  assert.doesNotMatch(JSON.stringify(body), /grossMinor|chat_id|source_message_id/);
 });
 
 test("direct database migrations contain no Telegram assignment or outbox writes", () => {

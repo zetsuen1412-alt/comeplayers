@@ -5,11 +5,13 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'id.comeplayers.boostmonitor'
+        // The old CI debug signing key is unavailable. Install alongside v1.5;
+        // never require deleting its SQLite history to accept a new certificate.
+        applicationId 'id.comeplayers.boostmonitor.fh3'
         minSdk 24
         targetSdk 34
-        versionCode 6
-        versionName '1.5.0'
+        versionCode 7
+        versionName '1.6.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -18,4 +20,9 @@ android {
     buildTypes {
         release { minifyEnabled false }
     }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
 }

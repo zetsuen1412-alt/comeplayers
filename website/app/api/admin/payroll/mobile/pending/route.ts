@@ -3,6 +3,7 @@ import { adminErrorStatus } from "@/lib/adminSecurity";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Order } from "@/features/payroll/types/domain";
 import { loadFH3ManualOrders } from "@/lib/fh3ManualTelegramQueue";
+import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export async function GET(request: Request) {
     // Fail closed if group binding/intake is missing. Never fall back to
     // showing the full Payroll queue (which includes non-Telegram orders).
     const verified = await loadFH3ManualOrders(supabaseAdmin);
+    const jobs = await loadFH3MonitorJobs(supabaseAdmin);
     const refCounts = new Map<string, number>();
     for (const order of orders) {
       const ref = String(order.externalReference ?? "").trim().toUpperCase();
@@ -43,15 +45,15 @@ export async function GET(request: Request) {
       && !!String(order.externalReference ?? "").trim()
       && verified.has(String(order.externalReference).trim().toUpperCase())
       && refCounts.get(String(order.externalReference).trim().toUpperCase()) === 1
+      && !jobs.has(String(order.externalReference).trim().toUpperCase())
     ).sort((left, right) =>
       Date.parse(right.orderedAt || "") - Date.parse(left.orderedAt || "")
     );
-    // Telegram orders without a Payroll sale must still be visible to FH3,
-    // but cannot be assigned until an admin registers the accounting record.
-    // Never auto-create a zero-value sale in Payroll.
+    // Telegram orders without a Payroll sale use the operational journal.
+    // An admin enters and verifies their value later; never invent a sale.
     const payrollRefs = new Set(orders.map(order => String(order.externalReference ?? "").trim().toUpperCase()));
     const inboxOnly = [...verified.values()]
-      .filter(item => !payrollRefs.has(String(item.order_ref).toUpperCase()))
+      .filter(item => !payrollRefs.has(String(item.order_ref).toUpperCase()) && !jobs.has(String(item.order_ref).toUpperCase()))
       .sort((left, right) => Date.parse(right.posted_at) - Date.parse(left.posted_at));
     if (pending.length + inboxOnly.length > 200)
       return respond({ error: "Terlalu banyak order Telegram FH3, periksa order lama." }, 503);
@@ -72,12 +74,14 @@ export async function GET(request: Request) {
       })), ...inboxOnly.map(item => ({
         orderRef: clean(item.order_ref, 180),
         orderType: "boosting",
-        orderName: clean("[BUTUH INPUT PAYROLL] " + (item.duration || "Order Telegram"), 300),
+        orderName: clean("[NILAI PAYROLL BELUM DIISI] " + (item.duration || "Order Telegram"), 300),
         game: clean(item.game, 150),
         buyer: "",
         task: clean(item.task, 400),
         division: "FH3",
-        canTake: false,
+        canTake: true,
+        canTakeWithoutPayroll: true,
+        needsValuation: true,
         unlinkedPayroll: true,
       }))],
     });
