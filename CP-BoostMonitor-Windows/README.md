@@ -43,7 +43,8 @@ neither source exists, the UI says the start was not recorded instead of inventi
 one. Unreadable history files are not overwritten by new status changes.
 
 Employee codes remain internal identity keys but are hidden from tables and
-selection labels. The interface uses neutral white, black and gray surfaces.
+selection labels. The interface follows Telegram light colors: white panels, a pale gray-blue
+background, blue actions and selection, and dark blue navigation.
 
 ## Storage and safety
 
@@ -65,4 +66,10 @@ dotnet publish CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release 
 The preview renderer uses synthetic data and isolated paths, with no login,
 network requests, tray icon or operational Telegram reports. CI verifies the
 native app and publishes EXE/ZIP from main only. Releases are unsigned.
+The single-file runtime is compressed and smoke-tested with `--verify-package`,
+which uses isolated preview paths without opening a user session or contacting
+Telegram. CI mirrors the exact release binaries to website downloads, keeping
+the private GitHub repository inaccessible to app users. Both files stay below
+95 MB, use attachment headers and publish with source commit/SHA-256 metadata.
+CI then downloads them anonymously from production and checks their bytes.
 Earlier design notes remain in `docs/` as historical documentation.

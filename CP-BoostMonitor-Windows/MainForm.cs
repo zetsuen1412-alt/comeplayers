@@ -38,7 +38,7 @@ public sealed class MainForm : Form
         Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false,
         Padding = new Padding(16, 14, 16, 0), AutoScroll = true, BackColor = Sidebar,
     };
-    private readonly Label _connection = new() { AutoSize = true, ForeColor = Muted };
+    private readonly Label _connection = new() { AutoSize = true, ForeColor = LuxuryPalette.SidebarMuted };
     private readonly Label _headline = new() { AutoSize = true, Font = new Font("Segoe UI", 18, FontStyle.Bold), ForeColor = Fore };
     private readonly Label _metrics = new() { AutoSize = true, ForeColor = Muted };
     private readonly Label _appStatus = new() { AutoSize = false, Dock = DockStyle.Fill, ForeColor = Muted, TextAlign = ContentAlignment.MiddleLeft };
@@ -151,7 +151,7 @@ public sealed class MainForm : Form
             _navigation[name] = button;
             button.Click += (_, _) => ShowPage(name);
         }
-        var account = StyledText("●  TELEGRAM FH3", 9, true, Success);
+        var account = StyledText("●  TELEGRAM FH3", 9, true, LuxuryPalette.SidebarText);
         account.Margin = new Padding(12, 32, 0, 4);
         _nav.Controls.Add(account);
         _connection.Text = "Login belum aktif";
@@ -174,7 +174,7 @@ public sealed class MainForm : Form
             using var pen = new Pen(PanelLine, 1);
             e.Graphics.DrawLine(pen, 19, header.Height - 1, header.Width - 19, header.Height - 1);
         };
-        var footer = new Panel { Dock = DockStyle.Bottom, Height = 36, Padding = new Padding(18, 0, 8, 0), BackColor = Sidebar };
+        var footer = new Panel { Dock = DockStyle.Bottom, Height = 36, Padding = new Padding(18, 0, 8, 0), BackColor = PanelColor };
         _appStatus.Text = "Siap. Screenshot dikirim hanya setelah tombol START/DONE dikonfirmasi.";
         footer.Controls.Add(_appStatus);
         var area = new Panel { Dock = DockStyle.Fill, BackColor = Background };
@@ -565,7 +565,7 @@ public sealed class MainForm : Form
         BindTables();
         _takePanel.SetStale(false);
         _connection.Text = "●  FH3 • Online";
-        _connection.ForeColor = Success;
+        _connection.ForeColor = LuxuryPalette.SidebarText;
         _poll.Start();
         SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.");
         if (additions.Count > 0)

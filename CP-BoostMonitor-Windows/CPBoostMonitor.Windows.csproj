@@ -8,8 +8,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>EVOGAMINGMonitor</AssemblyName>
     <RootNamespace>CPBoostMonitor</RootNamespace>
-    <Version>1.9.0</Version>
+    <Version>1.9.1</Version>
     <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishTrimmed>false</PublishTrimmed>

@@ -4,23 +4,26 @@ using System.Windows.Forms;
 
 namespace CPBoostMonitor;
 
-/// <summary>Neutral surfaces, strong typography and quiet depth for daily operations.</summary>
+/// <summary>Telegram-inspired light surfaces, blue actions and a dark navigation rail.</summary>
 internal static class LuxuryPalette
 {
-    public static readonly Color Background = Color.FromArgb(237, 237, 237);
-    public static readonly Color Sidebar = Color.FromArgb(247, 247, 247);
+    public static readonly Color Background = Color.FromArgb(234, 239, 243);
+    public static readonly Color Sidebar = Color.FromArgb(39, 58, 75);
+    public static readonly Color SidebarText = Color.FromArgb(235, 244, 251);
+    public static readonly Color SidebarMuted = Color.FromArgb(180, 199, 214);
+    public static readonly Color SidebarBorder = Color.FromArgb(65, 85, 103);
     public static readonly Color Surface = Color.White;
-    public static readonly Color SurfaceRaised = Color.FromArgb(243, 243, 243);
-    public static readonly Color Border = Color.FromArgb(215, 215, 215);
-    public static readonly Color Accent = Color.FromArgb(30, 30, 30);
-    public static readonly Color AccentHover = Color.FromArgb(65, 65, 65);
+    public static readonly Color SurfaceRaised = Color.FromArgb(242, 245, 247);
+    public static readonly Color Border = Color.FromArgb(218, 226, 232);
+    public static readonly Color Accent = Color.FromArgb(22, 120, 184);
+    public static readonly Color AccentHover = Color.FromArgb(17, 101, 156);
     public static readonly Color Violet = Accent;
     public static readonly Color Gold = Accent; // Compatibility aliases for older views
     public static readonly Color GoldBright = AccentHover;
-    public static readonly Color Text = Color.FromArgb(28, 28, 28);
-    public static readonly Color Muted = Color.FromArgb(96, 96, 96);
-    public static readonly Color Success = Text;
-    public static readonly Color Selection = Color.FromArgb(223, 223, 223);
+    public static readonly Color Text = Color.FromArgb(29, 45, 58);
+    public static readonly Color Muted = Color.FromArgb(98, 117, 132);
+    public static readonly Color Success = Accent;
+    public static readonly Color Selection = Color.FromArgb(218, 237, 250);
 
     public static GraphicsPath Round(Rectangle bounds, float radius)
     {
@@ -113,15 +116,15 @@ internal sealed class LuxuryButton : Button
         bool active = Navigation && BackColor != LuxuryPalette.Sidebar;
         var fill = !Enabled ? Color.FromArgb(232, 232, 232)
             : Primary ? LuxuryPalette.Accent
-            : active ? LuxuryPalette.Selection
+            : active ? LuxuryPalette.Accent
             : Navigation ? LuxuryPalette.Sidebar : BackColor;
         if (Enabled && !Primary) fill = Color.FromArgb(Math.Max(0, fill.R - (int)(_glow * 12)),
             Math.Max(0, fill.G - (int)(_glow * 12)), Math.Max(0, fill.B - (int)(_glow * 12)));
         if (Primary && Enabled)
         {
             using var grad = new LinearGradientBrush(bounds,
-                _hover ? LuxuryPalette.AccentHover : Color.FromArgb(50, 50, 50),
-                LuxuryPalette.Accent,
+                _hover ? LuxuryPalette.AccentHover : LuxuryPalette.Accent,
+                LuxuryPalette.AccentHover,
                 LinearGradientMode.ForwardDiagonal);
             e.Graphics.FillPath(grad, path);
         }
@@ -130,20 +133,22 @@ internal sealed class LuxuryButton : Button
             using var brush = new SolidBrush(fill);
             e.Graphics.FillPath(brush, path);
         }
-        var stroke = Primary ? LuxuryPalette.Accent : LuxuryPalette.Border;
+        var stroke = Primary || active ? LuxuryPalette.Accent
+            : Navigation ? LuxuryPalette.SidebarBorder : LuxuryPalette.Border;
         using var border = new Pen(stroke, 1.0f);
         e.Graphics.DrawPath(border, path);
         using (var bevel = new Pen(Color.FromArgb(50, Color.White)))
             e.Graphics.DrawLine(bevel, bounds.Left + 12, bounds.Top + 1, bounds.Right - 12, bounds.Top + 1);
         if (active) {
-            using var rail = new SolidBrush(LuxuryPalette.Accent);
+            using var rail = new SolidBrush(Color.White);
             e.Graphics.FillRectangle(rail, 5, bounds.Top + 12, 3, Math.Max(1, bounds.Height - 24));
         }
         var textRect = Navigation
             ? new Rectangle(15, 0, Width - 20, Height) : bounds;
         TextRenderer.DrawText(e.Graphics, Text, Font, textRect,
             !Enabled ? LuxuryPalette.Muted
-                : Primary ? Color.White
+                : Primary || active ? Color.White
+                : Navigation ? LuxuryPalette.SidebarText
                 : LuxuryPalette.Text,
             TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis |
             (Navigation ? TextFormatFlags.Left : TextFormatFlags.HorizontalCenter));
