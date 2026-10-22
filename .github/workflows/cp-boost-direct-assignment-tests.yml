@@ -19,6 +19,13 @@ on:
       - 'website/tests/payroll-mobile-take.test.ts'
       - 'website/app/api/admin/payroll/mobile/take/**'
       - 'website/lib/payrollMobileTake.ts'
+      - 'website/lib/payrollMobileWorkflow.ts'
+      - 'website/lib/payrollMobileEarnings.ts'
+      - 'website/tests/payroll-mobile-workflow.test.ts'
+      - 'website/tests/payroll-mobile-earnings.test.ts'
+      - 'website/supabase/migrations/*_fh3_monitor_delivery_consistency.sql'
+      - 'website/supabase/migrations/*_fh3_monitor_operational_jobs.sql'
+      - 'website/lib/fh3MonitorJobs.ts'
       - 'website/supabase/migrations/20261020140000_fh3_take_before_photo_start.sql'
       - 'website/tests/payroll-mobile-proof-group.test.ts'
       - 'website/tests/payroll-mobile-proof-setup.test.ts'
@@ -58,6 +65,11 @@ jobs:
           tests/payroll-mobile-proof-database.test.ts
           tests/payroll-mobile-proof-api.test.ts
           tests/payroll-mobile-take.test.ts
+          tests/payroll-mobile-workflow.test.ts
+          tests/payroll-mobile-earnings.test.ts
+          tests/payroll-final-workspace.test.ts
+          tests/payroll-per-day-payroll.test.ts
+          tests/payroll-legacy-x2754-cutover.test.ts
           tests/payroll-mobile-proof-group.test.ts
           tests/payroll-mobile-proof-setup.test.ts
           tests/payroll-telegram-*.test.ts

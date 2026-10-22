@@ -16,7 +16,7 @@ export async function deliverTakeNotice(service: Service, actorId: string, order
     p_order_ref: orderRef, p_employee_code: employeeCode, p_actor_id: actorId,
   });
   if (beginError) throw new TakeNoticeError(
-    "Order telah ditugaskan, tetapi status TAKE belum dapat dipastikan. Periksa Telegram dan muat ulang Tugas Aktif.", true);
+    "Penugasan tercatat, tetapi status TAKE belum dapat dipastikan. Periksa Telegram dan muat ulang Tugas Aktif.", true);
   if (claim?.alreadySent) return {
     ok: true, takeSent: true, alreadySent: true,
     caption: String(claim.caption), chatTitle: String(claim.chatTitle ?? "FH3"),

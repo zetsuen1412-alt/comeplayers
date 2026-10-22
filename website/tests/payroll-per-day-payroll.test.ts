@@ -8,6 +8,7 @@ import { buildLivePayrollRows, isPayrollEligible } from "../features/payroll/lib
 import { applyBulkMutationAction } from "../features/payroll/lib/bulk-mutation-actions";
 import { closeWorkspace, validateWorkspaceEdit, workspaceKeys as K, type WorkspaceState } from "../features/payroll/lib/workspace-model";
 import type { Order, OrderDailyWork, OrderWorkerAssignment } from "../features/payroll/types/domain";
+import { FH_NEW_BOOK_ROW } from "../features/payroll/lib/legacy-fh-cutover";
 
 const NOW = "2026-10-07T03:00:00.000Z";
 function worker(name: string, quantity = 1): OrderWorkerAssignment {
@@ -15,7 +16,8 @@ function worker(name: string, quantity = 1): OrderWorkerAssignment {
 }
 function day(sequence: number, name = `WORKER${sequence}`, overrides: Partial<OrderDailyWork> = {}): OrderDailyWork {
   return { id: `day-${sequence}`, sequence, workDate: `2026-10-${String(sequence + 1).padStart(2, "0")}`,
-    sourceRow: 5000 + sequence, sourceOrderedAt: "2026-10-01T10:00:00+07:00", quantity: 1,
+    // These fixtures exercise current payable work; pre-cutover rows are archive-only.
+    sourceRow: FH_NEW_BOOK_ROW + sequence, sourceOrderedAt: "2026-10-01T10:00:00+07:00", quantity: 1,
     grossMinor: 320_000, rateMinor: 320_000, hours: 12, status: "pending",
     workerAssignments: [worker(name)], ...overrides };
 }

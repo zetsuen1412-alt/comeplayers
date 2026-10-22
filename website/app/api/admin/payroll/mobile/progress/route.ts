@@ -4,6 +4,7 @@ import { MobileTelegramError, isSupportedProofImage, sendMobileProofPhoto, verif
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 const MAX_IMAGE = 7 * 1024 * 1024;
 const MAX_UPLOAD = MAX_IMAGE + 16 * 1024;
 const respond = (body: unknown, status = 200) => Response.json(body, {

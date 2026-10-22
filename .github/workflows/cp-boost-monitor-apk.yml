@@ -4,6 +4,10 @@ on:
     paths:
       - 'CP-BoostMonitor-Android/**'
       - '.github/workflows/cp-boost-monitor-apk.yml'
+  pull_request:
+    paths:
+      - 'CP-BoostMonitor-Android/**'
+      - '.github/workflows/cp-boost-monitor-apk.yml'
   workflow_dispatch:
 
 jobs:
@@ -33,7 +37,7 @@ jobs:
         with:
           gradle-version: '8.10.2'
       - name: Compile Android APK
-        run: gradle --no-daemon -p CP-BoostMonitor-Android assembleDebug
+        run: gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleDebug
       - name: Verify APK format and signature
         shell: bash
         run: |
@@ -47,29 +51,10 @@ jobs:
         continue-on-error: true # GitHub Actions artifact quota is currently full
         uses: actions/upload-artifact@v4
         with:
-          name: CP-BoostMonitor-v1.5.0-verified-debug
+          name: EVOGAMING-Monitor-Android-v1.6.0-verified-debug
           path: CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
           if-no-files-found: error
-      - name: Publish isolated PR preview APK to GitHub Releases
-        if: github.ref == 'refs/heads/feature/boost-monitor-mobile-assignment-20261019'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          TAG="cp-boost-monitor-v1.5-fh3-proof-preview"
-          APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
-          test -s "$APK"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-PREVIEW.apk" --clobber
-          else
-            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-PREVIEW.apk" \
-              --target "$GITHUB_SHA" \
-              --title "CP Boost Monitor 1.5 FH3 proof — PREVIEW ONLY" \
-              --notes "Internal development APK only. Requires staging migrations, matching website API and test Telegram group setup. Debug signature may not match the existing installation; back up local data before changing APK. Not for production work." \
-              --prerelease
-          fi
       - name: Publish same APK to website downloads
         # Publish the verified APK from main so the production download stays current.
         if: github.ref == 'refs/heads/main'
@@ -77,6 +62,20 @@ jobs:
         run: |
           set -euo pipefail
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
+          # Never replace an installed package with a different signing identity.
+          OLD="website/public/downloads/cp-boost-monitor.apk"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          if [[ -s "$OLD" ]]; then
+            OLD_PACKAGE="$($AAPT dump badging "$OLD" | sed -n "s/^package: name='\([^']*\)'.*/\1/p")"
+            NEW_PACKAGE="$($AAPT dump badging "$APK" | sed -n "s/^package: name='\([^']*\)'.*/\1/p")"
+            [[ -n "$OLD_PACKAGE" && -n "$NEW_PACKAGE" ]] || { echo 'Cannot verify APK package identity.'; exit 1; }
+            if [[ "$OLD_PACKAGE" == "$NEW_PACKAGE" ]]; then
+              OLD_CERT="$($SIGNER verify --print-certs "$OLD" | sed -n 's/Signer #1 certificate SHA-256 digest: //p')"
+              NEW_CERT="$($SIGNER verify --print-certs "$APK" | sed -n 's/Signer #1 certificate SHA-256 digest: //p')"
+              [[ -n "$OLD_CERT" && "$OLD_CERT" == "$NEW_CERT" ]] || { echo 'Signing key differs. Keep the published APK and configure its original signing key.'; exit 1; }
+            fi
+          fi
           mkdir -p website/public/downloads
           cp "$APK" website/public/downloads/cp-boost-monitor.apk
           # ZIP fallback allows Android users to download from embedded browsers blocking .apk.
@@ -84,6 +83,7 @@ jobs:
           (cd website/public/downloads && zip -q cp-boost-monitor.zip CP-Boost-Monitor.apk)
           rm website/public/downloads/CP-Boost-Monitor.apk
           (cd website/public/downloads && sha256sum cp-boost-monitor.apk > cp-boost-monitor.apk.sha256)
+          printf '{"version":"1.6.0","packageId":"id.comeplayers.boostmonitor.fh3","parallelInstall":true}\n' > website/public/downloads/cp-boost-monitor.json
           unzip -t website/public/downloads/cp-boost-monitor.zip | tail -n 1
           echo "ZIP includes the same APK verified by apksigner."
           test "$(unzip -p website/public/downloads/cp-boost-monitor.zip CP-Boost-Monitor.apk | sha256sum | cut -d' ' -f1)" = "$(sha256sum "$APK" | cut -d' ' -f1)"
@@ -92,6 +92,7 @@ jobs:
           git add -f website/public/downloads/cp-boost-monitor.apk
           git add -f website/public/downloads/cp-boost-monitor.apk.sha256
           git add -f website/public/downloads/cp-boost-monitor.zip
+          git add -f website/public/downloads/cp-boost-monitor.json
           if ! git diff --cached --quiet; then
             git commit -m "build(android): publish verified CP Boost Monitor APK for website admins"
             git push origin "HEAD:${GITHUB_REF_NAME}"
@@ -102,15 +103,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="cp-boost-monitor-android-v1.5-fh3-proof-debug"
+          TAG="evogaming-monitor-android-v1.6-telegram-payroll"
           APK="CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-debug.apk" --clobber
+            gh release upload "$TAG" "$APK#EVOGAMING-Monitor-Android-v1.6.0.apk" --clobber
           else
-            gh release create "$TAG" "$APK#CP-BoostMonitor-v1.5-fh3-proof-debug.apk" \
+            gh release create "$TAG" "$APK#EVOGAMING-Monitor-Android-v1.6.0.apk" \
               --target "$GITHUB_SHA" \
-              --title "CP Boost Monitor Android v1.5 FH3 Screenshot Proof (internal debug)" \
-              --notes "APK debug internal. Download mudah juga tersedia di Website Payroll Admin." \
+              --title "EVOGAMING Monitor Android v1.6 — Telegram + Payroll" \
+              --notes "Internal APK. New FH3 package installs alongside v1.5; do not uninstall the old app. Telegram-only order source, TAKE/START/DONE, and team earnings for authorized Payroll members. Backend release required. Export/import local status backup if needed." \
               --prerelease
           fi

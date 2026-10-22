@@ -13,11 +13,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Scoped HTTPS integration: payroll roster read-only; boosting statuses stay locally managed. */
+/** Telegram-backed FH3 workflow over HTTPS. All bot credentials remain on the website. */
 final class PayrollSync {
     private static final String BASE = "https://www.comeplayers.com/api/admin/payroll/mobile";
     private static final int MAX_BYTES = 2 * 1024 * 1024;
@@ -29,14 +30,18 @@ final class PayrollSync {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private boolean syncing = false;
+    private long sessionVersion = 0;
+    private final Object sessionGuard = new Object();
 
     PayrollSync(SecureSession session, EmployeeDb db) { this.session = session; this.db = db; }
 
     boolean hasSession() { return session.exists(); }
-    void logout() { session.clear(); }
+    void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); } }
     void shutdown() { executor.shutdown(); }
 
     void login(String email, String password, Done callback) {
+        final long version;
+        synchronized (sessionGuard) { version = ++sessionVersion; }
         executor.execute(() -> {
             try {
                 JSONObject input = new JSONObject();
@@ -44,8 +49,10 @@ final class PayrollSync {
                 JSONObject result = call("POST", "/session", input, null);
                 // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
                 JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"));
-                db.syncRoster(roster);
-                session.save(result);
+                synchronized (sessionGuard) {
+                    if (version != sessionVersion) throw new IOException("Sesi sudah berubah.");
+                    db.syncRoster(roster); session.save(result);
+                }
                 int tasks = 0;
                 String taskWarning = "";
                 try { tasks = syncTasks(result.getString("accessToken")); }
@@ -85,10 +92,21 @@ final class PayrollSync {
     }
 
     private JSONObject refresh(JSONObject credentials) throws Exception {
+        final long version;
+        synchronized (sessionGuard) {
+            JSONObject current = session.load();
+            if (current == null || !current.optString("refreshToken").equals(credentials.optString("refreshToken")))
+                throw new IOException("Sesi berubah; login kembali.");
+            version = sessionVersion;
+        }
         JSONObject payload = new JSONObject(); payload.put("action", "refresh");
         payload.put("refreshToken", credentials.getString("refreshToken"));
         JSONObject fresh = call("POST", "/session", payload, null);
-        session.save(fresh); return fresh;
+        synchronized (sessionGuard) {
+            if (version != sessionVersion) throw new IOException("Sesi berubah; login kembali.");
+            session.save(fresh);
+        }
+        return fresh;
     }
 
     /** Fetches active tasks directly from Payroll. Older servers may not expose it yet. */
@@ -108,9 +126,7 @@ final class PayrollSync {
         executor.execute(() -> {
             try {
                 JSONObject result = authorizedCall("GET", "/pending", null);
-                if (result.optInt("schema") != 2 || !"FH3".equals(result.optString("scope"))
-                        || !"payroll".equals(result.optString("source"))
-                        || result.optJSONArray("pending") == null)
+                if (!MonitorContract.pending(result))
                     throw new IllegalStateException("Daftar order tidak valid.");
                 main.post(() -> callback.accept(result, "", true));
             } catch (Exception error) {
@@ -120,18 +136,31 @@ final class PayrollSync {
         });
     }
 
-    /** Persist assignment directly to Payroll website; caller refreshes tasks after success. */
-    void assignOrder(String orderRef, String employeeCode, Done callback) {
+    /** Assignment and TAKE can have different outcomes; never lose a committed assignment. */
+    void assignOrder(String orderRef, String employeeCode, DataDone callback) {
+        orderAction("/assign", orderRef, employeeCode, callback);
+    }
+
+    /** Deliberate retry only. Server refuses uncertain or duplicate TAKE deliveries. */
+    void takeOrder(String orderRef, String employeeCode, DataDone callback) {
+        orderAction("/take", orderRef, employeeCode, callback);
+    }
+
+    private void orderAction(String path, String orderRef, String employeeCode, DataDone callback) {
         executor.execute(() -> {
             try {
                 JSONObject input = new JSONObject();
                 input.put("orderRef", orderRef);
                 input.put("employeeCode", employeeCode);
-                JSONObject result = authorizedCall("POST", "/assign", input);
-                if (!result.optBoolean("ok")) throw new IllegalStateException("Penugasan belum dikonfirmasi website.");
-                finish(callback, "Order " + result.optString("orderRef", orderRef) + " ditugaskan ke "
-                        + result.optString("employeeName", employeeCode) + " dan tersimpan di website.", true);
-            } catch (Exception error) { finish(callback, friendly(error), false); }
+                JSONObject result = authorizedCall("POST", path, input);
+                if (!result.optBoolean("ok") || !result.optBoolean("takeSent"))
+                    throw new IllegalStateException("TAKE belum dikonfirmasi. Segarkan Tugas dan periksa Telegram.");
+                main.post(() -> callback.accept(result, "✓ TAKE " + orderRef
+                        + " / " + employeeCode + " diterima Telegram dan tercatat di website.", true));
+            } catch (Exception error) {
+                JSONObject details = error instanceof ApiException ? ((ApiException) error).details : null;
+                main.post(() -> callback.accept(details, friendly(error), false));
+            }
         });
     }
 
@@ -140,10 +169,23 @@ final class PayrollSync {
         executor.execute(() -> {
             try {
                 JSONObject result = authorizedCall("GET", "/tasks", null);
-                if (result.optInt("schema") != 1 || !"FH3".equals(result.optString("scope"))
-                        || !"payroll".equals(result.optString("source"))
-                        || result.optJSONArray("tasks") == null)
+                if (!MonitorContract.tasks(result))
                     throw new IOException("Daftar tugas aktif tidak valid.");
+                main.post(() -> callback.accept(result, "", true));
+            } catch (Exception error) {
+                main.post(() -> callback.accept(null, friendly(error), false));
+            }
+        });
+    }
+
+    /** Owner-approved team visibility; salary data stays in memory, never in SQLite/backups. */
+    void loadEarnings(String employeeCode, int offset, DataDone callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject result = authorizedCall("GET", "/earnings?employeeCode="
+                        + URLEncoder.encode(employeeCode, "UTF-8") + "&offset=" + offset, null);
+                if (!MonitorContract.earnings(result))
+                    throw new IOException("Format penghasilan FH3 tidak valid.");
                 main.post(() -> callback.accept(result, "", true));
             } catch (Exception error) {
                 main.post(() -> callback.accept(null, friendly(error), false));
@@ -213,7 +255,7 @@ final class PayrollSync {
         final String boundary = "cpProof" + Long.toHexString(System.nanoTime());
         HttpURLConnection connection = (HttpURLConnection) new URL(BASE + "/progress").openConnection();
         connection.setInstanceFollowRedirects(false);
-        connection.setConnectTimeout(14000); connection.setReadTimeout(45000);
+        connection.setConnectTimeout(14000); connection.setReadTimeout(75000);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Authorization", "Bearer " + token);
         connection.setRequestProperty("Accept", "application/json");
@@ -285,7 +327,7 @@ final class PayrollSync {
         URL target = new URL(BASE + suffix);
         HttpURLConnection c = (HttpURLConnection) target.openConnection();
         c.setInstanceFollowRedirects(false);
-        c.setConnectTimeout(12000); c.setReadTimeout(16000);
+        c.setConnectTimeout(12000); c.setReadTimeout("GET".equals(method) ? 20000 : 65000);
         c.setRequestMethod(method); c.setRequestProperty("Accept", "application/json");
         c.setRequestProperty("Cache-Control", "no-store");
         if (token != null) c.setRequestProperty("Authorization", "Bearer " + token);
@@ -315,13 +357,18 @@ final class PayrollSync {
                     throw new ApiException(status, "Akses payroll ditolak (" + status + ").");
                 throw error;
             }
-            if (status < 200 || status >= 300) throw new ApiException(status, result.optString("error", "Akses payroll ditolak (" + status + ")."));
+            if (status < 200 || status >= 300) throw new ApiException(status,
+                    result.optString("error", "Akses payroll ditolak (" + status + ")."), result);
             return result;
         } finally { c.disconnect(); }
     }
 
     private static final class ApiException extends Exception {
         final int status;
-        ApiException(int status, String message) { super(message); this.status = status; }
+        final JSONObject details;
+        ApiException(int status, String message) { this(status, message, null); }
+        ApiException(int status, String message, JSONObject details) {
+            super(message); this.status = status; this.details = details;
+        }
     }
 }

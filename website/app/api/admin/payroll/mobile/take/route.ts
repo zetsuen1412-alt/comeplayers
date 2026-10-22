@@ -4,6 +4,7 @@ import { deliverTakeNotice, TakeNoticeError } from "@/lib/payrollMobileTake";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 45;
 const respond = (body: unknown, status = 200) => Response.json(body, {
   status, headers: { "Cache-Control": "no-store", Pragma: "no-cache" },
 });

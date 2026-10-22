@@ -4,6 +4,7 @@ import { deliverTakeNotice, TakeNoticeError } from "@/lib/payrollMobileTake";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 45;
 
 const respond = (body: unknown, status = 200) => Response.json(body, {
   status, headers: { "Cache-Control": "no-store", Pragma: "no-cache" },
@@ -60,11 +61,11 @@ export async function POST(request: Request) {
       if (error instanceof TakeNoticeError)
         return respond({ ok: false, assigned: true, takeSent: false,
           uncertain: error.uncertain,
-          error: "Order sudah ditugaskan di Payroll, tetapi TAKE belum terkonfirmasi Telegram. " +
+          error: "Penugasan sudah tercatat di website, tetapi TAKE belum terkonfirmasi Telegram. " +
             error.message + " Gunakan tombol TAKE di Tugas Aktif setelah memeriksa grup." },
           error.uncertain ? 409 : 502);
       return respond({ ok: false, assigned: true, takeSent: false,
-        error: "Order tersimpan di Payroll; TAKE gagal diproses. Periksa grup dan gunakan tombol TAKE di Tugas Aktif." }, 503);
+        error: "Penugasan tercatat di website; TAKE gagal diproses. Periksa grup dan gunakan tombol TAKE di Tugas Aktif." }, 503);
     }
   } catch (error) {
     const status = error instanceof SyntaxError ? 400 : adminErrorStatus(error);
