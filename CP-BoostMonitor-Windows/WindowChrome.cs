@@ -19,7 +19,7 @@ internal static class WindowChrome
             const int CaptionColor = 35, TextColor = 36, UseDarkMode = 20;
             int darkMode = 0;
             _ = DwmSetWindowAttribute(form.Handle, UseDarkMode, ref darkMode, sizeof(int));
-            int navy = ColorTranslator.ToWin32(LuxuryPalette.Sidebar);
+            int navy = ColorTranslator.ToWin32(LuxuryPalette.Background);
             int white = ColorTranslator.ToWin32(LuxuryPalette.Text);
             _ = DwmSetWindowAttribute(form.Handle, CaptionColor, ref navy, sizeof(int));
             _ = DwmSetWindowAttribute(form.Handle, TextColor, ref white, sizeof(int));

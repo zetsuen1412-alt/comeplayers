@@ -138,16 +138,16 @@ internal sealed class BrandMark : Control
     {
         var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias; g.Clear(LuxuryPalette.Sidebar);
         var orb = new Rectangle(6, 8, 40, 40);
-        using var sphere = new GraphicsPath(); sphere.AddEllipse(orb);
-        using var fill = new PathGradientBrush(sphere) { CenterPoint = new PointF(18, 17),
-            CenterColor = Color.White, SurroundColors = new[] { LuxuryPalette.Accent } };
+        using var fill = new SolidBrush(LuxuryPalette.Accent);
         g.FillEllipse(fill, orb);
-        using var ring = new Pen(LuxuryPalette.Violet, 2); g.DrawEllipse(ring, 3, 17, 46, 19);
+        using var letter = new Font("Segoe UI", 16, FontStyle.Bold);
+        TextRenderer.DrawText(g, "E", letter, orb, Color.White,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         using var brand = new Font("Segoe UI", 12, FontStyle.Bold);
         using var caption = new Font("Segoe UI", 8.5f, FontStyle.Bold);
-        TextRenderer.DrawText(g, "EVOGAMING", brand, new Point(56, 13), LuxuryPalette.Text);
-        TextRenderer.DrawText(g, "OPERATIONS / FH3", caption, new Point(57, 36), LuxuryPalette.Accent);
-        using var line = new Pen(LuxuryPalette.Border); g.DrawLine(line, 8, 78, Width - 12, 78);
-        TextRenderer.DrawText(g, "WORKSPACE", caption, new Point(10, 90), LuxuryPalette.Muted);
+        TextRenderer.DrawText(g, "EVOGAMING", brand, new Point(56, 13), LuxuryPalette.SidebarText);
+        TextRenderer.DrawText(g, "OPERATIONS / FH3", caption, new Point(57, 36), LuxuryPalette.SidebarMuted);
+        using var line = new Pen(LuxuryPalette.SidebarBorder); g.DrawLine(line, 8, 78, Width - 12, 78);
+        TextRenderer.DrawText(g, "WORKSPACE", caption, new Point(10, 90), LuxuryPalette.SidebarMuted);
     }
 }

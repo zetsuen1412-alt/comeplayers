@@ -5,9 +5,9 @@ import { PageHeader } from "@/features/payroll/components/page-header";
 import { usePayrollActor } from "@/features/payroll/lib/workspace-store";
 
 const APK_URL = "/downloads/cp-boost-monitor.apk";
-const WINDOWS_BASE = "https://github.com/zetsuen1412-alt/comeplayers/releases/download/evogaming-monitor-windows-v1.9";
+const WINDOWS_BASE = "https://github.com/zetsuen1412-alt/comeplayers/releases/download/evogaming-monitor-windows-v1.9.1";
 const WINDOWS_EXE_URL = `${WINDOWS_BASE}/EVOGAMINGMonitor.exe`;
-const WINDOWS_ZIP_URL = `${WINDOWS_BASE}/EVOGAMING-Monitor-Windows-v1.9.0-x64.zip`;
+const WINDOWS_ZIP_URL = `${WINDOWS_BASE}/EVOGAMING-Monitor-Windows-v1.9.1-x64.zip`;
 
 export default function BoostMonitorDownloadPage() {
   const actor = usePayrollActor();
@@ -35,10 +35,10 @@ export default function BoostMonitorDownloadPage() {
 
   if (!actor?.isAdmin) return <p role="alert">Halaman unduhan hanya dapat dibuka admin.</p>;
 
-  const downloadClass = "mt-auto inline-flex min-h-12 items-center justify-center rounded-xl bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-950";
+  const downloadClass = "mt-auto inline-flex min-h-12 items-center justify-center rounded-xl bg-[#1678b8] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#11659c] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1678b8]";
   return <div className="space-y-6">
     <PageHeader title="EVOGAMING Monitor" description="Order FH3 dari Telegram, langsung ke ruang kerja Anda." />
-    <section className="overflow-hidden rounded-3xl border border-zinc-300 bg-zinc-100 p-6 text-zinc-950 sm:p-8">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 p-6 text-zinc-950 sm:p-8">
       <div className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-600">Android &amp; Windows</div>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">Satu tempat untuk setiap order.</h2>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">Terima order dan TASK yang dikirim Adm EVO Gaming di grup FH3. Pilih karyawan, ambil order dengan TAKE, lalu kirim laporan START dan DONE beserta screenshot.</p>
