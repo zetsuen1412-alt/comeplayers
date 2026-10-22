@@ -5,14 +5,14 @@ import { PageHeader } from "@/features/payroll/components/page-header";
 import { usePayrollActor } from "@/features/payroll/lib/workspace-store";
 
 const APK_URL = "/downloads/cp-boost-monitor.apk";
-const WINDOWS_BASE = "https://github.com/zetsuen1412-alt/comeplayers/releases/download/evogaming-monitor-windows-v1.9.1";
-const WINDOWS_EXE_URL = `${WINDOWS_BASE}/EVOGAMINGMonitor.exe`;
-const WINDOWS_ZIP_URL = `${WINDOWS_BASE}/EVOGAMING-Monitor-Windows-v1.9.1-x64.zip`;
+const WINDOWS_EXE_URL = "/downloads/evogaming-monitor-windows.exe";
+const WINDOWS_ZIP_URL = "/downloads/evogaming-monitor-windows.zip";
 
 export default function BoostMonitorDownloadPage() {
   const actor = usePayrollActor();
   const [apkState, setApkState] = useState<"checking" | "ready" | "unavailable">("checking");
   const [parallelInstall, setParallelInstall] = useState(false);
+  const [windowsReady, setWindowsReady] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!actor?.isAdmin) return;
@@ -29,6 +29,13 @@ export default function BoostMonitorDownloadPage() {
       } catch {
         if (!controller.signal.aborted) setApkState(current => current === "checking" ? "unavailable" : current);
       }
+    })();
+    void (async () => {
+      try {
+        const files = await Promise.all([WINDOWS_EXE_URL, WINDOWS_ZIP_URL].map(url =>
+          fetch(url, { method: "HEAD", cache: "no-store", signal: controller.signal })));
+        if (!controller.signal.aborted) setWindowsReady(files.every(file => file.ok && Number(file.headers.get("content-length")) > 3000000));
+      } catch { if (!controller.signal.aborted) setWindowsReady(false); }
     })();
     return () => controller.abort();
   }, [actor?.isAdmin]);
@@ -54,13 +61,15 @@ export default function BoostMonitorDownloadPage() {
           <span className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Windows · EXE</span>
           <h3 className="mt-2 text-lg font-semibold">Langsung jalankan</h3>
           <p className="mb-6 mt-2 text-sm leading-6 text-zinc-600">Aplikasi untuk Windows 10/11 64-bit.</p>
-          <a href={WINDOWS_EXE_URL} className={downloadClass}>↓ Download EXE</a>
+          {windowsReady ? <a href={WINDOWS_EXE_URL} download="EVOGAMINGMonitor.exe" className={downloadClass}>↓ Download EXE</a>
+            : <span role="status" className="mt-auto rounded-xl border border-zinc-300 p-3 text-center text-sm text-zinc-600">{windowsReady === null ? "Memeriksa file…" : "Menyiapkan file Windows. Muat ulang sebentar lagi."}</span>}
         </article>
         <article className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Windows · ZIP</span>
           <h3 className="mt-2 text-lg font-semibold">Simpan sebagai paket</h3>
           <p className="mb-6 mt-2 text-sm leading-6 text-zinc-600">Ekstrak ZIP, lalu buka EVOGAMINGMonitor.exe. Aplikasinya sama dengan unduhan EXE.</p>
-          <a href={WINDOWS_ZIP_URL} className={downloadClass}>↓ Download ZIP</a>
+          {windowsReady ? <a href={WINDOWS_ZIP_URL} download="EVOGAMINGMonitor-Windows.zip" className={downloadClass}>↓ Download ZIP</a>
+            : <span role="status" className="mt-auto rounded-xl border border-zinc-300 p-3 text-center text-sm text-zinc-600">{windowsReady === null ? "Memeriksa file…" : "Menyiapkan file Windows. Muat ulang sebentar lagi."}</span>}
         </article>
       </div>
       <p className="mt-5 text-sm leading-6 text-zinc-600">Tutup Monitor Windows sebelum membuka file yang baru. Sesi login dan riwayat status lokal tetap tersimpan.</p>

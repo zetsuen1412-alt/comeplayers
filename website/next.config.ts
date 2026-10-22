@@ -122,6 +122,22 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
         ],
       },
+      {
+        source: "/downloads/evogaming-monitor-windows.exe",
+        headers: [
+          { key: "Content-Type", value: "application/octet-stream" },
+          { key: "Content-Disposition", value: 'attachment; filename="EVOGAMINGMonitor.exe"' },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        source: "/downloads/evogaming-monitor-windows.zip",
+        headers: [
+          { key: "Content-Type", value: "application/zip" },
+          { key: "Content-Disposition", value: 'attachment; filename="EVOGAMINGMonitor-Windows.zip"' },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
     ];
   },
 };

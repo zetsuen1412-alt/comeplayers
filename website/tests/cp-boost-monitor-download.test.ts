@@ -17,3 +17,17 @@ test("ZIP alternatif juga memakai attachment, bukan dibuka sebagai halaman", asy
   assert.ok(zip && "headers" in zip);
   assert.equal(zip.headers?.find((x) => x.key === "Content-Disposition")?.value, 'attachment; filename="CP-Boost-Monitor-Android.zip"');
 });
+
+test("unduhan Windows langsung memakai attachment dan selalu memvalidasi cache versi terbaru", async () => {
+  const headers = await config.headers?.();
+  for (const [extension, filename, mime] of [
+    ["exe", "EVOGAMINGMonitor.exe", "application/octet-stream"],
+    ["zip", "EVOGAMINGMonitor-Windows.zip", "application/zip"],
+  ]) {
+    const file = headers?.find(row => row.source === `/downloads/evogaming-monitor-windows.${extension}`);
+    assert.ok(file && "headers" in file);
+    assert.equal(file.headers?.find(row => row.key === "Content-Disposition")?.value, `attachment; filename="${filename}"`);
+    assert.equal(file.headers?.find(row => row.key === "Content-Type")?.value, mime);
+    assert.equal(file.headers?.find(row => row.key === "Cache-Control")?.value, "public, max-age=0, must-revalidate");
+  }
+});

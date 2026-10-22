@@ -47,11 +47,15 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           dotnet publish CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release -r win-x64 --self-contained true --no-restore --no-build -p:PublishSingleFile=true -p:PublishTrimmed=false -o dist/cp-boost-monitor-windows
+          if ($LASTEXITCODE -ne 0) { throw "Windows publish failed" }
           $exe = "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe"
           if (!(Test-Path $exe)) { throw "EVOGAMINGMonitor.exe not found" }
           if ((Get-Item $exe).Length -lt 3000000) { throw "EXE unexpectedly small" }
+          if ((Get-Item $exe).Length -gt 95000000) { throw "Compressed EXE exceeds website delivery limit" }
+          $probe = Start-Process -FilePath (Resolve-Path $exe) -ArgumentList "--verify-package" -WindowStyle Hidden -Wait -PassThru
+          if ($probe.ExitCode -ne 0) { throw "Published package failed isolated startup verification" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/EVOGAMING-Monitor-Windows-v1.9.1-x64.zip" -Force
+          Compress-Archive -LiteralPath $exe -DestinationPath "dist/EVOGAMING-Monitor-Windows-v1.9.1-x64.zip" -Force
           Get-FileHash -Algorithm SHA256 $exe | Format-Table
           Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v1.9.1-x64.zip" | Format-Table
       - name: Publish Windows internal release from main
@@ -80,6 +84,69 @@ jobs:
           if (-not $ok) { throw "Windows downloads were not uploaded. Keep the previous preview release; check GitHub artifact or retry." }
           gh release view $tag --json assets --jq '.assets[].name'
           if ($LASTEXITCODE -ne 0) { throw "Failed to verify GitHub preview assets" }
+      - name: Publish the same Windows binaries to website downloads
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $exe = (Resolve-Path "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe").Path
+          $zip = (Resolve-Path "dist/EVOGAMING-Monitor-Windows-v1.9.1-x64.zip").Path
+          foreach ($file in @($exe, $zip)) {
+            if ((Get-Item $file).Length -gt 95000000) { throw "Windows download exceeds static file limit" }
+          }
+          git fetch origin main
+          if ($LASTEXITCODE -ne 0) { throw "Cannot read latest main" }
+          git diff --quiet "$env:GITHUB_SHA" origin/main -- CP-BoostMonitor-Windows .github/workflows/cp-boost-monitor-windows.yml website/app/admin/payroll/boost-monitor/page.tsx
+          if ($LASTEXITCODE -ne 0) { throw "Monitor source changed during build; do not publish stale binaries" }
+          # This checkout is an ephemeral CI clone. Keep unrelated newer main changes.
+          git checkout -B main origin/main
+          if ($LASTEXITCODE -ne 0) { throw "Cannot prepare download publication" }
+          $downloads = "website/public/downloads"
+          New-Item -ItemType Directory -Force -Path $downloads | Out-Null
+          Copy-Item -LiteralPath $exe -Destination "$downloads/evogaming-monitor-windows.exe"
+          Copy-Item -LiteralPath $zip -Destination "$downloads/evogaming-monitor-windows.zip"
+          $exeHash = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          $zipHash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$exeHash  evogaming-monitor-windows.exe`n$zipHash  evogaming-monitor-windows.zip" | Set-Content "$downloads/evogaming-monitor-windows.sha256"
+          @{ version = "1.9.1"; sourceCommit = $env:GITHUB_SHA; exeSha256 = $exeHash; zipSha256 = $zipHash;
+             exeBytes = (Get-Item $exe).Length; zipBytes = (Get-Item $zip).Length } |
+            ConvertTo-Json | Set-Content "$downloads/evogaming-monitor-windows.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f "$downloads/evogaming-monitor-windows.exe" "$downloads/evogaming-monitor-windows.zip" "$downloads/evogaming-monitor-windows.sha256" "$downloads/evogaming-monitor-windows.json"
+          if ($LASTEXITCODE -ne 0) { throw "Cannot stage verified Windows downloads" }
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "build(windows): publish verified Monitor website downloads"
+            if ($LASTEXITCODE -ne 0) { throw "Cannot commit Windows downloads" }
+            git push origin HEAD:main
+            if ($LASTEXITCODE -ne 0) { throw "Cannot publish Windows downloads; keep existing site files" }
+          }
+      - name: Verify public website Windows downloads without GitHub login
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $base = "https://www.comeplayers.com/downloads/evogaming-monitor-windows"
+          $ready = $false
+          for ($attempt = 1; $attempt -le 25; $attempt++) {
+            try {
+              $metadata = Invoke-RestMethod -Uri "$base.json?build=$env:GITHUB_SHA" -TimeoutSec 15
+              if ($metadata.sourceCommit -eq $env:GITHUB_SHA) { $ready = $true; break }
+            } catch { Write-Host "Website publication not ready ($attempt/25)" }
+            Start-Sleep -Seconds 12
+          }
+          if (-not $ready) { throw "Website has not published this Windows build" }
+          foreach ($extension in @("exe", "zip")) {
+            $target = "dist/downloaded-monitor.$extension"
+            $response = Invoke-WebRequest -Uri "$base.$extension`?build=$env:GITHUB_SHA" -OutFile $target -PassThru -TimeoutSec 120
+            $expected = if ($extension -eq "exe") { $metadata.exeSha256 } else { $metadata.zipSha256 }
+            $actual = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actual -ne $expected -or "$($response.Headers['Content-Disposition'])" -notmatch '^attachment') {
+              throw "Public Windows $extension failed checksum or attachment verification"
+            }
+            Write-Host "Public Windows $extension attachment and SHA-256 verified: $actual"
+          }
       - name: Upload ZIP artifact as alternative
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true
