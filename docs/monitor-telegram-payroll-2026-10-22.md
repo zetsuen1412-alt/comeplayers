@@ -71,7 +71,9 @@ Windows DPAPI CurrentUser. Bot/service-role credentials remain server-only.
 1. Verify the PR's backend, PGlite, Android and Windows tests. Back up current
    Payroll, staff, Closing and function definitions privately in the database.
 2. Apply `20261022093000_fh3_monitor_delivery_consistency.sql`, then
-   `20261022100000_fh3_monitor_operational_jobs.sql`. The latter adds an empty
+   `20261022100000_fh3_monitor_operational_jobs.sql`, then
+   `20261022103000_fh3_monitor_job_permissions.sql` (removes inherited default
+   service-role DELETE/TRUNCATE privileges). The journal migration adds an empty
    private operational journal, protects its employee references, and routes
    only journal-backed work through the new RPC branch. It does not backfill or
    reset financial records. The underlying financial RPCs remain available only

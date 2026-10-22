@@ -13,6 +13,7 @@ const migrations = [
   "20261022070000_fh3_manual_telegram_intake.sql",
   "20261022093000_fh3_monitor_delivery_consistency.sql",
   "20261022100000_fh3_monitor_operational_jobs.sql",
+  "20261022103000_fh3_monitor_job_permissions.sql",
 ];
 const actor = "e120c2e4-99bb-42b0-9d08-a8e71ebef76a";
 
@@ -117,8 +118,17 @@ test("Telegram-only work supports TAKE START DONE and earnings history without t
   try {
     await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
       create table public.cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,updated_at timestamptz default now());
-      insert into cp_payroll_workspace values(1,'{}',0,now());`);
+      insert into cp_payroll_workspace values(1,'{}',0,now());
+      alter default privileges in schema public grant all on tables to service_role;`);
     for (const file of migrations) await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8").replace(/\r\n/g,"\n"));
+    for (const privilege of ["DELETE", "TRUNCATE", "REFERENCES", "TRIGGER"]) {
+      assert.equal((await db.query<{allowed:boolean}>(
+        "select has_table_privilege('service_role','public.cp_fh3_monitor_jobs',$1) allowed",[privilege])).rows[0].allowed,false);
+    }
+    for (const privilege of ["SELECT", "INSERT", "UPDATE"]) {
+      assert.equal((await db.query<{allowed:boolean}>(
+        "select has_table_privilege('service_role','public.cp_fh3_monitor_jobs',$1) allowed",[privilege])).rows[0].allowed,true);
+    }
     const payload = {
       "cp-ofs-demo-user-orders-v3": [],
       "cp-ofs-demo-employees-v2": [

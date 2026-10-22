@@ -25,6 +25,7 @@ on:
       - 'website/tests/payroll-mobile-earnings.test.ts'
       - 'website/supabase/migrations/*_fh3_monitor_delivery_consistency.sql'
       - 'website/supabase/migrations/*_fh3_monitor_operational_jobs.sql'
+      - 'website/supabase/migrations/*_fh3_monitor_job_permissions.sql'
       - 'website/lib/fh3MonitorJobs.ts'
       - 'website/supabase/migrations/20261020140000_fh3_take_before_photo_start.sql'
       - 'website/tests/payroll-mobile-proof-group.test.ts'
