@@ -6,8 +6,8 @@ import { PGlite } from "@electric-sql/pglite";
 let db: PGlite;
 let eventId = 1;
 const migrations = ["20260926030000_payroll_telegram_operations.sql", "20260926030001_payroll_telegram_durable_workflow.sql", "20260926030002_payroll_telegram_leader_dispatch.sql", "20260926035622_payroll_telegram_item_workflow.sql", "20260926041704_payroll_telegram_strict_division_routing.sql"];
-const guard = readFileSync(new URL("../supabase/migrations/20261006060224_payroll_website_archive_telegram_guard.sql", import.meta.url), "utf8");
-const original = readFileSync(new URL("../supabase/migrations/20260926041704_payroll_telegram_strict_division_routing.sql", import.meta.url), "utf8");
+const guard = readFileSync(new URL("../supabase/migrations/20261006060224_payroll_website_archive_telegram_guard.sql", import.meta.url), "utf8").replace(/\r\n/g,"\n");
+const original = readFileSync(new URL("../supabase/migrations/20260926041704_payroll_telegram_strict_division_routing.sql", import.meta.url), "utf8").replace(/\r\n/g,"\n");
 const active = { id: "manual:B1", externalReference: "B1", orderType: "boosting", quantity: 1, team: "FH1", orderName: "Boost", operationalStatus: "draft" };
 const employees = [{ code: "A", name: "Andi", team: "FH1", workforceStatus: "SHIFT" }];
 async function save(items: unknown[]) {

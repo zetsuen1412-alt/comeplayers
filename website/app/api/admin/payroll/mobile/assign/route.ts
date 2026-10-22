@@ -23,10 +23,28 @@ export async function POST(request: Request) {
       || !code || code.length > 100 || /[\u0000-\u001f\u007f]/.test(code)) {
       return respond({ error: "Order atau kode karyawan tidak valid." }, 400);
     }
+    // The Windows/Android queue may be stale or a caller may submit an
+    // unseen Payroll ref directly. TAKE must independently verify Telegram.
+    const [{ data: group, error: groupError }, { data: manual, error: manualError }] = await Promise.all([
+      supabaseAdmin.from("cp_payroll_telegram_divisions")
+        .select("chat_id,fh3_order_sender_id").eq("division", "FH3").eq("active", true).maybeSingle(),
+      supabaseAdmin.from("cp_fh3_telegram_manual_orders")
+        .select("chat_id,admin_user_id,active").eq("order_ref", ref.toUpperCase()).maybeSingle(),
+    ]);
+    if (groupError || manualError) throw groupError ?? manualError;
+    if (!group || !manual?.active || !Number.isSafeInteger(Number(group.chat_id))
+      || Number(group.chat_id) >= 0 || Number(group.chat_id) !== Number(manual.chat_id)
+      || !Number.isSafeInteger(Number(group.fh3_order_sender_id)) || Number(group.fh3_order_sender_id) <= 0
+      || Number(manual.admin_user_id) !== Number(group.fh3_order_sender_id)) {
+      return respond({ error: "Order tidak tercatat dari pesan admin di grup Telegram FH3. Refresh daftar order." }, 409);
+    }
     const { data, error } = await supabaseAdmin.rpc("cp_mobile_assign_fh3", {
       p_order_ref: ref, p_employee_code: code, p_actor_id: actor.id,
     });
     if (error) {
+      if (/order tidak ditemukan/i.test(String(error.message ?? ""))) {
+        return respond({ error: "Order ada di Telegram FH3, tetapi belum dicatat di Payroll. Input order ke Payroll sebelum TAKE." }, 409);
+      }
       if (error.code === "P0001" || error.code === "23505" || error.code === "23514") {
         return respond({ error: "Order sudah berubah atau karyawan tidak lagi memenuhi syarat. Muat ulang daftar order." }, 409);
       }

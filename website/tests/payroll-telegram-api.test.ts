@@ -24,7 +24,7 @@ test("evidence endpoint rejects delegated users before querying any private Tele
   const result = await route.GET!(new Request("https://example.com/api/admin/payroll/telegram/evidence?ref=B1"));
   assert.equal(result.status, 403); assert.equal(reads, 0); assert.doesNotMatch(await result.text(), /telegramMessageId|telegramChatId|t\.me/);
 });
-test("authorized admin receives original Telegram link and metadata, no file body", async () => {
+test("authorized admin receives protected website evidence link and metadata, no file body", async () => {
   const query = { select: () => query, eq: () => query, maybeSingle: async () => ({ data: {} }), order: async () => ({ data: [{ id: "e1", evidence_type: "done", media_type: "video", telegram_chat_id: -100123, telegram_message_id: 42, employee_code: "A", division: "FH1" }] }) };
   const route = load("app/api/admin/payroll/telegram/evidence/route.ts", {
     "@/lib/payrollAccess": { requirePayrollAccess: async () => ({ actor: { isAdmin: true }, supabaseAdmin: { from: () => query } }) },
@@ -33,11 +33,12 @@ test("authorized admin receives original Telegram link and metadata, no file bod
   });
   const response = await route.GET!(new Request("https://example.com/api/admin/payroll/telegram/evidence?ref=B1"));
   assert.equal(response.status, 200); const data = await response.json();
-  assert.equal(data.evidence[0].link, "https://t.me/c/123/42"); assert.equal(data.evidence[0].employeeCode, "A"); assert.equal(data.evidence[0].file, undefined);
+  assert.equal(data.evidence[0].link, "https://example.com/api/admin/payroll/telegram/evidence/file?id=e1"); assert.equal(data.evidence[0].employeeCode, "A"); assert.equal(data.evidence[0].file, undefined);
 });
 test("webhook authenticates before parsing and passes numeric identity to durable RPC", async () => {
   const secret = "s".repeat(32); let calls = 0; let failure = false;
   const route = load("app/api/integrations/telegram/payroll/route.ts", {
+    "@/lib/fh3ManualTelegramIntake": { captureManualFH3Telegram: async () => false },
     "node:crypto": { timingSafeEqual }, "@/lib/payrollTelegramProtocol": protocol,
     "@/lib/serverSupabase": { createSupabaseAdmin: () => ({ rpc: async (name: string, args: Record<string, unknown>) => {
       calls++; assert.equal(name, "cp_telegram_process_update"); assert.equal(args.p_update_id, 55); assert.equal(args.p_is_admin, false);
@@ -64,10 +65,12 @@ test("old numeric order references cannot be confused with new callback IDs", ()
   assert.equal(callback("cp:start:123")?.ref, "123");
   assert.equal(callback("cp2:start:123")?.orderId, "123");
 });
-test("Telegram code never fetches, downloads, proxies or stores media binaries", () => {
-  for (const file of ["lib/payrollTelegram.ts", "lib/payrollTelegramProtocol.ts", "app/api/integrations/telegram/payroll/route.ts", "app/api/admin/payroll/telegram/evidence/route.ts"]) {
+test("Telegram intake and evidence listing never download or store media binaries", () => {
+  // The existing authenticated evidence/file endpoint uses telegramDownloadFile;
+  // intake only handles metadata and must never invoke that download transport.
+  for (const file of ["lib/fh3ManualTelegram.ts", "lib/fh3ManualTelegramIntake.ts", "lib/fh3ManualTelegramQueue.ts", "lib/payrollTelegramProtocol.ts", "app/api/integrations/telegram/payroll/route.ts", "app/api/admin/payroll/telegram/evidence/route.ts"]) {
     const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
-    assert.doesNotMatch(source, /getFile|arrayBuffer\(|\.blob\(|storage\.from|putObject|uploadFile|file_path/);
+    assert.doesNotMatch(source, /telegramDownloadFile|getFile|arrayBuffer\(|\.blob\(|storage\.from|putObject|uploadFile|file_path/);
   }
   const status = readFileSync(new URL("../app/api/admin/payroll/telegram/status/route.ts", import.meta.url), "utf8");
   assert.doesNotMatch(status, /telegram_chat_id|telegram_message_id|telegram_file_id|telegram_user_id|t\.me/);
@@ -98,7 +101,8 @@ test("Gold roster pagination preserves the selected employee and order in callba
   for (const row of keyboard.inline_keyboard) for (const button of row) assert.ok(Buffer.byteLength(button.callback_data) <= 64);
   const result = protocol.parsePayrollTelegramUpdate({ update_id: 5, callback_query: { id: "c", from: { id: 900 }, data: keyboard.inline_keyboard[0][0].callback_data, message: { message_id: 9, chat: { id: 900, type: "private" } } } });
   assert.equal(result?.action, "pickgold"); assert.equal(result?.orderId, "123"); assert.equal(result?.employeeId, "100");
-  assert.match(keyboard.inline_keyboard.at(-1)![1].callback_data, /goldpicker:123:2/);
+  assert.match(keyboard.inline_keyboard.at(-2)![1].callback_data, /goldpicker:123:2/);
+  assert.equal(keyboard.inline_keyboard.at(-1)![0].callback_data, "cp2:back:123");
 });
 
 test("Item buttons use the standard evidence workflow, never Gold contributions", () => {
