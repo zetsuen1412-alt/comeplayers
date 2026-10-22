@@ -28,7 +28,7 @@ export async function captureManualFH3Telegram(update: TelegramIncoming, service
 
   const { data: bound, error: boundError } = await service
     .from("cp_payroll_telegram_divisions")
-    .select("chat_id").eq("division", "FH3").eq("active", true).maybeSingle();
+    .select("chat_id,fh3_order_sender_id").eq("division", "FH3").eq("active", true).maybeSingle();
   if (boundError) throw new Error("Konfigurasi grup FH3 tidak tersedia.");
   if (Number(bound?.chat_id) !== chatId) return false;
   if (!Number.isSafeInteger(senderId) || (senderId as number) <= 0
@@ -52,13 +52,23 @@ export async function captureManualFH3Telegram(update: TelegramIncoming, service
     });
   } catch { throw new Error("Belum dapat memeriksa hak admin Telegram."); }
   const membership = await result.json().catch(() => null) as
-    { ok?: boolean; result?: { status?: string; user?: { id?: number } } } | null;
+    { ok?: boolean; result?: { status?: string; user?: { id?: number; username?: string } } } | null;
   if (!result.ok || !membership?.ok || membership.result?.user?.id !== senderId)
     throw new Error("Pemeriksaan admin Telegram gagal.");
   if (!["creator", "administrator"].includes(membership.result?.status ?? "")) return candidate;
 
+  // Identify the screenshot's account using Telegram's live unique username,
+  // then pin its numeric ID in the same transaction as the first receipt.
+  // Display names and later username ownership changes cannot replace that ID.
+  const username = String(membership.result?.user?.username ?? "").toLowerCase();
+  const pinnedSender = Number(bound?.fh3_order_sender_id);
+  if (bound?.fh3_order_sender_id != null
+    ? !Number.isSafeInteger(pinnedSender) || pinnedSender <= 0 || pinnedSender !== senderId
+    : username !== "evogamings") return true;
+
   // All admin photos in the bound group are protected, even malformed order captions.
   if (!parsed && !cancelRef && !update.edited_message) return true;
+  if (bound?.fh3_order_sender_id == null && !parsed) return true;
   const { error } = await service.rpc("cp_fh3_telegram_save_manual", {
     p_order_ref: cancelRef ?? parsed?.orderRef ?? null,
     p_chat_id: chatId, p_message_id: message.message_id, p_admin_user_id: senderId,
@@ -67,6 +77,7 @@ export async function captureManualFH3Telegram(update: TelegramIncoming, service
     p_posted_at: new Date((message.date as number) * 1000).toISOString(),
     p_version_at: new Date((message.edit_date ?? message.date as number) * 1000).toISOString(),
     p_update_id: update.update_id, p_active: Boolean(parsed && !cancelRef),
+    p_sender_username: username,
   });
   if (error) throw new Error("Order manual Telegram belum dapat dicatat.");
   return true;

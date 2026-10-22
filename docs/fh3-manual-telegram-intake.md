@@ -11,8 +11,17 @@ both implementations. Payroll Sheets shutdown is an independent PR/branch.
 - A missing financial Payroll record appears as `[BUTUH INPUT PAYROLL]` with
   `canTake:false`. The database refuses assignment; no sale, salary, employee,
   payout or Closing record is fabricated by Telegram intake.
+- Only messages authored by **Adm EVO Gaming / @evogamings** can supply orders.
+  No login to that account or manually supplied numeric Telegram ID is needed:
+  on its first valid order, the webhook checks Telegram's live `getChatMember`
+  username and administrator/creator role, then atomically pins its numeric ID
+  in `cp_payroll_telegram_divisions.fh3_order_sender_id`. Later receipts, queue
+  reads and action transactions must match that pinned ID. Display names and
+  later username reuse by a different account cannot override it. Until a pin
+  exists, no queue/task/action is allowed; a binding change retains the pin.
+  Changing the intended account requires a separate reviewed configuration change.
 - Group binding, live group title (`EVO Ilham FH3`, ignoring emojis/spacing),
-  and current sender administrator/creator membership are verified. Bots,
+  and current sender administrator/creator membership are also verified. Bots,
   anonymous `sender_chat` identities and forwarded posts are not accepted as
   order receipts. Repost historical content as a newly authored admin message.
 - The first nonempty line must contain only the X code; TASK/TUGAS must be
@@ -48,7 +57,7 @@ No native client installer was changed or released.
 
 ## Verification
 
-Local TypeScript and 145 Telegram/FH3/mobile API/database tests passed. Tests use
+Local TypeScript and 148 Telegram/FH3/mobile API/database tests passed. Tests use
 PGlite with the real migration chain, mocked Telegram transport, and synthetic
 X4519/X4759 fixtures. They cover source validation, admin photo preservation,
 TASK redaction, idempotency, cancellation, binding changes, unlinked financial
@@ -85,6 +94,11 @@ changing those existing product behaviors.
    X4519 appears, Payroll-only X4759 stays absent in both lists, unlinked TAKE is
    blocked, and photos remain in Telegram. Confirm cancellation and a group
    rebind clear old cards after client refresh.
+   Post the first valid order from @evogamings to establish the numeric sender
+   pin automatically. An unrelated group administrator must not establish it or
+   contribute receipts. X4827's caption format (standalone AION, Duration, TASK)
+   is supported; use synthetic credentials for staging, never screenshots of
+   actual buyer credentials in test artifacts.
 6. With a synthetic linked order, validate Windows v1.6 TAKE → START → DONE,
    correct reply threads, double-click/retry handling and no duplicate sends.
 7. Record backup, commit IDs and staging evidence. Request separate owner

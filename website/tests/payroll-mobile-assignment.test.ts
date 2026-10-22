@@ -27,7 +27,7 @@ const order = (externalReference: string, patch: Record<string, unknown> = {}) =
 const workspace = (orders: unknown[], employees: unknown[] = []) =>
   { return { payload: { orders, employees }, revision: 7, updated_at: "2026-10-19T10:00:00Z" }; };
 const manual = (orderRef: string, patch: Record<string, unknown> = {}) => ({
-  order_ref: orderRef, chat_id: -100123, message_id: 42, active: true,
+  order_ref: orderRef, chat_id: -100123, message_id: 42, admin_user_id:22, active: true,
   game: "aion2", duration: "8hours", server_name: "Triniel",
   task: "TASK from Telegram", posted_at: "2026-10-20T04:00:00Z", ...patch,
 });
@@ -38,7 +38,7 @@ const client = (data: unknown, telegramOrders: unknown[] = []) => ({
     }
     if (table === "cp_payroll_telegram_divisions") {
       return { select: () => ({ eq: () => ({ eq: () => ({
-        maybeSingle: async () => ({ data: { chat_id: -100123 }, error: null }),
+        maybeSingle: async () => ({ data: { chat_id: -100123,fh3_order_sender_id:22 }, error: null }),
       }) }) }) };
     }
     if (table === "cp_fh3_telegram_manual_orders") {
@@ -208,4 +208,22 @@ test("missing receipt migration fails closed for both queue and active tasks", a
     const route=load(`app/api/admin/payroll/mobile/${file}/route.ts`,mocks);
     assert.equal((await route.GET!(new Request(url))).status,503);
   }
+});
+
+test("another group admin's receipts are excluded from pending, active tasks and TAKE", async () => {
+  let writes=0;
+  const worker={id:"e1",code:"FH3001",name:"Andi",team:"FH3",workforceStatus:"SHIFT"};
+  const service={...client(workspace([
+    order("X4827"),order("X4519",{operationalStatus:"assigned",employeeCode:"FH3001",employeeName:"Andi"}),
+  ],[worker]),[manual("X4827",{admin_user_id:23}),manual("X4519",{admin_user_id:23})]),
+    rpc:async()=>{writes++;return {data:{ok:true}};}};
+  const mocks={...common,"@/lib/payrollAccess":{requirePayrollAccess:async()=>({actor:{isAdmin:true},supabaseAdmin:service})}};
+  for (const [file,key] of [["pending","pending"],["tasks","tasks"]]) {
+    const route=load(`app/api/admin/payroll/mobile/${file}/route.ts`,mocks);
+    const reply=await route.GET!(new Request(url));
+    assert.equal(reply.status,200);assert.deepEqual((await reply.json())[key],[]);
+  }
+  const assign=load("app/api/admin/payroll/mobile/assign/route.ts",mocks);
+  assert.equal((await assign.POST!(new Request(url,{method:"POST",body:JSON.stringify({orderRef:"X4827",employeeCode:"FH3001"})}))).status,409);
+  assert.equal(writes,0);
 });

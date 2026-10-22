@@ -23,13 +23,13 @@ const message = (patch: Record<string, unknown> = {}) => ({
   message_id:42,date:1792555200,from:{id:22},chat:{id:-100123,type:"supergroup"},
   photo:[{file_id:"photo-fixture"}],caption:"X4519\nGame: aion2\nTask: Farm XP\nPass: fixture password",...patch,
 });
-function harness(status = "administrator", boundChat = -100123) {
+function harness(status = "administrator", boundChat = -100123, pinnedSender: number | null = null, username = "evogamings") {
   const calls: {name:string;args:Record<string,unknown>}[] = [];
   let memberships = 0, groupChecks = 0;
   const service = {
     from: (name: string) => {
       assert.equal(name,"cp_payroll_telegram_divisions");
-      const q = {select:()=>q,eq:()=>q,maybeSingle:async()=>({data:{chat_id:boundChat}})};
+      const q = {select:()=>q,eq:()=>q,maybeSingle:async()=>({data:{chat_id:boundChat,fh3_order_sender_id:pinnedSender}})};
       return q;
     },
     rpc: async (name: string, args: Record<string,unknown>) => {calls.push({name,args}); return {data:true};},
@@ -40,7 +40,7 @@ function harness(status = "administrator", boundChat = -100123) {
   }, {fetch:async(_url:string,options:{body:string})=>{
     memberships++;
     assert.deepEqual(JSON.parse(options.body),{chat_id:-100123,user_id:22});
-    return Response.json({ok:true,result:{status,user:{id:22}}});
+    return Response.json({ok:true,result:{status,user:{id:22,username}}});
   }});
   return {service,intake,calls,get memberships(){return memberships;},get groupChecks(){return groupChecks;}};
 }
@@ -53,7 +53,22 @@ test("verified admin caption stores only operational fields after group and role
   assert.equal(h.calls[0].args.p_order_ref,"X4519");
   assert.equal(h.calls[0].args.p_task,"Farm XP");
   assert.equal(h.calls[0].args.p_active,true);
+  assert.equal(h.calls[0].args.p_sender_username,"evogamings");
   assert.doesNotMatch(JSON.stringify(h.calls),/fixture password|photo-fixture|caption|file_id/);
+});
+
+test("only @evogamings can establish the pin; other admins and reused usernames cannot replace it", async () => {
+  for (const username of ["another_admin", "", "evogamings_clone"]) {
+    const h=harness("administrator",-100123,null,username);
+    await h.intake.captureManualFH3Telegram({update_id:10,message:message({from:{id:22,first_name:"Adm EVO Gaming"}})},h.service);
+    assert.equal(h.calls.length,0,"display name is never identity");
+  }
+  const takeover=harness("administrator",-100123,23,"evogamings");
+  await takeover.intake.captureManualFH3Telegram({update_id:10,message:message()},takeover.service);
+  assert.equal(takeover.calls.length,0,"same username cannot change the pinned numeric identity");
+  const renamed=harness("administrator",-100123,22,"renamed_account");
+  await renamed.intake.captureManualFH3Telegram({update_id:10,message:message()},renamed.service);
+  assert.equal(renamed.calls.length,1,"the original numeric identity survives a username change");
 });
 
 test("members, bots, forwarded or anonymous posts and foreign groups never create receipts", async () => {
@@ -72,13 +87,16 @@ test("members, bots, forwarded or anonymous posts and foreign groups never creat
 });
 
 test("admin photos without TASK are preserved; invalid edits and cancel commands invalidate receipts", async () => {
-  const h=harness();
+  const h=harness("administrator",-100123,22);
   assert.equal(await h.intake.captureManualFH3Telegram({update_id:10,message:message({caption:"Order details in photo"})},h.service),true);
   assert.equal(h.calls.length,0);
   await h.intake.captureManualFH3Telegram({update_id:11,edited_message:message({caption:"X4519\nTask:",edit_date:1792555201})},h.service);
   assert.equal(h.calls[0].args.p_order_ref,null);assert.equal(h.calls[0].args.p_active,false);
   await h.intake.captureManualFH3Telegram({update_id:12,message:message({caption:undefined,text:"/fh3_cancel X4519"})},h.service);
   assert.equal(h.calls[1].args.p_order_ref,"X4519");assert.equal(h.calls[1].args.p_active,false);
+  const unpinned=harness();
+  await unpinned.intake.captureManualFH3Telegram({update_id:12,message:message({caption:undefined,text:"/fh3_cancel X4519"})},unpinned.service);
+  assert.equal(unpinned.calls.length,0,"cancellation cannot establish the sender pin");
 });
 
 test("webhook authenticates first and consumes admin photos without legacy deletion or financial writes", async () => {

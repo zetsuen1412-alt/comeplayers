@@ -34,14 +34,18 @@ test("FH3 receipts, cancellation and transaction guards preserve Payroll and rej
     await db.query("update cp_payroll_workspace set payload=$1::jsonb where id=1", [JSON.stringify(payload)]);
     const snapshot = async () => (await db.query("select payload,revision from cp_payroll_workspace")).rows;
     const before = await snapshot();
-    const save = async (ref: string | null, message: number, update: number, task: string, active = true, chat = -100123) =>
+    const save = async (ref: string | null, message: number, update: number, task: string, active = true, chat = -100123, sender = 22, username = "evogamings") =>
       (await db.query<{saved:boolean}>(`select public.cp_fh3_telegram_save_manual(
-        $1,$2::bigint,$3::bigint,22::bigint,'aion2','Triniel','8hours',$4,
+        $1,$2::bigint,$3::bigint,$7::bigint,'aion2','Triniel','8hours',$4,
         '2026-10-21T04:00:00Z'::timestamptz,'2026-10-21T04:00:00Z'::timestamptz + $5::int*interval '1 second',
-        $5::bigint,$6::boolean) saved`, [ref,chat,message,task,update,active])).rows[0].saved;
+        $5::bigint,$6::boolean,$8::text) saved`, [ref,chat,message,task,update,active,sender,username])).rows[0].saved;
     const assign = (ref: string) => db.query("select cp_mobile_assign_fh3($1,'F001',$2::uuid)", [ref,actor]);
 
+    await assert.rejects(save("X4519",42,9,"Impersonated display name",true,-100123,23,"another_admin"), /belum terverifikasi/);
     assert.equal(await save("X4519",42,10,"First task"),true);
+    assert.equal(Number((await db.query<{fh3_order_sender_id:number}>(
+      "select fh3_order_sender_id from cp_payroll_telegram_divisions where division='FH3'")).rows[0].fh3_order_sender_id),22);
+    await assert.rejects(save("X4759",50,11,"Other admin",true,-100123,23,"evogamings"), /bukan akun Adm EVO Gaming/);
     assert.equal(await save("X4519",42,12,"Edited task"),true);
     assert.equal(await save("X4519",42,11,"Stale edit"),false);
     assert.equal(await save("X4519",41,13,"Stale message"),false);

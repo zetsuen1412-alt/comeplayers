@@ -1,4 +1,7 @@
 -- Unreleased FH3 operational receipts only. No Payroll sale, payout or raw caption.
+alter table public.cp_payroll_telegram_divisions
+  add column fh3_order_sender_id bigint check (fh3_order_sender_id > 0);
+
 create table public.cp_fh3_telegram_manual_orders (
   order_ref text primary key check (order_ref ~ '^X[0-9]{2,12}$'),
   chat_id bigint not null check (chat_id < 0),
@@ -24,9 +27,9 @@ grant select,insert,update on public.cp_fh3_telegram_manual_orders to service_ro
 create function public.cp_fh3_telegram_save_manual(
   p_order_ref text,p_chat_id bigint,p_message_id bigint,p_admin_user_id bigint,
   p_game text,p_server_name text,p_duration text,p_task text,p_posted_at timestamptz,
-  p_version_at timestamptz,p_update_id bigint,p_active boolean
+  p_version_at timestamptz,p_update_id bigint,p_active boolean,p_sender_username text
 ) returns boolean language plpgsql security invoker set search_path='' as $$
-declare changed integer;
+declare changed integer; pinned_sender bigint;
 begin
   if p_chat_id is null or p_chat_id>=0 or p_message_id is null or p_message_id<=0
     or p_admin_user_id is null or p_admin_user_id<=0 or p_posted_at is null
@@ -37,9 +40,18 @@ begin
     or p_task is null or length(p_task)>400 then
     raise exception 'Data pesan FH3 tidak valid';
   end if;
-  perform 1 from public.cp_payroll_telegram_divisions
-    where division='FH3' and active and chat_id=p_chat_id for share;
+  select fh3_order_sender_id into pinned_sender from public.cp_payroll_telegram_divisions
+    where division='FH3' and active and chat_id=p_chat_id for update;
   if not found then raise exception 'Pesan bukan dari grup FH3 yang aktif'; end if;
+  if pinned_sender is null then
+    if not p_active or lower(coalesce(p_sender_username,''))<>'evogamings' then
+      raise exception 'Akun Adm EVO Gaming belum terverifikasi.';
+    end if;
+    update public.cp_payroll_telegram_divisions set fh3_order_sender_id=p_admin_user_id
+      where division='FH3';
+  elsif pinned_sender<>p_admin_user_id then
+    raise exception 'Pengirim bukan akun Adm EVO Gaming yang terikat.';
+  end if;
   -- Serialize edits and cancellation even when a new ref has no row to lock yet.
   perform pg_advisory_xact_lock(831983);
   update public.cp_fh3_telegram_manual_orders set active=false,task='',
@@ -69,22 +81,22 @@ begin
 end;
 $$;
 revoke all on function public.cp_fh3_telegram_save_manual(
-  text,bigint,bigint,bigint,text,text,text,text,timestamptz,timestamptz,bigint,boolean
+  text,bigint,bigint,bigint,text,text,text,text,timestamptz,timestamptz,bigint,boolean,text
 ) from public,anon,authenticated;
 grant execute on function public.cp_fh3_telegram_save_manual(
-  text,bigint,bigint,bigint,text,text,text,text,timestamptz,timestamptz,bigint,boolean
+  text,bigint,bigint,bigint,text,text,text,text,timestamptz,timestamptz,bigint,boolean,text
 ) to service_role;
 
 -- Enforce the receipt in the same transaction as assignment/TAKE/photo claims.
 -- Cached or legacy clients cannot bypass this by calling the action directly.
 create function public.cp_fh3_require_manual(p_ref text) returns void
 language plpgsql security invoker set search_path='' as $$
-declare dest bigint; w jsonb; matches integer;
+declare dest bigint; sender bigint; w jsonb; matches integer;
 begin
-  select chat_id into dest from public.cp_payroll_telegram_divisions
+  select chat_id,fh3_order_sender_id into dest,sender from public.cp_payroll_telegram_divisions
     where division='FH3' and active for share;
   perform 1 from public.cp_fh3_telegram_manual_orders
-    where order_ref=upper(btrim(p_ref)) and chat_id=dest and active for share;
+    where order_ref=upper(btrim(p_ref)) and chat_id=dest and admin_user_id=sender and active for share;
   if not found then raise exception 'Order tidak tercatat dari pesan admin aktif di grup Telegram FH3.'; end if;
   select payload into w from public.cp_payroll_workspace where id=1 for update;
   select count(*) into matches from jsonb_array_elements(coalesce(w->'cp-ofs-demo-user-orders-v3','[]'::jsonb)) item

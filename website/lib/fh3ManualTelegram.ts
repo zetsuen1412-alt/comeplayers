@@ -57,7 +57,8 @@ export function parseFH3ManualOrder(raw: string): FH3ManualOrder | null {
 
   return {
     orderRef,
-    game: field(/^\s*game\s*[:=]\s*/i, 150),
+    game: field(/^\s*game\s*[:=]\s*/i, 150)
+      || lines.slice(1, taskLine).find(line => /^\s*AION(?:\s*2)?\s*$/i.test(line))?.trim() || "",
     serverName: field(/^\s*server\s*[:=\-]?\s*/i, 150),
     duration: field(/^\s*duration\s*[:=\-]?\s*/i, 80),
     task,

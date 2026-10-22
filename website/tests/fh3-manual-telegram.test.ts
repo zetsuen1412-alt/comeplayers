@@ -50,3 +50,13 @@ test("order code and TASK remain normalized and bounded", () => {
   assert.equal(order?.task.length, 400);
   assert.equal(parseFH3ManualOrder("x4519\nTASK: "), null);
 });
+
+test("X4827 layout accepts standalone AION while keeping credential and Discord/VPN fields out", () => {
+  const order=parseFH3ManualOrder([
+    "X4827","","Duration :12H","","Username : fixture-login","Password : fixture-password",
+    "Discord Server : fixture-server","VPN : Ask on Discord","AION","","Task :","Farm items and finish quests",
+  ].join("\n"));
+  assert.equal(order?.orderRef,"X4827");assert.equal(order?.duration,"12H");
+  assert.equal(order?.game,"AION");assert.equal(order?.task,"Farm items and finish quests");
+  assert.doesNotMatch(JSON.stringify(order),/fixture-login|fixture-password|fixture-server|VPN|Discord/);
+});
