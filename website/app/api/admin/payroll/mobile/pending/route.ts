@@ -2,6 +2,7 @@ import { requirePayrollAccess } from "@/lib/payrollAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Order } from "@/features/payroll/types/domain";
+import { loadFH3ManualOrders } from "@/lib/fh3ManualTelegramQueue";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,18 +25,12 @@ export async function GET(request: Request) {
     const orders = (Array.isArray(payload[workspaceKeys.orders]) ? payload[workspaceKeys.orders] : []) as Order[];
     // Fail closed if group binding/intake is missing. Never fall back to
     // showing the full Payroll queue (which includes non-Telegram orders).
-    const { data: group, error: groupError } = await supabaseAdmin
-      .from("cp_payroll_telegram_divisions")
-      .select("chat_id").eq("division", "FH3").eq("active", true).maybeSingle();
-    if (groupError || !group || Number(group.chat_id) >= 0) {
-      return respond({ error: "Grup Telegram FH3 belum terverifikasi." }, 503);
+    const verified = await loadFH3ManualOrders(supabaseAdmin);
+    const refCounts = new Map<string, number>();
+    for (const order of orders) {
+      const ref = String(order.externalReference ?? "").trim().toUpperCase();
+      refCounts.set(ref, (refCounts.get(ref) ?? 0) + 1);
     }
-    const { data: manual, error: manualError } = await supabaseAdmin
-      .from("cp_fh3_telegram_manual_orders")
-      .select("order_ref,chat_id,message_id,game,server_name,duration,task,posted_at")
-      .eq("chat_id", group.chat_id).limit(1000);
-    if (manualError) throw manualError; // Missing migration = no orders, not a fallback.
-    const verified = new Map((manual ?? []).map(item => [String(item.order_ref).toUpperCase(), item]));
     const pending = orders.filter(order =>
       order.team === "FH3"
       && (order.orderType === "boosting" || order.orderType === "item")
@@ -47,6 +42,7 @@ export async function GET(request: Request) {
       && !(order.workerAssignments?.length) && !order.employeeCode && !order.employeeName
       && !!String(order.externalReference ?? "").trim()
       && verified.has(String(order.externalReference).trim().toUpperCase())
+      && refCounts.get(String(order.externalReference).trim().toUpperCase()) === 1
     ).sort((left, right) =>
       Date.parse(right.orderedAt || "") - Date.parse(left.orderedAt || "")
     );
@@ -54,7 +50,7 @@ export async function GET(request: Request) {
     // but cannot be assigned until an admin registers the accounting record.
     // Never auto-create a zero-value sale in Payroll.
     const payrollRefs = new Set(orders.map(order => String(order.externalReference ?? "").trim().toUpperCase()));
-    const inboxOnly = (manual ?? [])
+    const inboxOnly = [...verified.values()]
       .filter(item => !payrollRefs.has(String(item.order_ref).toUpperCase()))
       .sort((left, right) => Date.parse(right.posted_at) - Date.parse(left.posted_at));
     if (pending.length + inboxOnly.length > 200)

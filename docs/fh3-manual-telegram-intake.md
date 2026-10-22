@@ -1,70 +1,109 @@
-# FH3: Telegram manual order is the intake source (preview)
+# FH3 Monitor — verified admin Telegram source (proposed, not production)
 
-## Why
-The Windows EVOGAMING Monitor v1.6 used `/api/admin/payroll/mobile/pending` backed by
-`cp_payroll_workspace`. That queue can show X4759 even when admin never posted it
-in the bound FH3 Telegram group. The actual operational order and TASK are typed
-manually by group administrators, often as a caption attached to a photo.
+Issue #83 follow-up to draft #82. Review this successor branch instead of merging
+both implementations. Payroll Sheets shutdown is an independent PR/branch.
 
-## Changes in this branch
-- A new private table `cp_fh3_telegram_manual_orders` records ONLY order code,
-  group/message/admin IDs, game, server, duration, TASK and Telegram timestamp.
-  It does **not** store photos, Telegram passwords, login IDs or raw captions.
-- The configured Payroll Telegram webhook inspects manual text/photo captions
-  **before** legacy photo-evidence processing (which may delete a media post).
-  Only group/supergroup posts in the active, bound FH3 chat from a verified
-  group administrator with an X-code and a labelled TASK are accepted.
-- Message edits can refresh that TASK; later messages supersede earlier ones,
-  and Telegram retries are idempotent. Messages sent by other members do not
-  create order cards.
-- `GET /api/admin/payroll/mobile/pending` is restricted to captured FH3 manual
-  order codes. It uses Telegram TASK, game and duration, and does not expose
-  Payroll buyer details or Telegram credentials. Schema 2 + `source=payroll`
-  remain for compatibility with Windows v1.6; `sourceOfTruth` indicates the
-  effective queue policy.
-- Telegram posts not yet present in Payroll **still appear** in the queue as
-  `[BUTUH INPUT PAYROLL]`, `canTake=false`, `unlinkedPayroll=true`.
-  Existing Windows v1.6 does not understand `canTake` and might still enable
-  the TAKE button; the server returns a conflict asking the admin to register
-  the order in Payroll. No financial order/zero-priced sale is auto-created.
-- `POST /mobile/assign` independently verifies the Telegram evidence and
-  FH3 group before assigning any order, even if a client is outdated.
+## Operational behavior
 
-## Production rollout: requires explicit approval
-Nothing in this branch is deployed. Stage first and test against a test group.
-1. Back up Payroll workspace, record current Telegram group bindings and active
-   order count. Do not copy real buyer passwords into tickets or screenshots.
-2. Apply migration `website/supabase/migrations/20261022070000_fh3_manual_telegram_intake.sql`
-   in **staging**; check RLS, service-role grants and RPC. Rehearse rollback.
-3. Deploy preview website and set its Telegram webhook to a **test bot/group**.
-   Do not attach a staging webhook to the production bot (one webhook per bot).
-4. On the actual approved rollout, make the Payroll Telegram bot a group
-   **administrator** in the intended FH3 group (or disable BotFather group
-   privacy mode and re-add it). Verify the already existing `/bind FH3`
-   group binding. Webhook must allow `message`, `edited_message`,
-   `callback_query`. Existing setWebhook setup must be run by admin.
-5. Post a new test **X code + TASK** as a plain message and as a photo
-   caption. Confirm only the correct bound group/admin is accepted and the
-   original Telegram photo remains in the group. Confirm no credentials appear.
-6. Validate pending queue from Windows v1.6: Payroll-only X4759 absent,
-   verified Telegram code present with the correct TASK; unmatched Telegram
-   codes labelled as requiring Payroll input.
-7. Check admin TAKE (only on a test order linked to Payroll), START and DONE
-   after verified group setup. Confirm no duplicate or unsolicited Telegram
-   posts. Only then consider production migration and deployment.
+- Pending orders **and active tasks** require a receipt from the active FH3
+  Telegram group. Payroll-only X4759 is omitted. Telegram X4519 carries the
+  manually written TASK/game/duration, including photo captions.
+- A missing financial Payroll record appears as `[BUTUH INPUT PAYROLL]` with
+  `canTake:false`. The database refuses assignment; no sale, salary, employee,
+  payout or Closing record is fabricated by Telegram intake.
+- Group binding, live group title (`EVO Ilham FH3`, ignoring emojis/spacing),
+  and current sender administrator/creator membership are verified. Bots,
+  anonymous `sender_chat` identities and forwarded posts are not accepted as
+  order receipts. Repost historical content as a newly authored admin message.
+- The first nonempty line must contain only the X code; TASK/TUGAS must be
+  explicitly labelled. Only operational fields are retained; credential labels,
+  inline credentials and credential continuation values are filtered. Photos,
+  file IDs and the raw caption are not stored in this intake table.
+- Admin photos in the bound group are consumed before legacy photo deletion,
+  including album photos with no TASK. Other divisions keep their workflow.
+- Removing TASK or changing the reference in an edited message invalidates its
+  previous receipt. A newer repost supersedes an older one. Duplicate updates
+  and out-of-order edits cannot overwrite newer metadata.
+- To withdraw a post, an admin sends `/fh3_cancel X4519` in the bound group
+  **before deleting it**. This creates a tombstone; late messages/edits cannot
+  revive the old receipt. A new authored repost with a later message ID can
+  restore it. Cancellation hides the pending/active projection and blocks new
+  TAKE/START/DONE claims; existing Payroll records and financial history remain.
+- Assignment, TAKE and photo claim RPCs recheck active receipts and binding in
+  the same transaction. The old underlying functions lose service-role EXECUTE,
+  preventing stale/legacy callers from bypassing the guards. A missing or
+  duplicate Payroll reference is rejected under the workspace row lock.
+- START replies to the confirmed TAKE message; DONE replies to START. An older
+  newline-sensitive SQL rewrite could silently miss this; the new repair fails
+  if its expected function shape is absent.
 
-## Limitations
-- Telegram Bot API cannot backfill old chat history and does not send a
-  general update when an admin deletes a Telegram message. For existing X4519,
-  repost/forward its order message **into the bound FH3 group** after bot
-  setup. Deletion/withdrawal needs a separate explicit reconciliation workflow
-  before production.
-- This change does not scrape Telegram Desktop or images and cannot OCR TASK
-  contained only *inside* the photo. TASK must be in text or photo caption.
-- The receipt is verified against the bound FH3 group and author role, not
-  against external payment/order marketplaces. Manual group posts are not
-  automatic finance records.
-- Existing Windows v1.6 has no client-side disabled TAKE state for
-  `unlinkedPayroll`; the server rejects attempts safely.
-- Test and typecheck have not been confirmed from this GitHub edit; CI and
-  staging verification remain release gates. Do not merge/deploy blindly.
+## Windows v1.6 compatibility
+
+Wire schemas and `source:"payroll"` are retained, with an additional
+`sourceOfTruth:"telegram_fh3_manual"`. An old client may still enable TAKE for
+an unlinked row; both API and database reject the operation. `complete:true`
+active snapshots omit cancelled/non-Telegram tasks. Binary UI behavior and cache
+clearing on a physical Windows v1.6 installation still require staging QA.
+No native client installer was changed or released.
+
+## Verification
+
+Local TypeScript and 145 Telegram/FH3/mobile API/database tests passed. Tests use
+PGlite with the real migration chain, mocked Telegram transport, and synthetic
+X4519/X4759 fixtures. They cover source validation, admin photo preservation,
+TASK redaction, idempotency, cancellation, binding changes, unlinked financial
+orders, service-role permissions, Closing/staff preservation and TAKE threading.
+No live bot messages, Payroll records, secrets or production database were used.
+Next.js optimized build also passed with public Supabase reads served by an
+empty loopback fixture (four read requests, all writes rejected). A build with
+no environment at all correctly stopped at sitemap generation because the public
+Supabase URL was absent. The fixture build does not certify live integration.
+
+Some older regression expectations were stale: evidence links now use the
+protected website endpoint, picker keyboards include BACK, and SQL source
+comparisons need CRLF normalization on Windows. Tests were corrected without
+changing those existing product behaviors.
+
+## Rollout — owner approval required
+
+1. Use a separate staging database and test bot/group. Preview variables must
+   not grant staging tests access to production Payroll. Do not redirect the
+   production bot's webhook; a bot has one webhook.
+2. On a staging clone of the existing schema, apply in timestamp order:
+   `20261022002214_fh3_monitor_source_guards.sql` (TAKE reply repair), then
+   `20261022070000_fh3_manual_telegram_intake.sql` (private receipts and guards).
+   The latter is an updated **unreleased** draft migration. If an older #82
+   schema was already applied to staging, prepare an additive upgrade before
+   rollout; never replace or reset a database holding real Payroll data.
+3. Verify RLS, grants, wrappers and a read-only Payroll/Closing snapshot before
+   and after migrations. New metadata is service-role-only; public/authenticated
+   table access and unguarded function access must be denied.
+4. Deploy staging code, make the **test** bot administrator, and bind the intended
+   test FH3 group. Webhook allowed updates: `message`, `edited_message`,
+   `callback_query`. Administrator rights are required for reliable role checks.
+5. Test admin/member/forwarded/photo/album/edit/cancel cases. Confirm pending
+   X4519 appears, Payroll-only X4759 stays absent in both lists, unlinked TAKE is
+   blocked, and photos remain in Telegram. Confirm cancellation and a group
+   rebind clear old cards after client refresh.
+6. With a synthetic linked order, validate Windows v1.6 TAKE → START → DONE,
+   correct reply threads, double-click/retry handling and no duplicate sends.
+7. Record backup, commit IDs and staging evidence. Request separate owner
+   approval for production migrations, webhook changes and deployment.
+
+## Rollback and platform limits
+
+Retain the private metadata table and audit records. Roll back with a reviewed
+forward migration only if needed; function renames have dependencies. Reverting
+the website to pre-FH3 code re-exposes Payroll-only rows, so it is **not** a safe
+source-policy rollback. Keep queue filtering and database guards; disable the
+Monitor client while repairing a failed rollout. Rollback must not delete the
+Payroll workspace, staff, salary, Closing or Telegram admin photos.
+
+The Bot API cannot retrieve old chat history and does not deliver a general
+message-deletion notification. Receipt persistence is not a live proof that a
+post still exists. Use the explicit cancellation command before deletion and
+reconcile old active receipts operationally. Do not infer cancellation from a
+missing history response or automatically change Payroll financial records.
+TASK contained only inside an image needs an admin-authored caption; there is
+no OCR. Details: [Telegram Bot API](https://core.telegram.org/bots/api),
+[RLS and service roles](https://supabase.com/docs/guides/database/postgres/row-level-security).

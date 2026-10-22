@@ -79,7 +79,8 @@ test("assignment cannot cross divisions or select resigned workers", async () =>
 });
 test("pagination keeps eight employee buttons and navigation under Telegram limit", () => {
   const keyboard = payrollTelegramKeyboard({ text: "", keyboard: "picker", orderId: 123, page: 1, employees: Array.from({ length: 9 }, (_, i) => ({ id: i + 1, name: `Employee ${i}` })) })!;
-  assert.equal(keyboard.inline_keyboard.length, 9); assert.equal(keyboard.inline_keyboard[8].length, 2);
+  assert.equal(keyboard.inline_keyboard.length, 10); assert.equal(keyboard.inline_keyboard[8].length, 2);
+  assert.equal(keyboard.inline_keyboard[9][0].callback_data, "cp2:back:123");
   for (const button of keyboard.inline_keyboard.flat()) assert.ok(Buffer.byteLength(button.callback_data) <= 64);
 });
 test("worker cannot operate another worker assignment", async () => { await assign(); assert.equal((await event("start", { userId: 102 })).rejected, true); });

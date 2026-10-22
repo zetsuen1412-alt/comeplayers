@@ -15,6 +15,7 @@ const files = [
   "20261019220001_cp_boost_monitor_direct_fh3_routing.sql",
   "20261019220002_cp_boost_monitor_mobile_telegram_proof.sql",
   "20261020140000_fh3_take_before_photo_start.sql",
+  "20261022002214_fh3_monitor_source_guards.sql",
 ];
 const actor = "e120c2e4-99bb-42b0-9d08-a8e71ebef76a";
 test("TAKE must be sent before START and captions come from Payroll roster", async () => {

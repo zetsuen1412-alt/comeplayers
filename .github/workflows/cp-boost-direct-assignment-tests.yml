@@ -8,6 +8,8 @@ on:
       - 'website/tests/payroll-mobile-assignment*.test.ts'
       - 'website/tests/fh3-manual-telegram.test.ts'
       - 'website/tests/fh3-manual-telegram-database.test.ts'
+      - 'website/tests/fh3-manual-telegram-intake.test.ts'
+      - 'website/supabase/migrations/*_fh3_monitor_source_guards.sql'
       - 'website/lib/fh3ManualTelegram*.ts'
       - 'website/app/api/integrations/telegram/payroll/route.ts'
       - 'website/supabase/migrations/20261022070000_fh3_manual_telegram_intake.sql'
@@ -20,6 +22,7 @@ on:
       - 'website/supabase/migrations/20261020140000_fh3_take_before_photo_start.sql'
       - 'website/tests/payroll-mobile-proof-group.test.ts'
       - 'website/tests/payroll-mobile-proof-setup.test.ts'
+      - 'website/tests/payroll-telegram-*.test.ts'
       - 'website/lib/payrollMobileProof.ts'
       - '.github/workflows/cp-boost-direct-assignment-tests.yml'
   workflow_dispatch:
@@ -48,6 +51,7 @@ jobs:
           npx --no-install tsx --test
           tests/fh3-manual-telegram.test.ts
           tests/fh3-manual-telegram-database.test.ts
+          tests/fh3-manual-telegram-intake.test.ts
           tests/payroll-mobile-assignment.test.ts
           tests/payroll-mobile-assignment-database.test.ts
           tests/payroll-mobile-direct-routing.test.ts
@@ -56,6 +60,7 @@ jobs:
           tests/payroll-mobile-take.test.ts
           tests/payroll-mobile-proof-group.test.ts
           tests/payroll-mobile-proof-setup.test.ts
+          tests/payroll-telegram-*.test.ts
       - name: Resolve mobile crypto dependencies for existing shared typecheck
         run: |
           node <<'NODE'
