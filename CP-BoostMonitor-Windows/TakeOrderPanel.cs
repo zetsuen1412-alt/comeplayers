@@ -9,7 +9,7 @@ namespace CPBoostMonitor;
 /// </summary>
 internal sealed class TakeOrderPanel : UserControl
 {
-    private readonly TextBox _workerSearch = SearchBox("Cari nama atau kode karyawan...");
+    private readonly TextBox _workerSearch = SearchBox("Cari nama karyawan...");
     private readonly TextBox _orderSearch = SearchBox("Cari kode, game, buyer, atau TASK...");
     private readonly ComboBox _workerFilter = new()
     {
@@ -106,7 +106,7 @@ internal sealed class TakeOrderPanel : UserControl
         columns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40));
         columns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60));
         layout.Controls.Add(columns, 0, 0);
-        columns.Controls.Add(BuildColumn("01", "Karyawan FH3", _workerSearch, _workerFilter,
+        columns.Controls.Add(BuildColumn("Karyawan FH3", _workerSearch, _workerFilter,
             _workers, _workerCount, true), 0, 0);
         var right = new TableLayoutPanel
         {
@@ -116,14 +116,14 @@ internal sealed class TakeOrderPanel : UserControl
         right.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         right.RowStyles.Add(new RowStyle(SizeType.Percent, 53));
         right.RowStyles.Add(new RowStyle(SizeType.Percent, 47));
-        right.Controls.Add(BuildColumn("02", "Order Baru", _orderSearch, null,
+        right.Controls.Add(BuildColumn("Order Baru", _orderSearch, null,
             _orders, _orderCount, false), 0, 0);
         right.Controls.Add(BuildTasksColumn(), 0, 1);
         columns.Controls.Add(right, 1, 0);
 
-        AddColumn(_workers, "NAMA KARYAWAN", "Name", 180);
-        AddColumn(_workers, "KODE", "Code", 85);
-        AddColumn(_workers, "STATUS", "DisplayLocalStatus", 155);
+        AddColumn(_workers, "KARYAWAN", "Name", 135);
+        AddColumn(_workers, "STATUS", "DisplayLocalStatus", 210);
+        _workers.Columns[1].ToolTipText = "Status dan lama tidur dalam jam:menit:detik";
         AddColumn(_orders, "ORDER", "OrderRef", 105);
         AddColumn(_orders, "GAME", "Game", 125);
         AddColumn(_orders, "NAMA ORDER", "OrderName", 180);
@@ -264,11 +264,10 @@ internal sealed class TakeOrderPanel : UserControl
     private PayrollOrder? SelectedTask => _activeTasks.FirstOrDefault(o =>
         o.OrderRef.Equals(_taskRef, StringComparison.OrdinalIgnoreCase));
 
-    public void TickCountdown()
+    public void TickSleepClock()
     {
         // Dynamic property labels update without replacing the selected rows.
-        _workers.Invalidate();
-        UpdateSelection();
+        _workers.InvalidateColumn(1);
     }
 
     private Control BuildTasksColumn()
@@ -294,7 +293,7 @@ internal sealed class TakeOrderPanel : UserControl
         };
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         title.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        title.Controls.Add(Label("03  /  Tugas Aktif", 14, LuxuryPalette.Text, true), 0, 0);
+        title.Controls.Add(Label("Tugas Aktif", 13, LuxuryPalette.Text, true), 0, 0);
         _taskCount.TextAlign = ContentAlignment.MiddleRight;
         title.Controls.Add(_taskCount, 1, 0);
         body.Controls.Add(title, 0, 0);
@@ -315,7 +314,7 @@ internal sealed class TakeOrderPanel : UserControl
         return card;
     }
 
-    private Control BuildColumn(string number, string title, TextBox search,
+    private Control BuildColumn(string title, TextBox search,
         ComboBox? filter, DataGridView grid, Label counter, bool isOrder)
     {
         var card = new LuxuryCard
@@ -341,7 +340,7 @@ internal sealed class TakeOrderPanel : UserControl
         };
         titlebar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         titlebar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        titlebar.Controls.Add(Label(number + "  /  " + title, 15, LuxuryPalette.Text, true), 0, 0);
+        titlebar.Controls.Add(Label(title, 13, LuxuryPalette.Text, true), 0, 0);
         counter.TextAlign = ContentAlignment.MiddleRight;
         titlebar.Controls.Add(counter, 1, 0);
         body.Controls.Add(titlebar, 0, 0);
@@ -402,7 +401,7 @@ internal sealed class TakeOrderPanel : UserControl
         }
         var people = OrderFilters.Employees(employees, _workerSearch.Text).ToList();
         var orders = OrderFilters.Pending(_pending, _orderSearch.Text).ToList();
-        _workerCount.Text = people.Count + " karyawan";
+        _workerCount.Text = people.Count.ToString();
         _orderCount.Text = orders.Count + " order";
         _taskCount.Text = _activeTasks.Count + " tugas";
         _binding = true;
@@ -445,7 +444,7 @@ internal sealed class TakeOrderPanel : UserControl
         var worker = _roster.FirstOrDefault(e => e.Code.Equals(_employeeCode, StringComparison.OrdinalIgnoreCase));
         var order = _pending.FirstOrDefault(o => o.OrderRef.Equals(_orderRef, StringComparison.OrdinalIgnoreCase));
         _workerChoice.Text = worker == null ? "Pilih karyawan di sebelah kiri"
-            : worker.Name + "  •  " + worker.Code;
+            : worker.Name;
         _orderChoice.Text = order == null ? "Pilih order di sebelah kanan"
             : order.OrderRef + "  •  " + (string.IsNullOrWhiteSpace(order.Game) ? order.OrderName : order.Game);
         _workerChoice.ForeColor = worker == null ? LuxuryPalette.Muted : LuxuryPalette.Text;
@@ -492,9 +491,9 @@ internal sealed class TakeOrderPanel : UserControl
         grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
         grid.DefaultCellStyle.BackColor = LuxuryPalette.Surface;
         grid.DefaultCellStyle.ForeColor = LuxuryPalette.Text;
-        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(39, 70, 105);
+        grid.DefaultCellStyle.SelectionBackColor = LuxuryPalette.Selection;
         grid.DefaultCellStyle.SelectionForeColor = LuxuryPalette.Text;
-        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(30, 44, 65);
+        grid.AlternatingRowsDefaultCellStyle.BackColor = LuxuryPalette.SurfaceRaised;
         grid.AlternatingRowsDefaultCellStyle.ForeColor = LuxuryPalette.Text;
         grid.DefaultCellStyle.Font = new Font("Segoe UI", 10);
         grid.DefaultCellStyle.Padding = new Padding(7, 3, 4, 3);

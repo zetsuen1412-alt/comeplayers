@@ -51,9 +51,9 @@ jobs:
           if (!(Test-Path $exe)) { throw "EVOGAMINGMonitor.exe not found" }
           if ((Get-Item $exe).Length -lt 3000000) { throw "EXE unexpectedly small" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/EVOGAMING-Monitor-Windows-v1.8.0-x64.zip" -Force
+          Compress-Archive -Path "dist/cp-boost-monitor-windows/*" -DestinationPath "dist/EVOGAMING-Monitor-Windows-v1.9.0-x64.zip" -Force
           Get-FileHash -Algorithm SHA256 $exe | Format-Table
-          Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v1.8.0-x64.zip" | Format-Table
+          Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v1.9.0-x64.zip" | Format-Table
       - name: Publish Windows internal release from main
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
@@ -61,23 +61,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-          $tag = "evogaming-monitor-windows-v1.8-completed-orders-3d"
-          $zip = "dist/EVOGAMING-Monitor-Windows-v1.8.0-x64.zip"
+          $tag = "evogaming-monitor-windows-v1.9"
+          $zip = "dist/EVOGAMING-Monitor-Windows-v1.9.0-x64.zip"
           gh release view $tag *> $null
           if ($LASTEXITCODE -ne 0) {
             # Separate release creation from asset upload to avoid newly-created release race.
-            gh release create $tag --target "$env:GITHUB_SHA" --title "EVOGAMING Monitor Windows v1.8 — Order Selesai + 3D" --notes "Windows 10/11 x64. Extract EVOGAMINGMonitor.exe from ZIP and close the old app before running. Dimensional dark interface with layered cards, illuminated bevels, smooth buttons and custom dark scrolling. Payroll view replaced by per-employee completed Telegram order counts and lists, confirmed by DONE from Monitor. No salary data requested by this client; existing website Payroll and local history are preserved. Uses existing ComePlayers account access. Internal unsigned build." --prerelease
+            gh release create $tag --target "$env:GITHUB_SHA" --title "EVOGAMING Monitor Windows" --notes "Windows 10/11 x64. Extract EVOGAMINGMonitor.exe from ZIP and close the old app before running. Monochrome interface, employee names without visible codes, and elapsed sleep clocks that continue after restart. Sleep ends only when an operator changes status. Payroll view replaced by per-employee completed Telegram order counts and lists, confirmed by DONE from Monitor. No salary data requested by this client; existing website Payroll and local history are preserved. Uses existing ComePlayers account access. Internal unsigned build." --prerelease
             if ($LASTEXITCODE -ne 0) { throw "Cannot create Windows preview release" }
             Start-Sleep -Seconds 8
           }
           $ok = $false
           for ($attempt = 1; $attempt -le 5; $attempt++) {
-            gh release upload $tag $zip --clobber
+            gh release upload $tag $zip "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe" --clobber
             if ($LASTEXITCODE -eq 0) { $ok = $true; break }
             Write-Warning "GitHub release upload failed ($attempt/5); waiting before retry"
             Start-Sleep -Seconds (6 * $attempt)
           }
-          if (-not $ok) { throw "Windows ZIP was not uploaded. Keep the previous preview release; check GitHub artifact or retry." }
+          if (-not $ok) { throw "Windows downloads were not uploaded. Keep the previous preview release; check GitHub artifact or retry." }
           gh release view $tag --json assets --jq '.assets[].name'
           if ($LASTEXITCODE -ne 0) { throw "Failed to verify GitHub preview assets" }
       - name: Upload ZIP artifact as alternative
@@ -85,19 +85,10 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: EVOGAMING-Monitor-Windows-v1.8-x64
-          path: dist/EVOGAMING-Monitor-Windows-v1.8.0-x64.zip
+          name: EVOGAMING-Monitor-Windows-v1.9-x64
+          path: dist/EVOGAMING-Monitor-Windows-v1.9.0-x64.zip
           retention-days: 14
           if-no-files-found: error
-      - name: Optional standalone EXE attachment
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        continue-on-error: true
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          $tag = "evogaming-monitor-windows-v1.8-completed-orders-3d"
-          gh release upload $tag "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe#EVOGAMINGMonitor-Windows-v1.8.0-PREVIEW.exe" --clobber
       - name: No production publication from pull request
         if: github.event_name == 'pull_request'
         shell: pwsh

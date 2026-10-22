@@ -13,6 +13,8 @@ internal static class Program
         var names = new[] { "ADIT3", "AJI3", "RIKI3", "STAYLIN3", "DAVA3", "TEGUH3", "AHMAD3", "TATANG3" };
         var people = names.Select((name, i) => new Employee { Id = $"demo:{i}", Code = $"EMP-{105 + i:0000}", Name = name,
             Team = "FH3", Active = true, LocalStatus = i % 3 == 0 ? "WORK" : "READY" }).ToList();
+        people[1].LocalStatus = "SLEEP";
+        people[1].SleepStartedAt = DateTimeOffset.UtcNow.AddHours(-2).AddMinutes(-13).AddSeconds(-7);
         var snapshot = new CompletedSnapshot { Schema = 1, Scope = "FH3", Complete = true,
             SelectedEmployeeCode = people[0].Code, WorkTotal = 24,
             Employees = people.Select((p, i) => new EmployeeCompletion { EmployeeCode = p.Code, EmployeeName = p.Name, CompletedCount = 24 - i * 3 }).ToList(),
@@ -33,11 +35,14 @@ internal static class Program
             image.Save(Path.Combine(output, $"monitor-completed-{size.Width}.png"), ImageFormat.Png);
             Console.WriteLine($"Rendered Order Selesai at {size.Width}x{size.Height} with synthetic data.");
         }
-        using var operations = new MainForm(preview: true) { ClientSize = new Size(1460, 900), ShowInTaskbar = false, Opacity = 0 };
-        operations.Show();
-        operations.LoadPreview(snapshot, people, pending, "Take Order"); operations.CreateControl(); operations.PerformLayout();
-        using var screen = new Bitmap(operations.Width, operations.Height);
-        operations.DrawToBitmap(screen, new Rectangle(Point.Empty, operations.Size));
-        screen.Save(Path.Combine(output, "monitor-operations-1460.png"), ImageFormat.Png);
+        foreach (var size in new[] { new Size(1460, 900), new Size(1120, 740) }) {
+            using var operations = new MainForm(preview: true) { ClientSize = size, ShowInTaskbar = false, Opacity = 0 };
+            operations.Show();
+            operations.LoadPreview(snapshot, people, pending, "Take Order"); operations.PerformLayout();
+            using var screen = new Bitmap(operations.Width, operations.Height);
+            operations.DrawToBitmap(screen, new Rectangle(Point.Empty, operations.Size));
+            screen.Save(Path.Combine(output, $"monitor-operations-{size.Width}.png"), ImageFormat.Png);
+            Console.WriteLine($"Rendered Take Order at {size.Width}x{size.Height} with an elapsed sleep clock.");
+        }
     }
 }

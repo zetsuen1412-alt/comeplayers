@@ -9,8 +9,7 @@ public sealed class Employee
     public string WorkforceStatus { get; set; } = "";
     public bool Active { get; set; }
     public string LocalStatus { get; set; } = "READY";
-    public DateTimeOffset? SleepUntil { get; set; }
-    public bool SleepAutoReady { get; set; }
+    public DateTimeOffset? SleepStartedAt { get; set; }
     public string DisplayLocalStatus
     {
         get
@@ -21,16 +20,10 @@ public sealed class Employee
                 "BREAK" => "Istirahat", "OFFLINE" => "Offline",
                 _ => "Ready Boosting",
             };
-            if (!SleepUntil.HasValue) return "Tidur • manual";
-            var remaining = SleepUntil.Value - DateTimeOffset.UtcNow;
-            if (remaining <= TimeSpan.Zero) return SleepAutoReady ?
-                "Tidur • menunggu auto Ready" : "Tidur • waktu habis";
-            var minutes = (int)Math.Ceiling(remaining.TotalMinutes);
-            return minutes >= 60 ? $"Tidur • {minutes / 60}j {minutes % 60}m lagi" :
-                $"Tidur • {minutes}m lagi";
+            return "Tidur • " + LocalStatusStore.SleepElapsed(SleepStartedAt, DateTimeOffset.UtcNow);
         }
     }
-    public override string ToString() => $"{Name} • {Code} • {DisplayLocalStatus}";
+    public override string ToString() => $"{Name} • {DisplayLocalStatus}";
 }
 public sealed class PayrollOrder
 {

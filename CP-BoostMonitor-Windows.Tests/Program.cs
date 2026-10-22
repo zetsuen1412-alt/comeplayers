@@ -45,47 +45,50 @@ try
     var worker = new Employee { Code = "FH3-TEST", Name = "Uji Sleep", Team = "FH3", Active = true };
     var now = new DateTimeOffset(2026, 10, 20, 1, 0, 0, TimeSpan.Zero);
 
-    store.Set(worker, "SLEEP", 60, true, now);
-    Assert(store.Get(worker.Code) == "SLEEP", "new sleep status persisted");
-    Assert(store.GetSleep(worker.Code)!.DurationMinutes == 60, "sleep duration stored");
-    Assert(store.GetSleep(worker.Code)!.Until == now.AddHours(1), "sleep deadline stored");
-    Assert(!store.ApplyExpired(now.AddMinutes(59)), "sleep countdown not finished early");
-    Assert(store.ApplyExpired(now.AddHours(1)), "sleep auto-Ready at deadline");
-    Assert(store.Get(worker.Code) == "READY", "worker automatically Ready after sleep ends");
-    Assert(!store.ApplyExpired(now.AddHours(2)), "expiry is idempotent");
-
-    store.Set(worker, "SLEEP", 30, false, now);
-    Assert(!store.ApplyExpired(now.AddHours(1)), "manual sleep does not auto-end");
-    Assert(store.Get(worker.Code) == "SLEEP", "worker remains asleep without auto-Ready");
-    Assert(store.Display(worker.Code, now.AddHours(1)).Contains("durasi habis"),
-        "expired manual sleep is visible");
-    store.Set(worker, "WORK", now: now.AddHours(1));
-    Assert(store.GetSleep(worker.Code) is null, "new non-sleep status clears timer");
-
+    store.Set(worker, "SLEEP", now: now);
+    Assert(store.Get(worker.Code) == "SLEEP", "sleep starts without selecting a duration");
+    Assert(store.GetSleep(worker.Code)!.StartedAt == now, "sleep start persisted");
+    Assert(store.Display(worker.Code, now) == "Tidur • 00:00:00", "clock starts at zero");
+    Assert(store.Display(worker.Code, now.AddSeconds(1)) == "Tidur • 00:00:01", "elapsed seconds increase");
+    Assert(store.Display(worker.Code, now.AddHours(26).AddMinutes(3).AddSeconds(4)) == "Tidur • 26:03:04", "sleep has no 24-hour limit");
+    Assert(store.Display(worker.Code, now.AddHours(-1)) == "Tidur • 00:00:00", "clock rollback does not display negative sleep");
+    store.Set(worker, "SLEEP", now: now.AddHours(1));
+    Assert(store.GetSleep(worker.Code)!.StartedAt == now && store.History.Count == 1, "repeated sleep preserves start and history");
     var reopened = new LocalStatusStore(localFile);
-    Assert(reopened.Get(worker.Code) == "WORK", "status survives application restart");
-    Assert(reopened.GetSleep(worker.Code) is null, "cleared timer stays cleared after restart");
-    Assert(reopened.History.Count >= 4, "auto and manual status changes audited");
-
-    try
-    {
-        reopened.Set(worker, "SLEEP", 0);
-        throw new Exception("Zero-minute sleep must fail");
-    }
-    catch (InvalidOperationException) { Assert(true, "invalid 0-minute sleep blocked"); }
-    try
-    {
-        reopened.Set(worker, "SLEEP", 1441);
-        throw new Exception("Too-long sleep must fail");
-    }
-    catch (InvalidOperationException) { Assert(true, "sleep limit 1440 minutes enforced"); }
+    Assert(reopened.Get(worker.Code) == "SLEEP", "restart never changes sleeping worker to Ready");
+    Assert(reopened.Display(worker.Code, now.AddHours(2)) == "Tidur • 02:00:00", "elapsed clock resumes after restart");
+    reopened.Set(worker, "WORK", now: now.AddHours(2));
+    Assert(reopened.GetSleep(worker.Code) is null, "leaving sleep clears active clock");
+    Assert(reopened.History[0].Note.Contains("02:00:00"), "completed sleep duration remains in history");
+    Assert(reopened.History.Count == 2, "status transitions retained");
+    reopened.Set(worker, "SLEEP", now: now.AddHours(3));
+    Assert(reopened.Display(worker.Code, now.AddHours(3).AddSeconds(10)) == "Tidur • 00:00:10", "next sleep starts a fresh clock");
+    Assert(new LocalStatusStore(localFile).History.Count == 3, "sleep history survives subsequent restart");
 
     var legacyPath = Path.Combine(tempRoot, "old-status.json");
-    File.WriteAllText(legacyPath, """{"Status":{"LEGACY":"SLEEP"},"Events":[]}""");
+    var legacyJson = """{"Status":{"LEGACY":"SLEEP"},"Sleep":{"LEGACY":{"StartedAt":"2026-10-20T01:00:00Z","Until":"2026-10-20T02:00:00Z","DurationMinutes":60,"AutoReady":true}},"Events":[]}""";
+    File.WriteAllText(legacyPath, legacyJson);
     var legacy = new LocalStatusStore(legacyPath);
-    Assert(legacy.Get("LEGACY") == "SLEEP", "legacy status file still readable");
-    Assert(legacy.Display("LEGACY", DateTimeOffset.UtcNow) == "Tidur • manual",
-        "legacy sleep without timer remains manual");
+    Assert(legacy.Get("LEGACY") == "SLEEP", "old expired auto-Ready deadline is ignored");
+    Assert(legacy.Display("legacy", now.AddDays(3)) == "Tidur • 72:00:00", "old timer start and case-insensitive identity retained");
+    Assert(File.ReadAllText(legacyPath) == legacyJson, "opening old snapshot does not rewrite history");
+    File.WriteAllText(legacyPath, """{"Status":{"LEGACY":"SLEEP"},"Events":[{"EmployeeCode":"LEGACY","To":"SLEEP","ChangedAt":"2026-10-20T01:00:00Z"}]}""");
+    Assert(new LocalStatusStore(legacyPath).Display("LEGACY", now.AddMinutes(5)) == "Tidur • 00:05:00", "legacy status event recovers actual start");
+    File.WriteAllText(legacyPath, """{"Status":{"LEGACY":"SLEEP"},"Events":[]}""");
+    Assert(new LocalStatusStore(legacyPath).Display("LEGACY", now) == "Tidur • waktu mulai tidak tercatat", "missing legacy start is never invented");
+    File.WriteAllText(legacyPath, "unreadable original history");
+    var unreadable = new LocalStatusStore(legacyPath);
+    try {
+        unreadable.Set(worker, "SLEEP", now: now);
+        throw new Exception("Unreadable history must be protected");
+    }
+    catch (InvalidOperationException) { Assert(File.ReadAllText(legacyPath) == "unreadable original history", "corrupt original file cannot be overwritten"); }
+    try {
+        reopened.Set(worker, "INVALID", now: now);
+        throw new Exception("Invalid status must fail");
+    }
+    catch (InvalidOperationException) { Assert(true, "invalid status is rejected"); }
+
 }
 finally
 {

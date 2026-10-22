@@ -12,7 +12,7 @@ public sealed class MainForm : Form
     private readonly LocalStatusStore _statusStore;
     private readonly bool _preview;
     private readonly System.Windows.Forms.Timer _poll = new() { Interval = 30_000 };
-    private readonly System.Windows.Forms.Timer _sleepClock = new() { Interval = 15_000 };
+    private readonly System.Windows.Forms.Timer _sleepClock = new() { Interval = 1_000 };
     private readonly NotifyIcon _tray = new();
     private readonly Dictionary<string, Control> _pages = new();
     private readonly Dictionary<string, Button> _navigation = new();
@@ -75,7 +75,7 @@ public sealed class MainForm : Form
         Icon = SystemIcons.Application;
 
         BuildLayout();
-        Shown += (_, _) => WindowChrome.ApplyDarkCaption(this);
+        Shown += (_, _) => WindowChrome.ApplyCaption(this);
         _takePanel.TakeRequested += async (_, choice) => await RunBusyAsync(() => TakeOrderAsync(choice));
         _takePanel.StatusRequested += (_, choice) => UpdateWorkerStatus(choice);
         _takePanel.ProofRequested += async (_, choice) =>
@@ -170,7 +170,6 @@ public sealed class MainForm : Form
         _metrics.Location = new Point(26, 90);
         _metrics.Text = "Pilih karyawan + pilih order  •  klik TAKE ORDER";
         header.Controls.Add(_metrics);
-        header.Controls.Add(new DepthEmblem());
         header.Paint += (_, e) => {
             using var pen = new Pen(PanelLine, 1);
             e.Graphics.DrawLine(pen, 19, header.Height - 1, header.Width - 19, header.Height - 1);
@@ -308,7 +307,6 @@ public sealed class MainForm : Form
         };
         panel.Controls.Add(_rosterGrid);
         panel.Controls.Add(toolbar);
-        AddColumn(_rosterGrid, "Kode", "Code", 128);
         AddColumn(_rosterGrid, "Nama Karyawan", "Name", 230);
         AddColumn(_rosterGrid, "Bagian", "Team", 90);
         AddColumn(_rosterGrid, "Status di PC", "DisplayLocalStatus", 240);
@@ -362,27 +360,13 @@ public sealed class MainForm : Form
     {
         employee.LocalStatus = _statusStore.Get(employee.Code);
         var sleep = _statusStore.GetSleep(employee.Code);
-        employee.SleepUntil = sleep?.Until;
-        employee.SleepAutoReady = sleep?.AutoReady ?? false;
+        employee.SleepStartedAt = sleep?.StartedAt;
     }
 
     private void RefreshSleepTimers()
     {
-        if (IsDisposed) return;
-        try
-        {
-            if (_statusStore.ApplyExpired(DateTimeOffset.UtcNow))
-            {
-                foreach (var worker in _employees) ApplyLocalState(worker);
-                BindTables();
-                SetStatus("Durasi tidur selesai. Status karyawan telah kembali ke Ready (lokal PC).");
-            }
-            else _takePanel.TickCountdown();
-        }
-        catch (IOException error)
-        {
-            SetStatus("Gagal menyimpan perubahan status tidur lokal: " + error.Message);
-        }
+        if (IsDisposed || _activePage != "Take Order" || WindowState == FormWindowState.Minimized) return;
+        _takePanel.TickSleepClock();
     }
 
     private void UpdateWorkerStatus(StatusRequest request)
@@ -392,17 +376,8 @@ public sealed class MainForm : Form
             var employee = _employees.FirstOrDefault(e =>
                 e.Code.Equals(request.Worker.Code, StringComparison.OrdinalIgnoreCase));
             if (employee is null) throw new InvalidOperationException("Karyawan tidak lagi tersedia.");
-            int? minutes = null;
-            bool autoReady = false;
-            if (request.Status == "SLEEP")
-            {
-                var choice = SleepSettingsDialog.Show(this, employee);
-                if (choice is null) return;
-                minutes = choice.Minutes;
-                autoReady = choice.AutoReady;
-            }
             var description = request.Status == "SLEEP"
-                ? $"Tidur selama {minutes} menit" + (autoReady ? " (otomatis Ready)" : " (kembali manual)")
+                ? "Tidur • waktu dihitung sejak status mulai"
                 : request.Status switch
                 {
                     "READY" => "Ready Boosting", "WORK" => "Sedang Bekerja",
@@ -413,7 +388,7 @@ public sealed class MainForm : Form
                 "Status ini disimpan pada PC Windows ini saja, bukan Payroll atau Android. Lanjut?",
                 "Konfirmasi Status Karyawan", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
                 != DialogResult.Yes) return;
-            _statusStore.Set(employee, request.Status, minutes, autoReady);
+            _statusStore.Set(employee, request.Status);
             foreach (var person in _employees) ApplyLocalState(person);
             BindTables();
             SetStatus($"Status {employee.Name}: {description} (lokal PC).");
@@ -433,7 +408,7 @@ public sealed class MainForm : Form
         if (employee is null || order is null || !order.TakeAllowed)
             throw new InvalidOperationException("Karyawan atau order sudah berubah. Segarkan data dan pilih lagi.");
         var answer = MessageBox.Show(
-            $"Karyawan: {employee.Name} ({employee.Code})\n" +
+            $"Karyawan: {employee.Name}\n" +
             $"Order: {order.OrderRef}\nGame: {order.Game}\nTASK: {order.Task}\n\n" +
             "Simpan penugasan dan kirim laporan TAKE ke grup Telegram FH3?",
             "Konfirmasi TAKE ORDER", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -561,13 +536,7 @@ public sealed class MainForm : Form
         {
             1 => "IDLE", 2 => "SLEEP", 3 => "WORK", _ => "READY",
         };
-        if (value == "SLEEP")
-        {
-            var selected = SleepSettingsDialog.Show(this, employee);
-            if (selected == null) return Task.CompletedTask;
-            _statusStore.Set(employee, value, selected.Minutes, selected.AutoReady);
-        }
-        else _statusStore.Set(employee, value);
+        _statusStore.Set(employee, value);
         foreach (var item in _employees.Where(e => e.Code.Equals(employee.Code, StringComparison.OrdinalIgnoreCase)))
             ApplyLocalState(item);
         BindTables();
@@ -582,7 +551,6 @@ public sealed class MainForm : Form
         var newRoster = await _api.RosterAsync();
         var freshPending = _api.CanOperate ? await _api.PendingAsync() : new List<PayrollOrder>();
         var freshTasks = await _api.TasksAsync();
-        _statusStore.ApplyExpired(DateTimeOffset.UtcNow);
         foreach (var employee in newRoster) ApplyLocalState(employee);
         _employees = newRoster;
         _tasks = freshTasks;
@@ -615,7 +583,7 @@ public sealed class MainForm : Form
         var history = _statusStore.History;
         _history.Text = history.Count == 0 ? "Belum ada perubahan status karyawan pada PC ini."
             : string.Join(Environment.NewLine, history.Select(x =>
-                $"{x.ChangedAt:dd/MM/yyyy HH:mm:ss}    {x.EmployeeName} ({x.EmployeeCode}): {x.From} → {x.To}"));
+                $"{x.ChangedAt:dd/MM/yyyy HH:mm:ss}    {x.EmployeeName}: {x.From} → {x.To}  •  {x.Note}"));
         _metrics.Text = $"{_pending.Count} order baru   •   {_tasks.Count} tugas aktif   •   {_employees.Count} karyawan FH3";
         if (_navigation.TryGetValue("Take Order", out var item))
             item.Text = $"Take Order   /   {_pending.Count}";
@@ -684,13 +652,13 @@ public sealed class MainForm : Form
         if (dialog.ShowDialog(this) != DialogResult.OK) return;
         static string Quote(string s) => "\"" + s.Replace("\"", "\"\"") + "\"";
         var records = _statusStore.History;
-        var csv = new StringBuilder("Tanggal,Kode,Nama,Dari,Ke\r\n");
+        var csv = new StringBuilder("Tanggal,Kode,Nama,Dari,Ke,Catatan\r\n");
         foreach (var entry in records)
             csv.AppendLine(string.Join(",", new[]
             {
                 Quote(entry.ChangedAt.ToString("yyyy-MM-dd HH:mm:ss")),
                 Quote(entry.EmployeeCode), Quote(entry.EmployeeName),
-                Quote(entry.From), Quote(entry.To),
+                Quote(entry.From), Quote(entry.To), Quote(entry.Note),
             }));
         File.WriteAllText(dialog.FileName, csv.ToString(), new UTF8Encoding(true));
         MessageBox.Show("Riwayat lokal berhasil diekspor.", "EVOGAMING Monitor");
@@ -772,11 +740,11 @@ public sealed class MainForm : Form
             ColumnHeadersHeight = 48, RowTemplate = { Height = 42 },
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
         };
-        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(36, 50, 71);
+        grid.AlternatingRowsDefaultCellStyle.BackColor = LuxuryPalette.SurfaceRaised;
         grid.AlternatingRowsDefaultCellStyle.ForeColor = Fore;
         grid.DefaultCellStyle.BackColor = PanelColor;
         grid.DefaultCellStyle.ForeColor = Fore;
-        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(44, 75, 112);
+        grid.DefaultCellStyle.SelectionBackColor = LuxuryPalette.Selection;
         grid.DefaultCellStyle.SelectionForeColor = Fore;
         grid.DefaultCellStyle.Font = new Font("Segoe UI", 10);
         grid.DefaultCellStyle.Padding = new Padding(6, 3, 4, 3);

@@ -6,11 +6,11 @@ internal sealed class CompletedOrdersPanel : UserControl
     private readonly PayrollApi _api;
     private readonly LuxuryGrid _employees = new(), _work = new();
     private readonly MetricCard _total = new() { Caption = "ORDER SELESAI / TIM" };
-    private readonly MetricCard _contributors = new() { Caption = "KARYAWAN BERKONTRIBUSI", Accent = LuxuryPalette.Violet };
+    private readonly MetricCard _contributors = new() { Caption = "KARYAWAN / SELESAI", Accent = LuxuryPalette.Violet };
     private readonly MetricCard _selected = new() { Caption = "ORDER SELESAI / DIPILIH", Accent = LuxuryPalette.Success };
     private readonly TextBox _search = new() { BorderStyle = BorderStyle.None, Dock = DockStyle.Fill,
         BackColor = LuxuryPalette.Surface, ForeColor = LuxuryPalette.Text,
-        PlaceholderText = "Cari nama atau kode karyawan", Font = new Font("Segoe UI", 10.5f) };
+        PlaceholderText = "Cari nama karyawan", Font = new Font("Segoe UI", 10.5f) };
     private readonly Label _title = Label("Pilih karyawan", 18, true), _subtitle = Label("Daftar order dengan laporan DONE terkonfirmasi.", 9);
     private readonly Label _empty = Label("Belum ada order selesai.\nOrder akan muncul setelah laporan DONE diterima Telegram.", 11);
     private readonly Label _status = Label("Perbarui untuk memuat riwayat pekerjaan.", 9);
@@ -83,7 +83,7 @@ internal sealed class CompletedOrdersPanel : UserControl
         _employees.SelectionChanged += async (_, _) => {
             if (_binding || _employees.CurrentRow?.DataBoundItem is not EmployeeCompletion row || row.EmployeeCode == _code) return;
             _code = row.EmployeeCode; _offset = 0; _title.Text = row.EmployeeName;
-            _subtitle.Text = $"{row.EmployeeCode}  /  {row.CompletedCount:N0} order selesai";
+            _subtitle.Text = $"{row.CompletedCount:N0} order selesai";
             _selected.Value = row.CompletedCount.ToString("N0"); await RefreshAsync();
         };
         _work.SelectionChanged += (_, _) => _openProof.Enabled = _work.CurrentRow?.DataBoundItem is CompletedOrder { TelegramMessageUrl: not null };
@@ -123,7 +123,7 @@ internal sealed class CompletedOrdersPanel : UserControl
         var person = _rows.FirstOrDefault(row => row.EmployeeCode == _code);
         _selected.Value = person?.CompletedCount.ToString("N0") ?? "—";
         _title.Text = person?.EmployeeName ?? "Pilih karyawan";
-        _subtitle.Text = person is null ? "Klik nama untuk membuka daftar order selesai." : $"{person.EmployeeCode}  /  {person.CompletedCount:N0} order selesai";
+        _subtitle.Text = person is null ? "Klik nama untuk membuka daftar order selesai." : $"{person.CompletedCount:N0} order selesai";
         BindEmployees(); _work.DataSource = data.Work; _empty.Visible = data.Work.Count == 0;
         _empty.Text = person is null ? "Pilih karyawan di sebelah kiri." : "Belum ada order selesai.\nOrder muncul setelah laporan DONE diterima Telegram.";
         _previous.Enabled = _offset > 0; _next.Enabled = _nextOffset.HasValue;
