@@ -26,6 +26,7 @@ on:
       - 'website/supabase/migrations/*_fh3_monitor_delivery_consistency.sql'
       - 'website/supabase/migrations/*_fh3_monitor_operational_jobs.sql'
       - 'website/supabase/migrations/*_fh3_monitor_job_permissions.sql'
+      - 'website/supabase/migrations/*_fh3_monitor_discord.sql'
       - 'website/lib/fh3MonitorJobs.ts'
       - 'website/lib/payrollMobileCompleted.ts'
       - 'website/lib/fh3MonitorCompletedData.ts'

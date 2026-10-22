@@ -71,14 +71,16 @@ internal sealed class CompletedOrdersPanel : UserControl
         _employees.Columns[1].HeaderCell.Style.Padding = new Padding(2);
         _employees.Columns[1].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
         _employees.Columns[1].DefaultCellStyle.Padding = new Padding(2);
-        Column(_work, "ORDER", "OrderRef", 25, 95); Column(_work, "GAME", "Game", 30, 105);
-        Column(_work, "SELESAI PADA", "CompletedDisplay", 45, 145);
+        Column(_work, "ORDER", "OrderRef", 20, 80); Column(_work, "GAME", "Game", 20, 80);
+        Column(_work, "DISCORD", "DisplayDiscord", 25, 95);
+        Column(_work, "SELESAI PADA", "CompletedDisplay", 35, 145);
         _employees.RowTemplate.Height = 57; _work.RowTemplate.Height = 57;
         _employees.CellFormatting += (_, e) => {
             if (e.RowIndex >= 0 && e.ColumnIndex == 1) { e.CellStyle!.ForeColor = LuxuryPalette.Accent; e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; }
         };
         _work.CellToolTipTextNeeded += (_, e) => {
-            if (e.RowIndex >= 0 && _work.Rows[e.RowIndex].DataBoundItem is CompletedOrder row) e.ToolTipText = row.Task;
+            if (e.RowIndex >= 0 && _work.Rows[e.RowIndex].DataBoundItem is CompletedOrder row)
+                e.ToolTipText = $"Discord: {row.DisplayDiscord}\n{row.CompletedDisplay} • {row.Duration}\n{row.Task}";
         };
         _employees.SelectionChanged += async (_, _) => {
             if (_binding || _employees.CurrentRow?.DataBoundItem is not EmployeeCompletion row || row.EmployeeCode == _code) return;

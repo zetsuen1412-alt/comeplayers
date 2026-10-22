@@ -51,12 +51,27 @@ test("order code and TASK remain normalized and bounded", () => {
   assert.equal(parseFH3ManualOrder("x4519\nTASK: "), null);
 });
 
-test("X4827 layout accepts standalone AION while keeping credential and Discord/VPN fields out", () => {
+test("X4827 layout retains AION and Discord while excluding credentials and VPN", () => {
   const order=parseFH3ManualOrder([
     "X4827","","Duration :12H","","Username : fixture-login","Password : fixture-password",
     "Discord Server : fixture-server","VPN : Ask on Discord","AION","","Task :","Farm items and finish quests",
   ].join("\n"));
   assert.equal(order?.orderRef,"X4827");assert.equal(order?.duration,"12H");
   assert.equal(order?.game,"AION");assert.equal(order?.task,"Farm items and finish quests");
-  assert.doesNotMatch(JSON.stringify(order),/fixture-login|fixture-password|fixture-server|VPN|Discord/);
+  assert.equal(order?.discord,"fixture-server");
+  assert.doesNotMatch(JSON.stringify(order),/fixture-login|fixture-password|VPN/);
+});
+
+test("Discord labels are normalized, bounded and do not capture credential continuations", () => {
+  for (const label of ["Discord", "Discord Server", "DC Server", "dc", "dIsCoRd SeRvEr"]) {
+    const result = parseFH3ManualOrder(`X4839\n${label} : FH3 Demo\nTask: Farm XP`);
+    assert.equal(result?.discord, "FH3 Demo");
+    assert.equal(result?.task, "Farm XP");
+  }
+  assert.equal(parseFH3ManualOrder("X4839\nDC Server = " + "A".repeat(200) + "\nTask: Farm XP")?.discord.length, 150);
+  assert.equal(parseFH3ManualOrder("X4839\nTask: Farm XP")?.discord, "");
+  const protectedValue = parseFH3ManualOrder("X4839\nPassword:\nDiscord: secret-continuation\nTask: Farm XP");
+  assert.equal(protectedValue?.discord, "");
+  assert.doesNotMatch(JSON.stringify(protectedValue), /secret-continuation/);
+  assert.doesNotMatch(JSON.stringify(parseFH3ManualOrder("X4839\nDiscord: FH3 Demo Password: secret-inline\nTask: Farm XP")), /secret-inline/);
 });

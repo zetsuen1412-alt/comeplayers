@@ -43,9 +43,10 @@ internal static class ApiContractTests
             Check(!Encoding.UTF8.GetString(File.ReadAllBytes(file)).Contains("synthetic-access-token"), "DPAPI file excludes plaintext access token");
             http.Respond = _ => Task.FromResult(Json("""{"schema":2,"scope":"FH3","source":"payroll","pending":[]}"""));
             await Rejected(async () => { await api.PendingAsync(); });
-            http.Respond = _ => Task.FromResult(Json("""{"schema":2,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","pending":[{"orderRef":"X4806","canTake":false,"unlinkedPayroll":true}]}"""));
+            http.Respond = _ => Task.FromResult(Json("""{"schema":2,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","pending":[{"orderRef":"X4806","canTake":false,"unlinkedPayroll":true,"discord":"FH3 Demo"}]}"""));
             var pending = await api.PendingAsync();
             Check(pending.Single().UnlinkedPayroll && !pending[0].CanTake, "unlinked Telegram order cannot enable TAKE in Windows");
+            Check(pending[0].Discord == "FH3 Demo", "Discord metadata deserializes without changing TAKE authorization");
             http.Respond = _ => Task.FromResult(Json("""{"schema":2,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","pending":[{"orderRef":"X4806","canTake":true,"canTakeWithoutPayroll":true,"unlinkedPayroll":true,"needsValuation":true}]}"""));
             pending = await api.PendingAsync();
             Check(pending[0].TakeAllowed && pending[0].UnlinkedPayroll, "explicit operational journal permission allows unpriced TAKE without inventing salary");

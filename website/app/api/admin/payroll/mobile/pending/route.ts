@@ -2,7 +2,7 @@ import { requirePayrollAccess } from "@/lib/payrollAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Order } from "@/features/payroll/types/domain";
-import { loadFH3ManualOrders } from "@/lib/fh3ManualTelegramQueue";
+import { loadFH3ManualOrders, manualFH3OrderTitle } from "@/lib/fh3ManualTelegramQueue";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 
 export const runtime = "nodejs";
@@ -65,8 +65,9 @@ export async function GET(request: Request) {
         orderRef: clean(order.externalReference, 180),
         orderType: order.orderType,
         // Never forward Telegram passwords/buyer credentials into the queue.
-        orderName: clean(verified.get(order.externalReference.trim().toUpperCase())?.duration || "Order manual Telegram", 300),
+        orderName: clean(manualFH3OrderTitle(verified.get(order.externalReference.trim().toUpperCase())!), 300),
         game: clean(verified.get(order.externalReference.trim().toUpperCase())?.game || "", 150),
+        discord: clean(verified.get(order.externalReference.trim().toUpperCase())?.discord || "", 150),
         buyer: "",
         task: clean(verified.get(order.externalReference.trim().toUpperCase())?.task || "", 400),
         division: "FH3",
@@ -74,8 +75,9 @@ export async function GET(request: Request) {
       })), ...inboxOnly.map(item => ({
         orderRef: clean(item.order_ref, 180),
         orderType: "boosting",
-        orderName: clean("[NILAI PAYROLL BELUM DIISI] " + (item.duration || "Order Telegram"), 300),
+        orderName: clean("[NILAI PAYROLL BELUM DIISI] " + manualFH3OrderTitle(item), 300),
         game: clean(item.game, 150),
+        discord: clean(item.discord, 150),
         buyer: "",
         task: clean(item.task, 400),
         division: "FH3",

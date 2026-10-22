@@ -10,7 +10,7 @@ namespace CPBoostMonitor;
 internal sealed class TakeOrderPanel : UserControl
 {
     private readonly TextBox _workerSearch = SearchBox("Cari nama karyawan...");
-    private readonly TextBox _orderSearch = SearchBox("Cari kode, game, buyer, atau TASK...");
+    private readonly TextBox _orderSearch = SearchBox("Cari order, game, Discord, atau TASK...");
     private readonly ComboBox _workerFilter = new()
     {
         DropDownStyle = ComboBoxStyle.DropDownList, Width = 146, Height = 36,
@@ -126,13 +126,17 @@ internal sealed class TakeOrderPanel : UserControl
         _workers.Columns[1].ToolTipText = "Status dan lama tidur dalam jam:menit:detik";
         AddColumn(_orders, "ORDER", "OrderRef", 105);
         AddColumn(_orders, "GAME", "Game", 125);
-        AddColumn(_orders, "NAMA ORDER", "OrderName", 180);
+        AddColumn(_orders, "DISCORD", "DisplayDiscord", 180);
         AddColumn(_orders, "TASK", "Task", 260);
         AddColumn(_tasks, "ORDER", "OrderRef", 115);
         AddColumn(_tasks, "KARYAWAN", "EmployeeName", 165);
         AddColumn(_tasks, "STATUS", "Status", 145);
-        AddColumn(_tasks, "GAME", "Game", 100);
+        AddColumn(_tasks, "DISCORD", "DisplayDiscord", 145);
         AddColumn(_tasks, "LANGKAH BERIKUTNYA", "ActionMessage", 300);
+        foreach (var grid in new[] { _orders, _tasks }) grid.CellToolTipTextNeeded += (_, e) => {
+            if (e.RowIndex >= 0 && grid.Rows[e.RowIndex].DataBoundItem is PayrollOrder order)
+                e.ToolTipText = $"{order.OrderRef} • {order.Game} • {order.OrderName}\nDiscord: {order.DisplayDiscord}\n{order.Task}";
+        };
 
         _workers.SelectionChanged += (_, _) =>
         {

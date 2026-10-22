@@ -9,7 +9,7 @@ static void Assert(bool check, string name)
 var orders = new List<PayrollOrder>
 {
     new() { OrderRef = "X4671", Game = "AION 2", OrderName = "Boost Level",
-        Buyer = "Admin Test", Task = "Level 50", EmployeeName = "Mulyana",
+        Discord = "FH3 Demo", Buyer = "Admin Test", Task = "Level 50", EmployeeName = "Mulyana",
         EmployeeCode = "FH301", Status = "assigned" },
     new() { OrderRef = "X9001", Game = "Mobile Legends", OrderName = "Rank",
         Buyer = "Buyer Dua", Task = "Mythic", EmployeeName = "Budi",
@@ -19,6 +19,8 @@ var orders = new List<PayrollOrder>
 Assert(OrderFilters.Pending(orders, "").Count() == 2, "empty pending search does not hide data");
 Assert(OrderFilters.Pending(orders, "x4671").Single().OrderRef == "X4671", "reference lookup ignores case");
 Assert(OrderFilters.Pending(orders, "AION 50").Single().OrderRef == "X4671", "search spans game + task");
+Assert(OrderFilters.Pending(orders, "fh3 demo").Single().OrderRef == "X4671", "Discord search matches pending order");
+Assert(OrderFilters.Active(orders, "FH3 Demo", "assigned").Single().OrderRef == "X4671", "Discord search matches active task");
 Assert(!OrderFilters.Pending(orders, "AION mobile").Any(), "all query terms must match");
 Assert(OrderFilters.Active(orders, "", "assigned").Single().EmployeeName == "Mulyana", "status assigned filter");
 Assert(OrderFilters.Active(orders, "BUDI", "Semua Status").Single().OrderRef == "X9001", "search employee in tasks");

@@ -2,7 +2,7 @@ import { requirePayrollAccess } from "@/lib/payrollAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Employee, Order } from "@/features/payroll/types/domain";
-import { loadFH3ManualOrders } from "@/lib/fh3ManualTelegramQueue";
+import { loadFH3ManualOrders, manualFH3OrderTitle } from "@/lib/fh3ManualTelegramQueue";
 import { mobileWorkflow, type MobileDelivery } from "@/lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 
@@ -57,8 +57,9 @@ export async function GET(request: Request) {
           id: `${clean(order.externalReference,"order",180)}:${employee.code}`,
           employeeId: employee.id, employeeCode: employee.code, employeeName: employee.name,
           orderRef: clean(order.externalReference, "—", 180),
-          orderName: clean(manual.duration, "Order manual Telegram", 500),
+          orderName: clean(manualFH3OrderTitle(manual), "Order manual Telegram", 500),
           game: clean(manual.game, "—", 200),
+          discord: clean(manual.discord, "", 150),
           buyer: "",
           task: clean(manual.task, "—", 500), division: "FH3",
           quantity: Number.isFinite(assignment.quantity) ? assignment.quantity : null,
@@ -74,7 +75,8 @@ export async function GET(request: Request) {
       tasks.push({
         id: `telegram:${job.order_ref}:${employee.code}`, employeeId: employee.id, employeeCode: employee.code,
         employeeName: employee.name, orderRef: job.order_ref,
-        orderName: clean(manual.duration, "Order manual Telegram", 500), game: clean(manual.game, "—", 200),
+        orderName: clean(manualFH3OrderTitle(manual), "Order manual Telegram", 500), game: clean(manual.game, "—", 200),
+        discord: clean(manual.discord, "", 150),
         buyer: "", task: clean(manual.task, "—", 500), division: "FH3", quantity: 1,
         status: job.status, updatedAt: job.completed_at ?? job.started_at ?? job.created_at,
       });

@@ -274,6 +274,7 @@ public sealed class MainForm : Form
         AddColumn(_tasksGrid, "Tindakan", "ActionLabel", 180);
         AddColumn(_tasksGrid, "Nama Order", "OrderName", 200);
         AddColumn(_tasksGrid, "Game", "Game", 125);
+        AddColumn(_tasksGrid, "Discord", "DisplayDiscord", 150);
         AddColumn(_tasksGrid, "TASK", "Task", 225);
         return panel;
     }
@@ -409,7 +410,7 @@ public sealed class MainForm : Form
             throw new InvalidOperationException("Karyawan atau order sudah berubah. Segarkan data dan pilih lagi.");
         var answer = MessageBox.Show(
             $"Karyawan: {employee.Name}\n" +
-            $"Order: {order.OrderRef}\nGame: {order.Game}\nTASK: {order.Task}\n\n" +
+            $"Order: {order.OrderRef}\nGame: {order.Game}\nDiscord: {order.DisplayDiscord}\nTASK: {order.Task}\n\n" +
             "Simpan penugasan dan kirim laporan TAKE ke grup Telegram FH3?",
             "Konfirmasi TAKE ORDER", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (answer != DialogResult.Yes) return;

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
-import { loadFH3ManualOrders } from "../lib/fh3ManualTelegramQueue";
+import { loadFH3ManualOrders, manualFH3OrderTitle } from "../lib/fh3ManualTelegramQueue";
 import { mobileWorkflow } from "../lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "../lib/fh3MonitorJobs";
 
@@ -30,7 +30,7 @@ const workspace = (orders: unknown[], employees: unknown[] = []) =>
   { return { payload: { orders, employees }, revision: 7, updated_at: "2026-10-19T10:00:00Z" }; };
 const manual = (orderRef: string, patch: Record<string, unknown> = {}) => ({
   order_ref: orderRef, chat_id: -100123, message_id: 42, admin_user_id:22, active: true,
-  game: "aion2", duration: "8hours", server_name: "Triniel",
+  game: "aion2", duration: "8hours", discord: "FH3 Demo", server_name: "Triniel",
   task: "TASK from Telegram", posted_at: "2026-10-20T04:00:00Z", ...patch,
 });
 const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] = [], takes: unknown[] = []) => ({
@@ -64,7 +64,7 @@ const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] =
 const common = {
   "@/lib/fh3MonitorJobs": { loadFH3MonitorJobs },
   "@/lib/payrollMobileWorkflow": { mobileWorkflow },
-  "@/lib/fh3ManualTelegramQueue": { loadFH3ManualOrders },
+  "@/lib/fh3ManualTelegramQueue": { loadFH3ManualOrders, manualFH3OrderTitle },
   "@/lib/payrollMobileTake": {
     deliverTakeNotice: async () => ({ ok: true, takeSent: true, caption: "x100/andi/take" }),
     TakeNoticeError: class TakeNoticeError extends Error {
@@ -109,6 +109,9 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
   assert.deepEqual(result.pending.map((x: { orderRef: string }) => x.orderRef), ["X100","X900","X4519"]);
   assert.equal(result.pending[0].buyer, "");
   assert.equal(result.pending[0].task, "TASK from Telegram");
+  assert.equal(result.pending[0].discord, "FH3 Demo");
+  assert.match(result.pending[0].orderName, /Discord: FH3 Demo/, "existing APK shows Discord without reinstalling");
+  assert.equal(result.pending[2].discord, "FH3 Demo");
   assert.equal(result.pending[2].unlinkedPayroll, true);
   assert.equal(result.pending[2].canTake, true);
   assert.equal(result.pending[2].canTakeWithoutPayroll, true);
@@ -178,6 +181,8 @@ test("active tasks require an admin Telegram post and use its TASK, not Payroll-
   assert.equal(result.tasks[0].employeeCode, "FH3001");
   assert.equal(result.tasks[0].orderRef, "X100");
   assert.equal(result.tasks[0].task, "TASK from Telegram");
+  assert.equal(result.tasks[0].discord, "FH3 Demo");
+  assert.match(result.tasks[0].orderName, /Discord: FH3 Demo/, "existing APK active task shows Discord");
   assert.equal(result.tasks[0].buyer, "");
   assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_file_id|telegram_chat_id/);
 });

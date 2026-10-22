@@ -21,10 +21,10 @@ internal static class Program
             Totals = new CompletionTotals { CompletedCount = 108, Contributors = 8, EmployeeCount = 8 },
             Work = Enumerable.Range(0, 24).Select(i => new CompletedOrder { EmployeeCode = people[0].Code,
                 OrderRef = $"X{4827 - i}", Game = i % 2 == 0 ? "AION" : "THRONE & LIBERTY",
-                Task = "Data contoh untuk pratinjau desain.", CompletedAt = new DateTimeOffset(2026, 10, 22, 3, 15, 0, TimeSpan.Zero).AddDays(-i).ToString("O") }).ToList(),
+                Discord = "FH3 Demo", Task = "Data contoh untuk pratinjau desain.", CompletedAt = new DateTimeOffset(2026, 10, 22, 3, 15, 0, TimeSpan.Zero).AddDays(-i).ToString("O") }).ToList(),
         };
         var pending = Enumerable.Range(0, 4).Select(i => new PayrollOrder { OrderRef = $"X{4901 + i}", Game = "AION",
-            Task = "Leveling dan misi harian", OrderName = "12H", CanTake = true }).ToList();
+            Discord = "FH3 Demo", Task = "Leveling dan misi harian", OrderName = "12H", CanTake = true }).ToList();
         foreach (var size in new[] { new Size(1460, 900), new Size(1120, 740) }) {
             using var form = new MainForm(preview: true) { ClientSize = size, ShowInTaskbar = false, Opacity = 0 };
             form.Show();

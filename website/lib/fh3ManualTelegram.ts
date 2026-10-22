@@ -7,6 +7,7 @@ export type FH3ManualOrder = {
   game: string;
   serverName: string;
   duration: string;
+  discord: string;
   task: string;
 };
 
@@ -50,17 +51,28 @@ export function parseFH3ManualOrder(raw: string): FH3ManualOrder | null {
   const task = trimClean(taskParts.join("\n"), 400);
   if (!task) return null;
 
+  const metadata: string[] = [];
+  let privateContinuation = false;
+  for (const line of lines.slice(0, taskLine)) {
+    if (privateField.test(line)) {
+      privateContinuation = /[:=]\s*$/.test(line) || !/[:=]/.test(line);
+      continue;
+    }
+    if (privateContinuation && line.trim()) { privateContinuation = false; continue; }
+    metadata.push(line);
+  }
   function field(pattern: RegExp, max: number): string {
-    const line = lines.slice(0, taskLine).find(entry => pattern.test(entry));
+    const line = metadata.find(entry => pattern.test(entry));
     return trimClean((line?.replace(pattern, "") ?? "").replace(inlineSecret, "[credential hidden]"), max);
   }
 
   return {
     orderRef,
     game: field(/^\s*game\s*[:=]\s*/i, 150)
-      || lines.slice(1, taskLine).find(line => /^\s*AION(?:\s*2)?\s*$/i.test(line))?.trim() || "",
+      || metadata.find(line => /^\s*AION(?:\s*2)?\s*$/i.test(line))?.trim() || "",
     serverName: field(/^\s*server\s*[:=\-]?\s*/i, 150),
     duration: field(/^\s*duration\s*[:=\-]?\s*/i, 80),
+    discord: field(/^\s*(?:discord|dc)(?:\s*server)?\s*[:=]\s*/i, 150),
     task,
   };
 }

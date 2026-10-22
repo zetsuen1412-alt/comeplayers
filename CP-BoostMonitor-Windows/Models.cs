@@ -31,6 +31,8 @@ public sealed class PayrollOrder
     public string OrderType { get; set; } = "";
     public string OrderName { get; set; } = "";
     public string Game { get; set; } = "";
+    public string Discord { get; set; } = "";
+    public string DisplayDiscord => string.IsNullOrWhiteSpace(Discord) ? "—" : Discord;
     public string Buyer { get; set; } = "";
     public string Task { get; set; } = "";
     public string EmployeeCode { get; set; } = "";
@@ -96,6 +98,8 @@ public sealed class CompletedOrder
     public string EmployeeName { get; set; } = "";
     public string OrderRef { get; set; } = "";
     public string Game { get; set; } = "";
+    public string Discord { get; set; } = "";
+    public string DisplayDiscord => string.IsNullOrWhiteSpace(Discord) ? "—" : Discord;
     public string Duration { get; set; } = "";
     public string Task { get; set; } = "";
     public string CompletedAt { get; set; } = "";

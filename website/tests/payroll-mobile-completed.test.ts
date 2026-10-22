@@ -15,7 +15,7 @@ const financial = { id: "order1", externalReference: "X4802", team: "FH3", opera
 const state = () => ({ [K.employees]: [employee, { ...employee, id: "e2", code: "E2", name: "RIKI3" },
   { ...employee, id: "e3", code: "E3", team: "FH1", name: "OTHER DIVISION" }],
   [K.orders]: [financial], [K.closings]: [{ note: "PRIVATE SALARY HISTORY" }] });
-const source = (order_ref = "X4801"): CompletedReceipt => ({ order_ref, chat_id: -100123, game: "AION", duration: "12H", task: "Daily mission", active: true });
+const source = (order_ref = "X4801"): CompletedReceipt => ({ order_ref, chat_id: -100123, game: "AION", duration: "12H", discord: "FH3 Demo", task: "Daily mission", active: true });
 const done = (order_ref = "X4801"): CompletedProof => ({ order_ref, employee_code: "E1", chat_id: -100123, action: "done",
   status: "sent", telegram_message_id: 42, sent_at: "2026-10-22T03:00:00Z" });
 const job = (order_ref = "X4801"): FH3MonitorJob => ({ order_ref, employee_id: "e1", employee_code: "E1", employee_name: "Old name",
@@ -27,6 +27,7 @@ test("completed history counts unpriced and priced Telegram DONE once and return
   assert.equal(result.employees[0].employeeName, "ADIT3"); assert.equal(result.employees[0].completedCount, 2);
   assert.equal(result.employees[1].completedCount, 0); assert.equal(result.totals.completedCount, 2);
   assert.equal(result.totals.contributors, 1); assert.equal(result.workTotal, 2);
+  assert.equal(result.work[0].discord, "FH3 Demo");
   assert.equal(result.work[0].telegramMessageUrl, "https://t.me/c/123/42");
   assert.equal(canonical(data), before, "Payroll, salary, assignments and Closing are read-only");
   assert.doesNotMatch(JSON.stringify(result), /PRIVATE|900000|earning|salary|gross|netMinor|OTHER DIVISION|Old name/);

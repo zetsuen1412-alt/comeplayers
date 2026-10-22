@@ -69,7 +69,7 @@ export async function captureManualFH3Telegram(update: TelegramIncoming, service
   // All admin photos in the bound group are protected, even malformed order captions.
   if (!parsed && !cancelRef && !update.edited_message) return true;
   if (bound?.fh3_order_sender_id == null && !parsed) return true;
-  const { error } = await service.rpc("cp_fh3_telegram_save_manual", {
+  const { error } = await service.rpc("cp_fh3_telegram_save_manual_with_discord", {
     p_order_ref: cancelRef ?? parsed?.orderRef ?? null,
     p_chat_id: chatId, p_message_id: message.message_id, p_admin_user_id: senderId,
     p_game: parsed?.game ?? "", p_server_name: parsed?.serverName ?? "",
@@ -78,6 +78,7 @@ export async function captureManualFH3Telegram(update: TelegramIncoming, service
     p_version_at: new Date((message.edit_date ?? message.date as number) * 1000).toISOString(),
     p_update_id: update.update_id, p_active: Boolean(parsed && !cancelRef),
     p_sender_username: username,
+    p_discord: parsed?.discord ?? "",
   });
   if (error) throw new Error("Order manual Telegram belum dapat dicatat.");
   return true;

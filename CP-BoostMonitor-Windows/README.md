@@ -17,6 +17,15 @@ Only verified direct @evogamings posts in the configured FH3 group supply orders
 and TASK. Order Selesai shows only Telegram orders with confirmed DONE from Monitor.
 Payroll financial data is not requested by this Windows view.
 
+The **Discord** column in new orders, active tasks and completed work uses the
+verified Telegram metadata (Discord, Discord Server or DC Server). Discord names
+are searchable. Older receipts have no recoverable Discord value because raw
+credential-bearing captions were never retained; they display a dash until a
+verified admin edit or repost supplies the field. Apply the additive Discord
+receipt migration before deploying the updated webhook/API.
+The existing Android APK also displays Discord in the order title after this API
+update, without reinstalling or changing its signing identity.
+
 ## Local status and sleep
 
 Status changes apply to this Windows PC. Choosing **Tidur** records the start
@@ -40,7 +49,7 @@ selection labels. The interface uses neutral white, black and gray surfaces.
 
 - DPAPI-encrypted session: `%LOCALAPPDATA%\ComePlayers\CPBoostMonitor\session.dat`.
 - Local status/history: `%LOCALAPPDATA%\ComePlayers\CPBoostMonitor\local-status.json`.
-- No database migrations or changes to Payroll, salary, employees or Closing.
+- The additive Discord receipt migration does not change Payroll, salary, employees or Closing.
 - No synchronization of PC sleep status to Android or other PCs.
 - Backend credentials and Telegram bot tokens are never shipped in the EXE.
 - TAKE/START/DONE require live server access; ambiguous delivery is never retried automatically.
