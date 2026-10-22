@@ -2,7 +2,9 @@
  * ComePlayers Payroll — installable edit + one-minute reconciliation sync
  *
  * Paste this file into Extensions > Apps Script for the EVO GAMING 2026 workbook.
- * Open the MUTASI FH sheet first, then run setupComePlayersPayrollSync() once.
+ * Disabled by default. Run pauseComePlayersPayrollSync() to remove only Payroll triggers.
+ * Re-enabling requires owner approval, CP_PAYROLL_SYNC_ENABLED=true in Script
+ * Properties, and PAYROLL_SHEETS_SYNC_ENABLED=true on the website server.
  *
  * Secrets are stored in Apps Script Properties, never in spreadsheet cells.
  */
@@ -11,6 +13,20 @@ var COMEPLAYERS_PAYROLL_SYNC_HANDLER = "syncComePlayersPayroll";
 var COMEPLAYERS_PAYROLL_EDIT_HANDLER = "onComePlayersPayrollEdit";
 var COMEPLAYERS_PAYROLL_CHANGE_HANDLER = "onComePlayersPayrollChange";
 var COMEPLAYERS_PAYROLL_BATCH_SIZE = 100;
+
+function comePlayersPayrollSyncEnabled_() {
+  return PropertiesService.getScriptProperties().getProperty('CP_PAYROLL_SYNC_ENABLED') === 'true';
+}
+
+function comePlayersPayrollDisabled_() {
+  return { ok: false, saved: false, enabled: false, code: 'PAYROLL_SHEETS_SYNC_DISABLED' };
+}
+
+function pauseComePlayersPayrollSync() {
+  PropertiesService.getScriptProperties().setProperty('CP_PAYROLL_SYNC_ENABLED', 'false');
+  removeComePlayersPayrollSyncTriggers();
+  return comePlayersPayrollDisabled_();
+}
 
 function normalizeComePlayersHeader_(value) {
   return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -46,6 +62,7 @@ function comePlayersJsonValue_(value) {
 }
 
 function setupComePlayersPayrollSync() {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   var ui = SpreadsheetApp.getUi();
   var secretPrompt = ui.prompt(
     "ComePlayers Payroll Sync",
@@ -99,6 +116,7 @@ function removeComePlayersPayrollSyncTriggers() {
 }
 
 function reinstallComePlayersPayrollRealtimeSync() {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   var lock = LockService.getUserLock();
   lock.waitLock(30000);
   try {
@@ -122,7 +140,7 @@ function reinstallComePlayersPayrollRealtimeSync() {
 }
 
 // Compatibility for operators upgrading from the old hourly script.
-function installComePlayersPayrollHourlyTrigger() { reinstallComePlayersPayrollRealtimeSync(); }
+function installComePlayersPayrollHourlyTrigger() { return reinstallComePlayersPayrollRealtimeSync(); }
 function removeComePlayersPayrollHourlyTrigger() { removeComePlayersPayrollSyncTriggers(); }
 
 /**
@@ -132,6 +150,7 @@ function removeComePlayersPayrollHourlyTrigger() { removeComePlayersPayrollSyncT
  * credentials are ever sent to the website.
  */
 function applyComePlayersEmployeeNameCorrections_() {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   var props = PropertiesService.getScriptProperties();
   var config = props.getProperties();
   if (config.CP_SYNC_ROSTER !== 'true' || config.CP_ENABLE_EMPLOYEE_NAME_WRITEBACK !== 'true') return { applied: 0, skipped: 'writeback_disabled' };
@@ -202,6 +221,7 @@ function activateComePlayersEmployeeNameWriteback() {
 }
 
 function syncComePlayersPayroll() {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   // A failed writeback must never disable the existing Sheet-to-website sync.
   try { applyComePlayersEmployeeNameCorrections_(); }
   catch (error) { console.log('Koreksi nama karyawan belum dapat diterapkan: ' + String(error)); }
@@ -210,6 +230,7 @@ function syncComePlayersPayroll() {
 
 // Installable trigger only: a simple onEdit cannot authorize UrlFetchApp.
 function onComePlayersPayrollEdit(event) {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   if (!event || !event.range || !event.source) return { ok: true, skipped: "no_edit_event" };
   var props = PropertiesService.getScriptProperties();
   if (props.getProperty('CP_SYNC_ROSTER') === 'true'
@@ -222,6 +243,7 @@ function onComePlayersPayrollEdit(event) {
 
 // Deleting/inserting physical rows does not reliably emit onEdit.
 function onComePlayersPayrollChange(event) {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   if (!event || !event.source || event.changeType === 'EDIT') return { ok: true, skipped: 'no_structural_change' };
   if (event.source.getId() !== PropertiesService.getScriptProperties().getProperty('CP_SPREADSHEET_ID')) return { ok: true, skipped: 'other_sheet' };
   return syncComePlayersPayroll();
@@ -350,6 +372,7 @@ function comePlayersRosterSignature_(roster) {
 }
 
 function runComePlayersPayrollSync_(mode, event) {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   var props = PropertiesService.getScriptProperties();
   var retryAfter = Number(props.getProperty('CP_URLFETCH_RETRY_AFTER') || 0);
   if (retryAfter > Date.now()) {
@@ -409,6 +432,7 @@ function comePlayersBoosterDaySuffix_(value) {
 }
 
 function syncComePlayersPayrollRows_(mode, event) {
+  if (!comePlayersPayrollSyncEnabled_()) return comePlayersPayrollDisabled_();
   var startedAt = Date.now();
   var props = PropertiesService.getScriptProperties();
   var config = props.getProperties();

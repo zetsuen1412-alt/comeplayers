@@ -7,6 +7,8 @@ import * as sync from "../features/payroll/lib/google-sheet-sync";
 import * as workspace from "../features/payroll/lib/workspace-model";
 import { timingSafeEqual } from "node:crypto";
 import type { Order } from "../features/payroll/types/domain";
+import * as cutover from "../features/payroll/lib/legacy-fh-cutover";
+import * as resetRefresh from "../features/payroll/lib/reset-reimport-refresh";
 
 const source = readFileSync(new URL("../app/api/integrations/payroll-sheet/route.ts", import.meta.url), "utf8");
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
@@ -52,8 +54,12 @@ function harness(conflict?: "manual" | "verified" | "locked" | "always") {
     },
   };
   const exports: { POST?: (request: Request) => Promise<Response> } = {};
-  runInNewContext(compiled, { exports, Buffer, Response, Request, process: { env: { PAYROLL_SHEETS_SYNC_SECRET: secret } },
+  runInNewContext(compiled, { exports, Buffer, Response, Request, process: { env: { PAYROLL_SHEETS_SYNC_ENABLED: "true", PAYROLL_SHEETS_SYNC_SECRET: secret } },
     require: (name: string) => {
+      if (name.endsWith("payrollSheetSyncControl")) return { payrollSheetSyncDisabledResponse: () => null };
+      if (name.endsWith("xlsx-bootstrap")) return { loadPayrollXlsxBootstrapBatch: async () => null };
+      if (name.endsWith("legacy-fh-cutover")) return cutover;
+      if (name.endsWith("reset-reimport-refresh")) return resetRefresh;
       if (name === "node:crypto") return { timingSafeEqual };
       if (name.endsWith("adminSecurity")) return { recordAdminAudit: async () => { audits++; } };
       if (name.endsWith("serverSupabase")) return { createSupabaseAdmin: () => client };

@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { payrollSheetSyncDisabledResponse, payrollSheetSyncEnabled } from "@/lib/payrollSheetSyncControl";
 import {
   loadPayrollXlsxBootstrapBatch,
   advancePayrollXlsxBootstrap,
@@ -42,7 +43,7 @@ function failure(error: unknown) {
 }
 
 function syncSecret() {
-  return process.env.PAYROLL_SHEETS_SYNC_SECRET || process.env.CRON_SECRET || "";
+  return process.env.PAYROLL_SHEETS_SYNC_SECRET || "";
 }
 
 function authorized(request: Request) {
@@ -114,7 +115,14 @@ async function resolveActor(
   };
 }
 
+// Safe status probe: no credentials, body, database, or outgoing Telegram calls.
+export async function GET() {
+  return payrollSheetSyncDisabledResponse() ?? response({ ok: true, enabled: payrollSheetSyncEnabled() });
+}
+
 export async function POST(request: Request) {
+  const disabled = payrollSheetSyncDisabledResponse();
+  if (disabled) return disabled;
   try {
     authorized(request);
     const body = await readJson(request);
