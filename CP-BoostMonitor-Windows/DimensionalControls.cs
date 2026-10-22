@@ -12,18 +12,18 @@ internal sealed class LuxuryGrid : DataGridView
         AllowUserToResizeRows = false; RowHeadersVisible = false; BorderStyle = BorderStyle.None;
         EnableHeadersVisualStyles = false; SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        BackgroundColor = LuxuryPalette.Surface; GridColor = Color.FromArgb(31, 47, 65);
+        BackgroundColor = LuxuryPalette.Surface; GridColor = LuxuryPalette.Border;
         CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
         ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
         ColumnHeadersHeight = 42; RowTemplate.Height = 54;
         DefaultCellStyle = new DataGridViewCellStyle { BackColor = LuxuryPalette.Surface, ForeColor = LuxuryPalette.Text,
-            SelectionBackColor = Color.FromArgb(28, 65, 84), SelectionForeColor = Color.FromArgb(207, 252, 255),
+            SelectionBackColor = LuxuryPalette.Selection, SelectionForeColor = LuxuryPalette.Text,
             Padding = new Padding(12, 5, 8, 5), Font = new Font("Segoe UI", 10) };
-        AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(21, 34, 52);
-        ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle { BackColor = Color.FromArgb(15, 26, 42),
+        AlternatingRowsDefaultCellStyle.BackColor = LuxuryPalette.SurfaceRaised;
+        ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle { BackColor = LuxuryPalette.SurfaceRaised,
             ForeColor = LuxuryPalette.Muted, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold), Padding = new Padding(12, 0, 5, 0),
-            SelectionBackColor = Color.FromArgb(15, 26, 42), SelectionForeColor = LuxuryPalette.Text };
+            SelectionBackColor = LuxuryPalette.SurfaceRaised, SelectionForeColor = LuxuryPalette.Text };
         ScrollBars = ScrollBars.None;
         _scroll = new SlimGridScroll(this); Controls.Add(_scroll);
         Scroll += (_, _) => UpdateScroll(); RowsAdded += (_, _) => UpdateScroll(); RowsRemoved += (_, _) => UpdateScroll();
@@ -71,8 +71,8 @@ internal sealed class SlimGridScroll : Control
         e.Graphics.Clear(BackColor); e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         var thumb = Thumb(); if (thumb.Height < 2) return;
         using var path = LuxuryPalette.Round(thumb, 3);
-        using var fill = new LinearGradientBrush(thumb, _dragging || Focused ? LuxuryPalette.Accent : Color.FromArgb(89, 127, 148),
-            Color.FromArgb(48, 76, 96), 0f); e.Graphics.FillPath(fill, path);
+        using var fill = new LinearGradientBrush(thumb, _dragging || Focused ? LuxuryPalette.Accent : LuxuryPalette.Muted,
+            LuxuryPalette.Muted, 0f); e.Graphics.FillPath(fill, path);
     }
     protected override void OnMouseDown(MouseEventArgs e)
     {
@@ -113,13 +113,13 @@ internal sealed class MetricCard : Control
         var r = new Rectangle(1, 1, Width - 9, Height - 10);
         for (int d = 7; d >= 1; d--) {
             using var shadow = LuxuryPalette.Round(new Rectangle(r.X + d / 2, r.Y + d, r.Width, r.Height), 20);
-            using var shade = new SolidBrush(Color.FromArgb(9, 0, 0, 0)); g.FillPath(shade, shadow);
+            using var shade = new SolidBrush(Color.FromArgb(3, 0, 0, 0)); g.FillPath(shade, shadow);
         }
         using var path = LuxuryPalette.Round(r, 20);
-        using var fill = new LinearGradientBrush(r, Color.FromArgb(34, 54, 76), Color.FromArgb(16, 28, 46), 55);
+        using var fill = new LinearGradientBrush(r, Color.White, LuxuryPalette.SurfaceRaised, 55);
         g.FillPath(fill, path);
         using var stroke = new Pen(Color.FromArgb(70, Accent)); g.DrawPath(stroke, path);
-        using var top = new Pen(Color.FromArgb(90, 218, 245, 255)); g.DrawLine(top, 22, 2, r.Right - 22, 2);
+        using var top = new Pen(Color.White); g.DrawLine(top, 22, 2, r.Right - 22, 2);
         using var small = new Font("Segoe UI", 8.5f, FontStyle.Bold);
         using var number = new Font("Segoe UI", 25, FontStyle.Bold);
         TextRenderer.DrawText(g, Caption, small, new Rectangle(20, 14, r.Width - 40, 20), LuxuryPalette.Muted, TextFormatFlags.EndEllipsis);
@@ -127,7 +127,7 @@ internal sealed class MetricCard : Control
         var ring = new Rectangle(r.Right - 55, r.Bottom - 49, 31, 31);
         using var ringShade = new Pen(Color.FromArgb(35, Accent), 5); g.DrawEllipse(ringShade, ring);
         using var ringLight = new Pen(Accent, 3); g.DrawArc(ringLight, ring, -70, 240);
-        using var highlight = new Pen(Color.FromArgb(160, 231, 255, 255), 1); g.DrawArc(highlight, ring, 205, 60);
+        using var highlight = new Pen(Color.White, 1); g.DrawArc(highlight, ring, 205, 60);
     }
 }
 
@@ -140,7 +140,7 @@ internal sealed class BrandMark : Control
         var orb = new Rectangle(6, 8, 40, 40);
         using var sphere = new GraphicsPath(); sphere.AddEllipse(orb);
         using var fill = new PathGradientBrush(sphere) { CenterPoint = new PointF(18, 17),
-            CenterColor = Color.FromArgb(211, 255, 255), SurroundColors = new[] { Color.FromArgb(20, 85, 121) } };
+            CenterColor = Color.White, SurroundColors = new[] { LuxuryPalette.Accent } };
         g.FillEllipse(fill, orb);
         using var ring = new Pen(LuxuryPalette.Violet, 2); g.DrawEllipse(ring, 3, 17, 46, 19);
         using var brand = new Font("Segoe UI", 12, FontStyle.Bold);
@@ -149,30 +149,5 @@ internal sealed class BrandMark : Control
         TextRenderer.DrawText(g, "OPERATIONS / FH3", caption, new Point(57, 36), LuxuryPalette.Accent);
         using var line = new Pen(LuxuryPalette.Border); g.DrawLine(line, 8, 78, Width - 12, 78);
         TextRenderer.DrawText(g, "WORKSPACE", caption, new Point(10, 90), LuxuryPalette.Muted);
-    }
-}
-
-internal sealed class DepthEmblem : Control
-{
-    public DepthEmblem() { DoubleBuffered = true; Dock = DockStyle.Right; Width = 155; AccessibleName = "Emblem FH3 tiga dimensi"; }
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias; g.Clear(LuxuryPalette.Background);
-        PointF[] top = { new(77, 15), new(116, 35), new(77, 56), new(38, 35) };
-        PointF[] left = { new(38, 35), new(77, 56), new(77, 94), new(38, 72) };
-        PointF[] right = { new(77, 56), new(116, 35), new(116, 72), new(77, 94) };
-        using var floor = new SolidBrush(Color.FromArgb(45, 62, 130, 171)); g.FillEllipse(floor, 31, 88, 94, 13);
-        Fill(left, Color.FromArgb(29, 108, 137), Color.FromArgb(15, 40, 68));
-        Fill(right, Color.FromArgb(90, 88, 161), Color.FromArgb(30, 29, 61));
-        Fill(top, Color.FromArgb(159, 236, 243), Color.FromArgb(32, 115, 150));
-        using var edge = new Pen(Color.FromArgb(110, 180, 239, 255));
-        g.DrawLine(edge, 77, 56, 77, 93); g.DrawLine(edge, 38, 35, 77, 56); g.DrawLine(edge, 77, 56, 116, 35);
-        using var orbit = new Pen(Color.FromArgb(65, LuxuryPalette.Violet));
-        g.DrawEllipse(orbit, 19, 38, 116, 39);
-        void Fill(PointF[] points, Color a, Color b) {
-            using var path = new GraphicsPath(); path.AddPolygon(points);
-            using var gradient = new LinearGradientBrush(new Rectangle(30, 10, 95, 90), a, b, 70);
-            g.FillPath(gradient, path);
-        }
     }
 }

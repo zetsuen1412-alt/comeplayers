@@ -13,7 +13,7 @@ export async function loadCompletedMonitorEvidence(service: Service) {
   const receipts: CompletedReceipt[] = [], proofs: CompletedProof[] = [];
   for (let offset = 0; offset <= 15000; offset += 1000) {
     const { data, error: readError } = await service.from("cp_fh3_telegram_manual_orders")
-      .select("order_ref,chat_id,game,duration,task,active")
+      .select("order_ref,chat_id,game,duration,discord,task,active")
       .eq("chat_id", chat).eq("admin_user_id", sender).order("order_ref").range(offset, offset + 999);
     if (readError) throw readError;
     receipts.push(...(data ?? []));

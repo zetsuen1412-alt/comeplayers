@@ -179,3 +179,49 @@ test("Telegram-only work supports TAKE START DONE and earnings history without t
     assert.deepEqual(await snapshot(),before);
   } finally { await db.close(); }
 });
+
+test("Discord migration and guarded receipt updates preserve historical and financial data", async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
+      create table public.cp_payroll_workspace(id int primary key,payload jsonb,revision bigint default 0,
+        updated_at timestamptz default now()); insert into cp_payroll_workspace values(1,'{"salary":"keep","Closing":"keep"}',7,now());`);
+    for (const file of migrations) await db.exec(readFileSync(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8").replace(/\r\n/g,"\n"));
+    await db.exec("insert into cp_payroll_telegram_divisions(division,chat_id,chat_title) values('FH3',-100123,'EVO Ilham FH3')");
+    await db.exec(`select cp_fh3_telegram_save_manual('X4839',-100123,42,22,'AION','game server','12H','Farm XP',
+      '2026-10-22T01:00:00Z','2026-10-22T01:00:00Z',10,true,'evogamings')`);
+    const snapshot = async () => (await db.query("select * from cp_payroll_workspace")).rows;
+    const originalWorkspace = await snapshot();
+    const receipt = async () => (await db.query<{data:Record<string,unknown>}>("select to_jsonb(t) data from cp_fh3_telegram_manual_orders t where order_ref='X4839'")).rows[0].data;
+    const before = await receipt();
+    await db.exec(readFileSync(new URL("../supabase/migrations/20261022103001_fh3_monitor_discord.sql", import.meta.url), "utf8"));
+    const migrated = await receipt();
+    assert.equal(migrated.discord, ""); delete migrated.discord;
+    assert.deepEqual(migrated,before,"existing receipt, game server and TASK are preserved");
+    const save = (update: number, discord: string, sender = 22, chat = -100123, active = true) => db.query<{saved:boolean}>(`select cp_fh3_telegram_save_manual_with_discord(
+      'X4839',$4::bigint,42,$3::bigint,'AION','game server','12H','Farm XP',
+      '2026-10-22T01:00:00Z','2026-10-22T01:00:00Z'::timestamptz + $1::int*interval '1 second',
+      $1::bigint,$5::boolean,'evogamings',$2::text) saved`,[update,discord,sender,chat,active]);
+    await db.exec("set role service_role");
+    assert.equal((await save(12,"FH3 Demo")).rows[0].saved,true);
+    assert.equal((await receipt()).discord,"FH3 Demo");
+    assert.equal((await save(11,"stale Discord")).rows[0].saved,false);
+    assert.equal((await receipt()).discord,"FH3 Demo");
+    await assert.rejects(save(13,"foreign",23),/bukan akun Adm EVO Gaming/);
+    await assert.rejects(save(13,"foreign",22,-100999),/bukan dari grup FH3/);
+    await assert.rejects(save(13,"x".repeat(151)),/Discord FH3 tidak valid/);
+    assert.equal((await receipt()).discord,"FH3 Demo");
+    await save(14,""); assert.equal((await receipt()).discord,"","removing a label clears the current field");
+    await save(15,"FH3 New"); await save(16,"",22,-100123,false);
+    assert.equal((await receipt()).discord,"FH3 New","archiving retains completed receipt metadata");
+    await db.exec("reset role");
+    assert.deepEqual(await snapshot(),originalWorkspace,"salary, staff, Closing and workspace revision unchanged");
+    assert.equal((await db.query<{enabled:boolean}>("select relrowsecurity enabled from pg_class where oid='public.cp_fh3_telegram_manual_orders'::regclass")).rows[0].enabled,true);
+    assert.equal((await db.query<{definer:boolean}>("select prosecdef definer from pg_proc where proname='cp_fh3_telegram_save_manual_with_discord'")).rows[0].definer,false);
+    for (const role of ["anon","authenticated"]) {
+      assert.equal((await db.query<{allowed:boolean}>(`select has_function_privilege($1,
+        'public.cp_fh3_telegram_save_manual_with_discord(text,bigint,bigint,bigint,text,text,text,text,timestamptz,timestamptz,bigint,boolean,text,text)','execute') allowed`,[role])).rows[0].allowed,false);
+      assert.equal((await db.query<{allowed:boolean}>("select has_table_privilege($1,'public.cp_fh3_telegram_manual_orders','select') allowed",[role])).rows[0].allowed,false);
+    }
+  } finally { await db.close(); }
+});

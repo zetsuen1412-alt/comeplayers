@@ -21,7 +21,7 @@ function load<T>(file: string, mocks: Record<string, unknown>, extra: Record<str
 }
 const message = (patch: Record<string, unknown> = {}) => ({
   message_id:42,date:1792555200,from:{id:22},chat:{id:-100123,type:"supergroup"},
-  photo:[{file_id:"photo-fixture"}],caption:"X4519\nGame: aion2\nTask: Farm XP\nPass: fixture password",...patch,
+  photo:[{file_id:"photo-fixture"}],caption:"X4519\nGame: aion2\nDiscord Server: FH3 Demo\nTask: Farm XP\nPass: fixture password",...patch,
 });
 function harness(status = "administrator", boundChat = -100123, pinnedSender: number | null = null, username = "evogamings") {
   const calls: {name:string;args:Record<string,unknown>}[] = [];
@@ -49,7 +49,8 @@ test("verified admin caption stores only operational fields after group and role
   const h=harness();
   assert.equal(await h.intake.captureManualFH3Telegram({update_id:10,message:message()},h.service),true);
   assert.equal(h.memberships,1);assert.equal(h.groupChecks,1);
-  assert.equal(h.calls[0].name,"cp_fh3_telegram_save_manual");
+  assert.equal(h.calls[0].name,"cp_fh3_telegram_save_manual_with_discord");
+  assert.equal(h.calls[0].args.p_discord,"FH3 Demo");
   assert.equal(h.calls[0].args.p_order_ref,"X4519");
   assert.equal(h.calls[0].args.p_task,"Farm XP");
   assert.equal(h.calls[0].args.p_active,true);

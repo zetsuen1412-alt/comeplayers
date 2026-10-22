@@ -3,7 +3,7 @@ import { workspaceKeys, type WorkspaceState } from "@/features/payroll/lib/works
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import type { FH3MonitorJob } from "@/lib/fh3MonitorJobs";
 
-export type CompletedReceipt = { order_ref: string; chat_id: string | number; game: string; duration: string; task: string; active: boolean };
+export type CompletedReceipt = { order_ref: string; chat_id: string | number; game: string; duration: string; discord?: string; task: string; active: boolean };
 export type CompletedProof = { order_ref: string; employee_code: string; chat_id: string | number;
   action: string; status: string; telegram_message_id: string | number | null; sent_at: string | null };
 const clean = (value: unknown, max = 160) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
@@ -27,7 +27,7 @@ export function buildMobileCompleted(state: WorkspaceState, receipts: CompletedR
     records.push(order); financialByRef.set(key, records);
   }
   const completed = new Map<string, { orderRef: string; employeeCode: string; employeeName: string;
-    game: string; duration: string; task: string; completedAt: string; telegramMessageUrl: string | null; archived: boolean }>();
+    game: string; duration: string; discord: string; task: string; completedAt: string; telegramMessageUrl: string | null; archived: boolean }>();
   for (const proof of proofs) {
     const key = ref(proof.order_ref), source = sources.get(key), employee = byCode.get(proof.employee_code);
     const doneAt = stamp(proof.sent_at);
@@ -49,7 +49,7 @@ export function buildMobileCompleted(state: WorkspaceState, receipts: CompletedR
     const previous = completed.get(key);
     if (previous && Date.parse(previous.completedAt) <= Date.parse(doneAt)) continue;
     completed.set(key, { orderRef: key, employeeCode: clean(employee.code), employeeName: clean(employee.name),
-      game: clean(source.game), duration: clean(source.duration), task: clean(source.task, 500), completedAt: doneAt,
+      game: clean(source.game), duration: clean(source.duration), discord: clean(source.discord, 150), task: clean(source.task, 500), completedAt: doneAt,
       telegramMessageUrl: /^-100\d+$/.test(chat) ? `https://t.me/c/${chat.slice(4)}/${proof.telegram_message_id}` : null,
       archived: !source.active });
   }

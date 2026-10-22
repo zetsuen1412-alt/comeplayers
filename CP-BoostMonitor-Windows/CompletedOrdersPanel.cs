@@ -6,11 +6,11 @@ internal sealed class CompletedOrdersPanel : UserControl
     private readonly PayrollApi _api;
     private readonly LuxuryGrid _employees = new(), _work = new();
     private readonly MetricCard _total = new() { Caption = "ORDER SELESAI / TIM" };
-    private readonly MetricCard _contributors = new() { Caption = "KARYAWAN BERKONTRIBUSI", Accent = LuxuryPalette.Violet };
+    private readonly MetricCard _contributors = new() { Caption = "KARYAWAN / SELESAI", Accent = LuxuryPalette.Violet };
     private readonly MetricCard _selected = new() { Caption = "ORDER SELESAI / DIPILIH", Accent = LuxuryPalette.Success };
     private readonly TextBox _search = new() { BorderStyle = BorderStyle.None, Dock = DockStyle.Fill,
         BackColor = LuxuryPalette.Surface, ForeColor = LuxuryPalette.Text,
-        PlaceholderText = "Cari nama atau kode karyawan", Font = new Font("Segoe UI", 10.5f) };
+        PlaceholderText = "Cari nama karyawan", Font = new Font("Segoe UI", 10.5f) };
     private readonly Label _title = Label("Pilih karyawan", 18, true), _subtitle = Label("Daftar order dengan laporan DONE terkonfirmasi.", 9);
     private readonly Label _empty = Label("Belum ada order selesai.\nOrder akan muncul setelah laporan DONE diterima Telegram.", 11);
     private readonly Label _status = Label("Perbarui untuk memuat riwayat pekerjaan.", 9);
@@ -71,19 +71,21 @@ internal sealed class CompletedOrdersPanel : UserControl
         _employees.Columns[1].HeaderCell.Style.Padding = new Padding(2);
         _employees.Columns[1].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
         _employees.Columns[1].DefaultCellStyle.Padding = new Padding(2);
-        Column(_work, "ORDER", "OrderRef", 25, 95); Column(_work, "GAME", "Game", 30, 105);
-        Column(_work, "SELESAI PADA", "CompletedDisplay", 45, 145);
+        Column(_work, "ORDER", "OrderRef", 20, 80); Column(_work, "GAME", "Game", 20, 80);
+        Column(_work, "DISCORD", "DisplayDiscord", 25, 95);
+        Column(_work, "SELESAI PADA", "CompletedDisplay", 35, 145);
         _employees.RowTemplate.Height = 57; _work.RowTemplate.Height = 57;
         _employees.CellFormatting += (_, e) => {
             if (e.RowIndex >= 0 && e.ColumnIndex == 1) { e.CellStyle!.ForeColor = LuxuryPalette.Accent; e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; }
         };
         _work.CellToolTipTextNeeded += (_, e) => {
-            if (e.RowIndex >= 0 && _work.Rows[e.RowIndex].DataBoundItem is CompletedOrder row) e.ToolTipText = row.Task;
+            if (e.RowIndex >= 0 && _work.Rows[e.RowIndex].DataBoundItem is CompletedOrder row)
+                e.ToolTipText = $"Discord: {row.DisplayDiscord}\n{row.CompletedDisplay} • {row.Duration}\n{row.Task}";
         };
         _employees.SelectionChanged += async (_, _) => {
             if (_binding || _employees.CurrentRow?.DataBoundItem is not EmployeeCompletion row || row.EmployeeCode == _code) return;
             _code = row.EmployeeCode; _offset = 0; _title.Text = row.EmployeeName;
-            _subtitle.Text = $"{row.EmployeeCode}  /  {row.CompletedCount:N0} order selesai";
+            _subtitle.Text = $"{row.CompletedCount:N0} order selesai";
             _selected.Value = row.CompletedCount.ToString("N0"); await RefreshAsync();
         };
         _work.SelectionChanged += (_, _) => _openProof.Enabled = _work.CurrentRow?.DataBoundItem is CompletedOrder { TelegramMessageUrl: not null };
@@ -123,7 +125,7 @@ internal sealed class CompletedOrdersPanel : UserControl
         var person = _rows.FirstOrDefault(row => row.EmployeeCode == _code);
         _selected.Value = person?.CompletedCount.ToString("N0") ?? "—";
         _title.Text = person?.EmployeeName ?? "Pilih karyawan";
-        _subtitle.Text = person is null ? "Klik nama untuk membuka daftar order selesai." : $"{person.EmployeeCode}  /  {person.CompletedCount:N0} order selesai";
+        _subtitle.Text = person is null ? "Klik nama untuk membuka daftar order selesai." : $"{person.CompletedCount:N0} order selesai";
         BindEmployees(); _work.DataSource = data.Work; _empty.Visible = data.Work.Count == 0;
         _empty.Text = person is null ? "Pilih karyawan di sebelah kiri." : "Belum ada order selesai.\nOrder muncul setelah laporan DONE diterima Telegram.";
         _previous.Enabled = _offset > 0; _next.Enabled = _nextOffset.HasValue;

@@ -2,8 +2,15 @@ import type { createSupabaseAdmin } from "@/lib/serverSupabase";
 
 export type FH3ManualReceipt = {
   order_ref: string; chat_id: number; message_id: number; admin_user_id: number; active: boolean;
-  game: string; duration: string; task: string; posted_at: string;
+  game: string; duration: string; discord?: string; task: string; posted_at: string;
 };
+
+/** Existing Android builds display orderName but do not yet render a separate Discord field. */
+export function manualFH3OrderTitle(order: Pick<FH3ManualReceipt, "duration" | "discord">) {
+  const title = String(order.duration ?? "").trim() || "Order manual Telegram";
+  const discord = String(order.discord ?? "").trim();
+  return discord ? `${title} • Discord: ${discord}` : title;
+}
 
 /** Missing migration/binding or truncation must never expose the Payroll queue. */
 export async function loadFH3ManualOrders(service: ReturnType<typeof createSupabaseAdmin>) {
@@ -16,7 +23,7 @@ export async function loadFH3ManualOrders(service: ReturnType<typeof createSupab
   if (!Number.isSafeInteger(senderId) || senderId <= 0)
     throw new Error("Menunggu pesan order pertama dari Adm EVO Gaming (@evogamings).");
   const { data, error: readError } = await service.from("cp_fh3_telegram_manual_orders")
-    .select("order_ref,chat_id,message_id,admin_user_id,active,game,duration,task,posted_at")
+    .select("order_ref,chat_id,message_id,admin_user_id,active,game,duration,discord,task,posted_at")
     .eq("chat_id", chatId).eq("admin_user_id", senderId).eq("active", true).limit(1000);
   if (readError || !data || data.length >= 1000)
     throw new Error("Daftar Telegram FH3 tidak lengkap. Periksa order lama.");
