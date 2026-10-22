@@ -476,7 +476,7 @@ internal sealed class TakeOrderPanel : UserControl
 
     private static DataGridView MakeGrid()
     {
-        var grid = new DataGridView
+        var grid = new LuxuryGrid
         {
             Dock = DockStyle.Fill, ReadOnly = true, MultiSelect = false,
             AllowUserToAddRows = false, AllowUserToDeleteRows = false,
