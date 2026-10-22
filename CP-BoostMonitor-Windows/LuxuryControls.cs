@@ -52,7 +52,7 @@ internal sealed class LuxuryCard : Panel
     {
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         e.Graphics.Clear(Parent?.BackColor ?? LuxuryPalette.Background);
-        if (Width < 4 || Height < 4) return;
+        if (Width < 12 || Height < 12) return;
         var bounds = new Rectangle(1, 1, Width - 8, Height - 9);
         for (int depth = 6; depth >= 1; depth--) {
             using var shadow = LuxuryPalette.Round(new Rectangle(bounds.X + depth / 2, bounds.Y + depth, bounds.Width, bounds.Height), Radius);
@@ -105,7 +105,7 @@ internal sealed class LuxuryButton : Button
     {
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         e.Graphics.Clear(Parent?.BackColor ?? LuxuryPalette.Background);
-        if (Width < 4 || Height < 4) return;
+        if (Width < 24 || Height < 12) return;
         var bounds = new Rectangle(1, 1, Width - 4, Height - 6);
         using (var shadow = LuxuryPalette.Round(new Rectangle(2, 4, Width - 4, Height - 5), 13))
         using (var brush = new SolidBrush(Color.FromArgb(100, 0, 0, 0))) e.Graphics.FillPath(brush, shadow);
