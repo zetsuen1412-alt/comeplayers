@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/features/payroll/components/page-header";
 import { usePayrollActor } from "@/features/payroll/lib/workspace-store";
+import { isMonitorDownloadReady } from "@/lib/monitorDownloads";
 
 const APK_URL = "/downloads/cp-boost-monitor.apk";
 const WINDOWS_EXE_URL = "/downloads/evogaming-monitor-windows.exe";
@@ -34,7 +35,8 @@ export default function BoostMonitorDownloadPage() {
       try {
         const files = await Promise.all([WINDOWS_EXE_URL, WINDOWS_ZIP_URL].map(url =>
           fetch(url, { method: "HEAD", cache: "no-store", signal: controller.signal })));
-        if (!controller.signal.aborted) setWindowsReady(files.every(file => file.ok && Number(file.headers.get("content-length")) > 3000000));
+        if (!controller.signal.aborted) setWindowsReady(files.every((file, index) =>
+          isMonitorDownloadReady(file, index === 0 ? "application/octet-stream" : "application/zip", 3000000)));
       } catch { if (!controller.signal.aborted) setWindowsReady(false); }
     })();
     return () => controller.abort();

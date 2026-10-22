@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import config from "../next.config";
+import { isMonitorDownloadReady } from "../lib/monitorDownloads";
 
 test("APK Android dikirim sebagai attachment yang dikenali oleh browser", async () => {
   const headers = await config.headers?.();
@@ -30,4 +31,14 @@ test("unduhan Windows langsung memakai attachment dan selalu memvalidasi cache v
     assert.equal(file.headers?.find(row => row.key === "Content-Type")?.value, mime);
     assert.equal(file.headers?.find(row => row.key === "Cache-Control")?.value, "public, max-age=0, must-revalidate");
   }
+});
+
+test("EXE HEAD tanpa Content-Length tetap siap; error HTML dan berkas kecil tetap ditolak", () => {
+  const response = (headers: Record<string, string>, status = 200) => new Response(null, { status, headers });
+  assert.equal(isMonitorDownloadReady(response({ "content-type": "application/octet-stream" }), "application/octet-stream", 3000000), true);
+  assert.equal(isMonitorDownloadReady(response({ "content-type": "application/zip", "content-length": "62558377" }), "application/zip", 3000000), true);
+  assert.equal(isMonitorDownloadReady(response({ "content-type": "text/html" }), "application/octet-stream", 3000000), false);
+  assert.equal(isMonitorDownloadReady(response({ "content-type": "application/octet-stream" }, 404), "application/octet-stream", 3000000), false);
+  assert.equal(isMonitorDownloadReady(response({ "content-type": "application/octet-stream", "content-length": "0" }), "application/octet-stream", 3000000), false);
+  assert.equal(isMonitorDownloadReady(response({ "content-type": "application/octet-stream", "content-length": "invalid" }), "application/octet-stream", 3000000), false);
 });
