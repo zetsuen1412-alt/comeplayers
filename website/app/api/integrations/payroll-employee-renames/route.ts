@@ -1,4 +1,5 @@
 import {timingSafeEqual} from "node:crypto";
+import {payrollSheetSyncDisabledResponse} from "@/lib/payrollSheetSyncControl";
 import {createSupabaseAdmin} from "@/lib/serverSupabase";
 import {listPendingSheetNameCorrections} from "@/features/payroll/lib/employee-name-correction";
 import type {WorkspaceState} from "@/features/payroll/lib/workspace-model";
@@ -7,8 +8,10 @@ export const runtime="nodejs";
 export const dynamic="force-dynamic";
 function response(data:unknown,status=200) {return Response.json(data,{status,headers:{"Cache-Control":"no-store"}});}
 export async function GET(request:Request) {
+ const disabled=payrollSheetSyncDisabledResponse();
+ if(disabled)return disabled;
  try {
-   const expected = process.env.PAYROLL_SHEETS_SYNC_SECRET || process.env.CRON_SECRET || "";
+   const expected = process.env.PAYROLL_SHEETS_SYNC_SECRET || "";
    if(expected.length<24)return response({error:"Secret sinkronisasi belum dikonfigurasi."},503);
    const auth=request.headers.get("authorization") || "";
    const supplied=auth.toLowerCase().startsWith("bearer ")?auth.slice(7).trim():"";

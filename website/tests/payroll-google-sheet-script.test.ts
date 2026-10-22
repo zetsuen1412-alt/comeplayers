@@ -24,7 +24,8 @@ function harness(count = 3, digestDelayMs = 0) {
     "PAYROLL-3": [[], ["", "NAMA"], [1, "FH3 Worker", "BOOST", "", "NEW"]],
   };
   const lockTimeouts: number[] = [];
-  const properties: Record<string, string> = { CP_SYNC_SECRET: "a".repeat(30), CP_ACTOR_EMAIL: "admin@example.com",
+  // Existing sync behavior is exercised only with the new explicit local opt-in.
+  const properties: Record<string, string> = { CP_PAYROLL_SYNC_ENABLED: "true", CP_SYNC_SECRET: "a".repeat(30), CP_ACTOR_EMAIL: "admin@example.com",
     CP_SPREADSHEET_ID: "test-book", CP_SHEET_NAME: "MUTASI FH", CP_HEADER_ROW: "2" };
   let locked = false;
   let status = 200;

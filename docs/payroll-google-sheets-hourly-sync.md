@@ -1,3 +1,36 @@
+# Status 22 Oktober 2026: sinkronisasi Payroll dimatikan secara default
+
+Instruksi instalasi di bawah adalah referensi historis. Jangan mengaktifkan
+sinkronisasi sebelum mendapat persetujuan pemilik. Server hanya menerima impor
+jika `PAYROLL_SHEETS_SYNC_ENABLED` tepat `true` dan secret khusus valid. Flag kosong,
+hilang, atau nilai lain menghasilkan HTTP 410 `PAYROLL_SHEETS_SYNC_DISABLED`
+sebelum membaca payload, mengakses Supabase, menjalankan bootstrap XLSX, atau
+mengirim Telegram. `CRON_SECRET` tidak lagi diterima oleh integrasi Payroll Sheets.
+Endpoint koreksi nama Sheets ikut berhenti; editor website dan cron lain tetap tersedia.
+
+Untuk menghentikan pengiriman dari Google: ganti kode Payroll Apps Script dengan
+versi ini lalu jalankan `pauseComePlayersPayrollSync()` sebagai setiap akun yang
+pernah memasang trigger. Apps Script hanya dapat menghapus trigger milik akun
+pelaksana. Fungsi hanya menghapus handler `syncComePlayersPayroll`,
+`onComePlayersPayrollEdit`, `onComePlayersPayrollChange`; jangan hapus trigger
+mirror EVO GAMING/`EGM_*`. Workbook, sel, CP_ROW_HASH, secret, data karyawan,
+gaji, order dan Closing tidak dihapus. Kiriman dari script versi lama tetap
+ditolak server setelah perubahan server ini dirilis.
+
+Probe setelah rilis yang disetujui: `GET /api/integrations/payroll-sheet` harus
+mengembalikan 410, `enabled:false`, `saved:false`. Probe ini tidak mengubah data.
+Kode yang belum dirilis tidak membuktikan status produksi; audit 22 Oktober
+menemukan produksi masih pada `8ffefaa` dengan mitigasi secret terpisah saja.
+
+Rollback yang aman: biarkan flag server kosong/`false` dan pertahankan secret
+khusus. Untuk rollback kode ke sebelum sakelar ini, penghentian hanya bergantung
+pada mitigasi secret; karena itu lebih aman rollback bagian lain sambil tetap
+mempertahankan guard ini. Reaktivasi memerlukan persetujuan terpisah: review
+sumber/cakupan data dahulu, isi secret khusus, aktifkan server dan
+`CP_PAYROLL_SYNC_ENABLED=true`, baru pasang trigger Payroll. Tidak perlu migrasi.
+
+---
+
 # ComePlayers Payroll — sinkronisasi realtime + rekonsiliasi 1 menit
 
 Nama file lama dipertahankan agar tautan tetap bekerja. Sinkronisasi memakai trigger edit, perubahan struktur, dan pemeriksaan setiap menit. Ini bukan otomatisasi Codex dan tidak memakai token Codex.

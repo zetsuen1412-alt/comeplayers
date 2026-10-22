@@ -14,6 +14,8 @@ on:
       - website/scripts/comeplayers-payroll-google-sheets.gs
       - website/tests/payroll-employee-name-correction.test.ts
       - website/tests/payroll-google-sheet-script.test.ts
+      - website/tests/payroll-sheet-disabled.test.ts
+      - website/lib/payrollSheetSyncControl.ts
       - .github/workflows/payroll-employee-name-writeback-checks.yml
   push:
     branches: [main]
@@ -28,6 +30,8 @@ on:
       - website/scripts/comeplayers-payroll-google-sheets.gs
       - website/tests/payroll-employee-name-correction.test.ts
       - website/tests/payroll-google-sheet-script.test.ts
+      - website/tests/payroll-sheet-disabled.test.ts
+      - website/lib/payrollSheetSyncControl.ts
       - .github/workflows/payroll-employee-name-writeback-checks.yml
   workflow_dispatch:
 permissions:
@@ -68,4 +72,4 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Verify roster, rename, Google Sheets script and regression
-        run: npx --no-install tsx --test tests/payroll-employee-name-correction.test.ts tests/payroll-google-sheet-roster.test.ts tests/payroll-google-sheet-script.test.ts tests/payroll-final-workspace.test.ts
+        run: npx --no-install tsx --test tests/payroll-sheet-disabled.test.ts tests/payroll-employee-name-correction.test.ts tests/payroll-google-sheet-roster.test.ts tests/payroll-google-sheet-script.test.ts tests/payroll-final-workspace.test.ts
