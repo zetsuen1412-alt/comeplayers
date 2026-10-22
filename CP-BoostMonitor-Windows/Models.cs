@@ -64,46 +64,49 @@ public sealed class ProofResult
     public bool AlreadySent { get; set; }
 }
 
-public sealed class EarningsSnapshot
+public sealed class CompletedSnapshot
 {
     public int Schema { get; set; }
     public string Scope { get; set; } = "";
-    public string Currency { get; set; } = "";
+    public string SourceOfTruth { get; set; } = "";
+    public string CompletionRule { get; set; } = "";
+    public bool Complete { get; set; }
     public long Revision { get; set; }
-    public List<EmployeeEarnings> Employees { get; set; } = new();
+    [System.Text.Json.Serialization.JsonRequired]
+    public List<EmployeeCompletion> Employees { get; set; } = new();
     public string? SelectedEmployeeCode { get; set; }
-    public List<WorkRecord> Work { get; set; } = new();
+    [System.Text.Json.Serialization.JsonRequired]
+    public List<CompletedOrder> Work { get; set; } = new();
+    [System.Text.Json.Serialization.JsonRequired]
+    public CompletionTotals Totals { get; set; } = new();
     public int WorkTotal { get; set; }
     public int? NextOffset { get; set; }
     public string Notice { get; set; } = "";
 }
-public sealed class EmployeeEarnings
+public sealed class EmployeeCompletion
 {
     public string EmployeeCode { get; set; } = "";
     public string EmployeeName { get; set; } = "";
-    public string Division { get; set; } = "";
-    public string WorkforceStatus { get; set; } = "";
-    public decimal SharePercent { get; set; }
-    public long EarningMinor { get; set; }
-    public long OperationalMinor { get; set; }
-    public long PenaltyMinor { get; set; }
-    public long BonusTipsMinor { get; set; }
-    public long KasbonMinor { get; set; }
-    public long NetMinor { get; set; }
-    public long ClosedNetMinor { get; set; }
-    public int ActiveOrderCount { get; set; }
-    public int AwaitingVerificationCount { get; set; }
-    public int VerifiedWorkCount { get; set; }
-    public int UnvaluedOrderCount { get; set; }
+    public int CompletedCount { get; set; }
+    public string? LastCompletedAt { get; set; }
 }
-public sealed class WorkRecord
+public sealed class CompletionTotals
 {
-    public string Id { get; set; } = "";
+    public int CompletedCount { get; set; }
+    public int EmployeeCount { get; set; }
+    public int Contributors { get; set; }
+    public string? LastCompletedAt { get; set; }
+}
+public sealed class CompletedOrder
+{
+    public string EmployeeCode { get; set; } = "";
+    public string EmployeeName { get; set; } = "";
     public string OrderRef { get; set; } = "";
     public string Game { get; set; } = "";
-    public string Date { get; set; } = "";
-    public string Status { get; set; } = "";
-    public string Schedule { get; set; } = "";
+    public string Duration { get; set; } = "";
+    public string Task { get; set; } = "";
+    public string CompletedAt { get; set; } = "";
+    public string CompletedDisplay => DateTimeOffset.TryParse(CompletedAt, out var stamp) ? stamp.ToLocalTime().ToString("dd MMM yyyy · HH:mm") : "—";
+    public string? TelegramMessageUrl { get; set; }
     public bool Archived { get; set; }
-    public bool Closed { get; set; }
 }

@@ -8,7 +8,7 @@ import { authenticatedFetchJson } from "@/lib/authenticatedFetch";
 const APK_URL = "/downloads/cp-boost-monitor.apk";
 const ZIP_URL = "/downloads/cp-boost-monitor.zip";
 const APK_SHA_URL = "/downloads/cp-boost-monitor.apk.sha256";
-const WINDOWS_RELEASES_URL = "https://github.com/zetsuen1412-alt/comeplayers/releases/tag/evogaming-monitor-windows-v1.7-telegram-payroll";
+const WINDOWS_RELEASES_URL = "https://github.com/zetsuen1412-alt/comeplayers/releases/tag/evogaming-monitor-windows-v1.8-completed-orders-3d";
 type RosterRow = { id: string; code: string; name: string; team: string; active: boolean };
 type Roster = { schema: number; scope: "FH3"; revision: number; updatedAt: string; employees: RosterRow[] };
 
@@ -100,8 +100,8 @@ export default function BoostMonitorDownloadPage() {
       {parallelInstall && <p className="mt-4 rounded-xl border border-amber-500/40 p-3 text-sm text-amber-200">Paket FH3 ini dipasang berdampingan dengan CP Boost Monitor lama. Pertahankan aplikasi lama untuk membuka atau mengekspor riwayat status lokal; login pada EVOGAMING Monitor FH3 untuk memakai alur Telegram terbaru.</p>}
     </section>
     <section className="cp-card p-5 sm:p-6">
-      <h2 className="text-xl font-semibold">Windows 10/11 x64 · v1.7</h2>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">Gunakan EVOGAMING Monitor Windows dari GitHub Releases. Menu Take Order, screenshot START/DONE, dan Payroll memakai data website yang sama dengan Android. Tutup versi lama sebelum menjalankan EXE baru; sesi dan riwayat lokal tetap memakai lokasi yang sama.</p>
+      <h2 className="text-xl font-semibold">Windows 10/11 x64 · v1.8 · Tampilan 3D</h2>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">Tampilan baru dengan kartu berlapis dan tombol berefek timbul. Menu Order Selesai menggantikan Payroll: pilih karyawan untuk melihat jumlah order dan daftar laporan DONE yang diterima Telegram. Take Order dan screenshot START/DONE tetap tersedia. Tutup versi lama sebelum menjalankan EXE baru; sesi dan riwayat lokal tetap tersimpan.</p>
       <a href={WINDOWS_RELEASES_URL} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950">⬇ Download Monitor Windows</a>
     </section>
     <section className="cp-card p-5 sm:p-6">

@@ -201,14 +201,18 @@ public sealed class PayrollApi : IDisposable
         return doc.Tasks;
     }
 
-    public async Task<EarningsSnapshot> EarningsAsync(string employeeCode = "", int offset = 0)
+    public async Task<CompletedSnapshot> CompletedAsync(string employeeCode = "", int offset = 0)
     {
-        var doc = await GetAsync<EarningsSnapshot>("earnings?employeeCode="
+        var doc = await GetAsync<CompletedSnapshot>("completed?employeeCode="
             + Uri.EscapeDataString(employeeCode) + "&offset=" + offset);
-        if (doc.Schema != 1 || doc.Scope != "FH3" || doc.Currency != "IDR"
-            || doc.Employees.Any(row => row.Division != "FH3")
+        if (doc.Schema != 1 || doc.Scope != "FH3" || doc.SourceOfTruth != "telegram_fh3_manual"
+            || doc.CompletionRule != "telegram_done_confirmed" || !doc.Complete
+            || doc.Employees is null || doc.Work is null || doc.Totals is null
+            || doc.Employees.Any(row => row.CompletedCount < 0 || string.IsNullOrWhiteSpace(row.EmployeeCode))
+            || doc.Work.Any(row => row.EmployeeCode != employeeCode || !DateTimeOffset.TryParse(row.CompletedAt, out _))
+            || doc.WorkTotal < doc.Work.Count || doc.Work.Count > 50
             || doc.SelectedEmployeeCode != (employeeCode.Length == 0 ? null : employeeCode))
-            throw new InvalidOperationException("Format penghasilan FH3 tidak sesuai.");
+            throw new InvalidOperationException("Format riwayat order selesai FH3 tidak sesuai.");
         return doc;
     }
 

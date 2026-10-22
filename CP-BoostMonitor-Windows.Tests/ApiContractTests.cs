@@ -52,6 +52,14 @@ internal static class ApiContractTests
             http.Respond = _ => Task.FromResult(Json("""{"schema":1,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","workflowSchema":1,"tasks":[{"orderRef":"X4806","status":"assigned","takeStatus":"unknown","canStart":false,"deliveryUncertain":true}]}"""));
             var tasks = await api.TasksAsync();
             Check(tasks[0].DeliveryUncertain && !tasks[0].CanStart && !tasks[0].CanDone, "uncertain TAKE never unlocks screenshot actions");
+            http.Respond = r => {
+                Check(r.RequestUri!.AbsolutePath.EndsWith("/completed"), "completed view requests operational history instead of salaries");
+                return Task.FromResult(Json("""{"schema":1,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","completionRule":"telegram_done_confirmed","complete":true,"selectedEmployeeCode":"E1","employees":[{"employeeCode":"E1","employeeName":"ADIT3","completedCount":1}],"totals":{"completedCount":1,"employeeCount":1,"contributors":1},"workTotal":1,"work":[{"orderRef":"X4806","employeeCode":"E1","completedAt":"2026-10-22T03:00:00Z"}]}"""));
+            };
+            var completed = await api.CompletedAsync("E1");
+            Check(completed.Employees[0].CompletedCount == 1 && completed.Work.Single().OrderRef == "X4806", "confirmed completed order count and employee list deserialize correctly");
+            http.Respond = _ => Task.FromResult(Json("""{"schema":1,"scope":"FH3","sourceOfTruth":"payroll","completionRule":"telegram_done_confirmed","complete":true,"employees":[],"work":[],"totals":{}}"""));
+            await Rejected(async () => { await api.CompletedAsync(); });
             http.Respond = _ => Task.FromResult(Json("""{"ok":false,"assigned":true,"takeSent":false,"error":"Periksa grup"}""", HttpStatusCode.Conflict));
             await Rejected(async () => { await api.AssignAsync("X4806", "E1"); });
             Check(http.AssignCalls == 1, "uncertain assignment is not automatically resent");

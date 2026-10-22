@@ -1,10 +1,11 @@
-# EVOGAMING Monitor — Windows v1.7 (Native .NET 8)
+# EVOGAMING Monitor — Windows v1.8 (Native .NET 8)
 
-Current behavior and installation: [Telegram + Payroll guide](../docs/monitor-telegram-payroll-2026-10-22.md).
+Current behavior and installation: [Completed orders + dimensional UI](../docs/monitor-completed-orders-3d-2026-10-22.md).
 Only verified @evogamings FH3 posts supply orders/TASK. Unpriced orders can be
 taken into a separate operational journal; TAKE/START/DONE reports go to Telegram.
-The Payroll menu shows each employee's verified earnings and work history to
-all authenticated Payroll members. Existing local status/session files are retained.
+The Order Selesai menu replaces Payroll: per-employee counts and lists include
+only confirmed Telegram DONE reports from Monitor. This client no longer requests
+salary data. Existing website financial data and local status/session files remain.
 
 The following sections document earlier versions; the current guide supersedes
 their old Payroll-only source, missing salary view, and versioned download links.

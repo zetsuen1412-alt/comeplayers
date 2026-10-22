@@ -7,9 +7,10 @@ namespace CPBoostMonitor;
 
 public sealed class MainForm : Form
 {
-    private readonly PayrollApi _api = new();
-    private readonly PayrollPanel _payrollPanel;
-    private readonly LocalStatusStore _statusStore = new();
+    private readonly PayrollApi _api;
+    private readonly CompletedOrdersPanel _completedPanel;
+    private readonly LocalStatusStore _statusStore;
+    private readonly bool _preview;
     private readonly System.Windows.Forms.Timer _poll = new() { Interval = 30_000 };
     private readonly System.Windows.Forms.Timer _sleepClock = new() { Interval = 15_000 };
     private readonly NotifyIcon _tray = new();
@@ -35,7 +36,7 @@ public sealed class MainForm : Form
     private readonly FlowLayoutPanel _nav = new()
     {
         Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false,
-        Padding = new Padding(12, 20, 12, 0), AutoScroll = true, BackColor = Sidebar,
+        Padding = new Padding(16, 14, 16, 0), AutoScroll = true, BackColor = Sidebar,
     };
     private readonly Label _connection = new() { AutoSize = true, ForeColor = Muted };
     private readonly Label _headline = new() { AutoSize = true, Font = new Font("Segoe UI", 18, FontStyle.Bold), ForeColor = Fore };
@@ -49,19 +50,25 @@ public sealed class MainForm : Form
     private readonly ComboBox _taskStatusFilter = new();
     private readonly TextBox _email = new();
     private readonly TextBox _password = new();
-    private readonly Button _loginButton = ActionButton("LOGIN PAYROLL", true);
-    private readonly Label _loginFeedback = StyledText("Gunakan akun ComePlayers dengan akses Payroll.", 10);
+    private readonly Button _loginButton = ActionButton("MASUK KE WORKSPACE", true);
+    private readonly Label _loginFeedback = StyledText("Gunakan akun ComePlayers dengan akses operasional.", 10);
     private readonly RichTextBox _history = new() { ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = PanelColor, ForeColor = Fore, Font = new Font("Consolas", 10.5f) };
     private readonly TakeOrderPanel _takePanel = new();
     private string _activePage = "Take Order";
 
-    public MainForm()
+    public MainForm() : this(false) { }
+    internal MainForm(bool preview)
     {
-        _payrollPanel = new PayrollPanel(_api);
+        _preview = preview;
+        string previewPath = Path.Combine(Path.GetTempPath(), "fh3-render-" + Guid.NewGuid().ToString("N"));
+        _api = preview ? new PayrollApi(new HttpClientHandler(), Path.Combine(previewPath, "session.dat")) : new PayrollApi();
+        _statusStore = new LocalStatusStore(preview ? Path.Combine(previewPath, "local-status.json") : null);
+        _completedPanel = new CompletedOrdersPanel(_api);
         Text = "EVOGAMING Monitor — FH3 | Windows";
-        MinimumSize = new Size(1030, 660);
+        MinimumSize = new Size(1120, 740);
         StartPosition = FormStartPosition.CenterScreen;
-        Size = new Size(1240, 800);
+        Size = new Size(1460, 900);
+        DoubleBuffered = true;
         BackColor = Background;
         ForeColor = Fore;
         Font = new Font("Segoe UI", 10);
@@ -76,18 +83,18 @@ public sealed class MainForm : Form
         _takePanel.TakeTelegramRequested += async (_, task) =>
             await RunBusyAsync(() => CheckOrSendTakeAsync(task));
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
-        _sleepClock.Start();
+        if (!preview) _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
         _tray.Icon = SystemIcons.Application;
         _tray.Text = "EVOGAMING Monitor FH3";
-        _tray.Visible = true;
+        _tray.Visible = !preview;
         _tray.ContextMenuStrip = new ContextMenuStrip();
         _tray.ContextMenuStrip.Items.Add("Buka EVOGAMING Monitor", null, (_, _) => RestoreWindow());
         _tray.ContextMenuStrip.Items.Add("Keluar", null, (_, _) => Close());
         _tray.DoubleClick += (_, _) => RestoreWindow();
-        FormClosed += (_, _) => { _poll.Stop(); _sleepClock.Stop(); _tray.Visible = false; _tray.Dispose(); _api.Dispose(); };
         Shown += async (_, _) =>
         {
+            if (_preview) return;
             if (_api.LoggedIn)
             {
                 ShowPage("Take Order");
@@ -97,11 +104,31 @@ public sealed class MainForm : Form
         };
     }
 
+    protected override bool ShowWithoutActivation => _preview || base.ShowWithoutActivation;
+    private bool _resourcesDisposed;
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && !_resourcesDisposed) {
+            _resourcesDisposed = true; _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _api.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+
     private void RestoreWindow()
     {
         Show();
         WindowState = FormWindowState.Normal;
         Activate();
+    }
+
+    // Offline rendering uses synthetic data, isolated paths, no tray, timers or authentication.
+    internal void LoadPreview(CompletedSnapshot completed, List<Employee> people, List<PayrollOrder> pending, string page)
+    {
+        if (!_preview) throw new InvalidOperationException("Preview mode required.");
+        _employees = people; _pending = pending; _tasks = new(); BindTables(); ShowPage(page);
+        _completedPanel.ApplySnapshot(completed);
+        _connection.Text = "●  PREVIEW / DATA CONTOH";
+        _appStatus.Text = "Pratinjau desain • Data contoh • Tidak terhubung ke akun atau Telegram";
     }
 
     private void BuildLayout()
@@ -110,44 +137,40 @@ public sealed class MainForm : Form
         {
             Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = Padding.Empty,
         };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 190));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 252));
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         Controls.Add(layout);
         layout.Controls.Add(_nav, 0, 0);
         layout.Controls.Add(_content, 1, 0);
 
-        var logo = StyledText("◈  EVOGAMING", 16, true, Accent);
-        logo.Margin = new Padding(12, 12, 0, 5);
-        _nav.Controls.Add(logo);
-        var division = StyledText("MONITOR   /   FH3", 9, true, Muted);
-        division.Margin = new Padding(12, 0, 0, 28);
-        _nav.Controls.Add(division);
-        foreach (var name in new[] { "Take Order", "Payroll", "Riwayat", "Pengaturan" })
+        _nav.Controls.Add(new BrandMark());
+        foreach (var name in new[] { "Take Order", "Order Selesai", "Aktivitas Lokal", "Pengaturan" })
         {
             var button = NavButton(name);
             _nav.Controls.Add(button);
             _navigation[name] = button;
             button.Click += (_, _) => ShowPage(name);
         }
-        var account = StyledText("●  PAYROLL  /  FH3", 10, true, Success);
+        var account = StyledText("●  TELEGRAM FH3", 9, true, Success);
         account.Margin = new Padding(12, 32, 0, 4);
         _nav.Controls.Add(account);
         _connection.Text = "Login belum aktif";
         _connection.Margin = new Padding(12, 0, 0, 0);
         _nav.Controls.Add(_connection);
 
-        var header = new Panel { Dock = DockStyle.Top, Height = 101,
-            Padding = new Padding(20, 9, 20, 4), BackColor = Background };
-        var breadcrumb = StyledText("EVOGAMING   /   FH3 OPERATIONS", 9, true, Accent);
-        breadcrumb.Location = new Point(19, 9);
+        var header = new Panel { Dock = DockStyle.Top, Height = 119,
+            Padding = new Padding(22, 14, 22, 4), BackColor = Background };
+        var breadcrumb = StyledText("EVOGAMING  /  OPERATIONS WORKSPACE", 8.5f, true, Accent);
+        breadcrumb.Location = new Point(25, 16);
         header.Controls.Add(breadcrumb);
         _headline.Text = "Take Order";
-        _headline.Font = new Font("Segoe UI", 20, FontStyle.Bold);
-        _headline.Location = new Point(19, 29);
+        _headline.Font = new Font("Segoe UI", 25, FontStyle.Bold);
+        _headline.Location = new Point(22, 37);
         header.Controls.Add(_headline);
-        _metrics.Location = new Point(21, 73);
+        _metrics.Location = new Point(26, 90);
         _metrics.Text = "Pilih karyawan + pilih order  •  klik TAKE ORDER";
         header.Controls.Add(_metrics);
+        header.Controls.Add(new DepthEmblem());
         header.Paint += (_, e) => {
             using var pen = new Pen(PanelLine, 1);
             e.Graphics.DrawLine(pen, 19, header.Height - 1, header.Width - 19, header.Height - 1);
@@ -162,8 +185,8 @@ public sealed class MainForm : Form
 
         _pages["Login"] = BuildLogin();
         _pages["Take Order"] = _takePanel;
-        _pages["Payroll"] = _payrollPanel;
-        _pages["Riwayat"] = BuildHistory();
+        _pages["Order Selesai"] = _completedPanel;
+        _pages["Aktivitas Lokal"] = BuildHistory();
         _pages["Pengaturan"] = BuildSettings();
 
         foreach (var page in _pages.Values)
@@ -180,12 +203,12 @@ public sealed class MainForm : Form
         var form = Card();
         form.Width = 642; form.Height = 420;
         form.Controls.Add(MakeLabel("SECURE ACCESS  /  FH3", 10, 26, 18, true, Accent));
-        form.Controls.Add(MakeLabel("Hubungkan akun Payroll", 22, 26, 49, true, Fore));
+        form.Controls.Add(MakeLabel("Masuk ke workspace", 22, 26, 49, true, Fore));
         form.Controls.Add(MakeLabel("Akses aman ke sistem operasional EVOGAMING", 11, 26, 97, false, Muted));
         _email.SetBounds(26, 149, 584, 42);
         FormatInput(_email, false);
-        _email.PlaceholderText = "Email akun Payroll";
-        form.Controls.Add(MakeLabel("EMAIL AKUN PAYROLL", 9, 27, 126, true, Muted));
+        _email.PlaceholderText = "Email akun ComePlayers";
+        form.Controls.Add(MakeLabel("EMAIL AKUN", 9, 27, 126, true, Muted));
         form.Controls.Add(_email);
         _password.SetBounds(26, 216, 584, 42);
         FormatInput(_password, true);
@@ -196,7 +219,7 @@ public sealed class MainForm : Form
         _loginButton.Click += async (_, _) => await RunBusyAsync(async () =>
         {
             var password = _password.Text;
-            _loginFeedback.Text = "Menghubungkan ke Payroll Website...";
+            _loginFeedback.Text = "Menghubungkan ke ComePlayers…";
             try
             {
                 await _api.LoginAsync(_email.Text, password);
@@ -317,14 +340,14 @@ public sealed class MainForm : Form
         card.Controls.Add(MakeLabel("Divisi: FH3  •  Bukti Telegram: 🔥 EVO🔥 Ilham FH3", 12, 22, 101));
         card.Controls.Add(MakeLabel("Sesi login dienkripsi menggunakan Windows DPAPI (CurrentUser).", 12, 22, 139));
         card.Controls.Add(MakeLabel("Token bot Telegram dan kunci Supabase TIDAK ada di aplikasi.", 12, 22, 176));
-        var logout = ActionButton("Logout dari Payroll", false);
+        var logout = ActionButton("Keluar dari akun", false);
         logout.SetBounds(22, 222, 252, 42);
         logout.Click += (_, _) =>
         {
-            if (MessageBox.Show("Keluar dari akun Payroll di PC ini?", "Logout",
+            if (MessageBox.Show("Keluar dari akun ComePlayers di PC ini?", "Logout",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
             _api.Logout(); _poll.Stop();
-            _payrollPanel.Clear(); _takePanel.SetStale(true);
+            _completedPanel.Clear(); _takePanel.SetStale(true);
             _employees.Clear(); _pending.Clear(); _tasks.Clear();
             _seenInitialQueue = false; _lastRefs.Clear();
             BindTables();
@@ -575,14 +598,14 @@ public sealed class MainForm : Form
         _connection.Text = "●  FH3 • Online";
         _connection.ForeColor = Success;
         _poll.Start();
-        SetStatus($"Payroll tersinkron {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.");
+        SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.");
         if (additions.Count > 0)
         {
             _tray.BalloonTipTitle = $"EVOGAMING Monitor — {additions.Count} order FH3 baru";
             _tray.BalloonTipText = string.Join(", ", additions.Take(4));
             _tray.ShowBalloonTip(7000);
         }
-        if (_activePage == "Payroll") await _payrollPanel.RefreshAsync();
+        if (_activePage == "Order Selesai") await _completedPanel.RefreshAsync();
     }
 
     private void BindTables()
@@ -595,7 +618,7 @@ public sealed class MainForm : Form
                 $"{x.ChangedAt:dd/MM/yyyy HH:mm:ss}    {x.EmployeeName} ({x.EmployeeCode}): {x.From} → {x.To}"));
         _metrics.Text = $"{_pending.Count} order baru   •   {_tasks.Count} tugas aktif   •   {_employees.Count} karyawan FH3";
         if (_navigation.TryGetValue("Take Order", out var item))
-            item.Text = $"    ▸  Take Order  ({_pending.Count})";
+            item.Text = $"Take Order   /   {_pending.Count}";
     }
 
     private void BindFilteredTables()
@@ -636,7 +659,7 @@ public sealed class MainForm : Form
 
     private void ShowPage(string name)
     {
-        if (name != "Login" && !_api.LoggedIn) name = "Login";
+        if (name != "Login" && !_api.LoggedIn && !_preview) name = "Login";
         _activePage = name;
         foreach (var entry in _pages)
             entry.Value.Visible = entry.Key == name;
@@ -647,8 +670,8 @@ public sealed class MainForm : Form
             entry.Value.ForeColor = Fore;
         }
         _headline.Text = name == "Login" ? "Masuk ke EVOGAMING Monitor" : name;
-        if (name == "Riwayat") BindTables();
-        if (name == "Payroll") _ = _payrollPanel.RefreshAsync();
+        if (name == "Aktivitas Lokal") BindTables();
+        if (name == "Order Selesai") _ = _completedPanel.RefreshAsync();
     }
 
     private void ExportHistory()
@@ -709,8 +732,8 @@ public sealed class MainForm : Form
 
     private static Button NavButton(string title) => new LuxuryButton
     {
-        Navigation = true, Text = "    ▸  " + title, Width = 158, Height = 49,
-        Margin = new Padding(4, 2, 4, 5),
+        Navigation = true, Text = title, Width = 216, Height = 55,
+        Margin = new Padding(0, 2, 0, 8),
         BackColor = Sidebar, ForeColor = Fore,
         TextAlign = ContentAlignment.MiddleLeft,
     };
