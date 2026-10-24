@@ -86,6 +86,8 @@ public sealed class MainForm : Form
             await RunBusyAsync(() => SendProofForAsync(choice.Task, choice.Action));
         _takePanel.TakeTelegramRequested += async (_, task) =>
             await RunBusyAsync(() => CheckOrSendTakeAsync(task));
+        _takePanel.ArchiveRequested += async (_, order) =>
+            await RunBusyAsync(() => ArchivePendingOrderAsync(order));
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
         if (!preview) _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
@@ -127,10 +129,11 @@ public sealed class MainForm : Form
     }
 
     // Offline rendering uses synthetic data, isolated paths, no tray, timers or authentication.
-    internal void LoadPreview(CompletedSnapshot completed, List<Employee> people, List<PayrollOrder> pending, string page)
+    internal void LoadPreview(CompletedSnapshot completed, List<Employee> people, List<PayrollOrder> pending, string page, bool isAdmin = false)
     {
         if (!_preview) throw new InvalidOperationException("Preview mode required.");
         _employees = people; _pending = pending; _tasks = new(); BindTables(); ShowPage(page);
+        _takePanel.SetAdminAccess(isAdmin); _navigation["Kelola Order"].Visible = isAdmin;
         _completedPanel.ApplySnapshot(completed);
         _connection.Text = "●  PREVIEW / DATA CONTOH";
         _appStatus.Text = "Pratinjau desain • Data contoh • Tidak terhubung ke akun atau Telegram";
@@ -360,7 +363,7 @@ public sealed class MainForm : Form
         {
             if (MessageBox.Show("Keluar dari akun ComePlayers di PC ini?", "Logout",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-            _api.Logout(); _poll.Stop();
+            _api.Logout(); _poll.Stop(); _takePanel.SetAdminAccess(false);
             _completedPanel.Clear(); _managementPanel.Clear(); _booksPanel.Clear(); _navigation["Kelola Order"].Visible=false; _takePanel.SetStale(true);
             _employees.Clear(); _pending.Clear(); _tasks.Clear();
             _seenInitialQueue = false; _lastRefs.Clear();
@@ -563,12 +566,36 @@ public sealed class MainForm : Form
         return Task.CompletedTask;
     }
 
+    private async Task ArchivePendingOrderAsync(PayrollOrder selected)
+    {
+        if (!_api.IsAdmin) throw new UnauthorizedAccessException("Hanya admin yang dapat menghapus order.");
+        _takePanel.SetWorking(true);
+        try
+        {
+            // Read the current control version before confirmation; never infer it from the queue.
+            var snapshot = await _api.ManagementAsync();
+            var order = snapshot.Orders.SingleOrDefault(o => o.OrderRef == selected.OrderRef);
+            if (order is null || order.MonitorArchived)
+            {
+                await RefreshDataAsync();
+                throw new InvalidOperationException("Order sudah dihapus atau tidak lagi tersedia. Daftar sudah diperbarui.");
+            }
+            using var dialog = new ArchiveOrderDialog(order);
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            await _api.ArchiveOrderAsync(order.OrderRef, order.Version, dialog.Reason);
+            await RefreshDataAsync();
+            SetStatus($"Order {order.OrderRef} dihapus dari daftar. Pulihkan melalui Kelola Order → Pulihkan.");
+        }
+        finally { _takePanel.SetWorking(false); }
+    }
+
     private async Task RefreshDataAsync()
     {
         if (!_api.LoggedIn) return;
         _takePanel.SetStale(true);
         var newRoster = await _api.RosterAsync();
         _navigation["Kelola Order"].Visible = _api.IsAdmin;
+        _takePanel.SetAdminAccess(_api.IsAdmin);
         var freshPending = _api.CanOperate ? await _api.PendingAsync() : new List<PayrollOrder>();
         var freshTasks = await _api.TasksAsync();
         foreach (var employee in newRoster) ApplyLocalState(employee);

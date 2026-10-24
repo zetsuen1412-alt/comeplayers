@@ -64,6 +64,29 @@ internal static class ApiContractTests
             http.Respond = _ => Task.FromResult(Json("""{"ok":false,"assigned":true,"takeSent":false,"error":"Periksa grup"}""", HttpStatusCode.Conflict));
             await Rejected(async () => { await api.AssignAsync("X4806", "E1"); });
             Check(http.AssignCalls == 1, "uncertain assignment is not automatically resent");
+            http.Respond = _ => Task.FromResult(Json("""{"schema":1,"scope":"FH3","canOperate":true,"isAdmin":false,"employees":[]}"""));
+            await api.RosterAsync();
+            try { await api.ArchiveOrderAsync("X4806", 8, "Order duplikat"); throw new Exception("Employee archive accepted"); }
+            catch (UnauthorizedAccessException) { Check(true, "employee cannot invoke pending order archive"); }
+            http.Respond = _ => Task.FromResult(Json("""{"schema":1,"scope":"FH3","canOperate":true,"isAdmin":true,"employees":[]}"""));
+            await api.RosterAsync();
+            int archiveCalls = 0;
+            http.Respond = async r => {
+                archiveCalls++;
+                Check(r.Method == HttpMethod.Post && r.RequestUri!.AbsolutePath.EndsWith("/management"), "delete uses the existing authorized management endpoint");
+                using var body = JsonDocument.Parse(await r.Content!.ReadAsStringAsync());
+                var command = body.RootElement;
+                Check(command.GetProperty("orderRef").GetString() == "X4806" && command.GetProperty("version").GetInt64() == 8
+                    && command.GetProperty("action").GetString() == "archive" && command.GetProperty("reason").GetString() == "Order duplikat"
+                    && !command.TryGetProperty("employeeCode", out _), "delete sends the reviewed order version and reason without requiring an employee");
+                return Json("""{"ok":true,"version":9}""");
+            };
+            await Rejected(() => api.ArchiveOrderAsync("X4806", 8, "  a "));
+            Check(archiveCalls == 0, "invalid reason does not send a mutation");
+            await api.ArchiveOrderAsync("X4806", 8, "  Order duplikat  ");
+            http.Respond = _ => { archiveCalls++; return Task.FromResult(Json("""{"error":"Order berubah. Perbarui data sebelum menyimpan."}""", HttpStatusCode.Conflict)); };
+            await Rejected(() => api.ArchiveOrderAsync("X4806", 8, "Order duplikat"));
+            Check(archiveCalls == 2, "stale archive is surfaced without automatic mutation retry");
             var waiting = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             http.Respond = _ => waiting.Task;
             var read = api.PendingAsync(); api.Logout();

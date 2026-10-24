@@ -21,6 +21,14 @@ and TASK. Order Selesai shows only Telegram orders with confirmed DONE from Moni
 Data Tutup Buku shows net wages entered by admins and immutable closing snapshots.
 Existing website Payroll financial data stays separate.
 
+Admins can select an order in **Order Baru** and click **Hapus Order** beside
+the search box. No worker or TAKE is required. Review the order and enter a reason
+in the confirmation dialog. The app uses the current server control version and
+refreshes the queue after confirmation. Deletion archives the order; restore it
+through **Kelola Order → Pulihkan**. Employees do not see the delete action.
+This Windows 2.0.1 improvement uses the existing management API and needs no new
+database migration.
+
 The **Discord** column in new orders, active tasks and completed work uses the
 verified Telegram metadata (Discord, Discord Server or DC Server). Discord names
 are searchable. Older receipts have no recoverable Discord value because raw

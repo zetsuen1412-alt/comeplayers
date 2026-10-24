@@ -20,6 +20,12 @@ internal sealed class TakeOrderPanel : UserControl
     private readonly DataGridView _workers = MakeGrid();
     private readonly DataGridView _orders = MakeGrid();
     private readonly DataGridView _tasks = MakeGrid();
+    private readonly Button _deleteOrder = new LuxuryButton
+    {
+        Name = "DeletePendingOrder", Text = "Hapus Order", Primary = false,
+        Dock = DockStyle.Fill, Visible = false, Margin = new Padding(8, 0, 0, 0),
+    };
+    private TableLayoutPanel? _orderToolbar;
     private readonly ComboBox _statusEditor = new()
     {
         DropDownStyle = ComboBoxStyle.DropDownList, Width = 146,
@@ -63,16 +69,18 @@ internal sealed class TakeOrderPanel : UserControl
     private List<PayrollOrder> _pending = new();
     private List<PayrollOrder> _activeTasks = new();
     private string? _employeeCode, _orderRef;
-    private bool _binding, _working, _stale = true;
+    private bool _binding, _working, _stale = true, _isAdmin;
 
     public event EventHandler<AssignmentRequest>? TakeRequested;
     public event EventHandler<StatusRequest>? StatusRequested;
     public event EventHandler<ProofRequest>? ProofRequested;
     public event EventHandler<PayrollOrder>? TakeTelegramRequested;
+    public event EventHandler<PayrollOrder>? ArchiveRequested;
 
     public TakeOrderPanel()
     {
         DoubleBuffered = true;
+        _orderSearch.Name = "PendingOrderSearch";
         BackColor = LuxuryPalette.Background;
         Dock = DockStyle.Fill;
 
@@ -151,11 +159,16 @@ internal sealed class TakeOrderPanel : UserControl
                 };
             UpdateSelection();
         };
-        _orders.SelectionChanged += (_, _) =>
+        _orders.CurrentCellChanged += (_, _) =>
         {
             if (_binding) return;
             _orderRef = (_orders.CurrentRow?.DataBoundItem as PayrollOrder)?.OrderRef;
             UpdateSelection();
+        };
+        _deleteOrder.Click += (_, _) =>
+        {
+            if (_isAdmin && !_working && !_stale && SelectedOrder is { } order)
+                ArchiveRequested?.Invoke(this, order);
         };
         _tasks.SelectionChanged += (_, _) =>
         {
@@ -263,8 +276,18 @@ internal sealed class TakeOrderPanel : UserControl
 
     public void SetStale(bool stale) { _stale = stale; UpdateSelection(); }
 
+    public void SetAdminAccess(bool isAdmin)
+    {
+        _isAdmin = isAdmin;
+        _deleteOrder.Visible = isAdmin;
+        if (_orderToolbar is not null) _orderToolbar.ColumnStyles[1].Width = isAdmin ? 146 : 0;
+        UpdateSelection();
+    }
+
     public Employee? SelectedWorker => _roster.FirstOrDefault(e =>
         e.Code.Equals(_employeeCode, StringComparison.OrdinalIgnoreCase));
+    private PayrollOrder? SelectedOrder => _pending.FirstOrDefault(o =>
+        o.OrderRef.Equals(_orderRef, StringComparison.OrdinalIgnoreCase));
     private PayrollOrder? SelectedTask => _activeTasks.FirstOrDefault(o =>
         o.OrderRef.Equals(_taskRef, StringComparison.OrdinalIgnoreCase));
 
@@ -349,14 +372,22 @@ internal sealed class TakeOrderPanel : UserControl
         titlebar.Controls.Add(counter, 1, 0);
         body.Controls.Add(titlebar, 0, 0);
 
+        bool pendingOrders = ReferenceEquals(grid, _orders);
+        if (pendingOrders) grid.Name = "PendingOrders";
         var toolbar = new TableLayoutPanel
         {
             Dock = DockStyle.Fill, BackColor = LuxuryPalette.Surface,
-            RowCount = 1, ColumnCount = filter is null ? 1 : 2,
+            RowCount = 1, ColumnCount = filter is not null || pendingOrders ? 2 : 1,
             Padding = new Padding(2, 3, 2, 6),
         };
         toolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         if (filter != null) toolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 152));
+        if (pendingOrders)
+        {
+            _orderToolbar = toolbar;
+            toolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0));
+            toolbar.Controls.Add(_deleteOrder, 1, 0);
+        }
         search.Dock = DockStyle.Fill;
         toolbar.Controls.Add(search, 0, 0);
         if (filter != null)
@@ -454,6 +485,7 @@ internal sealed class TakeOrderPanel : UserControl
         _workerChoice.ForeColor = worker == null ? LuxuryPalette.Muted : LuxuryPalette.Text;
         _orderChoice.ForeColor = order == null ? LuxuryPalette.Muted : LuxuryPalette.Text;
         var blocked = _working || _stale;
+        _deleteOrder.Enabled = _isAdmin && !blocked && order is not null;
         _take.Enabled = !blocked && worker != null && order?.TakeAllowed == true;
         _statusSave.Enabled = !_working && worker != null;
         var task = SelectedTask;

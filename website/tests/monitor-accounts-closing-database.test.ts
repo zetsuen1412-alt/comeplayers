@@ -36,6 +36,18 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
   await assert.rejects(bind(a,a,"F001"),/ditolak/);
   await bind(admin,a,"F001");await bind(admin,b,"F002");
   await assert.rejects(bind(admin,a,"F002"),/terikat/);
+  // A new Telegram receipt can be archived before any worker, TAKE, DONE or wage exists.
+  await db.query("select cp_fh3_telegram_save_manual('X499',-100123,41,22,'AION','','12H','Task',now(),now(),99,true,'evogamings')");
+  const receiptBefore=await row("select to_jsonb(r) value from cp_fh3_telegram_manual_orders r where order_ref='X499'");
+  await assert.rejects(db.query("select cp_monitor_manage_order($1,'X499',0,'archive','Duplicate order')",[a]),/ditolak/);
+  await db.query("select cp_monitor_manage_order($1,'X499',0,'archive','Duplicate order')",[admin]);
+  assert.equal((await row("select to_jsonb(c) value from cp_fh3_monitor_controls c where order_ref='X499'")).archived,true);
+  assert.equal((await db.query<{n:number}>("select count(*)::int n from cp_fh3_monitor_jobs where order_ref='X499'")).rows[0].n,0);
+  assert.equal((await db.query<{n:number}>("select count(*)::int n from cp_mobile_order_take where order_ref='X499'")).rows[0].n,0);
+  assert.deepEqual(await row("select to_jsonb(r) value from cp_fh3_telegram_manual_orders r where order_ref='X499'"),receiptBefore);
+  await assert.rejects(db.query("select cp_mobile_assign_fh3('X499','F001',$1)",[a]),/diarsipkan/);
+  await db.query("select cp_monitor_manage_order($1,'X499',1,'restore','Restore duplicate')",[admin]);
+  assert.equal((await row("select to_jsonb(c) value from cp_fh3_monitor_controls c where order_ref='X499'")).archived,false);
   await db.query("select cp_fh3_telegram_save_manual('X500',-100123,42,22,'AION','','12H','Task',now(),now(),100,true,'evogamings')");
   const assign=(who:string,code:string)=>db.query("select cp_mobile_assign_fh3('X500',$1,$2)",[code,who]);
   await assert.rejects(assign(a,"F002"),/ditolak/);await assign(a,"F001");
