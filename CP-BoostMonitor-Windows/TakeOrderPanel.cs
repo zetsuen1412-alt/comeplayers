@@ -26,6 +26,12 @@ internal sealed class TakeOrderPanel : UserControl
         Dock = DockStyle.Fill, Visible = false, Margin = new Padding(8, 0, 0, 0),
     };
     private TableLayoutPanel? _orderToolbar;
+    private readonly Button _deleteTask = new LuxuryButton
+    {
+        Name = "DeleteActiveOrder", Text = "Hapus Order", Primary = false,
+        Dock = DockStyle.Fill, Visible = false, Margin = new Padding(8, 2, 0, 4),
+    };
+    private TableLayoutPanel? _taskToolbar;
     private readonly ComboBox _statusEditor = new()
     {
         DropDownStyle = ComboBoxStyle.DropDownList, Width = 146,
@@ -81,6 +87,7 @@ internal sealed class TakeOrderPanel : UserControl
     {
         DoubleBuffered = true;
         _orderSearch.Name = "PendingOrderSearch";
+        _tasks.Name = "ActiveTasks";
         BackColor = LuxuryPalette.Background;
         Dock = DockStyle.Fill;
 
@@ -170,11 +177,16 @@ internal sealed class TakeOrderPanel : UserControl
             if (_isAdmin && !_working && !_stale && SelectedOrder is { } order)
                 ArchiveRequested?.Invoke(this, order);
         };
-        _tasks.SelectionChanged += (_, _) =>
+        _tasks.CurrentCellChanged += (_, _) =>
         {
             if (_binding) return;
             _taskRef = (_tasks.CurrentRow?.DataBoundItem as PayrollOrder)?.OrderRef;
             UpdateSelection();
+        };
+        _deleteTask.Click += (_, _) =>
+        {
+            if (_isAdmin && !_working && !_stale && SelectedTask is { DeliveryUncertain: false } task)
+                ArchiveRequested?.Invoke(this, task);
         };
         _takeTelegram.Click += (_, _) =>
         {
@@ -280,7 +292,9 @@ internal sealed class TakeOrderPanel : UserControl
     {
         _isAdmin = isAdmin;
         _deleteOrder.Visible = isAdmin;
+        _deleteTask.Visible = isAdmin;
         if (_orderToolbar is not null) _orderToolbar.ColumnStyles[1].Width = isAdmin ? 146 : 0;
+        if (_taskToolbar is not null) _taskToolbar.ColumnStyles[2].Width = isAdmin ? 146 : 0;
         UpdateSelection();
     }
 
@@ -315,14 +329,17 @@ internal sealed class TakeOrderPanel : UserControl
         body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         var title = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill, ColumnCount = 2,
+            Dock = DockStyle.Fill, ColumnCount = 3,
             BackColor = LuxuryPalette.Surface,
         };
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         title.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        title.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0));
+        _taskToolbar = title;
         title.Controls.Add(Label("Tugas Aktif", 13, LuxuryPalette.Text, true), 0, 0);
         _taskCount.TextAlign = ContentAlignment.MiddleRight;
         title.Controls.Add(_taskCount, 1, 0);
+        title.Controls.Add(_deleteTask, 2, 0);
         body.Controls.Add(title, 0, 0);
         body.Controls.Add(_tasks, 0, 1);
         var actions = new TableLayoutPanel
@@ -489,6 +506,7 @@ internal sealed class TakeOrderPanel : UserControl
         _take.Enabled = !blocked && worker != null && order?.TakeAllowed == true;
         _statusSave.Enabled = !_working && worker != null;
         var task = SelectedTask;
+        _deleteTask.Enabled = _isAdmin && !blocked && task is { DeliveryUncertain: false };
         _takeTelegram.Enabled = !blocked && task?.CanTake == true;
         _start.Enabled = !blocked && task?.CanStart == true;
         _done.Enabled = !blocked && task?.CanDone == true;

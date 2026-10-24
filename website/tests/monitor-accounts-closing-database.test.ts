@@ -65,7 +65,14 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
    await db.query("select cp_mobile_proof_finish($1,$2,$3,'fixture')",[claim.eventId,who,action==="start"?502:503]);
   };
   await take(a,"F001");await proof(a,"F001","start");
-  await manage("transfer",0,{employee:"F002"});
+  const activeBefore=await row("select jsonb_build_object('job',(select to_jsonb(j) from cp_fh3_monitor_jobs j where order_ref='X500'),'takes',(select jsonb_agg(to_jsonb(t) order by id) from cp_mobile_order_take t where order_ref='X500'),'proofs',(select jsonb_agg(to_jsonb(p) order by id) from cp_mobile_order_proof p where order_ref='X500')) value");
+  await assert.rejects(manage("archive",0,{actor:a}),/ditolak/);
+  await manage("archive",0);
+  assert.equal((await row("select to_jsonb(c) value from cp_fh3_monitor_controls c where order_ref='X500'")).archived,true);
+  assert.deepEqual(await row("select jsonb_build_object('job',(select to_jsonb(j) from cp_fh3_monitor_jobs j where order_ref='X500'),'takes',(select jsonb_agg(to_jsonb(t) order by id) from cp_mobile_order_take t where order_ref='X500'),'proofs',(select jsonb_agg(to_jsonb(p) order by id) from cp_mobile_order_proof p where order_ref='X500')) value"),activeBefore,"archiving active work preserves the job and every TAKE/START delivery verbatim");
+  await assert.rejects(proof(a,"F001","done"),/diarsipkan/);
+  await manage("restore",1);
+  await manage("transfer",2,{employee:"F002"});
   const job=await row("select to_jsonb(j) value from cp_fh3_monitor_jobs j where order_ref='X500'");
   assert.equal(job.employee_code,"F002");assert.equal(job.status,"assigned");
   assert.equal((await db.query<{n:number}>("select count(*)::int n from cp_mobile_order_proof")).rows[0].n,0);
@@ -74,15 +81,15 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
   await assert.rejects(proof(a,"F001","done"),/ditolak|Karyawan tidak cocok/);
   await assert.rejects(manage("archive",0),/Order berubah/);
   await take(b,"F002");await proof(b,"F002","start");await proof(b,"F002","done");
-  await manage("price",1,{wage:125000});
+  await manage("price",3,{wage:125000});
   const close=(id:string,expected:unknown,who=admin)=>db.query("select cp_monitor_close_book($1,$2,'Tutup Buku fixture',$3) value",[who,id,JSON.stringify(expected)]);
   const id="720c2e4f-99bb-42b0-9d08-a8e71ebef761";
   await assert.rejects(close(id,[{orderRef:"X500",version:1,wageRupiah:125000}]),/berubah/);
   await assert.rejects(close(id,[],a),/ditolak/);
-  await manage("status",2,{state:"refund"});
+  await manage("status",4,{state:"refund"});
   await assert.rejects(assign(b,"F002"),/Refund/);await assert.rejects(close(id,[]),/Belum ada/);
-  await manage("status",3,{state:"normal"});await manage("archive",4);
-  await assert.rejects(close(id,[]),/Belum ada/);await manage("restore",5);
+  await manage("status",5,{state:"normal"});await manage("archive",6);
+  await assert.rejects(close(id,[]),/Belum ada/);await manage("restore",7);
   await db.query("select cp_fh3_telegram_save_manual('X501',-100123,43,22,'AION','','12H','Task',now(),now(),101,true,'evogamings')");
   await db.query("select cp_mobile_assign_fh3('X501','F002',$1)",[b]);
   const take2=await row("select cp_mobile_take_begin('X501','F002',$1) value",[b]);
@@ -92,7 +99,7 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
    await db.query("select cp_mobile_proof_finish($1,$2,$3,'fixture')",[claim.eventId,b,message]);
   }
   await db.query("select cp_monitor_manage_order($1,'X501',0,'price','Fixture reason',null,50000,null)",[admin]);
-  const expected=[{orderRef:"X500",version:6,wageRupiah:125000},{orderRef:"X501",version:1,wageRupiah:50000}];
+  const expected=[{orderRef:"X500",version:8,wageRupiah:125000},{orderRef:"X501",version:1,wageRupiah:50000}];
   await assert.rejects(close(id,[...expected].reverse()),/berubah/);
   await close(id,expected);await close(id,expected);
   await db.query("update profiles set role='admin' where id=$1",[b]);
@@ -102,9 +109,9 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
   const item=await row("select to_jsonb(i) value from cp_fh3_monitor_closing_items i where order_ref='X500'");
   assert.equal(Number((await row("select to_jsonb(c) value from cp_fh3_monitor_closings c")).total_rupiah),175000);
   assert.equal(item.employee_name,"Budi");assert.equal(Number(item.wage_rupiah),125000);
-  await assert.rejects(manage("price",6,{wage:1}),/Tutup Buku/);
-  await assert.rejects(manage("transfer",6,{employee:"F001"}),/Tutup Buku/);
-  await manage("archive",6);await manage("status",7,{state:"refund"});
+  await assert.rejects(manage("price",8,{wage:1}),/Tutup Buku/);
+  await assert.rejects(manage("transfer",8,{employee:"F001"}),/Tutup Buku/);
+  await manage("archive",8);await manage("status",9,{state:"refund"});
   assert.deepEqual(await row("select to_jsonb(i) value from cp_fh3_monitor_closing_items i where order_ref='X500'"),item,"archive/refund never rewrites closed earnings");
   await bind(admin,b,"F002",false);await assert.rejects(assign(b,"F002"),/ditolak/);
   assert.deepEqual(await row("select jsonb_build_object('payload',payload,'revision',revision) value from cp_payroll_workspace"),before);
