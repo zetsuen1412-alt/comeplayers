@@ -89,12 +89,12 @@ test("book earnings group stable employees separately even when display names ma
    range:async()=>({data:table==="cp_fh3_monitor_closing_items"?ledger:[]}),
    in:async()=>({data:[{id:"book-1",title:"Tutup Buku",created_at:"2026-10-24T02:00:00Z"}]})};return q;
  }};
- const module=load("lib/monitorManagement.ts",{
+ const bookModule=load("lib/monitorManagement.ts",{
   "@/lib/fh3MonitorCompletedData":{loadCompletedMonitorEvidence:async()=>({receipts:[],proofs:[]})},
   "@/lib/fh3MonitorJobs":{loadFH3MonitorJobs:async()=>new Map()},
   "@/lib/payrollMobileCompleted":{buildMobileCompleted:()=>({work:[]})},
  });
- const data=await module.monitorBookData(service) as {closings:{totalRupiah:number;employees:{employeeId:string;totalRupiah:number;orderCount:number}[];work:{closed:boolean}[]}[]};
+ const data=await bookModule.monitorBookData(service) as {closings:{totalRupiah:number;employees:{employeeId:string;totalRupiah:number;orderCount:number}[];work:{closed:boolean}[]}[]};
  const book=data.closings[0];assert.equal(book.totalRupiah,350);assert.equal(book.employees.length,2);
  assert.equal(book.employees.find(i=>i.employeeId==="e1")?.totalRupiah,300);assert.equal(book.employees.find(i=>i.employeeId==="e1")?.orderCount,2);
  assert.equal(book.employees.find(i=>i.employeeId==="e2")?.totalRupiah,50);assert.ok(book.work.every(w=>w.closed));
