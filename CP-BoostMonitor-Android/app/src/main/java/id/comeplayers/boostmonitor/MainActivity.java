@@ -352,7 +352,7 @@ public final class MainActivity extends Activity {
             space(gate, 12);
             gate.addView(text("Hanya nama karyawan FH3 dari Payroll → Karyawan. Divisi lain dibersihkan dari APK.", 14, SUB, false));
             space(gate, 14);
-            gate.addView(text("Login sekali dengan akun yang memiliki izin Payroll. Data diambil saat login, lalu diperbarui tiap 2 menit selama APK aktif.", 13, SUB, false));
+            gate.addView(text("Login dengan username yang dibuat atau dihubungkan admin. Identitas karyawan diperbarui dari server saat aplikasi aktif.", 13, SUB, false));
             space(gate, 20);
             Button login = button("Login Username", true);
             gate.addView(login, lp(-1, 55));
@@ -809,16 +809,16 @@ public final class MainActivity extends Activity {
     }
 
     private void settingsPage() {
-        heading("Pengaturan & Data", "Integrasi payroll, batas tidur, dan backup.");
+        heading("Pengaturan & Data", "Akun Monitor, notifikasi, status lokal, dan backup.");
         LinearLayout integration = panel();
         integration.addView(text("Integrasi Payroll ComePlayers", 17, INK, true)); space(integration, 7);
-        integration.addView(text("Sumber: www.comeplayers.com • divisi FH1, FH2, FH3 dan data karyawan payroll lainnya.", 12, SUB, false));
+        integration.addView(text("Karyawan FH3 dan hak akun dari ComePlayers. Order dan TASK dari kiriman admin Telegram FH3.", 12, SUB, false));
         space(integration, 7);
         integration.addView(text(linked() ? "✓ " + db.payrollEmployees().size() + " nama FH3 dari website • sinkron setiap 2 menit saat aktif."
-                    : "Belum login ke Payroll ComePlayers.", 13, SUB, false));
+                    : "Belum login ke EVOGAMING Monitor.", 13, SUB, false));
         space(integration, 11);
         if (!linked()) {
-            Button login = button("Login & Hubungkan Payroll", true);
+            Button login = button("Login Username", true);
             integration.addView(login, lp(-1, 44)); login.setOnClickListener(v -> loginDialog());
         } else {
             Button update = button("↻ Sinkronkan Nama Sekarang", true);
@@ -826,7 +826,7 @@ public final class MainActivity extends Activity {
             space(integration, 8);
             Button logout = button("Keluar dari Akun Payroll", false);
             integration.addView(logout, lp(-1, 44));
-            logout.setOnClickListener(v -> new AlertDialog.Builder(this).setTitle("Keluar dari Payroll?")
+            logout.setOnClickListener(v -> new AlertDialog.Builder(this).setTitle("Keluar dari Monitor?")
                     .setMessage("Daftar dan riwayat lokal tidak dihapus, tetapi aplikasi akan meminta login ulang.")
                     .setNegativeButton("Batal", null).setPositiveButton("Keluar", (d, w) -> {
                         accountVersion++; stopService(new Intent(this,OrderNotificationService.class));prefs.edit().putBoolean("order_notifications",false).apply(); payroll.logout();
