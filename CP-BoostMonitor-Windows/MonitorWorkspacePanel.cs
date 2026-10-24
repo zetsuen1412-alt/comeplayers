@@ -9,6 +9,7 @@ internal sealed class MonitorWorkspacePanel : UserControl
     private readonly TextBox _search = new() { Width = 270, PlaceholderText = "Cari order / karyawan" };
     private readonly TextBox _reason = new() { Width = 350, PlaceholderText = "Alasan perubahan (wajib)" };
     private readonly ComboBox _worker = new() { Width = 180, DropDownStyle = ComboBoxStyle.DropDownList };
+    private readonly ComboBox _bookWorker = new() {Width=300,DropDownStyle=ComboBoxStyle.DropDownList,DisplayMember="Display",Enabled=false};
     private readonly NumericUpDown _wage = new() { Width = 150, Maximum = 1000000000, ThousandsSeparator = true };
     private ManagementSnapshot _data = new();
     private BookSnapshot _bookData = new();
@@ -20,6 +21,7 @@ internal sealed class MonitorWorkspacePanel : UserControl
         _api = api; _admin = admin; Dock = DockStyle.Fill; Padding = new Padding(22); BackColor = LuxuryPalette.Background;
         var actions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Padding = new Padding(0, 8, 0, 8) };
         actions.Controls.Add(_search); AddButton(actions,"↻ Perbarui",RefreshAsync);
+        if(!admin)actions.Controls.Add(_bookWorker);
         if (admin) AddButton(actions,"Akun Karyawan",AccountsAsync);
         var edits = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, WrapContents = true, Padding = new Padding(0,10,0,0) };
         if (admin) {
@@ -42,13 +44,16 @@ internal sealed class MonitorWorkspacePanel : UserControl
         else { Column(_orders,"SELESAI","CompletedDisplay",150);Column(_orders,"STATUS","BookStatus",130); }
         _books.Dock=DockStyle.Top; _books.Height=190; _books.Visible=!admin;
         Column(_books,"DATA TUTUP BUKU","Title",260); Column(_books,"TANGGAL","DateDisplay",180);
-        Column(_books,"ORDER","OrderCount",75); Column(_books,"PENGHASILAN","TotalDisplay",160);
+        Column(_books,"ORDER","OrderCount",75); Column(_books,"TOTAL TIM","TotalDisplay",160);
         Controls.Add(_orders); Controls.Add(_books); Controls.Add(_status); Controls.Add(actions); Controls.Add(edits);
         _status.Text=admin ? "Kelola order Telegram. Hapus menyimpan arsip; upah Tutup Buku dikunci." : "Pilih Data Tutup Buku untuk melihat penghasilan dan daftar order.";
         _search.TextChanged+=(_,_)=>Bind();
         _books.SelectionChanged+=(_,_)=>{ if(!_admin && _books.CurrentRow?.DataBoundItem is MonitorBook book) {
-            _orders.DataSource=book.Work; _status.Text=$"{book.Title} • {book.OrderCount} order • {book.TotalDisplay}. Arsip penghasilan, bukan bukti pembayaran.";
+            _bookWorker.Enabled=true;
+            _bookWorker.DataSource=new List<EmployeeBookTotal>{new(){EmployeeName="Semua karyawan",OrderCount=book.OrderCount,TotalRupiah=book.TotalRupiah}}.Concat(book.Employees).ToList();
+            BindBook();
         }};
+        _bookWorker.SelectedIndexChanged+=(_,_)=>BindBook();
         _orders.SelectionChanged+=(_,_)=>{if(_admin && _orders.CurrentRow?.DataBoundItem is ManagedOrder row) _wage.Value=row.WageRupiah ?? 0;};
     }
     private static void Column(DataGridView grid,string title,string property,int width) => grid.Columns.Add(new DataGridViewTextBoxColumn {
@@ -82,7 +87,13 @@ internal sealed class MonitorWorkspacePanel : UserControl
     private void Bind() {
         if(_admin) _orders.DataSource=_data.Orders.Where(o=>OrderFilters.ContainsAny(_search.Text,o.OrderRef,o.EmployeeName)).ToList();
         else { _books.DataSource=_bookData.Closings.Where(b=>OrderFilters.ContainsAny(_search.Text,b.Title)).ToList();
-            if(_books.CurrentRow?.DataBoundItem is not MonitorBook) _orders.DataSource=_bookData.Open; }
+            if(_books.CurrentRow?.DataBoundItem is not MonitorBook) {_orders.DataSource=_bookData.Open;_bookWorker.DataSource=null;_bookWorker.Enabled=false;} }
+    }
+    private void BindBook() {
+        if(_books.CurrentRow?.DataBoundItem is not MonitorBook book)return;
+        var person=_bookWorker.SelectedItem as EmployeeBookTotal;
+        _orders.DataSource=book.Work.Where(w=>string.IsNullOrEmpty(person?.EmployeeId) || w.EmployeeId==person.EmployeeId).ToList();
+        _status.Text=$"{book.Title} • {person?.EmployeeName ?? "Semua karyawan"} • {person?.OrderCount ?? book.OrderCount} order • Rp {person?.TotalRupiah ?? book.TotalRupiah:N0}. Arsip penghasilan.";
     }
     private async Task ChangeAsync(string action,string? state=null,long? wage=null)
     {
@@ -129,5 +140,5 @@ internal sealed class MonitorWorkspacePanel : UserControl
         var t=new TextBox {Left=20,Top=20,Width=410,Text=value};var ok=new Button {Text="Lanjut",Left=310,Top=65,Width=120,DialogResult=DialogResult.OK};
         f.Controls.Add(t);f.Controls.Add(ok);f.AcceptButton=ok;return f.ShowDialog(this)==DialogResult.OK?t.Text.Trim():null;
     }
-    public void Clear() { _generation++;_data=new();_bookData=new();_orders.DataSource=null;_books.DataSource=null;_closingId=Guid.NewGuid(); }
+    public void Clear() { _generation++;_data=new();_bookData=new();_orders.DataSource=null;_books.DataSource=null;_bookWorker.DataSource=null;_bookWorker.Enabled=false;_closingId=Guid.NewGuid(); }
 }

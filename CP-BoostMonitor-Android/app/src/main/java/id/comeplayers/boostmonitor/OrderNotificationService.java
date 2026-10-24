@@ -68,7 +68,7 @@ public final class OrderNotificationService extends Service {
     private Notification.Builder notification(String channel,String title,String text){
         PendingIntent open=PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,channel):new Notification.Builder(this);
-        return builder.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(text)
+        return builder.setSmallIcon(id.comeplayers.boostmonitor.R.drawable.ic_order_notification).setContentTitle(title).setContentText(text)
             .setContentIntent(open).setAutoCancel(true).setVisibility(Notification.VISIBILITY_PRIVATE);
     }
     private void observe(JSONObject data){

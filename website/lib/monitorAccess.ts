@@ -20,7 +20,8 @@ export async function requireMonitorAccess(request: Request) {
     const roster = workspace.data?.payload?.[workspaceKeys.employees] as Employee[] | undefined;
     const employee = roster?.find(e => e.id === binding.data?.employee_id && e.code === binding.data?.employee_code
       && e.team === "FH3" && ["NEW", "SHIFT", "FULL"].includes(e.workforceStatus) && !e.sheetRosterMissingAt);
-    if (!binding.data?.active || !employee) throw Object.assign(new Error("Akun belum dihubungkan atau telah dinonaktifkan oleh admin."), { status: 403 });
+    const unique = employee && roster?.filter(e=>e.id===employee.id).length===1 && roster?.filter(e=>e.code===employee.code).length===1;
+    if (!binding.data?.active || !employee || !unique) throw Object.assign(new Error("Akun belum dihubungkan atau telah dinonaktifkan oleh admin."), { status: 403 });
     employeeCode = employee.code; employeeId = employee.id;
   }
   return { user, profile, actor, supabaseAdmin, employeeCode, employeeId };

@@ -49,9 +49,15 @@ export async function monitorBookData(service: Service, employeeId = "", include
   }
   const closings = books.sort((a,b) => b.created_at.localeCompare(a.created_at)).map(book => {
     const work = visibleItems.filter(i => i.closing_id === book.id);
+    const perEmployee=new Map<string,{employeeId:string;employeeName:string;orderCount:number;totalRupiah:number}>();
+    for(const item of work) {
+      const total=perEmployee.get(item.employee_id) ?? {employeeId:item.employee_id,employeeName:item.employee_name,orderCount:0,totalRupiah:0};
+      total.orderCount++;total.totalRupiah+=Number(item.wage_rupiah);perEmployee.set(item.employee_id,total);
+    }
     return { id: book.id, title: book.title, createdAt: book.created_at,
       totalRupiah: work.reduce((s,i)=>s+Number(i.wage_rupiah),0), orderCount: work.length,
-      work: work.map(i=>({orderRef:i.order_ref,employeeName:i.employee_name,wageRupiah:Number(i.wage_rupiah),closed:true,
+      employees:[...perEmployee.values()].sort((a,b)=>a.employeeName.localeCompare(b.employeeName,"id")),
+      work: work.map(i=>({orderRef:i.order_ref,employeeId:i.employee_id,employeeName:i.employee_name,wageRupiah:Number(i.wage_rupiah),closed:true,
         completedAt:i.completed_at,game:i.game,discord:i.discord,task:i.task})) };
   });
   const eligible = open.filter(i => i.adminState === "normal" && !i.monitorArchived && i.wageRupiah !== null);

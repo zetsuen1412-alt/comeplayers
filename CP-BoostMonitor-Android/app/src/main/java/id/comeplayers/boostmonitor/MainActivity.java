@@ -649,10 +649,13 @@ public final class MainActivity extends Activity {
         if(books!=null)for(int i=0;i<books.length();i++){
             JSONObject book=books.optJSONObject(i);if(book==null)continue;
             LinearLayout card=panel();card.addView(text(book.optString("title"),17,INK,true));
-            card.addView(text(book.optInt("orderCount")+" order • Rp "+String.format(new Locale("id","ID"),"%,d",book.optLong("totalRupiah")),16,PURPLE,true));
+            card.addView(text("Total tim: "+book.optInt("orderCount")+" order • Rp "+String.format(new Locale("id","ID"),"%,d",book.optLong("totalRupiah")),16,PURPLE,true));
             card.addView(text(book.optString("createdAt"),12,SUB,false));
-            Button detail=button("Lihat daftar order",false);card.addView(detail,lp(-1,42));
+            Button detail=button("Penghasilan karyawan & daftar order",false);card.addView(detail,lp(-1,42));
             detail.setOnClickListener(v->{JSONArray work=book.optJSONArray("work");StringBuilder lines=new StringBuilder();
+                JSONArray people=book.optJSONArray("employees");if(people!=null)for(int j=0;j<people.length();j++){JSONObject person=people.optJSONObject(j);if(person!=null)
+                    lines.append(person.optString("employeeName")).append(": Rp ").append(String.format(new Locale("id","ID"),"%,d",person.optLong("totalRupiah"))).append(" • ").append(person.optInt("orderCount")).append(" order\n");}
+                lines.append("\nDAFTAR ORDER\n");
                 if(work!=null)for(int j=0;j<work.length();j++){JSONObject item=work.optJSONObject(j);if(item!=null)lines.append(item.optString("orderRef")).append(" • ").append(item.optString("employeeName")).append(" • Rp ").append(String.format(new Locale("id","ID"),"%,d",item.optLong("wageRupiah"))).append("\n");}
                 new AlertDialog.Builder(this).setTitle(book.optString("title")).setMessage(lines.toString()).setPositiveButton("Tutup",null).show();});
             body.addView(card,lp(-1,-2));space(body,10);

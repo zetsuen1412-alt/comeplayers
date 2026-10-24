@@ -79,7 +79,7 @@ public final class MonitorAdminActivity extends Activity {
     }
     private void send(String path,JSONObject body){if(busy)return;busy=true;status.setText("Menyimpan...");api.request("POST",path,body,(data,message,ok)->{
         if(destroyed)return;busy=false;if(!ok){status.setText(message+" Perbarui data sebelum mencoba lagi.");return;}
-        if(path.equals("/books"))getPreferences(MODE_PRIVATE).edit().remove("closing_request").apply();load();
+        if(path.equals("/books"))getPreferences(MODE_PRIVATE).edit().remove(("closing_request_"+getSharedPreferences("monitor_identity",MODE_PRIVATE).getString("accountId",""))).apply();load();
     });}
     private void closeBook(){
         if(busy)return;
@@ -91,7 +91,7 @@ public final class MonitorAdminActivity extends Activity {
             StringBuilder details=new StringBuilder();for(int i=0;i<eligible.length();i++){JSONObject e=eligible.optJSONObject(i);if(e!=null)details.append(e.optString("orderRef")).append(": Rp ").append(e.optLong("wageRupiah")).append("\n");}
             LinearLayout form=column();form.addView(title);form.addView(label(details+"\nTOTAL Rp "+String.format(Locale.US,"%,d",data.optLong("totalRupiah"))+"\nUpah dan penerima dikunci setelah Tutup Buku."));
             new AlertDialog.Builder(this).setTitle("Konfirmasi Tutup Buku").setView(form).setNegativeButton("Batal",null).setPositiveButton("Tutup Buku",(d,w)->{
-                try{String id=getPreferences(MODE_PRIVATE).getString("closing_request",null);if(id==null){id=UUID.randomUUID().toString();getPreferences(MODE_PRIVATE).edit().putString("closing_request",id).apply();}
+                try{String id=getPreferences(MODE_PRIVATE).getString(("closing_request_"+getSharedPreferences("monitor_identity",MODE_PRIVATE).getString("accountId","")),null);if(id==null){id=UUID.randomUUID().toString();getPreferences(MODE_PRIVATE).edit().putString(("closing_request_"+getSharedPreferences("monitor_identity",MODE_PRIVATE).getString("accountId","")),id).apply();}
                     JSONObject b=new JSONObject();b.put("id",id);b.put("title",title.getText().toString().trim());b.put("expected",eligible);send("/books",b);
                 }catch(Exception e){status.setText("Data Tutup Buku belum valid.");}
             }).show();

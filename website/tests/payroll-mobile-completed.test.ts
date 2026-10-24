@@ -83,7 +83,7 @@ test("completed endpoint authorizes members before reads and rejects malformed f
   status = 200; const response = await get("?employeeCode=E1");
   assert.equal(response.status, 200); assert.equal(response.headers.get("cache-control"), "no-store");
   const result = await response.json(); assert.equal(result.workTotal, 1); assert.equal(result.completionRule, "telegram_done_confirmed");
-  assert.equal((await get("?offset=-1")).status, 400); assert.equal((await get("?employeeCode=E3")).status, 403);
+  assert.equal((await get("?offset=-1")).status, 400); assert.equal((await get("?employeeCode=E3")).status, 404);
 });
 
 test("evidence reads complete pages and pins both group and sender without losing archived receipts", async () => {

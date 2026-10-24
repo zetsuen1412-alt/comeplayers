@@ -213,7 +213,6 @@ public sealed class PayrollApi : IDisposable
 
     public async Task<CompletedSnapshot> CompletedAsync(string employeeCode = "", int offset = 0)
     {
-        if (!IsAdmin && OwnEmployeeCode.Length > 0) employeeCode = OwnEmployeeCode;
         var doc = await GetAsync<CompletedSnapshot>("completed?employeeCode="
             + Uri.EscapeDataString(employeeCode) + "&offset=" + offset);
         if (doc.Schema != 1 || doc.Scope != "FH3" || doc.SourceOfTruth != "telegram_fh3_manual"

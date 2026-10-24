@@ -596,7 +596,6 @@ public sealed class MainForm : Form
             _alerts.Speak(); SetStatus($"ORDER BARU: {string.Join(", ",unseen.Take(6))}");
         }
         if (_activePage == "Order Selesai") await _completedPanel.RefreshAsync();
-        if (_activePage == "Data Tutup Buku") await _booksPanel.RefreshAsync();
     }
 
     private void BindTables()

@@ -31,8 +31,9 @@ internal static class Program
             Orders=Enumerable.Range(0,12).Select(i=>new ManagedOrder {OrderRef=$"X{4827-i}",EmployeeName=names[i%names.Length],
                 Game="AION",Status=i<4?"Selesai":"in_progress",AdminState=i==5?"refund":i==7?"problem":"normal",
                 WageRupiah=i<4?125000:null,CanPrice=i<4}).ToList()};
-        snapshot.Work[0].EmployeeName=names[0];snapshot.Work[0].WageRupiah=125000;snapshot.Work[0].Closed=true;
-        var books=new BookSnapshot{Closings=new(){new(){Id="preview",Title="Tutup Buku 24 Oktober 2026",CreatedAt="2026-10-24T03:00:00Z",TotalRupiah=125000,OrderCount=1,Work=new(){snapshot.Work[0]}}}};
+        snapshot.Work[0].EmployeeId=people[0].Id;snapshot.Work[0].EmployeeName=names[0];snapshot.Work[0].WageRupiah=125000;snapshot.Work[0].Closed=true;
+        var books=new BookSnapshot{Closings=new(){new(){Id="preview",Title="Tutup Buku 24 Oktober 2026",CreatedAt="2026-10-24T03:00:00Z",TotalRupiah=125000,OrderCount=1,Work=new(){snapshot.Work[0]},
+            Employees=new(){new(){EmployeeId=people[0].Id,EmployeeName=names[0],OrderCount=1,TotalRupiah=125000}}}}};
         foreach(var page in new[]{"Kelola Order","Data Tutup Buku"}) foreach(var size in new[]{new Size(1460,900),new Size(1120,740)}){
             using var form=new MainForm(preview:true){ClientSize=size,ShowInTaskbar=false,Opacity=0};form.Show();
             form.LoadAdminPreview(management,books,people,page);form.PerformLayout();

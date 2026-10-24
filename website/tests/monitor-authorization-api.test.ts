@@ -13,13 +13,14 @@ function load(path:string,mocks:Record<string,unknown>){
  return exports;
 }
 test("Monitor checks stored role, stable employee binding and fresh revocation; user metadata cannot grant admin",async()=>{
- let admin=false,active=true,employeeActive=true;
+ let admin=false,active=true,employeeActive=true,ambiguous=false;
  const modules={"@/lib/serverSupabase":{
   requireAuthenticatedUser:async()=>({id:"user-1",user_metadata:{role:"admin"}}),
   createSupabaseAdmin:()=>({from:(table:string)=>{
    const data=table==="profiles"?{id:"user-1",role:admin?"admin":"user",username:"adit"}:
     table==="cp_fh3_monitor_accounts"?{employee_id:"e1",employee_code:"F001",active}:
-    {payload:{employees:[{id:"e1",code:"F001",team:"FH3",workforceStatus:employeeActive?"FULL":"RESIGN"}]}};
+    {payload:{employees:[{id:"e1",code:"F001",team:"FH3",workforceStatus:employeeActive?"FULL":"RESIGN"},
+      ...(ambiguous?[{id:"e1",code:"F002",team:"FH3",workforceStatus:"FULL"}]:[])]}};
    const q={select:()=>q,eq:()=>q,maybeSingle:async()=>({data}),single:async()=>({data})};return q;
   }}),
  },"@/features/payroll/lib/workspace-model":{workspaceKeys:{employees:"employees"}}};
@@ -29,6 +30,7 @@ test("Monitor checks stored role, stable employee binding and fresh revocation; 
  assert.throws(()=>requireOwnEmployee(context,"F002"),/miliknya/);
  active=false;await assert.rejects(api.requireMonitorAccess(new Request("https://test/")),/dinonaktifkan/);
  active=true;employeeActive=false;await assert.rejects(api.requireMonitorAccess(new Request("https://test/")),/dinonaktifkan/);
+ employeeActive=true;ambiguous=true;await assert.rejects(api.requireMonitorAccess(new Request("https://test/")),/dinonaktifkan/);ambiguous=false;
  admin=true;const owner=await api.requireMonitorAccess(new Request("https://test/")) as {actor:{isAdmin:boolean}};assert.equal(owner.actor.isAdmin,true);
 });
 test("management/accounts/closing writes deny employee accounts before any service operation",async()=>{
@@ -42,15 +44,15 @@ test("management/accounts/closing writes deny employee accounts before any servi
   assert.equal((await route.POST(new Request("https://test/",{method:"POST",body:"{}"})) as Response).status,403);
  }assert.equal(reads,0);
 });
-test("employee books are scoped by the server-bound ID and ignore client-selected employee",async()=>{
- let chosen="";
+test("owner-approved team books are visible to bound members and ignore client-supplied authority",async()=>{
+ let chosen="unset";
  const route=load("app/api/admin/payroll/mobile/books/route.ts",{
   "@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{isAdmin:false},employeeId:"e1",supabaseAdmin:{}})},
-  "@/lib/monitorManagement":{monitorBookData:async(_service:unknown,id:string)=>{chosen=id;return {open:[],closings:[{title:"Tutup Buku",totalRupiah:12000}]};}},
+  "@/lib/monitorManagement":{monitorBookData:async(_service:unknown,id="")=>{chosen=id;return {open:[],closings:[{title:"Tutup Buku",totalRupiah:12000}]};}},
   "@/lib/monitorHttp":{monitorReply,monitorError,monitorBody},
  });
  const response=await route.GET(new Request("https://test/books?employeeId=someone-else")) as Response;
- assert.equal(response.status,200);assert.equal(chosen,"e1");assert.equal(response.headers.get("cache-control"),"no-store");
+ assert.equal(response.status,200);assert.equal(chosen,"");assert.equal(response.headers.get("cache-control"),"no-store");
 });
 test("username resolves case-insensitively on the server; password and tokens never return before authorization",async()=>{
  let email="",pattern="",allowed=true,limited=false;
@@ -77,4 +79,23 @@ test("management returns the exact canonical closing order for both native clien
  const response=await route.GET(new Request("https://test/management")) as Response;
  assert.equal(response.status,200);const data=await response.json();
  assert.deepEqual(data.eligible,[{orderRef:"X100",version:1,wageRupiah:100},{orderRef:"X90",version:2,wageRupiah:200}]);
+});
+test("book earnings group stable employees separately even when display names match",async()=>{
+ const ledger=[{order_ref:"X100",employee_id:"e1",employee_name:"Adit",wage_rupiah:100},
+  {order_ref:"X101",employee_id:"e1",employee_name:"Adit",wage_rupiah:200},
+  {order_ref:"X102",employee_id:"e2",employee_name:"Adit",wage_rupiah:50}].map(i=>({...i,closing_id:"book-1",game:"AION",task:"Task",discord:"DC",completed_at:"2026-10-24T01:00:00Z"}));
+ const service={from:(table:string)=>{
+  const q={select:()=>q,eq:()=>q,order:()=>q,single:async()=>({data:{payload:{}}}),
+   range:async()=>({data:table==="cp_fh3_monitor_closing_items"?ledger:[]}),
+   in:async()=>({data:[{id:"book-1",title:"Tutup Buku",created_at:"2026-10-24T02:00:00Z"}]})};return q;
+ }};
+ const module=load("lib/monitorManagement.ts",{
+  "@/lib/fh3MonitorCompletedData":{loadCompletedMonitorEvidence:async()=>({receipts:[],proofs:[]})},
+  "@/lib/fh3MonitorJobs":{loadFH3MonitorJobs:async()=>new Map()},
+  "@/lib/payrollMobileCompleted":{buildMobileCompleted:()=>({work:[]})},
+ });
+ const data=await module.monitorBookData(service) as {closings:{totalRupiah:number;employees:{employeeId:string;totalRupiah:number;orderCount:number}[];work:{closed:boolean}[]}[]};
+ const book=data.closings[0];assert.equal(book.totalRupiah,350);assert.equal(book.employees.length,2);
+ assert.equal(book.employees.find(i=>i.employeeId==="e1")?.totalRupiah,300);assert.equal(book.employees.find(i=>i.employeeId==="e1")?.orderCount,2);
+ assert.equal(book.employees.find(i=>i.employeeId==="e2")?.totalRupiah,50);assert.ok(book.work.every(w=>w.closed));
 });

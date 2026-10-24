@@ -205,7 +205,7 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         Map<String, java.util.List<JSONObject>> assignments = new HashMap<>();
         for (int i = 0; i < list.length(); i++) {
             JSONObject x = list.getJSONObject(i);
-            String taskStatus = first(x, "status").toLowerCase();
+            String taskStatus = first(x, "status").toLowerCase(java.util.Locale.ROOT);
             if (!x.optBoolean("active", true) || "completed".equals(taskStatus) || "cancelled".equals(taskStatus)
                     || "canceled".equals(taskStatus) || "done".equals(taskStatus) || "closed".equals(taskStatus)) continue;
             String id = first(x, "employeeId", "payrollId");

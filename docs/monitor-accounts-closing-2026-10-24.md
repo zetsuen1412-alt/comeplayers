@@ -10,7 +10,9 @@ dan password minimal 12 karakter. Akun yang sudah ada cukup dihubungkan.
 Email dapat dipakai untuk pemulihan password melalui website.
 
 Karyawan mendapat roster dirinya, dapat mengambil order untuk dirinya, mengirim
-TAKE/START/DONE dan melihat pekerjaan serta Data Tutup Buku miliknya. Admin dapat
+TAKE/START/DONE untuk dirinya. Sesuai pilihan pemilik sebelumnya, seluruh akun
+Monitor yang aktif boleh membaca order selesai dan penghasilan Data Tutup Buku
+tim. Pembacaan ini tetap memerlukan login/binding aktif. Admin dapat
 mengoperasikan seluruh karyawan dan mengelola akun. Hak akses diperiksa kembali
 oleh server pada setiap permintaan. Menonaktifkan binding akun mencabut akses
 Monitor tanpa memberikan atau mengubah izin Payroll Website.
@@ -89,6 +91,9 @@ CI PR memakai APK debug untuk pemeriksaan build. Paket publik main adalah releas
 bertanda tangan tetap. Pemeriksaan sertifikat menolak pergantian kunci pada
 application ID yang sama.
 
+Fingerprint publik sertifikat rilis (SHA-256):
+`6082eb26895e4cecaf6cc68b68217613e2c08bcd278f2f3f257a0fa0a512278e`.
+
 Workflow Android dan Windows mengantri publikasi agar commit biner tidak
 bertabrakan. Android juga mengambil main terbaru dan menolak sumber yang sudah
 berubah sebelum menyalin APK. Tautan publik tetap satu Android, satu EXE dan satu
@@ -110,6 +115,6 @@ Jangan memakai order pelanggan atau mengirim laporan Telegram palsu untuk uji.
 Tes lokal mencakup penolakan aktor/karyawan lain, pencabutan akses, transfer
 laporan lama, status/arsip, stale version, nominal yang berubah, penutupan
 idempotent, pembekuan snapshot, privilege/RLS dan kesamaan seluruh payload
-Payroll sebelum/sesudah alur Telegram-only. Tes API memeriksa isolasi penghasilan,
+Payroll sebelum/sesudah alur Telegram-only. Tes API memeriksa otorisasi anggota,
 login username, pembatasan percobaan, dan penolakan token sebelum otorisasi.
 Pratinjau Windows memakai data contoh dan tidak terhubung ke Telegram.

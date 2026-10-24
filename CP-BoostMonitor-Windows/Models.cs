@@ -94,6 +94,7 @@ public sealed class CompletionTotals
 }
 public sealed class CompletedOrder
 {
+    public string EmployeeId { get; set; } = "";
     public string EmployeeCode { get; set; } = "";
     public string EmployeeName { get; set; } = "";
     public string OrderRef { get; set; } = "";
@@ -144,8 +145,17 @@ public sealed class MonitorBook
     public long TotalRupiah { get; set; }
     public int OrderCount { get; set; }
     public List<CompletedOrder> Work { get; set; } = new();
+    public List<EmployeeBookTotal> Employees { get; set; } = new();
     public string TotalDisplay => $"Rp {TotalRupiah:N0}";
     public string DateDisplay => DateTimeOffset.TryParse(CreatedAt, out var t) ? t.ToLocalTime().ToString("dd MMM yyyy HH:mm") : "—";
+}
+public sealed class EmployeeBookTotal
+{
+    public string EmployeeId { get; set; } = "";
+    public string EmployeeName { get; set; } = "";
+    public int OrderCount { get; set; }
+    public long TotalRupiah { get; set; }
+    public string Display => $"{EmployeeName} • Rp {TotalRupiah:N0}";
 }
 public sealed class BookSnapshot
 {

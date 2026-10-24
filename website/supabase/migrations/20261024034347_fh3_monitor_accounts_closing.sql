@@ -54,6 +54,8 @@ begin
   where a.user_id=p_actor and a.active and w.id=1 and e->>'id'=a.employee_id and e->>'code'=a.employee_code
    and e->>'team'='FH3' and e->>'workforceStatus' in ('NEW','SHIFT','FULL')
    and nullif(e->>'sheetRosterMissingAt','') is null
+   and (select count(*) from jsonb_array_elements(w.payload->'cp-ofs-demo-employees-v2') x where x->>'id'=a.employee_id)=1
+   and (select count(*) from jsonb_array_elements(w.payload->'cp-ofs-demo-employees-v2') x where x->>'code'=a.employee_code)=1
    and (p_code is null or p_code=a.employee_code)) then raise exception 'Akses Monitor ditolak.'; end if;
 end $$;
 revoke all on function public.cp_monitor_assert_actor(uuid,text,boolean) from public,anon,authenticated,service_role;
@@ -71,6 +73,8 @@ begin
   where w.id=1 and e->>'code'=p_code and e->>'team'='FH3'
    and e->>'workforceStatus' in ('NEW','SHIFT','FULL') and nullif(e->>'sheetRosterMissingAt','') is null;
  if emp is null or p_active is null then raise exception 'Karyawan FH3 tidak aktif.'; end if;
+ if (select count(*) from public.cp_payroll_workspace w,lateral jsonb_array_elements(w.payload->'cp-ofs-demo-employees-v2') e
+  where w.id=1 and (e->>'code'=p_code or e->>'id'=emp->>'id'))<>1 then raise exception 'Identitas karyawan ambigu.'; end if;
  if exists(select 1 from public.cp_fh3_monitor_accounts where user_id=p_user
    and (employee_id<>emp->>'id' or employee_code<>p_code)) then
   raise exception 'Akun sudah terikat ke karyawan lain. Gunakan akun yang berbeda.'; end if;
@@ -160,6 +164,8 @@ begin
    where w.id=1 and e->>'code'=p_employee and e->>'team'='FH3' and e->>'workforceStatus' in ('NEW','SHIFT','FULL')
     and nullif(e->>'sheetRosterMissingAt','') is null;
   if emp is null then raise exception 'Karyawan FH3 tidak aktif.'; end if;
+  if (select count(*) from public.cp_payroll_workspace w,lateral jsonb_array_elements(w.payload->'cp-ofs-demo-employees-v2') e
+   where w.id=1 and (e->>'code'=p_employee or e->>'id'=emp->>'id'))<>1 then raise exception 'Identitas karyawan ambigu.'; end if;
   if (proof.id is null and job.employee_code=p_employee)
    or (proof.id is not null and coalesce(c.beneficiary_code,proof.employee_code)=p_employee) then
    raise exception 'Pilih karyawan yang berbeda untuk pemindahan.'; end if;
@@ -198,6 +204,8 @@ begin
   on r.chat_id=d.chat_id and r.admin_user_id=d.fh3_order_sender_id where d.division='FH3' and d.active for share of d,r;
  perform 1 from public.cp_payroll_workspace where id=1 for update;
  if exists(select 1 from public.cp_fh3_monitor_closings where id=p_id) then
+  if not exists(select 1 from public.cp_fh3_monitor_closings where id=p_id and actor_id=p_actor) then
+   raise exception 'ID Tutup Buku sudah dipakai akun lain. Muat ulang dan gunakan permintaan baru.'; end if;
   return jsonb_build_object('ok',true,'alreadyClosed',true,'closingId',p_id); end if;
  if p_id is null or length(btrim(coalesce(p_title,''))) not between 3 and 100 then raise exception 'Judul Tutup Buku tidak valid.'; end if;
  select jsonb_agg(x order by x->>'orderRef'),sum((x->>'wageRupiah')::bigint),count(*) into snapshot,total,n from (

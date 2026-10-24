@@ -59,10 +59,10 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$GITHUB_REF" == 'refs/heads/main' ]]; then
-            gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleRelease
+            gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleRelease lintRelease
             echo 'APK_FILE=CP-BoostMonitor-Android/app/build/outputs/apk/release/app-release.apk' >> "$GITHUB_ENV"
           else
-            gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleDebug
+            gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleDebug lintDebug
             echo 'APK_FILE=CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk' >> "$GITHUB_ENV"
           fi
       - name: Verify APK format and signature
@@ -73,6 +73,10 @@ jobs:
           test -s "$APK"
           unzip -t "$APK" | tail -n 1
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          if [[ "$GITHUB_REF" == 'refs/heads/main' ]]; then
+            CERT="$($ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs "$APK" | sed -n 's/Signer #1 certificate SHA-256 digest: //p')"
+            [[ "$CERT" == '6082eb26895e4cecaf6cc68b68217613e2c08bcd278f2f3f257a0fa0a512278e' ]] || { echo 'Unexpected release signing identity.'; exit 1; }
+          fi
           sha256sum "$APK"
       - name: Upload verified APK for branch testing
         continue-on-error: true # GitHub Actions artifact quota is currently full

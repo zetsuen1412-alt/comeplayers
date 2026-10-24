@@ -83,6 +83,9 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
   const expected=[{orderRef:"X500",version:6,wageRupiah:125000},{orderRef:"X501",version:1,wageRupiah:50000}];
   await assert.rejects(close(id,[...expected].reverse()),/berubah/);
   await close(id,expected);await close(id,expected);
+  await db.query("update profiles set role='admin' where id=$1",[b]);
+  await assert.rejects(close(id,expected,b),/akun lain/);
+  await db.query("update profiles set role='buyer' where id=$1",[b]);
   assert.equal((await db.query<{n:number}>("select count(*)::int n from cp_fh3_monitor_closings")).rows[0].n,1,"retry is idempotent");
   const item=await row("select to_jsonb(i) value from cp_fh3_monitor_closing_items i where order_ref='X500'");
   assert.equal(Number((await row("select to_jsonb(c) value from cp_fh3_monitor_closings c")).total_rupiah),175000);
@@ -97,6 +100,11 @@ test("Monitor accounts, transfers, Refund/archive and immutable Tutup Buku prese
    for(const role of ["anon","authenticated"]) assert.equal((await db.query<{allowed:boolean}>("select has_table_privilege($1,$2,'SELECT') allowed",[role,`cp_fh3_monitor_${table}`])).rows[0].allowed,false);
    for(const privilege of ["DELETE","TRUNCATE","UPDATE"]) assert.equal((await db.query<{allowed:boolean}>("select has_table_privilege('service_role',$1,$2) allowed",[`cp_fh3_monitor_${table}`,privilege])).rows[0].allowed,false);
   }
+  for(const signature of ["cp_monitor_bind_account(uuid,uuid,text,boolean)","cp_monitor_close_book(uuid,uuid,text,jsonb)",
+   "cp_monitor_manage_order(uuid,text,bigint,text,text,text,bigint,text)","cp_monitor_login_limit(text)"])
+   for(const role of ["anon","authenticated"]) assert.equal((await db.query<{allowed:boolean}>(
+    "select has_function_privilege($1,$2,'EXECUTE') allowed",[role,signature])).rows[0].allowed,false);
+  assert.equal((await db.query<{n:number}>("select count(*)::int n from pg_class where relname like 'cp_fh3_monitor_%' and relkind='r' and not relrowsecurity")).rows[0].n,0);
   for(let i=0;i<16;i++)assert.equal((await db.query<{allowed:boolean}>("select cp_monitor_login_limit($1) allowed",["a".repeat(64)])).rows[0].allowed,i<15);
  } finally {await db.close();}
 });

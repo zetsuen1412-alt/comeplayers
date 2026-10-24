@@ -13,11 +13,8 @@ const respond = (body: unknown, status = 200) => Response.json(body, {
 
 export async function GET(request: Request) {
   try {
-    const { supabaseAdmin, actor, employeeCode } = await requireMonitorAccess(request);
-    const url = new URL(request.url);
-    const requestedCode = url.searchParams.get("employeeCode") ?? "";
-    const code = actor.isAdmin ? requestedCode : employeeCode;
-    if (!actor.isAdmin && requestedCode && requestedCode !== employeeCode) return respond({error:"Khusus riwayat milik sendiri."},403);
+    const { supabaseAdmin } = await requireMonitorAccess(request);
+    const url = new URL(request.url), code = url.searchParams.get("employeeCode") ?? "";
     const rawOffset = url.searchParams.get("offset") ?? "0", offset = Number(rawOffset);
     if (code.length > 100 || /[\u0000-\u001f\u007f]/.test(code)
       || !/^\d{1,7}$/.test(rawOffset) || !Number.isSafeInteger(offset) || offset > 1_000_000)
@@ -28,12 +25,6 @@ export async function GET(request: Request) {
     ]);
     if (workspace.error || !workspace.data) throw workspace.error ?? new Error("Workspace tidak tersedia.");
     const history = buildMobileCompleted(workspace.data.payload, evidence.receipts, evidence.proofs, [...jobs.values()], code, offset, [...controls.values()]);
-    if (!actor.isAdmin) {
-      history.employees = history.employees.filter(e => e.employeeCode === employeeCode);
-      const person = history.employees[0];
-      history.totals = { completedCount: person?.completedCount ?? 0, employeeCount: history.employees.length,
-        contributors: person?.completedCount ? 1 : 0, lastCompletedAt: person?.lastCompletedAt ?? null };
-    }
     return respond({ schema: 1, scope: "FH3", sourceOfTruth: "telegram_fh3_manual",
       completionRule: "telegram_done_confirmed", complete: true,
       revision: workspace.data.revision, updatedAt: workspace.data.updated_at,
