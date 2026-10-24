@@ -27,6 +27,9 @@ on:
       - 'website/supabase/migrations/*_fh3_monitor_operational_jobs.sql'
       - 'website/supabase/migrations/*_fh3_monitor_job_permissions.sql'
       - 'website/supabase/migrations/*_fh3_monitor_discord.sql'
+      - 'website/lib/monitor*.ts'
+      - 'website/supabase/migrations/*_fh3_monitor_accounts_closing.sql'
+      - 'website/tests/monitor-*.test.ts'
       - 'website/lib/fh3MonitorJobs.ts'
       - 'website/lib/payrollMobileCompleted.ts'
       - 'website/lib/fh3MonitorCompletedData.ts'
@@ -61,6 +64,7 @@ jobs:
       - name: Test website API and PostgreSQL migrations
         run: >-
           npx --no-install tsx --test
+          tests/monitor-*.test.ts
           tests/fh3-manual-telegram.test.ts
           tests/fh3-manual-telegram-database.test.ts
           tests/fh3-manual-telegram-intake.test.ts

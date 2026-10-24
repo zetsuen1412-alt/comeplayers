@@ -25,6 +25,7 @@ final class PayrollSync {
     interface Done { void accept(String message, boolean ok); }
     interface DataDone { void accept(JSONObject data, String message, boolean ok); }
 
+    private final android.content.SharedPreferences identity;
     private final SecureSession session;
     private final EmployeeDb db;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -33,25 +34,27 @@ final class PayrollSync {
     private long sessionVersion = 0;
     private final Object sessionGuard = new Object();
 
-    PayrollSync(SecureSession session, EmployeeDb db) { this.session = session; this.db = db; }
+    PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context) { this.session = session; this.db = db; this.identity=context.getSharedPreferences("monitor_identity",android.content.Context.MODE_PRIVATE); }
+    private void rememberIdentity(JSONObject roster) { identity.edit().putBoolean("isAdmin",roster.optBoolean("isAdmin")).putString("accountId",roster.optString("accountId")).putString("username",roster.optString("username")).apply(); }
 
     boolean hasSession() { return session.exists(); }
-    void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); } }
-    void shutdown() { executor.shutdown(); }
+    void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); identity.edit().clear().apply(); } }
+    void shutdown() { executor.shutdownNow(); }
 
     void login(String email, String password, Done callback) {
+        final long secureVersion=session.revision();
         final long version;
         synchronized (sessionGuard) { version = ++sessionVersion; }
         executor.execute(() -> {
             try {
                 JSONObject input = new JSONObject();
-                input.put("action", "login"); input.put("email", email); input.put("password", password);
+                input.put("action", "login"); input.put("username", email); input.put("password", password);
                 JSONObject result = call("POST", "/session", input, null);
                 // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
                 JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"));
                 synchronized (sessionGuard) {
                     if (version != sessionVersion) throw new IOException("Sesi sudah berubah.");
-                    db.syncRoster(roster); session.save(result);
+                    db.syncRoster(roster); session.saveIfVersion(secureVersion,result); rememberIdentity(roster);
                 }
                 int tasks = 0;
                 String taskWarning = "";
@@ -78,7 +81,7 @@ final class PayrollSync {
                     credentials = refresh(credentials);
                     snapshot = call("GET", "/roster", null, credentials.getString("accessToken"));
                 }
-                int[] changed = db.syncRoster(snapshot);
+                int[] changed = db.syncRoster(snapshot); rememberIdentity(snapshot);
                 int tasks = 0;
                 String taskWarning = "";
                 try { tasks = syncTasks(credentials.getString("accessToken")); }
@@ -92,6 +95,7 @@ final class PayrollSync {
     }
 
     private JSONObject refresh(JSONObject credentials) throws Exception {
+        final long secureVersion=session.revision();
         final long version;
         synchronized (sessionGuard) {
             JSONObject current = session.load();
@@ -104,7 +108,7 @@ final class PayrollSync {
         JSONObject fresh = call("POST", "/session", payload, null);
         synchronized (sessionGuard) {
             if (version != sessionVersion) throw new IOException("Sesi berubah; login kembali.");
-            session.save(fresh);
+            session.saveIfVersion(secureVersion,fresh);
         }
         return fresh;
     }
@@ -178,19 +182,11 @@ final class PayrollSync {
         });
     }
 
-    /** Owner-approved team visibility; salary data stays in memory, never in SQLite/backups. */
-    void loadEarnings(String employeeCode, int offset, DataDone callback) {
-        executor.execute(() -> {
-            try {
-                JSONObject result = authorizedCall("GET", "/earnings?employeeCode="
-                        + URLEncoder.encode(employeeCode, "UTF-8") + "&offset=" + offset, null);
-                if (!MonitorContract.earnings(result))
-                    throw new IOException("Format penghasilan FH3 tidak valid.");
-                main.post(() -> callback.accept(result, "", true));
-            } catch (Exception error) {
-                main.post(() -> callback.accept(null, friendly(error), false));
-            }
-        });
+    void loadEarnings(String employeeCode, int offset, DataDone callback) { request("GET","/books",null,callback); }
+    void request(String method,String path,JSONObject body,DataDone callback) {
+        executor.execute(()->{try {JSONObject result=authorizedCall(method,path,body);
+            main.post(()->callback.accept(result,"",true));}
+            catch(Exception e){main.post(()->callback.accept(null,friendly(e),false));}});
     }
 
     /** Check website's actual Telegram bot and FH3 group without sending any photos. */

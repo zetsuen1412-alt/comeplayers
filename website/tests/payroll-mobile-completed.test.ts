@@ -65,13 +65,14 @@ test("completed endpoint authorizes members before reads and rejects malformed f
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
   const modules = {
-    "@/lib/payrollAccess": { requirePayrollAccess: async () => {
+    "@/lib/monitorAccess": { requireMonitorAccess: async () => {
       if (status !== 200) throw Object.assign(new Error("Denied"), { status });
-      return { actor: { isAdmin: false }, supabaseAdmin: { from: () => {
+      return { actor: { isAdmin: false }, employeeCode:"E1", supabaseAdmin: { from: () => {
         reads++; return { select: () => ({ eq: () => ({ single: async () => ({ data: { payload: state(), revision: 9 } }) }) }) };
       } } };
     } },
     "@/lib/adminSecurity": { adminErrorStatus: (e: { status?: number }) => e.status ?? 500 },
+    "@/lib/monitorManagement": {loadMonitorControls:async()=>new Map()},
     "@/lib/payrollMobileCompleted": { buildMobileCompleted },
     "@/lib/fh3MonitorCompletedData": { loadCompletedMonitorEvidence: async () => ({ receipts: [source()], proofs: [done()] }) },
     "@/lib/fh3MonitorJobs": { loadFH3MonitorJobs: async () => new Map([["X4801", job()]]) },
@@ -82,7 +83,7 @@ test("completed endpoint authorizes members before reads and rejects malformed f
   status = 200; const response = await get("?employeeCode=E1");
   assert.equal(response.status, 200); assert.equal(response.headers.get("cache-control"), "no-store");
   const result = await response.json(); assert.equal(result.workTotal, 1); assert.equal(result.completionRule, "telegram_done_confirmed");
-  assert.equal((await get("?offset=-1")).status, 400); assert.equal((await get("?employeeCode=E3")).status, 404);
+  assert.equal((await get("?offset=-1")).status, 400); assert.equal((await get("?employeeCode=E3")).status, 403);
 });
 
 test("evidence reads complete pages and pins both group and sender without losing archived receipts", async () => {

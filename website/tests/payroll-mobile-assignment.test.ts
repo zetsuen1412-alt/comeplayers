@@ -1,3 +1,4 @@
+import { requireOwnEmployee } from "../lib/monitorAccess";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -15,7 +16,7 @@ function load(file: string, mocks: Record<string, unknown>) {
   const exports: { GET?: (request: Request) => Promise<Response>; POST?: (request: Request) => Promise<Response> } = {};
   runInNewContext(compiled, {
     exports, Request, Response, Error, SyntaxError,
-    require: (name: string) => { assert.ok(name in mocks, `Unexpected module: ${name}`); return mocks[name]; },
+    require: (name: string) => { if(name==="@/lib/monitorManagement")return {loadMonitorControls:async()=>new Map()}; assert.ok(name in mocks, `Unexpected module: ${name}`); const mock=mocks[name]; return name==="@/lib/monitorAccess" ? { ...(mock as object),requireOwnEmployee } : mock; },
   });
   return exports;
 }
@@ -74,16 +75,13 @@ const common = {
   "@/lib/adminSecurity": { adminErrorStatus: (e: { status?: number }) => e.status ?? 500 },
   "@/features/payroll/lib/workspace-model": { workspaceKeys: { orders: "orders", employees: "employees" } },
 };
-test("pending endpoint blocks non-admin before reading order details", async () => {
-  let reads = 0;
-  const route = load("app/api/admin/payroll/mobile/pending/route.ts", {
-    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
-      actor: { isAdmin: false }, supabaseAdmin: { from: () => { reads++; } },
-    }) },
+test("pending endpoint requires Monitor access before reading order details", async()=>{
+    let reads=0;
+    const route=load("app/api/admin/payroll/mobile/pending/route.ts",{...common,
+      "@/lib/monitorAccess":{requireMonitorAccess:async()=>{throw Object.assign(new Error("Denied"),{status:403});}}});
+    assert.equal((await route.GET!(new Request(url+"/pending"))).status,403);
+    assert.equal(reads,0);
   });
-  assert.equal((await route.GET!(new Request(url + "/pending"))).status, 403);
-  assert.equal(reads, 0);
-});
 
 test("FH3 queue contains only verified Telegram manual posts and their TASK", async () => {
   const rows = [
@@ -97,7 +95,7 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
     order("X900", { orderType: "item", operationalStatus: "confirmed" }),
   ];
   const route = load("app/api/admin/payroll/mobile/pending/route.ts", {
-    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+    ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({
       actor: { isAdmin: true }, supabaseAdmin: client(workspace(rows), [manual("X100"), manual("X900"), manual("X4519")]),
     }) },
   });
@@ -116,7 +114,7 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
   assert.equal(result.pending[2].canTake, true);
   assert.equal(result.pending[2].canTakeWithoutPayroll, true);
   assert.equal(result.pending[2].needsValuation, true);
-  assert.match(result.pending[2].orderName, /NILAI PAYROLL BELUM DIISI/);
+  assert.match(result.pending[2].orderName, /8hours/);
   assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_user_id|salary|kasbon|refreshToken/);
 });
 
@@ -124,7 +122,7 @@ test("assignment endpoint checks admin, validates payload, and uses website acto
   let isAdmin = false;
   const calls: unknown[] = [];
   const route = load("app/api/admin/payroll/mobile/assign/route.ts", {
-    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+    ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({
       actor: { isAdmin, id: "e120c2e4-99bb-42b0-9d08-a8e71ebef76a" },
       supabaseAdmin: { ...client(workspace([]), [manual("X100")]),
         rpc: async (name: string, args: unknown) => {
@@ -148,7 +146,7 @@ test("assignment endpoint checks admin, validates payload, and uses website acto
 
 test("concurrent assignment conflicts are surfaced instead of overwriting work", async () => {
   const route = load("app/api/admin/payroll/mobile/assign/route.ts", {
-    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
+    ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({
       actor: { isAdmin: true, id: "e120c2e4-99bb-42b0-9d08-a8e71ebef76a" },
       supabaseAdmin: { ...client(workspace([]), [manual("X100")]), rpc: async () => ({ error: { code: "P0001" } }) },
     }) },
@@ -169,8 +167,8 @@ test("active tasks require an admin Telegram post and use its TASK, not Payroll-
     order("X4759", { operationalStatus: "assigned", employeeCode: "FH3001", employeeName: "Andi" }),
   ];
   const route = load("app/api/admin/payroll/mobile/tasks/route.ts", {
-    ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({
-      supabaseAdmin: client(workspace(rows, [e]), [manual("X100")]),
+    ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({
+      actor:{isAdmin:true}, supabaseAdmin: client(workspace(rows, [e]), [manual("X100")]),
     }) },
   });
   const response = await route.GET!(new Request(url + "/tasks"));
@@ -193,7 +191,7 @@ test("unpriced jobs leave pending, retain their worker, and expose only the next
     employee_name: "Andi", status: "assigned", created_at: "2026-10-22T00:00:00Z", cp_fh3_telegram_manual_orders: { active: true } };
   const takes = [{ order_ref: "X9001", employee_code: "F001", chat_id: -100123, status: "sent" }];
   const service = client(workspace([], [worker]), [manual("X9001")], [job], takes);
-  const mocks = { ...common, "@/lib/payrollAccess": { requirePayrollAccess: async () => ({ actor: { isAdmin: true }, supabaseAdmin: service }) } };
+  const mocks = { ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({ actor: { isAdmin: true }, supabaseAdmin: service }) } };
   const pending = load("app/api/admin/payroll/mobile/pending/route.ts", mocks);
   assert.equal((await (await pending.GET!(new Request(url))).json()).pending.length, 0);
   const tasks = load("app/api/admin/payroll/mobile/tasks/route.ts", mocks);
@@ -218,7 +216,7 @@ test("cancelled Telegram orders disappear from pending and are rejected before T
   let writes = 0;
   const service = { ...client(workspace([order("X4519"),order("X4759")]), [manual("X4519",{active:false})]),
     rpc:async()=>{writes++;return {data:{ok:true}};} };
-  const mocks = {...common,"@/lib/payrollAccess":{requirePayrollAccess:async()=>({
+  const mocks = {...common,"@/lib/monitorAccess":{requireMonitorAccess:async()=>({
     actor:{isAdmin:true,id:"admin"},supabaseAdmin:service,
   })}};
   const pending=load("app/api/admin/payroll/mobile/pending/route.ts",mocks);
@@ -230,7 +228,7 @@ test("cancelled Telegram orders disappear from pending and are rejected before T
 
 test("missing receipt migration fails closed for both queue and active tasks", async () => {
   const base=client(workspace([order("X4759")]));
-  const mocks={...common,"@/lib/payrollAccess":{requirePayrollAccess:async()=>({actor:{isAdmin:true},
+  const mocks={...common,"@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{isAdmin:true},
     supabaseAdmin:{from:(table:string)=>{
       if(table!=="cp_fh3_telegram_manual_orders")return base.from(table);
       const q={select:()=>q,eq:()=>q,limit:async()=>({error:{code:"42P01"},data:null})};return q;
@@ -249,7 +247,7 @@ test("another group admin's receipts are excluded from pending, active tasks and
     order("X4827"),order("X4519",{operationalStatus:"assigned",employeeCode:"FH3001",employeeName:"Andi"}),
   ],[worker]),[manual("X4827",{admin_user_id:23}),manual("X4519",{admin_user_id:23})]),
     rpc:async()=>{writes++;return {data:{ok:true}};}};
-  const mocks={...common,"@/lib/payrollAccess":{requirePayrollAccess:async()=>({actor:{isAdmin:true},supabaseAdmin:service})}};
+  const mocks={...common,"@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{isAdmin:true},supabaseAdmin:service})}};
   for (const [file,key] of [["pending","pending"],["tasks","tasks"]]) {
     const route=load(`app/api/admin/payroll/mobile/${file}/route.ts`,mocks);
     const reply=await route.GET!(new Request(url));

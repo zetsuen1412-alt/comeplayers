@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <application
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
         android:label="EVOGAMING Monitor FH3"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
+        <service android:name="id.comeplayers.boostmonitor.OrderNotificationService" android:exported="false" android:foregroundServiceType="dataSync" />
+        <activity android:name="id.comeplayers.boostmonitor.MonitorAdminActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="id.comeplayers.boostmonitor.MainActivity"
             android:exported="true"

@@ -1,4 +1,4 @@
-import { requirePayrollAccess } from "@/lib/payrollAccess";
+import { requireMonitorAccess } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { FH3_PROOF_GROUP, verifyFH3ProofGroup } from "@/lib/payrollMobileProof";
 
@@ -11,8 +11,7 @@ const respond = (body: unknown, status = 200) =>
 /** Read-only preflight. Does not send test photos or change orders. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
-    if (!actor.isAdmin) return respond({ error: "Khusus admin Payroll." }, 403);
+    const { supabaseAdmin } = await requireMonitorAccess(request);
     const { data, error } = await supabaseAdmin
       .from("cp_payroll_telegram_divisions")
       .select("chat_id,chat_title,active")

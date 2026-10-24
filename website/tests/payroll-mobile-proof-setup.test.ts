@@ -21,8 +21,8 @@ function endpoint(options: {
   runInNewContext(compiled, {
     exports, Request, Response, Number, Error,
     require: (moduleName: string) => {
-      if (moduleName === "@/lib/payrollAccess") return {
-        requirePayrollAccess: async () => ({
+      if (moduleName === "@/lib/monitorAccess") return {
+        requireMonitorAccess: async () => ({
           actor: { isAdmin: options.admin ?? true },
           supabaseAdmin: { from: (table: string) => {
             reads++;
@@ -48,11 +48,11 @@ function endpoint(options: {
   });
   return { get: () => exports.GET!(new Request(url)), reads: () => reads, checks: () => checks };
 }
-test("preflight is admin-only and never queries group for non-admin", async () => {
-  const route = endpoint({ admin: false });
-  assert.equal((await route.get()).status, 403);
-  assert.equal(route.reads(), 0);
-  assert.equal(route.checks(), 0);
+test("bound employee can verify the group without sending reports", async () => {
+  const route = endpoint({ admin: false,group:{chat_id:-100777,chat_title:"FH3",active:true} });
+  assert.equal((await route.get()).status, 200);
+  assert.equal(route.reads(), 1);
+  assert.equal(route.checks(), 1);
 });
 test("FH3 bot group can be verified without sending a Telegram photo", async () => {
   const route = endpoint({ group: { chat_id: -100777, chat_title: "🔥 EVO🔥 Ilham FH3", active: true },

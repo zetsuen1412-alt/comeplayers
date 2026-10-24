@@ -10,12 +10,16 @@ contain the same application. Close the old Monitor before running the new EXE;
 existing login and local history remain in place. The page also provides the
 existing Android APK as a separate platform download.
 
-Log in using an authorized ComePlayers account. Take Order shows employees by
+Current accounts, wages, Tutup Buku and notifications: [release guide](../docs/monitor-accounts-closing-2026-10-24.md).
+
+Log in using a ComePlayers username. Admins manage staff account bindings;
+employees can operate their own work. Take Order shows employees by
 name, new orders and active tasks. Select a worker and an order, then confirm TAKE.
 START and DONE require a screenshot and confirmation before sending to Telegram.
 Only verified direct @evogamings posts in the configured FH3 group supply orders
 and TASK. Order Selesai shows only Telegram orders with confirmed DONE from Monitor.
-Payroll financial data is not requested by this Windows view.
+Data Tutup Buku shows net wages entered by admins and immutable closing snapshots.
+Existing website Payroll financial data stays separate.
 
 The **Discord** column in new orders, active tasks and completed work uses the
 verified Telegram metadata (Discord, Discord Server or DC Server). Discord names

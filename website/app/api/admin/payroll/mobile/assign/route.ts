@@ -1,4 +1,4 @@
-import { requirePayrollAccess } from "@/lib/payrollAccess";
+import { requireMonitorAccess, requireOwnEmployee } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { deliverTakeNotice, TakeNoticeError } from "@/lib/payrollMobileTake";
 
@@ -13,8 +13,8 @@ const respond = (body: unknown, status = 200) => Response.json(body, {
 /** Mobile admin assignment uses a dedicated locked DB transaction, not a spoofed Telegram update. */
 export async function POST(request: Request) {
   try {
-    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
-    if (!actor.isAdmin) return respond({ error: "Hanya admin dapat menugaskan karyawan." }, 403);
+    const context = await requireMonitorAccess(request);
+    const { actor, supabaseAdmin } = context;
     const raw = await request.text();
     if (raw.length > 4096) return respond({ error: "Permintaan terlalu besar." }, 413);
     const body = JSON.parse(raw) as { orderRef?: unknown; employeeCode?: unknown };
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       || !code || code.length > 100 || /[\u0000-\u001f\u007f]/.test(code)) {
       return respond({ error: "Order atau kode karyawan tidak valid." }, 400);
     }
+    requireOwnEmployee(context, code);
     // The Windows/Android queue may be stale or a caller may submit an
     // unseen Payroll ref directly. TAKE must independently verify Telegram.
     const [{ data: group, error: groupError }, { data: manual, error: manualError }] = await Promise.all([

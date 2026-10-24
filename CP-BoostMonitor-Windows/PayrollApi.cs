@@ -37,6 +37,10 @@ public sealed class PayrollApi : IDisposable
         public string SourceOfTruth { get; set; } = "";
         public int WorkflowSchema { get; set; }
         public bool CanOperate { get; set; }
+        public bool IsAdmin { get; set; }
+        public string EmployeeCode { get; set; } = "";
+        public string Username { get; set; } = "";
+        public string AccountId { get; set; } = "";
         public long Revision { get; set; }
         public List<T>? Employees { get; set; }
         public List<T>? Pending { get; set; }
@@ -64,6 +68,10 @@ public sealed class PayrollApi : IDisposable
 
     public bool LoggedIn => _session != null;
     public bool CanOperate { get; private set; }
+    public bool IsAdmin { get; private set; }
+    public string OwnEmployeeCode { get; private set; } = "";
+    public string Username { get; private set; } = "";
+    public string AccountId { get; private set; } = "";
 
     private void TryLoadSession()
     {
@@ -103,6 +111,7 @@ public sealed class PayrollApi : IDisposable
         _sessionVersion++;
         _session = null;
         CanOperate = false;
+        IsAdmin = false; OwnEmployeeCode = Username = AccountId = "";
         try { if (File.Exists(_sessionFile)) File.Delete(_sessionFile); }
         catch (IOException) { /* Session is forgotten in memory. */ }
         }
@@ -113,9 +122,9 @@ public sealed class PayrollApi : IDisposable
         int version;
         lock (_sessionGuard) { version = ++_sessionVersion; }
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
-            throw new InvalidOperationException("Email dan password wajib diisi.");
+            throw new InvalidOperationException("Username dan password wajib diisi.");
         using var response = await _http.PostAsJsonAsync("session",
-            new { action = "login", email = email.Trim(), password }, _json);
+            new { action = "login", username = email.Trim(), password }, _json);
         var session = await ParseAsync<Session>(response);
         if (session is null || string.IsNullOrWhiteSpace(session.AccessToken) ||
             string.IsNullOrWhiteSpace(session.RefreshToken))
@@ -183,6 +192,7 @@ public sealed class PayrollApi : IDisposable
         if (doc.Schema != 1 || doc.Scope != "FH3" || doc.Employees is null)
             throw new InvalidOperationException("Format data karyawan FH3 tidak sesuai.");
         CanOperate = doc.CanOperate;
+        IsAdmin = doc.IsAdmin; OwnEmployeeCode = doc.EmployeeCode; Username = doc.Username; AccountId = doc.AccountId;
         return doc.Employees.Where(e => e.Team == "FH3" && e.Active).ToList();
     }
     public async Task<List<PayrollOrder>> PendingAsync()
@@ -203,6 +213,7 @@ public sealed class PayrollApi : IDisposable
 
     public async Task<CompletedSnapshot> CompletedAsync(string employeeCode = "", int offset = 0)
     {
+        if (!IsAdmin && OwnEmployeeCode.Length > 0) employeeCode = OwnEmployeeCode;
         var doc = await GetAsync<CompletedSnapshot>("completed?employeeCode="
             + Uri.EscapeDataString(employeeCode) + "&offset=" + offset);
         if (doc.Schema != 1 || doc.Scope != "FH3" || doc.SourceOfTruth != "telegram_fh3_manual"
@@ -214,6 +225,18 @@ public sealed class PayrollApi : IDisposable
             || doc.SelectedEmployeeCode != (employeeCode.Length == 0 ? null : employeeCode))
             throw new InvalidOperationException("Format riwayat order selesai FH3 tidak sesuai.");
         return doc;
+    }
+
+    public Task<ManagementSnapshot> ManagementAsync() => GetAsync<ManagementSnapshot>("management");
+    public Task<BookSnapshot> BooksAsync() => GetAsync<BookSnapshot>("books");
+    public async Task MutateAsync(string path, object body)
+    {
+        var token = await TokenAsync();
+        using var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = JsonContent.Create(body, options: _json) };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        using var response = await _http.SendAsync(request);
+        var result = await ParseAsync<JsonElement>(response);
+        if (!result.TryGetProperty("ok", out var ok) || !ok.GetBoolean()) throw new InvalidOperationException("Perubahan belum terkonfirmasi; perbarui data.");
     }
 
     public async Task<string> VerifyGroupAsync()

@@ -1,4 +1,5 @@
-import { requirePayrollAccess } from "@/lib/payrollAccess";
+import { loadMonitorControls } from "@/lib/monitorManagement";
+import { requireMonitorAccess } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Order } from "@/features/payroll/types/domain";
@@ -17,8 +18,7 @@ const clean = (value: unknown, limit: number) => String(value ?? "")
 /** Only manually posted and verified FH3 Telegram orders are eligible for the mobile queue. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
-    if (!actor.isAdmin) return respond({ error: "Hanya admin dapat melihat order baru." }, 403);
+    const { supabaseAdmin } = await requireMonitorAccess(request);
     const { data: workspace, error } = await supabaseAdmin.from("cp_payroll_workspace")
       .select("payload,revision").eq("id", 1).single();
     if (error || !workspace) throw error ?? new Error("Workspace tidak ditemukan");
@@ -28,6 +28,8 @@ export async function GET(request: Request) {
     // showing the full Payroll queue (which includes non-Telegram orders).
     const verified = await loadFH3ManualOrders(supabaseAdmin);
     const jobs = await loadFH3MonitorJobs(supabaseAdmin);
+    const controls = await loadMonitorControls(supabaseAdmin);
+    for (const [ref,c] of controls) if (c.archived || c.state !== "normal") verified.delete(ref);
     const refCounts = new Map<string, number>();
     for (const order of orders) {
       const ref = String(order.externalReference ?? "").trim().toUpperCase();
@@ -75,7 +77,7 @@ export async function GET(request: Request) {
       })), ...inboxOnly.map(item => ({
         orderRef: clean(item.order_ref, 180),
         orderType: "boosting",
-        orderName: clean("[NILAI PAYROLL BELUM DIISI] " + manualFH3OrderTitle(item), 300),
+        orderName: clean(manualFH3OrderTitle(item), 300),
         game: clean(item.game, 150),
         discord: clean(item.discord, 150),
         buyer: "",

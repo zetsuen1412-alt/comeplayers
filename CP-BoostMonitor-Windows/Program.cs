@@ -7,6 +7,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         ApplicationConfiguration.Initialize();
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         if (args.SequenceEqual(new[] { "--verify-package" }))

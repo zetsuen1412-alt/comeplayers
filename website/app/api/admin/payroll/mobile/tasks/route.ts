@@ -1,4 +1,5 @@
-import { requirePayrollAccess } from "@/lib/payrollAccess";
+import { loadMonitorControls } from "@/lib/monitorManagement";
+import { requireMonitorAccess } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Employee, Order } from "@/features/payroll/types/domain";
@@ -18,7 +19,7 @@ const clean = (value: unknown, fallback: string, limit: number) => String(value 
 /** Payroll supplies assignments; verified admin Telegram posts supply operational TASK. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
+    const { actor, supabaseAdmin, employeeCode } = await requireMonitorAccess(request);
     const { data, error } = await supabaseAdmin.from("cp_payroll_workspace")
       .select("payload,revision,updated_at").eq("id", 1).single();
     if (error || !data) throw error ?? new Error("Workspace tidak ditemukan");
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
     const orders = (Array.isArray(payload[workspaceKeys.orders]) ? payload[workspaceKeys.orders] : []) as Order[];
     const verified = await loadFH3ManualOrders(supabaseAdmin);
     const jobs = await loadFH3MonitorJobs(supabaseAdmin);
+    const controls = await loadMonitorControls(supabaseAdmin);
     const refCounts = new Map<string, number>();
     for (const order of orders) {
       const ref = String(order.externalReference ?? "").trim().toUpperCase();
@@ -106,7 +108,7 @@ export async function GET(request: Request) {
       return groups;
     };
     const takesByRef = groupDeliveries(takes), proofsByRef = groupDeliveries(proofs);
-    const actionableTasks = tasks.map(task => {
+    const actionableTasks = tasks.filter(t => (actor.isAdmin || t.employeeCode === employeeCode) && !controls.get(t.orderRef)?.archived).map(task => {
       const job = jobs.get(task.orderRef);
       const workOrder = job ? { externalReference: job.order_ref, operationalStatus: job.status,
         workerAssignments: [{ id: `mobile:telegram:${job.order_ref}`, employeeCode: job.employee_code,
@@ -116,9 +118,9 @@ export async function GET(request: Request) {
         takesByRef.get(task.orderRef) ?? [], proofsByRef.get(task.orderRef) ?? []);
       return { ...task, ...workflow, source: job ? "telegram_job" : "payroll",
         needsValuation: !!job && !byRef.has(task.orderRef),
-        canTake: actor?.isAdmin === true && workflow.canTake,
-        canStart: actor?.isAdmin === true && workflow.canStart, canDone: actor?.isAdmin === true && workflow.canDone,
-        actionMessage: actor?.isAdmin === true ? workflow.actionMessage : "Laporan order dikirim oleh admin Payroll.",
+        canTake: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canTake,
+        canStart: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canStart, canDone: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canDone,
+        actionMessage: (controls.get(task.orderRef)?.state ?? "normal") === "normal" ? workflow.actionMessage : "Order Refund atau Bermasalah. Hubungi admin.",
       };
     });
     return respond({ schema: 1, source: "payroll", sourceOfTruth: "telegram_fh3_manual", scope: "FH3", revision: data.revision,

@@ -106,4 +106,50 @@ public sealed class CompletedOrder
     public string CompletedDisplay => DateTimeOffset.TryParse(CompletedAt, out var stamp) ? stamp.ToLocalTime().ToString("dd MMM yyyy · HH:mm") : "—";
     public string? TelegramMessageUrl { get; set; }
     public bool Archived { get; set; }
+    public string AdminState { get; set; } = "normal";
+    public long? WageRupiah { get; set; }
+    public string WageDisplay => WageRupiah is long wage ? $"Rp {wage:N0}" : "Belum dihargai";
+    public bool Closed { get; set; }
+    public string BookStatus => Closed ? "Dibukukan" : AdminState switch {"refund"=>"Refund","problem"=>"Bermasalah",_=>"Belum Tutup Buku"};
+}
+
+public sealed class ManagedOrder
+{
+    public string OrderRef { get; set; } = "";
+    public string Game { get; set; } = "";
+    public string Discord { get; set; } = "";
+    public string EmployeeName { get; set; } = "";
+    public string Status { get; set; } = "";
+    public string AdminState { get; set; } = "normal";
+    public bool MonitorArchived { get; set; }
+    public long Version { get; set; }
+    public long? WageRupiah { get; set; }
+    public bool CanPrice { get; set; }
+    public bool Closed { get; set; }
+    public string WageDisplay => WageRupiah is long wage ? $"Rp {wage:N0}" : "Belum dihargai";
+    public string StateDisplay => MonitorArchived ? "Dihapus (arsip)" : AdminState switch { "refund" => "Refund", "problem" => "Bermasalah", _ => Status };
+}
+public sealed class ClosingExpected { public string OrderRef { get; set; } = ""; public long Version { get; set; } public long WageRupiah { get; set; } }
+public sealed class ManagementSnapshot
+{
+    public List<ManagedOrder> Orders { get; set; } = new();
+    public List<ClosingExpected> Eligible { get; set; } = new();
+    public long TotalRupiah { get; set; }
+}
+public sealed class MonitorBook
+{
+    public string Id { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string CreatedAt { get; set; } = "";
+    public long TotalRupiah { get; set; }
+    public int OrderCount { get; set; }
+    public List<CompletedOrder> Work { get; set; } = new();
+    public string TotalDisplay => $"Rp {TotalRupiah:N0}";
+    public string DateDisplay => DateTimeOffset.TryParse(CreatedAt, out var t) ? t.ToLocalTime().ToString("dd MMM yyyy HH:mm") : "—";
+}
+public sealed class BookSnapshot
+{
+    public List<CompletedOrder> Open { get; set; } = new();
+    public List<MonitorBook> Closings { get; set; } = new();
+    public string Notice { get; set; } = "";
 }

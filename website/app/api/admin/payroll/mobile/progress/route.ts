@@ -1,4 +1,4 @@
-import { requirePayrollAccess } from "@/lib/payrollAccess";
+import { requireMonitorAccess, requireOwnEmployee } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { MobileTelegramError, isSupportedProofImage, sendMobileProofPhoto, verifyFH3ProofGroup } from "@/lib/payrollMobileProof";
 
@@ -14,11 +14,11 @@ const respond = (body: unknown, status = 200) => Response.json(body, {
 export async function POST(request: Request) {
   let eventId = "";
   let adminId = "";
-  let service: Awaited<ReturnType<typeof requirePayrollAccess>>["supabaseAdmin"] | undefined;
+  let service: Awaited<ReturnType<typeof requireMonitorAccess>>["supabaseAdmin"] | undefined;
   let deliveryConfirmed = false;
   try {
-    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
-    if (!actor.isAdmin) return respond({ error: "Hanya admin Payroll boleh mengirim bukti order." }, 403);
+    const context = await requireMonitorAccess(request);
+    const { actor, supabaseAdmin } = context;
     adminId = actor.id;
     service = supabaseAdmin;
     if (!request.headers.get("content-type")?.toLowerCase().startsWith("multipart/form-data"))
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
       || !["image/jpeg", "image/png"].includes(picture.type)) {
       return respond({ error: "Data order, aksi, atau foto PNG/JPEG tidak valid (maks 7 MB)." }, 400);
     }
+    requireOwnEmployee(context, code);
     const bytes = new Uint8Array(await picture.arrayBuffer());
     if (!isSupportedProofImage(bytes, picture.type))
       return respond({ error: "Bukti bukan foto PNG/JPEG yang valid." }, 400);
