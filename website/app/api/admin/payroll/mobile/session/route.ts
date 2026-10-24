@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { createHash } from 'node:crypto';
+import { createSupabaseAdmin } from '@/lib/serverSupabase';
 import { createSupabaseAuthClient, createSupabaseUserClient, requireAccountIdentity } from '@/lib/serverSupabase';
 import { singleDeviceSessionsEnabled } from '@/lib/auth/accountSessionConfig';
-import { requirePayrollAccess } from '@/lib/payrollAccess';
+import { requireMonitorAccess } from '@/lib/monitorAccess';
 import { adminErrorStatus } from '@/lib/adminSecurity';
 
 export const dynamic = 'force-dynamic';
@@ -42,9 +44,23 @@ export async function POST(request: Request) {
     const client = createSupabaseAuthClient();
     let result;
     if (action === 'login') {
-      if (typeof body.email !== 'string' || body.email.length > 254 || typeof body.password !== 'string'
+      const identity = typeof body.username === 'string' ? body.username.trim().toLowerCase() : typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+      if (!identity || identity.length > 254 || typeof body.password !== 'string'
         || body.password.length < 1 || body.password.length > 512) return reply({ error: 'Email atau kata sandi tidak valid.' }, 400);
-      result = await client.auth.signInWithPassword({ email: body.email.trim(), password: body.password });
+      const service = createSupabaseAdmin();
+      for (const bucket of [identity, request.headers.get('x-vercel-forwarded-for')?.split(',')[0] || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown']) {
+        const {data,error}=await service.rpc('cp_monitor_login_limit',{p_key:createHash('sha256').update('monitor-login:'+bucket).digest('hex')});
+        if(error) throw error;
+        if(!data) return reply({error:'Terlalu banyak percobaan login. Tunggu 10 menit.'},429);
+      }
+      let email = identity.includes('@') ? identity : '';
+      if (!email && /^[a-z0-9][a-z0-9_.-]{2,29}$/.test(identity)) {
+        const {data,error}=await service.from('profiles').select('email').ilike('username',identity.replace(/_/g,'\\_')).maybeSingle();
+        if(error) throw error;
+        email=String(data?.email || '');
+      }
+      // Unknown users also perform password verification; never disclose account existence.
+      result = await client.auth.signInWithPassword({ email: email || 'unknown@invalid.example', password: body.password });
     } else {
       if (typeof body.refreshToken !== 'string' || body.refreshToken.length > 4096 || !body.refreshToken) {
         return reply({ error: 'Sesi tidak valid. Silakan login ulang.' }, 401);
@@ -65,10 +81,10 @@ export async function POST(request: Request) {
           .rpc('cp_claim_account_session');
         if (error || !data?.active) throw Object.assign(new Error('Sesi akun belum aktif.'), { status: 403 });
       }
-      await requirePayrollAccess(authorized);
+      await requireMonitorAccess(authorized);
     } catch (error) {
       const status = adminErrorStatus(error);
-      return reply({ error: status === 403 ? 'Akun ini tidak memiliki izin payroll atau membutuhkan verifikasi tambahan.'
+      return reply({ error: status === 403 ? 'Akun Monitor belum dihubungkan oleh admin atau membutuhkan verifikasi tambahan.'
         : 'Sesi payroll ditolak. Coba login melalui website terlebih dahulu.' }, status === 401 ? 401 : 403);
     }
     return reply({

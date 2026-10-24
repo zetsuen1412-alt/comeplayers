@@ -6,6 +6,13 @@ static void Assert(bool check, string name)
     Console.WriteLine("PASS: " + name);
 }
 
+var alertTracker = new NewOrderTracker();
+Assert(alertTracker.Observe(new[]{"X100"}).Count==0,"first queue establishes silent baseline");
+Assert(alertTracker.Observe(new[]{"X100","X101","X101"}).SequenceEqual(new[]{"X101"}),"new order alerts once");
+Assert(alertTracker.Observe(Array.Empty<string>()).Count==0,"taking an order is not an alert");
+Assert(alertTracker.Observe(new[]{"X101"}).Count==0,"returning known order does not alert again");
+Assert(new NewOrderTracker(alertTracker.Snapshot()).Observe(new[]{"X101","X102"}).SequenceEqual(new[]{"X102"}),"restart preserves alert deduplication");
+
 var orders = new List<PayrollOrder>
 {
     new() { OrderRef = "X4671", Game = "AION 2", OrderName = "Boost Level",

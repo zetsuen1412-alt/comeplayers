@@ -1,3 +1,4 @@
+import { requireOwnEmployee } from "../lib/monitorAccess";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
@@ -19,10 +20,10 @@ function endpoint(access: () => unknown, rpc: (name: string, args: Record<string
   runInNewContext(compiled, {
     exports, Request, Response, File, Blob, Uint8Array, Number, Error,
     require: (name: string) => {
-      if (name === "@/lib/payrollAccess") return {
-        requirePayrollAccess: async () => {
+      if (name === "@/lib/monitorAccess") return {
+        requireOwnEmployee, requireMonitorAccess: async () => {
           const actor = access();
-          return { actor, supabaseAdmin: { rpc } };
+          return { actor, employeeCode:(actor as {employeeCode?:string}).employeeCode ?? "", supabaseAdmin: { rpc } };
         },
       };
       if (name === "@/lib/adminSecurity") return { adminErrorStatus: (error: { status?: number }) => error.status ?? 500 };
@@ -54,11 +55,20 @@ function formRequest(action = "start") {
     { method: "POST", body: form });
 }
 
-test("non-admin cannot upload to Telegram", async () => {
+test("unbound employee cannot upload to Telegram", async () => {
   const send = endpoint(() => ({ isAdmin: false }), async () => {
     throw new Error("RPC should not run");
   }, async () => { throw new Error("Telegram should not run"); });
   assert.equal((await send(formRequest())).status, 403);
+});
+
+test("bound employee can confirm own proof without gaining admin permissions", async () => {
+  let claimed=false;
+  const send=endpoint(()=>({id:"staff-1",isAdmin:false,employeeCode:"F001"}),async(name,args)=>{
+    assert.equal(name,"cp_mobile_proof_begin");assert.equal(args.p_actor_id,"staff-1");assert.equal(args.p_employee_code,"F001");
+    claimed=true;return {data:{alreadySent:true,caption:"x4671/adit/start",chatTitle:"FH3"}};
+  },async()=>{throw new Error("Already sent proof must not be reposted");});
+  assert.equal((await send(formRequest())).status,200);assert.equal(claimed,true);
 });
 
 test("START proof uses server-selected chat, not a client-provided Telegram group", async () => {

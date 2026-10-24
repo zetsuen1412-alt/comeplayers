@@ -1,4 +1,4 @@
-import { requirePayrollAccess } from "@/lib/payrollAccess";
+import { requireMonitorAccess, requireOwnEmployee } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { deliverTakeNotice, TakeNoticeError } from "@/lib/payrollMobileTake";
 
@@ -12,8 +12,8 @@ const respond = (body: unknown, status = 200) => Response.json(body, {
 /** Manual safe recovery: returns existing sent TAKE without posting a duplicate. */
 export async function POST(request: Request) {
   try {
-    const { actor, supabaseAdmin } = await requirePayrollAccess(request);
-    if (!actor.isAdmin) return respond({ error: "Hanya admin Payroll dapat mengirim TAKE." }, 403);
+    const context = await requireMonitorAccess(request);
+    const { actor, supabaseAdmin } = context;
     const raw = await request.text();
     if (raw.length > 4096) return respond({ error: "Permintaan terlalu besar." }, 413);
     const body = JSON.parse(raw) as { orderRef?: unknown; employeeCode?: unknown };
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
     const code = typeof body.employeeCode === "string" ? body.employeeCode.trim() : "";
     if (!/^[A-Za-z0-9_-]{1,80}$/.test(ref) || !/^[\w-]{1,100}$/.test(code))
       return respond({ error: "Kode order atau karyawan tidak valid." }, 400);
+    requireOwnEmployee(context, code);
     try {
       return respond(await deliverTakeNotice(supabaseAdmin, actor.id, ref, code));
     } catch (error) {

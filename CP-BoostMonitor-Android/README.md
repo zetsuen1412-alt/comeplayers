@@ -1,4 +1,12 @@
-# EVOGAMING Monitor Android v1.6 — FH3
+# EVOGAMING Monitor Android v1.7 — FH3
+
+Current behavior: [Accounts, admin controls, net wages, Tutup Buku and notifications](../docs/monitor-accounts-closing-2026-10-24.md).
+The v1.7 package `id.comeplayers.boostmonitor.fh3.accounts` installs alongside
+older apps and preserves them. Main releases use a persistent signing key;
+PR debug artifacts are for branch testing. Username login and employee bindings
+are enforced by the server. Earnings are saved through explicit Tutup Buku.
+
+## Historical v1.6 / v1.5 notes
 
 Current behavior: [Telegram + Payroll guide](../docs/monitor-telegram-payroll-2026-10-22.md).
 Orders/TASK come only from @evogamings in the verified FH3 group. TAKE is followed

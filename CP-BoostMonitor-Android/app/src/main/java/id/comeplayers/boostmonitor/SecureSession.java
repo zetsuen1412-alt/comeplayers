@@ -17,6 +17,10 @@ import javax.crypto.spec.GCMParameterSpec;
 
 /** Supabase session encrypted at rest using a non-exportable Android Keystore key. */
 final class SecureSession {
+    private static long revision=0;
+    private static final Object LOCK=new Object();
+    long revision(){synchronized(LOCK){return revision;}}
+    void saveIfVersion(long version,JSONObject value) throws Exception {synchronized(LOCK){if(version!=revision)throw new IllegalStateException("Sesi sudah berubah; perbarui kembali.");save(value);}}
     private static final String ALIAS = "cp_boost_payroll_session_v1";
     private final SharedPreferences prefs;
     SecureSession(Context context) { prefs = context.getSharedPreferences("payroll_session_secure", Context.MODE_PRIVATE); }
@@ -35,7 +39,7 @@ final class SecureSession {
         return generator.generateKey();
     }
 
-    synchronized void save(JSONObject session) throws Exception {
+    void save(JSONObject session) throws Exception { synchronized(LOCK) {
         if (session.optString("accessToken").isEmpty() || session.optString("refreshToken").isEmpty())
             throw new IllegalArgumentException("Token sesi kosong.");
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -43,9 +47,10 @@ final class SecureSession {
         byte[] encrypted = cipher.doFinal(session.toString().getBytes(StandardCharsets.UTF_8));
         prefs.edit().putString("session", Base64.encodeToString(cipher.getIV(), Base64.NO_WRAP)
                 + "." + Base64.encodeToString(encrypted, Base64.NO_WRAP)).commit();
-    }
+        revision++;
+    }}
 
-    synchronized JSONObject load() throws Exception {
+    JSONObject load() throws Exception { synchronized(LOCK) {
         String data = prefs.getString("session", "");
         if (data.isEmpty()) return null;
         String[] pieces = data.split("\\.", -1);
@@ -55,7 +60,7 @@ final class SecureSession {
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(128, iv));
         return new JSONObject(new String(cipher.doFinal(bytes), StandardCharsets.UTF_8));
-    }
+    }}
 
-    synchronized void clear() { prefs.edit().remove("session").commit(); }
+    void clear() { synchronized(LOCK){revision++;prefs.edit().remove("session").commit();} }
 }

@@ -7,6 +7,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         if (args.Length != 1) throw new ArgumentException("Supply the preview output directory.");
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
@@ -25,6 +26,20 @@ internal static class Program
         };
         var pending = Enumerable.Range(0, 4).Select(i => new PayrollOrder { OrderRef = $"X{4901 + i}", Game = "AION",
             Discord = "FH3 Demo", Task = "Leveling dan misi harian", OrderName = "12H", CanTake = true }).ToList();
+        var management = new ManagementSnapshot {TotalRupiah=375000,
+            Eligible=new(){new(){OrderRef="X4827",WageRupiah=125000},new(){OrderRef="X4826",WageRupiah=250000}},
+            Orders=Enumerable.Range(0,12).Select(i=>new ManagedOrder {OrderRef=$"X{4827-i}",EmployeeName=names[i%names.Length],
+                Game="AION",Status=i<4?"Selesai":"in_progress",AdminState=i==5?"refund":i==7?"problem":"normal",
+                WageRupiah=i<4?125000:null,CanPrice=i<4}).ToList()};
+        snapshot.Work[0].EmployeeId=people[0].Id;snapshot.Work[0].EmployeeName=names[0];snapshot.Work[0].WageRupiah=125000;snapshot.Work[0].Closed=true;
+        var books=new BookSnapshot{Closings=new(){new(){Id="preview",Title="Tutup Buku 24 Oktober 2026",CreatedAt="2026-10-24T03:00:00Z",TotalRupiah=125000,OrderCount=1,Work=new(){snapshot.Work[0]},
+            Employees=new(){new(){EmployeeId=people[0].Id,EmployeeName=names[0],OrderCount=1,TotalRupiah=125000}}}}};
+        foreach(var page in new[]{"Kelola Order","Data Tutup Buku"}) foreach(var size in new[]{new Size(1460,900),new Size(1120,740)}){
+            using var form=new MainForm(preview:true){ClientSize=size,ShowInTaskbar=false,Opacity=0};form.Show();
+            form.LoadAdminPreview(management,books,people,page);form.PerformLayout();
+            using var bitmap=new Bitmap(form.Width,form.Height);form.DrawToBitmap(bitmap,new Rectangle(Point.Empty,form.Size));
+            bitmap.Save(Path.Combine(output,$"monitor-{(page=="Kelola Order"?"admin":"books")}-{size.Width}.png"),ImageFormat.Png);
+        }
         foreach (var size in new[] { new Size(1460, 900), new Size(1120, 740) }) {
             using var form = new MainForm(preview: true) { ClientSize = size, ShowInTaskbar = false, Opacity = 0 };
             form.Show();

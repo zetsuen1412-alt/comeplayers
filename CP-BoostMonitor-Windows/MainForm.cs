@@ -9,6 +9,8 @@ public sealed class MainForm : Form
 {
     private readonly PayrollApi _api;
     private readonly CompletedOrdersPanel _completedPanel;
+    private readonly MonitorWorkspacePanel _managementPanel, _booksPanel;
+    private readonly OrderAlerts _alerts = new();
     private readonly LocalStatusStore _statusStore;
     private readonly bool _preview;
     private readonly System.Windows.Forms.Timer _poll = new() { Interval = 30_000 };
@@ -64,6 +66,7 @@ public sealed class MainForm : Form
         _api = preview ? new PayrollApi(new HttpClientHandler(), Path.Combine(previewPath, "session.dat")) : new PayrollApi();
         _statusStore = new LocalStatusStore(preview ? Path.Combine(previewPath, "local-status.json") : null);
         _completedPanel = new CompletedOrdersPanel(_api);
+        _managementPanel = new MonitorWorkspacePanel(_api, true); _booksPanel = new MonitorWorkspacePanel(_api, false);
         Text = "EVOGAMING Monitor — FH3 | Windows";
         MinimumSize = new Size(1120, 740);
         StartPosition = FormStartPosition.CenterScreen;
@@ -75,6 +78,7 @@ public sealed class MainForm : Form
         Icon = SystemIcons.Application;
 
         BuildLayout();
+        _navigation["Kelola Order"].Visible = false;
         Shown += (_, _) => WindowChrome.ApplyCaption(this);
         _takePanel.TakeRequested += async (_, choice) => await RunBusyAsync(() => TakeOrderAsync(choice));
         _takePanel.StatusRequested += (_, choice) => UpdateWorkerStatus(choice);
@@ -92,6 +96,7 @@ public sealed class MainForm : Form
         _tray.ContextMenuStrip.Items.Add("Buka EVOGAMING Monitor", null, (_, _) => RestoreWindow());
         _tray.ContextMenuStrip.Items.Add("Keluar", null, (_, _) => Close());
         _tray.DoubleClick += (_, _) => RestoreWindow();
+        _tray.BalloonTipClicked += (_, _) => { RestoreWindow(); ShowPage("Take Order"); };
         Shown += async (_, _) =>
         {
             if (_preview) return;
@@ -109,7 +114,7 @@ public sealed class MainForm : Form
     protected override void Dispose(bool disposing)
     {
         if (disposing && !_resourcesDisposed) {
-            _resourcesDisposed = true; _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _api.Dispose();
+            _resourcesDisposed = true; _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _alerts.Dispose(); _api.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -130,6 +135,14 @@ public sealed class MainForm : Form
         _connection.Text = "●  PREVIEW / DATA CONTOH";
         _appStatus.Text = "Pratinjau desain • Data contoh • Tidak terhubung ke akun atau Telegram";
     }
+    internal void LoadAdminPreview(ManagementSnapshot orders, BookSnapshot books, List<Employee> people, string page)
+    {
+        if(!_preview)throw new InvalidOperationException("Preview mode required.");
+        _managementPanel.ApplyPreview(orders,books,people);_booksPanel.ApplyPreview(orders,books,people);
+        _navigation["Kelola Order"].Visible=true;ShowPage(page);
+        _connection.Text="● PREVIEW / DATA CONTOH";
+        _appStatus.Text="Pratinjau desain • Data contoh • Tidak terhubung ke akun atau Telegram";
+    }
 
     private void BuildLayout()
     {
@@ -144,7 +157,7 @@ public sealed class MainForm : Form
         layout.Controls.Add(_content, 1, 0);
 
         _nav.Controls.Add(new BrandMark());
-        foreach (var name in new[] { "Take Order", "Order Selesai", "Aktivitas Lokal", "Pengaturan" })
+        foreach (var name in new[] { "Take Order", "Order Selesai", "Data Tutup Buku", "Kelola Order", "Aktivitas Lokal", "Pengaturan" })
         {
             var button = NavButton(name);
             _nav.Controls.Add(button);
@@ -185,6 +198,8 @@ public sealed class MainForm : Form
         _pages["Login"] = BuildLogin();
         _pages["Take Order"] = _takePanel;
         _pages["Order Selesai"] = _completedPanel;
+        _pages["Data Tutup Buku"] = _booksPanel;
+        _pages["Kelola Order"] = _managementPanel;
         _pages["Aktivitas Lokal"] = BuildHistory();
         _pages["Pengaturan"] = BuildSettings();
 
@@ -206,8 +221,8 @@ public sealed class MainForm : Form
         form.Controls.Add(MakeLabel("Akses aman ke sistem operasional EVOGAMING", 11, 26, 97, false, Muted));
         _email.SetBounds(26, 149, 584, 42);
         FormatInput(_email, false);
-        _email.PlaceholderText = "Email akun ComePlayers";
-        form.Controls.Add(MakeLabel("EMAIL AKUN", 9, 27, 126, true, Muted));
+        _email.PlaceholderText = "Username ComePlayers (email lama tetap diterima)";
+        form.Controls.Add(MakeLabel("USERNAME", 9, 27, 126, true, Muted));
         form.Controls.Add(_email);
         _password.SetBounds(26, 216, 584, 42);
         FormatInput(_password, true);
@@ -333,7 +348,7 @@ public sealed class MainForm : Form
     {
         var page = ScrollingPage();
         var card = Card();
-        card.Width = 860; card.Height = 310;
+        card.Width = 860; card.Height = 365;
         card.Controls.Add(MakeLabel("Koneksi EVOGAMING Monitor", 18, 22, 15, true, Fore));
         card.Controls.Add(MakeLabel("Website: https://www.comeplayers.com", 12, 22, 63));
         card.Controls.Add(MakeLabel("Divisi: FH3  •  Bukti Telegram: 🔥 EVO🔥 Ilham FH3", 12, 22, 101));
@@ -346,13 +361,16 @@ public sealed class MainForm : Form
             if (MessageBox.Show("Keluar dari akun ComePlayers di PC ini?", "Logout",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
             _api.Logout(); _poll.Stop();
-            _completedPanel.Clear(); _takePanel.SetStale(true);
+            _completedPanel.Clear(); _managementPanel.Clear(); _booksPanel.Clear(); _navigation["Kelola Order"].Visible=false; _takePanel.SetStale(true);
             _employees.Clear(); _pending.Clear(); _tasks.Clear();
             _seenInitialQueue = false; _lastRefs.Clear();
             BindTables();
             ShowPage("Login");
         };
         card.Controls.Add(logout);
+        var sound = new CheckBox {Text="Suara order baru: SAYA AKAN LAWAN!!",Checked=true,AutoSize=true,Left=22,Top=284};
+        sound.CheckedChanged+=(_,_)=>_alerts.SoundEnabled=sound.Checked;card.Controls.Add(sound);
+        card.Controls.Add(MakeLabel("Notifikasi berjalan selama Monitor terbuka, termasuk ketika diminimalkan.",10,22,320));
         page.Controls.Add(card);
         return page;
     }
@@ -550,6 +568,7 @@ public sealed class MainForm : Form
         if (!_api.LoggedIn) return;
         _takePanel.SetStale(true);
         var newRoster = await _api.RosterAsync();
+        _navigation["Kelola Order"].Visible = _api.IsAdmin;
         var freshPending = _api.CanOperate ? await _api.PendingAsync() : new List<PayrollOrder>();
         var freshTasks = await _api.TasksAsync();
         foreach (var employee in newRoster) ApplyLocalState(employee);
@@ -564,15 +583,17 @@ public sealed class MainForm : Form
         _pending = freshPending;
         BindTables();
         _takePanel.SetStale(false);
-        _connection.Text = "●  FH3 • Online";
+        _connection.Text = $"●  {_api.Username} • {(_api.IsAdmin ? "Admin" : "Karyawan")}";
         _connection.ForeColor = LuxuryPalette.SidebarText;
         _poll.Start();
         SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.");
-        if (additions.Count > 0)
+        var unseen = _alerts.Observe(_api.AccountId, newRefs);
+        if (unseen.Count > 0)
         {
-            _tray.BalloonTipTitle = $"EVOGAMING Monitor — {additions.Count} order FH3 baru";
-            _tray.BalloonTipText = string.Join(", ", additions.Take(4));
+            _tray.BalloonTipTitle = $"EVOGAMING Monitor — {unseen.Count} order FH3 baru";
+            _tray.BalloonTipText = string.Join(", ", unseen.Take(4));
             _tray.ShowBalloonTip(7000);
+            _alerts.Speak(); SetStatus($"ORDER BARU: {string.Join(", ",unseen.Take(6))}");
         }
         if (_activePage == "Order Selesai") await _completedPanel.RefreshAsync();
     }
@@ -628,6 +649,7 @@ public sealed class MainForm : Form
 
     private void ShowPage(string name)
     {
+        if (name == "Kelola Order" && !_api.IsAdmin && !_preview) name = "Take Order";
         if (name != "Login" && !_api.LoggedIn && !_preview) name = "Login";
         _activePage = name;
         foreach (var entry in _pages)
@@ -639,8 +661,12 @@ public sealed class MainForm : Form
             entry.Value.ForeColor = Fore;
         }
         _headline.Text = name == "Login" ? "Masuk ke EVOGAMING Monitor" : name;
+        if(name=="Kelola Order") _metrics.Text="Penugasan, status order, upah bersih, dan Tutup Buku";
+        if(name=="Data Tutup Buku") _metrics.Text="Penghasilan tersimpan beserta daftar order di setiap Tutup Buku";
         if (name == "Aktivitas Lokal") BindTables();
         if (name == "Order Selesai") _ = _completedPanel.RefreshAsync();
+        if (name == "Kelola Order") _ = RunBusyAsync(_managementPanel.RefreshAsync);
+        if (name == "Data Tutup Buku") _ = RunBusyAsync(_booksPanel.RefreshAsync);
     }
 
     private void ExportHistory()

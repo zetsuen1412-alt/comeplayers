@@ -7,18 +7,31 @@ android {
     defaultConfig {
         // The old CI debug signing key is unavailable. Install alongside v1.5;
         // never require deleting its SQLite history to accept a new certificate.
-        applicationId 'id.comeplayers.boostmonitor.fh3'
+        applicationId 'id.comeplayers.boostmonitor.fh3.accounts'
         minSdk 24
         targetSdk 34
-        versionCode 7
-        versionName '1.6.0'
+        versionCode 8
+        versionName '1.7.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    signingConfigs {
+        monitor {
+            if (System.getenv('MONITOR_KEYSTORE_PATH')) {
+                storeFile file(System.getenv('MONITOR_KEYSTORE_PATH'))
+                storePassword System.getenv('MONITOR_STORE_PASSWORD')
+                keyAlias 'evogaming-monitor'
+                keyPassword System.getenv('MONITOR_STORE_PASSWORD')
+            }
+        }
+    }
     buildTypes {
-        release { minifyEnabled false }
+        release {
+            minifyEnabled false
+            if (System.getenv('MONITOR_KEYSTORE_PATH')) signingConfig signingConfigs.monitor
+        }
     }
 }
 
