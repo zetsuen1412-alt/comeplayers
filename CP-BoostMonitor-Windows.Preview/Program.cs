@@ -10,6 +10,7 @@ internal static class Program
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+        PendingArchiveChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
         var names = new[] { "ADIT3", "AJI3", "RIKI3", "STAYLIN3", "DAVA3", "TEGUH3", "AHMAD3", "TATANG3" };
         var people = names.Select((name, i) => new Employee { Id = $"demo:{i}", Code = $"EMP-{105 + i:0000}", Name = name,
@@ -53,11 +54,16 @@ internal static class Program
         foreach (var size in new[] { new Size(1460, 900), new Size(1120, 740) }) {
             using var operations = new MainForm(preview: true) { ClientSize = size, ShowInTaskbar = false, Opacity = 0 };
             operations.Show();
-            operations.LoadPreview(snapshot, people, pending, "Take Order"); operations.PerformLayout();
+            operations.LoadPreview(snapshot, people, pending, "Take Order", isAdmin: true); operations.PerformLayout();
             using var screen = new Bitmap(operations.Width, operations.Height);
             operations.DrawToBitmap(screen, new Rectangle(Point.Empty, operations.Size));
             screen.Save(Path.Combine(output, $"monitor-operations-{size.Width}.png"), ImageFormat.Png);
             Console.WriteLine($"Rendered Take Order at {size.Width}x{size.Height} with an elapsed sleep clock.");
         }
+        using var archive = new ArchiveOrderDialog(new ManagedOrder { OrderRef = "X4901", Game = "AION", Discord = "FH3 Demo", EmployeeName = "Belum ditugaskan", Status = "Order baru" }) { ShowInTaskbar = false, Opacity = 0 };
+        archive.Show(); archive.PerformLayout();
+        using var confirmation = new Bitmap(archive.Width, archive.Height);
+        archive.DrawToBitmap(confirmation, new Rectangle(Point.Empty, archive.Size));
+        confirmation.Save(Path.Combine(output, "monitor-delete-confirmation.png"), ImageFormat.Png);
     }
 }

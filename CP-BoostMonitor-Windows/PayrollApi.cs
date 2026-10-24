@@ -228,6 +228,14 @@ public sealed class PayrollApi : IDisposable
 
     public Task<ManagementSnapshot> ManagementAsync() => GetAsync<ManagementSnapshot>("management");
     public Task<BookSnapshot> BooksAsync() => GetAsync<BookSnapshot>("books");
+    public Task ArchiveOrderAsync(string orderRef, long version, string reason)
+    {
+        if (!IsAdmin) throw new UnauthorizedAccessException("Hanya admin yang dapat menghapus order.");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(orderRef, @"^X\d{2,12}$") || version < 0
+            || reason.Trim().Length < 3 || reason.Length > 500)
+            throw new InvalidOperationException("Pilih order dan isi alasan penghapusan 3–500 karakter.");
+        return MutateAsync("management", new { orderRef, version, action = "archive", reason = reason.Trim() });
+    }
     public async Task MutateAsync(string path, object body)
     {
         var token = await TokenAsync();
