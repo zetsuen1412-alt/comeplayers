@@ -157,7 +157,7 @@ final class PayrollSync {
                 input.put("orderRef", orderRef);
                 input.put("employeeCode", employeeCode);
                 JSONObject result = authorizedCall("POST", path, input);
-                if (!result.optBoolean("ok") || !result.optBoolean("takeSent"))
+                if (!MonitorContract.confirmedTake(result))
                     throw new IllegalStateException("TAKE belum dikonfirmasi. Segarkan Tugas dan periksa Telegram.");
                 main.post(() -> callback.accept(result, "✓ TAKE " + orderRef
                         + " / " + employeeCode + " diterima Telegram dan tercatat di website.", true));

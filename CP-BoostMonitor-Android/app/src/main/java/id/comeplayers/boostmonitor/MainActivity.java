@@ -149,12 +149,17 @@ public final class MainActivity extends Activity {
 
     private void sendAssignment(String orderRef, String employeeCode) {
         if (assignmentBusy) return;
+        for (EmployeeDb.Employee worker : db.payrollEmployees())
+            if (employeeCode.equalsIgnoreCase(worker.payrollCode) && EmployeeDb.SLEEP.equals(worker.status)) {
+                toast("Karyawan masih Tidur. Ubah ke Ready Boosting sebelum TAKE."); return;
+            }
         assignmentBusy = true;
         final long version = accountVersion;
         render();
         payroll.assignOrder(orderRef, employeeCode, (data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             assignmentBusy = false;
+            if (ok) markWorkingAfterTake(employeeCode, orderRef);
             loadPendingOrders(false);
             loadActiveTasks(false);
             refreshPayroll(false);
@@ -184,12 +189,15 @@ public final class MainActivity extends Activity {
         payroll.loadActiveTasks((data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             tasksBusy = false;
+            boolean statusChanged = false;
             if (ok) {
                 activeTasks = data.optJSONArray("tasks");
                 if (activeTasks == null) activeTasks = new JSONArray();
+                try { statusChanged = db.applyConfirmedTasks(data) > 0; }
+                catch (Exception error) { toast("Tugas terbaca; status otomatis belum tersimpan. Periksa penyimpanan perangkat."); }
                 tasksError = "";
             } else { tasksError = message; if (manual) toast(message); }
-            if ("Tugas".equals(page) || "Dashboard".equals(page)) render();
+            if ("Tugas".equals(page) || "Dashboard".equals(page) || statusChanged) render();
         });
     }
 
@@ -212,10 +220,16 @@ public final class MainActivity extends Activity {
         payroll.takeOrder(ref, code, (data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             takeBusy = false;
+            if (ok) markWorkingAfterTake(code, ref);
             new AlertDialog.Builder(this).setTitle(ok ? "TAKE diterima" : "Periksa TAKE")
                 .setMessage(message).setPositiveButton("OK", null).show();
             loadActiveTasks(false); loadPendingOrders(false); refreshPayroll(false); render();
         });
+    }
+
+    private void markWorkingAfterTake(String code, String ref) {
+        try { db.markWorkingAfterConfirmedTake(code, ref); }
+        catch (Exception error) { toast("TAKE sudah terkonfirmasi; status lokal belum tersimpan. Periksa penyimpanan perangkat."); }
     }
 
     private void pickProofPhoto(String ref, String code, String action) {

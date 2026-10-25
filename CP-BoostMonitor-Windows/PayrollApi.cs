@@ -257,9 +257,11 @@ public sealed class PayrollApi : IDisposable
 
     public async Task<string> AssignAsync(string orderRef, string employeeCode)
     {
+        int version = Volatile.Read(ref _sessionVersion);
         if (string.IsNullOrWhiteSpace(orderRef) || string.IsNullOrWhiteSpace(employeeCode))
             throw new InvalidOperationException("Order dan karyawan wajib dipilih.");
         var token = await TokenAsync();
+        EnsureCurrentSession(version);
         using var request = new HttpRequestMessage(HttpMethod.Post, "assign")
         {
             Content = JsonContent.Create(new { orderRef, employeeCode }, options: _json),
@@ -268,6 +270,7 @@ public sealed class PayrollApi : IDisposable
         // Deliberately no retry for server-side assignments; manual refresh resolves uncertain results.
         using var response = await _http.SendAsync(request);
         var result = await ParseAsync<JsonElement>(response);
+        EnsureCurrentSession(version);
         RequireTakeConfirmed(result);
         return result.TryGetProperty("employeeName", out var name)
             ? name.GetString() ?? employeeCode : employeeCode;
@@ -276,9 +279,11 @@ public sealed class PayrollApi : IDisposable
     /// <summary>Idempotent TAKE proof. The backend responds alreadySent without duplicate message.</summary>
     public async Task<string> TakeNoticeAsync(string orderRef, string employeeCode)
     {
+        int version = Volatile.Read(ref _sessionVersion);
         if (string.IsNullOrWhiteSpace(orderRef) || string.IsNullOrWhiteSpace(employeeCode))
             throw new InvalidOperationException("Pilih satu tugas aktif terlebih dahulu.");
         var token = await TokenAsync();
+        EnsureCurrentSession(version);
         using var request = new HttpRequestMessage(HttpMethod.Post, "take")
         {
             Content = JsonContent.Create(new { orderRef, employeeCode }, options: _json),
@@ -287,6 +292,7 @@ public sealed class PayrollApi : IDisposable
         // Do NOT auto-retry ambiguous Telegram requests.
         using var response = await _http.SendAsync(request);
         var result = await ParseAsync<JsonElement>(response);
+        EnsureCurrentSession(version);
         RequireTakeConfirmed(result);
         var caption = result.TryGetProperty("caption", out var value)
             ? value.GetString() ?? "" : "";

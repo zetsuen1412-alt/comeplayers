@@ -22,6 +22,19 @@ final class MonitorContract {
                 && (!order.optBoolean("unlinkedPayroll", false) || order.optBoolean("canTakeWithoutPayroll", false))
                 && !order.optBoolean("deliveryUncertain", false);
     }
+    static boolean confirmedTake(JSONObject data) {
+        return data != null && Boolean.TRUE.equals(data.opt("ok")) && Boolean.TRUE.equals(data.opt("takeSent"));
+    }
+    static boolean canMarkWorking(String current) { return "READY".equals(current) || "IDLE".equals(current); }
+    static boolean confirmedActiveTake(JSONObject task) {
+        if (task == null) return false;
+        String status = task.optString("status");
+        return ("assigned".equals(status) || "in_progress".equals(status))
+                && "sent".equals(task.optString("takeStatus")) && !task.optBoolean("deliveryUncertain")
+                && (task.optBoolean("canStart") || task.optBoolean("canDone"))
+                && task.optString("orderRef").matches("X[0-9]{2,12}")
+                && !task.optString("employeeCode").isEmpty() && !task.optString("employeeId").isEmpty();
+    }
     private static boolean base(JSONObject data, int schema) {
         return data != null && data.optInt("schema") == schema && "FH3".equals(data.optString("scope"));
     }

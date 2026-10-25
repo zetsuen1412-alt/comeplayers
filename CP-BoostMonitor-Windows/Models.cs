@@ -36,6 +36,7 @@ public sealed class PayrollOrder
     public string Buyer { get; set; } = "";
     public string Task { get; set; } = "";
     public string EmployeeCode { get; set; } = "";
+    public string EmployeeId { get; set; } = "";
     public string EmployeeName { get; set; } = "";
     public string Status { get; set; } = "";
     public bool CanTake { get; set; }
