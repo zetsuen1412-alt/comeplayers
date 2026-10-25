@@ -226,6 +226,18 @@ public sealed class PayrollApi : IDisposable
         return doc;
     }
 
+    public async Task<DiscordAlertsSnapshot> DiscordAlertsAsync()
+    {
+        var snapshot = await GetAsync<DiscordAlertsSnapshot>("discord-alerts");
+        if (snapshot.Schema != 1 || snapshot.Scope != "FH3" || snapshot.Source != "discord_buyer_metadata"
+            || snapshot.Alerts is null || snapshot.Alerts.Count > 200
+            || snapshot.Alerts.Any(a => !System.Text.RegularExpressions.Regex.IsMatch(a.MessageId, @"^\d{15,22}$")
+                || !System.Text.RegularExpressions.Regex.IsMatch(a.OrderRef, @"^X\d{2,12}$")
+                || !System.Text.RegularExpressions.Regex.IsMatch(a.Url, @"^https://discord\.com/channels/\d{15,22}/\d{15,22}/\d{15,22}$")))
+            throw new InvalidOperationException("Data notifikasi Discord tidak valid.");
+        return snapshot;
+    }
+
     public Task<ManagementSnapshot> ManagementAsync() => GetAsync<ManagementSnapshot>("management");
     public Task<BookSnapshot> BooksAsync() => GetAsync<BookSnapshot>("books");
     public Task ArchiveOrderAsync(string orderRef, long version, string reason)
