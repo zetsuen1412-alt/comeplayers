@@ -75,8 +75,24 @@ const common = {
   "@/lib/adminSecurity": { adminErrorStatus: (e: { status?: number }) => e.status ?? 500 },
   "@/features/payroll/lib/workspace-model": { workspaceKeys: { orders: "orders", employees: "employees" } },
 };
+
+test("shared accounts see active work for all authorized workers; personal accounts keep their own task filter", async () => {
+  const workers = ["F001", "F002"].map((code, i) => ({ id: `e${i+1}`, code, name: `Worker ${i+1}`, team: "FH3", workforceStatus: "FULL" }));
+  const orders = workers.map((worker, i) => order(`X${100+i}`, { operationalStatus: "assigned",
+    workerAssignments: [{ employeeCode: worker.code, employeeName: worker.name, team: "FH3", quantity: 1 }] }));
+  for (const shared of [true, false]) {
+    const route = load("app/api/admin/payroll/mobile/tasks/route.ts", { ...common,
+      "@/lib/monitorAccess": { requireMonitorAccess: async () => ({ actor: { isAdmin: false },
+        employeeCode: shared ? "" : "F001", canOperateAll: shared, operableEmployeeCodes: shared ? ["F001", "F002"] : ["F001"],
+        supabaseAdmin: client(workspace(orders, workers), [manual("X100"), manual("X101")]) }) },
+    });
+    const response = await route.GET!(new Request(url + "/tasks"));
+    assert.equal(response.status, 200); const body = await response.json();
+    assert.deepEqual(body.tasks.map((task: {employeeCode:string}) => task.employeeCode), shared ? ["F001", "F002"] : ["F001"]);
+  }
+});
 test("pending endpoint requires Monitor access before reading order details", async()=>{
-    let reads=0;
+    const reads=0;
     const route=load("app/api/admin/payroll/mobile/pending/route.ts",{...common,
       "@/lib/monitorAccess":{requireMonitorAccess:async()=>{throw Object.assign(new Error("Denied"),{status:403});}}});
     assert.equal((await route.GET!(new Request(url+"/pending"))).status,403);

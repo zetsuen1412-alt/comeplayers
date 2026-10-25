@@ -14,15 +14,16 @@ const response = (body: unknown, status = 200) => Response.json(body, {
 /** Read-only employee roster. Deliberately excludes earnings, advances, bank info, orders, and payroll payload. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin, employeeCode } = await requireMonitorAccess(request);
+    const { actor, supabaseAdmin, employeeCode, accessScope, canOperateAll, operableEmployeeCodes } = await requireMonitorAccess(request);
     const { data, error } = await supabaseAdmin.from('cp_payroll_workspace')
       .select('payload,revision,updated_at').eq('id', 1).single();
     if (error || !data) throw error ?? new Error('Workspace tidak ditemukan');
     const source = (data.payload as Record<string, unknown>)?.[workspaceKeys.employees];
     if (!Array.isArray(source)) return response({ error: 'Daftar karyawan payroll belum tersedia.' }, 503);
-    const employees = mobilePayrollRoster(source as Employee[]).filter(e => actor.isAdmin || e.code === employeeCode);
+    const employees = mobilePayrollRoster(source as Employee[]).filter(e => actor.isAdmin
+      || (canOperateAll ? operableEmployeeCodes.includes(e.code) : e.code === employeeCode));
     return response({ schema: 1, scope: 'FH3', revision: data.revision, updatedAt: data.updated_at,
-      canOperate: true, isAdmin: actor.isAdmin, employeeCode, username: actor.name, accountId: actor.id, employees });
+      canOperate: true, isAdmin: actor.isAdmin, accessScope, employeeCode, username: actor.name, accountId: actor.id, employees });
   } catch (error) {
     const status = adminErrorStatus(error);
     return response({ error: status === 401 ? 'Sesi habis; silakan login ulang.'

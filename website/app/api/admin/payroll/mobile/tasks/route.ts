@@ -19,7 +19,7 @@ const clean = (value: unknown, fallback: string, limit: number) => String(value 
 /** Payroll supplies assignments; verified admin Telegram posts supply operational TASK. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin, employeeCode } = await requireMonitorAccess(request);
+    const { actor, supabaseAdmin, employeeCode, canOperateAll, operableEmployeeCodes } = await requireMonitorAccess(request);
     const { data, error } = await supabaseAdmin.from("cp_payroll_workspace")
       .select("payload,revision,updated_at").eq("id", 1).single();
     if (error || !data) throw error ?? new Error("Workspace tidak ditemukan");
@@ -108,7 +108,8 @@ export async function GET(request: Request) {
       return groups;
     };
     const takesByRef = groupDeliveries(takes), proofsByRef = groupDeliveries(proofs);
-    const actionableTasks = tasks.filter(t => (actor.isAdmin || t.employeeCode === employeeCode) && !controls.get(t.orderRef)?.archived).map(task => {
+    const actionableTasks = tasks.filter(t => (actor.isAdmin || t.employeeCode === employeeCode
+      || (canOperateAll && operableEmployeeCodes.includes(t.employeeCode))) && !controls.get(t.orderRef)?.archived).map(task => {
       const job = jobs.get(task.orderRef);
       const workOrder = job ? { externalReference: job.order_ref, operationalStatus: job.status,
         workerAssignments: [{ id: `mobile:telegram:${job.order_ref}`, employeeCode: job.employee_code,

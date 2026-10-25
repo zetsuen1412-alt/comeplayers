@@ -117,22 +117,9 @@ internal sealed class MonitorWorkspacePanel : UserControl
     }
     private async Task AccountsAsync()
     {
-        using var form=new Form { Text="Akun Karyawan",Width=570,Height=510,StartPosition=FormStartPosition.CenterParent,BackColor=LuxuryPalette.Background };
-        var panel=new FlowLayoutPanel {Dock=DockStyle.Fill,FlowDirection=FlowDirection.TopDown,Padding=new Padding(20),WrapContents=false};form.Controls.Add(panel);
-        panel.Controls.Add(new Label {Text="Hubungkan username ke satu karyawan. Admin memakai akun admin ComePlayers.",Width=500,Height=44});
-        var username=new TextBox {Width=490,PlaceholderText="Username"};panel.Controls.Add(username);
-        var employee=new ComboBox {Width=490,DropDownStyle=ComboBoxStyle.DropDownList,DisplayMember="Name",DataSource=await _api.RosterAsync()};panel.Controls.Add(employee);
-        var create=new CheckBox {Text="Buat akun baru (email + password)",AutoSize=true};panel.Controls.Add(create);
-        var email=new TextBox {Width=490,PlaceholderText="Email pemilik akun baru",Enabled=false};panel.Controls.Add(email);
-        var password=new TextBox {Width=490,PlaceholderText="Password minimal 12 karakter",UseSystemPasswordChar=true,Enabled=false};panel.Controls.Add(password);
-        create.CheckedChanged+=(_,_)=>{email.Enabled=password.Enabled=create.Checked;};
-        var active=new CheckBox {Text="Akun aktif",Checked=true,AutoSize=true};panel.Controls.Add(active);
-        var note=new Label {Width=490,Height=60,Text="Untuk mencabut akses: isi username dan karyawan yang sama, lalu hilangkan centang Akun aktif."};
-        var save=new LuxuryButton {Text="Simpan akun",Width=490,Height=42};panel.Controls.Add(save);panel.Controls.Add(note);
-        save.Click+=async(_,_)=>{save.Enabled=false;try {
-            await _api.MutateAsync("accounts",new {username=username.Text.Trim(),employeeCode=(employee.SelectedItem as Employee)?.Code,active=active.Checked,create=create.Checked,email=email.Text.Trim(),password=password.Text});
-            password.Clear();note.Text="Akun tersimpan. Karyawan dapat login dengan username.";
-        }catch(Exception e){note.Text=e.Message;}finally{password.Clear();save.Enabled=true;}};
+        var workers = await _api.RosterAsync();
+        if (!_api.IsAdmin || !_api.LoggedIn) return;
+        using var form = new MonitorAccountDialog(workers, settings => _api.MutateAsync("accounts", settings));
         form.ShowDialog(this);
     }
     private string? Prompt(string title,string value) {

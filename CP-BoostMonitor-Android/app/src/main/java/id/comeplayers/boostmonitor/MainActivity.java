@@ -263,7 +263,7 @@ public final class MainActivity extends Activity {
 
     private void loginDialog() {
         LinearLayout form = form();
-        form.addView(text("Masuk memakai username dan password. Akun karyawan dihubungkan oleh admin ke nama karyawan.", 13, SUB, false));
+        form.addView(text("Masuk memakai username dan password. Admin menyiapkan akun pribadi atau akun bersama untuk memilih karyawan FH3.", 13, SUB, false));
         space(form, 8);
         EditText email = input("Username ComePlayers", "");
         email.setInputType(InputType.TYPE_CLASS_TEXT);

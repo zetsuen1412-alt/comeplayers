@@ -41,6 +41,9 @@ internal static class ApiContractTests
             await api.LoginAsync("test@example.invalid", "synthetic-password");
             Check(api.LoggedIn && File.Exists(file), "Windows login uses scoped API and encrypted session");
             Check(!Encoding.UTF8.GetString(File.ReadAllBytes(file)).Contains("synthetic-access-token"), "DPAPI file excludes plaintext access token");
+            http.Respond = _ => Task.FromResult(Json("""{"schema":1,"scope":"FH3","canOperate":true,"isAdmin":false,"accessScope":"shared","employeeCode":"","employees":[{"id":"e1","code":"F001","name":"Adit","team":"FH3","active":true},{"id":"e2","code":"F002","name":"Budi","team":"FH3","active":true}]}"""));
+            var sharedRoster = await api.RosterAsync();
+            Check(sharedRoster.Count == 2 && api.AccessScope == "shared" && !api.IsAdmin && api.OwnEmployeeCode == "", "shared Windows account receives all workers without admin permissions");
             http.Respond = _ => Task.FromResult(Json("""{"schema":2,"scope":"FH3","source":"payroll","pending":[]}"""));
             await Rejected(async () => { await api.PendingAsync(); });
             http.Respond = _ => Task.FromResult(Json("""{"schema":2,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","pending":[{"orderRef":"X4806","canTake":false,"unlinkedPayroll":true,"discord":"FH3 Demo"}]}"""));

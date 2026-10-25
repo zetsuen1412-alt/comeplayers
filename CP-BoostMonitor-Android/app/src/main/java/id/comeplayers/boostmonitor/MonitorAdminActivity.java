@@ -101,9 +101,12 @@ public final class MonitorAdminActivity extends Activity {
         LinearLayout form=column();EditText username=input("Username"),email=input("Email pemilik akun baru"),password=input("Password akun baru (minimal 12 karakter)");
         password.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
         CheckBox create=new CheckBox(this);create.setText("Buat akun baru");CheckBox active=new CheckBox(this);active.setText("Akun aktif");active.setChecked(true);
-        Spinner employee=workerPicker();form.addView(username);form.addView(employee);form.addView(create);form.addView(email);form.addView(password);form.addView(active);
-        form.addView(label("Untuk akun yang sudah ada, isi username dan karyawan. Untuk mencabut akses, hilangkan Akun aktif."));
-        new AlertDialog.Builder(this).setTitle("Akun Karyawan").setView(form).setNegativeButton("Batal",(d,w)->password.setText(""))
-            .setPositiveButton("Simpan",(d,w)->{try{JSONObject b=new JSONObject();b.put("username",username.getText().toString().trim());b.put("employeeCode",workerCode(employee));b.put("active",active.isChecked());b.put("create",create.isChecked());b.put("email",email.getText().toString().trim());b.put("password",password.getText().toString());password.setText("");send("/accounts",b);}catch(Exception e){status.setText("Data akun belum valid.");}}).show();
+        CheckBox shared=new CheckBox(this);shared.setText("Akun bersama — semua karyawan FH3 / beberapa komputer");
+        Spinner employee=workerPicker();shared.setOnCheckedChangeListener((button,checked)->{employee.setEnabled(!checked);employee.setVisibility(checked?android.view.View.GONE:android.view.View.VISIBLE);});
+        form.addView(username);form.addView(shared);form.addView(employee);form.addView(create);form.addView(email);form.addView(password);form.addView(active);
+        form.addView(label("Akun bersama dapat memilih semua karyawan untuk TAKE/START/DONE. Hak admin tetap terpisah. Untuk mencabut akses, pilih jenis akun yang sama lalu hilangkan Akun aktif."));
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        new AlertDialog.Builder(this).setTitle("Akun Karyawan").setView(scroll).setNegativeButton("Batal",(d,w)->password.setText(""))
+            .setPositiveButton("Simpan",(d,w)->{try{JSONObject b=new JSONObject();b.put("username",username.getText().toString().trim());b.put("accessScope",shared.isChecked()?"shared":"employee");b.put("employeeCode",shared.isChecked()?JSONObject.NULL:workerCode(employee));b.put("active",active.isChecked());b.put("create",create.isChecked());b.put("email",email.getText().toString().trim());b.put("password",password.getText().toString());password.setText("");send("/accounts",b);}catch(Exception e){status.setText("Data akun belum valid.");}}).show();
     }
 }
