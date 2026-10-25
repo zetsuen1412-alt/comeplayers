@@ -20,7 +20,7 @@ test("exclude EVOBOOSTER, EVO names, bots, webhooks and IDs regardless of channe
   for(const name of ["EVOBOOSTER3","EVO","evo gaming","[EVO] Admin","evo_helper"])
     assert.ok(internalEvoName(name),name);
   assert.equal(internalEvoName("revolution"),false);
-  for(const patch of [{username:"EVOBOOSTER3"},{globalName:"EVO Manager"},{bot:true},{webhookId:event.authorId}])
+  for(const patch of [{username:"EVOBOOSTER3"},{globalName:"EVO Manager"},{serverNick:"EVO TEAM"},{bot:true},{webhookId:event.authorId}])
     assert.ok(!matchesBuyerMessage({...event,...patch},bind,new Set()),JSON.stringify(patch));
   assert.ok(!matchesBuyerMessage(event,bind,new Set([event.authorId])));
   assert.deepEqual(parseIdAllowlist("bad,"+event.authorId),new Set([event.authorId]));
@@ -28,6 +28,7 @@ test("exclude EVOBOOSTER, EVO names, bots, webhooks and IDs regardless of channe
 test("no payload injection or spoofed non-snowflake IDs",()=>{
   assert.equal(parseMessageMeta({...event,authorId:"toasty"}),null);
   assert.equal(parseMessageMeta({...event,globalName:20}),null);
+  assert.equal(parseMessageMeta({...event,serverNick:20}),null);
   assert.equal(parseMessageMeta({...event,bot:"false"}),null);
   assert.equal(parseMessageMeta({...event,webhookId:"bogus"}),null);
   assert.equal(parseMessageMeta(null),null);
