@@ -22,8 +22,17 @@ function verifiedSignature(raw:string,request:Request,secret:string){
 export async function POST(request:Request){
   const secret=process.env.MONITOR_DISCORD_RELAY_SECRET??"";
   if(secret.length<32) return reply({error:"Discord relay disabled."},503);
-  const raw=await request.text();
-  if(Buffer.byteLength(raw,"utf8")>8192) return reply({error:"Payload too large."},413);
+  if(Number(request.headers.get("content-length")??"0")>8192) return reply({error:"Payload too large."},413);
+  const reader=request.body?.getReader();
+  if(!reader) return reply({error:"Missing payload."},400);
+  const chunks:Uint8Array[]=[];let size=0;
+  for(;;){
+    const {done,value}=await reader.read();if(done)break;
+    size+=value.byteLength;
+    if(size>8192){await reader.cancel();return reply({error:"Payload too large."},413);}
+    chunks.push(value);
+  }
+  const raw=Buffer.concat(chunks).toString("utf8");
   if(!verifiedSignature(raw,request,secret))return unauthorized();
   let parsed:unknown;
   try{parsed=JSON.parse(raw);}catch{return reply({error:"Invalid message."},400);}
