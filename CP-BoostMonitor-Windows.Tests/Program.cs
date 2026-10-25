@@ -108,4 +108,39 @@ finally
 }
 Console.WriteLine("All EVOGAMING single-page worker sleep tests passed.");
 
+// No-bot local Discord notification proof. No account token, native Discord client hook,
+// network, customer data, or OS notification listener is used by these unit tests.
+var localAlert = new DiscordLocalNotificationMatcher.Notice("discord.desktop.checked", "Toasty", "EVO#BOOST#Asp yxt", "general", "toast-1");
+var localLink = new DiscordLocalNotificationMatcher.OrderLink("X4759", "Toasty", "FH301",
+    "EVO#BOOST#Asp yxt", "general", true, true, true);
+static int Matching(DiscordLocalNotificationMatcher.Notice n, params DiscordLocalNotificationMatcher.OrderLink[] orders)
+    => DiscordLocalNotificationMatcher.Match(n, orders, new[] { "discord.desktop.checked" }).Count;
+Assert(Matching(localAlert, localLink) == 1, "unique authorized buyer and server match");
+Assert(Matching(localAlert with { SenderLabel="EVOBOOSTER3" }, localLink with { BuyerLabel="EVOBOOSTER3" }) == 0,
+    "internal EVOBOOSTER3 must not trigger an alert");
+Assert(Matching(localAlert with { SenderLabel="EVO Gaming" }, localLink with { BuyerLabel="EVO Gaming" }) == 0,
+    "EVO-named senders suppressed");
+Assert(Matching(localAlert with { SenderLabel="Visitor" }, localLink) == 0,
+    "unrelated visitor is silent");
+Assert(Matching(localAlert with { AppUserModelId="other.app" }, localLink) == 0,
+    "notifications from untrusted apps are ignored");
+Assert(Matching(localAlert with { ServerLabel="Different Customer Guild" }, localLink) == 0,
+    "switching Discord servers cannot misroute the old order");
+Assert(Matching(localAlert with { ServerLabel=null }, localLink) == 0,
+    "OS notifications without verifiable guild identity are rejected");
+Assert(Matching(localAlert with { ChannelLabel=null }, localLink) == 0,
+    "missing channel identity is rejected when binding requires it");
+Assert(Matching(localAlert with { NotificationId=null }, localLink) == 0,
+    "notifications missing a stable event identifier are rejected");
+Assert(Matching(localAlert, localLink with { IsCurrentAssigned=false }) == 0,
+    "transferred worker is not notified");
+Assert(Matching(localAlert, localLink with { TelegramVerified=false }) == 0,
+    "non-Telegram order is not eligible");
+Assert(Matching(localAlert, localLink with { IsActive=false }) == 0,
+    "archived/inactive work is not eligible");
+Assert(Matching(localAlert, localLink, localLink with { OrderRef="X4760", EmployeeCode="FH302" }) == 0,
+    "ambiguous buyer alias across two orders stays silent");
+Assert(Matching(localAlert, localLink) == 1,
+    "match result is deterministic and has no side effects");
+
 await ApiContractTests.Run();
