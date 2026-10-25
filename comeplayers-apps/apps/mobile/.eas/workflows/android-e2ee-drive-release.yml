@@ -1,0 +1,17 @@
+name: ComePlayers Android E2EE Drive APK
+
+on:
+  push:
+    branches:
+      - release/android-e2ee-drive-20260920
+    paths:
+      - comeplayers-apps/apps/mobile/.eas/workflows/android-e2ee-drive-release.yml
+
+jobs:
+  build_android:
+    name: Build signed Android APK
+    type: build
+    params:
+      platform: android
+      profile: preview
+      message: ComePlayers E2EE + encrypted Google Drive recovery
