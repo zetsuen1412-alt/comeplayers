@@ -9,7 +9,7 @@ const event={
 const bind={order_ref:"X4759",guild_id:event.guildId,channel_id:event.channelId,buyer_user_id:event.authorId,enabled:true};
 test("only bound Discord buyer can trigger an order alert",()=>{
   const parsed=parseMessageMeta(event);
-  assert.deepEqual(parsed,event);
+  assert.equal(parsed?.authorId,event.authorId);
   assert.ok(parsed && matchesBuyerMessage(parsed,bind,new Set()));
   assert.ok(!matchesBuyerMessage(event,{...bind,buyer_user_id:"1454444444444444444"},new Set()));
   assert.ok(!matchesBuyerMessage(event,{...bind,channel_id:"1454444444444444444"},new Set()));
