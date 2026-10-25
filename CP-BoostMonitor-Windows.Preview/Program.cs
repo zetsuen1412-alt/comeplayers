@@ -11,6 +11,7 @@ internal static class Program
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         PendingArchiveChecks.Run();
+        ActiveArchiveChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
         var names = new[] { "ADIT3", "AJI3", "RIKI3", "STAYLIN3", "DAVA3", "TEGUH3", "AHMAD3", "TATANG3" };
         var people = names.Select((name, i) => new Employee { Id = $"demo:{i}", Code = $"EMP-{105 + i:0000}", Name = name,
@@ -27,6 +28,9 @@ internal static class Program
         };
         var pending = Enumerable.Range(0, 4).Select(i => new PayrollOrder { OrderRef = $"X{4901 + i}", Game = "AION",
             Discord = "FH3 Demo", Task = "Leveling dan misi harian", OrderName = "12H", CanTake = true }).ToList();
+        var active = new List<PayrollOrder> { new() { OrderRef = "X4888", Game = "AION", Discord = "FH3 Demo",
+            EmployeeName = "TEGUH3", EmployeeCode = people[5].Code, Status = "in_progress", CanDone = true,
+            TakeStatus = "sent", StartStatus = "sent", ActionMessage = "START terkonfirmasi. Unggah screenshot DONE setelah selesai." } };
         var management = new ManagementSnapshot {TotalRupiah=375000,
             Eligible=new(){new(){OrderRef="X4827",WageRupiah=125000},new(){OrderRef="X4826",WageRupiah=250000}},
             Orders=Enumerable.Range(0,12).Select(i=>new ManagedOrder {OrderRef=$"X{4827-i}",EmployeeName=names[i%names.Length],
@@ -54,7 +58,7 @@ internal static class Program
         foreach (var size in new[] { new Size(1460, 900), new Size(1120, 740) }) {
             using var operations = new MainForm(preview: true) { ClientSize = size, ShowInTaskbar = false, Opacity = 0 };
             operations.Show();
-            operations.LoadPreview(snapshot, people, pending, "Take Order", isAdmin: true); operations.PerformLayout();
+            operations.LoadPreview(snapshot, people, pending, "Take Order", isAdmin: true, tasks: active); operations.PerformLayout();
             using var screen = new Bitmap(operations.Width, operations.Height);
             operations.DrawToBitmap(screen, new Rectangle(Point.Empty, operations.Size));
             screen.Save(Path.Combine(output, $"monitor-operations-{size.Width}.png"), ImageFormat.Png);

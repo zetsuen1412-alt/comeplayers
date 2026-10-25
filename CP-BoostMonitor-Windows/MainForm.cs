@@ -87,7 +87,7 @@ public sealed class MainForm : Form
         _takePanel.TakeTelegramRequested += async (_, task) =>
             await RunBusyAsync(() => CheckOrSendTakeAsync(task));
         _takePanel.ArchiveRequested += async (_, order) =>
-            await RunBusyAsync(() => ArchivePendingOrderAsync(order));
+            await RunBusyAsync(() => ArchiveOrderAsync(order));
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
         if (!preview) _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
@@ -129,10 +129,10 @@ public sealed class MainForm : Form
     }
 
     // Offline rendering uses synthetic data, isolated paths, no tray, timers or authentication.
-    internal void LoadPreview(CompletedSnapshot completed, List<Employee> people, List<PayrollOrder> pending, string page, bool isAdmin = false)
+    internal void LoadPreview(CompletedSnapshot completed, List<Employee> people, List<PayrollOrder> pending, string page, bool isAdmin = false, List<PayrollOrder>? tasks = null)
     {
         if (!_preview) throw new InvalidOperationException("Preview mode required.");
-        _employees = people; _pending = pending; _tasks = new(); BindTables(); ShowPage(page);
+        _employees = people; _pending = pending; _tasks = tasks ?? new(); BindTables(); ShowPage(page);
         _takePanel.SetAdminAccess(isAdmin); _navigation["Kelola Order"].Visible = isAdmin;
         _completedPanel.ApplySnapshot(completed);
         _connection.Text = "●  PREVIEW / DATA CONTOH";
@@ -566,7 +566,7 @@ public sealed class MainForm : Form
         return Task.CompletedTask;
     }
 
-    private async Task ArchivePendingOrderAsync(PayrollOrder selected)
+    private async Task ArchiveOrderAsync(PayrollOrder selected)
     {
         if (!_api.IsAdmin) throw new UnauthorizedAccessException("Hanya admin yang dapat menghapus order.");
         _takePanel.SetWorking(true);
