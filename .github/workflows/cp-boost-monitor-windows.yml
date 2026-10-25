@@ -41,6 +41,9 @@ jobs:
       - name: Verify Windows API and order behavior
         shell: pwsh
         run: dotnet run --project CP-BoostMonitor-Windows.Tests/CPBoostMonitor.Windows.Tests.csproj -c Release
+      - name: Test future signed-release verification with real Windows signatures
+        shell: pwsh
+        run: ./CP-BoostMonitor-Windows.Tests/ReleaseSignature.Tests.ps1
       - name: Compile native Windows app
         shell: pwsh
         run: dotnet build CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release -r win-x64 --no-restore
