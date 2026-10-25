@@ -1,6 +1,7 @@
 # EVOGAMING Monitor — Windows
 
 Native WinForms application for Windows 10/11 x64, packaged with .NET 8.
+Current notifications: [10-second music and corner popup](../docs/monitor-order-notifications.md).
 
 ## Use
 

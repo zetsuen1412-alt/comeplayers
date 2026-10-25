@@ -14,7 +14,11 @@ internal static class Program
         {
             // Smoke-test the published single-file runtime without user sessions,
             // storage writes, a visible window, timers or network requests.
-            try { using var form = new MainForm(preview: true); form.CreateControl(); return 0; }
+            try {
+                using var audio = typeof(OrderAlerts).Assembly.GetManifestResourceStream(OrderAlerts.AudioResource);
+                if (audio is null || audio.Length < 44) return 1;
+                using var form = new MainForm(preview: true); form.CreateControl(); return 0;
+            }
             catch { return 1; }
         }
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

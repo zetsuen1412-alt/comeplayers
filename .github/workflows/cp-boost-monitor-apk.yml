@@ -72,6 +72,9 @@ jobs:
           APK="$APK_FILE"
           test -s "$APK"
           unzip -t "$APK" | tail -n 1
+          SOUND_EXPECTED="$(sha256sum CP-BoostMonitor-Android/app/src/main/res/raw/new_order.mp3 | cut -d' ' -f1)"
+          SOUND_PACKAGED="$(unzip -p "$APK" res/raw/new_order.mp3 | sha256sum | cut -d' ' -f1)"
+          [[ "$SOUND_EXPECTED" == "$SOUND_PACKAGED" ]] || { echo 'Packaged notification music differs from the reviewed asset.'; exit 1; }
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           if [[ "$GITHUB_REF" == 'refs/heads/main' ]]; then
             CERT="$($ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs "$APK" | sed -n 's/Signer #1 certificate SHA-256 digest: //p')"
@@ -82,7 +85,7 @@ jobs:
         continue-on-error: true # GitHub Actions artifact quota is currently full
         uses: actions/upload-artifact@v4
         with:
-          name: EVOGAMING-Monitor-Android-v1.7.2-verified
+          name: EVOGAMING-Monitor-Android-v1.7.3-verified
           path: ${{ env.APK_FILE }}
           retention-days: 14
           if-no-files-found: error
@@ -118,7 +121,7 @@ jobs:
           (cd website/public/downloads && zip -q cp-boost-monitor.zip CP-Boost-Monitor.apk)
           rm website/public/downloads/CP-Boost-Monitor.apk
           (cd website/public/downloads && sha256sum cp-boost-monitor.apk > cp-boost-monitor.apk.sha256)
-          printf '{"version":"1.7.2","packageId":"id.comeplayers.boostmonitor.fh3.accounts","parallelInstall":true}\n' > website/public/downloads/cp-boost-monitor.json
+          printf '{"version":"1.7.3","packageId":"id.comeplayers.boostmonitor.fh3.accounts","parallelInstall":true}\n' > website/public/downloads/cp-boost-monitor.json
           unzip -t website/public/downloads/cp-boost-monitor.zip | tail -n 1
           echo "ZIP includes the same APK verified by apksigner."
           test "$(unzip -p website/public/downloads/cp-boost-monitor.zip CP-Boost-Monitor.apk | sha256sum | cut -d' ' -f1)" = "$(sha256sum "$APK" | cut -d' ' -f1)"
@@ -139,15 +142,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="evogaming-monitor-android-v1.7.2"
+          TAG="evogaming-monitor-android-v1.7.3"
           APK="$APK_FILE"
           test -s "$APK"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$APK#EVOGAMING-Monitor-Android-v1.7.2.apk" --clobber
+            gh release upload "$TAG" "$APK#EVOGAMING-Monitor-Android-v1.7.3.apk" --clobber
           else
-            gh release create "$TAG" "$APK#EVOGAMING-Monitor-Android-v1.7.2.apk" \
+            gh release create "$TAG" "$APK#EVOGAMING-Monitor-Android-v1.7.3.apk" \
               --target "$GITHUB_SHA" \
               --title "EVOGAMING Monitor Android" \
-              --notes "Installs alongside older Monitor packages; retain the old app and its local history. Username login with admin, personal employee and shared workstation access across devices. Shared accounts select all active FH3 workers without admin privileges. order controls, net wages and immutable Tutup Buku. Optional foreground notifications with device speech SAYA AKAN LAWAN. Confirmed TAKE automatically marks ready/farming employees as working while preserving manual sleep status. Existing Payroll data stays unchanged. Backend migration required. Signed with a persistent private release key." \
+              --notes "Installs alongside older Monitor packages; retain the old app and its local history. Username login with admin, personal employee and shared workstation access across devices. Shared accounts select all active FH3 workers without admin privileges. order controls, net wages and immutable Tutup Buku. Optional foreground order notifications use a bundled ten-second music clip through Android notification channels, respecting system notification settings. Confirmed TAKE automatically marks ready/farming employees as working while preserving manual sleep status. Existing Payroll data stays unchanged. Backend migration required. Signed with a persistent private release key." \
               --prerelease
           fi
