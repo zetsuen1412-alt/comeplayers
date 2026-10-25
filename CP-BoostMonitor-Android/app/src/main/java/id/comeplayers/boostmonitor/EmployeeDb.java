@@ -308,6 +308,44 @@ public final class EmployeeDb extends SQLiteOpenHelper {
         getWritableDatabase().update("employees", v, "_id=?", new String[]{String.valueOf(e.id)});
     }
 
+    public boolean markWorkingAfterConfirmedTake(String code, String orderRef) {
+        return markWorkingAfterConfirmedTake(code, null, orderRef);
+    }
+
+    private boolean markWorkingAfterConfirmedTake(String code, String expectedId, String orderRef) {
+        if (code == null || orderRef == null || !orderRef.matches("X[0-9]{2,12}")) return false;
+        Employee worker = null;
+        List<Employee> roster = payrollEmployees();
+        for (Employee e : roster) if (code.equalsIgnoreCase(e.payrollCode)) {
+            if (worker != null) return false;
+            worker = e;
+        }
+        if (worker == null || worker.payrollId == null || worker.payrollId.isEmpty()
+                || (expectedId != null && !expectedId.equals(worker.payrollId))
+                || !MonitorContract.canMarkWorking(worker.status)) return false;
+        int identities = 0;
+        for (Employee e : roster) if (worker.payrollId.equals(e.payrollId)) identities++;
+        if (identities != 1) return false;
+        changeStatus(worker, WORK, null, "Otomatis setelah TAKE " + orderRef + " terkonfirmasi");
+        return true;
+    }
+
+    public int applyConfirmedTasks(JSONObject snapshot) throws JSONException {
+        if (!MonitorContract.tasks(snapshot)) return 0;
+        JSONArray tasks = snapshot.getJSONArray("tasks");
+        if (tasks.length() > 15000) throw new JSONException("Terlalu banyak tugas aktif.");
+        Set<String> seen = new HashSet<>();
+        int changed = 0;
+        for (int i = 0; i < tasks.length(); i++) {
+            JSONObject task = tasks.getJSONObject(i);
+            if (!MonitorContract.confirmedActiveTake(task)) continue;
+            String code = task.getString("employeeCode");
+            if (seen.add(code.toUpperCase(java.util.Locale.ROOT))
+                    && markWorkingAfterConfirmedTake(code, task.getString("employeeId"), task.getString("orderRef"))) changed++;
+        }
+        return changed;
+    }
+
     public void changeStatus(Employee e, String next, String task, String note) {
         if (e.status.equals(next)) return;
         long now = System.currentTimeMillis();

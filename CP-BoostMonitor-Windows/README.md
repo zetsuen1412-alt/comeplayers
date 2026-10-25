@@ -43,6 +43,14 @@ update, without reinstalling or changing its signing identity.
 
 ## Local status and sleep
 
+After Telegram confirms TAKE, Ready Boosting or Farming changes automatically
+to **Sedang Bekerja**. Fresh active tasks also reconcile confirmed TAKE from other
+devices when the app refreshes. Failed, missing or uncertain TAKE never changes
+status. Existing Work status is idempotent, and manual Sleep/Break/Offline is
+preserved. Each automatic change is recorded once in local history with its order
+reference. This update does not automatically return employees to Ready on DONE;
+the operator still changes status after the work ends.
+
 Status changes apply to this Windows PC. Choosing **Tidur** records the start
 instant immediately after confirmation. The status column displays elapsed
 **hours:minutes:seconds**, refreshing every second. Hours can exceed 24.

@@ -87,6 +87,18 @@ internal static class ApiContractTests
             http.Respond = _ => { archiveCalls++; return Task.FromResult(Json("""{"error":"Order berubah. Perbarui data sebelum menyimpan."}""", HttpStatusCode.Conflict)); };
             await Rejected(() => api.ArchiveOrderAsync("X4806", 8, "Order duplikat"));
             Check(archiveCalls == 2, "stale archive is surfaced without automatic mutation retry");
+            foreach (var operation in new[] { "assign", "take" }) {
+                http.Respond = r => Task.FromResult(Json(r.RequestUri!.AbsolutePath.EndsWith("/session") ? Session : """{"schema":1,"scope":"FH3","canOperate":true,"employees":[]}"""));
+                await api.LoginAsync("test@example.invalid", "synthetic-password");
+                var pendingTake = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+                http.Respond = _ => pendingTake.Task;
+                var taking = operation == "assign" ? api.AssignAsync("X4806", "E1") : api.TakeNoticeAsync("X4806", "E1");
+                api.Logout(); pendingTake.SetResult(Json("""{"ok":true,"takeSent":true,"employeeName":"Contoh","caption":"fixture"}"""));
+                try { await taking; throw new Exception("Late TAKE accepted after logout"); }
+                catch (UnauthorizedAccessException) { Check(!api.LoggedIn, "late " + operation + " confirmation cannot change local status after logout"); }
+            }
+            http.Respond = r => Task.FromResult(Json(r.RequestUri!.AbsolutePath.EndsWith("/session") ? Session : """{"schema":1,"scope":"FH3","canOperate":true,"employees":[]}"""));
+            await api.LoginAsync("test@example.invalid", "synthetic-password");
             var waiting = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             http.Respond = _ => waiting.Task;
             var read = api.PendingAsync(); api.Logout();

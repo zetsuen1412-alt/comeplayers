@@ -443,13 +443,14 @@ public sealed class MainForm : Form
         try
         {
             var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code);
+            var statusWarning = MarkWorkingAfterTake(employee, order.OrderRef);
             _takePanel.ClearChoices();
             await RefreshDataAsync();
-            SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}, pesan TAKE dikonfirmasi Telegram.");
+            SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}, pesan TAKE dikonfirmasi Telegram.{statusWarning}");
             MessageBox.Show(
                 $"Order {order.OrderRef} berhasil ditugaskan ke {assignedName}.\n\n" +
                 "Pesan TAKE sudah dikirim otomatis ke grup Telegram FH3. " +
-                "Pilih tugas di panel kanan bawah untuk mengirim START + Foto.",
+                "Pilih tugas di panel kanan bawah untuk mengirim START + Foto." + statusWarning,
                 "TAKE ORDER berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         finally {
@@ -470,8 +471,10 @@ public sealed class MainForm : Form
         try
         {
             var caption = await _api.TakeNoticeAsync(task.OrderRef, task.EmployeeCode);
+            var matches = _employees.Where(e => e.Code == task.EmployeeCode && e.Id == task.EmployeeId).ToList();
+            var statusWarning = matches.Count == 1 ? MarkWorkingAfterTake(matches[0], task.OrderRef) : "";
             MessageBox.Show("Telegram TAKE terkonfirmasi: " + caption +
-                "\nSekarang boleh mengirim START + Screenshot.",
+                "\nSekarang boleh mengirim START + Screenshot." + statusWarning,
                 "TAKE berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch
@@ -589,6 +592,15 @@ public sealed class MainForm : Form
         finally { _takePanel.SetWorking(false); }
     }
 
+    private string MarkWorkingAfterTake(Employee employee, string orderRef)
+    {
+        if (_employees.Count(e => e.Code.Equals(employee.Code, StringComparison.OrdinalIgnoreCase)) != 1
+            || _employees.Count(e => e.Id == employee.Id) != 1) return "\nTAKE terkonfirmasi; status lokal menunggu identitas karyawan yang unik.";
+        try { _statusStore.MarkWorkingAfterConfirmedTake(employee, orderRef); ApplyLocalState(employee); BindTables(); return ""; }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidOperationException)
+        { return "\nTAKE sudah terkonfirmasi; status lokal belum tersimpan: " + e.Message; }
+    }
+
     private async Task RefreshDataAsync()
     {
         if (!_api.LoggedIn) return;
@@ -598,6 +610,10 @@ public sealed class MainForm : Form
         _takePanel.SetAdminAccess(_api.IsAdmin);
         var freshPending = _api.CanOperate ? await _api.PendingAsync() : new List<PayrollOrder>();
         var freshTasks = await _api.TasksAsync();
+        string statusWarning = "";
+        try { _statusStore.ApplyConfirmedTasks(newRoster, freshTasks); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidOperationException)
+        { statusWarning = " Status otomatis belum tersimpan: " + e.Message; }
         foreach (var employee in newRoster) ApplyLocalState(employee);
         _employees = newRoster;
         _tasks = freshTasks;
@@ -613,7 +629,7 @@ public sealed class MainForm : Form
         _connection.Text = $"●  {_api.Username} • {(_api.IsAdmin ? "Admin" : "Karyawan")}";
         _connection.ForeColor = LuxuryPalette.SidebarText;
         _poll.Start();
-        SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.");
+        SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.{statusWarning}");
         var unseen = _alerts.Observe(_api.AccountId, newRefs);
         if (unseen.Count > 0)
         {

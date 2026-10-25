@@ -1,10 +1,17 @@
-# EVOGAMING Monitor Android v1.7 — FH3
+# EVOGAMING Monitor Android v1.7.1 — FH3
 
 Current behavior: [Accounts, admin controls, net wages, Tutup Buku and notifications](../docs/monitor-accounts-closing-2026-10-24.md).
 The v1.7 package `id.comeplayers.boostmonitor.fh3.accounts` installs alongside
 older apps and preserves them. Main releases use a persistent signing key;
 PR debug artifacts are for branch testing. Username login and employee bindings
 are enforced by the server. Earnings are saved through explicit Tutup Buku.
+
+TAKE terkonfirmasi otomatis mengubah Ready Boosting/Farming ke **Sedang Bekerja**.
+Refresh tugas aktif juga mengenali TAKE dari perangkat lain. Tidur manual tetap
+dipertahankan; TAKE yang belum pasti tidak mengubah status. Riwayat otomatis
+disimpan di SQLite perangkat. Sesudah DONE, perubahan ke Ready tetap manual.
+Pembaruan 1.7.1 memakai package dan sertifikat yang sama dengan 1.7.0, sehingga
+dapat dipasang sebagai update tanpa menghapus data. [Panduan status otomatis](../docs/monitor-auto-work-2026-10-25.md).
 
 ## Historical v1.6 / v1.5 notes
 

@@ -100,7 +100,29 @@ public sealed class LocalStatusStore
     public IReadOnlyList<StatusEvent> History =>
         _data.Events.AsEnumerable().Reverse().Take(400).ToList();
 
-    public void Set(Employee employee, string status, DateTimeOffset? now = null)
+    public bool MarkWorkingAfterConfirmedTake(Employee employee, string orderRef, DateTimeOffset? now = null)
+    {
+        if (!employee.Active || employee.Team != "FH3" || string.IsNullOrWhiteSpace(employee.Id) || string.IsNullOrWhiteSpace(employee.Code)
+            || string.IsNullOrEmpty(orderRef) || !System.Text.RegularExpressions.Regex.IsMatch(orderRef, @"^X[0-9]{2,12}$")) return false;
+        if (Get(employee.Code) is not ("READY" or "IDLE")) return false;
+        Set(employee, "WORK", now, $"Otomatis setelah TAKE {orderRef} terkonfirmasi (lokal PC)");
+        return true;
+    }
+
+    public void ApplyConfirmedTasks(IEnumerable<Employee> employees, IEnumerable<PayrollOrder> tasks)
+    {
+        var roster = employees.Where(e => e.Active && e.Team == "FH3").ToList();
+        foreach (var task in tasks.Where(t => t.TakeStatus == "sent" && !t.DeliveryUncertain
+            && (t.Status is "assigned" or "in_progress") && (t.CanStart || t.CanDone)))
+        {
+            var matches = roster.Where(e => e.Code.Equals(task.EmployeeCode, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (matches.Count != 1 || string.IsNullOrWhiteSpace(task.EmployeeId) || matches[0].Id != task.EmployeeId
+                || roster.Count(e => e.Id == task.EmployeeId) != 1) continue;
+            MarkWorkingAfterConfirmedTake(matches[0], task.OrderRef);
+        }
+    }
+
+    public void Set(Employee employee, string status, DateTimeOffset? now = null, string? note = null)
     {
         if (status is not ("READY" or "IDLE" or "SLEEP" or "WORK" or "BREAK" or "OFFLINE"))
             throw new InvalidOperationException("Status karyawan tidak valid.");
@@ -125,9 +147,9 @@ public sealed class LocalStatusStore
         {
             ChangedAt = timestamp, EmployeeCode = employee.Code, EmployeeName = employee.Name,
             From = current, To = status,
-            Note = status == "SLEEP" ? "Mulai tidur (lokal PC)"
+            Note = note ?? (status == "SLEEP" ? "Mulai tidur (lokal PC)"
                 : current == "SLEEP" ? "Selesai tidur • " + SleepElapsed(sleepStarted, timestamp) + " (lokal PC)"
-                : "Diubah operator (lokal PC)",
+                : "Diubah operator (lokal PC)"),
         });
         Save();
     }
