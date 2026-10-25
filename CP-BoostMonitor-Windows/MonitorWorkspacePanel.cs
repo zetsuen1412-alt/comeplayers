@@ -23,6 +23,7 @@ internal sealed class MonitorWorkspacePanel : UserControl
         actions.Controls.Add(_search); AddButton(actions,"↻ Perbarui",RefreshAsync);
         if(!admin)actions.Controls.Add(_bookWorker);
         if (admin) AddButton(actions,"Akun Karyawan",AccountsAsync);
+        if (admin) AddButton(actions,"Hubungkan Discord Buyer",DiscordBindingAsync);
         var edits = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, WrapContents = true, Padding = new Padding(0,10,0,0) };
         if (admin) {
             edits.Controls.Add(new Label {Text="Alasan:",AutoSize=true,Margin=new Padding(0,8,4,0)});
@@ -114,6 +115,28 @@ internal sealed class MonitorWorkspacePanel : UserControl
         if(MessageBox.Show(this,$"{title}\n{_data.Eligible.Count} order • Rp {_data.TotalRupiah:N0}\n\n{list}\n\nUpah dan penerima akan dikunci. Simpan?","Tutup Buku",MessageBoxButtons.OKCancel)!=DialogResult.OK)return;
         await _api.MutateAsync("books",new {id=_closingId,title,expected=_data.Eligible.OrderBy(e=>e.OrderRef,StringComparer.Ordinal).ToList()});
         _closingId=Guid.NewGuid(); await RefreshAsync();
+    }
+    private async Task DiscordBindingAsync()
+    {
+        if (!_api.IsAdmin || _orders.CurrentRow?.DataBoundItem is not ManagedOrder row)
+            throw new InvalidOperationException("Pilih satu order pada Kelola Order.");
+        var bindings = await _api.DiscordBindingsAsync();
+        var existing = bindings.Bindings.FirstOrDefault(b => b.OrderRef == row.OrderRef);
+        var guild = Prompt("Discord Server ID — " + row.OrderRef, existing?.GuildId ?? "");
+        if (guild is null) return;
+        var channel = Prompt("Discord Channel ID", existing?.ChannelId ?? "");
+        if (channel is null) return;
+        var buyer = Prompt("Discord User ID buyer (bukan nama)", existing?.BuyerUserId ?? "");
+        if (buyer is null) return;
+        if (new[] {guild,channel,buyer}.Any(s => !System.Text.RegularExpressions.Regex.IsMatch(s, @"^\\d{15,22}$")))
+            throw new InvalidOperationException("Aktifkan Developer Mode Discord lalu Copy ID server, channel, dan buyer.");
+        var answer = MessageBox.Show(this,
+            $"Order {row.OrderRef}\\nGuild: {guild}\\nChannel: {channel}\\nBuyer ID: {buyer}\\n\\nYa = aktifkan notifikasi\\nTidak = nonaktifkan binding\\nBatal = tidak ubah.",
+            "Konfirmasi binding Discord buyer",MessageBoxButtons.YesNoCancel,MessageBoxIcon.Question);
+        if (answer==DialogResult.Cancel)return;
+        await _api.MutateAsync("discord-bindings",new {orderRef=row.OrderRef,guildId=guild,channelId=channel,
+            buyerUserId=buyer,enabled=answer==DialogResult.Yes});
+        _status.Text = answer==DialogResult.Yes ? $"Discord buyer {row.OrderRef} terhubung." : $"Discord buyer {row.OrderRef} dinonaktifkan.";
     }
     private async Task AccountsAsync()
     {
