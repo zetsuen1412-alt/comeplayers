@@ -1,8 +1,8 @@
 {
-  "version": "2.0.1",
-  "exeSha256": "69c24753ec5cb62f92bf73e5e6f589e6a1f5f0b70e6dbc294967a24e10521c74",
-  "exeBytes": 67972064,
-  "zipSha256": "dfe457ba4c8e7363a5c09433d4e5be1c75f295092d3c00606a28c81fcbbdc1f3",
-  "zipBytes": 62574812,
-  "sourceCommit": "66525cf49eca9d25bf3d3745f0e1d73944b1c24d"
+  "zipSha256": "83948e348c358a04c09705102236027881ac89a8387f28dcff2db5b324437191",
+  "version": "2.0.2",
+  "zipBytes": 62574878,
+  "sourceCommit": "c7f075fe0af45337bcc0d409b6c2e22d0e008054",
+  "exeSha256": "13c0ecc3f41af183ccbe2f07958df38f4072bed07fccad2771a6370425b88d58",
+  "exeBytes": 67972194
 }
