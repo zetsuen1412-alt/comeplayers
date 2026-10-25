@@ -128,10 +128,10 @@ internal sealed class MonitorWorkspacePanel : UserControl
         if (channel is null) return;
         var buyer = Prompt("Discord User ID buyer (bukan nama)", existing?.BuyerUserId ?? "");
         if (buyer is null) return;
-        if (new[] {guild,channel,buyer}.Any(s => !System.Text.RegularExpressions.Regex.IsMatch(s, @"^\\d{15,22}$")))
+        if (new[] {guild,channel,buyer}.Any(s => !System.Text.RegularExpressions.Regex.IsMatch(s, @"^\d{15,22}$")))
             throw new InvalidOperationException("Aktifkan Developer Mode Discord lalu Copy ID server, channel, dan buyer.");
         var answer = MessageBox.Show(this,
-            $"Order {row.OrderRef}\\nGuild: {guild}\\nChannel: {channel}\\nBuyer ID: {buyer}\\n\\nYa = aktifkan notifikasi\\nTidak = nonaktifkan binding\\nBatal = tidak ubah.",
+            $"Order {row.OrderRef}\nGuild: {guild}\nChannel: {channel}\nBuyer ID: {buyer}\n\nYa = aktifkan notifikasi\nTidak = nonaktifkan binding\nBatal = tidak ubah.",
             "Konfirmasi binding Discord buyer",MessageBoxButtons.YesNoCancel,MessageBoxIcon.Question);
         if (answer==DialogResult.Cancel)return;
         await _api.MutateAsync("discord-bindings",new {orderRef=row.OrderRef,guildId=guild,channelId=channel,
