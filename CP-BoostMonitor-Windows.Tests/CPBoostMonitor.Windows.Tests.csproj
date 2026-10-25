@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../CP-BoostMonitor-Windows/NewOrderTracker.cs" Link="NewOrderTracker.cs" />
+    <Compile Include="../CP-BoostMonitor-Windows/DiscordLocalNotificationMatcher.cs" Link="DiscordLocalNotificationMatcher.cs" />
     <Compile Include="../CP-BoostMonitor-Windows/Models.cs" Link="Models.cs" />
     <Compile Include="../CP-BoostMonitor-Windows/LocalStatusStore.cs" Link="LocalStatusStore.cs" />
     <Compile Include="../CP-BoostMonitor-Windows/OrderFilters.cs" Link="OrderFilters.cs" />
