@@ -163,3 +163,19 @@ public sealed class BookSnapshot
     public List<MonitorBook> Closings { get; set; } = new();
     public string Notice { get; set; } = "";
 }
+
+/** Metadata-only Discord buyer message, linked to the current authorized order. */
+public sealed class DiscordAlert
+{
+    public string MessageId { get; set; } = "";
+    public string OrderRef { get; set; } = "";
+    public string Url { get; set; } = "";
+    public string At { get; set; } = "";
+}
+public sealed class DiscordAlertsSnapshot
+{
+    public int Schema { get; set; }
+    public string Scope { get; set; } = "";
+    public string Source { get; set; } = "";
+    public List<DiscordAlert> Alerts { get; set; } = new();
+}
