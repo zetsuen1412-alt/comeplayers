@@ -1,5 +1,8 @@
 # Monitor: akun, kendali order, dan Tutup Buku
 
+> **Pembaruan operasional 25 Oktober 2026 (konfirmasi pemilik):** PR #93–#95 telah digabung dan diterapkan; Windows 2.0.2 serta Android 1.7.0 digunakan di produksi. Migrasi yang sudah diterapkan **tidak boleh dijalankan ulang**. Pengujian audio/notifikasi pada perangkat fisik masih terbuka dan memiliki [matriks QA terpisah](monitor-physical-qa-2026-10-25.md). Bagian “Penerapan dan verifikasi” di bawah merupakan catatan prosedur historis rilis, **bukan instruksi untuk menerapkan ulang**.
+
+
 ## Alur penggunaan
 
 Windows 2.0.0 dan Android 1.7.0 memakai username dan password ComePlayers.
