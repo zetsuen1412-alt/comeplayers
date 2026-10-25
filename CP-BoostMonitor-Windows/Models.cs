@@ -179,3 +179,18 @@ public sealed class DiscordAlertsSnapshot
     public string Source { get; set; } = "";
     public List<DiscordAlert> Alerts { get; set; } = new();
 }
+
+public sealed class DiscordOrderBinding
+{
+    public string OrderRef { get; set; } = "";
+    public string GuildId { get; set; } = "";
+    public string ChannelId { get; set; } = "";
+    public string BuyerUserId { get; set; } = "";
+    public bool Enabled { get; set; }
+}
+public sealed class DiscordBindingsSnapshot
+{
+    public int Schema { get; set; }
+    public string Scope { get; set; } = "";
+    public List<DiscordOrderBinding> Bindings { get; set; } = new();
+}
