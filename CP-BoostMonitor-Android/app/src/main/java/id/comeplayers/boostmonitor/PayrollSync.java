@@ -140,6 +140,22 @@ final class PayrollSync {
         });
     }
 
+    /** Read only metadata, visible to the employee currently assigned to the FH3 order. */
+    void loadDiscordAlerts(DataDone callback) {
+        executor.execute(() -> {
+            try {
+                JSONObject result = authorizedCall("GET", "/discord-alerts", null);
+                if (result.optInt("schema") != 1 || !"FH3".equals(result.optString("scope"))
+                        || !"discord_buyer_metadata".equals(result.optString("source"))
+                        || result.optJSONArray("alerts") == null)
+                    throw new IllegalStateException("Notifikasi Discord tidak valid.");
+                main.post(() -> callback.accept(result, "", true));
+            } catch (Exception error) {
+                main.post(() -> callback.accept(null, friendly(error), false));
+            }
+        });
+    }
+
     /** Assignment and TAKE can have different outcomes; never lose a committed assignment. */
     void assignOrder(String orderRef, String employeeCode, DataDone callback) {
         orderAction("/assign", orderRef, employeeCode, callback);
