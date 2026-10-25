@@ -238,6 +238,15 @@ public sealed class PayrollApi : IDisposable
         return snapshot;
     }
 
+    public async Task<DiscordBindingsSnapshot> DiscordBindingsAsync()
+    {
+        if (!IsAdmin) throw new UnauthorizedAccessException("Hanya admin dapat mengatur Discord buyer.");
+        var snapshot = await GetAsync<DiscordBindingsSnapshot>("discord-bindings");
+        if (snapshot.Schema != 1 || snapshot.Scope != "FH3" || snapshot.Bindings is null)
+            throw new InvalidOperationException("Data hubungan Discord tidak valid.");
+        return snapshot;
+    }
+
     public Task<ManagementSnapshot> ManagementAsync() => GetAsync<ManagementSnapshot>("management");
     public Task<BookSnapshot> BooksAsync() => GetAsync<BookSnapshot>("books");
     public Task ArchiveOrderAsync(string orderRef, long version, string reason)
