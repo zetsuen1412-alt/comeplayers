@@ -45,7 +45,7 @@ public final class OrderNotificationService extends Service {
             else getSystemService(NotificationManager.class).notify(8301,notification(BACKGROUND,"Monitor belum tersinkron","Periksa koneksi dan login akun Monitor.").setOngoing(true).build());
             // This optional endpoint may not exist until an explicitly approved backend release.
             // Its failure must not stop ordinary FH3 Telegram order monitoring.
-            api.loadDiscordAlerts((alerts,message,ready)->{
+            api.loadDiscordAlerts((alerts,discordMessage,ready)->{
                 if(!stopped && ready && alerts!=null) observeDiscord(alerts);
                 if(!stopped) handler.postDelayed(this,30000);
             });
