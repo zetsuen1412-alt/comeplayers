@@ -24,14 +24,14 @@ import java.util.Locale;
 
 /** User-enabled foreground monitoring, not dependent on an open Activity. No bot/database secrets. */
 public final class OrderNotificationService extends Service {
-    private static final String CHANNEL="fh3-new-orders-v1", BACKGROUND="fh3-monitor-running-v1";
+    private static final String CHANNEL="fh3-new-orders-v1", BACKGROUND="fh3-monitor-running-v1", DISCORD="fh3-discord-buyer-v1";
     private final Handler handler=new Handler(Looper.getMainLooper());
     private PayrollSync api;
     private EmployeeDb db;
     private SharedPreferences settings, identity;
     private TextToSpeech speech;
     private boolean speechReady, stopped, polling;
-    private NewOrderTracker tracker;
+    private NewOrderTracker tracker, discordTracker;
     private String account="";
     private final Runnable poll=new Runnable(){public void run(){
         if(stopped)return;
@@ -43,7 +43,12 @@ public final class OrderNotificationService extends Service {
                 getSystemService(NotificationManager.class).notify(8301,notification(BACKGROUND,"Monitor order FH3 aktif","Memeriksa order baru. Buka aplikasi untuk mematikan notifikasi.").setOngoing(true).build());
             }
             else getSystemService(NotificationManager.class).notify(8301,notification(BACKGROUND,"Monitor belum tersinkron","Periksa koneksi dan login akun Monitor.").setOngoing(true).build());
-            handler.postDelayed(this,30000);
+            // This optional endpoint may not exist until an explicitly approved backend release.
+            // Its failure must not stop ordinary FH3 Telegram order monitoring.
+            api.loadDiscordAlerts((alerts,discordMessage,ready)->{
+                if(!stopped && ready && alerts!=null) observeDiscord(alerts);
+                if(!stopped) handler.postDelayed(this,30000);
+            });
         });
     }};
     @Override public void onCreate(){
@@ -59,6 +64,7 @@ public final class OrderNotificationService extends Service {
             NotificationChannel orders=new NotificationChannel(CHANNEL,"Order baru FH3",NotificationManager.IMPORTANCE_HIGH);
             orders.setDescription("Order baru dari Adm EVO Gaming. Suara dikendalikan dalam aplikasi.");orders.setSound(null,null);manager.createNotificationChannel(orders);
             manager.createNotificationChannel(new NotificationChannel(BACKGROUND,"Monitor order berjalan",NotificationManager.IMPORTANCE_LOW));
+            manager.createNotificationChannel(new NotificationChannel(DISCORD,"Pesan customer Discord FH3",NotificationManager.IMPORTANCE_HIGH));
         }
     }
     @Override public int onStartCommand(Intent intent,int flags,int startId){
@@ -77,6 +83,7 @@ public final class OrderNotificationService extends Service {
         if(!account.equals(current)){
             account=current;
             tracker=new NewOrderTracker(settings.contains("seen_orders_"+account)?settings.getStringSet("seen_orders_"+account,null):null);
+            discordTracker=new NewOrderTracker(settings.contains("seen_discord_"+account)?settings.getStringSet("seen_discord_"+account,null):null);
         }
         JSONArray pending=data.optJSONArray("pending");if(pending==null)return;
         ArrayList<String> refs=new ArrayList<>();for(int i=0;i<pending.length();i++)refs.add(pending.optJSONObject(i).optString("orderRef"));
@@ -92,6 +99,29 @@ public final class OrderNotificationService extends Service {
                 speech.speak("SAYA AKAN LAWAN!!",TextToSpeech.QUEUE_FLUSH,params,"fh3-new-order");}
             else {final ToneGenerator tone=new ToneGenerator(AudioManager.STREAM_NOTIFICATION,80);tone.startTone(ToneGenerator.TONE_PROP_BEEP2,400);handler.postDelayed(tone::release,600);}
         }
+    }
+    private void observeDiscord(JSONObject data) {
+        String current=identity.getString("accountId","");
+        if(current.isEmpty() || !current.equals(account)) return;
+        if(discordTracker==null) discordTracker=new NewOrderTracker(null);
+        JSONArray list=data.optJSONArray("alerts");if(list==null)return;
+        ArrayList<String> keys=new ArrayList<>();
+        java.util.HashMap<String,String> orderByKey=new java.util.HashMap<>();
+        for(int i=0;i<list.length();i++){
+            JSONObject alert=list.optJSONObject(i);if(alert==null)continue;
+            String msg=alert.optString("messageId"), ref=alert.optString("orderRef");
+            if(!msg.matches("[0-9]{15,22}") || !ref.matches("X[0-9]{2,12}"))continue;
+            String key=msg+":"+ref; keys.add(key);orderByKey.put(key,ref);
+        }
+        java.util.List<String> added=discordTracker.observe(keys);
+        settings.edit().putStringSet("seen_discord_"+account,discordTracker.snapshot()).apply();
+        NotificationManager manager=getSystemService(NotificationManager.class);
+        boolean allowed=Build.VERSION.SDK_INT<33 || checkSelfPermission("android.permission.POST_NOTIFICATIONS")==PackageManager.PERMISSION_GRANTED;
+        if(added.isEmpty() || !allowed || !manager.areNotificationsEnabled())return;
+        if(Build.VERSION.SDK_INT>=26 && manager.getNotificationChannel(DISCORD).getImportance()==NotificationManager.IMPORTANCE_NONE)return;
+        String ref=orderByKey.get(added.get(0));
+        manager.notify(8303,notification(DISCORD,added.size()+" pesan baru customer Discord",
+            "Order "+(ref==null?"FH3":ref)+" • buka Discord untuk membaca chat.").build());
     }
     @Override public void onDestroy(){stopped=true;handler.removeCallbacksAndMessages(null);if(speech!=null){speech.stop();speech.shutdown();}api.shutdown();db.close();super.onDestroy();}
     @Override public IBinder onBind(Intent intent){return null;}

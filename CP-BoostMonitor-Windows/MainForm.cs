@@ -11,6 +11,7 @@ public sealed class MainForm : Form
     private readonly CompletedOrdersPanel _completedPanel;
     private readonly MonitorWorkspacePanel _managementPanel, _booksPanel;
     private readonly OrderAlerts _alerts = new();
+    private readonly OrderAlerts _discordAlerts = new();
     private readonly LocalStatusStore _statusStore;
     private readonly bool _preview;
     private readonly System.Windows.Forms.Timer _poll = new() { Interval = 30_000 };
@@ -116,7 +117,7 @@ public sealed class MainForm : Form
     protected override void Dispose(bool disposing)
     {
         if (disposing && !_resourcesDisposed) {
-            _resourcesDisposed = true; _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _alerts.Dispose(); _api.Dispose();
+            _resourcesDisposed = true; _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _alerts.Dispose(); _discordAlerts.Dispose(); _api.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -621,6 +622,28 @@ public sealed class MainForm : Form
             _tray.BalloonTipText = string.Join(", ", unseen.Take(4));
             _tray.ShowBalloonTip(7000);
             _alerts.Speak(); SetStatus($"ORDER BARU: {string.Join(", ",unseen.Take(6))}");
+        }
+        // Discord alerts are independent of Telegram order alerts. Until this optional
+        // backend is deployed, its absence must never block a worker's FH3 order workflow.
+        try
+        {
+            var discord = await _api.DiscordAlertsAsync();
+            var keys = discord.Alerts.Select(a => a.MessageId + ":" + a.OrderRef).ToArray();
+            var newMessages = _discordAlerts.Observe(_api.AccountId + "|discord", keys);
+            if (newMessages.Count > 0)
+            {
+                var latest = discord.Alerts.FirstOrDefault(a => newMessages.Contains(a.MessageId + ":" + a.OrderRef));
+                _tray.BalloonTipTitle = $"Discord buyer — {newMessages.Count} pesan baru";
+                _tray.BalloonTipText = latest is null ? "Pesan Discord untuk order FH3." :
+                    $"Order {latest.OrderRef} • buka Discord untuk membaca chat customer.";
+                _tray.ShowBalloonTip(7000);
+                System.Media.SystemSounds.Asterisk.Play();
+                SetStatus(latest is null ? "PESAN DISCORD CUSTOMER" : $"DISCORD BUYER: Order {latest.OrderRef}");
+            }
+        }
+        catch (Exception e) when (e is HttpRequestException or InvalidOperationException or UnauthorizedAccessException or TaskCanceledException)
+        {
+            // Optional endpoint is absent on the previous production backend; no side effects.
         }
         if (_activePage == "Order Selesai") await _completedPanel.RefreshAsync();
     }
