@@ -29,6 +29,7 @@ on:
       - 'website/supabase/migrations/*_fh3_monitor_discord.sql'
       - 'website/lib/monitor*.ts'
       - 'website/supabase/migrations/*_fh3_monitor_accounts_closing.sql'
+      - 'website/supabase/migrations/*_fh3_monitor_shared_workstations.sql'
       - 'website/tests/monitor-*.test.ts'
       - 'website/lib/fh3MonitorJobs.ts'
       - 'website/lib/payrollMobileCompleted.ts'

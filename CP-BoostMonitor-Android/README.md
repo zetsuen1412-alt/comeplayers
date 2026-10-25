@@ -1,6 +1,7 @@
 # EVOGAMING Monitor Android v1.7.1 — FH3
 
 Current behavior: [Accounts, admin controls, net wages, Tutup Buku and notifications](../docs/monitor-accounts-closing-2026-10-24.md).
+Shared workstation accounts: [setup and permissions](../docs/monitor-shared-workstations.md).
 The v1.7 package `id.comeplayers.boostmonitor.fh3.accounts` installs alongside
 older apps and preserves them. Main releases use a persistent signing key;
 PR debug artifacts are for branch testing. Username login and employee bindings

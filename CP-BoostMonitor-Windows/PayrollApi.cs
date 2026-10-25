@@ -38,6 +38,7 @@ public sealed class PayrollApi : IDisposable
         public int WorkflowSchema { get; set; }
         public bool CanOperate { get; set; }
         public bool IsAdmin { get; set; }
+        public string AccessScope { get; set; } = "employee";
         public string EmployeeCode { get; set; } = "";
         public string Username { get; set; } = "";
         public string AccountId { get; set; } = "";
@@ -69,6 +70,7 @@ public sealed class PayrollApi : IDisposable
     public bool LoggedIn => _session != null;
     public bool CanOperate { get; private set; }
     public bool IsAdmin { get; private set; }
+    public string AccessScope { get; private set; } = "employee";
     public string OwnEmployeeCode { get; private set; } = "";
     public string Username { get; private set; } = "";
     public string AccountId { get; private set; } = "";
@@ -111,7 +113,7 @@ public sealed class PayrollApi : IDisposable
         _sessionVersion++;
         _session = null;
         CanOperate = false;
-        IsAdmin = false; OwnEmployeeCode = Username = AccountId = "";
+        IsAdmin = false; AccessScope = "employee"; OwnEmployeeCode = Username = AccountId = "";
         try { if (File.Exists(_sessionFile)) File.Delete(_sessionFile); }
         catch (IOException) { /* Session is forgotten in memory. */ }
         }
@@ -193,6 +195,7 @@ public sealed class PayrollApi : IDisposable
             throw new InvalidOperationException("Format data karyawan FH3 tidak sesuai.");
         CanOperate = doc.CanOperate;
         IsAdmin = doc.IsAdmin; OwnEmployeeCode = doc.EmployeeCode; Username = doc.Username; AccountId = doc.AccountId;
+        AccessScope = IsAdmin ? "admin" : doc.AccessScope == "shared" ? "shared" : "employee";
         return doc.Employees.Where(e => e.Team == "FH3" && e.Active).ToList();
     }
     public async Task<List<PayrollOrder>> PendingAsync()

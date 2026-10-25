@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createHash } from 'node:crypto';
 import { createSupabaseAdmin } from '@/lib/serverSupabase';
-import { createSupabaseAuthClient, createSupabaseUserClient, requireAccountIdentity } from '@/lib/serverSupabase';
-import { singleDeviceSessionsEnabled } from '@/lib/auth/accountSessionConfig';
+import { createSupabaseAuthClient } from '@/lib/serverSupabase';
 import { requireMonitorAccess } from '@/lib/monitorAccess';
 import { adminErrorStatus } from '@/lib/adminSecurity';
 
@@ -69,19 +68,13 @@ export async function POST(request: Request) {
     }
     if (result.error || !result.data.session) return reply({ error: 'Login atau sesi ditolak. Periksa akun payroll.' }, 401);
     const session = result.data.session;
-    // Reuse the same authorization rule and single-device/MFA requirements as the payroll web.
+    // Shared Monitor accounts retain identity/MFA checks but use independent
+    // per-device sessions. Other accounts keep the website's session policy.
     const authorized = new Request(request.url, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
     try {
-      // Keep the same MFA assurance and account-session claim as website login.
-      if (action === 'login' && singleDeviceSessionsEnabled()) {
-        await requireAccountIdentity(authorized);
-        const { data, error } = await createSupabaseUserClient(session.access_token)
-          .rpc('cp_claim_account_session');
-        if (error || !data?.active) throw Object.assign(new Error('Sesi akun belum aktif.'), { status: 403 });
-      }
-      await requireMonitorAccess(authorized);
+      await requireMonitorAccess(authorized, { activateSession: action === 'login' });
     } catch (error) {
       const status = adminErrorStatus(error);
       return reply({ error: status === 403 ? 'Akun Monitor belum dihubungkan oleh admin atau membutuhkan verifikasi tambahan.'

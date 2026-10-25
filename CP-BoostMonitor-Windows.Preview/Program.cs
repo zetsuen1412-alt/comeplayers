@@ -31,6 +31,19 @@ internal static class Program
         var active = new List<PayrollOrder> { new() { OrderRef = "X4888", Game = "AION", Discord = "FH3 Demo",
             EmployeeName = "TEGUH3", EmployeeCode = people[5].Code, Status = "in_progress", CanDone = true,
             TakeStatus = "sent", StartStatus = "sent", ActionMessage = "START terkonfirmasi. Unggah screenshot DONE setelah selesai." } };
+        using (var accounts = new MonitorAccountDialog(people, _ => Task.CompletedTask) { ShowInTaskbar = false, Opacity = 0 }) {
+            accounts.Show(); accounts.PerformLayout();
+            if (accounts.Settings.AccessScope != "employee" || accounts.Settings.EmployeeCode != people[0].Code) throw new Exception("Personal account defaults changed");
+            accounts.Shared = true;
+            if (accounts.EmployeePickerEnabled || accounts.Settings.EmployeeCode != null || accounts.Settings.AccessScope != "shared") throw new Exception("Shared account retained a single employee binding");
+            accounts.Show(); accounts.PerformLayout();
+            using var screen = new Bitmap(accounts.Width, accounts.Height);
+            accounts.DrawToBitmap(screen, new Rectangle(Point.Empty, accounts.Size));
+            screen.Save(Path.Combine(output, "monitor-shared-account.png"), ImageFormat.Png);
+            accounts.Shared = false;
+            if (!accounts.EmployeePickerEnabled || accounts.Settings.EmployeeCode != people[0].Code) throw new Exception("Switching back lost personal employee selection");
+            Console.WriteLine("PASS: personal defaults, shared scope without employee binding, and return to personal selection");
+        }
         var management = new ManagementSnapshot {TotalRupiah=375000,
             Eligible=new(){new(){OrderRef="X4827",WageRupiah=125000},new(){OrderRef="X4826",WageRupiah=250000}},
             Orders=Enumerable.Range(0,12).Select(i=>new ManagedOrder {OrderRef=$"X{4827-i}",EmployeeName=names[i%names.Length],

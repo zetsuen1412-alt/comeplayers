@@ -15,7 +15,8 @@ function load(path:string,mocks:Record<string,unknown>){
 test("Monitor checks stored role, stable employee binding and fresh revocation; user metadata cannot grant admin",async()=>{
  let admin=false,active=true,employeeActive=true,ambiguous=false;
  const modules={"@/lib/serverSupabase":{
-  requireAuthenticatedUser:async()=>({id:"user-1",user_metadata:{role:"admin"}}),
+  requireAccountIdentity:async()=>({id:"user-1",user_metadata:{role:"admin"}}),
+  requireAuthenticatedUser:async()=>({id:"user-1"}),
   createSupabaseAdmin:()=>({from:(table:string)=>{
    const data=table==="profiles"?{id:"user-1",role:admin?"admin":"user",username:"adit"}:
     table==="cp_fh3_monitor_accounts"?{employee_id:"e1",employee_code:"F001",active}:
@@ -23,7 +24,8 @@ test("Monitor checks stored role, stable employee binding and fresh revocation; 
       ...(ambiguous?[{id:"e1",code:"F002",team:"FH3",workforceStatus:"FULL"}]:[])]}};
    const q={select:()=>q,eq:()=>q,maybeSingle:async()=>({data}),single:async()=>({data})};return q;
   }}),
- },"@/features/payroll/lib/workspace-model":{workspaceKeys:{employees:"employees"}}};
+ },"@/lib/auth/accountSessionConfig":{singleDeviceSessionsEnabled:()=>false},
+ "@/features/payroll/lib/workspace-model":{workspaceKeys:{employees:"employees"}}};
  const api=load("lib/monitorAccess.ts",modules);
  const context=await api.requireMonitorAccess(new Request("https://test/")) as {actor:{isAdmin:boolean};employeeCode:string};
  assert.equal(context.actor.isAdmin,false);assert.equal(context.employeeCode,"F001");
@@ -35,9 +37,9 @@ test("Monitor checks stored role, stable employee binding and fresh revocation; 
 });
 test("management/accounts/closing writes deny employee accounts before any service operation",async()=>{
  let reads=0;
- for(const page of ["management","accounts","books"]){
+ for(const shared of [false,true]) for(const page of ["management","accounts","books"]){
   const route=load(`app/api/admin/payroll/mobile/${page}/route.ts`,{
-   "@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{id:"staff",isAdmin:false},employeeId:"e1",supabaseAdmin:{from:()=>{reads++;throw new Error();},rpc:()=>{reads++;throw new Error();}}})},
+   "@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{id:"staff",isAdmin:false},canOperateAll:shared,accessScope:shared?"shared":"employee",employeeId:"e1",supabaseAdmin:{from:()=>{reads++;throw new Error();},rpc:()=>{reads++;throw new Error();}}})},
    "@/lib/monitorHttp":{monitorBody,monitorError,monitorReply},"@/lib/monitorManagement":{},
    "@/features/payroll/lib/workspace-model":{workspaceKeys:{}},
   });

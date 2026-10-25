@@ -35,7 +35,7 @@ final class PayrollSync {
     private final Object sessionGuard = new Object();
 
     PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context) { this.session = session; this.db = db; this.identity=context.getSharedPreferences("monitor_identity",android.content.Context.MODE_PRIVATE); }
-    private void rememberIdentity(JSONObject roster) { identity.edit().putBoolean("isAdmin",roster.optBoolean("isAdmin")).putString("accountId",roster.optString("accountId")).putString("username",roster.optString("username")).apply(); }
+    private void rememberIdentity(JSONObject roster) { identity.edit().putBoolean("isAdmin",roster.optBoolean("isAdmin")).putString("accessScope",roster.optString("accessScope","employee")).putString("accountId",roster.optString("accountId")).putString("username",roster.optString("username")).apply(); }
 
     boolean hasSession() { return session.exists(); }
     void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); identity.edit().clear().apply(); } }

@@ -626,7 +626,7 @@ public sealed class MainForm : Form
         _pending = freshPending;
         BindTables();
         _takePanel.SetStale(false);
-        _connection.Text = $"●  {_api.Username} • {(_api.IsAdmin ? "Admin" : "Karyawan")}";
+        _connection.Text = $"●  {_api.Username} • {(_api.IsAdmin ? "Admin" : _api.AccessScope == "shared" ? "Akun Bersama" : "Karyawan")}";
         _connection.ForeColor = LuxuryPalette.SidebarText;
         _poll.Start();
         SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.{statusWarning}");

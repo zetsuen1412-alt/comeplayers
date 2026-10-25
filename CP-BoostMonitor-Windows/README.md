@@ -11,6 +11,8 @@ existing login and local history remain in place. The page also provides the
 existing Android APK as a separate platform download.
 
 Current accounts, wages, Tutup Buku and notifications: [release guide](../docs/monitor-accounts-closing-2026-10-24.md).
+Shared workstation accounts (Windows 2.0.4 / Android 1.7.2):
+[setup and permissions](../docs/monitor-shared-workstations.md).
 
 Log in using a ComePlayers username. Admins manage staff account bindings;
 employees can operate their own work. Take Order shows employees by
