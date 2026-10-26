@@ -1,1 +1,13 @@
-{"packageId":"id.comeplayers.boostmonitor.fh3.accounts","version":"1.7.4","parallelInstall":true}
+{
+  "version": "1.8.0",
+  "versionCode": 14,
+  "packageId": "id.comeplayers.boostmonitor.fh3.accounts",
+  "parallelInstall": true,
+  "sourceCommit": "ec21772dbc609658685d425f26b09fa9a49d6c32",
+  "releaseCommit": "feb45752f19e7c4e240279d49d11c11689b7b311",
+  "apkSha256": "4e723a3985d6f8cdadd0dfe1c435087f1b60ca657103564e2cfd3dd51320e807",
+  "zipSha256": "e5884ccfd9e567653e7441c88b4e040059a138463d8a89fa65968ebf6a59585e",
+  "apkBytes": 242423,
+  "zipBytes": 233870,
+  "certificateSha256": "6082eb26895e4cecaf6cc68b68217613e2c08bcd278f2f3f257a0fa0a512278e"
+}
