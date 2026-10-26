@@ -7,6 +7,12 @@ static void Assert(bool check, string name)
 }
 
 var alertTracker = new NewOrderTracker();
+var pausedOrder = new PayrollOrder {Status="paused",CanContinue=true};
+Assert(pausedOrder.AllowsProof("continue") && !pausedOrder.AllowsProof("done") && !pausedOrder.AllowsProof("pause"),"paused order only allows CONTINUE");
+pausedOrder.DeliveryUncertain=true;
+Assert(!pausedOrder.AllowsProof("continue"),"uncertain pause delivery blocks all photo actions");
+var workingOrder = new PayrollOrder {Status="in_progress",CanPause=true,CanDone=true};
+Assert(workingOrder.AllowsProof("pause") && workingOrder.AllowsProof("done") && !workingOrder.AllowsProof("continue"),"working order allows PAUSE or DONE after confirmation");
 Assert(alertTracker.Observe(new[]{"X100"}).Count==0,"first queue establishes silent baseline");
 Assert(alertTracker.Observe(new[]{"X100","X101","X101"}).SequenceEqual(new[]{"X101"}),"new order alerts once");
 Assert(alertTracker.Observe(Array.Empty<string>()).Count==0,"taking an order is not an alert");

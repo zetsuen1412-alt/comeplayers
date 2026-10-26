@@ -60,6 +60,8 @@ public final class MainActivity extends Activity {
     private JSONArray activeTasks = new JSONArray();
     private boolean tasksBusy = false, proofBusy = false, takeBusy = false;
     private String proofOrderRef = "", proofEmployeeCode = "", proofAction = "";
+    private String proofStartEventId = "";
+    private long proofPauseRevision;
     private String pendingError = "", tasksError = "";
     private JSONObject earningsData;
     private boolean earningsBusy = false;
@@ -259,6 +261,15 @@ public final class MainActivity extends Activity {
     private void pickProofPhoto(String ref, String code, String action) {
         if (!linked() || proofBusy || takeBusy || assignmentBusy || !tasksError.isEmpty()) return;
         proofOrderRef = ref; proofEmployeeCode = code; proofAction = action;
+        proofStartEventId = "";proofPauseRevision=0;
+        if("pause".equals(action)||"continue".equals(action)){
+            JSONObject selected=null;
+            for(int i=0;i<activeTasks.length();i++){JSONObject task=activeTasks.optJSONObject(i);
+                if(task!=null && ref.equals(task.optString("orderRef")) && code.equals(task.optString("employeeCode"))){selected=task;break;}}
+            if(selected==null || selected.optBoolean("deliveryUncertain") || !selected.optBoolean("pause".equals(action)?"canPause":"canContinue")){
+                toast("Status order berubah. Segarkan Tugas.");return;}
+            proofStartEventId=selected.optString("startEventId");proofPauseRevision=selected.optLong("pauseRevision",-1);
+        }
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
@@ -273,7 +284,7 @@ public final class MainActivity extends Activity {
         final String ref = proofOrderRef, code = proofEmployeeCode, action = proofAction;
         final long version = accountVersion;
         render();
-        payroll.sendProof(ref, code, action, photo, getContentResolver(), (message, ok) -> {
+        payroll.sendProof(ref, code, action, photo, getContentResolver(), proofStartEventId, proofPauseRevision, (message, ok) -> {
             if (version != accountVersion || !linked()) return;
             proofBusy = false;
             new AlertDialog.Builder(this)
@@ -615,6 +626,12 @@ public final class MainActivity extends Activity {
                 send.setEnabled(!busy);
                 card.addView(send, lp(-1, 46));
                 send.setOnClickListener(v -> pickProofPhoto(ref, code, action));
+            }
+            if(task.optBoolean("canPause") || task.optBoolean("canContinue")){
+                String action=task.optBoolean("canContinue")?"continue":"pause";
+                Button pause=button("continue".equals(action)?"▶ CONTINUE + Screenshot":"Ⅱ PAUSE + Screenshot",false);
+                pause.setEnabled(!busy && !task.optBoolean("deliveryUncertain"));card.addView(pause,lp(-1,46));
+                pause.setOnClickListener(v->pickProofPhoto(ref,code,action));
             }
             body.addView(card, lp(-1, -2)); space(body, 10);
         }

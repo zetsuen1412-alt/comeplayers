@@ -56,6 +56,25 @@ internal static class ApiContractTests
             http.Respond = _ => Task.FromResult(Json("""{"schema":1,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","workflowSchema":1,"tasks":[{"orderRef":"X4806","status":"assigned","takeStatus":"unknown","canStart":false,"deliveryUncertain":true}]}"""));
             var tasks = await api.TasksAsync();
             Check(tasks[0].DeliveryUncertain && !tasks[0].CanStart && !tasks[0].CanDone, "uncertain TAKE never unlocks screenshot actions");
+            var cycle = "00000000-0000-4000-8000-000000000001";
+            var photo = new byte[] {137,80,78,71,13,10,26,10,0,0,0,0,0,0,0,0};
+            int progressCalls=0;
+            http.Respond = async r => {
+                progressCalls++;
+                Check(r.RequestUri!.AbsolutePath.EndsWith("/progress"), "pause uses the authorized proof transport");
+                var fields=new Dictionary<string,string>();
+                foreach(var part in (MultipartFormDataContent)r.Content!)
+                    if(part.Headers.ContentDisposition!.FileName is null) fields[part.Headers.ContentDisposition.Name!.Trim('"')]=await part.ReadAsStringAsync();
+                Check(fields["action"]=="pause" && fields["startEventId"]==cycle && fields["pauseRevision"]=="2", "pause sends the reviewed START cycle and revision");
+                return Json("""{"ok":true,"status":"paused","caption":"x4806/adit/pause"}""");
+            };
+            await Rejected(async()=>{await api.ProgressAsync("X4806","E1","pause",photo,"image/png");});
+            Check(progressCalls==0,"missing pause cycle cannot make a network request");
+            var paused=await api.ProgressAsync("X4806","E1","pause",photo,"image/png",2,cycle);
+            Check(paused.Status=="paused" && progressCalls==1,"pause requires server confirmation and is sent once");
+            http.Respond = _ => {progressCalls++;return Task.FromResult(Json("""{"error":"Laporan belum pasti"}""",HttpStatusCode.Conflict));};
+            await Rejected(async()=>{await api.ProgressAsync("X4806","E1","continue",photo,"image/png",3,cycle);});
+            Check(progressCalls==2,"uncertain CONTINUE is surfaced without automatic photo retry");
             http.Respond = r => {
                 Check(r.RequestUri!.AbsolutePath.EndsWith("/completed"), "completed view requests operational history instead of salaries");
                 return Task.FromResult(Json("""{"schema":1,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","completionRule":"telegram_done_confirmed","complete":true,"selectedEmployeeCode":"E1","employees":[{"employeeCode":"E1","employeeName":"ADIT3","completedCount":1}],"totals":{"completedCount":1,"employeeCount":1,"contributors":1},"workTotal":1,"work":[{"orderRef":"X4806","employeeCode":"E1","completedAt":"2026-10-22T03:00:00Z"}]}"""));

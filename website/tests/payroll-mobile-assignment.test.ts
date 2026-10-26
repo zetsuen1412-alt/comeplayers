@@ -7,6 +7,7 @@ import ts from "typescript";
 import { loadFH3ManualOrders, manualFH3OrderTitle } from "../lib/fh3ManualTelegramQueue";
 import { mobileWorkflow } from "../lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "../lib/fh3MonitorJobs";
+import { monitorPauseWorkflow } from "../lib/monitorPauseWorkflow";
 
 function load(file: string, mocks: Record<string, unknown>) {
   const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
@@ -35,6 +36,7 @@ const manual = (orderRef: string, patch: Record<string, unknown> = {}) => ({
   task: "TASK from Telegram", posted_at: "2026-10-20T04:00:00Z", ...patch,
 });
 const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] = [], takes: unknown[] = []) => ({
+  rpc: async (name:string) => { assert.equal(name,"cp_monitor_pause_states"); return {data:null,error:{code:"PGRST202"}}; },
   from: (table: string) => {
     if (table === "cp_payroll_workspace") {
       return { select: () => ({ eq: () => ({ single: async () => ({ data }) }) }) };
@@ -63,6 +65,7 @@ const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] =
   },
 });
 const common = {
+  "@/lib/monitorPauseWorkflow": { monitorPauseWorkflow },
   "@/lib/fh3MonitorJobs": { loadFH3MonitorJobs },
   "@/lib/payrollMobileWorkflow": { mobileWorkflow },
   "@/lib/fh3ManualTelegramQueue": { loadFH3ManualOrders, manualFH3OrderTitle },

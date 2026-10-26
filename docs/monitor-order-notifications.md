@@ -1,6 +1,6 @@
 # Musik dan popup order baru
 
-Windows 2.0.5 dan Android 1.7.4 memakai cuplikan awal 10 detik dari musik yang
+Windows 2.0.6 dan Android 1.7.4 memakai cuplikan awal 10 detik dari musik yang
 diberikan pemilik. Akhir cuplikan memudar. Audio dibundel dalam aplikasi dan tidak
 diunduh setiap kali ada order; suara ucapan sebelumnya diganti.
 
@@ -79,4 +79,6 @@ pelanggan atau mengirim laporan Telegram palsu.
 
 Package ID/kunci Android, akun bersama, TAKE/START/DONE, upah, Tutup Buku dan data
 Payroll tetap menggunakan alur sebelumnya. Tidak ada perubahan backend atau
-migrasi database. Publikasi produksi memerlukan persetujuan pemilik atas PR.
+migrasi database khusus notifikasi. Fitur PAUSE/CONTINUE dalam rilis yang sama
+memakai migrasi tambahan yang dijelaskan di `monitor-pause-continue.md`.
+Publikasi produksi memerlukan persetujuan pemilik atas PR.
