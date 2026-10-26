@@ -9,13 +9,10 @@ export function monitorDuration(value: unknown) {
     days.push(Number(m[1]) * (/^(week|wk|minggu|pekan)/.test(m[2]) ? 7 : /^(month|mo|bulan)/.test(m[2]) ? 30 : 1));
   for (const m of text.matchAll(/(?<![0-9.])[0-9]+(?:\.[0-9]+)?\s*(?:hours?|hrs?|jam|h)(?:\s*(?:\/\s*(?:day|hari)|per\s+(?:day|hari)))?\s*x\s*([0-9]+(?:\.[0-9]+)?)(?!\s*(?:weeks?|wks?|minggu|pekan|months?|mos?|bulan))(?=[^0-9.]|$)/g)) days.push(Number(m[1]));
   const uniqueDays = [...new Set(days)], uniqueHours = [...new Set(hours)];
-  const totalHours = uniqueDays.length === 0 && uniqueHours.length === 1 && uniqueHours[0] > 24 ? uniqueHours[0] : null;
-  const wholeDayHours = totalHours != null && totalHours % 24 === 0;
-  const totalDays = uniqueDays[0] ?? (wholeDayHours ? totalHours! / 24 : 1);
+  const totalDays = uniqueDays[0] ?? 1;
   const needsReview = uniqueDays.length > 1 || !Number.isInteger(totalDays) || totalDays < 1 || totalDays > 366
-    || (totalHours != null && !wholeDayHours)
-    || (totalDays > 1 && (uniqueHours.length > 1 || (!wholeDayHours && uniqueHours.some(h => h <= 0 || h > 24)) || /[0-9]\s*[-–]\s*[0-9]/.test(text)));
-  const hoursPerDay = !needsReview && totalDays > 1 && uniqueHours.length === 1 ? wholeDayHours ? 24 : uniqueHours[0] : null;
+    || (totalDays > 1 && (uniqueHours.length > 1 || uniqueHours.some(h => h <= 0 || h > 24) || /[0-9]\s*[-–]\s*[0-9]/.test(text)));
+  const hoursPerDay = !needsReview && totalDays > 1 && uniqueHours.length === 1 ? uniqueHours[0] : null;
   const daily = !needsReview && totalDays > 1;
   const durationDisplay = daily ? `${hoursPerDay == null ? "" : `${hoursPerDay} jam × `}${totalDays} hari` : duration || "—";
   return { duration, durationDisplay, daily, totalDays: needsReview ? null : totalDays, hoursPerDay, durationNeedsReview: needsReview };

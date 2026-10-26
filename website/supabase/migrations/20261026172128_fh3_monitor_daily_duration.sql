@@ -45,10 +45,6 @@ begin
  select count(distinct x),coalesce(min(x),1) into n,d from unnest(days) x;
  review:=n>1 or d<>trunc(d) or d<1 or d>366;
  select count(distinct x),min(x) into n,h from unnest(hrs) x;
- if cardinality(days)=0 and n=1 and h>24 then
-  if mod(h,24)=0 then d:=h/24;h:=24;review:=d>366;
-  else review:=true; end if;
- end if;
  if d>1 and (n>1 or h<=0 or h>24 or t~'[0-9]\s*[-–]\s*[0-9]') then review:=true; end if;
  return jsonb_build_object('totalDays',case when review then null else d::integer end,'hoursPerDay',case when not review and d>1 then h else null end,
   'daily',not review and d>1,'durationNeedsReview',review);

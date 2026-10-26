@@ -19,7 +19,7 @@ const admin="e120c2e4-99bb-42b0-9d08-a8e71ebef76a",shared="e120c2e4-99bb-42b0-9d
 const cases:[string,number|null,number|null,boolean][]=[
  ["8hours x7",7,8,false],["8 hours/day x 7 days",7,8,false],["8H × 7",7,8,false],
  ["8hoursx7",7,8,false],["8hx7",7,8,false],["8hours x1week",7,8,false],["8h x1month",30,8,false],
- ["48H",2,24,false],["72 hours",3,24,false],["36H",null,null,true],
+ ["48H",1,null,false],["72 hours",1,null,false],["36H",1,null,false],
  ["1 Week 8 Hours/Day",7,8,false],["7 days (8 hours/day)",7,8,false],["12 jam x30",30,12,false],
  ["1 month",30,null,false],["sebulan",30,null,false],["seminggu",7,null,false],["2 minggu 4 jam/hari",14,4,false],
  ["2 months 8 hours/day",60,8,false],["2 days",2,null,false],["1 hari",1,null,false],["12H",1,null,false],
@@ -123,9 +123,14 @@ test("daily journal enforces day1..7/day30, confirmed photos, transfers, legacy 
   await assert.rejects(claim("X702","start",moved,"F002"),/belum pasti/);
   await assert.rejects(manage("X702","archive"),/belum pasti/);await assert.rejects(manage("X702","transfer","F001"),/belum pasti/);
   assert.equal((await db.query("select * from cp_monitor_daily_events where order_ref='X702' and day_no=1 and action='done' and status='sent'")).rows.length,1,"history remains with its original worker after transfer");
-  await receipt("X703","12H");await take("X703");assert.equal(await state("X703"),undefined);
+  await receipt("X703","48H");await take("X703");assert.equal(await state("X703"),undefined);
   const ordinary=(await db.query<{v:Claim}>("select cp_mobile_proof_begin('X703','F001','start',$1) v",[shared])).rows[0].v;
-  assert.equal(ordinary.caption,"x703/adit/start","single-day captions stay compatible");
+  assert.equal(ordinary.caption,"x703/adit/start","continuous 48H keeps the original caption without DAY");
+  await db.query("select cp_mobile_proof_finish($1,$2,$3,'fixture-48h-start')",[ordinary.eventId,shared,message++]);
+  const continuousDone=(await db.query<{v:Claim}>("select cp_mobile_proof_begin('X703','F001','done',$1) v",[shared])).rows[0].v;
+  assert.equal(continuousDone.caption,"x703/adit/done");
+  await db.query("select cp_mobile_proof_finish($1,$2,$3,'fixture-48h-done')",[continuousDone.eventId,shared,message++]);
+  assert.equal((await db.query<{status:string}>("select status from cp_fh3_monitor_jobs where order_ref='X703'")).rows[0].status,"completed");
   await receipt("X704","8h x7");await manage("X704","transfer","F001");
   assert.equal((await state("X704")).total_days,7,"admin assigning a future queue item also freezes its daily plan");
   await take("X704");const competing=await state("X704");

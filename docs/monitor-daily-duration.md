@@ -12,12 +12,12 @@ akun tidak dipakai untuk menebak jadwal.
 | `7 days`, `seminggu` | 7 hari; jam harian tidak ditebak |
 | `1 month`, `sebulan`, `12 jam x30` | 30 hari, sesuai permintaan pemilik |
 | `2 weeks`, `2 months` | 14 hari, 60 hari |
-| `48H`, `72 hours` | 2 atau 3 hari, masing-masing 24 jam |
-| `12H`, `1 hari` | Alur satu kali START/DONE yang sudah ada |
+| `12H`, `36H`, `48H`, `72 hours`, `1 hari` | Tetap satu pekerjaan dengan satu START/DONE, tanpa DAY |
 
 Jadwal dibatasi 366 hari. Durasi bertentangan (`8h x7 2 weeks`), jam harian
-melebihi 24, rentang yang ambigu, pecahan jumlah hari dan total jam yang tidak
-habis dibagi 24 (`36H`) ditandai untuk diperiksa admin sebelum TAKE. Durasi
+melebihi 24 pada jadwal harian, rentang yang ambigu dan pecahan jumlah hari
+ditandai untuk diperiksa admin sebelum TAKE. Total jam tanpa jumlah hari tetap
+satu pekerjaan, sesuai pilihan pemilik. Durasi
 asli tetap tersedia. Kolom **Duration** muncul pada Order Baru dan Tugas Aktif
 Windows; Android menampilkannya di kartu order dan tugas.
 
