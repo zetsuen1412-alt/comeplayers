@@ -15,6 +15,7 @@ internal static class Program
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
         OrderNotificationChecks.Run(output);
         PauseChecks.Run(output);
+        ConnectionRecoveryChecks.Run(output);
         var names = new[] { "ADIT3", "AJI3", "RIKI3", "STAYLIN3", "DAVA3", "TEGUH3", "AHMAD3", "TATANG3" };
         var people = names.Select((name, i) => new Employee { Id = $"demo:{i}", Code = $"EMP-{105 + i:0000}", Name = name,
             Team = "FH3", Active = true, LocalStatus = i % 3 == 0 ? "WORK" : "READY" }).ToList();
