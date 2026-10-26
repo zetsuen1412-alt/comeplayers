@@ -29,3 +29,14 @@ These observations confirm current basic connectivity, not the original network
 cause. The UI recovery defect is reproduced and fixed independently.
 
 No backend, Android, database, Payroll, salary or Closing change is required.
+
+## Authentication budget in Windows 2.0.8
+
+The user reported that website and Android login succeed but Windows 2.0.7 still
+times out on sign-in. Android POST requests allow 65 seconds; Windows 2.0.7 allowed
+25 seconds. A harmless invalid-credential production probe took about 9.5 seconds
+before the successful-login access/session checks would even run. Windows 2.0.8
+uses Android's 65-second budget for login and token refresh, keeping 20-second
+GET deadlines and no automatic authentication/mutation retry. This removes the
+client budget mismatch; the original authenticated Windows request still needs
+verification on the user's PC. No authentication or session-policy check is removed.

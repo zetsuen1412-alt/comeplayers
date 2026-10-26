@@ -98,6 +98,19 @@ internal static class ConnectionRecoveryTests
                 catch (UnauthorizedAccessException) { }
             }
             Check(!api.LoggedIn && http.Requests.SequenceEqual(new[] { "POST session" }), "refresh server failure cannot cause repeated token rotation in the background");
+            using var slowAuthHttp = new Transport();
+            slowAuthHttp.Respond = async (request, ct) => {
+                if (request.RequestUri!.AbsolutePath.EndsWith("/session")) { await Task.Delay(150, ct); return Json(Session); }
+                return Json(Roster);
+            };
+            using var slowAuth = new PayrollApi(slowAuthHttp, Path.Combine(root,"slow-session.dat"),TimeSpan.FromMilliseconds(50),TimeSpan.FromSeconds(2));
+            await slowAuth.LoginAsync("fixture","synthetic-password");
+            Check(slowAuth.LoggedIn && slowAuthHttp.Requests.SequenceEqual(new[]{"POST session","GET roster"}),"authentication may outlast the read deadline and is still sent exactly once");
+            using var stalledAuthHttp = new Transport();
+            stalledAuthHttp.Respond = async (_, ct) => {await Task.Delay(Timeout.InfiniteTimeSpan,ct);return Json(Session);};
+            using var stalledAuth = new PayrollApi(stalledAuthHttp,Path.Combine(root,"stalled.dat"),TimeSpan.FromSeconds(2),TimeSpan.FromMilliseconds(50));
+            try {await stalledAuth.LoginAsync("fixture","synthetic-password");throw new Exception("Authentication must remain bounded");}
+            catch(MonitorReadException){Check(!stalledAuth.LoggedIn && !File.Exists(Path.Combine(root,"stalled.dat")) && stalledAuthHttp.Requests.Count==1,"authentication deadline cancels a stalled login without replay or saved credentials");}
         }
         finally
         {
