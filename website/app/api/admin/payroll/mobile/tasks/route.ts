@@ -20,8 +20,8 @@ const clean = (value: unknown, fallback: string, limit: number) => String(value 
 /** Payroll supplies assignments; verified admin Telegram posts supply operational TASK. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin, employeeCode, canOperateAll, operableEmployeeCodes } = await requireMonitorAccess(request);
-    const { data, error } = await supabaseAdmin.from("cp_payroll_workspace")
+    const { actor, supabaseAdmin, employeeCode, canOperateAll, operableEmployeeCodes, workspaceSnapshot } = await requireMonitorAccess(request);
+    const { data, error } = workspaceSnapshot ? { data: workspaceSnapshot, error: null } : await supabaseAdmin.from("cp_payroll_workspace")
       .select("payload,revision,updated_at").eq("id", 1).single();
     if (error || !data) throw error ?? new Error("Workspace tidak ditemukan");
     const payload = data.payload as Record<string, unknown>;

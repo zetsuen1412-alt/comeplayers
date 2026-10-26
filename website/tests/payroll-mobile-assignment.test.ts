@@ -8,6 +8,7 @@ import { loadFH3ManualOrders, manualFH3OrderTitle } from "../lib/fh3ManualTelegr
 import { mobileWorkflow } from "../lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "../lib/fh3MonitorJobs";
 import { monitorPauseWorkflow } from "../lib/monitorPauseWorkflow";
+import { mobilePayrollRoster } from "../features/payroll/lib/mobile-roster";
 
 function load(file: string, mocks: Record<string, unknown>) {
   const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
@@ -135,6 +136,34 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
   assert.equal(result.pending[2].needsValuation, true);
   assert.match(result.pending[2].orderName, /8hours/);
   assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_user_id|salary|kasbon|refreshToken/);
+});
+
+test("roster, pending and tasks reuse only the fresh authorized request snapshot", async () => {
+  const e = { id: "e1", code: "F001", name: "Adit", team: "FH3", workforceStatus: "FULL" };
+  const snapshot = workspace([order("X100"),order("X200",{operationalStatus:"assigned",employeeCode:e.code,employeeName:e.name})],[e]);
+  const api = client(snapshot,[manual("X100"),manual("X200")]);
+  let checks=0;
+  const mocks={...common,
+    "@/features/payroll/lib/mobile-roster":{mobilePayrollRoster},
+    "@/lib/monitorAccess":{requireMonitorAccess:async()=>{
+      checks++;
+      return {actor:{isAdmin:false},employeeCode:"",accessScope:"shared",canOperateAll:true,operableEmployeeCodes:[e.code],workspaceSnapshot:snapshot,
+        supabaseAdmin:{...api,from:(table:string)=>{assert.notEqual(table,"cp_payroll_workspace","workspace must not be read twice");return api.from(table);}}};
+    }},
+  };
+  for(const page of ["roster","pending","tasks"]){
+    const route=load(`app/api/admin/payroll/mobile/${page}/route.ts`,mocks);
+    const response=await route.GET!(new Request(url+"/"+page));
+    assert.equal(response.status,200,page);
+    assert.match(response.headers.get("cache-control")||"",/no-store/);
+    const body=await response.json();
+    assert.equal(body.revision,7);
+    if(page==="roster")assert.deepEqual(body.employees.map((row:{code:string})=>row.code),[e.code]);
+    if(page==="pending")assert.deepEqual(body.pending.map((row:{orderRef:string})=>row.orderRef),["X100"]);
+    if(page==="tasks")assert.deepEqual(body.tasks.map((row:{orderRef:string})=>row.orderRef),["X200"]);
+    assert.doesNotMatch(JSON.stringify(body),/grossMinor|refreshToken/);
+  }
+  assert.equal(checks,3,"each endpoint still authorizes its own request");
 });
 
 test("assignment endpoint checks admin, validates payload, and uses website actor identity", async () => {

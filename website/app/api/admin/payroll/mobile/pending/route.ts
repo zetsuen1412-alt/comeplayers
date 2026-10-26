@@ -18,8 +18,8 @@ const clean = (value: unknown, limit: number) => String(value ?? "")
 /** Only manually posted and verified FH3 Telegram orders are eligible for the mobile queue. */
 export async function GET(request: Request) {
   try {
-    const { supabaseAdmin } = await requireMonitorAccess(request);
-    const { data: workspace, error } = await supabaseAdmin.from("cp_payroll_workspace")
+    const { supabaseAdmin, workspaceSnapshot } = await requireMonitorAccess(request);
+    const { data: workspace, error } = workspaceSnapshot ? { data: workspaceSnapshot, error: null } : await supabaseAdmin.from("cp_payroll_workspace")
       .select("payload,revision").eq("id", 1).single();
     if (error || !workspace) throw error ?? new Error("Workspace tidak ditemukan");
     const payload = workspace.payload as Record<string, unknown>;
