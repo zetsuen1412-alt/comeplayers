@@ -62,7 +62,7 @@ jobs:
             gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleRelease lintRelease
             echo 'APK_FILE=CP-BoostMonitor-Android/app/build/outputs/apk/release/app-release.apk' >> "$GITHUB_ENV"
           else
-            gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleDebug lintDebug
+            gradle --no-daemon -p CP-BoostMonitor-Android testDebugUnitTest assembleDebug assembleRelease lintDebug lintRelease
             echo 'APK_FILE=CP-BoostMonitor-Android/app/build/outputs/apk/debug/app-debug.apk' >> "$GITHUB_ENV"
           fi
       - name: Verify APK format and signature
@@ -73,8 +73,20 @@ jobs:
           test -s "$APK"
           unzip -t "$APK" | tail -n 1
           SOUND_EXPECTED="$(sha256sum CP-BoostMonitor-Android/app/src/main/res/raw/new_order.mp3 | cut -d' ' -f1)"
-          SOUND_PACKAGED="$(unzip -p "$APK" res/raw/new_order.mp3 | sha256sum | cut -d' ' -f1)"
-          [[ "$SOUND_EXPECTED" == "$SOUND_PACKAGED" ]] || { echo 'Packaged notification music differs from the reviewed asset.'; exit 1; }
+          APKS=("$APK")
+          if [[ "$GITHUB_REF" != 'refs/heads/main' ]]; then
+            APKS+=(CP-BoostMonitor-Android/app/build/outputs/apk/release/app-release-unsigned.apk)
+          fi
+          for SOUND_APK in "${APKS[@]}"; do
+            # Release optimization shortens ZIP paths. The named Android resource
+            # remains stable and is also what the notification URI resolves.
+            RESOURCE_DUMP="$("$ANDROID_HOME/build-tools/35.0.0/aapt2" dump resources "$SOUND_APK")"
+            SOUND_ENTRY="$(printf '%s\n' "$RESOURCE_DUMP" | awk '$1 == "resource" { sound = ($3 == "raw/new_order") } sound && $2 == "(file)" { print $3 }')"
+            [[ "$SOUND_ENTRY" =~ ^res/[a-zA-Z0-9_./-]+\.mp3$ ]] || { echo 'Expected one raw/new_order music resource.'; exit 1; }
+            SOUND_PACKAGED="$(unzip -p "$SOUND_APK" "$SOUND_ENTRY" | sha256sum | cut -d' ' -f1)"
+            [[ "$SOUND_EXPECTED" == "$SOUND_PACKAGED" ]] || { echo 'Packaged notification music differs from the reviewed asset.'; exit 1; }
+            echo "Verified notification music in $SOUND_APK ($SOUND_ENTRY)."
+          done
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
           if [[ "$GITHUB_REF" == 'refs/heads/main' ]]; then
             CERT="$($ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs "$APK" | sed -n 's/Signer #1 certificate SHA-256 digest: //p')"
