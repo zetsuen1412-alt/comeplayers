@@ -65,6 +65,7 @@ export async function GET(request: Request) {
       schema: 2, scope: "FH3", source: "payroll", sourceOfTruth: "telegram_fh3_manual", revision: workspace.revision,
       pending: [...pending.map(order => ({
         orderRef: clean(order.externalReference, 180),
+        postedAt: verified.get(order.externalReference.trim().toUpperCase())?.posted_at || "",
         orderType: order.orderType,
         // Never forward Telegram passwords/buyer credentials into the queue.
         orderName: clean(manualFH3OrderTitle(verified.get(order.externalReference.trim().toUpperCase())!), 300),
@@ -76,6 +77,7 @@ export async function GET(request: Request) {
         canTake: true,
       })), ...inboxOnly.map(item => ({
         orderRef: clean(item.order_ref, 180),
+        postedAt: item.posted_at,
         orderType: "boosting",
         orderName: clean(manualFH3OrderTitle(item), 300),
         game: clean(item.game, 150),
@@ -87,7 +89,7 @@ export async function GET(request: Request) {
         canTakeWithoutPayroll: true,
         needsValuation: true,
         unlinkedPayroll: true,
-      }))],
+      }))].sort((left, right) => (Date.parse(right.postedAt) || 0) - (Date.parse(left.postedAt) || 0)),
     });
   } catch (error) {
     const status = adminErrorStatus(error);
