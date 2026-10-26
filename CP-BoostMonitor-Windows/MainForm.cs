@@ -10,7 +10,8 @@ public sealed class MainForm : Form
     private readonly PayrollApi _api;
     private readonly CompletedOrdersPanel _completedPanel;
     private readonly MonitorWorkspacePanel _managementPanel, _booksPanel;
-    private readonly OrderAlerts _alerts = new();
+    private readonly OrderAlerts _alerts;
+    private OrderNotificationToast? _orderToast;
     private readonly LocalStatusStore _statusStore;
     private readonly bool _preview;
     private readonly System.Windows.Forms.Timer _poll = new() { Interval = 30_000 };
@@ -63,6 +64,7 @@ public sealed class MainForm : Form
     {
         _preview = preview;
         string previewPath = Path.Combine(Path.GetTempPath(), "fh3-render-" + Guid.NewGuid().ToString("N"));
+        _alerts = new OrderAlerts(preview ? previewPath : null);
         _api = preview ? new PayrollApi(new HttpClientHandler(), Path.Combine(previewPath, "session.dat")) : new PayrollApi();
         _statusStore = new LocalStatusStore(preview ? Path.Combine(previewPath, "local-status.json") : null);
         _completedPanel = new CompletedOrdersPanel(_api);
@@ -116,7 +118,7 @@ public sealed class MainForm : Form
     protected override void Dispose(bool disposing)
     {
         if (disposing && !_resourcesDisposed) {
-            _resourcesDisposed = true; _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _alerts.Dispose(); _api.Dispose();
+            _resourcesDisposed = true; _orderToast?.Dispose(); _poll.Dispose(); _sleepClock.Dispose(); _tray.Visible = false; _tray.Dispose(); _alerts.Dispose(); _api.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -351,7 +353,7 @@ public sealed class MainForm : Form
     {
         var page = ScrollingPage();
         var card = Card();
-        card.Width = 860; card.Height = 365;
+        card.Width = 860; card.Height = 415;
         card.Controls.Add(MakeLabel("Koneksi EVOGAMING Monitor", 18, 22, 15, true, Fore));
         card.Controls.Add(MakeLabel("Website: https://www.comeplayers.com", 12, 22, 63));
         card.Controls.Add(MakeLabel("Divisi: FH3  •  Bukti Telegram: 🔥 EVO🔥 Ilham FH3", 12, 22, 101));
@@ -363,7 +365,7 @@ public sealed class MainForm : Form
         {
             if (MessageBox.Show("Keluar dari akun ComePlayers di PC ini?", "Logout",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-            _api.Logout(); _poll.Stop(); _takePanel.SetAdminAccess(false);
+            _orderToast?.Close(); _alerts.StopSound(); _api.Logout(); _poll.Stop(); _takePanel.SetAdminAccess(false);
             _completedPanel.Clear(); _managementPanel.Clear(); _booksPanel.Clear(); _navigation["Kelola Order"].Visible=false; _takePanel.SetStale(true);
             _employees.Clear(); _pending.Clear(); _tasks.Clear();
             _seenInitialQueue = false; _lastRefs.Clear();
@@ -371,9 +373,12 @@ public sealed class MainForm : Form
             ShowPage("Login");
         };
         card.Controls.Add(logout);
-        var sound = new CheckBox {Text="Suara order baru: SAYA AKAN LAWAN!!",Checked=true,AutoSize=true,Left=22,Top=284};
+        var sound = new CheckBox {Text="Suara order baru: musik (10 detik)",Checked=_alerts.SoundEnabled,AutoSize=true,Left=22,Top=284};
         sound.CheckedChanged+=(_,_)=>_alerts.SoundEnabled=sound.Checked;card.Controls.Add(sound);
         card.Controls.Add(MakeLabel("Notifikasi berjalan selama Monitor terbuka, termasuk ketika diminimalkan.",10,22,320));
+        var testAlert = ActionButton("Tes notifikasi", false); testAlert.SetBounds(22, 356, 210, 38);
+        testAlert.Click += (_, _) => ShowOrderNotification(new[] { "Contoh notifikasi order" }, demonstration: true);
+        card.Controls.Add(testAlert);
         page.Controls.Add(card);
         return page;
     }
@@ -633,12 +638,29 @@ public sealed class MainForm : Form
         var unseen = _alerts.Observe(_api.AccountId, newRefs);
         if (unseen.Count > 0)
         {
-            _tray.BalloonTipTitle = $"EVOGAMING Monitor — {unseen.Count} order FH3 baru";
-            _tray.BalloonTipText = string.Join(", ", unseen.Take(4));
-            _tray.ShowBalloonTip(7000);
-            _alerts.Speak(); SetStatus($"ORDER BARU: {string.Join(", ",unseen.Take(6))}");
+            ShowOrderNotification(unseen);
+            SetStatus($"ORDER BARU: {string.Join(", ",unseen.Take(6))}");
         }
         if (_activePage == "Order Selesai") await _completedPanel.RefreshAsync();
+    }
+
+    private void ShowOrderNotification(IReadOnlyList<string> refs, bool demonstration = false)
+    {
+        _orderToast?.Close();
+        try {
+            _orderToast = new OrderNotificationToast(refs, () => {
+                if (_api.LoggedIn) { RestoreWindow(); ShowPage("Take Order"); }
+            }, demonstration: demonstration);
+            _orderToast.Dismissed += (_, _) => _alerts.StopSound();
+            _orderToast.Show(); // No owner: the popup stays visible while Monitor is minimized.
+        } catch (Exception e) when (e is InvalidOperationException or System.ComponentModel.Win32Exception) {
+            _orderToast?.Dispose(); _orderToast = null;
+            try {
+                _tray.BalloonTipTitle = demonstration ? "EVOGAMING • Tes notifikasi" : "Order FH3 baru";
+                _tray.BalloonTipText = string.Join(", ", refs.Take(4)); _tray.ShowBalloonTip(7000);
+            } catch { /* Notification presentation must not fail a successful queue refresh. */ }
+        }
+        _alerts.PlaySound();
     }
 
     private void BindTables()
@@ -685,7 +707,7 @@ public sealed class MainForm : Form
             if (!quiet && !IsDisposed)
                 MessageBox.Show(error.Message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        finally { _busy = false; UseWaitCursor = false; }
+        finally { if (!_api.LoggedIn) { _orderToast?.Close(); _alerts.StopSound(); } _busy = false; UseWaitCursor = false; }
     }
 
     private void SetStatus(string message) { _appStatus.Text = message; }

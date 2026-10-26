@@ -287,7 +287,7 @@ public final class MainActivity extends Activity {
                     filter = "SEMUA"; search = ""; page = "Karyawan";
                     render(); toast(message);
                     if(!prefs.contains("order_notifications")) new AlertDialog.Builder(this).setTitle("Aktifkan notifikasi order?")
-                        .setMessage("Monitor dapat memeriksa order di latar belakang dan mengucapkan SAYA AKAN LAWAN!! saat ada order baru.")
+                        .setMessage("Monitor dapat memeriksa order di latar belakang dan memutar cuplikan musik 10 detik saat ada order baru.")
                         .setNegativeButton("Nanti",(d,w)->prefs.edit().putBoolean("order_notifications",false).apply())
                         .setPositiveButton("Aktifkan",(d,w)->{prefs.edit().putBoolean("order_notifications",true).apply();
                             if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=android.content.pm.PackageManager.PERMISSION_GRANTED)
@@ -863,7 +863,7 @@ public final class MainActivity extends Activity {
             if(enabled){if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=android.content.pm.PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},830);return;}
                 startOrderNotifications();}else stopService(new Intent(this,OrderNotificationService.class));
         });
-        android.widget.Switch sound=new android.widget.Switch(this);sound.setText("Suara: SAYA AKAN LAWAN!!");sound.setChecked(prefs.getBoolean("order_sound",true));
+        android.widget.Switch sound=new android.widget.Switch(this);sound.setText("Suara order baru: musik (10 detik)");sound.setChecked(prefs.getBoolean("order_sound",true));
         body.addView(sound,lp(-1,48));sound.setOnCheckedChangeListener((v,enabled)->prefs.edit().putBoolean("order_sound",enabled).apply());
         info("Notifikasi memakai koneksi internet dan layanan Monitor aktif. Suara memakai pembaca suara perangkat. Mode hemat baterai/Force stop dapat menghentikan pemantauan.");
 
