@@ -55,7 +55,7 @@ public final class MainActivity extends Activity {
     private SharedPreferences prefs;
     private PayrollSync payroll;
     private boolean syncBusy = false;
-    private boolean pendingBusy = false, assignmentBusy = false;
+    private boolean pendingBusy = false, pendingLoaded = false, assignmentBusy = false;
     private JSONArray pendingOrders = new JSONArray();
     private JSONArray activeTasks = new JSONArray();
     private boolean tasksBusy = false, proofBusy = false, takeBusy = false;
@@ -83,7 +83,8 @@ public final class MainActivity extends Activity {
         }
     };
     private LinearLayout root, body, employeesContainer;
-    private String page = "Dashboard", filter = "SEMUA", search = "";
+    private ScrollView contentScroll;
+    private String page = "Order Baru", renderedPage = "", orderSearch = "", filter = "SEMUA", search = "";
     private long historyEmployee = 0;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable ticker = new Runnable() {
@@ -158,23 +159,25 @@ public final class MainActivity extends Activity {
     private void loadPendingOrders(boolean manual) {
         if (pendingBusy || !linked()) return;
         pendingBusy = true;
+        if (manual && "Order Baru".equals(page)) render();
         final long version = accountVersion;
         payroll.loadPendingOrders((data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             pendingBusy = false;
             if (ok) {
                 pendingOrders = data.optJSONArray("pending");
+                pendingLoaded = true;
                 pendingError = "";
                 try{OrderNotifications.observe(this,data);}
                 catch(RuntimeException error){OrderNotifications.failed(this,"Notifikasi gagal diproses. Buka Pengaturan dan Tes notifikasi.");}
-            } else { pendingError = message; pendingOrders = new JSONArray(); }
+            } else { pendingError = message; }
             if (manual && !ok) toast(message);
             if ("Order Baru".equals(page)) render();
         });
     }
 
     private void sendAssignment(String orderRef, String employeeCode) {
-        if (assignmentBusy) return;
+        if (!pendingOrderAvailable(orderRef)) { toast("Perbarui daftar order sebelum TAKE."); return; }
         for (EmployeeDb.Employee worker : db.payrollEmployees())
             if (employeeCode.equalsIgnoreCase(worker.payrollCode) && EmployeeDb.SLEEP.equals(worker.status)) {
                 toast("Karyawan masih Tidur. Ubah ke Ready Boosting sebelum TAKE."); return;
@@ -319,8 +322,9 @@ public final class MainActivity extends Activity {
                     prefs.edit().putBoolean("payroll_linked", true).putLong("payroll_last_sync", now())
                             .putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
                     dialog.dismiss();
-                    filter = "SEMUA"; search = ""; page = "Karyawan";
-                    render(); toast(message);
+                    filter = "SEMUA"; search = ""; orderSearch = ""; page = "Order Baru";
+                    render(); toast("Berhasil masuk.");
+                    loadPendingOrders(false); loadActiveTasks(false);
                     if(prefs.getBoolean("order_notifications",false))startOrderNotifications();
                     if(!prefs.contains("order_notifications")) new AlertDialog.Builder(this).setTitle("Aktifkan notifikasi order?")
                         .setMessage("Monitor dapat memeriksa order di latar belakang dan memutar cuplikan musik 10 detik saat ada order baru.")
@@ -387,29 +391,35 @@ public final class MainActivity extends Activity {
     private String trim(EditText e) { return e.getText().toString().trim(); }
 
     private void render() {
+        final int scrollY = page.equals(renderedPage) && contentScroll != null ? contentScroll.getScrollY() : 0;
+        View focused = contentScroll == null ? null : contentScroll.findFocus();
+        boolean restoreSearch = "Order Baru".equals(page) && focused instanceof EditText && "order-search".equals(focused.getTag());
+        int selection = restoreSearch ? ((EditText) focused).getSelectionStart() : 0;
+        renderedPage = page;
         root = vertical(); root.setBackgroundColor(BG);
         setContentView(root);
-        LinearLayout header = vertical(); header.setBackgroundColor(INK);
-        header.setPadding(dp(19), dp(19), dp(19), dp(17));
-        header.addView(text("EVOGAMING  /  MONITOR FH3", 20, WHITE, true));
-        space(header, 4);
-        header.addView(text("Pantau kesiapan tim boosting", 12, 0xffc7d2fe, false));
+        LinearLayout header = horizontal(); header.setBackgroundColor(WHITE);
+        header.setPadding(dp(16), dp(12), dp(16), dp(12));
+        header.addView(text("EVOGAMING", 18, PURPLE, true), new LinearLayout.LayoutParams(0,-2,1));
+        header.addView(text("MONITOR FH3", 11, SUB, true));
         root.addView(header, lp(-1, -2));
         // Selalu gunakan roster payroll, jangan tampilkan angka nol mode lokal tanpa login.
         if (!linked()) {
+            contentScroll = null;
             LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
             gate.addView(text("Masuk ke EVOGAMING Monitor", 23, INK, true));
             space(gate, 12);
-            gate.addView(text("Hanya nama karyawan FH3 dari Payroll → Karyawan. Divisi lain dibersihkan dari APK.", 14, SUB, false));
+            gate.addView(text("Lihat order terbaru dan pilih karyawan yang mengerjakan.", 14, SUB, false));
             space(gate, 14);
-            gate.addView(text("Login dengan username yang dibuat atau dihubungkan admin. Identitas karyawan diperbarui dari server saat aplikasi aktif.", 13, SUB, false));
+            gate.addView(text("Gunakan akun yang disiapkan admin.", 13, SUB, false));
             space(gate, 20);
             Button login = button("Login Username", true);
             gate.addView(login, lp(-1, 55));
             login.setOnClickListener(v -> loginDialog()); root.addView(gate); return;
         }
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
-        body = vertical(); body.setPadding(dp(15), dp(18), dp(15), dp(22));
+        contentScroll = scroll;
+        body = vertical(); body.setPadding(dp(12), dp(12), dp(12), dp(18));
         scroll.addView(body); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if ("Dashboard".equals(page)) dashboard();
         else if ("Order Baru".equals(page)) ordersPage();
@@ -417,30 +427,44 @@ public final class MainActivity extends Activity {
         else if ("Karyawan".equals(page)) employeesPage();
         else if ("Riwayat".equals(page)) historyPage();
         else if ("Data Tutup Buku".equals(page)) earningsPage();
+        else if ("Menu".equals(page)) menuPage();
         else settingsPage();
         navigation();
+        if (restoreSearch) {
+            EditText field = root.findViewWithTag("order-search");
+            if (field != null) { field.requestFocus(); field.setSelection(Math.max(0, Math.min(selection, field.length()))); }
+        } else if ("Order Baru".equals(page)) { root.setFocusableInTouchMode(true); root.requestFocus(); }
+        scroll.post(() -> { if (contentScroll == scroll) scroll.scrollTo(0, scrollY); });
     }
 
     private void navigation() {
-        LinearLayout nav = horizontal(); nav.setBackgroundColor(WHITE);
-        String[] pages = {"Dashboard", "Order Baru", "Tugas", "Karyawan", "Data Tutup Buku", "Riwayat", "Pengaturan"};
-        String[] symbols = {"▦", "✉", "▶", "♙", "Rp", "◷", "⚙"};
-        for (int i = 0; i < pages.length; i++) {
-            final String dest = pages[i];
-            TextView t = text(symbols[i] + "\n" + dest, 11, page.equals(dest) ? PURPLE : SUB, page.equals(dest));
-            t.setGravity(Gravity.CENTER); t.setPadding(0, dp(11), 0, dp(11));
-            nav.addView(t, new LinearLayout.LayoutParams(0, dp(62), 1));
-            t.setOnClickListener(v -> {
-                page = dest;
-                if (!"Riwayat".equals(dest)) historyEmployee = 0;
-                render();
-                if ("Order Baru".equals(dest)) loadPendingOrders(false);
-                if ("Tugas".equals(dest)) loadActiveTasks(false);
-                if ("Data Tutup Buku".equals(dest)) loadEarnings(earningsCode, earningsOffset);
-            });
-        }
-        root.addView(nav, lp(-1, -2));
+        root.addView(OrderHomeView.navigation(this,page,this::navigate),lp(-1,-2));
     }
+
+    private void navigate(String destination) {
+        page=destination;
+        if(!"Riwayat".equals(page))historyEmployee=0;
+        render();
+        if("Order Baru".equals(page))loadPendingOrders(false);
+        if("Tugas".equals(page))loadActiveTasks(false);
+        if("Data Tutup Buku".equals(page))loadEarnings(earningsCode,earningsOffset);
+    }
+
+    private void menuPage() {
+        heading("Menu",getSharedPreferences("monitor_identity",MODE_PRIVATE).getString("username",""));
+        String[] labels={"Karyawan","Data Tutup Buku","Ringkasan Tim","Riwayat Lokal","Pengaturan"};
+        String[] routes={"Karyawan","Data Tutup Buku","Dashboard","Riwayat","Pengaturan"};
+        for(int i=0;i<labels.length;i++){
+            String route=routes[i];Button item=button(labels[i],false);body.addView(item,lp(-1,52));space(body,10);
+            item.setOnClickListener(v->navigate(route));
+        }
+        if(getSharedPreferences("monitor_identity",MODE_PRIVATE).getBoolean("isAdmin",false)){
+            Button admin=button("Kelola Order & Akun",false);body.addView(admin,lp(-1,52));
+            admin.setOnClickListener(v->startActivity(new Intent(this,MonitorAdminActivity.class)));
+        }
+    }
+
+    @Override public void onBackPressed(){if(linked()&&!"Order Baru".equals(page))navigate("Order Baru");else super.onBackPressed();}
 
     private void heading(String title, String sub) {
         body.addView(text(title, 23, INK, true));
@@ -522,61 +546,12 @@ public final class MainActivity extends Activity {
 
     /** Only posts from the verified Adm EVO Gaming account in the bound FH3 group. */
     private void ordersPage() {
-        heading("Order Telegram FH3", "Sumber order: kiriman Adm EVO Gaming / @evogamings di grup FH3.");
-        info("Pilih karyawan untuk TAKE. Penugasan dicatat di Monitor dan laporan TAKE dikirim ke Telegram. TASK mengikuti pesan admin.");
-        space(body, 10);
-        Button sync = button(pendingBusy ? "Memuat order..." : "↻ Ambil Order Terbaru", true);
-        sync.setEnabled(!pendingBusy && !assignmentBusy);
-        body.addView(sync, lp(-1, 44));
-        sync.setOnClickListener(v -> loadPendingOrders(true));
-        space(body, 15);
-        if (!pendingError.isEmpty()) {
-            info("⚠ " + pendingError);
-            space(body, 10);
-        }
-        if (pendingOrders == null || pendingOrders.length() == 0) {
-            info(pendingBusy ? "Memuat order baru dari website..." : "Belum ada order FH3 yang menunggu karyawan.");
-            return;
-        }
-        for (int i = 0; i < pendingOrders.length(); i++) {
-            JSONObject order = pendingOrders.optJSONObject(i);
-            if (order == null) continue;
-            final String ref = order.optString("orderRef", "").trim();
-            if (ref.isEmpty()) continue;
-            LinearLayout card = panel();
-            card.addView(text("📦 " + ref + "  •  " + order.optString("orderType", "boosting").toUpperCase(Locale.ROOT), 15, INK, true));
-            space(card, 7);
-            card.addView(text("Nama: " + order.optString("orderName", "—"), 13, SUB, false));
-            card.addView(text("Game: " + order.optString("game", "—"), 13, SUB, false));
-            card.addView(text("TASK: " + order.optString("task", "—"), 13, SUB, false));
-            space(card, 11);
-            boolean canTake = MonitorContract.canTake(order);
-            if (order.optBoolean("needsValuation", false)) card.addView(text("Pekerjaan akan dicatat atas nama karyawan. Upah bersih diisi admin setelah DONE, kemudian disimpan melalui Tutup Buku.", 13, ORANGE, false));
-            if (!canTake) card.addView(text("BUTUH INPUT PAYROLL — minta admin mencatat order ini sebelum TAKE.", 13, ORANGE, true));
-            Button assign = button(assignmentBusy ? "Mengirim TAKE..." : "TAKE · Pilih Karyawan", true);
-            assign.setEnabled(canTake && !assignmentBusy && !takeBusy && !proofBusy && pendingError.isEmpty());
-            card.addView(assign, lp(-1, 44));
-            assign.setOnClickListener(v -> chooseWorker(ref));
-            body.addView(card, lp(-1, -2));
-            space(body, 11);
-        }
+        body.addView(new OrderHomeView(this, pendingOrders, pendingBusy, pendingLoaded, pendingError,
+            assignmentBusy || takeBusy || proofBusy, orderSearch,
+            () -> loadPendingOrders(true), this::chooseWorker, value -> orderSearch = value), lp(-1,-2));
     }
-
     private void tasksPage() {
-        heading("Tugas FH3", "TAKE → START + screenshot → DONE + screenshot, dilaporkan ke Telegram.");
-        info("Status order tersimpan di server Monitor. Foto wajib diunggah sebelum START atau DONE.");
-        space(body, 10);
-        Button checkGroup = button("✓ Periksa Koneksi Grup EVO Ilham FH3", false);
-        body.addView(checkGroup, lp(-1, 42));
-        checkGroup.setOnClickListener(v -> {
-            checkGroup.setEnabled(false);
-            payroll.checkProofGroup((message, ok) -> {
-                checkGroup.setEnabled(true);
-                new AlertDialog.Builder(this).setTitle(ok ? "Grup FH3 Siap" : "Grup FH3 Belum Siap")
-                    .setMessage(message).setPositiveButton("OK", null).show();
-            });
-        });
-        space(body, 10);
+        heading("Tugas Aktif", "Laporan START, PAUSE / CONTINUE, dan DONE dengan foto.");
         Button refresh = button(tasksBusy ? "Memuat tugas..." : "↻ Segarkan Tugas", false);
         refresh.setEnabled(!tasksBusy && !proofBusy);
         body.addView(refresh, lp(-1, 42));
@@ -600,10 +575,10 @@ public final class MainActivity extends Activity {
             LinearLayout card = panel();
             card.addView(text("📦 " + ref + " • " + status.toUpperCase(Locale.ROOT), 16, INK, true));
             space(card, 5);
-            card.addView(text("Karyawan: " + task.optString("employeeName", "—")
-                    + " (" + code + ")", 13, SUB, false));
+            card.addView(text("Karyawan: " + task.optString("employeeName", "—"), 13, SUB, false));
             card.addView(text("Order: " + task.optString("orderName", "—"), 13, SUB, false));
             card.addView(text("Game: " + task.optString("game", "—"), 13, SUB, false));
+            if (!task.optString("discord").isEmpty()) card.addView(text("Discord: " + task.optString("discord"), 13, SUB, false));
             card.addView(text("TASK: " + task.optString("task", "—"), 13, SUB, false));
             space(card, 10);
             card.addView(text("TAKE: " + task.optString("takeStatus", "—")
@@ -638,6 +613,7 @@ public final class MainActivity extends Activity {
     }
 
     private void chooseWorker(String orderRef) {
+        if (!pendingOrderAvailable(orderRef)) { toast("Perbarui daftar order sebelum TAKE."); return; }
         List<EmployeeDb.Employee> workers = db.payrollEmployees();
         if (workers.isEmpty()) {
             new AlertDialog.Builder(this).setTitle("Belum ada karyawan")
@@ -660,6 +636,16 @@ public final class MainActivity extends Activity {
                             .setPositiveButton("TAKE", (confirm, button) -> sendAssignment(orderRef, selected.payrollCode))
                             .show();
                 }).setNegativeButton("Batal", null).show();
+    }
+
+    private boolean pendingOrderAvailable(String ref) {
+        if(!linked()||!pendingLoaded||!pendingError.isEmpty()||assignmentBusy||takeBusy||proofBusy)return false;
+        int matches=0;
+        if(pendingOrders!=null)for(int i=0;i<pendingOrders.length();i++){
+            JSONObject order=pendingOrders.optJSONObject(i);
+            if(order!=null&&ref.equals(order.optString("orderRef"))&&MonitorContract.canTake(order))matches++;
+        }
+        return matches==1;
     }
 
     private void employeesPage() {
@@ -888,10 +874,17 @@ public final class MainActivity extends Activity {
                         accountVersion++; stopService(new Intent(this,OrderNotificationService.class));prefs.edit().putBoolean("order_notifications",false).apply(); payroll.logout();
                         earningsData = null; earningsCode = ""; earningsError = ""; earningsOffset = 0;
                         pendingOrders = new JSONArray(); activeTasks = new JSONArray();
-                        pendingError = ""; tasksError = "";
+                        pendingError = ""; tasksError = ""; pendingLoaded = false; orderSearch = "";
                         earningsBusy = false; pendingBusy = false; tasksBusy = false; syncBusy = false;
                         prefs.edit().remove("payroll_linked").apply(); render();
                     }).show());
+        }
+        if(linked()){
+            Button group=button("Periksa koneksi Telegram",false);integration.addView(group,lp(-1,48));
+            group.setOnClickListener(v->{group.setEnabled(false);payroll.checkProofGroup((message,ok)->{
+                group.setEnabled(true);new AlertDialog.Builder(this).setTitle(ok?"Telegram terhubung":"Periksa Telegram")
+                    .setMessage(message).setPositiveButton("OK",null).show();
+            });});
         }
         body.addView(integration, lp(-1, -2)); space(body, 14);
         if(getSharedPreferences("monitor_identity",MODE_PRIVATE).getBoolean("isAdmin",false)){
