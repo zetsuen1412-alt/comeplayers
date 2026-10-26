@@ -166,6 +166,29 @@ test("roster, pending and tasks reuse only the fresh authorized request snapshot
   assert.equal(checks,3,"each endpoint still authorizes its own request");
 });
 
+test("pending queue mixes linked and unpriced orders by verified Telegram post time, not sale date or reference", async () => {
+  const rows = [order("X500", { orderedAt: "2030-01-01T00:00:00Z" })];
+  const route = load("app/api/admin/payroll/mobile/pending/route.ts", {
+    ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({
+      actor: { isAdmin: true }, supabaseAdmin: client(workspace(rows), [
+        manual("X500", { posted_at: "2026-10-20T04:00:00Z" }),
+        manual("X100", { posted_at: "2026-10-26T04:00:00Z" }),
+        manual("X900", { posted_at: "2026-10-24T04:00:00Z" }),
+      ]),
+    }) },
+  });
+  const response = await route.GET!(new Request(url + "/pending"));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("cache-control") || "", /no-store/);
+  const result = await response.json();
+  assert.deepEqual(result.pending.map((item: { orderRef: string }) => item.orderRef), ["X100", "X900", "X500"]);
+  assert.equal(result.pending[0].postedAt, "2026-10-26T04:00:00Z");
+  assert.equal(result.pending[2].postedAt, "2026-10-20T04:00:00Z");
+  assert.equal(result.pending[0].canTakeWithoutPayroll, true);
+  assert.equal(result.pending[2].canTake, true);
+  assert.doesNotMatch(JSON.stringify(result), /password|accessToken|refreshToken/);
+});
+
 test("assignment endpoint checks admin, validates payload, and uses website actor identity", async () => {
   let isAdmin = false;
   const calls: unknown[] = [];
