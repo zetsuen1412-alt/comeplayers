@@ -65,8 +65,8 @@ public static class ProofPreviewDialog
         {
             Dock = DockStyle.Top, Height = 82, Padding = new Padding(16, 12, 8, 0),
             Font = new Font("Segoe UI", 12, FontStyle.Bold),
-            Text = $"{order.OrderRef} / {order.EmployeeName} / {action.ToUpperInvariant()}\n" +
-                   $"{order.OrderName} • {(bytes.Length / 1024d):F0} KB",
+            Text = $"{order.OrderRef} / {order.EmployeeName} / {(order.Daily ? $"day{order.DayNumber}/" : "")}{action.ToUpperInvariant()}\n" +
+                   $"Duration: {order.DisplayDuration} • {(bytes.Length / 1024d):F0} KB",
         };
         var picture = new PictureBox
         {

@@ -72,6 +72,9 @@ final class OrderHomeView extends LinearLayout {
         LayoutParams position=new LayoutParams(-1,-2);position.topMargin=dp(12);cards.addView(card,position);
         card.addView(label(ref,18,INK,true));
         card.addView(label(order.optString("game").isEmpty()?"Game belum tercantum":order.optString("game"),14,BLUE,true));
+        card.addView(label("Duration: "+MonitorContract.durationLabel(order),13,SUB,false));
+        if(!order.optBoolean("canTake")&&!order.optString("actionMessage").isEmpty())
+            card.addView(label(order.optString("actionMessage"),13,0xffa34319,false));
         String discord=order.optString("discord").trim();
         if(!discord.isEmpty())card.addView(label("Discord: "+discord,13,SUB,false));
         TextView task=label(order.optString("task","Lihat detail order"),14,INK,false);task.setMaxLines(2);task.setEllipsize(TextUtils.TruncateAt.END);
@@ -85,7 +88,7 @@ final class OrderHomeView extends LinearLayout {
         assign.setOnClickListener(v->{if(allowed)take.accept(ref);});
         detail.setOnClickListener(v->new AlertDialog.Builder(getContext()).setTitle(ref)
             .setMessage("Game: "+order.optString("game","—")+"\nDiscord: "+order.optString("discord","—")
-                +"\nOrder: "+order.optString("orderName","—")+"\n\nTASK\n"+order.optString("task","—"))
+                +"\nDuration: "+MonitorContract.durationLabel(order)+"\n\nTASK\n"+order.optString("task","—"))
             .setNegativeButton("Tutup",null).setPositiveButton(allowed?"TAKE ORDER":null,allowed?(d,w)->take.accept(ref):null).show());
         card.addView(actions);
     }

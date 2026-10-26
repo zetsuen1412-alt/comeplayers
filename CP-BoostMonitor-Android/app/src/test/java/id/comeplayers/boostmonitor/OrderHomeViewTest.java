@@ -34,6 +34,7 @@ public final class OrderHomeViewTest {
     @Before public void setup() throws Exception {
         activity=Robolectric.buildActivity(Activity.class).setup().get();takes=new ArrayList<>();
         orders=new JSONArray().put(new JSONObject().put("orderRef","X100").put("game","AION")
+            .put("duration","8hours x7").put("durationDisplay","8 jam × 7 hari")
             .put("discord","Discord Demo").put("task","Full task visible in details").put("canTake",true))
             .put(new JSONObject().put("orderRef","X900").put("game","WoW").put("canTake",false));
     }
@@ -53,6 +54,7 @@ public final class OrderHomeViewTest {
         ((Button)view.findViewWithTag("detail:X100")).performClick();assertTrue(takes.isEmpty());
         AlertDialog dialog=ShadowAlertDialog.getLatestAlertDialog();assertNotNull(dialog);
         assertTrue(Shadows.shadowOf(dialog).getMessage().toString().contains("Discord Demo"));
+        assertTrue(Shadows.shadowOf(dialog).getMessage().toString().contains("Duration: 8 jam × 7 hari"));
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();assertEquals(java.util.List.of("X100"),takes);
     }
     @Test public void loadingOrFailedRefreshBlocksTakeAndPreservesReadableCards() {
@@ -106,6 +108,16 @@ public final class OrderHomeViewTest {
                 java.io.File dir=new java.io.File(output);if(!dir.isDirectory()&&!dir.mkdirs())throw new java.io.IOException("Cannot create preview directory");
                 android.graphics.Bitmap image=android.graphics.Bitmap.createBitmap(360,800,android.graphics.Bitmap.Config.ARGB_8888);decor.draw(new android.graphics.Canvas(image));
                 try(java.io.FileOutputStream stream=new java.io.FileOutputStream(new java.io.File(dir,"android-order-home.png"))){assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG,100,stream));}image.recycle();
+                JSONObject task=new JSONObject().put("orderRef","X5207").put("employeeCode","E1").put("employeeName","ADIT3").put("status","in_progress")
+                    .put("daily",true).put("totalDays",7).put("completedDays",1).put("dayNumber",2).put("dailyRevision",3)
+                    .put("dailyCycleId","00000000-0000-4000-8000-000000000001").put("durationDisplay","8 jam × 7 hari").put("game","AION2")
+                    .put("discord","Discord Demo").put("task","Selesaikan jatah harian").put("takeStatus","sent").put("startStatus","sent").put("canDone",true).put("canPause",true)
+                    .put("actionMessage","Day 2/7 · 1 hari selesai. Unggah DONE setelah jatah hari ini selesai.");
+                ReflectionHelpers.setField(main,"activeTasks",new JSONArray().put(task));ReflectionHelpers.setField(main,"page","Tugas");
+                ReflectionHelpers.callInstanceMethod(main,"render");decor=main.getWindow().getDecorView();
+                decor.measure(View.MeasureSpec.makeMeasureSpec(360,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(800,View.MeasureSpec.EXACTLY));decor.layout(0,0,360,800);
+                image=android.graphics.Bitmap.createBitmap(360,800,android.graphics.Bitmap.Config.ARGB_8888);decor.draw(new android.graphics.Canvas(image));
+                try(java.io.FileOutputStream stream=new java.io.FileOutputStream(new java.io.File(dir,"android-daily-task.png"))){assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG,100,stream));}image.recycle();
             }
         }
     }

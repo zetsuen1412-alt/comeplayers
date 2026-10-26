@@ -62,6 +62,7 @@ public final class MainActivity extends Activity {
     private String proofOrderRef = "", proofEmployeeCode = "", proofAction = "";
     private String proofStartEventId = "";
     private long proofPauseRevision;
+    private JSONObject proofDailyOrder;
     private String pendingError = "", tasksError = "";
     private JSONObject earningsData;
     private boolean earningsBusy = false;
@@ -265,12 +266,12 @@ public final class MainActivity extends Activity {
         if (!linked() || proofBusy || takeBusy || assignmentBusy || !tasksError.isEmpty()) return;
         proofOrderRef = ref; proofEmployeeCode = code; proofAction = action;
         proofStartEventId = "";proofPauseRevision=0;
-        if("pause".equals(action)||"continue".equals(action)){
-            JSONObject selected=null;
-            for(int i=0;i<activeTasks.length();i++){JSONObject task=activeTasks.optJSONObject(i);
-                if(task!=null && ref.equals(task.optString("orderRef")) && code.equals(task.optString("employeeCode"))){selected=task;break;}}
-            if(selected==null || selected.optBoolean("deliveryUncertain") || !selected.optBoolean("pause".equals(action)?"canPause":"canContinue")){
-                toast("Status order berubah. Segarkan Tugas.");return;}
+        JSONObject selected=null;proofDailyOrder=null;
+        for(int i=0;i<activeTasks.length();i++){JSONObject task=activeTasks.optJSONObject(i);
+            if(task!=null && ref.equals(task.optString("orderRef")) && code.equals(task.optString("employeeCode"))){selected=task;break;}}
+        if(!MonitorContract.canProof(selected,action)){toast("Hari atau status order berubah. Segarkan Tugas.");return;}
+        if(selected.optBoolean("daily"))proofDailyOrder=selected;
+        else if("pause".equals(action)||"continue".equals(action)){
             proofStartEventId=selected.optString("startEventId");proofPauseRevision=selected.optLong("pauseRevision",-1);
         }
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -287,7 +288,7 @@ public final class MainActivity extends Activity {
         final String ref = proofOrderRef, code = proofEmployeeCode, action = proofAction;
         final long version = accountVersion;
         render();
-        payroll.sendProof(ref, code, action, photo, getContentResolver(), proofStartEventId, proofPauseRevision, (message, ok) -> {
+        payroll.sendProof(ref, code, action, photo, getContentResolver(), proofStartEventId, proofPauseRevision, proofDailyOrder, (message, ok) -> {
             if (version != accountVersion || !linked()) return;
             proofBusy = false;
             new AlertDialog.Builder(this)
@@ -576,8 +577,8 @@ public final class MainActivity extends Activity {
             card.addView(text("📦 " + ref + " • " + status.toUpperCase(Locale.ROOT), 16, INK, true));
             space(card, 5);
             card.addView(text("Karyawan: " + task.optString("employeeName", "—"), 13, SUB, false));
-            card.addView(text("Order: " + task.optString("orderName", "—"), 13, SUB, false));
             card.addView(text("Game: " + task.optString("game", "—"), 13, SUB, false));
+            card.addView(text("Duration: " + MonitorContract.durationLabel(task), 13, PURPLE, true));
             if (!task.optString("discord").isEmpty()) card.addView(text("Discord: " + task.optString("discord"), 13, SUB, false));
             card.addView(text("TASK: " + task.optString("task", "—"), 13, SUB, false));
             space(card, 10);
@@ -597,15 +598,15 @@ public final class MainActivity extends Activity {
                 boolean start = task.optBoolean("canStart", false);
                 String action = start ? "start" : "done";
                 Button send = button(proofBusy ? "Mengirim bukti..." :
-                        (start ? "▶ START + Screenshot" : "✅ DONE + Screenshot"), true);
-                send.setEnabled(!busy);
+                        (start ? "▶ START" : "✅ DONE")+(task.optBoolean("daily")?" Day "+task.optInt("dayNumber"):"")+" + Screenshot", true);
+                send.setEnabled(!busy && MonitorContract.canProof(task,action));
                 card.addView(send, lp(-1, 46));
                 send.setOnClickListener(v -> pickProofPhoto(ref, code, action));
             }
             if(task.optBoolean("canPause") || task.optBoolean("canContinue")){
                 String action=task.optBoolean("canContinue")?"continue":"pause";
                 Button pause=button("continue".equals(action)?"▶ CONTINUE + Screenshot":"Ⅱ PAUSE + Screenshot",false);
-                pause.setEnabled(!busy && !task.optBoolean("deliveryUncertain"));card.addView(pause,lp(-1,46));
+                pause.setEnabled(!busy && MonitorContract.canProof(task,action));card.addView(pause,lp(-1,46));
                 pause.setOnClickListener(v->pickProofPhoto(ref,code,action));
             }
             body.addView(card, lp(-1, -2)); space(body, 10);
@@ -973,9 +974,10 @@ public final class MainActivity extends Activity {
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         if (requestCode == PROOF_PHOTO) {
-            String actionLabel = "start".equals(proofAction) ? "START" : "DONE";
+            String actionLabel = proofAction.toUpperCase(Locale.ROOT);
             new AlertDialog.Builder(this).setTitle("Kirim screenshot " + actionLabel + "?")
                 .setMessage("Order: " + proofOrderRef + "\nKaryawan: " + proofEmployeeCode
+                    +(proofDailyOrder==null?"":"\nDay "+proofDailyOrder.optInt("dayNumber")+"/"+proofDailyOrder.optInt("totalDays")+" · "+proofDailyOrder.optInt("completedDays")+" hari selesai")
                     + "\n\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
                 .setNegativeButton("Batal", null)
                 .setPositiveButton("Kirim Foto", (dialog, which) -> uploadProgress(uri))

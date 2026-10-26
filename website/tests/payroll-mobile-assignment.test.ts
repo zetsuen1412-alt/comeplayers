@@ -8,6 +8,8 @@ import { loadFH3ManualOrders, manualFH3OrderTitle } from "../lib/fh3ManualTelegr
 import { mobileWorkflow } from "../lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "../lib/fh3MonitorJobs";
 import { monitorPauseWorkflow } from "../lib/monitorPauseWorkflow";
+import { monitorDuration, dailyWorkflow } from "../lib/monitorDuration";
+import { loadMonitorDailyStates } from "../lib/monitorDailyData";
 import { mobilePayrollRoster } from "../features/payroll/lib/mobile-roster";
 
 function load(file: string, mocks: Record<string, unknown>) {
@@ -37,7 +39,7 @@ const manual = (orderRef: string, patch: Record<string, unknown> = {}) => ({
   task: "TASK from Telegram", posted_at: "2026-10-20T04:00:00Z", ...patch,
 });
 const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] = [], takes: unknown[] = []) => ({
-  rpc: async (name:string) => { assert.equal(name,"cp_monitor_pause_states"); return {data:null,error:{code:"PGRST202"}}; },
+  rpc: async (name:string) => { assert.ok(["cp_monitor_pause_states","cp_monitor_daily_states"].includes(name)); return {data:null,error:{code:"PGRST202"}}; },
   from: (table: string) => {
     if (table === "cp_payroll_workspace") {
       return { select: () => ({ eq: () => ({ single: async () => ({ data }) }) }) };
@@ -66,6 +68,8 @@ const client = (data: unknown, telegramOrders: unknown[] = [], jobs: unknown[] =
   },
 });
 const common = {
+  "@/lib/monitorDuration": { monitorDuration, dailyWorkflow },
+  "@/lib/monitorDailyData": { loadMonitorDailyStates },
   "@/lib/monitorPauseWorkflow": { monitorPauseWorkflow },
   "@/lib/fh3MonitorJobs": { loadFH3MonitorJobs },
   "@/lib/payrollMobileWorkflow": { mobileWorkflow },
@@ -136,6 +140,33 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
   assert.equal(result.pending[2].needsValuation, true);
   assert.match(result.pending[2].orderName, /8hours/);
   assert.doesNotMatch(JSON.stringify(result), /grossMinor|telegram_user_id|salary|kasbon|refreshToken/);
+});
+
+test("Duration column is explicit and future multi-day TAKE fails closed before migration",async()=>{
+ const api=client(workspace([]),[manual("X100",{duration:"8hours x7"}),manual("X200",{duration:"8h x7 2 weeks"})]);
+ for(const supported of [false,true]){
+  const route=load("app/api/admin/payroll/mobile/pending/route.ts",{...common,"@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{isAdmin:true},supabaseAdmin:{...api,
+   rpc:async()=>supported?{data:[]}:{error:{code:"PGRST202"}}}})}});
+  const response=await route.GET!(new Request(url+"/pending"));assert.equal(response.status,200);
+  const rows=(await response.json()).pending;
+  const row=rows.find((r:{orderRef:string})=>r.orderRef==="X100");assert.equal(row.duration,"8hours x7");assert.equal(row.durationDisplay,"8 jam × 7 hari");
+  assert.equal(row.totalDays,7);assert.equal(row.canTake,supported);
+  const invalid=rows.find((r:{orderRef:string})=>r.orderRef==="X200");assert.equal(invalid.canTake,false);assert.equal(invalid.totalDays,0,"unknown count keeps the native integer contract");
+ }
+});
+
+test("daily task exposes next day while retaining its worker and cannot use the legacy DONE flags",async()=>{
+ const worker={id:"e1",code:"F001",name:"Adit",team:"FH3",workforceStatus:"FULL"};
+ const api=client(workspace([], [worker]),[manual("X100",{duration:"8hours x7"})],
+  [{order_ref:"X100",chat_id:-100123,employee_id:"e1",employee_code:"F001",employee_name:"Adit",status:"assigned",created_at:"2026-10-26T00:00:00Z"}],
+  [{order_ref:"X100",chat_id:-100123,employee_code:"F001",status:"sent"}]);
+ const row={order_ref:"X100",duration:"8hours x7",total_days:7,hours_per_day:8,completed_days:1,revision:2,cycle_id:"00000000-0000-4000-8000-000000000001",phase:"waiting",uncertain:false};
+ const route=load("app/api/admin/payroll/mobile/tasks/route.ts",{...common,"@/lib/monitorAccess":{requireMonitorAccess:async()=>({actor:{isAdmin:true},supabaseAdmin:{...api,
+  rpc:async(name:string)=>name==="cp_monitor_daily_states"?{data:[row]}:{error:{code:"PGRST202"}}}})}});
+ const response=await route.GET!(new Request(url+"/tasks"));assert.equal(response.status,200);
+ const task=(await response.json()).tasks[0];assert.equal(task.daily,true);assert.equal(task.dayNumber,2);assert.equal(task.completedDays,1);
+ assert.equal(task.employeeCode,"F001");assert.equal(task.canStart,true);assert.equal(task.canDone,false);
+ assert.equal(task.dailyRevision,2);assert.match(task.actionMessage,/Day 2\/7/);
 });
 
 test("roster, pending and tasks reuse only the fresh authorized request snapshot", async () => {

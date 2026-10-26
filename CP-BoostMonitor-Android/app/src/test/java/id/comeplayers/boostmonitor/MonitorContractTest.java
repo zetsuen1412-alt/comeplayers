@@ -5,6 +5,15 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class MonitorContractTest {
+    @Test public void dailyPhotoRequiresCurrentDayCycleAndServerAction() throws Exception {
+        JSONObject task=new JSONObject("{\"daily\":true,\"totalDays\":7,\"completedDays\":1,\"dayNumber\":2,\"dailyRevision\":4,\"dailyCycleId\":\"00000000-0000-4000-8000-000000000001\",\"status\":\"assigned\",\"canStart\":true,\"durationDisplay\":\"8 jam × 7 hari\"}");
+        assertTrue(MonitorContract.canProof(task,"start"));assertFalse(MonitorContract.canProof(task,"done"));
+        assertEquals("8 jam × 7 hari · Day 2/7",MonitorContract.durationLabel(task));
+        task.put("dayNumber",3);assertFalse(MonitorContract.canProof(task,"start"));
+        task.put("dayNumber",2).put("status","paused").put("canContinue",true).put("canDone",true);
+        assertTrue(MonitorContract.canProof(task,"continue"));assertFalse(MonitorContract.canProof(task,"done"));
+        task.remove("dailyCycleId");assertFalse(MonitorContract.canProof(task,"continue"));
+    }
     @Test public void onlyConfirmedTakeMayChangeStatus() throws Exception {
         JSONObject result = new JSONObject("{\"ok\":true,\"assigned\":true,\"takeSent\":false}");
         assertFalse(MonitorContract.confirmedTake(result));

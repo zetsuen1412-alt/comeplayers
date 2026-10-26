@@ -32,6 +32,18 @@ public sealed class PayrollOrder
     public string OrderName { get; set; } = "";
     public string Game { get; set; } = "";
     public string Discord { get; set; } = "";
+    public string Duration { get; set; } = "";
+    public string DurationDisplay { get; set; } = "";
+    public bool Daily { get; set; }
+    public int TotalDays { get; set; }
+    public int CompletedDays { get; set; }
+    public int DayNumber { get; set; }
+    public long DailyRevision { get; set; }
+    public string? DailyCycleId { get; set; }
+    public bool HasDailyContext => Daily && TotalDays is >= 2 and <= 366 && CompletedDays >= 0 && CompletedDays < TotalDays
+        && DayNumber == CompletedDays + 1 && DailyRevision is >= 0 and <= 1_000_000 && Guid.TryParseExact(DailyCycleId, "D", out _);
+    public string DisplayDuration => (string.IsNullOrWhiteSpace(DurationDisplay) ? string.IsNullOrWhiteSpace(Duration) ? "—" : Duration : DurationDisplay)
+        + (Daily && DayNumber > 0 ? $" · Day {DayNumber}/{TotalDays}" : "");
     public string DisplayDiscord => string.IsNullOrWhiteSpace(Discord) ? "—" : Discord;
     public string Buyer { get; set; } = "";
     public string Task { get; set; } = "";
@@ -49,7 +61,7 @@ public sealed class PayrollOrder
     public bool CanContinue { get; set; }
     public long PauseRevision { get; set; }
     public string? StartEventId { get; set; }
-    public bool AllowsProof(string action) => !DeliveryUncertain && (action switch
+    public bool AllowsProof(string action) => !DeliveryUncertain && (!Daily || HasDailyContext) && (action switch
     {
         "start" => CanStart && Status == "assigned", "done" => CanDone && Status == "in_progress",
         "pause" => CanPause && Status == "in_progress", "continue" => CanContinue && Status == "paused", _ => false,

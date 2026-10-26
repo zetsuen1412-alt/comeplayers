@@ -303,6 +303,7 @@ public sealed class MainForm : Form
         AddColumn(_tasksGrid, "Kode Order", "OrderRef", 125);
         AddColumn(_tasksGrid, "Karyawan", "EmployeeName", 145);
         AddColumn(_tasksGrid, "Status", "Status", 124);
+        AddColumn(_tasksGrid, "Duration", "DisplayDuration", 185);
         AddColumn(_tasksGrid, "Tindakan", "ActionLabel", 180);
         AddColumn(_tasksGrid, "Nama Order", "OrderName", 200);
         AddColumn(_tasksGrid, "Game", "Game", 125);
@@ -526,7 +527,7 @@ public sealed class MainForm : Form
         // No retries. Any network timeout might mean Telegram has already accepted the photo.
         try
         {
-            var result = await _api.ProgressAsync(order.OrderRef, order.EmployeeCode, action, bytes, mime, order.PauseRevision, order.StartEventId);
+            var result = await _api.ProgressAsync(order.OrderRef, order.EmployeeCode, action, bytes, mime, order.PauseRevision, order.StartEventId, order);
             MessageBox.Show($"Bukti dikonfirmasi Telegram.\n{result.Caption}\nGrup: {result.ChatTitle}\nStatus website: {result.Status}",
                 "Bukti berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
             await RefreshDataAsync();
