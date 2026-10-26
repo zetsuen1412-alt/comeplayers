@@ -66,6 +66,7 @@ public final class MainActivity extends Activity {
     private String earningsError = "", earningsCode = "";
     private int earningsOffset = 0;
     private long accountVersion = 0;
+    private boolean notificationTestPending;
     private final Runnable payrollTicker = new Runnable() {
         @Override public void run() {
             refreshPayroll(false);
@@ -110,8 +111,29 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onDestroy() { accountVersion++; handler.removeCallbacksAndMessages(null); payroll.shutdown(); db.close(); super.onDestroy(); }
 
-    private void startOrderNotifications(){Intent intent=new Intent(this,OrderNotificationService.class);if(android.os.Build.VERSION.SDK_INT>=26)startForegroundService(intent);else startService(intent);}
-    @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==830){if(results.length>0 && results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)startOrderNotifications();else {prefs.edit().putBoolean("order_notifications",false).apply();toast("Izin notifikasi belum diberikan.");render();}}}
+    private void startOrderNotifications(){
+        if(!linked())return;
+        try{Intent intent=new Intent(this,OrderNotificationService.class);if(android.os.Build.VERSION.SDK_INT>=26)startForegroundService(intent);else startService(intent);}
+        catch(RuntimeException error){OrderNotifications.failed(this,"Android belum mengizinkan layanan latar belakang. Buka ulang aplikasi dan periksa pengaturan baterai.");toast("Pemantau belum berjalan. Lihat status di Pengaturan.");}
+    }
+    @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){
+        super.onRequestPermissionsResult(code,permissions,results);if(code!=830)return;
+        if(results.length>0 && results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED){
+            if(prefs.getBoolean("order_notifications",false))startOrderNotifications();
+            if(notificationTestPending)showNotificationTest();
+        }else{prefs.edit().putBoolean("order_notifications",false).apply();toast("Izin notifikasi belum diberikan. Aktifkan dari Izin & banner notifikasi.");}
+        notificationTestPending=false;render();
+    }
+    private void showNotificationTest(){
+        try{new AlertDialog.Builder(this).setTitle("Tes notifikasi HP").setMessage(OrderNotifications.test(this)).setPositiveButton("OK",null).show();}
+        catch(RuntimeException error){toast("Tes gagal diproses. Periksa izin notifikasi Android.");}
+    }
+    private void notificationSettings(){
+        Intent intent=new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName());
+        if(android.os.Build.VERSION.SDK_INT>=26 && getSystemService(android.app.NotificationManager.class).areNotificationsEnabled())
+            intent=new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName()).putExtra(android.provider.Settings.EXTRA_CHANNEL_ID,OrderNotifications.selectedChannel(this));
+        try{startActivity(intent);}catch(android.content.ActivityNotFoundException error){startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())));}
+    }
     private boolean linked() { return payroll.hasSession(); }
     private void refreshPayroll(boolean manual) {
         if (syncBusy || !linked()) {
@@ -141,6 +163,8 @@ public final class MainActivity extends Activity {
             if (ok) {
                 pendingOrders = data.optJSONArray("pending");
                 pendingError = "";
+                try{OrderNotifications.observe(this,data);}
+                catch(RuntimeException error){OrderNotifications.failed(this,"Notifikasi gagal diproses. Buka Pengaturan dan Tes notifikasi.");}
             } else { pendingError = message; pendingOrders = new JSONArray(); }
             if (manual && !ok) toast(message);
             if ("Order Baru".equals(page)) render();
@@ -286,6 +310,7 @@ public final class MainActivity extends Activity {
                     dialog.dismiss();
                     filter = "SEMUA"; search = ""; page = "Karyawan";
                     render(); toast(message);
+                    if(prefs.getBoolean("order_notifications",false))startOrderNotifications();
                     if(!prefs.contains("order_notifications")) new AlertDialog.Builder(this).setTitle("Aktifkan notifikasi order?")
                         .setMessage("Monitor dapat memeriksa order di latar belakang dan memutar cuplikan musik 10 detik saat ada order baru.")
                         .setNegativeButton("Nanti",(d,w)->prefs.edit().putBoolean("order_notifications",false).apply())
@@ -864,8 +889,22 @@ public final class MainActivity extends Activity {
                 startOrderNotifications();}else stopService(new Intent(this,OrderNotificationService.class));
         });
         android.widget.Switch sound=new android.widget.Switch(this);sound.setText("Suara order baru: musik (10 detik)");sound.setChecked(prefs.getBoolean("order_sound",true));
-        body.addView(sound,lp(-1,48));sound.setOnCheckedChangeListener((v,enabled)->prefs.edit().putBoolean("order_sound",enabled).apply());
-        info("Notifikasi memakai koneksi internet dan layanan Monitor aktif. Suara memakai pembaca suara perangkat. Mode hemat baterai/Force stop dapat menghentikan pemantauan.");
+        body.addView(sound,lp(-1,48));sound.setOnCheckedChangeListener((v,enabled)->{prefs.edit().putBoolean("order_sound",enabled).apply();render();});
+        LinearLayout notificationStatus=panel();
+        notificationStatus.addView(text("Status notifikasi HP",17,INK,true));space(notificationStatus,8);
+        notificationStatus.addView(text(OrderNotifications.diagnostics(this),13,SUB,false));space(notificationStatus,10);
+        Button testNotification=button("Tes notifikasi + suara",true);notificationStatus.addView(testNotification,lp(-1,46));
+        testNotification.setOnClickListener(v->{
+            if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=android.content.pm.PackageManager.PERMISSION_GRANTED){
+                notificationTestPending=true;requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},830);
+            }else showNotificationTest();
+        });
+        Button notificationPermission=button("Izin & banner notifikasi",false);notificationStatus.addView(notificationPermission,lp(-1,46));
+        notificationPermission.setOnClickListener(v->notificationSettings());
+        Button battery=button("Pengaturan baterai aplikasi",false);notificationStatus.addView(battery,lp(-1,46));
+        battery.setOnClickListener(v->startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName()))));
+        body.addView(notificationStatus,lp(-1,-2));space(body,12);
+        info("Antrean diperiksa sekitar 30 detik saat layanan berjalan, juga saat daftar order diperbarui. Android dapat menunda jaringan ketika HP tidur. Tes memakai musik dan kanal yang sama tanpa mengubah order. Force stop menghentikan pemantauan sampai aplikasi dibuka lagi.");
 
         LinearLayout settings = panel();
         settings.addView(text("Status tidur", 16, INK, true)); space(settings, 7);
