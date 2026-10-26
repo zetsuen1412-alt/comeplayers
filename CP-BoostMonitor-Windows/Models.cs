@@ -45,12 +45,21 @@ public sealed class PayrollOrder
     public bool TakeAllowed => CanTake && (!UnlinkedPayroll || CanTakeWithoutPayroll) && !DeliveryUncertain;
     public bool CanStart { get; set; }
     public bool CanDone { get; set; }
+    public bool CanPause { get; set; }
+    public bool CanContinue { get; set; }
+    public long PauseRevision { get; set; }
+    public string? StartEventId { get; set; }
+    public bool AllowsProof(string action) => !DeliveryUncertain && (action switch
+    {
+        "start" => CanStart && Status == "assigned", "done" => CanDone && Status == "in_progress",
+        "pause" => CanPause && Status == "in_progress", "continue" => CanContinue && Status == "paused", _ => false,
+    });
     public bool DeliveryUncertain { get; set; }
     public string TakeStatus { get; set; } = "";
     public string StartStatus { get; set; } = "";
     public string ActionMessage { get; set; } = "";
     public string ActionLabel => CanTake ? "TAKE" : CanStart ? "START + Screenshot"
-        : CanDone ? "DONE + Screenshot" : "Periksa status";
+        : CanContinue ? "CONTINUE + Screenshot" : CanPause ? "PAUSE / DONE + Screenshot" : CanDone ? "DONE + Screenshot" : "Periksa status";
 }
 public sealed class ProofResult
 {

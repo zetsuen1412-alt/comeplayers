@@ -41,11 +41,12 @@ function endpoint(access: () => unknown, rpc: (name: string, args: Record<string
   });
   return exports.POST!;
 }
-function formRequest(action = "start") {
+function formRequest(action = "start", extra: Record<string,string> = {}) {
   const form = new FormData();
   form.set("orderRef", "X4671");
   form.set("employeeCode", "F001");
   form.set("action", action);
+  for (const [key,value] of Object.entries(extra)) form.set(key,value);
   // Node's File is structurally incompatible with DOM Blob in TypeScript 5.9,
   // even though the same object is accepted by Node FormData at runtime.
   const file = new File([new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,0,0,0,0,0])],
@@ -115,4 +116,39 @@ test("Telegram rejection does not mutate Payroll and marks proof failed", async 
   const response = await send(formRequest());
   assert.equal(response.status, 502);
   assert.deepEqual(calls, ["cp_mobile_proof_begin", "cp_mobile_proof_mark"]);
+});
+
+const cycle="00000000-0000-4000-8000-000000000001";
+for(const action of ["pause","continue"]){
+  test(`${action} photo uses a versioned START cycle and confirmed Telegram result`,async()=>{
+    const calls:string[]=[];let sent=0;
+    const send=endpoint(()=>({isAdmin:true,id:"valid-actor"}),async(name,args)=>{
+      calls.push(name);
+      if(name==="cp_monitor_pause_begin"){
+        assert.equal(args.p_start_event_id,cycle);assert.equal(args.p_revision,2);assert.equal(args.p_action,action);
+        return {data:{ok:true,eventId:"pause-id",chatId:-100123,caption:`x4671/adit/${action}`,replyToMessageId:77}};
+      }
+      assert.equal(name,"cp_monitor_pause_finish");assert.equal(args.p_message_id,123);
+      return {data:{ok:true,status:action==="pause"?"paused":"in_progress",pauseRevision:3}};
+    },async input=>{sent++;assert.equal(input.chatId,-100123);assert.equal(input.replyToMessageId,77);return {messageId:123,fileId:"proof"};});
+    const response=await send(formRequest(action,{startEventId:cycle,pauseRevision:"2"}));
+    assert.equal(response.status,200);assert.equal((await response.json()).pauseRevision,3);assert.equal(sent,1);
+    assert.deepEqual(calls,["cp_monitor_pause_begin","cp_monitor_pause_finish"]);
+  });
+}
+test("missing or malformed PAUSE cycle/version never claims or sends Telegram",async()=>{
+  const send=endpoint(()=>({isAdmin:true,id:"valid-actor"}),async()=>{throw new Error("No RPC expected");},async()=>{throw new Error("No send expected");});
+  const invalid:Record<string,string>[]=[{},{startEventId:cycle,pauseRevision:"-1"},{startEventId:"invalid",pauseRevision:"0"},{startEventId:cycle,pauseRevision:"1000001"}];
+  for(const extra of invalid)
+    assert.equal((await send(formRequest("pause",extra))).status,409);
+});
+test("ambiguous PAUSE delivery remains unknown and cannot advance status",async()=>{
+  const calls:string[]=[];
+  const send=endpoint(()=>({isAdmin:true,id:"valid-actor"}),async(name,args)=>{
+    calls.push(name);
+    if(name==="cp_monitor_pause_begin")return {data:{ok:true,eventId:"pause-id",chatId:-100123,caption:"x4671/adit/pause"}};
+    assert.equal(name,"cp_monitor_pause_mark");assert.equal(args.p_status,"unknown");return {data:true};
+  },async()=>{throw new TransportError("Timeout","unknown");});
+  const response=await send(formRequest("pause",{startEventId:cycle,pauseRevision:"0"}));assert.equal(response.status,409);
+  assert.equal((await response.json()).uncertain,true);assert.deepEqual(calls,["cp_monitor_pause_begin","cp_monitor_pause_mark"]);
 });

@@ -311,10 +311,13 @@ public sealed class PayrollApi : IDisposable
 
     /// <summary>Send proof photo exactly once. Network ambiguity must be checked in Telegram, not retried.</summary>
     public async Task<ProofResult> ProgressAsync(string orderRef, string employeeCode,
-        string action, byte[] image, string mime)
+        string action, byte[] image, string mime, long pauseRevision = 0, string? startEventId = null)
     {
-        if (action != "start" && action != "done")
-            throw new InvalidOperationException("Aksi harus START atau DONE.");
+        if (action is not ("start" or "done" or "pause" or "continue"))
+            throw new InvalidOperationException("Aksi harus START, PAUSE, CONTINUE atau DONE.");
+        var pauseReport = action is "pause" or "continue";
+        if (pauseReport && (!Guid.TryParse(startEventId, out _) || pauseRevision < 0 || pauseRevision > 1_000_000))
+            throw new InvalidOperationException("Status PAUSE berubah atau belum tersedia. Segarkan Tugas.");
         if (!ValidImage(image, mime))
             throw new InvalidOperationException("Screenshot harus PNG/JPG valid maksimal 7 MB.");
         var token = await TokenAsync();
@@ -322,6 +325,11 @@ public sealed class PayrollApi : IDisposable
         multipart.Add(new StringContent(orderRef), "orderRef");
         multipart.Add(new StringContent(employeeCode), "employeeCode");
         multipart.Add(new StringContent(action), "action");
+        if (pauseReport)
+        {
+            multipart.Add(new StringContent(startEventId!), "startEventId");
+            multipart.Add(new StringContent(pauseRevision.ToString(System.Globalization.CultureInfo.InvariantCulture)), "pauseRevision");
+        }
         using var photo = new ByteArrayContent(image);
         photo.Headers.ContentType = new MediaTypeHeaderValue(mime);
         multipart.Add(photo, "photo", mime == "image/png" ? "screenshot.png" : "screenshot.jpg");

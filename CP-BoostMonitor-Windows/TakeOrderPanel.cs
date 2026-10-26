@@ -45,17 +45,22 @@ internal sealed class TakeOrderPanel : UserControl
     };
     private readonly Button _takeTelegram = new LuxuryButton
     {
-        Text = "Kirim/Cek TAKE", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
+        Text = "Cek TAKE", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
         Height = 36, Dock = DockStyle.Fill,
     };
     private readonly Button _start = new LuxuryButton
     {
-        Text = "START + Foto", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
+        Name = "StartOrderProof", Text = "START + Foto", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
         Height = 36, Dock = DockStyle.Fill,
     };
     private readonly Button _done = new LuxuryButton
     {
-        Text = "DONE + Foto", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
+        Name = "DoneOrderProof", Text = "DONE + Foto", Primary = false, BackColor = LuxuryPalette.SurfaceRaised,
+        Height = 36, Dock = DockStyle.Fill,
+    };
+    private readonly Button _pause = new LuxuryButton
+    {
+        Name = "PauseContinueOrder", Text = "PAUSE + Foto", Primary = false,
         Height = 36, Dock = DockStyle.Fill,
     };
     private readonly Label _taskCount = Label("0 tugas", 10, LuxuryPalette.Muted);
@@ -203,6 +208,12 @@ internal sealed class TakeOrderPanel : UserControl
             if (SelectedTask is { CanDone: true } task)
                 ProofRequested?.Invoke(this, new ProofRequest(task, "done"));
         };
+        _pause.Click += (_, _) =>
+        {
+            if (SelectedTask is not { } task) return;
+            var action = task.CanContinue ? "continue" : "pause";
+            if (task.AllowsProof(action)) ProofRequested?.Invoke(this, new ProofRequest(task, action));
+        };
         _statusSave.Click += (_, _) =>
         {
             if (SelectedWorker is not { } employee) return;
@@ -345,14 +356,13 @@ internal sealed class TakeOrderPanel : UserControl
         var actions = new TableLayoutPanel
         {
             Dock = DockStyle.Fill, BackColor = LuxuryPalette.Surface,
-            ColumnCount = 3, RowCount = 1, Padding = new Padding(0, 5, 0, 0),
+            ColumnCount = 4, RowCount = 1, Padding = new Padding(0, 5, 0, 0),
         };
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
+        for (var i = 0; i < 4; i++) actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
         actions.Controls.Add(_takeTelegram, 0, 0);
         actions.Controls.Add(_start, 1, 0);
-        actions.Controls.Add(_done, 2, 0);
+        actions.Controls.Add(_pause, 2, 0);
+        actions.Controls.Add(_done, 3, 0);
         body.Controls.Add(actions, 0, 2);
         card.Controls.Add(body);
         return card;
@@ -510,6 +520,8 @@ internal sealed class TakeOrderPanel : UserControl
         _takeTelegram.Enabled = !blocked && task?.CanTake == true;
         _start.Enabled = !blocked && task?.CanStart == true;
         _done.Enabled = !blocked && task?.CanDone == true;
+        _pause.Text = task?.Status == "paused" ? "CONTINUE" : "PAUSE + Foto";
+        _pause.Enabled = !blocked && task is not null && (task.AllowsProof("pause") || task.AllowsProof("continue"));
         _take.Text = _working ? "MENGIRIM..." : "TAKE ORDER  →";
     }
 

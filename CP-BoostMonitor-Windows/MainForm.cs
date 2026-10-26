@@ -262,10 +262,13 @@ public sealed class MainForm : Form
         var toolbar = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 124, FlowDirection = FlowDirection.LeftToRight, WrapContents = true, AutoScroll = true };
         var start = ActionButton("▶ START + Screenshot", true);
         var done = ActionButton("✓ DONE + Screenshot", true);
+        var pause = ActionButton("Ⅱ PAUSE / CONTINUE + Foto", false);
         var preflight = ActionButton("Periksa grup FH3", false);
         var refresh = ActionButton("↻ Refresh", false);
         start.Click += async (_, _) => await RunBusyAsync(() => SendProofAsync("start"));
         done.Click += async (_, _) => await RunBusyAsync(() => SendProofAsync("done"));
+        pause.Click += async (_, _) => await RunBusyAsync(() => SendProofAsync(
+            (_tasksGrid.CurrentRow?.DataBoundItem as PayrollOrder)?.CanContinue == true ? "continue" : "pause"));
         preflight.Click += async (_, _) => await RunBusyAsync(async () =>
         {
             var name = await _api.VerifyGroupAsync();
@@ -273,7 +276,7 @@ public sealed class MainForm : Form
                 "Koneksi FH3", MessageBoxButtons.OK, MessageBoxIcon.Information);
         });
         refresh.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync);
-        toolbar.Controls.Add(start); toolbar.Controls.Add(done); toolbar.Controls.Add(preflight); toolbar.Controls.Add(refresh);
+        toolbar.Controls.Add(start); toolbar.Controls.Add(pause); toolbar.Controls.Add(done); toolbar.Controls.Add(preflight); toolbar.Controls.Add(refresh);
         toolbar.Controls.Add(MakeToolbarText("Cari:", 45));
         PrepareSearch(_taskSearch, "Kode, karyawan, game, TASK...", 255);
         _taskSearch.TextChanged += (_, _) => BindFilteredTables();
@@ -281,7 +284,7 @@ public sealed class MainForm : Form
         _taskStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         _taskStatusFilter.BackColor = PanelColor; _taskStatusFilter.ForeColor = Fore;
         _taskStatusFilter.Width = 180;
-        _taskStatusFilter.Items.AddRange(new object[] { "Semua Status", "assigned", "in_progress", "on_hold" });
+        _taskStatusFilter.Items.AddRange(new object[] { "Semua Status", "assigned", "in_progress", "paused", "on_hold" });
         _taskStatusFilter.SelectedIndex = 0;
         _taskStatusFilter.SelectedIndexChanged += (_, _) => BindFilteredTables();
         toolbar.Controls.Add(_taskStatusFilter);
@@ -501,8 +504,7 @@ public sealed class MainForm : Form
 
     private async Task SendProofForAsync(PayrollOrder order, string action)
     {
-        var expected = action == "start" ? "assigned" : "in_progress";
-        if (order.Status != expected || (action == "start" ? !order.CanStart : !order.CanDone))
+        if (!order.AllowsProof(action))
             throw new InvalidOperationException($"Aksi {action.ToUpperInvariant()} tidak tersedia untuk status {order.Status}. Perbarui data dahulu.");
         var image = SelectScreenshot();
         if (image is null) return;
@@ -515,7 +517,7 @@ public sealed class MainForm : Form
         // No retries. Any network timeout might mean Telegram has already accepted the photo.
         try
         {
-            var result = await _api.ProgressAsync(order.OrderRef, order.EmployeeCode, action, bytes, mime);
+            var result = await _api.ProgressAsync(order.OrderRef, order.EmployeeCode, action, bytes, mime, order.PauseRevision, order.StartEventId);
             MessageBox.Show($"Bukti dikonfirmasi Telegram.\n{result.Caption}\nGrup: {result.ChatTitle}\nStatus website: {result.Status}",
                 "Bukti berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
             await RefreshDataAsync();

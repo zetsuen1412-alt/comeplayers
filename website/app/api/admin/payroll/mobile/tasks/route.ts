@@ -6,6 +6,7 @@ import type { Employee, Order } from "@/features/payroll/types/domain";
 import { loadFH3ManualOrders, manualFH3OrderTitle } from "@/lib/fh3ManualTelegramQueue";
 import { mobileWorkflow, type MobileDelivery } from "@/lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
+import { monitorPauseWorkflow, type MonitorPauseState } from "@/lib/monitorPauseWorkflow";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -87,16 +88,24 @@ export async function GET(request: Request) {
     // Fetch only delivery metadata for the visible refs, in bounded URL batches.
     // A missing audit table must not unlock START or fabricate a successful TAKE.
     const takes: MobileDelivery[] = [], proofs: MobileDelivery[] = [];
+    const pauseStates = new Map<string, MonitorPauseState>();
+    let pauseSupported = true;
     const refs = [...new Set(tasks.map(task => task.orderRef))];
     for (let index = 0; index < refs.length; index += 80) {
       const batch = refs.slice(index, index + 80);
-      const [takeResult, proofResult] = await Promise.all([
+      const [takeResult, proofResult, pauseResult] = await Promise.all([
         supabaseAdmin.from("cp_mobile_order_take")
           .select("order_ref,employee_code,chat_id,status,sent_at").in("order_ref", batch),
         supabaseAdmin.from("cp_mobile_order_proof")
           .select("order_ref,employee_code,chat_id,status,action,sent_at").in("order_ref", batch),
+        supabaseAdmin.rpc("cp_monitor_pause_states", { p_refs: batch }),
       ]);
       if (takeResult.error || proofResult.error) throw takeResult.error ?? proofResult.error;
+      // Preserve read-only compatibility before the additive migration is applied.
+      if (pauseResult.error) {
+        if (["PGRST202", "42883"].includes(pauseResult.error.code ?? "")) pauseSupported = false;
+        else throw pauseResult.error;
+      } else for (const state of (pauseResult.data ?? []) as MonitorPauseState[]) pauseStates.set(state.order_ref, state);
       takes.push(...(takeResult.data ?? [])); proofs.push(...(proofResult.data ?? []));
     }
     const byRef = new Map(orders.map(order => [clean(order.externalReference, "—", 180), order]));
@@ -117,15 +126,18 @@ export async function GET(request: Request) {
       const workflow = mobileWorkflow(workOrder, task.employeeCode,
         verified.get(task.orderRef.toUpperCase())!.chat_id,
         takesByRef.get(task.orderRef) ?? [], proofsByRef.get(task.orderRef) ?? []);
-      return { ...task, ...workflow, source: job ? "telegram_job" : "payroll",
+      const pause = monitorPauseWorkflow(workflow, task.status, pauseStates.get(task.orderRef), pauseSupported);
+      const normal = (controls.get(task.orderRef)?.state ?? "normal") === "normal";
+      return { ...task, ...workflow, ...pause, status: pause.paused ? "paused" : task.status, source: job ? "telegram_job" : "payroll",
         needsValuation: !!job && !byRef.has(task.orderRef),
         canTake: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canTake,
-        canStart: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canStart, canDone: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canDone,
-        actionMessage: (controls.get(task.orderRef)?.state ?? "normal") === "normal" ? workflow.actionMessage : "Order Refund atau Bermasalah. Hubungi admin.",
+        canStart: normal && !pause.deliveryUncertain && workflow.canStart, canDone: normal && pause.canDone,
+        canPause: normal && pause.canPause, canContinue: normal && pause.canContinue,
+        actionMessage: normal ? pause.actionMessage : "Order Refund atau Bermasalah. Hubungi admin.",
       };
     });
     return respond({ schema: 1, source: "payroll", sourceOfTruth: "telegram_fh3_manual", scope: "FH3", revision: data.revision,
-      updatedAt: data.updated_at, workflowSchema: 1, complete: true, tasks: actionableTasks });
+      updatedAt: data.updated_at, workflowSchema: 1, pauseSchema: pauseSupported ? 1 : 0, complete: true, tasks: actionableTasks });
   } catch (error) {
     const status = adminErrorStatus(error);
     return respond({ error: status === 401 ? "Sesi habis; silakan login ulang."
