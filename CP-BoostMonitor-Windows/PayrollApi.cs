@@ -23,6 +23,7 @@ public sealed class PayrollApi : IDisposable
     private int _sessionVersion;
     private readonly string _sessionFile;
     private readonly TimeSpan _readTimeout;
+    private readonly TimeSpan _authenticationTimeout;
     private bool _sessionRecoveryRequired;
 
     private sealed class Session
@@ -57,10 +58,13 @@ public sealed class PayrollApi : IDisposable
         }, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "ComePlayers", "CPBoostMonitor", "session.dat")) { }
 
-    internal PayrollApi(HttpMessageHandler handler, string sessionFile, TimeSpan? readTimeout = null)
+    internal PayrollApi(HttpMessageHandler handler, string sessionFile, TimeSpan? readTimeout = null, TimeSpan? authenticationTimeout = null)
     {
         _sessionFile = sessionFile;
         _readTimeout = readTimeout ?? TimeSpan.FromSeconds(20);
+        // Match Android's authentication request budget. A successful sign-in
+        // also verifies access/session policy on the server before it responds.
+        _authenticationTimeout = authenticationTimeout ?? TimeSpan.FromSeconds(65);
         _http = new HttpClient(handler)
         {
             BaseAddress = new Uri(Origin), Timeout = TimeSpan.FromSeconds(75),
@@ -132,7 +136,7 @@ public sealed class PayrollApi : IDisposable
             throw new InvalidOperationException("Username dan password wajib diisi.");
         using var login = new HttpRequestMessage(HttpMethod.Post, "session")
         { Content = JsonContent.Create(new { action = "login", username = email.Trim(), password }, options: _json) };
-        using var response = await SendReadAsync(login, "menghubungkan akun", TimeSpan.FromSeconds(25));
+        using var response = await SendReadAsync(login, "menghubungkan akun", _authenticationTimeout);
         var session = await ParseAsync<Session>(response);
         if (session is null || string.IsNullOrWhiteSpace(session.AccessToken) ||
             string.IsNullOrWhiteSpace(session.RefreshToken))
@@ -165,7 +169,7 @@ public sealed class PayrollApi : IDisposable
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, "session")
                 { Content = JsonContent.Create(new { action = "refresh", refreshToken = oldRefresh }, options: _json) };
-                using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                using var deadline = new CancellationTokenSource(_authenticationTimeout);
                 using var response = await _http.SendAsync(request, deadline.Token);
                 newSession = await ParseAsync<Session>(response);
             }
