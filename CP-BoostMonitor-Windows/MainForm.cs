@@ -23,6 +23,7 @@ public sealed class MainForm : Form
     private List<PayrollOrder> _pending = new();
     private List<PayrollOrder> _tasks = new();
     private bool _busy;
+    private bool _hasSnapshot;
     private bool _seenInitialQueue;
     private HashSet<string> _lastRefs = new(StringComparer.OrdinalIgnoreCase);
 
@@ -54,18 +55,19 @@ public sealed class MainForm : Form
     private readonly TextBox _email = new();
     private readonly TextBox _password = new();
     private readonly Button _loginButton = ActionButton("MASUK KE WORKSPACE", true);
+    private readonly Button _reconnectButton = ActionButton("Sambungkan ulang", false);
     private readonly Label _loginFeedback = StyledText("Gunakan akun ComePlayers dengan akses operasional.", 10);
     private readonly RichTextBox _history = new() { ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = PanelColor, ForeColor = Fore, Font = new Font("Consolas", 10.5f) };
     private readonly TakeOrderPanel _takePanel = new();
     private string _activePage = "Take Order";
 
     public MainForm() : this(false) { }
-    internal MainForm(bool preview)
+    internal MainForm(bool preview, PayrollApi? api = null)
     {
         _preview = preview;
         string previewPath = Path.Combine(Path.GetTempPath(), "fh3-render-" + Guid.NewGuid().ToString("N"));
         _alerts = new OrderAlerts(preview ? previewPath : null);
-        _api = preview ? new PayrollApi(new HttpClientHandler(), Path.Combine(previewPath, "session.dat")) : new PayrollApi();
+        _api = api ?? (preview ? new PayrollApi(new HttpClientHandler(), Path.Combine(previewPath, "session.dat")) : new PayrollApi());
         _statusStore = new LocalStatusStore(preview ? Path.Combine(previewPath, "local-status.json") : null);
         _completedPanel = new CompletedOrdersPanel(_api);
         _managementPanel = new MonitorWorkspacePanel(_api, true); _booksPanel = new MonitorWorkspacePanel(_api, false);
@@ -80,6 +82,7 @@ public sealed class MainForm : Form
         Icon = SystemIcons.Application;
 
         BuildLayout();
+        _reconnectButton.Enabled = _api.LoggedIn;
         _navigation["Kelola Order"].Visible = false;
         Shown += (_, _) => WindowChrome.ApplyCaption(this);
         _takePanel.TakeRequested += async (_, choice) => await RunBusyAsync(() => TakeOrderAsync(choice));
@@ -107,7 +110,7 @@ public sealed class MainForm : Form
             if (_api.LoggedIn)
             {
                 ShowPage("Take Order");
-                await RunBusyAsync(RefreshDataAsync);
+                await RunBusyAsync(RefreshDataAsync, quiet: true);
             }
             else ShowPage("Login");
         };
@@ -188,6 +191,12 @@ public sealed class MainForm : Form
         _metrics.Location = new Point(26, 90);
         _metrics.Text = "Pilih karyawan + pilih order  •  klik TAKE ORDER";
         header.Controls.Add(_metrics);
+        var connectionActions = new Panel { Dock = DockStyle.Right, Width = 214, Padding = new Padding(8, 17, 4, 0) };
+        _reconnectButton.Name = "ReconnectMonitor";
+        _reconnectButton.Dock = DockStyle.Top;
+        _reconnectButton.Click += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
+        connectionActions.Controls.Add(_reconnectButton);
+        header.Controls.Add(connectionActions);
         header.Paint += (_, e) => {
             using var pen = new Pen(PanelLine, 1);
             e.Graphics.DrawLine(pen, 19, header.Height - 1, header.Width - 19, header.Height - 1);
@@ -370,7 +379,7 @@ public sealed class MainForm : Form
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
             _orderToast?.Close(); _alerts.StopSound(); _api.Logout(); _poll.Stop(); _takePanel.SetAdminAccess(false);
             _completedPanel.Clear(); _managementPanel.Clear(); _booksPanel.Clear(); _navigation["Kelola Order"].Visible=false; _takePanel.SetStale(true);
-            _employees.Clear(); _pending.Clear(); _tasks.Clear();
+            _employees.Clear(); _pending.Clear(); _tasks.Clear(); _hasSnapshot = false;
             _seenInitialQueue = false; _lastRefs.Clear();
             BindTables();
             ShowPage("Login");
@@ -611,6 +620,11 @@ public sealed class MainForm : Form
     private async Task RefreshDataAsync()
     {
         if (!_api.LoggedIn) return;
+        // Start recovery before the first request: a failed startup must not leave
+        // an empty workspace with no timer or way to reconnect.
+        _poll.Start();
+        _connection.Text = "Menghubungkan ke ComePlayers…";
+        if (!_hasSnapshot) _metrics.Text = "Memuat data karyawan dan order…";
         _takePanel.SetStale(true);
         var newRoster = await _api.RosterAsync();
         _navigation["Kelola Order"].Visible = _api.IsAdmin;
@@ -631,6 +645,7 @@ public sealed class MainForm : Form
         _lastRefs = newRefs;
         _seenInitialQueue = true;
         _pending = freshPending;
+        _hasSnapshot = true;
         BindTables();
         _takePanel.SetStale(false);
         _connection.Text = $"●  {_api.Username} • {(_api.IsAdmin ? "Admin" : _api.AccessScope == "shared" ? "Akun Bersama" : "Karyawan")}";
@@ -700,17 +715,39 @@ public sealed class MainForm : Form
     {
         if (_busy || IsDisposed) return;
         _busy = true;
+        _reconnectButton.Enabled = false;
         UseWaitCursor = !quiet;
         try { await action(); }
         catch (Exception error)
         {
-            if (_activePage == "Login") _loginFeedback.Text = error.Message;
-            SetStatus(error.Message);
+            var message = error switch
+            {
+                OperationCanceledException => "Koneksi melewati batas waktu. Perbarui daftar untuk memeriksa hasil tindakan sebelum melanjutkan.",
+                HttpRequestException when error is not MonitorReadException => "Koneksi ke ComePlayers terputus. Perbarui daftar untuk memeriksa hasil tindakan sebelum melanjutkan.",
+                _ => error.Message,
+            };
+            if (!_api.LoggedIn)
+            {
+                _poll.Stop(); _takePanel.SetStale(true); _takePanel.SetAdminAccess(false);
+                _navigation["Kelola Order"].Visible = false;
+                _connection.Text = "Silakan masuk kembali";
+                ShowPage("Login");
+            }
+            else if (error is HttpRequestException or OperationCanceledException)
+            {
+                _connection.Text = "Koneksi terputus • mencoba lagi";
+                if (!_hasSnapshot) _metrics.Text = "Data belum berhasil dimuat • mencoba lagi otomatis";
+            }
+            if (_activePage == "Login") _loginFeedback.Text = message;
+            SetStatus(message);
             if (!quiet && !IsDisposed)
-                MessageBox.Show(error.Message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        finally { if (!_api.LoggedIn) { _orderToast?.Close(); _alerts.StopSound(); } _busy = false; UseWaitCursor = false; }
+        finally { if (!_api.LoggedIn) { _orderToast?.Close(); _alerts.StopSound(); } _busy = false; UseWaitCursor = false; _reconnectButton.Enabled = _api.LoggedIn; }
     }
+
+    internal Task ReconnectForCheckAsync() { ShowPage("Take Order"); return RunBusyAsync(RefreshDataAsync, quiet: true); }
+    internal bool RecoveryPolling => _poll.Enabled;
 
     private void SetStatus(string message) { _appStatus.Text = message; }
 

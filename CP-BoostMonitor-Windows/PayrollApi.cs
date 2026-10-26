@@ -22,6 +22,8 @@ public sealed class PayrollApi : IDisposable
     private readonly object _sessionGuard = new();
     private int _sessionVersion;
     private readonly string _sessionFile;
+    private readonly TimeSpan _readTimeout;
+    private bool _sessionRecoveryRequired;
 
     private sealed class Session
     {
@@ -55,9 +57,10 @@ public sealed class PayrollApi : IDisposable
         }, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "ComePlayers", "CPBoostMonitor", "session.dat")) { }
 
-    internal PayrollApi(HttpMessageHandler handler, string sessionFile)
+    internal PayrollApi(HttpMessageHandler handler, string sessionFile, TimeSpan? readTimeout = null)
     {
         _sessionFile = sessionFile;
+        _readTimeout = readTimeout ?? TimeSpan.FromSeconds(20);
         _http = new HttpClient(handler)
         {
             BaseAddress = new Uri(Origin), Timeout = TimeSpan.FromSeconds(75),
@@ -67,7 +70,7 @@ public sealed class PayrollApi : IDisposable
         TryLoadSession();
     }
 
-    public bool LoggedIn => _session != null;
+    public bool LoggedIn => _session != null && !_sessionRecoveryRequired;
     public bool CanOperate { get; private set; }
     public bool IsAdmin { get; private set; }
     public string AccessScope { get; private set; } = "employee";
@@ -97,6 +100,7 @@ public sealed class PayrollApi : IDisposable
         lock (_sessionGuard) {
         if (version != _sessionVersion) throw new UnauthorizedAccessException("Sesi berubah; login kembali.");
         _session = session;
+        _sessionRecoveryRequired = false;
         var dir = Path.GetDirectoryName(_sessionFile)!;
         Directory.CreateDirectory(dir);
         var bytes = JsonSerializer.SerializeToUtf8Bytes(session, _json);
@@ -112,6 +116,7 @@ public sealed class PayrollApi : IDisposable
         lock (_sessionGuard) {
         _sessionVersion++;
         _session = null;
+        _sessionRecoveryRequired = false;
         CanOperate = false;
         IsAdmin = false; AccessScope = "employee"; OwnEmployeeCode = Username = AccountId = "";
         try { if (File.Exists(_sessionFile)) File.Delete(_sessionFile); }
@@ -125,8 +130,9 @@ public sealed class PayrollApi : IDisposable
         lock (_sessionGuard) { version = ++_sessionVersion; }
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
             throw new InvalidOperationException("Username dan password wajib diisi.");
-        using var response = await _http.PostAsJsonAsync("session",
-            new { action = "login", username = email.Trim(), password }, _json);
+        using var login = new HttpRequestMessage(HttpMethod.Post, "session")
+        { Content = JsonContent.Create(new { action = "login", username = email.Trim(), password }, options: _json) };
+        using var response = await SendReadAsync(login, "menghubungkan akun", TimeSpan.FromSeconds(25));
         var session = await ParseAsync<Session>(response);
         if (session is null || string.IsNullOrWhiteSpace(session.AccessToken) ||
             string.IsNullOrWhiteSpace(session.RefreshToken))
@@ -134,29 +140,47 @@ public sealed class PayrollApi : IDisposable
         // Confirm Payroll authorization *before* persisting session to disk.
         using var roster = new HttpRequestMessage(HttpMethod.Get, "roster");
         roster.Headers.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
-        using var check = await _http.SendAsync(roster);
+        using var check = await SendReadAsync(roster, "memeriksa akses karyawan");
         _ = await ParseAsync<JsonElement>(check);
         SaveSession(session, version);
     }
 
     private async Task<string> TokenAsync(bool refresh = false)
     {
+        if (_sessionRecoveryRequired) throw new UnauthorizedAccessException("Pembaruan sesi belum terkonfirmasi. Silakan masuk kembali.");
         if (_session is null) throw new UnauthorizedAccessException("Login Payroll terlebih dahulu.");
         if (!refresh && _session.ExpiresAt > DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 120)
             return _session.AccessToken;
         await _refreshGate.WaitAsync();
         try
         {
+            if (_sessionRecoveryRequired) throw new UnauthorizedAccessException("Pembaruan sesi belum terkonfirmasi. Silakan masuk kembali.");
             if (_session is null) throw new UnauthorizedAccessException("Sesi berakhir; login ulang.");
             if (!refresh && _session.ExpiresAt > DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 120)
                 return _session.AccessToken;
             var oldRefresh = _session.RefreshToken;
             var version = Volatile.Read(ref _sessionVersion);
-            using var response = await _http.PostAsJsonAsync("session",
-                new { action = "refresh", refreshToken = oldRefresh }, _json);
-            var newSession = await ParseAsync<Session>(response);
+            Session? newSession;
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, "session")
+                { Content = JsonContent.Create(new { action = "refresh", refreshToken = oldRefresh }, options: _json) };
+                using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                using var response = await _http.SendAsync(request, deadline.Token);
+                newSession = await ParseAsync<Session>(response);
+            }
+            catch (Exception error) when (error is OperationCanceledException or HttpRequestException or UnauthorizedAccessException or InvalidOperationException)
+            {
+                // A timed-out refresh may already have rotated the token. Never replay it
+                // on the background timer or delete the stored session on a network error.
+                if (version == Volatile.Read(ref _sessionVersion)) _sessionRecoveryRequired = true;
+                throw new UnauthorizedAccessException("Sesi belum dapat dilanjutkan. Silakan masuk kembali; riwayat lokal tetap tersimpan.", error);
+            }
             if (newSession is null || string.IsNullOrWhiteSpace(newSession.AccessToken))
+            {
+                if (version == Volatile.Read(ref _sessionVersion)) _sessionRecoveryRequired = true;
                 throw new UnauthorizedAccessException("Sesi tidak dapat diperbarui.");
+            }
             SaveSession(newSession, version);
             return newSession.AccessToken;
         }
@@ -169,7 +193,7 @@ public sealed class PayrollApi : IDisposable
         var token = await TokenAsync();
         using var firstRequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
         firstRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        using var first = await _http.SendAsync(firstRequest);
+        using var first = await SendReadAsync(firstRequest, EndpointLabel(endpoint));
         if (first.StatusCode != HttpStatusCode.Unauthorized) {
             var result = (await ParseAsync<T>(first))!;
             EnsureCurrentSession(version); return result;
@@ -177,9 +201,34 @@ public sealed class PayrollApi : IDisposable
         var fresh = await TokenAsync(refresh: true);
         using var retryRequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
         retryRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", fresh);
-        using var retry = await _http.SendAsync(retryRequest);
+        using var retry = await SendReadAsync(retryRequest, EndpointLabel(endpoint));
+        if (retry.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            if (version == Volatile.Read(ref _sessionVersion)) _sessionRecoveryRequired = true;
+            throw new UnauthorizedAccessException("Sesi berakhir. Silakan masuk kembali.");
+        }
         var retried = (await ParseAsync<T>(retry))!;
         EnsureCurrentSession(version); return retried;
+    }
+
+    private static string EndpointLabel(string endpoint) => endpoint.Split('?')[0] switch
+    {
+        "roster" => "memuat daftar karyawan",
+        "pending" => "memuat order baru",
+        "tasks" => "memuat tugas aktif",
+        "completed" => "memuat order selesai",
+        "books" => "memuat Data Tutup Buku",
+        _ => "membaca data ComePlayers",
+    };
+
+    private async Task<HttpResponseMessage> SendReadAsync(HttpRequestMessage request, string operation, TimeSpan? timeout = null)
+    {
+        using var deadline = new CancellationTokenSource(timeout ?? _readTimeout);
+        try { return await _http.SendAsync(request, deadline.Token); }
+        catch (Exception error) when (error is OperationCanceledException or HttpRequestException)
+        {
+            throw new MonitorReadException($"Koneksi terputus saat {operation}. Sambungkan ulang untuk mencoba lagi.", error);
+        }
     }
 
     private void EnsureCurrentSession(int version)
@@ -371,6 +420,8 @@ public sealed class PayrollApi : IDisposable
             throw new InvalidOperationException("Respons server terlalu besar.");
         if (!response.IsSuccessStatusCode)
         {
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                throw new UnauthorizedAccessException("Sesi berakhir. Silakan masuk kembali.");
             string detail = "Operasi Payroll belum berhasil.";
             try
             {
@@ -388,3 +439,5 @@ public sealed class PayrollApi : IDisposable
 
     public void Dispose() { _http.Dispose(); _refreshGate.Dispose(); }
 }
+
+internal sealed class MonitorReadException(string message, Exception inner) : HttpRequestException(message, inner) { }
