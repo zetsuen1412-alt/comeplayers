@@ -1,8 +1,9 @@
 {
-  "sourceCommit": "0ec54f03d19665d25134999711373eeb325888a8",
-  "zipBytes": 64260735,
-  "version": "2.0.7",
-  "exeBytes": 69879769,
-  "zipSha256": "33f04c8037fe8cb27736623c4a84c9adababd5ac4d9e627d014ac3993e14092b",
-  "exeSha256": "c580074cfc2222a3d09635103d24aa1e31eaa37fae35420260bde090baa2f4b7"
+  "version": "2.1.0",
+  "sourceCommit": "ec21772dbc609658685d425f26b09fa9a49d6c32",
+  "releaseCommit": "feb45752f19e7c4e240279d49d11c11689b7b311",
+  "exeBytes": 69882841,
+  "zipBytes": 64261423,
+  "exeSha256": "14dffb5f14e7306ff2c46fef1aec0cacedbddc9cf19a223b8c58c54d69ea5fa3",
+  "zipSha256": "d52fdeebf405d21423e87e9798663a0d6bd99d7779f564e32160a082d27715f8"
 }
