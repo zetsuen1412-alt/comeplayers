@@ -16,12 +16,16 @@ export async function requireMonitorAccess(request: Request, options: { activate
   let employeeCode = "", employeeId = "";
   let accessScope: "admin" | "employee" | "shared" = actor.isAdmin ? "admin" : "employee";
   let operableEmployeeCodes: string[] = [];
+  // Reuse only within this request. Authorization still reads identity, binding,
+  // roster and session state afresh; nothing is shared between users/requests.
+  let workspaceSnapshot: { payload: Record<string, unknown>; revision: number; updated_at: string } | undefined;
   if (!actor.isAdmin) {
     const [binding, workspace] = await Promise.all([
       supabaseAdmin.from("cp_fh3_monitor_accounts").select("employee_id,employee_code,active,access_scope").eq("user_id", user.id).maybeSingle(),
-      supabaseAdmin.from("cp_payroll_workspace").select("payload").eq("id", 1).single(),
+      supabaseAdmin.from("cp_payroll_workspace").select("payload,revision,updated_at").eq("id", 1).single(),
     ]);
     if (binding.error || workspace.error) throw binding.error ?? workspace.error;
+    workspaceSnapshot = workspace.data ?? undefined;
     const roster = workspace.data?.payload?.[workspaceKeys.employees] as Employee[] | undefined;
     const eligible = roster?.filter(e => e.team === "FH3" && ["NEW", "SHIFT", "FULL"].includes(e.workforceStatus)
       && !e.sheetRosterMissingAt && roster.filter(x => x.id === e.id).length === 1
@@ -56,7 +60,7 @@ export async function requireMonitorAccess(request: Request, options: { activate
     await requireAuthenticatedUser(request);
   }
   return { user, profile, actor, supabaseAdmin, employeeCode, employeeId, accessScope,
-    canOperateAll: accessScope === "shared", operableEmployeeCodes };
+    canOperateAll: accessScope === "shared", operableEmployeeCodes, workspaceSnapshot };
 }
 
 export function requireOwnEmployee(context: { actor: { isAdmin: boolean }; employeeCode: string;

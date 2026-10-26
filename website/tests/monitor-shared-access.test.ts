@@ -15,7 +15,7 @@ function load(path: string, mocks: Record<string, unknown>) {
 }
 
 test("shared Monitor sessions coexist while admin/personal sessions retain website rules and MFA", async () => {
- let scope = "shared", active = true, claims = 0, websiteChecks = 0, identityChecks = 0, validIdentity = true, authSessionActive = true;
+ let scope = "shared", active = true, claims = 0, websiteChecks = 0, identityChecks = 0, validIdentity = true, authSessionActive = true, workspaceReads = 0;
  const roster = [
   { id: "e1", code: "F001", team: "FH3", workforceStatus: "FULL" },
   { id: "e2", code: "F002", team: "FH3", workforceStatus: "SHIFT" },
@@ -31,6 +31,7 @@ test("shared Monitor sessions coexist while admin/personal sessions retain websi
    getBearerToken: (request: Request) => request.headers.get("authorization")?.replace("Bearer ", ""),
    createSupabaseUserClient: () => ({ rpc: async () => { claims++; return { data: { active: true } }; } }),
    createSupabaseAdmin: () => ({ rpc: async (name:string) => { assert.equal(name,"cp_monitor_shared_session_active"); return {data:authSessionActive}; }, from: (table: string) => {
+    if(table === "cp_payroll_workspace")workspaceReads++;
     const data = table === "profiles" ? { id: "shared", role: scope === "admin" ? "admin" : "buyer" } : table === "cp_fh3_monitor_accounts"
      ? { access_scope: scope, active, employee_id: scope === "shared" ? null : "e1", employee_code: scope === "shared" ? null : "F001" }
      : { payload: { employees: roster } };
@@ -41,16 +42,18 @@ test("shared Monitor sessions coexist while admin/personal sessions retain websi
   "@/features/payroll/lib/workspace-model": { workspaceKeys: { employees: "employees" } },
  });
  const context = async (device = "PC-A") => await api.requireMonitorAccess(new Request("https://test/monitor", { headers: { Authorization: `Bearer header.${Buffer.from(JSON.stringify({session_id:"00000000-0000-4000-8000-000000000001",device})).toString("base64url")}.fixture` } }), { activateSession: true }) as {
-  actor: { isAdmin: boolean }; employeeCode: string; canOperateAll: boolean; operableEmployeeCodes: string[]; accessScope: string;
+  actor: { isAdmin: boolean }; employeeCode: string; canOperateAll: boolean; operableEmployeeCodes: string[]; accessScope: string; workspaceSnapshot?: { payload: { employees: unknown[] } };
  };
  for (const token of ["PC-A", "PC-B", "ANDROID-A", "PC-A"]) {
   const shared = await context(token);
   assert.equal(shared.actor.isAdmin, false); assert.equal(shared.accessScope, "shared");
   assert.deepEqual(Array.from(shared.operableEmployeeCodes), ["F001", "F002"]);
+  assert.equal(shared.workspaceSnapshot?.payload.employees.length,roster.length);
   requireOwnEmployee(shared, "F001"); requireOwnEmployee(shared, "F002");
   assert.throws(() => requireOwnEmployee(shared, "F003"), /miliknya/);
  }
  assert.equal(claims, 0); assert.equal(websiteChecks, 0); assert.equal(identityChecks, 4);
+ assert.equal(workspaceReads,4,"each request verifies a fresh workspace exactly once");
  active = false; await assert.rejects(context(), /dinonaktifkan/); active = true;
  authSessionActive = false; await assert.rejects(context(), /berakhir/); authSessionActive = true;
  scope = "employee"; const personal = await context();
