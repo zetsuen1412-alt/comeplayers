@@ -75,6 +75,16 @@ internal static class ApiContractTests
             http.Respond = _ => {progressCalls++;return Task.FromResult(Json("""{"error":"Laporan belum pasti"}""",HttpStatusCode.Conflict));};
             await Rejected(async()=>{await api.ProgressAsync("X4806","E1","continue",photo,"image/png",3,cycle);});
             Check(progressCalls==2,"uncertain CONTINUE is surfaced without automatic photo retry");
+            var daily=new PayrollOrder{Daily=true,TotalDays=7,CompletedDays=1,DayNumber=2,DailyRevision=4,DailyCycleId=cycle};
+            http.Respond=async r=>{
+                var fields=new Dictionary<string,string>();
+                foreach(var part in (MultipartFormDataContent)r.Content!)
+                    if(part.Headers.ContentDisposition!.FileName is null)fields[part.Headers.ContentDisposition.Name!.Trim('"')]=await part.ReadAsStringAsync();
+                Check(fields["dayNumber"]=="2"&&fields["dailyRevision"]=="4"&&fields["dailyCycleId"]==cycle&&!fields.ContainsKey("pauseRevision"),"daily photo sends reviewed day and durable revision, not the legacy pause cycle");
+                return Json("""{"ok":true,"status":"assigned","caption":"x4806/adit/day2/done"}""");
+            };
+            await api.ProgressAsync("X4806","E1","done",photo,"image/png",dailyOrder:daily);
+            daily.DayNumber=3;await Rejected(async()=>{await api.ProgressAsync("X4806","E1","done",photo,"image/png",dailyOrder:daily);});
             http.Respond = r => {
                 Check(r.RequestUri!.AbsolutePath.EndsWith("/completed"), "completed view requests operational history instead of salaries");
                 return Task.FromResult(Json("""{"schema":1,"scope":"FH3","sourceOfTruth":"telegram_fh3_manual","completionRule":"telegram_done_confirmed","complete":true,"selectedEmployeeCode":"E1","employees":[{"employeeCode":"E1","employeeName":"ADIT3","completedCount":1}],"totals":{"completedCount":1,"employeeCount":1,"contributors":1},"workTotal":1,"work":[{"orderRef":"X4806","employeeCode":"E1","completedAt":"2026-10-22T03:00:00Z"}]}"""));

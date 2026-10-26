@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   let service: Awaited<ReturnType<typeof requireMonitorAccess>>["supabaseAdmin"] | undefined;
   let deliveryConfirmed = false;
   let pauseReport = false;
+  let dailyReport = false;
   try {
     const context = await requireMonitorAccess(request);
     const { actor, supabaseAdmin } = context;
@@ -52,6 +53,8 @@ export async function POST(request: Request) {
     const picture = parsed.get("photo");
     const startEventId = parsed.get("startEventId");
     const pauseRevision = parsed.get("pauseRevision");
+    const dayNumber = parsed.get("dayNumber"), dailyRevision = parsed.get("dailyRevision"), dailyCycleId = parsed.get("dailyCycleId");
+    dailyReport = dayNumber !== null || dailyRevision !== null || dailyCycleId !== null;
     if (typeof ref !== "string" || !/^[A-Za-z0-9_-]{1,80}$/.test(ref)
       || typeof code !== "string" || !/^[\w-]{1,100}$/.test(code)
       || (action !== "start" && action !== "done" && action !== "pause" && action !== "continue")
@@ -60,21 +63,26 @@ export async function POST(request: Request) {
       return respond({ error: "Data order, aksi, atau foto PNG/JPEG tidak valid (maks 7 MB)." }, 400);
     }
     pauseReport = action === "pause" || action === "continue";
-    if (pauseReport && (typeof startEventId !== "string" || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(startEventId)
+    if (dailyReport && (typeof dayNumber !== "string" || !/^[1-9][0-9]{0,2}$/.test(dayNumber) || Number(dayNumber) > 366
+      || typeof dailyRevision !== "string" || !/^(0|[1-9][0-9]{0,6})$/.test(dailyRevision) || Number(dailyRevision) > 1_000_000
+      || typeof dailyCycleId !== "string" || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(dailyCycleId)))
+      return respond({ error: "Hari atau progres berubah. Segarkan Tugas sebelum mengirim." }, 409);
+    if (pauseReport && !dailyReport && (typeof startEventId !== "string" || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(startEventId)
       || typeof pauseRevision !== "string" || !/^(0|[1-9][0-9]{0,6})$/.test(pauseRevision) || Number(pauseRevision) > 1_000_000))
       return respond({ error: "Status PAUSE belum tersedia atau berubah. Segarkan Tugas sebelum mengirim." }, 409);
     requireOwnEmployee(context, code);
     const bytes = new Uint8Array(await picture.arrayBuffer());
     if (!isSupportedProofImage(bytes, picture.type))
       return respond({ error: "Bukti bukan foto PNG/JPEG yang valid." }, 400);
-    const { data: claim, error: claimError } = await supabaseAdmin.rpc(pauseReport ? "cp_monitor_pause_begin" : "cp_mobile_proof_begin", {
+    const { data: claim, error: claimError } = await supabaseAdmin.rpc(dailyReport ? "cp_monitor_daily_begin" : pauseReport ? "cp_monitor_pause_begin" : "cp_mobile_proof_begin", {
       p_order_ref: ref, p_employee_code: code, p_action: action, p_actor_id: adminId,
-      ...(pauseReport ? { p_start_event_id: startEventId, p_revision: Number(pauseRevision) } : {}),
+      ...(dailyReport ? { p_day: Number(dayNumber), p_revision: Number(dailyRevision), p_cycle: dailyCycleId }
+        : pauseReport ? { p_start_event_id: startEventId, p_revision: Number(pauseRevision) } : {}),
     });
     if (claimError) {
       if (claimError.code === "P0001" || claimError.code === "23505")
         return respond({ error: "Status order, pekerja, atau grup Telegram belum siap. " +
-          "Segarkan Tugas dan lanjutkan order PAUSE dengan CONTINUE sebelum DONE. Jika sudah menekan kirim, periksa grup sebelum mengulang." }, 409);
+          "Gunakan aplikasi terbaru, segarkan hari/progres Tugas, dan lanjutkan PAUSE dengan CONTINUE sebelum DONE. Jika sudah menekan kirim, periksa grup sebelum mengulang." }, 409);
       throw claimError;
     }
     if (claim?.alreadySent) return respond({
@@ -92,7 +100,7 @@ export async function POST(request: Request) {
       replyToMessageId: Number.isSafeInteger(claim.replyToMessageId) ? claim.replyToMessageId : undefined,
     });
     deliveryConfirmed = true;
-    const { data: result, error: commitError } = await supabaseAdmin.rpc(pauseReport ? "cp_monitor_pause_finish" : "cp_mobile_proof_finish", {
+    const { data: result, error: commitError } = await supabaseAdmin.rpc(dailyReport ? "cp_monitor_daily_finish" : pauseReport ? "cp_monitor_pause_finish" : "cp_mobile_proof_finish", {
       p_event_id: eventId, p_actor_id: adminId, p_message_id: uploaded.messageId,
       p_file_id: uploaded.fileId,
     });
@@ -106,7 +114,7 @@ export async function POST(request: Request) {
       // Unknown delivery MUST NOT be retried automatically: Telegram has no idempotency key.
       const status = error instanceof MobileTelegramError ? error.outcome : "unknown";
       try {
-        await service.rpc(pauseReport ? "cp_monitor_pause_mark" : "cp_mobile_proof_mark", {
+        await service.rpc(dailyReport ? "cp_monitor_daily_mark" : pauseReport ? "cp_monitor_pause_mark" : "cp_mobile_proof_mark", {
           p_event_id: eventId, p_actor_id: adminId,
           p_status: deliveryConfirmed ? "unknown" : status,
         });

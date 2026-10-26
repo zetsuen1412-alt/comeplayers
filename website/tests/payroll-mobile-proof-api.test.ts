@@ -119,6 +119,40 @@ test("Telegram rejection does not mutate Payroll and marks proof failed", async 
 });
 
 const cycle="00000000-0000-4000-8000-000000000001";
+for(const action of ["start","pause","continue","done"]){
+ test(`daily ${action} uses the reviewed day and server caption without legacy completion`,async()=>{
+  const calls:string[]=[];let sent=0;
+  const send=endpoint(()=>({isAdmin:true,id:"daily-actor"}),async(name,args)=>{
+   calls.push(name);
+   if(name==="cp_monitor_daily_begin"){
+    assert.equal(args.p_day,2);assert.equal(args.p_revision,4);assert.equal(args.p_cycle,cycle);assert.equal(args.p_action,action);
+    return {data:{ok:true,eventId:"daily-id",chatId:-100123,caption:`x4671/adit/day2/${action}`,replyToMessageId:77}};
+   }
+   assert.equal(name,"cp_monitor_daily_finish");assert.equal(args.p_message_id,123);
+   return {data:{ok:true,status:action==="done"?"assigned":"in_progress",completedDays:action==="done"?2:1,totalDays:7}};
+  },async input=>{sent++;assert.equal(input.caption,`x4671/adit/day2/${action}`);assert.equal(input.chatId,-100123);return {messageId:123,fileId:"photo"};});
+  const response=await send(formRequest(action,{dayNumber:"2",dailyRevision:"4",dailyCycleId:cycle,caption:"spoof/day7/done",chatId:"999"}));
+  assert.equal(response.status,200);assert.equal(sent,1);assert.equal((await response.json()).totalDays,7);
+  assert.deepEqual(calls,["cp_monitor_daily_begin","cp_monitor_daily_finish"]);
+ });
+}
+test("malformed or incomplete daily metadata never claims a report",async()=>{
+ const send=endpoint(()=>({isAdmin:true}),async()=>{throw new Error("Claim must not run");},async()=>{throw new Error("No Telegram");});
+ const invalid:Record<string,string>[]=[{dayNumber:"0",dailyRevision:"1",dailyCycleId:cycle},{dayNumber:"367",dailyRevision:"1",dailyCycleId:cycle},
+  {dayNumber:"2"},{dayNumber:"2",dailyRevision:"-1",dailyCycleId:cycle}];
+ for(const fields of invalid)
+  assert.equal((await send(formRequest("done",fields))).status,409);
+});
+test("ambiguous daily DONE is marked unknown and is not replayed or committed",async()=>{
+ const calls:string[]=[];
+ const send=endpoint(()=>({isAdmin:true,id:"daily-actor"}),async(name,args)=>{
+  calls.push(name);
+  if(name==="cp_monitor_daily_begin")return {data:{ok:true,eventId:"daily-id",chatId:-100123,caption:"x4671/adit/day2/done"}};
+  assert.equal(name,"cp_monitor_daily_mark");assert.equal(args.p_status,"unknown");return {data:true};
+ },async()=>{throw new TransportError("Network uncertain","unknown");});
+ assert.equal((await send(formRequest("done",{dayNumber:"2",dailyRevision:"4",dailyCycleId:cycle}))).status,409);
+ assert.deepEqual(calls,["cp_monitor_daily_begin","cp_monitor_daily_mark"]);
+});
 for(const action of ["pause","continue"]){
   test(`${action} photo uses a versioned START cycle and confirmed Telegram result`,async()=>{
     const calls:string[]=[];let sent=0;

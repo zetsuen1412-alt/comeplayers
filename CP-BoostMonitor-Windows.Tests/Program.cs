@@ -7,6 +7,14 @@ static void Assert(bool check, string name)
 }
 
 var alertTracker = new NewOrderTracker();
+var dailyOrder = new PayrollOrder {Daily=true,Duration="8hours x7",DurationDisplay="8 jam × 7 hari",TotalDays=7,CompletedDays=1,DayNumber=2,
+    DailyRevision=2,DailyCycleId="00000000-0000-4000-8000-000000000001",Status="assigned",CanStart=true};
+Assert(dailyOrder.DisplayDuration=="8 jam × 7 hari · Day 2/7" && dailyOrder.AllowsProof("start"),"daily order shows Duration and reviewed next day");
+Assert(new PayrollOrder{Daily=true,TotalDays=7,DurationDisplay="8 jam × 7 hari"}.DisplayDuration=="8 jam × 7 hari","pending daily order has no invented Day 0");
+dailyOrder.DayNumber=3;
+Assert(!dailyOrder.AllowsProof("start"),"skipping a daily day fails closed before photo selection");
+dailyOrder.DayNumber=2;dailyOrder.DailyCycleId=null;
+Assert(!dailyOrder.AllowsProof("start"),"missing daily cycle cannot enable proof actions");
 var pausedOrder = new PayrollOrder {Status="paused",CanContinue=true};
 Assert(pausedOrder.AllowsProof("continue") && !pausedOrder.AllowsProof("done") && !pausedOrder.AllowsProof("pause"),"paused order only allows CONTINUE");
 pausedOrder.DeliveryUncertain=true;

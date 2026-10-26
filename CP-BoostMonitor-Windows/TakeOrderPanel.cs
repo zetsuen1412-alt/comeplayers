@@ -146,16 +146,20 @@ internal sealed class TakeOrderPanel : UserControl
         _workers.Columns[1].ToolTipText = "Status dan lama tidur dalam jam:menit:detik";
         AddColumn(_orders, "ORDER", "OrderRef", 105);
         AddColumn(_orders, "GAME", "Game", 125);
+        AddColumn(_orders, "DURATION", "DisplayDuration", 185);
         AddColumn(_orders, "DISCORD", "DisplayDiscord", 180);
         AddColumn(_orders, "TASK", "Task", 260);
         AddColumn(_tasks, "ORDER", "OrderRef", 115);
         AddColumn(_tasks, "KARYAWAN", "EmployeeName", 165);
         AddColumn(_tasks, "STATUS", "Status", 145);
+        AddColumn(_tasks, "DURATION", "DisplayDuration", 185);
         AddColumn(_tasks, "DISCORD", "DisplayDiscord", 145);
         AddColumn(_tasks, "LANGKAH BERIKUTNYA", "ActionMessage", 300);
+        _orders.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+        _tasks.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
         foreach (var grid in new[] { _orders, _tasks }) grid.CellToolTipTextNeeded += (_, e) => {
             if (e.RowIndex >= 0 && grid.Rows[e.RowIndex].DataBoundItem is PayrollOrder order)
-                e.ToolTipText = $"{order.OrderRef} • {order.Game} • {order.OrderName}\nDiscord: {order.DisplayDiscord}\n{order.Task}";
+                e.ToolTipText = $"{order.OrderRef} • {order.Game}\nDuration: {order.DisplayDuration}\nDiscord: {order.DisplayDiscord}\n{order.Task}\n{order.ActionMessage}";
         };
 
         _workers.SelectionChanged += (_, _) =>
@@ -518,8 +522,10 @@ internal sealed class TakeOrderPanel : UserControl
         var task = SelectedTask;
         _deleteTask.Enabled = _isAdmin && !blocked && task is { DeliveryUncertain: false };
         _takeTelegram.Enabled = !blocked && task?.CanTake == true;
-        _start.Enabled = !blocked && task?.CanStart == true;
-        _done.Enabled = !blocked && task?.CanDone == true;
+        _start.Enabled = !blocked && task?.AllowsProof("start") == true;
+        _done.Enabled = !blocked && task?.AllowsProof("done") == true;
+        _start.Text = task?.Daily == true ? $"START Day {task.DayNumber}" : "START + Foto";
+        _done.Text = task?.Daily == true ? $"DONE Day {task.DayNumber}" : "DONE + Foto";
         _pause.Text = task?.Status == "paused" ? "CONTINUE" : "PAUSE + Foto";
         _pause.Enabled = !blocked && task is not null && (task.AllowsProof("pause") || task.AllowsProof("continue"));
         _take.Text = _working ? "MENGIRIM..." : "TAKE ORDER  →";
@@ -579,7 +585,8 @@ internal sealed class TakeOrderPanel : UserControl
         grid.Columns.Add(new DataGridViewTextBoxColumn
         {
             HeaderText = heading, DataPropertyName = property,
-            MinimumWidth = 64, FillWeight = weight,
+            MinimumWidth = property == "DisplayDuration" ? 120 : 64, FillWeight = weight,
+            DefaultCellStyle = new DataGridViewCellStyle { WrapMode = property == "DisplayDuration" ? DataGridViewTriState.True : DataGridViewTriState.NotSet },
             SortMode = DataGridViewColumnSortMode.NotSortable,
         });
     }

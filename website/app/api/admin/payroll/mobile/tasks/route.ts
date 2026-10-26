@@ -7,6 +7,8 @@ import { loadFH3ManualOrders, manualFH3OrderTitle } from "@/lib/fh3ManualTelegra
 import { mobileWorkflow, type MobileDelivery } from "@/lib/payrollMobileWorkflow";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 import { monitorPauseWorkflow, type MonitorPauseState } from "@/lib/monitorPauseWorkflow";
+import { monitorDuration, dailyWorkflow } from "@/lib/monitorDuration";
+import { loadMonitorDailyStates } from "@/lib/monitorDailyData";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -63,6 +65,7 @@ export async function GET(request: Request) {
           orderName: clean(manualFH3OrderTitle(manual), "Order manual Telegram", 500),
           game: clean(manual.game, "—", 200),
           discord: clean(manual.discord, "", 150),
+          duration: clean(manual.duration, "", 200),
           buyer: "",
           task: clean(manual.task, "—", 500), division: "FH3",
           quantity: Number.isFinite(assignment.quantity) ? assignment.quantity : null,
@@ -80,6 +83,7 @@ export async function GET(request: Request) {
         employeeName: employee.name, orderRef: job.order_ref,
         orderName: clean(manualFH3OrderTitle(manual), "Order manual Telegram", 500), game: clean(manual.game, "—", 200),
         discord: clean(manual.discord, "", 150),
+        duration: clean(manual.duration, "", 200),
         buyer: "", task: clean(manual.task, "—", 500), division: "FH3", quantity: 1,
         status: job.status, updatedAt: job.completed_at ?? job.started_at ?? job.created_at,
       });
@@ -91,6 +95,7 @@ export async function GET(request: Request) {
     const pauseStates = new Map<string, MonitorPauseState>();
     let pauseSupported = true;
     const refs = [...new Set(tasks.map(task => task.orderRef))];
+    const dailyStates = await loadMonitorDailyStates(supabaseAdmin, refs);
     for (let index = 0; index < refs.length; index += 80) {
       const batch = refs.slice(index, index + 80);
       const [takeResult, proofResult, pauseResult] = await Promise.all([
@@ -128,7 +133,15 @@ export async function GET(request: Request) {
         takesByRef.get(task.orderRef) ?? [], proofsByRef.get(task.orderRef) ?? []);
       const pause = monitorPauseWorkflow(workflow, task.status, pauseStates.get(task.orderRef), pauseSupported);
       const normal = (controls.get(task.orderRef)?.state ?? "normal") === "normal";
+      const dailyState = dailyStates.states.get(task.orderRef);
+      if (dailyState) {
+        const daily = dailyWorkflow({ ...dailyState, uncertain: dailyState.uncertain || workflow.deliveryUncertain }, workflow.takeSent, normal);
+        return { ...task, ...workflow, ...daily, status: dailyState.phase === "paused" ? "paused"
+          : dailyState.phase === "running" ? "in_progress" : "assigned", source: "telegram_job",
+          needsValuation: !!job && !byRef.has(task.orderRef), canTake: normal && workflow.canTake && !daily.deliveryUncertain };
+      }
       return { ...task, ...workflow, ...pause, status: pause.paused ? "paused" : task.status, source: job ? "telegram_job" : "payroll",
+        durationDisplay: monitorDuration(task.duration).durationDisplay, daily: false,
         needsValuation: !!job && !byRef.has(task.orderRef),
         canTake: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canTake,
         canStart: normal && !pause.deliveryUncertain && workflow.canStart, canDone: normal && pause.canDone,
@@ -137,7 +150,7 @@ export async function GET(request: Request) {
       };
     });
     return respond({ schema: 1, source: "payroll", sourceOfTruth: "telegram_fh3_manual", scope: "FH3", revision: data.revision,
-      updatedAt: data.updated_at, workflowSchema: 1, pauseSchema: pauseSupported ? 1 : 0, complete: true, tasks: actionableTasks });
+      updatedAt: data.updated_at, workflowSchema: 1, pauseSchema: pauseSupported ? 1 : 0, dailySchema: dailyStates.supported ? 1 : 0, complete: true, tasks: actionableTasks });
   } catch (error) {
     const status = adminErrorStatus(error);
     return respond({ error: status === 401 ? "Sesi habis; silakan login ulang."

@@ -5,6 +5,8 @@ import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Order } from "@/features/payroll/types/domain";
 import { loadFH3ManualOrders, manualFH3OrderTitle } from "@/lib/fh3ManualTelegramQueue";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
+import { monitorDuration } from "@/lib/monitorDuration";
+import { loadMonitorDailyStates } from "@/lib/monitorDailyData";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,12 +61,22 @@ export async function GET(request: Request) {
       .sort((left, right) => Date.parse(right.posted_at) - Date.parse(left.posted_at));
     if (pending.length + inboxOnly.length > 200)
       return respond({ error: "Terlalu banyak order Telegram FH3, periksa order lama." }, 503);
+    const refs = [...pending.map(order => order.externalReference.trim().toUpperCase()), ...inboxOnly.map(item => item.order_ref)];
+    // Pending refs cannot have a job/plan yet; a single ref probes migration availability.
+    const { supported: dailySupported } = await loadMonitorDailyStates(supabaseAdmin, refs.slice(0, 1));
+    const durationFields = (duration: string) => {
+      const parsed = monitorDuration(duration);
+      return { ...parsed, totalDays: parsed.totalDays ?? 0, canTake: !parsed.durationNeedsReview && (!parsed.daily || dailySupported),
+        actionMessage: parsed.durationNeedsReview ? "Duration perlu dikoreksi admin sebelum TAKE."
+          : parsed.daily && !dailySupported ? "Fitur harian menunggu penerapan server." : "" };
+    };
     return respond({
       // source remains "payroll" for existing Windows v1.6 clients;
       // only Telegram-verified order refs are included.
       schema: 2, scope: "FH3", source: "payroll", sourceOfTruth: "telegram_fh3_manual", revision: workspace.revision,
       pending: [...pending.map(order => ({
         orderRef: clean(order.externalReference, 180),
+        postedAt: verified.get(order.externalReference.trim().toUpperCase())?.posted_at || "",
         orderType: order.orderType,
         // Never forward Telegram passwords/buyer credentials into the queue.
         orderName: clean(manualFH3OrderTitle(verified.get(order.externalReference.trim().toUpperCase())!), 300),
@@ -73,9 +85,10 @@ export async function GET(request: Request) {
         buyer: "",
         task: clean(verified.get(order.externalReference.trim().toUpperCase())?.task || "", 400),
         division: "FH3",
-        canTake: true,
+        ...durationFields(verified.get(order.externalReference.trim().toUpperCase())!.duration),
       })), ...inboxOnly.map(item => ({
         orderRef: clean(item.order_ref, 180),
+        postedAt: item.posted_at,
         orderType: "boosting",
         orderName: clean(manualFH3OrderTitle(item), 300),
         game: clean(item.game, 150),
@@ -83,11 +96,11 @@ export async function GET(request: Request) {
         buyer: "",
         task: clean(item.task, 400),
         division: "FH3",
-        canTake: true,
+        ...durationFields(item.duration),
         canTakeWithoutPayroll: true,
         needsValuation: true,
         unlinkedPayroll: true,
-      }))],
+      }))].sort((left, right) => (Date.parse(right.postedAt) || 0) - (Date.parse(left.postedAt) || 0)),
     });
   } catch (error) {
     const status = adminErrorStatus(error);

@@ -8,7 +8,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>EVOGAMINGMonitor</AssemblyName>
     <RootNamespace>CPBoostMonitor</RootNamespace>
-    <Version>2.0.7</Version>
+    <Version>2.1.0</Version>
     <PublishSingleFile>true</PublishSingleFile>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <SelfContained>true</SelfContained>

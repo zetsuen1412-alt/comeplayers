@@ -209,12 +209,14 @@ final class PayrollSync {
      * No automatic retries for photo uploads: Telegram does not support idempotency keys.
      */
     void sendProof(String orderRef, String employeeCode, String action,
-                   Uri photo, ContentResolver resolver, String startEventId, long pauseRevision, Done callback) {
+                   Uri photo, ContentResolver resolver, String startEventId, long pauseRevision, JSONObject dailyOrder, Done callback) {
         executor.execute(() -> {
             try {
                 if (!"start".equals(action) && !"done".equals(action) && !"pause".equals(action) && !"continue".equals(action))
                     throw new IOException("Aksi order tidak valid.");
-                if(("pause".equals(action)||"continue".equals(action)) && (startEventId==null || !startEventId.matches("[0-9a-fA-F-]{36}") || pauseRevision<0 || pauseRevision>1000000))
+                boolean daily=dailyOrder!=null&&dailyOrder.optBoolean("daily");
+                if(daily&&!MonitorContract.dailyContext(dailyOrder))throw new IOException("Hari atau progres berubah. Segarkan Tugas.");
+                if(!daily&&("pause".equals(action)||"continue".equals(action)) && (startEventId==null || !startEventId.matches("[0-9a-fA-F-]{36}") || pauseRevision<0 || pauseRevision>1000000))
                     throw new IOException("Status PAUSE belum tersedia atau berubah. Segarkan Tugas.");
                 String mime = resolver.getType(photo);
                 if (!"image/png".equals(mime) && !"image/jpeg".equals(mime))
@@ -236,7 +238,7 @@ final class PayrollSync {
                 if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L)
                     credentials = refresh(credentials);
                 JSONObject result = sendPhotoRequest(orderRef, employeeCode, action, mime, bytes,
-                        credentials.getString("accessToken"), startEventId, pauseRevision);
+                        credentials.getString("accessToken"), startEventId, pauseRevision, dailyOrder);
                 if (!result.optBoolean("ok")) throw new IOException("Website belum mengonfirmasi foto.");
                 finish(callback, "✓ " + result.optString("caption", orderRef + "/" + action)
                         + "\nBukti telah diterima grup Telegram "
@@ -249,7 +251,7 @@ final class PayrollSync {
     }
 
     private static JSONObject sendPhotoRequest(String orderRef, String employeeCode,
-            String action, String mime, byte[] photo, String token, String startEventId, long pauseRevision) throws Exception {
+            String action, String mime, byte[] photo, String token, String startEventId, long pauseRevision, JSONObject dailyOrder) throws Exception {
         final String boundary = "cpProof" + Long.toHexString(System.nanoTime());
         HttpURLConnection connection = (HttpURLConnection) new URL(BASE + "/progress").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -266,7 +268,11 @@ final class PayrollSync {
                 writeField(output, boundary, "orderRef", orderRef);
                 writeField(output, boundary, "employeeCode", employeeCode);
                 writeField(output, boundary, "action", action);
-                if("pause".equals(action)||"continue".equals(action)){
+                if(dailyOrder!=null&&dailyOrder.optBoolean("daily")){
+                    writeField(output,boundary,"dayNumber",Integer.toString(dailyOrder.optInt("dayNumber")));
+                    writeField(output,boundary,"dailyRevision",Long.toString(dailyOrder.optLong("dailyRevision")));
+                    writeField(output,boundary,"dailyCycleId",dailyOrder.optString("dailyCycleId"));
+                }else if("pause".equals(action)||"continue".equals(action)){
                     writeField(output,boundary,"startEventId",startEventId);writeField(output,boundary,"pauseRevision",Long.toString(pauseRevision));
                 }
                 String header = "--" + boundary + "\r\nContent-Disposition: form-data; name=" + (char)34 + "photo" + (char)34

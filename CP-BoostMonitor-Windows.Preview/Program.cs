@@ -13,6 +13,7 @@ internal static class Program
         PendingArchiveChecks.Run();
         ActiveArchiveChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
+        DailyDurationChecks.Run(output);
         OrderNotificationChecks.Run(output);
         PauseChecks.Run(output);
         ConnectionRecoveryChecks.Run(output);
