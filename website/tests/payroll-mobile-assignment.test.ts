@@ -21,7 +21,7 @@ function load(file: string, mocks: Record<string, unknown>) {
   const exports: { GET?: (request: Request) => Promise<Response>; POST?: (request: Request) => Promise<Response> } = {};
   runInNewContext(compiled, {
     exports, Request, Response, Error, SyntaxError,
-    require: (name: string) => { if(name==="@/lib/monitorManagement")return {loadMonitorControls:async()=>new Map()}; assert.ok(name in { ...monitorFixtureImports, ...mocks }, `Unexpected module: ${name}`); const mock=mocks[name] ?? monitorFixtureImports[name]; return name==="@/lib/monitorAccess" ? { ...(mock as object),requireOwnEmployee } : mock; },
+    require: (name: string) => { if(name==="@/lib/monitorManagement")return mocks[name] ?? {loadMonitorControls:async()=>new Map()}; assert.ok(name in { ...monitorFixtureImports, ...mocks }, `Unexpected module: ${name}`); const mock=mocks[name] ?? monitorFixtureImports[name]; return name==="@/lib/monitorAccess" ? { ...(mock as object),requireOwnEmployee } : mock; },
   });
   return exports;
 }
@@ -91,6 +91,7 @@ test("shared accounts see active work for all authorized workers; personal accou
     workerAssignments: [{ employeeCode: worker.code, employeeName: worker.name, team: "FH3", quantity: 1 }] }));
   for (const shared of [true, false]) {
     const route = load("app/api/admin/payroll/mobile/tasks/route.ts", { ...common,
+      "@/lib/monitorManagement": { loadMonitorControls: async () => new Map([["X100", { version: 9 }]]) },
       "@/lib/monitorAccess": { requireMonitorAccess: async () => ({ actor: { isAdmin: false },
         employeeCode: shared ? "" : "F001", canOperateAll: shared, operableEmployeeCodes: shared ? ["F001", "F002"] : ["F001"],
         supabaseAdmin: client(workspace(orders, workers), [manual("X100"), manual("X101")]) }) },
@@ -98,6 +99,7 @@ test("shared accounts see active work for all authorized workers; personal accou
     const response = await route.GET!(new Request(url + "/tasks"));
     assert.equal(response.status, 200); const body = await response.json();
     assert.deepEqual(body.tasks.map((task: {employeeCode:string}) => task.employeeCode), shared ? ["F001", "F002"] : ["F001"]);
+    assert.equal(body.tasks[0].controlVersion, 9);
   }
 });
 test("pending endpoint requires Monitor access before reading order details", async()=>{
@@ -120,6 +122,7 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
     order("X900", { orderType: "item", operationalStatus: "confirmed" }),
   ];
   const route = load("app/api/admin/payroll/mobile/pending/route.ts", {
+    "@/lib/monitorManagement": { loadMonitorControls: async () => new Map([["X100", { version: 7, state: "normal" }], ["X4519", { version: 11, state: "normal" }]]) },
     ...common, "@/lib/monitorAccess": { requireMonitorAccess: async () => ({
       actor: { isAdmin: true }, supabaseAdmin: client(workspace(rows), [manual("X100"), manual("X900"), manual("X4519")]),
     }) },
@@ -131,6 +134,8 @@ test("FH3 queue contains only verified Telegram manual posts and their TASK", as
   assert.equal(result.source, "payroll");
   assert.deepEqual(result.pending.map((x: { orderRef: string }) => x.orderRef), ["X100","X900","X4519"]);
   assert.equal(result.pending[0].buyer, "");
+  assert.deepEqual(result.pending.map((row: {controlVersion:number}) => row.controlVersion), [7,0,11],
+    "linked and inbox-only orders retain the optimistic archive version without management preflight");
   assert.equal(result.pending[0].task, "TASK from Telegram");
   assert.equal(result.pending[0].discord, "FH3 Demo");
   assert.match(result.pending[0].orderName, /Discord: FH3 Demo/, "existing APK shows Discord without reinstalling");

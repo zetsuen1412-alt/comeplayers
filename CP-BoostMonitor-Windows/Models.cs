@@ -28,6 +28,7 @@ public sealed class Employee
 public sealed class PayrollOrder
 {
     public string OrderRef { get; set; } = "";
+    public long? ControlVersion { get; set; }
     public string OrderType { get; set; } = "";
     public string OrderName { get; set; } = "";
     public string Game { get; set; } = "";

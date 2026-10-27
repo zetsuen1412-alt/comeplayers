@@ -139,11 +139,11 @@ export async function GET(request: Request) {
       const dailyState = dailyStates.states.get(task.orderRef);
       if (dailyState) {
         const daily = dailyWorkflow({ ...dailyState, uncertain: dailyState.uncertain || workflow.deliveryUncertain }, workflow.takeSent, normal);
-        return { ...task, ...workflow, ...daily, status: dailyState.phase === "paused" ? "paused"
+        return { ...task, ...workflow, ...daily, controlVersion: controls.get(task.orderRef)?.version ?? 0, status: dailyState.phase === "paused" ? "paused"
           : dailyState.phase === "running" ? "in_progress" : "assigned", source: "telegram_job",
           needsValuation: !!job && !byRef.has(task.orderRef), canTake: normal && workflow.canTake && !daily.deliveryUncertain };
       }
-      return { ...task, ...workflow, ...pause, status: pause.paused ? "paused" : task.status, source: job ? "telegram_job" : "payroll",
+      return { ...task, ...workflow, ...pause, controlVersion: controls.get(task.orderRef)?.version ?? 0, status: pause.paused ? "paused" : task.status, source: job ? "telegram_job" : "payroll",
         durationDisplay: monitorDuration(task.duration).durationDisplay, daily: false,
         needsValuation: !!job && !byRef.has(task.orderRef),
         canTake: (controls.get(task.orderRef)?.state ?? "normal") === "normal" && workflow.canTake,

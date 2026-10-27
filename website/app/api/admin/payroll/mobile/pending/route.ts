@@ -79,6 +79,7 @@ export async function GET(request: Request) {
       schema: 2, scope: "FH3", source: "payroll", sourceOfTruth: "telegram_fh3_manual", revision: workspace.revision,
       pending: [...pending.map(order => ({
         orderRef: clean(order.externalReference, 180),
+        controlVersion: controls.get(order.externalReference.trim().toUpperCase())?.version ?? 0,
         postedAt: verified.get(order.externalReference.trim().toUpperCase())?.posted_at || "",
         orderType: order.orderType,
         // Never forward Telegram passwords/buyer credentials into the queue.
@@ -91,6 +92,7 @@ export async function GET(request: Request) {
         ...durationFields(verified.get(order.externalReference.trim().toUpperCase())!.duration),
       })), ...inboxOnly.map(item => ({
         orderRef: clean(item.order_ref, 180),
+        controlVersion: controls.get(item.order_ref)?.version ?? 0,
         postedAt: item.posted_at,
         orderType: "boosting",
         orderName: clean(manualFH3OrderTitle(item), 300),
