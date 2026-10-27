@@ -15,7 +15,18 @@ function getSupabaseUrl() {
   return value;
 }
 
-export function createSupabaseAuthClient(): SupabaseClient {
+export type SupabaseRequestOptions = { signal?: AbortSignal };
+
+function requestFetch({ signal }: SupabaseRequestOptions): typeof fetch | undefined {
+  if (!signal) return undefined;
+  return (input, init) => {
+    signal.throwIfAborted();
+    const original = init?.signal ?? (input instanceof Request ? input.signal : undefined);
+    return fetch(input, { ...init, signal: original ? AbortSignal.any([signal, original]) : signal });
+  };
+}
+
+export function createSupabaseAuthClient(options: SupabaseRequestOptions = {}): SupabaseClient {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!anonKey) {
@@ -23,6 +34,7 @@ export function createSupabaseAuthClient(): SupabaseClient {
   }
 
   return createClient(getSupabaseUrl(), anonKey, {
+    global: { fetch: requestFetch(options) },
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -30,7 +42,7 @@ export function createSupabaseAuthClient(): SupabaseClient {
   });
 }
 
-export function createSupabaseUserClient(accessToken: string): SupabaseClient {
+export function createSupabaseUserClient(accessToken: string, options: SupabaseRequestOptions = {}): SupabaseClient {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!anonKey) {
@@ -47,6 +59,7 @@ export function createSupabaseUserClient(accessToken: string): SupabaseClient {
       autoRefreshToken: false,
     },
     global: {
+      fetch: requestFetch(options),
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -54,7 +67,7 @@ export function createSupabaseUserClient(accessToken: string): SupabaseClient {
   });
 }
 
-export function createSupabaseAdmin(): SupabaseClient {
+export function createSupabaseAdmin(options: SupabaseRequestOptions = {}): SupabaseClient {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!serviceRoleKey) {
@@ -62,6 +75,7 @@ export function createSupabaseAdmin(): SupabaseClient {
   }
 
   return createClient(getSupabaseUrl(), serviceRoleKey, {
+    global: { fetch: requestFetch(options) },
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -80,14 +94,14 @@ export function getBearerToken(request: Request) {
 }
 
 // Session activation must verify identity/MFA before it can replace an older session.
-export async function requireAccountIdentity(request: Request): Promise<User> {
+export async function requireAccountIdentity(request: Request, options: SupabaseRequestOptions = {}): Promise<User> {
   const token = getBearerToken(request);
 
   if (!token) {
     throw new Error("Authentication required.");
   }
 
-  const supabase = createSupabaseAuthClient();
+  const supabase = createSupabaseAuthClient(options);
   const { data, error } = await supabase.auth.getUser(token);
 
   if (error || !data.user) {
@@ -107,15 +121,15 @@ export async function requireAccountIdentity(request: Request): Promise<User> {
   return data.user;
 }
 
-export async function requireAuthenticatedUser(request: Request): Promise<User> {
-  if (!singleDeviceSessionsEnabled()) return requireAccountIdentity(request);
+export async function requireAuthenticatedUser(request: Request, options: SupabaseRequestOptions = {}): Promise<User> {
+  if (!singleDeviceSessionsEnabled()) return requireAccountIdentity(request, options);
   const token = getBearerToken(request);
   if (!token) throw new Error("Authentication required.");
   const [user, { data, error }] = await Promise.all([
-    requireAccountIdentity(request),
-    createSupabaseUserClient(token).rpc("cp_account_session_state"),
+    requireAccountIdentity(request, options),
+    createSupabaseUserClient(token, options).rpc("cp_account_session_state"),
   ]);
-  if (error) throw new Error("Authentication session could not be verified. Please try again.");
+  if (error) throw Object.assign(new Error("Authentication session could not be verified. Please try again."), { status: 503 });
   if (!data?.active) throw Object.assign(new Error("This authentication session was replaced by a newer login."), { status: 401, code: "SESSION_REPLACED" });
   return user;
 }

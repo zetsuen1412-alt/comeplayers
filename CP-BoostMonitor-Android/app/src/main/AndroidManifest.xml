@@ -8,7 +8,8 @@
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
         android:label="EVOGAMING Monitor"
-        android:icon="@drawable/ic_monitor"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
         <service android:name="id.comeplayers.boostmonitor.OrderNotificationService" android:exported="false" android:foregroundServiceType="dataSync" />

@@ -5,6 +5,7 @@ import {test} from "node:test";
 import ts from "typescript";
 import {requireOwnEmployee} from "../lib/monitorAccess";
 import {monitorReply,monitorError,monitorBody} from "../lib/monitorHttp";
+import {withMonitorSessionDeadline} from "../lib/monitorSessionDeadline";
 function load(path:string,mocks:Record<string,unknown>){
  const exports:Record<string,(...args:unknown[])=>Promise<unknown>>={};
  runInNewContext(ts.transpileModule(readFileSync(new URL(`../${path}`,import.meta.url),"utf8"),{
@@ -60,6 +61,7 @@ test("username resolves case-insensitively on the server; password and tokens ne
  let email="",pattern="",allowed=true,limited=false;
  const service={rpc:async()=>({data:!limited}),from:()=>({select:()=>({ilike:(_key:string,value:string)=>{pattern=value;return {maybeSingle:async()=>({data:{email:"internal@example.test"}})};}})})};
  const route=load("app/api/admin/payroll/mobile/session/route.ts",{
+  "@/lib/monitorSessionDeadline":{withMonitorSessionDeadline},
   "next/server":{NextResponse:{json:(body:unknown,init:ResponseInit)=>Response.json(body,init)}},"node:crypto":await import("node:crypto"),
   "@/lib/serverSupabase":{createSupabaseAdmin:()=>service,createSupabaseAuthClient:()=>({auth:{signInWithPassword:async(input:{email:string})=>{email=input.email;return {data:{session:{access_token:"private-access",refresh_token:"private-refresh",expires_at:999999}}};}}})},
   "@/lib/auth/accountSessionConfig":{singleDeviceSessionsEnabled:()=>false},

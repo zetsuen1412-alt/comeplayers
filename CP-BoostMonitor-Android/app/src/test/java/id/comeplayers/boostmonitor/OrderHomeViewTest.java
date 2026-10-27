@@ -41,6 +41,31 @@ public final class OrderHomeViewTest {
     private OrderHomeView home(boolean loading,boolean loaded,String error) {
         return new OrderHomeView(activity,orders,loading,loaded,error,false,"",()->{},takes::add,value->{});
     }
+    @Test @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    public void fh3HeaderAndAdaptiveLauncherContainTheOriginalGoldArtwork() throws Exception {
+        try(ActivityController<MainActivity> controller=Robolectric.buildActivity(MainActivity.class).create()){
+            android.widget.ImageView logo=controller.get().getWindow().getDecorView().findViewWithTag("fh3-brand-logo");
+            assertNotNull(logo);assertEquals("Logo FH3",logo.getContentDescription());assertNotNull(logo.getDrawable());
+        }
+        assertEquals(R.mipmap.ic_launcher,activity.getApplicationInfo().icon);
+        android.graphics.drawable.Drawable icon=activity.getDrawable(R.mipmap.ic_launcher);
+        assertTrue(icon instanceof android.graphics.drawable.AdaptiveIconDrawable);
+        android.graphics.Bitmap image=android.graphics.Bitmap.createBitmap(192,192,android.graphics.Bitmap.Config.ARGB_8888);
+        try{
+            icon.setBounds(0,0,192,192);icon.draw(new android.graphics.Canvas(image));
+            int gold=0;
+            for(int y=0;y<192;y++)for(int x=0;x<192;x++){
+                int pixel=image.getPixel(x,y);
+                if(android.graphics.Color.red(pixel)>140&&android.graphics.Color.green(pixel)>80&&android.graphics.Color.blue(pixel)<60)gold++;
+            }
+            assertTrue("Adaptive launcher must retain the gold FH3 artwork",gold>200);
+            String output=System.getenv("MONITOR_PREVIEW_DIR");
+            if(output!=null){
+                java.io.File dir=new java.io.File(output);if(!dir.isDirectory()&&!dir.mkdirs())throw new java.io.IOException("Cannot create preview directory");
+                try(java.io.FileOutputStream stream=new java.io.FileOutputStream(new java.io.File(dir,"android-fh3-launcher.png"))){assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG,100,stream));}
+            }
+        }finally{image.recycle();}
+    }
     @Test public void cardsKeepServerNewestFirstAndTakeOnlyTheSelectedOrder() {
         OrderHomeView view=home(false,true,"");activity.setContentView(view);
         View first=view.findViewWithTag("order:X100"),second=view.findViewWithTag("order:X900");
