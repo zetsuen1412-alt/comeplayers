@@ -1,13 +1,13 @@
 {
-  "version": "1.8.1",
-  "versionCode": 15,
+  "version": "1.9.0",
+  "versionCode": 16,
   "packageId": "id.comeplayers.boostmonitor.fh3.accounts",
   "parallelInstall": true,
-  "sourceCommit": "8f19606622faa8da1ba8dd819def0aa41de649ce",
-  "releaseCommit": "2fa0b0fa85e8f84caf544cb9723b3c290deba128",
-  "apkSha256": "a37806c3f9810d2ef48616d7592226e85b46b307905e8cc55d58dcd1c04fe372",
-  "zipSha256": "a5a55f2ec2cb10db434c0287677e362c17da122af1032bf44e5046873d622f01",
+  "sourceCommit": "1ce5c78d3d44a5deb53c4c964d4596c87c3bad19",
+  "releaseCommit": "5937b1ed804210047edb62097e1366ed2bc2a613",
+  "apkSha256": "987b0d9a8dd79ea32413df0732a039af45bd92f8893ba6c33588a51578707ee9",
+  "zipSha256": "2961bbc5c08423c438f2936654766f4182e2531f51b83e06cf4e39e680b88783",
   "apkBytes": 537783,
-  "zipBytes": 525544,
+  "zipBytes": 526611,
   "certificateSha256": "6082eb26895e4cecaf6cc68b68217613e2c08bcd278f2f3f257a0fa0a512278e"
 }
