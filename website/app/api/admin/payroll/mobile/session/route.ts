@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       });
       try {
         stage = 'monitor-authorization';
-        await requireMonitorAccess(authorized, { activateSession: action === 'login', signal });
+        await requireMonitorAccess(authorized, { activateSession: action === 'login', signal, rosterOnly: true });
       } catch (error) {
         const status = adminErrorStatus(error);
         if (status !== 401 && status !== 403) throw Object.assign(new Error('Monitor access verification unavailable.'), { status: 503 });

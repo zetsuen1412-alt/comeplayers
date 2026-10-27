@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
+// Admin data is read at request time, never during an application release.
+export const dynamic = "force-dynamic";
+
 type Category = {
   id: number | string;
   name: string;
@@ -18,10 +21,11 @@ function toSlug(value: string) {
 }
 
 export default async function AdminCategoryMappingUnifiedPage() {
-  const { data: categories } = await supabase
+  const { data: categories, error } = await supabase
     .from("categories")
     .select("id,name,slug,icon")
-    .order("id", { ascending: true });
+    .order("id", { ascending: true })
+    .abortSignal(AbortSignal.timeout(5_000));
 
   const categoryShortcuts = (categories || []) as Category[];
 
@@ -133,7 +137,8 @@ export default async function AdminCategoryMappingUnifiedPage() {
 
           {categoryShortcuts.length === 0 ? (
             <div className="mt-6 rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-5 text-yellow-100">
-              Tidak ada kategori ditemukan. Tambahkan baris pada tabel categories agar filter marketplace muncul di sini.
+              {error ? "Kategori belum dapat dimuat. Muat ulang halaman saat koneksi database pulih."
+                : "Tidak ada kategori ditemukan. Tambahkan baris pada tabel categories agar filter marketplace muncul di sini."}
             </div>
           ) : (
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

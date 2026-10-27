@@ -26,12 +26,14 @@ public sealed class PayrollApi : IDisposable
     internal static readonly TimeSpan AuthenticationTimeout = TimeSpan.FromSeconds(65);
     private readonly TimeSpan _authenticationTimeout;
     private bool _sessionRecoveryRequired;
+    private bool _publicMode = true;
 
     private sealed class Session
     {
         public string AccessToken { get; set; } = "";
         public string RefreshToken { get; set; } = "";
         public long ExpiresAt { get; set; }
+        public bool AdminSession { get; set; }
     }
     private sealed class Envelope<T>
     {
@@ -73,13 +75,15 @@ public sealed class PayrollApi : IDisposable
         TryLoadSession();
     }
 
-    public bool LoggedIn => _session != null && !_sessionRecoveryRequired;
+    public bool LoggedIn => !_publicMode && _session != null && !_sessionRecoveryRequired;
+    public bool PublicMode => _publicMode;
+    public bool WorkspaceAvailable => _publicMode || LoggedIn;
     public bool CanOperate { get; private set; }
     public bool IsAdmin { get; private set; }
-    public string AccessScope { get; private set; } = "employee";
+    public string AccessScope { get; private set; } = "public";
     public string OwnEmployeeCode { get; private set; } = "";
-    public string Username { get; private set; } = "";
-    public string AccountId { get; private set; } = "";
+    public string Username { get; private set; } = "Mode Karyawan";
+    public string AccountId { get; private set; } = "public-fh3";
 
     private void TryLoadSession()
     {
@@ -89,8 +93,12 @@ public sealed class PayrollApi : IDisposable
             var secret = File.ReadAllBytes(_sessionFile);
             var data = ProtectedData.Unprotect(secret, null, DataProtectionScope.CurrentUser);
             var session = JsonSerializer.Deserialize<Session>(data, _json);
-            if (session is { AccessToken.Length: > 10, RefreshToken.Length: > 10 })
+            if (session is { AdminSession: true, AccessToken.Length: > 10, RefreshToken.Length: > 10 })
+            {
                 _session = session;
+                // Opening the program always starts in worker mode. Stored admin
+                // credentials are not refreshed or activated until explicit sign-in.
+            }
         }
         catch (Exception e) when (e is CryptographicException or IOException or UnauthorizedAccessException or JsonException)
         {
@@ -103,6 +111,7 @@ public sealed class PayrollApi : IDisposable
         lock (_sessionGuard) {
         if (version != _sessionVersion) throw new UnauthorizedAccessException("Sesi berubah; login kembali.");
         _session = session;
+        _publicMode = false;
         _sessionRecoveryRequired = false;
         var dir = Path.GetDirectoryName(_sessionFile)!;
         Directory.CreateDirectory(dir);
@@ -119,12 +128,29 @@ public sealed class PayrollApi : IDisposable
         lock (_sessionGuard) {
         _sessionVersion++;
         _session = null;
+        _publicMode = true;
         _sessionRecoveryRequired = false;
         CanOperate = false;
-        IsAdmin = false; AccessScope = "employee"; OwnEmployeeCode = Username = AccountId = "";
+        IsAdmin = false; AccessScope = "public"; OwnEmployeeCode = "";
+        Username = "Mode Karyawan"; AccountId = "public-fh3";
         try { if (File.Exists(_sessionFile)) File.Delete(_sessionFile); }
         catch (IOException) { /* Session is forgotten in memory. */ }
         }
+    }
+
+    public void EnterPublicMode()
+    {
+        lock (_sessionGuard) {
+            _sessionVersion++; _publicMode = true; _sessionRecoveryRequired = true;
+            IsAdmin = false; CanOperate = false; AccessScope = "public"; OwnEmployeeCode = "";
+            Username = "Mode Karyawan"; AccountId = "public-fh3";
+        }
+    }
+
+    public async Task LoginAdminAsync(string username, string password)
+    {
+        await LoginAsync(username, password);
+        if (!IsAdmin) { Logout(); throw new UnauthorizedAccessException("Gunakan akun admin ComePlayers. Karyawan dapat langsung membuka daftar order."); }
     }
 
     public async Task LoginAsync(string email, string password)
@@ -144,12 +170,17 @@ public sealed class PayrollApi : IDisposable
         using var roster = new HttpRequestMessage(HttpMethod.Get, "roster");
         roster.Headers.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
         using var check = await SendReadAsync(roster, "memeriksa akses karyawan", _authenticationTimeout);
-        _ = await ParseAsync<JsonElement>(check);
+        var access = await ParseAsync<Envelope<Employee>>(check);
+        if (access is null || access.Schema != 1 || access.Scope != "FH3" || access.Employees is null)
+            throw new InvalidOperationException("Format akses Monitor tidak sesuai.");
+        session.AdminSession = access.IsAdmin;
         SaveSession(session, version);
+        IsAdmin = access.IsAdmin; CanOperate = access.CanOperate;
     }
 
     private async Task<string> TokenAsync(bool refresh = false)
     {
+        if (_publicMode) return "";
         if (_sessionRecoveryRequired) throw new UnauthorizedAccessException("Pembaruan sesi belum terkonfirmasi. Silakan masuk kembali.");
         if (_session is null) throw new UnauthorizedAccessException("Login Payroll terlebih dahulu.");
         if (!refresh && _session.ExpiresAt > DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 120)
@@ -184,6 +215,7 @@ public sealed class PayrollApi : IDisposable
                 if (version == Volatile.Read(ref _sessionVersion)) _sessionRecoveryRequired = true;
                 throw new UnauthorizedAccessException("Sesi tidak dapat diperbarui.");
             }
+            newSession.AdminSession = _session?.AdminSession == true;
             SaveSession(newSession, version);
             return newSession.AccessToken;
         }
@@ -195,15 +227,16 @@ public sealed class PayrollApi : IDisposable
         var version = Volatile.Read(ref _sessionVersion);
         var token = await TokenAsync();
         using var firstRequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
-        firstRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyCredential(firstRequest, token);
         using var first = await SendReadAsync(firstRequest, EndpointLabel(endpoint));
         if (first.StatusCode != HttpStatusCode.Unauthorized) {
             var result = (await ParseAsync<T>(first))!;
             EnsureCurrentSession(version); return result;
         }
+        if (_publicMode) return (await ParseAsync<T>(first))!;
         var fresh = await TokenAsync(refresh: true);
         using var retryRequest = new HttpRequestMessage(HttpMethod.Get, endpoint);
-        retryRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", fresh);
+        ApplyCredential(retryRequest, fresh);
         using var retry = await SendReadAsync(retryRequest, EndpointLabel(endpoint));
         if (retry.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -212,6 +245,12 @@ public sealed class PayrollApi : IDisposable
         }
         var retried = (await ParseAsync<T>(retry))!;
         EnsureCurrentSession(version); return retried;
+    }
+
+    private static void ApplyCredential(HttpRequestMessage request, string token)
+    {
+        if (string.IsNullOrEmpty(token)) request.Headers.Add("X-Monitor-Mode", "public");
+        else request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
 
     private static string EndpointLabel(string endpoint) => endpoint.Split('?')[0] switch
@@ -239,7 +278,7 @@ public sealed class PayrollApi : IDisposable
 
     private void EnsureCurrentSession(int version)
     {
-        if (version != Volatile.Read(ref _sessionVersion) || !LoggedIn)
+        if (version != Volatile.Read(ref _sessionVersion) || !WorkspaceAvailable)
             throw new UnauthorizedAccessException("Sesi berubah; data akun sebelumnya diabaikan.");
     }
 
@@ -250,7 +289,7 @@ public sealed class PayrollApi : IDisposable
             throw new InvalidOperationException("Format data karyawan FH3 tidak sesuai.");
         CanOperate = doc.CanOperate;
         IsAdmin = doc.IsAdmin; OwnEmployeeCode = doc.EmployeeCode; Username = doc.Username; AccountId = doc.AccountId;
-        AccessScope = IsAdmin ? "admin" : doc.AccessScope == "shared" ? "shared" : "employee";
+        AccessScope = IsAdmin ? "admin" : doc.AccessScope is "shared" or "public" ? doc.AccessScope : "employee";
         return doc.Employees.Where(e => e.Team == "FH3" && e.Active).ToList();
     }
     public async Task<List<PayrollOrder>> PendingAsync()
@@ -296,9 +335,10 @@ public sealed class PayrollApi : IDisposable
     }
     public async Task MutateAsync(string path, object body)
     {
+        if (!IsAdmin) throw new UnauthorizedAccessException("Login admin dari Pengaturan untuk mengelola order.");
         var token = await TokenAsync();
         using var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = JsonContent.Create(body, options: _json) };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyCredential(request, token);
         using var response = await _http.SendAsync(request);
         var result = await ParseAsync<JsonElement>(response);
         if (!result.TryGetProperty("ok", out var ok) || !ok.GetBoolean()) throw new InvalidOperationException("Perubahan belum terkonfirmasi; perbarui data.");
@@ -324,7 +364,7 @@ public sealed class PayrollApi : IDisposable
         {
             Content = JsonContent.Create(new { orderRef, employeeCode }, options: _json),
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyCredential(request, token);
         // Deliberately no retry for server-side assignments; manual refresh resolves uncertain results.
         using var response = await _http.SendAsync(request);
         var result = await ParseAsync<JsonElement>(response);
@@ -346,7 +386,7 @@ public sealed class PayrollApi : IDisposable
         {
             Content = JsonContent.Create(new { orderRef, employeeCode }, options: _json),
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyCredential(request, token);
         // Do NOT auto-retry ambiguous Telegram requests.
         using var response = await _http.SendAsync(request);
         var result = await ParseAsync<JsonElement>(response);
@@ -401,7 +441,7 @@ public sealed class PayrollApi : IDisposable
         {
             Content = multipart,
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyCredential(request, token);
         // NEVER auto-retry this operation. Telegram sendPhoto has no idempotency key.
         using var response = await _http.SendAsync(request);
         var result = await ParseAsync<JsonElement>(response);

@@ -2,6 +2,7 @@ import type { createSupabaseAdmin } from "@/lib/serverSupabase";
 import { loadCompletedMonitorEvidence } from "@/lib/fh3MonitorCompletedData";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 import { buildMobileCompleted } from "@/lib/payrollMobileCompleted";
+import { loadMonitorWorkspace, type MonitorWorkspaceSnapshot } from './monitorWorkspaceSnapshot';
 
 type Service = ReturnType<typeof createSupabaseAdmin>;
 export type MonitorControl = { order_ref: string; state: "normal" | "refund" | "problem"; archived: boolean;
@@ -30,13 +31,12 @@ export async function loadMonitorLedger(service: Service) {
   }
   throw new Error("Data Tutup Buku tidak lengkap.");
 }
-export async function monitorBookData(service: Service, employeeId = "", includeArchived = false) {
+export async function monitorBookData(service: Service, employeeId = "", includeArchived = false, snapshot?: MonitorWorkspaceSnapshot) {
   const [workspace, evidence, jobs, controls, items] = await Promise.all([
-    service.from("cp_payroll_workspace").select("payload").eq("id", 1).single(),
+    snapshot ?? loadMonitorWorkspace(service),
     loadCompletedMonitorEvidence(service), loadFH3MonitorJobs(service), loadMonitorControls(service), loadMonitorLedger(service),
   ]);
-  if (workspace.error || !workspace.data) throw workspace.error ?? new Error("Workspace tidak tersedia.");
-  const completed = buildMobileCompleted(workspace.data.payload, evidence.receipts, evidence.proofs,
+  const completed = buildMobileCompleted(workspace.payload, evidence.receipts, evidence.proofs,
     [...jobs.values()], "", 0, [...controls.values()], true, includeArchived);
   const closed = new Map(items.map(i => [i.order_ref, i]));
   const open = completed.work.filter(row => !closed.has(row.orderRef) && (!employeeId || row.employeeId === employeeId));

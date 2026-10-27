@@ -23,6 +23,7 @@ public sealed class MainForm : Form
     private List<PayrollOrder> _pending = new();
     private List<PayrollOrder> _tasks = new();
     private bool _busy;
+    private int _readFailures;
     private bool _hasSnapshot;
     private bool _seenInitialQueue;
     private HashSet<string> _lastRefs = new(StringComparer.OrdinalIgnoreCase);
@@ -54,7 +55,7 @@ public sealed class MainForm : Form
     private readonly ComboBox _taskStatusFilter = new();
     private readonly TextBox _email = new();
     private readonly TextBox _password = new();
-    private readonly Button _loginButton = ActionButton("MASUK KE WORKSPACE", true);
+    private readonly Button _loginButton = ActionButton("MASUK SEBAGAI ADMIN", true);
     private readonly Button _reconnectButton = ActionButton("Sambungkan ulang", false);
     private readonly Label _loginFeedback = StyledText("Gunakan akun ComePlayers dengan akses operasional.", 10);
     private readonly RichTextBox _history = new() { ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = PanelColor, ForeColor = Fore, Font = new Font("Consolas", 10.5f) };
@@ -82,7 +83,7 @@ public sealed class MainForm : Form
         Icon = Fh3Branding.Icon;
 
         BuildLayout();
-        _reconnectButton.Enabled = _api.LoggedIn;
+        _reconnectButton.Enabled = _api.WorkspaceAvailable;
         _navigation["Kelola Order"].Visible = false;
         Shown += (_, _) => WindowChrome.ApplyCaption(this);
         _takePanel.TakeRequested += async (_, choice) => await RunBusyAsync(() => TakeOrderAsync(choice));
@@ -107,12 +108,8 @@ public sealed class MainForm : Form
         Shown += async (_, _) =>
         {
             if (_preview) return;
-            if (_api.LoggedIn)
-            {
-                ShowPage("Take Order");
-                await RunBusyAsync(RefreshDataAsync, quiet: true);
-            }
-            else ShowPage("Login");
+            ShowPage("Take Order");
+            await RunBusyAsync(RefreshDataAsync, quiet: true);
         };
     }
 
@@ -175,7 +172,7 @@ public sealed class MainForm : Form
         var account = StyledText("●  TELEGRAM FH3", 9, true, LuxuryPalette.SidebarText);
         account.Margin = new Padding(12, 32, 0, 4);
         _nav.Controls.Add(account);
-        _connection.Text = "Login belum aktif";
+        _connection.Text = "Mode Karyawan • Menghubungkan";
         _connection.Margin = new Padding(12, 0, 0, 0);
         _nav.Controls.Add(_connection);
 
@@ -229,10 +226,10 @@ public sealed class MainForm : Form
     {
         var page = ScrollingPage();
         var form = Card();
-        form.Width = 642; form.Height = 420;
+        form.Width = 642; form.Height = 470;
         form.Controls.Add(MakeLabel("SECURE ACCESS  /  FH3", 10, 26, 18, true, Accent));
-        form.Controls.Add(MakeLabel("Masuk ke workspace", 22, 26, 49, true, Fore));
-        form.Controls.Add(MakeLabel("Akses aman ke sistem operasional EVOGAMING", 11, 26, 97, false, Muted));
+        form.Controls.Add(MakeLabel("Login Admin", 22, 26, 49, true, Fore));
+        form.Controls.Add(MakeLabel("Karyawan tidak perlu login untuk mengambil dan melaporkan order.", 10, 26, 97, false, Muted));
         _email.SetBounds(26, 149, 584, 42);
         FormatInput(_email, false);
         _email.PlaceholderText = "Username ComePlayers (email lama tetap diterima)";
@@ -250,7 +247,7 @@ public sealed class MainForm : Form
             _loginFeedback.Text = "Menghubungkan ke ComePlayers…";
             try
             {
-                await _api.LoginAsync(_email.Text, password);
+                await _api.LoginAdminAsync(_email.Text, password);
                 _password.Clear();
                 ShowPage("Take Order");
                 await RefreshDataAsync();
@@ -261,6 +258,10 @@ public sealed class MainForm : Form
         _loginFeedback.Location = new Point(27, 358);
         _loginFeedback.Width = 574;
         form.Controls.Add(_loginFeedback);
+        var back = ActionButton("Kembali ke Order Baru", false);
+        back.SetBounds(26, 409, 260, 36);
+        back.Click += (_, _) => { _password.Clear(); ShowPage("Take Order"); };
+        form.Controls.Add(back);
         page.Controls.Add(form);
         return page;
     }
@@ -370,10 +371,13 @@ public sealed class MainForm : Form
         card.Controls.Add(MakeLabel("Koneksi EVOGAMING Monitor", 18, 22, 15, true, Fore));
         card.Controls.Add(MakeLabel("Website: https://www.comeplayers.com", 12, 22, 63));
         card.Controls.Add(MakeLabel("Divisi: FH3  •  Bukti Telegram: 🔥 EVO🔥 Ilham FH3", 12, 22, 101));
-        card.Controls.Add(MakeLabel("Sesi login dienkripsi menggunakan Windows DPAPI (CurrentUser).", 12, 22, 139));
-        card.Controls.Add(MakeLabel("Token bot Telegram dan kunci Supabase TIDAK ada di aplikasi.", 12, 22, 176));
-        var logout = ActionButton("Keluar dari akun", false);
-        logout.SetBounds(22, 222, 252, 42);
+        card.Controls.Add(MakeLabel("Mode karyawan langsung berjalan tanpa login atau aktivasi perangkat.", 12, 22, 139));
+        card.Controls.Add(MakeLabel("Login admin untuk menghapus, memindahkan, memberi upah, dan Tutup Buku.", 11, 22, 176));
+        var adminLogin = ActionButton("Login Admin", true);
+        adminLogin.Name = "OpenAdminLogin"; adminLogin.SetBounds(22, 222, 252, 42);
+        adminLogin.Click += (_, _) => ShowPage("Login"); card.Controls.Add(adminLogin);
+        var logout = ActionButton("Keluar dari admin", false);
+        logout.SetBounds(286, 222, 252, 42);
         logout.Click += (_, _) =>
         {
             if (MessageBox.Show("Keluar dari akun ComePlayers di PC ini?", "Logout",
@@ -383,7 +387,8 @@ public sealed class MainForm : Form
             _employees.Clear(); _pending.Clear(); _tasks.Clear(); _hasSnapshot = false;
             _seenInitialQueue = false; _lastRefs.Clear();
             BindTables();
-            ShowPage("Login");
+            ShowPage("Take Order");
+            _poll.Start();
         };
         card.Controls.Add(logout);
         var sound = new CheckBox {Text="Suara order baru: musik (10 detik)",Checked=_alerts.SoundEnabled,AutoSize=true,Left=22,Top=284};
@@ -620,7 +625,7 @@ public sealed class MainForm : Form
 
     private async Task RefreshDataAsync()
     {
-        if (!_api.LoggedIn) return;
+        if (!_api.WorkspaceAvailable) return;
         // Start recovery before the first request: a failed startup must not leave
         // an empty workspace with no timer or way to reconnect.
         _poll.Start();
@@ -649,9 +654,10 @@ public sealed class MainForm : Form
         _hasSnapshot = true;
         BindTables();
         _takePanel.SetStale(false);
-        _connection.Text = $"●  {_api.Username} • {(_api.IsAdmin ? "Admin" : _api.AccessScope == "shared" ? "Akun Bersama" : "Karyawan")}";
+        _connection.Text = _api.PublicMode ? "●  Mode Karyawan • FH3" : $"●  {_api.Username} • Admin";
         _connection.ForeColor = LuxuryPalette.SidebarText;
         _poll.Start();
+        _readFailures = 0; _poll.Interval = 30_000;
         SetStatus($"Terhubung {DateTime.Now:HH:mm:ss} • {_pending.Count} order baru • {_tasks.Count} tugas aktif.{statusWarning}");
         var unseen = _alerts.Observe(_api.AccountId, newRefs);
         if (unseen.Count > 0)
@@ -667,7 +673,7 @@ public sealed class MainForm : Form
         _orderToast?.Close();
         try {
             _orderToast = new OrderNotificationToast(refs, () => {
-                if (_api.LoggedIn) { RestoreWindow(); ShowPage("Take Order"); }
+                if (_api.WorkspaceAvailable) { RestoreWindow(); ShowPage("Take Order"); }
             }, demonstration: demonstration);
             _orderToast.Dismissed += (_, _) => _alerts.StopSound();
             _orderToast.Show(); // No owner: the popup stays visible while Monitor is minimized.
@@ -727,12 +733,13 @@ public sealed class MainForm : Form
                 HttpRequestException when error is not MonitorReadException => "Koneksi ke ComePlayers terputus. Perbarui daftar untuk memeriksa hasil tindakan sebelum melanjutkan.",
                 _ => error.Message,
             };
-            if (!_api.LoggedIn)
+            if (!_api.PublicMode && ! _api.LoggedIn)
             {
-                _poll.Stop(); _takePanel.SetStale(true); _takePanel.SetAdminAccess(false);
+                _api.EnterPublicMode(); _takePanel.SetStale(true); _takePanel.SetAdminAccess(false);
                 _navigation["Kelola Order"].Visible = false;
-                _connection.Text = "Silakan masuk kembali";
-                ShowPage("Login");
+                _managementPanel.Clear();
+                _connection.Text = "Mode Karyawan • sesi admin berakhir";
+                if (_activePage != "Login") ShowPage("Take Order");
             }
             else if (error is HttpRequestException or OperationCanceledException)
             {
@@ -741,10 +748,12 @@ public sealed class MainForm : Form
             }
             if (_activePage == "Login") _loginFeedback.Text = message;
             SetStatus(message);
+            _poll.Interval = Math.Min(120_000, 30_000 << Math.Min(++_readFailures, 2));
+            if (!_preview) _poll.Start();
             if (!quiet && !IsDisposed)
                 MessageBox.Show(message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        finally { if (!_api.LoggedIn) { _orderToast?.Close(); _alerts.StopSound(); } _busy = false; UseWaitCursor = false; _reconnectButton.Enabled = _api.LoggedIn; }
+        finally { _busy = false; UseWaitCursor = false; _reconnectButton.Enabled = _api.WorkspaceAvailable; }
     }
 
     internal Task ReconnectForCheckAsync() { ShowPage("Take Order"); return RunBusyAsync(RefreshDataAsync, quiet: true); }
@@ -755,7 +764,6 @@ public sealed class MainForm : Form
     private void ShowPage(string name)
     {
         if (name == "Kelola Order" && !_api.IsAdmin && !_preview) name = "Take Order";
-        if (name != "Login" && !_api.LoggedIn && !_preview) name = "Login";
         _activePage = name;
         foreach (var entry in _pages)
             entry.Value.Visible = entry.Key == name;
@@ -765,7 +773,7 @@ public sealed class MainForm : Form
             entry.Value.BackColor = entry.Key == name ? PanelColor : Sidebar;
             entry.Value.ForeColor = Fore;
         }
-        _headline.Text = name == "Login" ? "Masuk ke EVOGAMING Monitor" : name;
+        _headline.Text = name == "Login" ? "Login Admin" : name;
         if(name=="Kelola Order") _metrics.Text="Penugasan, status order, upah bersih, dan Tutup Buku";
         if(name=="Data Tutup Buku") _metrics.Text="Penghasilan tersimpan beserta daftar order di setiap Tutup Buku";
         if (name == "Aktivitas Lokal") BindTables();

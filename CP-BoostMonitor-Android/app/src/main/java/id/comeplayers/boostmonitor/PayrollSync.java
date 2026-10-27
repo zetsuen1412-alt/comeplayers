@@ -24,21 +24,38 @@ final class PayrollSync {
     private static final int MAX_BYTES = 2 * 1024 * 1024;
     interface Done { void accept(String message, boolean ok); }
     interface DataDone { void accept(JSONObject data, String message, boolean ok); }
+    interface Connections { HttpURLConnection open(URL target) throws IOException; }
 
     private final android.content.SharedPreferences identity;
     private final SecureSession session;
     private final EmployeeDb db;
+    private final Connections connections;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
     private boolean syncing = false;
+    private boolean adminActive;
     private long sessionVersion = 0;
     private final Object sessionGuard = new Object();
 
-    PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context) { this.session = session; this.db = db; this.identity=context.getSharedPreferences("monitor_identity",android.content.Context.MODE_PRIVATE); }
+    PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context) { this(session,db,context,false); }
+    PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context, boolean workerOnly) {
+        this(session,db,context,workerOnly,target -> (HttpURLConnection)target.openConnection());
+    }
+    PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context, boolean workerOnly, Connections connections) {
+        this.session = session; this.db = db; this.identity=context.getSharedPreferences("monitor_identity",android.content.Context.MODE_PRIVATE);
+        this.connections=connections;
+        if(!workerOnly) enterPublicMode();
+    }
     private void rememberIdentity(JSONObject roster) { identity.edit().putBoolean("isAdmin",roster.optBoolean("isAdmin")).putString("accessScope",roster.optString("accessScope","employee")).putString("accountId",roster.optString("accountId")).putString("username",roster.optString("username")).apply(); }
 
     boolean hasSession() { return session.exists(); }
-    void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); identity.edit().clear().apply(); } }
+    boolean hasAdminSession() { return adminActive && session.exists(); }
+    private void enterPublicMode() {
+        adminActive=false;
+        identity.edit().putBoolean("admin_session",false).putBoolean("isAdmin",false).putString("accessScope","public")
+            .putString("accountId","00000000-0000-4000-8000-0000000000f3").putString("username","Mode Karyawan").apply();
+    }
+    void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); enterPublicMode(); } }
     void shutdown() { executor.shutdownNow(); }
 
     void login(String email, String password, Done callback) {
@@ -52,9 +69,12 @@ final class PayrollSync {
                 JSONObject result = call("POST", "/session", input, null);
                 // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
                 JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"), 65000);
+                if(!roster.optBoolean("isAdmin")) throw new ApiException(403,"Gunakan akun admin ComePlayers. Karyawan langsung membuka daftar order.");
                 synchronized (sessionGuard) {
                     if (version != sessionVersion) throw new IOException("Sesi sudah berubah.");
                     db.syncRoster(roster); session.saveIfVersion(secureVersion,result); rememberIdentity(roster);
+                    identity.edit().putBoolean("admin_session",true).apply();
+                    adminActive=true;
                 }
                 int tasks = 0;
                 String taskWarning = "";
@@ -62,29 +82,18 @@ final class PayrollSync {
                 catch (Exception taskError) { taskWarning = " Tugas order belum tersinkron; coba Perbarui dari Payroll."; }
                 finish(callback, "Berhasil mengambil " + db.payrollEmployees().size()
                         + " nama karyawan dan " + tasks + " tugas aktif dari Payroll Website (revisi " + roster.optLong("revision") + ")." + taskWarning, true);
-            } catch (Exception e) { finish(callback, friendly(e), false); }
+            } catch (Exception e) { enterPublicMode(); finish(callback, friendly(e), false); }
         });
     }
 
     void sync(Done callback) {
         executor.execute(() -> {
             try {
-                JSONObject credentials = session.load();
-                if (credentials == null) { finish(callback, "Hubungkan akun payroll dahulu.", false); return; }
-                if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L)
-                    credentials = refresh(credentials);
-                JSONObject snapshot;
-                try {
-                    snapshot = call("GET", "/roster", null, credentials.getString("accessToken"));
-                } catch (ApiException error) {
-                    if (error.status != 401) throw error;
-                    credentials = refresh(credentials);
-                    snapshot = call("GET", "/roster", null, credentials.getString("accessToken"));
-                }
+                JSONObject snapshot = authorizedCall("GET", "/roster", null);
                 int[] changed = db.syncRoster(snapshot); rememberIdentity(snapshot);
                 int tasks = 0;
                 String taskWarning = "";
-                try { tasks = syncTasks(credentials.getString("accessToken")); }
+                try { tasks = db.syncTasks(authorizedCall("GET", "/tasks", null)); }
                 catch (Exception taskError) { taskWarning = " • tugas order belum tersinkron"; }
                 finish(callback, "Payroll tersinkron: " + db.payrollEmployees().size() + " aktif"
                         + " • baru " + changed[0] + ", diperbarui " + changed[1]
@@ -125,11 +134,15 @@ final class PayrollSync {
         }
     }
 
-    /** Only website admins may read/assign pending FH3 orders. Never persist the queue in SQLite. */
+    /** Open worker queue; the server filters verified FH3 Telegram orders. Never persist it in SQLite. */
     void loadPendingOrders(DataDone callback) {
+        pendingOrders(callback, false);
+    }
+    void loadPublicPendingOrders(DataDone callback) { pendingOrders(callback, true); }
+    private void pendingOrders(DataDone callback, boolean workerOnly) {
         executor.execute(() -> {
             try {
-                JSONObject result = authorizedCall("GET", "/pending", null);
+                JSONObject result = workerOnly ? call("GET", "/pending", null, null) : authorizedCall("GET", "/pending", null);
                 if (!MonitorContract.pending(result))
                     throw new IllegalStateException("Daftar order tidak valid.");
                 main.post(() -> callback.accept(result, "", true));
@@ -233,12 +246,13 @@ final class PayrollSync {
                 }
                 byte[] bytes = buffer.toByteArray();
                 if (bytes.length < 16) throw new IOException("Gambar kosong/tidak lengkap.");
-                JSONObject credentials = session.load();
-                if (credentials == null) throw new IOException("Login Payroll diperlukan.");
-                if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L)
-                    credentials = refresh(credentials);
+                JSONObject credentials = hasAdminSession() ? session.load() : null;
+                if (credentials != null && credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L) {
+                    try { credentials = refresh(credentials); }
+                    catch(Exception error){ enterPublicMode(); throw new IOException("Sesi admin terputus. Periksa status tugas lalu lanjutkan dari Mode Karyawan."); }
+                }
                 JSONObject result = sendPhotoRequest(orderRef, employeeCode, action, mime, bytes,
-                        credentials.getString("accessToken"), startEventId, pauseRevision, dailyOrder);
+                        credentials == null ? null : credentials.getString("accessToken"), startEventId, pauseRevision, dailyOrder);
                 if (!result.optBoolean("ok")) throw new IOException("Website belum mengonfirmasi foto.");
                 finish(callback, "✓ " + result.optString("caption", orderRef + "/" + action)
                         + "\nBukti telah diterima grup Telegram "
@@ -250,14 +264,15 @@ final class PayrollSync {
         });
     }
 
-    private static JSONObject sendPhotoRequest(String orderRef, String employeeCode,
+    private JSONObject sendPhotoRequest(String orderRef, String employeeCode,
             String action, String mime, byte[] photo, String token, String startEventId, long pauseRevision, JSONObject dailyOrder) throws Exception {
         final String boundary = "cpProof" + Long.toHexString(System.nanoTime());
-        HttpURLConnection connection = (HttpURLConnection) new URL(BASE + "/progress").openConnection();
+        HttpURLConnection connection = connections.open(new URL(BASE + "/progress"));
         connection.setInstanceFollowRedirects(false);
         connection.setConnectTimeout(14000); connection.setReadTimeout(75000);
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Authorization", "Bearer " + token);
+        if(token==null)connection.setRequestProperty("X-Monitor-Mode","public");
+        else connection.setRequestProperty("Authorization", "Bearer " + token);
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Cache-Control", "no-store");
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -309,16 +324,18 @@ final class PayrollSync {
     }
 
     private JSONObject authorizedCall(String method, String path, JSONObject payload) throws Exception {
+        if(!hasAdminSession())return call(method,path,payload,null);
         JSONObject credentials = session.load();
-        if (credentials == null) throw new ApiException(401, "Login Payroll diperlukan.");
-        if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L)
-            credentials = refresh(credentials);
         try {
+            if (credentials == null) throw new IOException("Sesi admin tidak tersedia.");
+            if (credentials.optLong("expiresAt") <= System.currentTimeMillis() / 1000L + 120L) credentials = refresh(credentials);
             return call(method, path, payload, credentials.getString("accessToken"));
-        } catch (ApiException error) {
-            if (error.status != 401) throw error;
-            credentials = refresh(credentials);
-            return call(method, path, payload, credentials.getString("accessToken"));
+        } catch (Exception error) {
+            if(error instanceof ApiException && ((ApiException)error).status!=401 && ((ApiException)error).status!=403 && ((ApiException)error).status<500)throw error;
+            enterPublicMode();
+            if("GET".equals(method) && !path.startsWith("/management") && !path.startsWith("/accounts"))return call(method,path,payload,null);
+            // A mutation is never replayed with a different authority after any uncertain response.
+            throw error;
         }
     }
 
@@ -330,18 +347,19 @@ final class PayrollSync {
         return "Sinkronisasi gagal. Periksa internet, izin akun, dan koneksi website. Data lama tetap aman.";
     }
 
-    private static JSONObject call(String method, String suffix, JSONObject json, String token) throws Exception {
+    private JSONObject call(String method, String suffix, JSONObject json, String token) throws Exception {
         return call(method, suffix, json, token, "GET".equals(method) ? 20000 : 65000);
     }
 
-    private static JSONObject call(String method, String suffix, JSONObject json, String token, int readTimeout) throws Exception {
+    private JSONObject call(String method, String suffix, JSONObject json, String token, int readTimeout) throws Exception {
         URL target = new URL(BASE + suffix);
-        HttpURLConnection c = (HttpURLConnection) target.openConnection();
+        HttpURLConnection c = connections.open(target);
         c.setInstanceFollowRedirects(false);
         c.setConnectTimeout(12000); c.setReadTimeout(readTimeout);
         c.setRequestMethod(method); c.setRequestProperty("Accept", "application/json");
         c.setRequestProperty("Cache-Control", "no-store");
         if (token != null) c.setRequestProperty("Authorization", "Bearer " + token);
+        else c.setRequestProperty("X-Monitor-Mode", "public");
         try {
             if (json != null) {
                 c.setDoOutput(true); c.setRequestProperty("Content-Type", "application/json; charset=utf-8");

@@ -12,7 +12,7 @@ const respond = (body: unknown, status = 200) => Response.json(body, {
 /** Manual safe recovery: returns existing sent TAKE without posting a duplicate. */
 export async function POST(request: Request) {
   try {
-    const context = await requireMonitorAccess(request);
+    const context = await requireMonitorAccess(request, { allowPublic: true, rosterOnly: true });
     const { actor, supabaseAdmin } = context;
     const raw = await request.text();
     if (raw.length > 4096) return respond({ error: "Permintaan terlalu besar." }, 413);
@@ -36,6 +36,6 @@ export async function POST(request: Request) {
       : status === 401 ? "Sesi habis, silakan login."
       : status === 403 ? "Khusus admin Payroll."
       : "TAKE belum berhasil. Periksa grup Telegram." },
-      [400,401,403].includes(status) ? status : 503);
+      [400,401,403,429].includes(status) ? status : 503);
   }
 }

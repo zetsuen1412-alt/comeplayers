@@ -59,7 +59,7 @@ internal static class ConnectionRecoveryChecks
             api.LoginAsync("fixture", "synthetic-password").GetAwaiter().GetResult();
             http.Offline = true;
             form.ReconnectForCheckAsync().GetAwaiter().GetResult();
-            Check(!api.LoggedIn && !form.RecoveryPolling && !reconnect.Enabled && !pending.Visible && File.Exists(Path.Combine(root,"session.dat")), "uncertain session refresh stops polling and opens sign-in without deleting the saved session");
+            Check(!api.LoggedIn && api.PublicMode && form.RecoveryPolling && reconnect.Enabled && File.Exists(Path.Combine(root,"session.dat")), "uncertain admin refresh falls back to worker mode and keeps reconnect available without deleting saved data");
         }
         finally
         {

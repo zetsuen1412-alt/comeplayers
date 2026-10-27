@@ -1,3 +1,5 @@
+export const maxDuration = 25;
+import { withMonitorSessionDeadline } from '@/lib/monitorSessionDeadline';
 import { loadMonitorControls } from "@/lib/monitorManagement";
 import { requireMonitorAccess } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
@@ -7,6 +9,7 @@ import { loadFH3ManualOrders, manualFH3OrderTitle } from "@/lib/fh3ManualTelegra
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 import { monitorDuration } from "@/lib/monitorDuration";
 import { loadMonitorDailyStates } from "@/lib/monitorDailyData";
+import { loadMonitorWorkspace } from '@/lib/monitorWorkspaceSnapshot';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,9 +23,9 @@ const clean = (value: unknown, limit: number) => String(value ?? "")
 /** Only manually posted and verified FH3 Telegram orders are eligible for the mobile queue. */
 export async function GET(request: Request) {
   try {
-    const { supabaseAdmin, workspaceSnapshot } = await requireMonitorAccess(request);
-    const { data: workspace, error } = workspaceSnapshot ? { data: workspaceSnapshot, error: null } : await supabaseAdmin.from("cp_payroll_workspace")
-      .select("payload,revision").eq("id", 1).single();
+    return await withMonitorSessionDeadline(async signal => {
+    const { supabaseAdmin, workspaceSnapshot } = await requireMonitorAccess(request, { allowPublic: true, signal });
+    const { data: workspace, error } = { data: workspaceSnapshot ?? await loadMonitorWorkspace(supabaseAdmin), error: null };
     if (error || !workspace) throw error ?? new Error("Workspace tidak ditemukan");
     const payload = workspace.payload as Record<string, unknown>;
     const orders = (Array.isArray(payload[workspaceKeys.orders]) ? payload[workspaceKeys.orders] : []) as Order[];
@@ -102,10 +105,11 @@ export async function GET(request: Request) {
         unlinkedPayroll: true,
       }))].sort((left, right) => (Date.parse(right.postedAt) || 0) - (Date.parse(left.postedAt) || 0)),
     });
+    }, 18_000);
   } catch (error) {
     const status = adminErrorStatus(error);
     return respond({ error: status === 401 ? "Sesi habis, silakan login ulang."
       : status === 403 ? "Akses Payroll ditolak." : "Order baru belum dapat dimuat." },
-      status === 401 || status === 403 ? status : 503);
+      status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }

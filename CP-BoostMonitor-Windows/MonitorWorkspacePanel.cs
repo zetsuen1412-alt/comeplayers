@@ -65,16 +65,16 @@ internal sealed class MonitorWorkspacePanel : UserControl
     }
     public async Task RefreshAsync()
     {
-        if (!_api.LoggedIn || IsDisposed) return;
+        if (!_api.WorkspaceAvailable || IsDisposed) return;
         int generation=_generation;
         if(_admin) {
             if(!_api.IsAdmin) { Clear(); return; }
             var data=await _api.ManagementAsync(); var workers=await _api.RosterAsync();
-            if(generation!=_generation || !_api.LoggedIn)return;
+            if(generation!=_generation || !_api.WorkspaceAvailable)return;
             _data=data; _worker.DataSource=workers; _worker.DisplayMember="Name";
             _status.Text=$"{_data.Eligible.Count} order siap Tutup Buku • Rp {_data.TotalRupiah:N0}. Periksa upah sebelum menutup.";
         } else {
-            var books=await _api.BooksAsync();if(generation!=_generation || !_api.LoggedIn)return;
+            var books=await _api.BooksAsync();if(generation!=_generation || !_api.WorkspaceAvailable)return;
             _bookData=books; _status.Text=books.Notice;
         }
         Bind();

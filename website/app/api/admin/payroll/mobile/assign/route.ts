@@ -13,7 +13,7 @@ const respond = (body: unknown, status = 200) => Response.json(body, {
 /** Mobile admin assignment uses a dedicated locked DB transaction, not a spoofed Telegram update. */
 export async function POST(request: Request) {
   try {
-    const context = await requireMonitorAccess(request);
+    const context = await requireMonitorAccess(request, { allowPublic: true, rosterOnly: true });
     const { actor, supabaseAdmin } = context;
     const raw = await request.text();
     if (raw.length > 4096) return respond({ error: "Permintaan terlalu besar." }, 413);
@@ -73,6 +73,6 @@ export async function POST(request: Request) {
     return respond({ error: status === 400 ? "Format data tidak valid."
       : status === 401 ? "Sesi habis, silakan login ulang."
       : status === 403 ? "Akses Payroll ditolak." : "Penugasan gagal disimpan. Coba perbarui data." },
-      status === 400 || status === 401 || status === 403 ? status : 503);
+      status === 400 || status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }
