@@ -30,6 +30,7 @@ on:
       - 'website/lib/monitor*.ts'
       - 'website/supabase/migrations/*_fh3_monitor_accounts_closing.sql'
       - 'website/supabase/migrations/*_fh3_monitor_shared_workstations.sql'
+      - 'website/supabase/migrations/*_fh3_open_monitor_workspace.sql'
       - 'website/tests/monitor-*.test.ts'
       - 'website/lib/fh3MonitorJobs.ts'
       - 'website/lib/payrollMobileCompleted.ts'

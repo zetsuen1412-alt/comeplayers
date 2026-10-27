@@ -15,7 +15,7 @@ internal static class ConnectionRecoveryTests
         }
     }
     private const string Session = """{"accessToken":"synthetic-access-token","refreshToken":"synthetic-refresh-token","expiresAt":4102444800}""";
-    private const string Roster = """{"schema":1,"scope":"FH3","canOperate":true,"accessScope":"shared","employees":[{"id":"e1","code":"E1","name":"Adit","team":"FH3","active":true}]}""";
+    private const string Roster = """{"schema":1,"scope":"FH3","canOperate":true,"isAdmin":true,"accessScope":"admin","employees":[{"id":"e1","code":"E1","name":"Adit","team":"FH3","active":true}]}""";
     private static HttpResponseMessage Json(string value, HttpStatusCode status = HttpStatusCode.OK) => new(status) { Content = new StringContent(value, Encoding.UTF8, "application/json") };
     private static void Check(bool condition, string label) { if (!condition) throw new Exception(label); Console.WriteLine("PASS: " + label); }
 

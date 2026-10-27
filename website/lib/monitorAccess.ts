@@ -2,8 +2,14 @@ import { createSupabaseAdmin, createSupabaseUserClient, getBearerToken, requireA
 import { singleDeviceSessionsEnabled } from "@/lib/auth/accountSessionConfig";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Employee } from "@/features/payroll/types/domain";
+import { openMonitorContext } from './monitorOpenWorkspace';
+import { loadMonitorWorkspace } from './monitorWorkspaceSnapshot';
 
-export async function requireMonitorAccess(request: Request, options: { activateSession?: boolean; signal?: AbortSignal } = {}) {
+export async function requireMonitorAccess(request: Request, options: { activateSession?: boolean; signal?: AbortSignal; allowPublic?: boolean; rosterOnly?: boolean } = {}) {
+  if (options.allowPublic) {
+    const open = await openMonitorContext(request, options.signal);
+    if (open) return open;
+  }
   // Identity/MFA is always verified. Only an explicitly bound shared Monitor
   // account may bypass the website's one-device claim, and only on Monitor APIs.
   const user = await requireAccountIdentity(request, options), supabaseAdmin = createSupabaseAdmin(options);
@@ -22,11 +28,11 @@ export async function requireMonitorAccess(request: Request, options: { activate
   if (!actor.isAdmin) {
     const [binding, workspace] = await Promise.all([
       supabaseAdmin.from("cp_fh3_monitor_accounts").select("employee_id,employee_code,active,access_scope").eq("user_id", user.id).maybeSingle(),
-      supabaseAdmin.from("cp_payroll_workspace").select("payload,revision,updated_at").eq("id", 1).single(),
+      loadMonitorWorkspace(supabaseAdmin, !options.rosterOnly),
     ]);
-    if (binding.error || workspace.error) throw binding.error ?? workspace.error;
-    workspaceSnapshot = workspace.data ?? undefined;
-    const roster = workspace.data?.payload?.[workspaceKeys.employees] as Employee[] | undefined;
+    if (binding.error) throw binding.error;
+    workspaceSnapshot = workspace;
+    const roster = workspace.payload?.[workspaceKeys.employees] as Employee[] | undefined;
     const eligible = roster?.filter(e => e.team === "FH3" && ["NEW", "SHIFT", "FULL"].includes(e.workforceStatus)
       && !e.sheetRosterMissingAt && roster.filter(x => x.id === e.id).length === 1
       && roster.filter(x => x.code === e.code).length === 1) ?? [];

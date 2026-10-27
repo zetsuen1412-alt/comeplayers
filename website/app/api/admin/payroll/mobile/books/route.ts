@@ -1,16 +1,20 @@
 import { requireMonitorAccess } from "@/lib/monitorAccess";
 import { monitorBookData } from "@/lib/monitorManagement";
 import { monitorBody, monitorError, monitorReply } from "@/lib/monitorHttp";
+import { withMonitorSessionDeadline } from '@/lib/monitorSessionDeadline';
+export const maxDuration = 25;
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export async function GET(request: Request) {
   try {
-    const {supabaseAdmin}=await requireMonitorAccess(request);
-    // Owner-approved team visibility: every bound Monitor member may read this ledger.
+    return await withMonitorSessionDeadline(async signal => {
+    const {supabaseAdmin,workspaceSnapshot}=await requireMonitorAccess(request, { allowPublic: true, signal });
+    // Owner-approved team visibility includes open worker mode for this ledger.
     // Existing website Payroll salaries/Closing are never included.
-    const data=await monitorBookData(supabaseAdmin);
+    const data=await monitorBookData(supabaseAdmin,"",false,workspaceSnapshot);
     return monitorReply({schema:1,scope:"FH3",visibility:"team",open:data.open,closings:data.closings,
       notice:"Upah bersih diisi admin. Data Tutup Buku adalah arsip penghasilan, bukan bukti pembayaran."});
+    }, 18_000);
   } catch(e) { return monitorError(e); }
 }
 export async function POST(request: Request) {

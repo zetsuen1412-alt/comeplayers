@@ -99,14 +99,14 @@ internal sealed class CompletedOrdersPanel : UserControl
 
     public async Task RefreshAsync()
     {
-        if (!_api.LoggedIn || IsDisposed) return;
+        if (!_api.WorkspaceAvailable || IsDisposed) return;
         int version = ++_version; string code = _code; int offset = _offset;
         _refresh.Enabled = false; _previous.Enabled = false; _next.Enabled = false;
         _status.Text = "Memuat riwayat order selesai…";
         _work.DataSource = null; _openProof.Enabled = false; _empty.Text = "Memuat daftar order…"; _empty.Visible = true;
         try {
             var data = await _api.CompletedAsync(code, offset);
-            if (version != _version || !_api.LoggedIn || IsDisposed) return;
+            if (version != _version || !_api.WorkspaceAvailable || IsDisposed) return;
             ApplySnapshot(data, offset);
             if (code.Length == 0 && _rows.Count > 0) { _code = _rows[0].EmployeeCode; _offset = 0; await RefreshAsync(); }
         }

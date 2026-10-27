@@ -1,3 +1,4 @@
+import { monitorFixtureImports } from './monitor-fixture-imports';
 import { requireOwnEmployee } from "../lib/monitorAccess";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -20,7 +21,7 @@ function load(file: string, mocks: Record<string, unknown>) {
   const exports: { GET?: (request: Request) => Promise<Response>; POST?: (request: Request) => Promise<Response> } = {};
   runInNewContext(compiled, {
     exports, Request, Response, Error, SyntaxError,
-    require: (name: string) => { if(name==="@/lib/monitorManagement")return {loadMonitorControls:async()=>new Map()}; assert.ok(name in mocks, `Unexpected module: ${name}`); const mock=mocks[name]; return name==="@/lib/monitorAccess" ? { ...(mock as object),requireOwnEmployee } : mock; },
+    require: (name: string) => { if(name==="@/lib/monitorManagement")return {loadMonitorControls:async()=>new Map()}; assert.ok(name in { ...monitorFixtureImports, ...mocks }, `Unexpected module: ${name}`); const mock=mocks[name] ?? monitorFixtureImports[name]; return name==="@/lib/monitorAccess" ? { ...(mock as object),requireOwnEmployee } : mock; },
   });
   return exports;
 }

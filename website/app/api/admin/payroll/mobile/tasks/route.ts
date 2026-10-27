@@ -1,3 +1,5 @@
+export const maxDuration = 25;
+import { withMonitorSessionDeadline } from '@/lib/monitorSessionDeadline';
 import { loadMonitorControls } from "@/lib/monitorManagement";
 import { requireMonitorAccess } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
@@ -9,6 +11,7 @@ import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 import { monitorPauseWorkflow, type MonitorPauseState } from "@/lib/monitorPauseWorkflow";
 import { monitorDuration, dailyWorkflow } from "@/lib/monitorDuration";
 import { loadMonitorDailyStates } from "@/lib/monitorDailyData";
+import { loadMonitorWorkspace } from '@/lib/monitorWorkspaceSnapshot';
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,9 +25,9 @@ const clean = (value: unknown, fallback: string, limit: number) => String(value 
 /** Payroll supplies assignments; verified admin Telegram posts supply operational TASK. */
 export async function GET(request: Request) {
   try {
-    const { actor, supabaseAdmin, employeeCode, canOperateAll, operableEmployeeCodes, workspaceSnapshot } = await requireMonitorAccess(request);
-    const { data, error } = workspaceSnapshot ? { data: workspaceSnapshot, error: null } : await supabaseAdmin.from("cp_payroll_workspace")
-      .select("payload,revision,updated_at").eq("id", 1).single();
+    return await withMonitorSessionDeadline(async signal => {
+    const { actor, supabaseAdmin, employeeCode, canOperateAll, operableEmployeeCodes, workspaceSnapshot } = await requireMonitorAccess(request, { allowPublic: true, signal });
+    const { data, error } = { data: workspaceSnapshot ?? await loadMonitorWorkspace(supabaseAdmin), error: null };
     if (error || !data) throw error ?? new Error("Workspace tidak ditemukan");
     const payload = data.payload as Record<string, unknown>;
     const employees = (Array.isArray(payload[workspaceKeys.employees]) ? payload[workspaceKeys.employees] : []) as Employee[];
@@ -151,10 +154,11 @@ export async function GET(request: Request) {
     });
     return respond({ schema: 1, source: "payroll", sourceOfTruth: "telegram_fh3_manual", scope: "FH3", revision: data.revision,
       updatedAt: data.updated_at, workflowSchema: 1, pauseSchema: pauseSupported ? 1 : 0, dailySchema: dailyStates.supported ? 1 : 0, complete: true, tasks: actionableTasks });
+    }, 18_000);
   } catch (error) {
     const status = adminErrorStatus(error);
     return respond({ error: status === 401 ? "Sesi habis; silakan login ulang."
       : status === 403 ? "Akses payroll tidak diizinkan." : "Tugas order belum dapat dimuat." },
-      status === 401 || status === 403 ? status : 503);
+      status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }

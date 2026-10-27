@@ -15,13 +15,14 @@ public final class OrderNotificationService extends Service {
     private EmployeeDb db;
     private SharedPreferences settings;
     private boolean stopped,polling;
+    private int failures;
     private final Runnable poll=new Runnable(){public void run(){
         if(stopped)return;
-        if(!settings.getBoolean("order_notifications",false) || !api.hasSession()){stopSelf();return;}
-        api.loadPendingOrders((data,message,ok)->{
+        if(!settings.getBoolean("order_notifications",false)){stopSelf();return;}
+        api.loadPublicPendingOrders((data,message,ok)->{
             if(stopped)return;
             try{
-                if(!settings.getBoolean("order_notifications",false) || !api.hasSession()){stopSelf();return;}
+                if(!settings.getBoolean("order_notifications",false)){stopSelf();return;}
                 String detail;
                 if(ok && data!=null)detail=OrderNotifications.observe(OrderNotificationService.this,data);
                 else{detail=message;OrderNotifications.failed(OrderNotificationService.this,message);}
@@ -33,16 +34,17 @@ public final class OrderNotificationService extends Service {
                 OrderNotifications.failed(OrderNotificationService.this,"Notifikasi gagal diproses. Buka Pengaturan dan Tes notifikasi.");
                 OrderNotifications.serviceChecked(OrderNotificationService.this,"Notifikasi gagal diproses. Buka Pengaturan dan Tes notifikasi.");
             }finally{
-                if(!stopped)handler.postDelayed(this,30000);
+                failures=ok?0:Math.min(2,failures+1);
+                if(!stopped)handler.postDelayed(this,30000L<<failures);
             }
         });
     }};
     @Override public void onCreate(){
         super.onCreate();settings=getSharedPreferences("settings",MODE_PRIVATE);
-        db=new EmployeeDb(this);api=new PayrollSync(new SecureSession(this),db,this);OrderNotifications.ensureChannels(this);
+        db=new EmployeeDb(this);api=new PayrollSync(new SecureSession(this),db,this,true);OrderNotifications.ensureChannels(this);
     }
     @Override public int onStartCommand(Intent intent,int flags,int startId){
-        if(!settings.getBoolean("order_notifications",false) || !api.hasSession()){stopSelf();return START_NOT_STICKY;}
+        if(!settings.getBoolean("order_notifications",false)){stopSelf();return START_NOT_STICKY;}
         startForeground(8301,OrderNotifications.notification(this,OrderNotifications.BACKGROUND,"Monitor order FH3 aktif",
             "Menunggu hasil pemeriksaan antrean. Buka Pengaturan untuk status dan tes notifikasi.").setOnlyAlertOnce(true).setOngoing(true).build());
         if(!polling){polling=true;handler.post(poll);}return START_STICKY;

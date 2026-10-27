@@ -125,3 +125,5 @@ Console.WriteLine("All EVOGAMING single-page worker sleep tests passed.");
 AutoWorkStatusTests.Run();
 await ApiContractTests.Run();
 await ConnectionRecoveryTests.Run();
+
+await OpenWorkspaceTests.Run();

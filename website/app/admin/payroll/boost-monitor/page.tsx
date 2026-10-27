@@ -50,7 +50,7 @@ export default function BoostMonitorDownloadPage() {
     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 p-6 text-zinc-950 sm:p-8">
       <div className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-600">Android &amp; Windows</div>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">Satu tempat untuk setiap order.</h2>
-      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">Terima order dan TASK yang dikirim Adm EVO Gaming di grup FH3. Pilih karyawan, ambil order dengan TAKE, lalu kirim laporan START dan DONE beserta screenshot.</p>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">Pasang dan buka aplikasi untuk menerima order serta TASK dari Adm EVO Gaming di grup FH3. Pilih nama karyawan, lalu gunakan TAKE, START, PAUSE/CONTINUE, dan DONE.</p>
       <div className="mt-7 grid gap-4 md:grid-cols-3">
         <article className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <span className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Android</span>
@@ -74,14 +74,15 @@ export default function BoostMonitorDownloadPage() {
             : <span role="status" className="mt-auto rounded-xl border border-zinc-300 p-3 text-center text-sm text-zinc-600">{windowsReady === null ? "Memeriksa file…" : "Menyiapkan file Windows. Muat ulang sebentar lagi."}</span>}
         </article>
       </div>
-      <p className="mt-5 text-sm leading-6 text-zinc-600">Tutup Monitor Windows sebelum membuka file yang baru. Sesi login dan riwayat status lokal tetap tersimpan.</p>
+      <p className="mt-5 text-sm leading-6 text-zinc-600">Tutup Monitor Windows sebelum membuka file yang baru. Riwayat status lokal tetap tersimpan. Karyawan tidak perlu login atau mengaktifkan perangkat.</p>
     </section>
     <section className="cp-card p-5 sm:p-6">
       <h2 className="text-lg font-semibold">Mulai bekerja</h2>
       <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-zinc-400">
-        <li>Unduh aplikasi untuk perangkat Anda, lalu masuk dengan akun ComePlayers yang memiliki akses FH3.</li>
+        <li>Unduh, pasang, lalu buka aplikasi. Menu Order Baru langsung tersedia tanpa akun karyawan.</li>
         <li>Pilih nama karyawan dan order, kemudian tekan <strong>TAKE ORDER</strong>.</li>
-        <li>Unggah screenshot saat <strong>START</strong> dan <strong>DONE</strong>. Monitor Windows menampilkan jumlah dan daftar pekerjaan di <strong>Order Selesai</strong>.</li>
+        <li>Unggah screenshot saat <strong>START</strong>, <strong>PAUSE/CONTINUE</strong>, dan <strong>DONE</strong>. Lihat jumlah serta daftar pekerjaan di <strong>Order Selesai</strong>.</li>
+        <li>Untuk menghapus, memindahkan pekerja, mengisi upah, atau membuat Tutup Buku, buka <strong>Pengaturan → Login Admin</strong>.</li>
       </ol>
       <p className="mt-4 text-sm leading-6 text-zinc-500">Jika unduhan Android berhenti di browser Telegram atau WhatsApp, buka halaman ini melalui Chrome.</p>
       {parallelInstall && <p className="mt-3 text-sm leading-6 text-zinc-500">Android FH3 dipasang berdampingan dengan CP Boost Monitor lama. Pertahankan aplikasi lama untuk membuka atau mengekspor riwayat status lokalnya.</p>}

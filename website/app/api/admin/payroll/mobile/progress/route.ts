@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   let pauseReport = false;
   let dailyReport = false;
   try {
-    const context = await requireMonitorAccess(request);
+    const context = await requireMonitorAccess(request, { allowPublic: true, rosterOnly: true });
     const { actor, supabaseAdmin } = context;
     adminId = actor.id;
     service = supabaseAdmin;
@@ -127,6 +127,6 @@ export async function POST(request: Request) {
     return respond({ error: status === 401 ? "Sesi habis; silakan masuk kembali."
       : status === 403 ? "Akses Payroll ditolak."
       : "Kirim bukti belum selesai; cek grup dan status order sebelum mencoba lagi." },
-      status === 401 || status === 403 ? status : 503);
+      status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }

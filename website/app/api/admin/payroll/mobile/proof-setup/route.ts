@@ -11,7 +11,7 @@ const respond = (body: unknown, status = 200) =>
 /** Read-only preflight. Does not send test photos or change orders. */
 export async function GET(request: Request) {
   try {
-    const { supabaseAdmin } = await requireMonitorAccess(request);
+    const { supabaseAdmin } = await requireMonitorAccess(request, { allowPublic: true, rosterOnly: true });
     const { data, error } = await supabaseAdmin
       .from("cp_payroll_telegram_divisions")
       .select("chat_id,chat_title,active")
@@ -38,6 +38,6 @@ export async function GET(request: Request) {
     return respond({ error: status === 401 ? "Sesi habis, silakan login ulang."
       : status === 403 ? "Akses Payroll ditolak."
       : "Pemeriksaan grup Telegram belum tersedia." },
-      status === 401 || status === 403 ? status : 503);
+      status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }

@@ -1,3 +1,4 @@
+import { monitorFixtureImports } from './monitor-fixture-imports';
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
@@ -77,7 +78,7 @@ test("completed endpoint authorizes members before reads and rejects malformed f
     "@/lib/fh3MonitorCompletedData": { loadCompletedMonitorEvidence: async () => ({ receipts: [source()], proofs: [done()] }) },
     "@/lib/fh3MonitorJobs": { loadFH3MonitorJobs: async () => new Map([["X4801", job()]]) },
   };
-  runInNewContext(sourceCode, { exports, Request, Response, URL, require: (key: keyof typeof modules) => modules[key] });
+  runInNewContext(sourceCode, { exports, Request, Response, URL, require: (key: keyof typeof modules) => modules[key] ?? monitorFixtureImports[key] });
   const get = (query = "") => exports.GET!(new Request("https://example.test/completed" + query));
   assert.equal((await get()).status, 401); status = 403; assert.equal((await get()).status, 403); assert.equal(reads, 0);
   status = 200; const response = await get("?employeeCode=E1");

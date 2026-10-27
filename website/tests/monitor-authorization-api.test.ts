@@ -1,3 +1,4 @@
+import { monitorFixtureImports } from './monitor-fixture-imports';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {runInNewContext} from "node:vm";
@@ -10,7 +11,7 @@ function load(path:string,mocks:Record<string,unknown>){
  const exports:Record<string,(...args:unknown[])=>Promise<unknown>>={};
  runInNewContext(ts.transpileModule(readFileSync(new URL(`../${path}`,import.meta.url),"utf8"),{
   compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022},
- }).outputText,{exports,Request,Response,URL,Buffer,require:(name:string)=>{assert.ok(name in mocks,name);return mocks[name];}});
+ }).outputText,{exports,Request,Response,URL,Buffer,require:(name:string)=>{assert.ok(name in { ...monitorFixtureImports, ...mocks },name);return mocks[name] ?? monitorFixtureImports[name];}});
  return exports;
 }
 test("Monitor checks stored role, stable employee binding and fresh revocation; user metadata cannot grant admin",async()=>{

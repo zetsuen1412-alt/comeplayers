@@ -57,6 +57,10 @@ public final class MainActivity extends Activity {
     private PayrollSync payroll;
     private boolean syncBusy = false;
     private boolean pendingBusy = false, pendingLoaded = false, assignmentBusy = false;
+    private int pendingFailures;
+    private long pendingRetryAt;
+    private int tasksFailures;
+    private long tasksRetryAt;
     private JSONArray pendingOrders = new JSONArray();
     private JSONArray activeTasks = new JSONArray();
     private boolean tasksBusy = false, proofBusy = false, takeBusy = false;
@@ -97,6 +101,7 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         db = new EmployeeDb(this);
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        if (!prefs.contains("order_notifications")) prefs.edit().putBoolean("order_notifications",true).apply();
         payroll = new PayrollSync(new SecureSession(this), db,this);
         render();
     }
@@ -106,6 +111,12 @@ public final class MainActivity extends Activity {
         handler.removeCallbacks(pendingTicker); handler.postDelayed(pendingTicker, 30000L);
         if (linked()) {
             loadPendingOrders(false); loadActiveTasks(false);
+            if (prefs.getBoolean("order_notifications",false) && android.os.Build.VERSION.SDK_INT>=33
+                && checkSelfPermission("android.permission.POST_NOTIFICATIONS")!=android.content.pm.PackageManager.PERMISSION_GRANTED
+                && !prefs.getBoolean("notification_permission_requested",false)) {
+                prefs.edit().putBoolean("notification_permission_requested",true).apply();
+                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},830);
+            }
             if(prefs.getBoolean("order_notifications",false) && (android.os.Build.VERSION.SDK_INT<33
               || checkSelfPermission("android.permission.POST_NOTIFICATIONS")==android.content.pm.PackageManager.PERMISSION_GRANTED)) startOrderNotifications();
         }
@@ -139,7 +150,7 @@ public final class MainActivity extends Activity {
             intent=new Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName()).putExtra(android.provider.Settings.EXTRA_CHANNEL_ID,OrderNotifications.selectedChannel(this));
         try{startActivity(intent);}catch(android.content.ActivityNotFoundException error){startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())));}
     }
-    private boolean linked() { return payroll.hasSession(); }
+    private boolean linked() { return true; } // Worker workspace never depends on an account session.
     private void refreshPayroll(boolean manual) {
         if (syncBusy || !linked()) {
             if (manual && !linked()) loginDialog();
@@ -152,7 +163,7 @@ public final class MainActivity extends Activity {
             syncBusy = false;
             if (ok) prefs.edit().putLong("payroll_last_sync", now()).putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
             else prefs.edit().putString("payroll_sync_error", message).apply();
-            if (manual || !ok) toast(message);
+            if (manual) toast(message);
             if (ok) { loadPendingOrders(false); loadActiveTasks(false); }
             render();
         });
@@ -160,12 +171,15 @@ public final class MainActivity extends Activity {
 
     private void loadPendingOrders(boolean manual) {
         if (pendingBusy || !linked()) return;
+        if(!manual && android.os.SystemClock.elapsedRealtime()<pendingRetryAt)return;
         pendingBusy = true;
         if (manual && "Order Baru".equals(page)) render();
         final long version = accountVersion;
         payroll.loadPendingOrders((data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             pendingBusy = false;
+            pendingFailures=ok?0:Math.min(2,pendingFailures+1);
+            pendingRetryAt=ok?0:android.os.SystemClock.elapsedRealtime()+(30000L<<pendingFailures);
             if (ok) {
                 pendingOrders = data.optJSONArray("pending");
                 pendingLoaded = true;
@@ -215,11 +229,14 @@ public final class MainActivity extends Activity {
 
     private void loadActiveTasks(boolean manual) {
         if (tasksBusy || !linked()) return;
+        if (!manual && android.os.SystemClock.elapsedRealtime()<tasksRetryAt) return;
         tasksBusy = true;
         final long version = accountVersion;
         payroll.loadActiveTasks((data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             tasksBusy = false;
+            tasksFailures=ok?0:Math.min(2,tasksFailures+1);
+            tasksRetryAt=ok?0:android.os.SystemClock.elapsedRealtime()+(30000L<<tasksFailures);
             boolean statusChanged = false;
             if (ok) {
                 activeTasks = data.optJSONArray("tasks");
@@ -302,21 +319,28 @@ public final class MainActivity extends Activity {
     }
 
     private void loginDialog() {
+        if (proofBusy || assignmentBusy || takeBusy) {
+            toast("Tunggu pengiriman laporan selesai sebelum login admin."); return;
+        }
         LinearLayout form = form();
-        form.addView(text("Masuk memakai username dan password. Admin menyiapkan akun pribadi atau akun bersama untuk memilih karyawan FH3.", 13, SUB, false));
+        form.addView(text("Login khusus admin untuk mengelola order, upah, dan Tutup Buku. Karyawan langsung memakai daftar order tanpa akun.", 13, SUB, false));
         space(form, 8);
         EditText email = input("Username ComePlayers", "");
         email.setInputType(InputType.TYPE_CLASS_TEXT);
         EditText password = input("Password", "");
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         form.addView(email); form.addView(password);
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Masuk EVOGAMING Monitor")
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("Login Admin")
                 .setView(form).setNegativeButton("Batal", null).setPositiveButton("Login", null).create();
         dialog.setOnShowListener(x -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             if (trim(email).isEmpty()) { email.setError("Masukkan username."); return; }
             if (trim(password).isEmpty()) { password.setError("Password harus diisi."); return; }
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             final long version = ++accountVersion;
+            // Old read callbacks are discarded by accountVersion. Release their
+            // flags now so either a successful or failed admin login can resume
+            // the worker workspace.
+            pendingBusy = false; tasksBusy = false; syncBusy = false; earningsBusy = false;
             payroll.login(trim(email), password.getText().toString(), (message, ok) -> {
                 if (version != accountVersion) return;
                 password.setText("");
@@ -339,6 +363,7 @@ public final class MainActivity extends Activity {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                     new AlertDialog.Builder(this).setTitle("Login gagal").setMessage(message)
                             .setPositiveButton("OK", null).show();
+                    loadPendingOrders(false); loadActiveTasks(false); refreshPayroll(false);
                 }
             });
         }));
@@ -413,19 +438,6 @@ public final class MainActivity extends Activity {
         header.addView(text("MONITOR FH3", 11, SUB, true));
         root.addView(header, lp(-1, -2));
         // Selalu gunakan roster payroll, jangan tampilkan angka nol mode lokal tanpa login.
-        if (!linked()) {
-            contentScroll = null;
-            LinearLayout gate = vertical(); gate.setPadding(dp(25), dp(48), dp(25), 0);
-            gate.addView(text("Masuk ke EVOGAMING Monitor", 23, INK, true));
-            space(gate, 12);
-            gate.addView(text("Lihat order terbaru dan pilih karyawan yang mengerjakan.", 14, SUB, false));
-            space(gate, 14);
-            gate.addView(text("Gunakan akun yang disiapkan admin.", 13, SUB, false));
-            space(gate, 20);
-            Button login = button("Login Username", true);
-            gate.addView(login, lp(-1, 55));
-            login.setOnClickListener(v -> loginDialog()); root.addView(gate); return;
-        }
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
         contentScroll = scroll;
         body = vertical(); body.setPadding(dp(12), dp(12), dp(12), dp(18));
@@ -860,32 +872,32 @@ public final class MainActivity extends Activity {
     }
 
     private void settingsPage() {
-        heading("Pengaturan & Data", "Akun Monitor, notifikasi, status lokal, dan backup.");
+        heading("Pengaturan & Data", "Login admin, notifikasi, status lokal, dan backup.");
         LinearLayout integration = panel();
-        integration.addView(text("Integrasi Payroll ComePlayers", 17, INK, true)); space(integration, 7);
-        integration.addView(text("Karyawan FH3 dan hak akun dari ComePlayers. Order dan TASK dari kiriman admin Telegram FH3.", 12, SUB, false));
+        integration.addView(text("Mode Karyawan FH3", 17, INK, true)); space(integration, 7);
+        integration.addView(text("Langsung pilih nama dan order tanpa login atau aktivasi perangkat. Login admin hanya untuk mengelola order, upah dan Tutup Buku.", 12, SUB, false));
         space(integration, 7);
         integration.addView(text(linked() ? "✓ " + db.payrollEmployees().size() + " nama FH3 dari website • sinkron setiap 2 menit saat aktif."
                     : "Belum login ke EVOGAMING Monitor.", 13, SUB, false));
         space(integration, 11);
-        if (!linked()) {
-            Button login = button("Login Username", true);
+        if (!payroll.hasAdminSession()) {
+            Button login = button("Login Admin", true);login.setTag("login-admin");
             integration.addView(login, lp(-1, 44)); login.setOnClickListener(v -> loginDialog());
         } else {
             Button update = button("↻ Sinkronkan Nama Sekarang", true);
             integration.addView(update, lp(-1, 44)); update.setOnClickListener(v -> refreshPayroll(true));
             space(integration, 8);
-            Button logout = button("Keluar dari Akun Payroll", false);
+            Button logout = button("Keluar dari Admin", false);
             integration.addView(logout, lp(-1, 44));
             logout.setOnClickListener(v -> new AlertDialog.Builder(this).setTitle("Keluar dari Monitor?")
-                    .setMessage("Daftar dan riwayat lokal tidak dihapus, tetapi aplikasi akan meminta login ulang.")
+                    .setMessage("Mode Karyawan tetap berjalan. Daftar dan riwayat lokal tidak dihapus.")
                     .setNegativeButton("Batal", null).setPositiveButton("Keluar", (d, w) -> {
-                        accountVersion++; stopService(new Intent(this,OrderNotificationService.class));prefs.edit().putBoolean("order_notifications",false).apply(); payroll.logout();
+                        accountVersion++; payroll.logout();
                         earningsData = null; earningsCode = ""; earningsError = ""; earningsOffset = 0;
                         pendingOrders = new JSONArray(); activeTasks = new JSONArray();
                         pendingError = ""; tasksError = ""; pendingLoaded = false; orderSearch = "";
                         earningsBusy = false; pendingBusy = false; tasksBusy = false; syncBusy = false;
-                        prefs.edit().remove("payroll_linked").apply(); render();
+                        prefs.edit().remove("payroll_linked").apply(); page="Order Baru"; render();refreshPayroll(false);loadPendingOrders(false);loadActiveTasks(false);
                     }).show());
         }
         if(linked()){
