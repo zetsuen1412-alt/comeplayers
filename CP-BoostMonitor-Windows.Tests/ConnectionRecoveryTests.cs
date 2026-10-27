@@ -26,6 +26,32 @@ internal static class ConnectionRecoveryTests
         Directory.CreateDirectory(root);
         try
         {
+            Check(PayrollApi.AuthenticationTimeout == TimeSpan.FromSeconds(65), "Windows login budget matches Android instead of expiring at 25 seconds");
+            var loginFile = Path.Combine(root, "slow-login.dat");
+            using (var delayed = new Transport())
+            using (var slowApi = new PayrollApi(delayed, loginFile, TimeSpan.FromMilliseconds(40), TimeSpan.FromMilliseconds(600)))
+            {
+                delayed.Respond = async (request, ct) => {
+                    await Task.Delay(100, ct);
+                    return Json(request.RequestUri!.AbsolutePath.EndsWith("/session") ? Session : Roster);
+                };
+                await slowApi.LoginAsync("fixture", "synthetic-password");
+                Check(slowApi.LoggedIn && delayed.Requests.Count == 2, "slow login and access verification each use the authentication budget without repeating requests");
+                delayed.Respond = async (_, ct) => { await Task.Delay(Timeout.InfiniteTimeSpan, ct); return Json("{}"); };
+                try { await slowApi.RosterAsync(); throw new Exception("Ordinary read must remain bounded"); }
+                catch (MonitorReadException) { Check(slowApi.LoggedIn, "ordinary reads keep their short deadline and preserve the authorized session"); }
+            }
+            var failedLoginFile = Path.Combine(root, "failed-login.dat");
+            using (var stalled = new Transport())
+            using (var failedApi = new PayrollApi(stalled, failedLoginFile, authenticationTimeout: TimeSpan.FromMilliseconds(35)))
+            {
+                stalled.Respond = async (_, ct) => { await Task.Delay(Timeout.InfiniteTimeSpan, ct); return Json("{}"); };
+                try { await failedApi.LoginAsync("fixture", "synthetic-password"); throw new Exception("Stalled login accepted"); }
+                catch (MonitorReadException error) {
+                    Check(error.Message.Contains("Waktu tunggu habis") && !failedApi.LoggedIn && !File.Exists(failedLoginFile)
+                        && stalled.Requests.SequenceEqual(new[] { "POST session" }), "a stalled login explains timeout, sends once and never stores an unverified session");
+                }
+            }
             var file = Path.Combine(root, "session.dat");
             using var http = new Transport();
             http.Respond = (r, _) => Task.FromResult(Json(r.RequestUri!.AbsolutePath.EndsWith("/session") ? Session : Roster));

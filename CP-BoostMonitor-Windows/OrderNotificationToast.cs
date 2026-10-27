@@ -94,9 +94,7 @@ internal sealed class OrderNotificationToast : Form
         using var border = new Pen(LuxuryPalette.Border); e.Graphics.DrawRectangle(border, 0, 0, Width - 1, Height - 1);
         int scale(int value) => value * DeviceDpi / 96;
         var badge = new Rectangle(scale(17), scale(30), scale(48), scale(48));
-        using var blue = new SolidBrush(LuxuryPalette.Accent); e.Graphics.FillEllipse(blue, badge);
-        using var font = new Font("Segoe UI", 20, FontStyle.Bold);
-        TextRenderer.DrawText(e.Graphics, "E", font, badge, Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        Fh3Branding.Draw(e.Graphics, badge);
     }
     protected override void Dispose(bool disposing) { if (disposing) _dismiss.Dispose(); base.Dispose(disposing); }
 }

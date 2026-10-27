@@ -3,10 +3,10 @@ import { singleDeviceSessionsEnabled } from "@/lib/auth/accountSessionConfig";
 import { workspaceKeys } from "@/features/payroll/lib/workspace-model";
 import type { Employee } from "@/features/payroll/types/domain";
 
-export async function requireMonitorAccess(request: Request, options: { activateSession?: boolean } = {}) {
+export async function requireMonitorAccess(request: Request, options: { activateSession?: boolean; signal?: AbortSignal } = {}) {
   // Identity/MFA is always verified. Only an explicitly bound shared Monitor
   // account may bypass the website's one-device claim, and only on Monitor APIs.
-  const user = await requireAccountIdentity(request), supabaseAdmin = createSupabaseAdmin();
+  const user = await requireAccountIdentity(request, options), supabaseAdmin = createSupabaseAdmin(options);
   const { data: profile, error } = await supabaseAdmin.from("profiles")
     .select("id,role,username,full_name,email").eq("id", user.id).maybeSingle();
   if (error) throw error;
@@ -54,10 +54,11 @@ export async function requireMonitorAccess(request: Request, options: { activate
     if (data !== true) throw Object.assign(new Error("Sesi Monitor telah berakhir."), { status: 401 });
   } else {
     if (options.activateSession && singleDeviceSessionsEnabled()) {
-      const { data, error } = await createSupabaseUserClient(getBearerToken(request)).rpc("cp_claim_account_session");
-      if (error || !data?.active) throw Object.assign(new Error("Sesi akun belum aktif."), { status: 403 });
+      const { data, error } = await createSupabaseUserClient(getBearerToken(request), options).rpc("cp_claim_account_session");
+      if (error) throw Object.assign(new Error("Pemeriksaan sesi belum tersedia."), { status: 503 });
+      if (!data?.active) throw Object.assign(new Error("Sesi akun belum aktif."), { status: 403 });
     }
-    await requireAuthenticatedUser(request);
+    await requireAuthenticatedUser(request, options);
   }
   return { user, profile, actor, supabaseAdmin, employeeCode, employeeId, accessScope,
     canOperateAll: accessScope === "shared", operableEmployeeCodes, workspaceSnapshot };

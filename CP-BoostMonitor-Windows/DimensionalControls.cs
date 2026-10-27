@@ -137,16 +137,11 @@ internal sealed class BrandMark : Control
     protected override void OnPaint(PaintEventArgs e)
     {
         var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias; g.Clear(LuxuryPalette.Sidebar);
-        var orb = new Rectangle(6, 8, 40, 40);
-        using var fill = new SolidBrush(LuxuryPalette.Accent);
-        g.FillEllipse(fill, orb);
-        using var letter = new Font("Segoe UI", 16, FontStyle.Bold);
-        TextRenderer.DrawText(g, "E", letter, orb, Color.White,
-            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        Fh3Branding.Draw(g, new Rectangle(6, 4, 56, 56));
         using var brand = new Font("Segoe UI", 12, FontStyle.Bold);
         using var caption = new Font("Segoe UI", 8.5f, FontStyle.Bold);
-        TextRenderer.DrawText(g, "EVOGAMING", brand, new Point(56, 13), LuxuryPalette.SidebarText);
-        TextRenderer.DrawText(g, "OPERATIONS / FH3", caption, new Point(57, 36), LuxuryPalette.SidebarMuted);
+        TextRenderer.DrawText(g, "EVOGAMING", brand, new Point(69, 13), LuxuryPalette.SidebarText);
+        TextRenderer.DrawText(g, "OPERATIONS / FH3", caption, new Point(70, 36), LuxuryPalette.SidebarMuted);
         using var line = new Pen(LuxuryPalette.SidebarBorder); g.DrawLine(line, 8, 78, Width - 12, 78);
         TextRenderer.DrawText(g, "WORKSPACE", caption, new Point(10, 90), LuxuryPalette.SidebarMuted);
     }

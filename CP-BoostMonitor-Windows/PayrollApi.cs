@@ -23,6 +23,8 @@ public sealed class PayrollApi : IDisposable
     private int _sessionVersion;
     private readonly string _sessionFile;
     private readonly TimeSpan _readTimeout;
+    internal static readonly TimeSpan AuthenticationTimeout = TimeSpan.FromSeconds(65);
+    private readonly TimeSpan _authenticationTimeout;
     private bool _sessionRecoveryRequired;
 
     private sealed class Session
@@ -57,10 +59,11 @@ public sealed class PayrollApi : IDisposable
         }, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "ComePlayers", "CPBoostMonitor", "session.dat")) { }
 
-    internal PayrollApi(HttpMessageHandler handler, string sessionFile, TimeSpan? readTimeout = null)
+    internal PayrollApi(HttpMessageHandler handler, string sessionFile, TimeSpan? readTimeout = null, TimeSpan? authenticationTimeout = null)
     {
         _sessionFile = sessionFile;
         _readTimeout = readTimeout ?? TimeSpan.FromSeconds(20);
+        _authenticationTimeout = authenticationTimeout ?? AuthenticationTimeout;
         _http = new HttpClient(handler)
         {
             BaseAddress = new Uri(Origin), Timeout = TimeSpan.FromSeconds(75),
@@ -132,7 +135,7 @@ public sealed class PayrollApi : IDisposable
             throw new InvalidOperationException("Username dan password wajib diisi.");
         using var login = new HttpRequestMessage(HttpMethod.Post, "session")
         { Content = JsonContent.Create(new { action = "login", username = email.Trim(), password }, options: _json) };
-        using var response = await SendReadAsync(login, "menghubungkan akun", TimeSpan.FromSeconds(25));
+        using var response = await SendReadAsync(login, "menghubungkan akun", _authenticationTimeout);
         var session = await ParseAsync<Session>(response);
         if (session is null || string.IsNullOrWhiteSpace(session.AccessToken) ||
             string.IsNullOrWhiteSpace(session.RefreshToken))
@@ -140,7 +143,7 @@ public sealed class PayrollApi : IDisposable
         // Confirm Payroll authorization *before* persisting session to disk.
         using var roster = new HttpRequestMessage(HttpMethod.Get, "roster");
         roster.Headers.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
-        using var check = await SendReadAsync(roster, "memeriksa akses karyawan");
+        using var check = await SendReadAsync(roster, "memeriksa akses karyawan", _authenticationTimeout);
         _ = await ParseAsync<JsonElement>(check);
         SaveSession(session, version);
     }
@@ -165,7 +168,7 @@ public sealed class PayrollApi : IDisposable
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, "session")
                 { Content = JsonContent.Create(new { action = "refresh", refreshToken = oldRefresh }, options: _json) };
-                using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                using var deadline = new CancellationTokenSource(_authenticationTimeout);
                 using var response = await _http.SendAsync(request, deadline.Token);
                 newSession = await ParseAsync<Session>(response);
             }
@@ -227,7 +230,10 @@ public sealed class PayrollApi : IDisposable
         try { return await _http.SendAsync(request, deadline.Token); }
         catch (Exception error) when (error is OperationCanceledException or HttpRequestException)
         {
-            throw new MonitorReadException($"Koneksi terputus saat {operation}. Sambungkan ulang untuk mencoba lagi.", error);
+            var message = error is OperationCanceledException
+                ? $"Waktu tunggu habis saat {operation}. Layanan sedang lambat; tunggu sebentar lalu coba lagi."
+                : $"Koneksi terputus saat {operation}. Periksa koneksi lalu coba lagi.";
+            throw new MonitorReadException(message, error);
         }
     }
 

@@ -79,7 +79,7 @@ public sealed class MainForm : Form
         BackColor = Background;
         ForeColor = Fore;
         Font = new Font("Segoe UI", 10);
-        Icon = SystemIcons.Application;
+        Icon = Fh3Branding.Icon;
 
         BuildLayout();
         _reconnectButton.Enabled = _api.LoggedIn;
@@ -96,7 +96,7 @@ public sealed class MainForm : Form
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
         if (!preview) _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
-        _tray.Icon = SystemIcons.Application;
+        _tray.Icon = Fh3Branding.Icon;
         _tray.Text = "EVOGAMING Monitor FH3";
         _tray.Visible = !preview;
         _tray.ContextMenuStrip = new ContextMenuStrip();

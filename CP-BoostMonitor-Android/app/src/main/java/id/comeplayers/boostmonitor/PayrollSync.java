@@ -51,7 +51,7 @@ final class PayrollSync {
                 input.put("action", "login"); input.put("username", email); input.put("password", password);
                 JSONObject result = call("POST", "/session", input, null);
                 // Login hanya dianggap berhasil sesudah data karyawan website tersimpan.
-                JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"));
+                JSONObject roster = call("GET", "/roster", null, result.getString("accessToken"), 65000);
                 synchronized (sessionGuard) {
                     if (version != sessionVersion) throw new IOException("Sesi sudah berubah.");
                     db.syncRoster(roster); session.saveIfVersion(secureVersion,result); rememberIdentity(roster);
@@ -331,10 +331,14 @@ final class PayrollSync {
     }
 
     private static JSONObject call(String method, String suffix, JSONObject json, String token) throws Exception {
+        return call(method, suffix, json, token, "GET".equals(method) ? 20000 : 65000);
+    }
+
+    private static JSONObject call(String method, String suffix, JSONObject json, String token, int readTimeout) throws Exception {
         URL target = new URL(BASE + suffix);
         HttpURLConnection c = (HttpURLConnection) target.openConnection();
         c.setInstanceFollowRedirects(false);
-        c.setConnectTimeout(12000); c.setReadTimeout("GET".equals(method) ? 20000 : 65000);
+        c.setConnectTimeout(12000); c.setReadTimeout(readTimeout);
         c.setRequestMethod(method); c.setRequestProperty("Accept", "application/json");
         c.setRequestProperty("Cache-Control", "no-store");
         if (token != null) c.setRequestProperty("Authorization", "Bearer " + token);
