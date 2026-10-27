@@ -39,6 +39,7 @@ public final class OpenWorkspaceTest {
     }
     private static void drain(PayrollSync api)throws Exception{
         ((ExecutorService)ReflectionHelpers.getField(api,"executor")).submit(()->{}).get(3,TimeUnit.SECONDS);
+        ((ExecutorService)ReflectionHelpers.getField(api,"actions")).submit(()->{}).get(3,TimeUnit.SECONDS);
         ShadowLooper.idleMainLooper();
     }
     @Test public void newInstallShowsOrdersAndOnlySettingsOffersAdminLogin(){
