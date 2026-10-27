@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'website/app/api/admin/payroll/mobile/**'
+      - 'website/app/sitemap.ts'
+      - 'website/app/admin/category-mapping/page.tsx'
+      - 'website/tests/catalog-build-timeout.test.ts'
       - 'website/features/payroll/lib/google-sheet-sync.ts'
       - 'website/supabase/migrations/2026101922000*_cp_boost_monitor*.sql'
       - 'website/tests/payroll-mobile-assignment*.test.ts'
@@ -67,6 +70,7 @@ jobs:
         run: >-
           npx --no-install tsx --test
           tests/monitor-*.test.ts
+          tests/catalog-build-timeout.test.ts
           tests/fh3-manual-telegram.test.ts
           tests/fh3-manual-telegram-database.test.ts
           tests/fh3-manual-telegram-intake.test.ts

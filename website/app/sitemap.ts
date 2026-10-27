@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
 
+// A slow catalog must not block releases; refresh an incomplete fallback later.
+export const revalidate = 3600;
+
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
@@ -82,7 +85,8 @@ async function gameRoutes(): Promise<SitemapEntry[]> {
     .eq("is_active", true)
     .not("slug", "is", null)
     .order("offer_count", { ascending: false })
-    .limit(5000);
+    .limit(5000)
+    .abortSignal(AbortSignal.timeout(5_000));
 
   if (error || !data) return [];
 
@@ -110,7 +114,8 @@ async function productRoutes(): Promise<SitemapEntry[]> {
     .select("id,slug,updated_at,created_at")
     .eq("status", "active")
     .order("created_at", { ascending: false })
-    .limit(5000);
+    .limit(5000)
+    .abortSignal(AbortSignal.timeout(5_000));
 
   if (error || !data) return [];
 
@@ -128,7 +133,8 @@ async function categoryRoutes(): Promise<SitemapEntry[]> {
     .select("slug,updated_at,created_at")
     .eq("is_active", true)
     .not("slug", "is", null)
-    .order("id", { ascending: true });
+    .order("id", { ascending: true })
+    .abortSignal(AbortSignal.timeout(5_000));
 
   if (error || !data) return [];
 

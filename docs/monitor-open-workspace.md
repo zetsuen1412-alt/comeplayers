@@ -24,6 +24,8 @@ Sakelar darurat `cp_monitor_set_open_mode(actor_admin, false)` dapat menonaktifk
 
 Mode tanpa akun menghindari ketergantungan pekerja pada Supabase Auth. Koneksi internet dan database tetap diperlukan untuk menerima order dan mengirim laporan. Diagnosis baca-saja pada 27 Oktober 2026 menemukan database Unhealthy dan tekanan memori; perubahan ini mengurangi beban, tanpa mengklaim menjamin ketersediaan database atau menghapus audit yang besar.
 
+Build preview pertama tertahan dua pembacaan katalog yang tidak dibatasi. Sitemap kini membatalkan pembacaan setelah lima detik dan memperbarui fallback tiap jam; halaman kategori admin membaca saat request dengan batas yang sama dan menunjukkan pesan muat ulang ketika database gagal. Build rilis tidak lagi menunggu halaman admin membaca database produksi.
+
 ## Validasi dan penerapan
 
 Tes lokal mencakup pemasangan baru, sesi admin lama/kedaluwarsa, tanpa panggilan Auth, TAKE/foto sekali kirim, notifikasi latar belakang tanpa akun, pembatas izin/rate, DAY 1–7/30 dan 48H, pemindahan admin, serta kesetaraan dokumen Payroll sebelum/sesudah operasi. PGlite menjalankan seluruh rantai migrasi terkait secara lokal. Tidak ada pesan uji ke grup Telegram asli.
