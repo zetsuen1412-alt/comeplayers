@@ -74,6 +74,8 @@ public final class MainActivity extends Activity {
     private String earningsError = "", earningsCode = "";
     private int earningsOffset = 0;
     private long accountVersion = 0;
+    private long actionVersion = 0;
+    private boolean changingOrder() { return assignmentBusy || takeBusy || proofBusy; }
     private boolean notificationTestPending;
     private final Runnable payrollTicker = new Runnable() {
         @Override public void run() {
@@ -164,20 +166,23 @@ public final class MainActivity extends Activity {
             if (ok) prefs.edit().putLong("payroll_last_sync", now()).putString("payroll_sync_message", message).remove("payroll_sync_error").apply();
             else prefs.edit().putString("payroll_sync_error", message).apply();
             if (manual) toast(message);
-            if (ok) { loadPendingOrders(false); loadActiveTasks(false); }
+            // The order ticker owns task/queue reads. Roster refresh must not
+            // enqueue a second copy of both after every two-minute poll.
             render();
         });
     }
 
     private void loadPendingOrders(boolean manual) {
-        if (pendingBusy || !linked()) return;
+        if (pendingBusy || changingOrder() || !linked()) return;
         if(!manual && android.os.SystemClock.elapsedRealtime()<pendingRetryAt)return;
         pendingBusy = true;
         if (manual && "Order Baru".equals(page)) render();
         final long version = accountVersion;
+        final long action = actionVersion;
         payroll.loadPendingOrders((data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             pendingBusy = false;
+            if (action != actionVersion) { loadPendingOrders(false); return; }
             pendingFailures=ok?0:Math.min(2,pendingFailures+1);
             pendingRetryAt=ok?0:android.os.SystemClock.elapsedRealtime()+(30000L<<pendingFailures);
             if (ok) {
@@ -193,29 +198,25 @@ public final class MainActivity extends Activity {
     }
 
     private void sendAssignment(String orderRef, String employeeCode) {
+        if (changingOrder()) return;
         if (!pendingOrderAvailable(orderRef)) { toast("Perbarui daftar order sebelum TAKE."); return; }
         for (EmployeeDb.Employee worker : db.payrollEmployees())
             if (employeeCode.equalsIgnoreCase(worker.payrollCode) && EmployeeDb.SLEEP.equals(worker.status)) {
                 toast("Karyawan masih Tidur. Ubah ke Ready Boosting sebelum TAKE."); return;
             }
         assignmentBusy = true;
+        actionVersion++;
         final long version = accountVersion;
         render();
         payroll.assignOrder(orderRef, employeeCode, (data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             assignmentBusy = false;
+            actionVersion++;
             if (ok) markWorkingAfterTake(employeeCode, orderRef);
-            loadPendingOrders(false);
-            loadActiveTasks(false);
-            refreshPayroll(false);
+            afterOrderAction(orderRef, ok);
+            page = "Tugas";
             if (ok) {
-                new AlertDialog.Builder(this)
-                    .setTitle("TAKE diterima Telegram")
-                    .setMessage("Langsung mulai order " + orderRef + " dengan screenshot bukti awal? Foto akan dikirim ke grup Telegram FH3.")
-                    .setNegativeButton("Nanti dari Tugas", null)
-                    .setPositiveButton("START + Foto", (dialog, which) ->
-                        pickProofPhoto(orderRef, employeeCode, "start"))
-                    .show();
+                toast("TAKE berhasil. Pilih START + Foto di Tugas.");
             } else {
                 page = "Tugas";
                 new AlertDialog.Builder(this).setTitle(data != null && data.optBoolean("assigned")
@@ -228,20 +229,22 @@ public final class MainActivity extends Activity {
     }
 
     private void loadActiveTasks(boolean manual) {
-        if (tasksBusy || !linked()) return;
+        if (tasksBusy || changingOrder() || !linked()) return;
         if (!manual && android.os.SystemClock.elapsedRealtime()<tasksRetryAt) return;
         tasksBusy = true;
         final long version = accountVersion;
+        final long action = actionVersion;
         payroll.loadActiveTasks((data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             tasksBusy = false;
+            if (action != actionVersion) { loadActiveTasks(false); return; }
             tasksFailures=ok?0:Math.min(2,tasksFailures+1);
             tasksRetryAt=ok?0:android.os.SystemClock.elapsedRealtime()+(30000L<<tasksFailures);
             boolean statusChanged = false;
             if (ok) {
                 activeTasks = data.optJSONArray("tasks");
                 if (activeTasks == null) activeTasks = new JSONArray();
-                try { statusChanged = db.applyConfirmedTasks(data) > 0; }
+                try { db.syncTasks(data); statusChanged = db.applyConfirmedTasks(data) > 0; }
                 catch (Exception error) { toast("Tugas terbaca; status otomatis belum tersimpan. Periksa penyimpanan perangkat."); }
                 tasksError = "";
             } else { tasksError = message; if (manual) toast(message); }
@@ -263,16 +266,37 @@ public final class MainActivity extends Activity {
 
     private void sendTake(String ref, String code) {
         if (!linked() || takeBusy || proofBusy || assignmentBusy) return;
-        takeBusy = true; render();
+        takeBusy = true; actionVersion++; render();
         final long version = accountVersion;
         payroll.takeOrder(ref, code, (data, message, ok) -> {
             if (version != accountVersion || !linked()) return;
             takeBusy = false;
+            actionVersion++;
             if (ok) markWorkingAfterTake(code, ref);
-            new AlertDialog.Builder(this).setTitle(ok ? "TAKE diterima" : "Periksa TAKE")
+            if (ok) toast(message);
+            else new AlertDialog.Builder(this).setTitle("Periksa TAKE")
                 .setMessage(message).setPositiveButton("OK", null).show();
-            loadActiveTasks(false); loadPendingOrders(false); refreshPayroll(false); render();
+            afterOrderAction(ref, ok); render();
         });
+    }
+
+    private void afterOrderAction(String ref, boolean ok) {
+        if (ok) for (int i=pendingOrders.length()-1;i>=0;i--) {
+            JSONObject row=pendingOrders.optJSONObject(i);
+            if (row!=null && ref.equals(row.optString("orderRef"))) pendingOrders.remove(i);
+        }
+        // Never reuse the old phase after a successful or uncertain write.
+        for (int i=0;i<activeTasks.length();i++) {
+            JSONObject row=activeTasks.optJSONObject(i);
+            if(row==null || !ref.equals(row.optString("orderRef"))) continue;
+            try {
+                for(String key:new String[]{"canTake","canStart","canDone","canPause","canContinue"}) row.put(key,false);
+                row.put("actionMessage",ok?"Memperbarui status…":"Periksa status pengiriman…");
+            } catch(org.json.JSONException ignored) { }
+        }
+        if(!ok) pendingError="Perbarui daftar untuk memastikan hasil aksi terakhir.";
+        pendingRetryAt=0;tasksRetryAt=0;
+        loadPendingOrders(false);loadActiveTasks(false);
     }
 
     private void markWorkingAfterTake(String code, String ref) {
@@ -301,19 +325,22 @@ public final class MainActivity extends Activity {
     }
 
     private void uploadProgress(Uri photo) {
-        if (proofBusy) return;
+        if (changingOrder()) return;
         proofBusy = true;
+        actionVersion++;
         final String ref = proofOrderRef, code = proofEmployeeCode, action = proofAction;
         final long version = accountVersion;
         render();
         payroll.sendProof(ref, code, action, photo, getContentResolver(), proofStartEventId, proofPauseRevision, proofDailyOrder, (message, ok) -> {
             if (version != accountVersion || !linked()) return;
             proofBusy = false;
-            new AlertDialog.Builder(this)
-                .setTitle(ok ? "Bukti terkirim" : "Bukti belum dikonfirmasi")
-                .setMessage(message + (ok ? "" : "\n\nPeriksa grup Telegram sebelum mencoba lagi."))
+            actionVersion++;
+            if(ok) toast(message);
+            else new AlertDialog.Builder(this)
+                .setTitle("Bukti belum dikonfirmasi")
+                .setMessage(message + "\n\nPeriksa grup Telegram sebelum mencoba lagi.")
                 .setPositiveButton("OK", null).show();
-            loadActiveTasks(false); refreshPayroll(false);
+            afterOrderAction(ref, ok);
             render();
         });
     }
@@ -605,7 +632,7 @@ public final class MainActivity extends Activity {
             card.addView(text("TAKE: " + task.optString("takeStatus", "—")
                     + " • START: " + task.optString("startStatus", "—"), 12, SUB, false));
             card.addView(text(task.optString("actionMessage", "Segarkan tugas untuk memeriksa aksi."), 12, SUB, false));
-            boolean busy = proofBusy || takeBusy || assignmentBusy || tasksBusy || !tasksError.isEmpty();
+            boolean busy = changingOrder() || !tasksError.isEmpty();
             if (task.optBoolean("canTake", false)) {
                 Button take = button(takeBusy ? "Mengirim TAKE..." : "Kirim TAKE ke Telegram", true);
                 take.setEnabled(!busy);
@@ -650,12 +677,7 @@ public final class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle("Pilih karyawan untuk " + orderRef)
                 .setItems(labels, (dialog, which) -> {
                     EmployeeDb.Employee selected = workers.get(which);
-                    new AlertDialog.Builder(this).setTitle("Konfirmasi TAKE")
-                            .setMessage("Order: " + orderRef + "\nKaryawan: " + selected.name
-                                    + "\n\nSimpan penugasan dan kirim laporan TAKE ke Telegram FH3?")
-                            .setNegativeButton("Batal", null)
-                            .setPositiveButton("TAKE", (confirm, button) -> sendAssignment(orderRef, selected.payrollCode))
-                            .show();
+                    sendAssignment(orderRef, selected.payrollCode);
                 }).setNegativeButton("Batal", null).show();
     }
 
@@ -994,14 +1016,7 @@ public final class MainActivity extends Activity {
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         if (requestCode == PROOF_PHOTO) {
-            String actionLabel = proofAction.toUpperCase(Locale.ROOT);
-            new AlertDialog.Builder(this).setTitle("Kirim screenshot " + actionLabel + "?")
-                .setMessage("Order: " + proofOrderRef + "\nKaryawan: " + proofEmployeeCode
-                    +(proofDailyOrder==null?"":"\nDay "+proofDailyOrder.optInt("dayNumber")+"/"+proofDailyOrder.optInt("totalDays")+" · "+proofDailyOrder.optInt("completedDays")+" hari selesai")
-                    + "\n\nFoto akan dikirim ke grup Telegram FH3 dan status order di website akan berubah setelah Telegram berhasil menerima gambar.")
-                .setNegativeButton("Batal", null)
-                .setPositiveButton("Kirim Foto", (dialog, which) -> uploadProgress(uri))
-                .show();
+            uploadProgress(uri);
             return;
         }
         try {

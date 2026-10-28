@@ -19,12 +19,20 @@ public sealed class MainForm : Form
     private readonly NotifyIcon _tray = new();
     private readonly Dictionary<string, Control> _pages = new();
     private readonly Dictionary<string, Button> _navigation = new();
+    private readonly HashSet<string> _panelReads = new();
     private List<Employee> _employees = new();
     private List<PayrollOrder> _pending = new();
     private List<PayrollOrder> _tasks = new();
     private bool _busy;
+    private bool _refreshBusy;
+    private bool _refreshNeeded;
+    private bool _refreshScheduled;
+    private long _actionGeneration;
+    private readonly SemaphoreSlim _snapshotGate = new(1, 1);
     private int _readFailures;
     private bool _hasSnapshot;
+    private DateTimeOffset _rosterFetchedAt = DateTimeOffset.MinValue;
+    private int _rosterIdentity = -1;
     private bool _seenInitialQueue;
     private HashSet<string> _lastRefs = new(StringComparer.OrdinalIgnoreCase);
 
@@ -452,12 +460,6 @@ public sealed class MainForm : Form
         var order = _pending.FirstOrDefault(o => o.OrderRef == selection.Order.OrderRef);
         if (employee is null || order is null || !order.TakeAllowed)
             throw new InvalidOperationException("Karyawan atau order sudah berubah. Segarkan data dan pilih lagi.");
-        var answer = MessageBox.Show(
-            $"Karyawan: {employee.Name}\n" +
-            $"Order: {order.OrderRef}\nGame: {order.Game}\nDiscord: {order.DisplayDiscord}\nTASK: {order.Task}\n\n" +
-            "Simpan penugasan dan kirim laporan TAKE ke grup Telegram FH3?",
-            "Konfirmasi TAKE ORDER", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (answer != DialogResult.Yes) return;
         if (employee.LocalStatus is "SLEEP" or "BREAK" or "OFFLINE")
             throw new InvalidOperationException(
                 $"Karyawan {employee.Name} masih berstatus {employee.DisplayLocalStatus}. " +
@@ -468,16 +470,12 @@ public sealed class MainForm : Form
             var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code);
             var statusWarning = MarkWorkingAfterTake(employee, order.OrderRef);
             _takePanel.ClearChoices();
-            await RefreshDataAsync();
-            SetStatus($"TAKE ORDER berhasil: {order.OrderRef} → {assignedName}, pesan TAKE dikonfirmasi Telegram.{statusWarning}");
-            MessageBox.Show(
-                $"Order {order.OrderRef} berhasil ditugaskan ke {assignedName}.\n\n" +
-                "Pesan TAKE sudah dikirim otomatis ke grup Telegram FH3. " +
-                "Pilih tugas di panel kanan bawah untuk mengirim START + Foto." + statusWarning,
-                "TAKE ORDER berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _pending.RemoveAll(item => item.OrderRef == order.OrderRef);
+            BindTables();
+            FinishAction($"TAKE berhasil: {order.OrderRef} → {assignedName}.{statusWarning}");
         }
+        catch { order.DeliveryUncertain = true; BindTables(); _refreshNeeded = true; throw; }
         finally {
-            try { await RefreshDataAsync(); } catch { _takePanel.SetStale(true); }
             _takePanel.SetWorking(false);
         }
     }
@@ -486,28 +484,19 @@ public sealed class MainForm : Form
     {
         if (!task.CanTake)
             throw new InvalidOperationException("TAKE hanya tersedia untuk tugas yang belum START.");
-        if (MessageBox.Show(
-            $"Order: {task.OrderRef}\nKaryawan: {task.EmployeeName}\n\n" +
-            "Periksa apakah TAKE sudah dikirim; server tidak akan mengirim duplikat. Lanjut?",
-            "Kirim/Cek TAKE", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-            return;
         try
         {
             var caption = await _api.TakeNoticeAsync(task.OrderRef, task.EmployeeCode);
             var matches = _employees.Where(e => e.Code == task.EmployeeCode && e.Id == task.EmployeeId).ToList();
             var statusWarning = matches.Count == 1 ? MarkWorkingAfterTake(matches[0], task.OrderRef) : "";
-            MessageBox.Show("Telegram TAKE terkonfirmasi: " + caption +
-                "\nSekarang boleh mengirim START + Screenshot." + statusWarning,
-                "TAKE berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FinishAction("TAKE berhasil: " + caption + statusWarning);
         }
         catch
         {
-            MessageBox.Show("TAKE belum terkonfirmasi. Periksa grup Telegram dan status di website sebelum mencoba lagi. " +
-                "Jika pengiriman tidak pasti, jangan tekan berulang.",
-                "Periksa pengiriman", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            task.DeliveryUncertain = true; BindTables();
             throw;
         }
-        finally { try { await RefreshDataAsync(); } catch { _takePanel.SetStale(true); } }
+        finally { _refreshNeeded = true; }
     }
 
     private async Task SendProofAsync(string action)
@@ -526,28 +515,29 @@ public sealed class MainForm : Form
         var (bytes, mime) = image.Value;
         if (!PayrollApi.ValidImage(bytes, mime))
             throw new InvalidOperationException("Screenshot PNG/JPEG tidak valid atau lebih besar dari 7 MB.");
-        // Show the exact selected screenshot at full preview before any network request.
-        // Backend constructs the canonical caption from its FH3 roster.
-        if (!ProofPreviewDialog.Confirm(this, bytes, mime, order, action)) return;
+        SetStatus($"Mengirim {action.ToUpperInvariant()} {order.OrderRef}…");
         // No retries. Any network timeout might mean Telegram has already accepted the photo.
         try
         {
             var result = await _api.ProgressAsync(order.OrderRef, order.EmployeeCode, action, bytes, mime, order.PauseRevision, order.StartEventId, order);
-            MessageBox.Show($"Bukti dikonfirmasi Telegram.\n{result.Caption}\nGrup: {result.ChatTitle}\nStatus website: {result.Status}",
-                "Bukti berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            await RefreshDataAsync();
+            order.CanStart = order.CanDone = order.CanPause = order.CanContinue = order.CanTake = false;
+            order.ActionMessage = "Memperbarui status…";
+            BindTables();
+            FinishAction($"{action.ToUpperInvariant()} berhasil: {result.Caption}");
         }
         catch
         {
-            MessageBox.Show("Pengiriman belum terkonfirmasi. Periksa grup Telegram EVO Ilham FH3 dan status order di website sebelum mencoba lagi. Jangan kirim bukti berulang.",
-                "Periksa grup sebelum mengulang", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            order.DeliveryUncertain = true;
+            BindTables();
+            _refreshNeeded = true;
             throw;
         }
     }
 
     private (byte[] bytes, string mime)? SelectScreenshot()
     {
-        var choice = MessageBox.Show(
+        if (_preview && ScreenshotForCheck is not null) return ScreenshotForCheck();
+        var choice = MessageBox.Show(this,
             "Ambil screenshot Windows dengan Win+Shift+S lalu pilih NO untuk menempel dari clipboard.\n\nYES: pilih file PNG/JPG\nNO: tempel screenshot dari clipboard\nCANCEL: batalkan",
             "Pilih bukti screenshot", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
         if (choice == DialogResult.Cancel) return null;
@@ -597,19 +587,23 @@ public sealed class MainForm : Form
         _takePanel.SetWorking(true);
         try
         {
-            // Read the current control version before confirmation; never infer it from the queue.
-            var snapshot = await _api.ManagementAsync();
-            var order = snapshot.Orders.SingleOrDefault(o => o.OrderRef == selected.OrderRef);
-            if (order is null || order.MonitorArchived)
+            SetStatus($"Menghapus {selected.OrderRef}…");
+            var version = selected.ControlVersion;
+            // Older servers do not include the version. Never assume zero for an
+            // existing control: keep optimistic concurrency on both API versions.
+            if (version is null)
             {
-                await RefreshDataAsync();
-                throw new InvalidOperationException("Order sudah dihapus atau tidak lagi tersedia. Daftar sudah diperbarui.");
+                var snapshot = await _api.ManagementAsync();
+                var current = snapshot.Orders.SingleOrDefault(o => o.OrderRef == selected.OrderRef);
+                if (current is null || current.MonitorArchived)
+                    throw new InvalidOperationException("Order sudah dihapus atau tidak lagi tersedia. Segarkan daftar.");
+                version = current.Version;
             }
-            using var dialog = new ArchiveOrderDialog(order);
-            if (dialog.ShowDialog(this) != DialogResult.OK) return;
-            await _api.ArchiveOrderAsync(order.OrderRef, order.Version, dialog.Reason);
-            await RefreshDataAsync();
-            SetStatus($"Order {order.OrderRef} dihapus dari daftar. Pulihkan melalui Kelola Order → Pulihkan.");
+            await _api.ArchiveOrderAsync(selected.OrderRef, version.Value, "Dihapus admin melalui daftar order Monitor");
+            _pending.RemoveAll(item => item.OrderRef == selected.OrderRef);
+            _tasks.RemoveAll(item => item.OrderRef == selected.OrderRef);
+            BindTables();
+            FinishAction($"Order {selected.OrderRef} dihapus. Pulihkan melalui Kelola Order → Pulihkan.");
         }
         finally { _takePanel.SetWorking(false); }
     }
@@ -626,17 +620,32 @@ public sealed class MainForm : Form
     private async Task RefreshDataAsync()
     {
         if (!_api.WorkspaceAvailable) return;
+        var generation = _actionGeneration;
+        await _snapshotGate.WaitAsync();
+        try {
+        if (generation != _actionGeneration || IsDisposed) return;
         // Start recovery before the first request: a failed startup must not leave
         // an empty workspace with no timer or way to reconnect.
         _poll.Start();
         _connection.Text = "Menghubungkan ke ComePlayers…";
         if (!_hasSnapshot) _metrics.Text = "Memuat data karyawan dan order…";
-        _takePanel.SetStale(true);
-        var newRoster = await _api.RosterAsync();
+        if (!_hasSnapshot) _takePanel.SetStale(true);
+        // Employee names change much less often than orders. Mutations still
+        // authorize the current employee and admin permissions on the server.
+        var identity = _api.IdentityVersion;
+        var readRoster = !_hasSnapshot || identity != _rosterIdentity
+            || DateTimeOffset.UtcNow - _rosterFetchedAt >= TimeSpan.FromMinutes(2);
+        var newRoster = readRoster ? await _api.RosterAsync() : _employees;
+        var pendingRead = _api.CanOperate ? _api.PendingAsync() : Task.FromResult(new List<PayrollOrder>());
+        var tasksRead = _api.TasksAsync();
+        await Task.WhenAll(pendingRead, tasksRead);
+        // A response started before a user action must never overwrite its result.
+        if (generation != _actionGeneration || IsDisposed) return;
+        if (readRoster) { _rosterFetchedAt = DateTimeOffset.UtcNow; _rosterIdentity = identity; }
         _navigation["Kelola Order"].Visible = _api.IsAdmin;
         _takePanel.SetAdminAccess(_api.IsAdmin);
-        var freshPending = _api.CanOperate ? await _api.PendingAsync() : new List<PayrollOrder>();
-        var freshTasks = await _api.TasksAsync();
+        var freshPending = await pendingRead;
+        var freshTasks = await tasksRead;
         string statusWarning = "";
         try { _statusStore.ApplyConfirmedTasks(newRoster, freshTasks); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -666,6 +675,13 @@ public sealed class MainForm : Form
             SetStatus($"ORDER BARU: {string.Join(", ",unseen.Take(6))}");
         }
         if (_activePage == "Order Selesai") await _completedPanel.RefreshAsync();
+        } finally { _snapshotGate.Release(); }
+    }
+
+    private void FinishAction(string success)
+    {
+        SetStatus(success);
+        _refreshNeeded = true;
     }
 
     private void ShowOrderNotification(IReadOnlyList<string> refs, bool demonstration = false)
@@ -720,13 +736,17 @@ public sealed class MainForm : Form
 
     private async Task RunBusyAsync(Func<Task> action, bool quiet = false)
     {
-        if (_busy || IsDisposed) return;
-        _busy = true;
+        if (IsDisposed || (quiet && (_refreshBusy || _busy))) return;
+        if (!quiet && _busy) { SetStatus("Tindakan sebelumnya sedang dikirim…"); return; }
+        var generation = _actionGeneration;
+        if (quiet) _refreshBusy = true;
+        else { _busy = true; ++_actionGeneration; _takePanel.SetWorking(true); }
         _reconnectButton.Enabled = false;
         UseWaitCursor = !quiet;
         try { await action(); }
         catch (Exception error)
         {
+            if (quiet && generation != _actionGeneration) return;
             var message = error switch
             {
                 OperationCanceledException => "Koneksi melewati batas waktu. Perbarui daftar untuk memeriksa hasil tindakan sebelum melanjutkan.",
@@ -751,12 +771,26 @@ public sealed class MainForm : Form
             _poll.Interval = Math.Min(120_000, 30_000 << Math.Min(++_readFailures, 2));
             if (!_preview) _poll.Start();
             if (!quiet && !IsDisposed)
-                MessageBox.Show(message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, message, "EVOGAMING Monitor", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        finally { _busy = false; UseWaitCursor = false; _reconnectButton.Enabled = _api.WorkspaceAvailable; }
+        finally {
+            if (quiet) _refreshBusy = false;
+            else { _busy = false; _takePanel.SetWorking(false); UseWaitCursor = false; }
+            _reconnectButton.Enabled = _api.WorkspaceAvailable && !_busy && !_refreshBusy;
+            if (_refreshNeeded && !_refreshScheduled && !_busy && !_refreshBusy && !IsDisposed && IsHandleCreated) {
+                _refreshScheduled = true;
+                BeginInvoke(async () => {
+                    _refreshScheduled = false;
+                    if (_busy || _refreshBusy || IsDisposed) return;
+                    _refreshNeeded = false;
+                    await RunBusyAsync(RefreshDataAsync, quiet: true);
+                });
+            }
+        }
     }
 
     internal Task ReconnectForCheckAsync() { ShowPage("Take Order"); return RunBusyAsync(RefreshDataAsync, quiet: true); }
+    internal Func<(byte[] bytes, string mime)?>? ScreenshotForCheck { get; set; }
     internal bool RecoveryPolling => _poll.Enabled;
 
     private void SetStatus(string message) { _appStatus.Text = message; }
@@ -778,8 +812,16 @@ public sealed class MainForm : Form
         if(name=="Data Tutup Buku") _metrics.Text="Penghasilan tersimpan beserta daftar order di setiap Tutup Buku";
         if (name == "Aktivitas Lokal") BindTables();
         if (name == "Order Selesai") _ = _completedPanel.RefreshAsync();
-        if (name == "Kelola Order") _ = RunBusyAsync(_managementPanel.RefreshAsync);
-        if (name == "Data Tutup Buku") _ = RunBusyAsync(_booksPanel.RefreshAsync);
+        if (name == "Kelola Order") _ = RefreshPanelAsync(name, _managementPanel.RefreshAsync);
+        if (name == "Data Tutup Buku") _ = RefreshPanelAsync(name, _booksPanel.RefreshAsync);
+    }
+
+    private async Task RefreshPanelAsync(string page, Func<Task> read)
+    {
+        if (!_panelReads.Add(page)) return;
+        try { await read(); }
+        catch (Exception error) { if (!IsDisposed && _activePage == page) SetStatus(error.Message); }
+        finally { _panelReads.Remove(page); }
     }
 
     private void ExportHistory()

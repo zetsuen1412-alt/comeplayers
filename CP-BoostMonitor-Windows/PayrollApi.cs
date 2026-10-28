@@ -77,6 +77,7 @@ public sealed class PayrollApi : IDisposable
 
     public bool LoggedIn => !_publicMode && _session != null && !_sessionRecoveryRequired;
     public bool PublicMode => _publicMode;
+    internal int IdentityVersion => Volatile.Read(ref _sessionVersion);
     public bool WorkspaceAvailable => _publicMode || LoggedIn;
     public bool CanOperate { get; private set; }
     public bool IsAdmin { get; private set; }

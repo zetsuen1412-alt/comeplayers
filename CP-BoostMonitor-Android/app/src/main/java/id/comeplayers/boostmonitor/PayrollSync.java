@@ -31,11 +31,14 @@ final class PayrollSync {
     private final EmployeeDb db;
     private final Connections connections;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    // GET polling must never queue an order action behind a slow read.
+    // Writes stay serialized and are never automatically retried.
+    private final ExecutorService actions = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
-    private boolean syncing = false;
-    private boolean adminActive;
+    private volatile boolean adminActive;
     private long sessionVersion = 0;
     private final Object sessionGuard = new Object();
+    private final Object refreshGuard = new Object();
 
     PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context) { this(session,db,context,false); }
     PayrollSync(SecureSession session, EmployeeDb db, android.content.Context context, boolean workerOnly) {
@@ -51,18 +54,24 @@ final class PayrollSync {
     boolean hasSession() { return session.exists(); }
     boolean hasAdminSession() { return adminActive && session.exists(); }
     private void enterPublicMode() {
+        synchronized(sessionGuard) {
+        sessionVersion++;
         adminActive=false;
         identity.edit().putBoolean("admin_session",false).putBoolean("isAdmin",false).putString("accessScope","public")
             .putString("accountId","00000000-0000-4000-8000-0000000000f3").putString("username","Mode Karyawan").apply();
+        }
+    }
+    private void enterPublicModeIfCurrent(long version) {
+        synchronized(sessionGuard) { if(version==sessionVersion) enterPublicMode(); }
     }
     void logout() { synchronized (sessionGuard) { sessionVersion++; session.clear(); enterPublicMode(); } }
-    void shutdown() { executor.shutdownNow(); }
+    void shutdown() { executor.shutdownNow(); actions.shutdownNow(); }
 
     void login(String email, String password, Done callback) {
         final long secureVersion=session.revision();
         final long version;
         synchronized (sessionGuard) { version = ++sessionVersion; }
-        executor.execute(() -> {
+        actions.execute(() -> {
             try {
                 JSONObject input = new JSONObject();
                 input.put("action", "login"); input.put("username", email); input.put("password", password);
@@ -76,40 +85,40 @@ final class PayrollSync {
                     identity.edit().putBoolean("admin_session",true).apply();
                     adminActive=true;
                 }
-                int tasks = 0;
-                String taskWarning = "";
-                try { tasks = syncTasks(result.getString("accessToken")); }
-                catch (Exception taskError) { taskWarning = " Tugas order belum tersinkron; coba Perbarui dari Payroll."; }
                 finish(callback, "Berhasil mengambil " + db.payrollEmployees().size()
-                        + " nama karyawan dan " + tasks + " tugas aktif dari Payroll Website (revisi " + roster.optLong("revision") + ")." + taskWarning, true);
-            } catch (Exception e) { enterPublicMode(); finish(callback, friendly(e), false); }
+                        + " nama karyawan (revisi " + roster.optLong("revision") + ").", true);
+            } catch (Exception e) { enterPublicModeIfCurrent(version); finish(callback, friendly(e), false); }
         });
     }
 
     void sync(Done callback) {
+        final long version;
+        synchronized(sessionGuard) { version = sessionVersion; }
         executor.execute(() -> {
             try {
                 JSONObject snapshot = authorizedCall("GET", "/roster", null);
-                int[] changed = db.syncRoster(snapshot); rememberIdentity(snapshot);
-                int tasks = 0;
-                String taskWarning = "";
-                try { tasks = db.syncTasks(authorizedCall("GET", "/tasks", null)); }
-                catch (Exception taskError) { taskWarning = " • tugas order belum tersinkron"; }
+                int[] changed;
+                synchronized(sessionGuard) {
+                    if(version != sessionVersion) throw new IOException("Sesi sudah berubah.");
+                    changed = db.syncRoster(snapshot); rememberIdentity(snapshot);
+                }
                 finish(callback, "Payroll tersinkron: " + db.payrollEmployees().size() + " aktif"
                         + " • baru " + changed[0] + ", diperbarui " + changed[1]
-                        + ", nonaktif " + changed[2] + " • tugas aktif " + tasks
-                        + taskWarning + " • revisi " + snapshot.optLong("revision"), true);
+                        + ", nonaktif " + changed[2] + " • revisi " + snapshot.optLong("revision"), true);
             } catch (Exception e) { finish(callback, friendly(e), false); }
         });
     }
 
     private JSONObject refresh(JSONObject credentials) throws Exception {
+        synchronized(refreshGuard) {
         final long secureVersion=session.revision();
         final long version;
         synchronized (sessionGuard) {
             JSONObject current = session.load();
-            if (current == null || !current.optString("refreshToken").equals(credentials.optString("refreshToken")))
+            if (current == null || !adminActive)
                 throw new IOException("Sesi berubah; login kembali.");
+            // Another request may already have rotated the refresh token.
+            if (!current.optString("refreshToken").equals(credentials.optString("refreshToken"))) return current;
             version = sessionVersion;
         }
         JSONObject payload = new JSONObject(); payload.put("action", "refresh");
@@ -120,17 +129,6 @@ final class PayrollSync {
             session.saveIfVersion(secureVersion,fresh);
         }
         return fresh;
-    }
-
-    /** Fetches active tasks directly from Payroll. Older servers may not expose it yet. */
-    private int syncTasks(String token) throws Exception {
-        try {
-            JSONObject snapshot = call("GET", "/tasks", null, token);
-            return db.syncTasks(snapshot);
-        } catch (ApiException error) {
-            // Keep roster login compatible while the website endpoint is rolled out.
-            if (error.status == 404 || error.status == 405) return 0;
-            throw error;
         }
     }
 
@@ -164,7 +162,7 @@ final class PayrollSync {
     }
 
     private void orderAction(String path, String orderRef, String employeeCode, DataDone callback) {
-        executor.execute(() -> {
+        actions.execute(() -> {
             try {
                 JSONObject input = new JSONObject();
                 input.put("orderRef", orderRef);
@@ -197,7 +195,7 @@ final class PayrollSync {
 
     void loadEarnings(String employeeCode, int offset, DataDone callback) { request("GET","/books",null,callback); }
     void request(String method,String path,JSONObject body,DataDone callback) {
-        executor.execute(()->{try {JSONObject result=authorizedCall(method,path,body);
+        ("GET".equals(method) ? executor : actions).execute(()->{try {JSONObject result=authorizedCall(method,path,body);
             main.post(()->callback.accept(result,"",true));}
             catch(Exception e){main.post(()->callback.accept(null,friendly(e),false));}});
     }
@@ -223,7 +221,7 @@ final class PayrollSync {
      */
     void sendProof(String orderRef, String employeeCode, String action,
                    Uri photo, ContentResolver resolver, String startEventId, long pauseRevision, JSONObject dailyOrder, Done callback) {
-        executor.execute(() -> {
+        actions.execute(() -> {
             try {
                 if (!"start".equals(action) && !"done".equals(action) && !"pause".equals(action) && !"continue".equals(action))
                     throw new IOException("Aksi order tidak valid.");
@@ -324,6 +322,8 @@ final class PayrollSync {
     }
 
     private JSONObject authorizedCall(String method, String path, JSONObject payload) throws Exception {
+        final long version;
+        synchronized(sessionGuard) { version=sessionVersion; }
         if(!hasAdminSession())return call(method,path,payload,null);
         JSONObject credentials = session.load();
         try {
@@ -332,7 +332,7 @@ final class PayrollSync {
             return call(method, path, payload, credentials.getString("accessToken"));
         } catch (Exception error) {
             if(error instanceof ApiException && ((ApiException)error).status!=401 && ((ApiException)error).status!=403 && ((ApiException)error).status<500)throw error;
-            enterPublicMode();
+            enterPublicModeIfCurrent(version);
             if("GET".equals(method) && !path.startsWith("/management") && !path.startsWith("/accounts"))return call(method,path,payload,null);
             // A mutation is never replayed with a different authority after any uncertain response.
             throw error;

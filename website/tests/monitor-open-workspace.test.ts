@@ -91,6 +91,28 @@ test('open workspace migration keeps Payroll intact, limits anonymous operations
   const operations=(await db.query<{v:{payload:Record<string,unknown[]>}}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v;
   assert.equal(operations.payload[workspaceKeys.orders].length,1,'all cross-team refs remain for collision detection');
   assert.doesNotMatch(JSON.stringify(operations),/grossMinor|PRIVATE_/);
+  await db.exec(readFileSync(new URL('../supabase/migrations/20261027154318_fh3_monitor_compact_workspace.sql',import.meta.url),'utf8'));
+  assert.deepEqual((await db.query<{v:unknown}>('select cp_monitor_workspace_snapshot(false) v')).rows[0].v,roster);
+  assert.deepEqual((await db.query<{v:unknown}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v,operations);
+  for(const role of ['anon','authenticated','service_role']) {
+   assert.equal((await db.query<{v:boolean}>("select has_schema_privilege($1,'cp_monitor_private','USAGE') v",[role])).rows[0].v,false);
+   assert.equal((await db.query<{v:boolean}>("select has_table_privilege($1,'cp_monitor_private.workspace_projection','SELECT') v",[role])).rows[0].v,false);
+  }
+  await db.exec('begin');
+  await db.query('update cp_payroll_workspace set payload=$1::jsonb,revision=11,updated_at=now() where id=1',[JSON.stringify({...original,[workspaceKeys.employees]:[],[workspaceKeys.orders]:[]})]);
+  const changedSnapshot=(await db.query<{v:{revision:number;payload:Record<string,unknown[]>}}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v;
+  assert.equal(changedSnapshot.revision,11);assert.deepEqual(changedSnapshot.payload[workspaceKeys.employees],[]);
+  assert.deepEqual(changedSnapshot.payload[workspaceKeys.orders],[]);
+  await db.exec('delete from cp_payroll_workspace where id=1');
+  assert.equal((await db.query<{v:unknown}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v,null,'deleted workspace cannot leave cached access');
+  await db.query('insert into cp_payroll_workspace(id,payload,revision) values(1,$1::jsonb,12)',[JSON.stringify(original)]);
+  assert.equal((await db.query<{v:{revision:number}}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v.revision,12);
+  await db.exec('update cp_payroll_workspace set id=2 where id=1');
+  assert.equal((await db.query<{v:unknown}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v,null);
+  await db.exec('update cp_payroll_workspace set id=1 where id=2; truncate cp_payroll_workspace');
+  assert.equal((await db.query<{v:unknown}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v,null);
+  await db.exec('rollback');
+  assert.deepEqual((await db.query<{v:unknown}>('select cp_monitor_workspace_snapshot(true) v')).rows[0].v,operations,'rollback atomically restores the projection');
   const privileges=await db.query<{r:string;allowed:boolean}>("select r,has_function_privilege(r,'public.cp_monitor_public_context(text,boolean,boolean)','execute') allowed from unnest(array['anon','authenticated','service_role']) r");
   assert.deepEqual(privileges.rows,[{r:'anon',allowed:false},{r:'authenticated',allowed:false},{r:'service_role',allowed:true}]);
   assert.equal((await db.query<{v:boolean}>("select has_table_privilege('service_role','public.cp_monitor_open_mode','UPDATE') v")).rows[0].v,false);
