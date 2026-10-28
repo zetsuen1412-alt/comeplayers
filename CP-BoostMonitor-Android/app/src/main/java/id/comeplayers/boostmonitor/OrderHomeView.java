@@ -18,7 +18,7 @@ import org.json.JSONObject;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-/** Compact read-only queue presentation; TAKE still uses the existing worker confirmation. */
+/** Compact queue presentation; TAKE uses the existing worker action. */
 final class OrderHomeView extends LinearLayout {
     private static final int INK=0xff17212b, SUB=0xff687b8b, BLUE=0xff1678b8, BORDER=0xffe5ebef;
     private final JSONArray orders;
@@ -28,15 +28,11 @@ final class OrderHomeView extends LinearLayout {
     final EditText search;
 
     OrderHomeView(Context context, JSONArray orders, boolean loading, boolean loaded, String error,
-                  boolean busy, String query, Runnable refresh, Consumer<String> take, Consumer<String> searchChanged) {
+                  boolean busy, String query, Runnable employees, Consumer<String> take, Consumer<String> searchChanged) {
         super(context); setOrientation(VERTICAL);
         this.orders=orders==null?new JSONArray():orders;this.take=take;
         blocked=loading||busy||!error.isEmpty();
-        LinearLayout title=row();
-        title.addView(label("Order Baru",24,INK,true),new LayoutParams(0,-2,1));
-        Button update=button(loading?"Memuat…":"Perbarui",false);update.setTag("refresh-orders");
-        update.setEnabled(!loading&&!busy);update.setOnClickListener(v->refresh.run());
-        title.addView(update,new LayoutParams(dp(104),dp(48)));addView(title);
+        addView(employeeHeading(context,"Order Baru",employees));
         TextView summary=label(loaded?this.orders.length()+" order • terbaru lebih dulu":"Memuat order dari Telegram FH3…",13,SUB,false);
         summary.setPadding(0,dp(4),0,dp(12));addView(summary);
         search=new EditText(context);search.setTag("order-search");search.setSingleLine(true);search.setTextSize(14);
@@ -91,6 +87,19 @@ final class OrderHomeView extends LinearLayout {
                 +"\nDuration: "+MonitorContract.durationLabel(order)+"\n\nTASK\n"+order.optString("task","—"))
             .setNegativeButton("Tutup",null).setPositiveButton(allowed?"TAKE ORDER":null,allowed?(d,w)->take.accept(ref):null).show());
         card.addView(actions);
+    }
+    static LinearLayout employeeHeading(Context context,String title,Runnable employees) {
+        float density=context.getResources().getDisplayMetrics().density;
+        LinearLayout row=new LinearLayout(context);row.setOrientation(HORIZONTAL);row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView heading=new TextView(context);heading.setText(title);heading.setTextSize(24);heading.setTextColor(INK);heading.setTypeface(null,Typeface.BOLD);
+        row.addView(heading,new LayoutParams(0,-2,1));
+        Button shortcut=new Button(context);shortcut.setText("Data Karyawan");shortcut.setAllCaps(false);shortcut.setTextSize(12);shortcut.setMaxLines(2);shortcut.setGravity(Gravity.CENTER);shortcut.setTextColor(BLUE);
+        shortcut.setMinHeight(Math.round(48*density));shortcut.setMinimumHeight(Math.round(48*density));
+        shortcut.setTag("employee-shortcut");shortcut.setPadding(Math.round(8*density),0,Math.round(8*density),0);
+        GradientDrawable surface=new GradientDrawable();surface.setColor(Color.WHITE);surface.setCornerRadius(12*density);surface.setStroke(Math.round(density),BORDER);shortcut.setBackground(surface);
+        LayoutParams position=new LayoutParams(Math.round(128*density),Math.round(48*density));position.leftMargin=Math.round(8*density);
+        row.addView(shortcut,position);shortcut.setOnClickListener(v->employees.run());
+        return row;
     }
     static String selectedTab(String page) {return "Order Baru".equals(page)||"Tugas".equals(page)?page:"Menu";}
     static LinearLayout navigation(Context context,String page,Consumer<String> navigate) {
