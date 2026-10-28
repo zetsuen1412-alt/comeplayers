@@ -51,6 +51,45 @@ public final class FastActionsTest {
         }
         return null;
     }
+    @Test public void headerRefreshReadsCurrentPageAndEmployeeShortcutWorksDuringThatRead() throws Exception {
+        for(String page:new String[]{"Order Baru","Tugas"}) {
+            try(var controller=Robolectric.buildActivity(MainActivity.class).create()) {
+                MainActivity main=controller.get();
+                ((PayrollSync)ReflectionHelpers.getField(main,"payroll")).shutdown();
+                CountDownLatch entered=new CountDownLatch(1),release=new CountDownLatch(1);
+                java.util.concurrent.BlockingQueue<String> paths=new LinkedBlockingQueue<>();
+                String body="Order Baru".equals(page)
+                    ? "{\"schema\":2,\"scope\":\"FH3\",\"sourceOfTruth\":\"telegram_fh3_manual\",\"pending\":[]}"
+                    : "{\"schema\":1,\"workflowSchema\":1,\"scope\":\"FH3\",\"sourceOfTruth\":\"telegram_fh3_manual\",\"tasks\":[]}";
+                PayrollSync api=new PayrollSync(new SecureSession(main),ReflectionHelpers.getField(main,"db"),main,false,url->{
+                    paths.add(url.getPath());return reply(url,body,entered,release);
+                });
+                ReflectionHelpers.setField(main,"payroll",api);
+                ReflectionHelpers.setField(main,"page",page);
+                ReflectionHelpers.setField(main,"orderSearch","aion");
+                ReflectionHelpers.callInstanceMethod(main,"render");
+                try {
+                    Button refresh=main.getWindow().getDecorView().findViewWithTag("workspace-refresh");
+                    assertEquals("Perbarui",refresh.getText().toString());refresh.performClick();
+                    assertTrue(entered.await(2,TimeUnit.SECONDS));
+                    assertEquals("/api/admin/payroll/mobile/"+("Order Baru".equals(page)?"pending":"tasks"),paths.poll());
+                    View root=main.getWindow().getDecorView();
+                    assertFalse(((Button)root.findViewWithTag("workspace-refresh")).isEnabled());
+                    Button employees=root.findViewWithTag("employee-shortcut");assertTrue(employees.isEnabled());employees.performClick();
+                    assertEquals("Karyawan",ReflectionHelpers.getField(main,"page"));
+                    assertTrue(root.findViewWithTag("nav:Menu").isSelected());assertTrue(paths.isEmpty());
+                    assertEquals("aion",ReflectionHelpers.getField(main,"orderSearch"));
+                } finally {
+                    release.countDown();
+                    ((ExecutorService)ReflectionHelpers.getField(api,"executor")).submit(()->{}).get(3,TimeUnit.SECONDS);
+                    ShadowLooper.idleMainLooper();
+                }
+                main.onBackPressed();
+                assertEquals("Order Baru",ReflectionHelpers.getField(main,"page"));
+                assertEquals("aion",((android.widget.EditText)main.getWindow().getDecorView().findViewWithTag("order-search")).getText().toString());
+            }
+        }
+    }
     @Test public void takeAndArchiveReachServerWhilePendingGetIsBlocked() throws Exception {
         Context c=RuntimeEnvironment.getApplication();EmployeeDb db=new EmployeeDb(c);
         CountDownLatch reading=new CountDownLatch(1),release=new CountDownLatch(1),writes=new CountDownLatch(2);

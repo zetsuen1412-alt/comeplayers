@@ -462,7 +462,19 @@ public final class MainActivity extends Activity {
         logoSize.setMarginEnd(dp(10)); header.addView(logo, logoSize);
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.addView(text("EVOGAMING", 18, PURPLE, true), new LinearLayout.LayoutParams(0,-2,1));
-        header.addView(text("MONITOR FH3", 11, SUB, true));
+        boolean refreshing = "Order Baru".equals(page) ? pendingBusy
+            : "Tugas".equals(page) ? tasksBusy : "Data Tutup Buku".equals(page) ? earningsBusy : syncBusy;
+        Button refresh = button(refreshing ? "Memuat…" : "Perbarui", false);
+        refresh.setTag("workspace-refresh");
+        refresh.setEnabled(!refreshing && !changingOrder());
+        refresh.setOnClickListener(v -> {
+            if ("Order Baru".equals(page)) loadPendingOrders(true);
+            else if ("Tugas".equals(page)) loadActiveTasks(true);
+            else if ("Data Tutup Buku".equals(page)) loadEarnings(earningsCode, earningsOffset);
+            else refreshPayroll(true);
+            if (!"Order Baru".equals(page)) render();
+        });
+        header.addView(refresh, lp(104, 48));
         root.addView(header, lp(-1, -2));
         // Selalu gunakan roster payroll, jangan tampilkan angka nol mode lokal tanpa login.
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(false);
@@ -596,15 +608,13 @@ public final class MainActivity extends Activity {
     private void ordersPage() {
         body.addView(new OrderHomeView(this, pendingOrders, pendingBusy, pendingLoaded, pendingError,
             assignmentBusy || takeBusy || proofBusy, orderSearch,
-            () -> loadPendingOrders(true), this::chooseWorker, value -> orderSearch = value), lp(-1,-2));
+            () -> navigate("Karyawan"), this::chooseWorker, value -> orderSearch = value), lp(-1,-2));
     }
     private void tasksPage() {
-        heading("Tugas Aktif", "Laporan START, PAUSE / CONTINUE, dan DONE dengan foto.");
-        Button refresh = button(tasksBusy ? "Memuat tugas..." : "↻ Segarkan Tugas", false);
-        refresh.setEnabled(!tasksBusy && !proofBusy);
-        body.addView(refresh, lp(-1, 42));
-        refresh.setOnClickListener(v -> loadActiveTasks(true));
-        space(body, 14);
+        body.addView(OrderHomeView.employeeHeading(this, "Tugas Aktif", () -> navigate("Karyawan")), lp(-1,-2));
+        space(body, 5);
+        body.addView(text("Laporan START, PAUSE / CONTINUE, dan DONE dengan foto.", 13, SUB, false));
+        space(body, 17);
         if (!tasksError.isEmpty()) {
             info("⚠ " + tasksError + "\nAksi dinonaktifkan sampai tugas berhasil diperbarui.");
             space(body, 10);

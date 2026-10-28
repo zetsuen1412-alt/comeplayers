@@ -109,6 +109,9 @@ public final class OrderHomeViewTest {
         view.layout(0,0,width,view.getMeasuredHeight());
         Button take=view.findViewWithTag("take:X100");assertTrue(take.getWidth()>0);assertTrue(take.getHeight()>=48*activity.getResources().getDisplayMetrics().density);
         assertTrue(take.getRight()<=((View)take.getParent()).getWidth());
+        Button employees=view.findViewWithTag("employee-shortcut");
+        assertTrue(employees.getHeight()>=48*activity.getResources().getDisplayMetrics().density);
+        assertTrue(employees.getRight()<=((View)employees.getParent()).getWidth());
     }
     @Test public void savedLoginOpensOrdersAndSecondaryFeaturesStayInMenu() {
         RuntimeEnvironment.getApplication().getSharedPreferences("payroll_session_secure",Context.MODE_PRIVATE).edit().putString("session","synthetic-presence-only").commit();
@@ -128,6 +131,7 @@ public final class OrderHomeViewTest {
             ReflectionHelpers.callInstanceMethod(main,"render");
             View decor=main.getWindow().getDecorView();decor.measure(View.MeasureSpec.makeMeasureSpec(360,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(800,View.MeasureSpec.EXACTLY));decor.layout(0,0,360,800);
             assertNotNull(decor.findViewWithTag("order:X100"));assertTrue(decor.findViewWithTag("nav:Order Baru").isSelected());
+            assertEmployeeLabelVisible(decor);
             String output=System.getenv("MONITOR_PREVIEW_DIR");
             if(output!=null){
                 java.io.File dir=new java.io.File(output);if(!dir.isDirectory()&&!dir.mkdirs())throw new java.io.IOException("Cannot create preview directory");
@@ -141,9 +145,22 @@ public final class OrderHomeViewTest {
                 ReflectionHelpers.setField(main,"activeTasks",new JSONArray().put(task));ReflectionHelpers.setField(main,"page","Tugas");
                 ReflectionHelpers.callInstanceMethod(main,"render");decor=main.getWindow().getDecorView();
                 decor.measure(View.MeasureSpec.makeMeasureSpec(360,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(800,View.MeasureSpec.EXACTLY));decor.layout(0,0,360,800);
+                assertEmployeeLabelVisible(decor);
                 image=android.graphics.Bitmap.createBitmap(360,800,android.graphics.Bitmap.Config.ARGB_8888);decor.draw(new android.graphics.Canvas(image));
                 try(java.io.FileOutputStream stream=new java.io.FileOutputStream(new java.io.File(dir,"android-daily-task.png"))){assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG,100,stream));}image.recycle();
             }
         }
+    }
+    private void assertEmployeeLabelVisible(View decor) {
+        Button shortcut=decor.findViewWithTag("employee-shortcut");
+        android.graphics.Bitmap label=android.graphics.Bitmap.createBitmap(shortcut.getWidth(),shortcut.getHeight(),android.graphics.Bitmap.Config.ARGB_8888);
+        try {
+            shortcut.draw(new android.graphics.Canvas(label));int blue=0;
+            for(int y=0;y<label.getHeight();y++)for(int x=0;x<label.getWidth();x++){
+                int color=label.getPixel(x,y),r=android.graphics.Color.red(color),g=android.graphics.Color.green(color),b=android.graphics.Color.blue(color);
+                if(b>r+50&&g>r+30&&b>100)blue++;
+            }
+            assertTrue("Data Karyawan label must be visibly drawn",blue>20);
+        } finally {label.recycle();}
     }
 }

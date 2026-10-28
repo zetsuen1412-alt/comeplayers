@@ -10,8 +10,8 @@ android {
         applicationId 'id.comeplayers.boostmonitor.fh3.accounts'
         minSdk 24
         targetSdk 34
-        versionCode 17
-        versionName '1.9.1'
+        versionCode 18
+        versionName '1.9.2'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
