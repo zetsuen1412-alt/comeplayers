@@ -92,6 +92,9 @@ dotnet publish CP-BoostMonitor-Windows/CPBoostMonitor.Windows.csproj -c Release 
 The preview renderer uses synthetic data and isolated paths, with no login,
 network requests, tray icon or operational Telegram reports. CI verifies the
 native app and publishes EXE/ZIP from main only. Releases are unsigned.
+Official publisher signing is being prepared; see the
+[certificate setup and verification guide](../docs/monitor-windows-code-signing.md).
+Its verifier is tested in CI but is not yet connected to production publication.
 The single-file runtime is compressed and smoke-tested with `--verify-package`,
 which uses isolated preview paths without opening a user session or contacting
 Telegram. CI mirrors the exact release binaries to website downloads, keeping
