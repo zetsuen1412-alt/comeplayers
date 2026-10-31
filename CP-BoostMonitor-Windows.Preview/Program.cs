@@ -6,24 +6,39 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        if (args.Length != 1) throw new ArgumentException("Supply the preview output directory.");
+        bool teamOnly = args.Length == 2 && args[1] is "--team-only" or "--selection-only" or "--theme-only";
+        if (args.Length != 1 && !teamOnly) throw new ArgumentException("Supply the preview output directory, optionally --team-only, --selection-only or --theme-only.");
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
-        PendingArchiveChecks.Run();
-        ActiveArchiveChecks.Run();
+        if (!teamOnly) { PendingArchiveChecks.Run(); ActiveArchiveChecks.Run(); }
+        TeamUiChecks.Run();
+        SelectionCancellationChecks.Run();
+        PearlBlueChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
+        if (!teamOnly) {
         DailyDurationChecks.Run(output);
         OrderNotificationChecks.Run(output);
         PauseChecks.Run(output);
         ConnectionRecoveryChecks.Run(output);
         OpenWorkspaceChecks.Run(output);
         FastActionChecks.Run(output);
+        }
         var names = new[] { "ADIT3", "AJI3", "RIKI3", "STAYLIN3", "DAVA3", "TEGUH3", "AHMAD3", "TATANG3" };
         var people = names.Select((name, i) => new Employee { Id = $"demo:{i}", Code = $"EMP-{105 + i:0000}", Name = name,
             Team = "FH3", Active = true, LocalStatus = i % 3 == 0 ? "WORK" : "READY" }).ToList();
         people[1].LocalStatus = "SLEEP";
         people[1].SleepStartedAt = DateTimeOffset.UtcNow.AddHours(-2).AddMinutes(-13).AddSeconds(-7);
+        var team = new List<OrderParticipant> {
+            new() {EmployeeId=people[5].Id,EmployeeCode=people[5].Code,EmployeeName=people[5].Name,ShareBps=6000},
+            new() {EmployeeId=people[2].Id,EmployeeCode=people[2].Code,EmployeeName=people[2].Name,ShareBps=4000},
+        };
+        using (var editor = new OrderTeamDialog("X4888", people, people[5].Code, team, false) {ShowInTaskbar=false,Opacity=0}) {
+            editor.Show(); editor.PerformLayout();
+            using var screen = new Bitmap(editor.Width, editor.Height);
+            editor.DrawToBitmap(screen, new Rectangle(Point.Empty, editor.Size));
+            screen.Save(Path.Combine(output,"monitor-team-editor.png"),ImageFormat.Png);
+        }
         var snapshot = new CompletedSnapshot { Schema = 1, Scope = "FH3", Complete = true,
             SelectedEmployeeCode = people[0].Code, WorkTotal = 24,
             Employees = people.Select((p, i) => new EmployeeCompletion { EmployeeCode = p.Code, EmployeeName = p.Name, CompletedCount = 24 - i * 3 }).ToList(),
@@ -36,7 +51,8 @@ internal static class Program
             Discord = "FH3 Demo", Task = "Leveling dan misi harian", OrderName = "12H", CanTake = true }).ToList();
         var active = new List<PayrollOrder> { new() { OrderRef = "X4888", Game = "AION", Discord = "FH3 Demo",
             EmployeeName = "TEGUH3", EmployeeCode = people[5].Code, Status = "in_progress", CanDone = true,
-            TakeStatus = "sent", StartStatus = "sent", ActionMessage = "START terkonfirmasi. Unggah screenshot DONE setelah selesai." } };
+            TakeStatus = "sent", StartStatus = "sent", TeamSupported=true,TeamVersion=1,Participants=team,
+            ActionMessage = "START terkonfirmasi. Unggah screenshot DONE setelah selesai." } };
         using (var accounts = new MonitorAccountDialog(people, _ => Task.CompletedTask) { ShowInTaskbar = false, Opacity = 0 }) {
             accounts.Show(); accounts.PerformLayout();
             if (accounts.Settings.AccessScope != "employee" || accounts.Settings.EmployeeCode != people[0].Code) throw new Exception("Personal account defaults changed");
@@ -82,6 +98,24 @@ internal static class Program
             operations.DrawToBitmap(screen, new Rectangle(Point.Empty, operations.Size));
             screen.Save(Path.Combine(output, $"monitor-operations-{size.Width}.png"), ImageFormat.Png);
             Console.WriteLine($"Rendered Take Order at {size.Width}x{size.Height} with an elapsed sleep clock.");
+            foreach (var name in new[] {"ClearSelectedWorker", "ClearSelectedOrder", "ClearActiveTaskSelection"})
+                ((Button)operations.Controls.Find(name, true).Single()).PerformClick();
+            operations.PerformLayout();
+            using var deselected = new Bitmap(operations.Width, operations.Height);
+            operations.DrawToBitmap(deselected, new Rectangle(Point.Empty, operations.Size));
+            deselected.Save(Path.Combine(output, $"monitor-deselected-{size.Width}.png"), ImageFormat.Png);
+        }
+        foreach (var page in new[] {"Aktivitas Lokal", "Pengaturan", "Login"}) foreach (var size in new[] {new Size(1460,900),new Size(1120,740)}) {
+            using var form = new MainForm(preview:true) {ClientSize=size,ShowInTaskbar=false,Opacity=0};
+            form.Show(); form.LoadPreview(snapshot, people, pending, page, isAdmin:true, tasks:active); form.PerformLayout();
+            using var pageImage = new Bitmap(form.Width,form.Height); form.DrawToBitmap(pageImage,new Rectangle(Point.Empty,form.Size));
+            var slug = page == "Aktivitas Lokal" ? "history" : page == "Pengaturan" ? "settings" : "login";
+            pageImage.Save(Path.Combine(output,$"monitor-{slug}-{size.Width}.png"),ImageFormat.Png);
+        }
+        using (var toast = new OrderNotificationToast(new[]{"X4901","X4902"}, () => {}, preview:true) {Opacity=0}) {
+            toast.Show(); toast.PerformLayout();
+            using var popup = new Bitmap(toast.Width,toast.Height); toast.DrawToBitmap(popup,new Rectangle(Point.Empty,toast.Size));
+            popup.Save(Path.Combine(output,"monitor-notification-pearl-blue.png"),ImageFormat.Png);
         }
         using var archive = new ArchiveOrderDialog(new ManagedOrder { OrderRef = "X4901", Game = "AION", Discord = "FH3 Demo", EmployeeName = "Belum ditugaskan", Status = "Order baru" }) { ShowInTaskbar = false, Opacity = 0 };
         archive.Show(); archive.PerformLayout();
@@ -90,3 +124,4 @@ internal static class Program
         confirmation.Save(Path.Combine(output, "monitor-delete-confirmation.png"), ImageFormat.Png);
     }
 }
+

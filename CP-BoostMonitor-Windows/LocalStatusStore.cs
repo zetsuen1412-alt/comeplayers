@@ -115,10 +115,16 @@ public sealed class LocalStatusStore
         foreach (var task in tasks.Where(t => t.TakeStatus == "sent" && !t.DeliveryUncertain
             && (t.Status is "assigned" or "in_progress") && (t.CanStart || t.CanDone)))
         {
-            var matches = roster.Where(e => e.Code.Equals(task.EmployeeCode, StringComparison.OrdinalIgnoreCase)).ToList();
-            if (matches.Count != 1 || string.IsNullOrWhiteSpace(task.EmployeeId) || matches[0].Id != task.EmployeeId
-                || roster.Count(e => e.Id == task.EmployeeId) != 1) continue;
-            MarkWorkingAfterConfirmedTake(matches[0], task.OrderRef);
+            var people = task.Participants.Count > 0 ? task.Participants : new List<OrderParticipant> {
+                new() { EmployeeCode = task.EmployeeCode, EmployeeId = task.EmployeeId },
+            };
+            foreach (var participant in people)
+            {
+                var matches = roster.Where(e => e.Code.Equals(participant.EmployeeCode, StringComparison.OrdinalIgnoreCase)).ToList();
+                if (matches.Count != 1 || string.IsNullOrWhiteSpace(participant.EmployeeId) || matches[0].Id != participant.EmployeeId
+                    || roster.Count(e => e.Id == participant.EmployeeId) != 1) continue;
+                MarkWorkingAfterConfirmedTake(matches[0], task.OrderRef);
+            }
         }
     }
 
@@ -167,3 +173,4 @@ public sealed class LocalStatusStore
         File.Move(tmp, _file, true);
     }
 }
+

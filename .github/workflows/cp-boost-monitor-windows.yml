@@ -13,6 +13,17 @@ on:
       - 'CP-BoostMonitor-Windows.Preview/**'
       - '.github/workflows/cp-boost-monitor-windows.yml'
   workflow_dispatch:
+    inputs:
+      database_migration_verified:
+        description: 'Confirm Monitor teams DB migration and production API are verified'
+        required: true
+        type: boolean
+        default: false
+      publish_to_production:
+        description: 'Approve publishing Windows 2.4.0 to the website and GitHub Release'
+        required: true
+        type: boolean
+        default: false
 
 concurrency:
   group: monitor-native-${{ github.ref }}
@@ -60,18 +71,21 @@ jobs:
           $probe = Start-Process -FilePath (Resolve-Path $exe) -ArgumentList "--verify-package" -WindowStyle Hidden -Wait -PassThru
           if ($probe.ExitCode -ne 0) { throw "Published package failed isolated startup verification" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -LiteralPath $exe -DestinationPath "dist/EVOGAMING-Monitor-Windows-v2.2.1-x64.zip" -Force
+          Compress-Archive -LiteralPath $exe -DestinationPath "dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip" -Force
           Get-FileHash -Algorithm SHA256 $exe | Format-Table
-          Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v2.2.1-x64.zip" | Format-Table
+          Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip" | Format-Table
+      # A push to main only builds and uploads a review artifact. Database-backed
+      # team builds must never be distributed until the additive migration and
+      # production API deployment have been verified by the owner.
       - name: Publish Windows internal release from main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.database_migration_verified == true && inputs.publish_to_production == true
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-          $tag = "evogaming-monitor-windows-v2.2.1"
-          $zip = "dist/EVOGAMING-Monitor-Windows-v2.2.1-x64.zip"
+          $tag = "evogaming-monitor-windows-v2.4.0"
+          $zip = "dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip"
           gh release view $tag *> $null
           if ($LASTEXITCODE -ne 0) {
             # Separate release creation from asset upload to avoid newly-created release race.
@@ -90,12 +104,12 @@ jobs:
           gh release view $tag --json assets --jq '.assets[].name'
           if ($LASTEXITCODE -ne 0) { throw "Failed to verify GitHub preview assets" }
       - name: Publish the same Windows binaries to website downloads
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.database_migration_verified == true && inputs.publish_to_production == true
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           $exe = (Resolve-Path "dist/cp-boost-monitor-windows/EVOGAMINGMonitor.exe").Path
-          $zip = (Resolve-Path "dist/EVOGAMING-Monitor-Windows-v2.2.1-x64.zip").Path
+          $zip = (Resolve-Path "dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip").Path
           foreach ($file in @($exe, $zip)) {
             if ((Get-Item $file).Length -gt 95000000) { throw "Windows download exceeds static file limit" }
           }
@@ -113,7 +127,7 @@ jobs:
           $exeHash = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash.ToLowerInvariant()
           $zipHash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$exeHash  evogaming-monitor-windows.exe`n$zipHash  evogaming-monitor-windows.zip" | Set-Content "$downloads/evogaming-monitor-windows.sha256"
-          @{ version = "2.2.1"; sourceCommit = $env:GITHUB_SHA; exeSha256 = $exeHash; zipSha256 = $zipHash;
+          @{ version = "2.4.0"; sourceCommit = $env:GITHUB_SHA; exeSha256 = $exeHash; zipSha256 = $zipHash;
              exeBytes = (Get-Item $exe).Length; zipBytes = (Get-Item $zip).Length } |
             ConvertTo-Json | Set-Content "$downloads/evogaming-monitor-windows.json"
           git config user.name "github-actions[bot]"
@@ -128,7 +142,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Cannot publish Windows downloads; keep existing site files" }
           }
       - name: Verify public website Windows downloads without GitHub login
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.database_migration_verified == true && inputs.publish_to_production == true
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -152,16 +166,17 @@ jobs:
             }
             Write-Host "Public Windows $extension attachment and SHA-256 verified: $actual"
           }
-      - name: Upload ZIP artifact as alternative
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Upload verified ZIP for review
+        if: success()
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: EVOGAMING-Monitor-Windows-v2.2.1-x64
-          path: dist/EVOGAMING-Monitor-Windows-v2.2.1-x64.zip
+          name: EVOGAMING-Monitor-Windows-v2.4.0-x64
+          path: dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip
           retention-days: 14
           if-no-files-found: error
       - name: No production publication from pull request
         if: github.event_name == 'pull_request'
         shell: pwsh
         run: Write-Output "PR build verified. Production Windows download is not updated."
+

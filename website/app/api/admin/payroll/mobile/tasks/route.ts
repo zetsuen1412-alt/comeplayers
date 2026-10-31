@@ -12,6 +12,7 @@ import { monitorPauseWorkflow, type MonitorPauseState } from "@/lib/monitorPause
 import { monitorDuration, dailyWorkflow } from "@/lib/monitorDuration";
 import { loadMonitorDailyStates } from "@/lib/monitorDailyData";
 import { loadMonitorWorkspace } from '@/lib/monitorWorkspaceSnapshot';
+import { loadMonitorTeams } from '@/lib/monitorTeams';
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -98,6 +99,7 @@ export async function GET(request: Request) {
     const pauseStates = new Map<string, MonitorPauseState>();
     let pauseSupported = true;
     const refs = [...new Set(tasks.map(task => task.orderRef))];
+    const teamStates = await loadMonitorTeams(supabaseAdmin, refs);
     const dailyStates = await loadMonitorDailyStates(supabaseAdmin, refs);
     for (let index = 0; index < refs.length; index += 80) {
       const batch = refs.slice(index, index + 80);
@@ -126,6 +128,7 @@ export async function GET(request: Request) {
     };
     const takesByRef = groupDeliveries(takes), proofsByRef = groupDeliveries(proofs);
     const actionableTasks = tasks.filter(t => (actor.isAdmin || t.employeeCode === employeeCode
+      || teamStates.teams.get(t.orderRef)?.participants.some(member => member.employeeCode === employeeCode)
       || (canOperateAll && operableEmployeeCodes.includes(t.employeeCode))) && !controls.get(t.orderRef)?.archived).map(task => {
       const job = jobs.get(task.orderRef);
       const workOrder = job ? { externalReference: job.order_ref, operationalStatus: job.status,
@@ -151,9 +154,21 @@ export async function GET(request: Request) {
         canPause: normal && pause.canPause, canContinue: normal && pause.canContinue,
         actionMessage: normal ? pause.actionMessage : "Order Refund atau Bermasalah. Hubungi admin.",
       };
+    }).map(task => {
+      const team = teamStates.teams.get(task.orderRef);
+      if (team && team.primaryEmployeeCode !== task.employeeCode) throw new Error('Penanggung jawab tim tidak sesuai.');
+      const participants = team?.participants.map(member => ({ ...member,
+        employeeName: clean(employees.find(employee => employee.id === member.employeeId && employee.code === member.employeeCode)?.name
+          ?? member.employeeName, '—', 160) })) ?? [];
+      const primaryAllowed = actor.isAdmin || task.employeeCode === employeeCode
+        || (canOperateAll && operableEmployeeCodes.includes(task.employeeCode));
+      return { ...task, participants, teamVersion: team?.teamVersion ?? 0, teamSupported: teamStates.supported,
+        ...(primaryAllowed ? {} : { canTake: false, canStart: false, canDone: false, canPause: false, canContinue: false,
+          actionMessage: 'Anggota tim. Laporan progres dikirim oleh penanggung jawab order.' }) };
     });
     return respond({ schema: 1, source: "payroll", sourceOfTruth: "telegram_fh3_manual", scope: "FH3", revision: data.revision,
-      updatedAt: data.updated_at, workflowSchema: 1, pauseSchema: pauseSupported ? 1 : 0, dailySchema: dailyStates.supported ? 1 : 0, complete: true, tasks: actionableTasks });
+      updatedAt: data.updated_at, workflowSchema: 1, pauseSchema: pauseSupported ? 1 : 0, dailySchema: dailyStates.supported ? 1 : 0,
+      teamSchema: teamStates.supported ? 1 : 0, complete: true, tasks: actionableTasks });
     }, 18_000);
   } catch (error) {
     const status = adminErrorStatus(error);
@@ -162,3 +177,4 @@ export async function GET(request: Request) {
       status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }
+

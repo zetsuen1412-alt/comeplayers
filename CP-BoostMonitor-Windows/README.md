@@ -3,6 +3,28 @@
 Native WinForms application for Windows 10/11 x64, packaged with .NET 8.
 Current notifications: [10-second music and corner popup](../docs/monitor-order-notifications.md).
 
+Windows 2.4.0 applies **Pearl Blue** across the workspace, dialogs and notifications:
+white navigation and surfaces, a pale blue background, royal blue actions, dark text,
+and green ready/success states. Settings identifies the active theme. The layout,
+team assignments, selection cancellation and operational workflow are retained.
+
+Windows 2.3.1 adds **×** beside the selected employee and new order in the footer,
+plus **×** in the active-task header. Each cancels only that screen selection;
+the other choices and the order itself remain intact. Refresh, filtering or tabbing
+back into a list does not restore a cancelled choice. Select a row again to continue.
+Selection cancellation is disabled while an operation is sending.
+
+Windows 2.3.0 adds teams of 1–4 employees. After admin sign-in from Settings,
+**TAKE + ATUR TIM** opens the team and percentage editor. **Tambah Karyawan**
+(**Atur Tim** in a compact window) on an active order loads its latest team before editing. Percentages must total 100%;
+they divide the whole order's final net wage, including when someone joins mid-order.
+The original lead remains responsible for TAKE/START/PAUSE/CONTINUE/DONE and existing
+proof history is retained. Existing members cannot be removed through this editor.
+Non-admin TAKE continues to assign one worker. Apply the team API/database update
+before distributing this Windows build. A stale team edit is rejected for review,
+never retried automatically. Completed work and Tutup Buku show each worker's share;
+the order's overall valuation remains a single amount.
+
 ## Use
 
 Download the current **EXE** or **ZIP** at
@@ -69,8 +91,8 @@ neither source exists, the UI says the start was not recorded instead of inventi
 one. Unreadable history files are not overwritten by new status changes.
 
 Employee codes remain internal identity keys but are hidden from tables and
-selection labels. The interface follows Telegram light colors: white panels, a pale gray-blue
-background, blue actions and selection, and dark blue navigation.
+selection labels. The interface uses Pearl Blue: white panels and navigation, a pale blue
+background, royal blue actions and a soft blue selection.
 
 ## Storage and safety
 
@@ -99,3 +121,4 @@ the private GitHub repository inaccessible to app users. Both files stay below
 95 MB, use attachment headers and publish with source commit/SHA-256 metadata.
 CI then downloads them anonymously from production and checks their bytes.
 Earlier design notes remain in `docs/` as historical documentation.
+

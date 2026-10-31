@@ -21,7 +21,10 @@ internal sealed class MonitorAccountDialog : Form
     internal MonitorAccountDialog(List<Employee> workers, Func<MonitorAccountSettings, Task> saveAccount)
     {
         Text = "Akun Karyawan"; ClientSize = new Size(550, 600); StartPosition = FormStartPosition.CenterParent;
-        BackColor = LuxuryPalette.Background; AutoScaleMode = AutoScaleMode.Dpi;
+        BackColor = LuxuryPalette.Background; ForeColor = LuxuryPalette.Text; Font = new Font("Segoe UI", 10); AutoScaleMode = AutoScaleMode.Dpi;
+        foreach (var input in new Control[] {_username, _employee, _email, _password}) {
+            input.BackColor = LuxuryPalette.SurfaceRaised; input.ForeColor = LuxuryPalette.Text;
+        }
         var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown,
             Padding = new Padding(20), WrapContents = false, AutoScroll = true };
         Controls.Add(panel);
@@ -52,3 +55,4 @@ internal sealed class MonitorAccountDialog : Form
         ? "Akun bersama dapat memilih semua karyawan FH3 untuk TAKE/START/DONE dan login di beberapa komputer sekaligus. Hak admin tetap terpisah. Untuk mencabut akses, pilih jenis akun yang sama dan hilangkan Akun aktif."
         : "Akun pribadi hanya mengerjakan order satu karyawan. Untuk mencabut akses, isi username dan karyawan yang sama, lalu hilangkan Akun aktif.";
 }
+

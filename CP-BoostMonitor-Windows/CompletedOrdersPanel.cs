@@ -73,6 +73,7 @@ internal sealed class CompletedOrdersPanel : UserControl
         _employees.Columns[1].DefaultCellStyle.Padding = new Padding(2);
         Column(_work, "ORDER", "OrderRef", 20, 80); Column(_work, "GAME", "Game", 20, 80);
         Column(_work, "DISCORD", "DisplayDiscord", 25, 95);
+        Column(_work, "BAGIAN", "ShareDisplay", 15, 70);
         Column(_work, "SELESAI PADA", "CompletedDisplay", 35, 145);
         _employees.RowTemplate.Height = 57; _work.RowTemplate.Height = 57;
         _employees.CellFormatting += (_, e) => {
@@ -80,7 +81,7 @@ internal sealed class CompletedOrdersPanel : UserControl
         };
         _work.CellToolTipTextNeeded += (_, e) => {
             if (e.RowIndex >= 0 && _work.Rows[e.RowIndex].DataBoundItem is CompletedOrder row)
-                e.ToolTipText = $"Discord: {row.DisplayDiscord}\n{row.CompletedDisplay} • {row.Duration}\n{row.Task}";
+                e.ToolTipText = $"Bagian {row.ShareDisplay}\n{TeamAllocation.Summary(row.Participants)}\nDiscord: {row.DisplayDiscord}\n{row.CompletedDisplay} • {row.Duration}\n{row.Task}";
         };
         _employees.SelectionChanged += async (_, _) => {
             if (_binding || _employees.CurrentRow?.DataBoundItem is not EmployeeCompletion row || row.EmployeeCode == _code) return;
@@ -166,3 +167,4 @@ internal sealed class CompletedOrdersPanel : UserControl
         new DataGridViewTextBoxColumn { HeaderText = title, DataPropertyName = property, FillWeight = weight, MinimumWidth = minimum,
             SortMode = DataGridViewColumnSortMode.NotSortable });
 }
+

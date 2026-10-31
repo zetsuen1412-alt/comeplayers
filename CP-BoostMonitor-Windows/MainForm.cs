@@ -42,7 +42,7 @@ public sealed class MainForm : Form
     private static readonly Color PanelLine = LuxuryPalette.Border;
     private static readonly Color Fore = LuxuryPalette.Text;
     private static readonly Color Muted = LuxuryPalette.Muted;
-    private static readonly Color Accent = LuxuryPalette.Gold;
+    private static readonly Color Accent = LuxuryPalette.Accent;
     private static readonly Color Success = LuxuryPalette.Success;
 
     private readonly Panel _content = new() { Dock = DockStyle.Fill, BackColor = Background };
@@ -102,6 +102,8 @@ public sealed class MainForm : Form
             await RunBusyAsync(() => CheckOrSendTakeAsync(task));
         _takePanel.ArchiveRequested += async (_, order) =>
             await RunBusyAsync(() => ArchiveOrderAsync(order));
+        _takePanel.TeamRequested += async (_, order) =>
+            await RunBusyAsync(() => EditOrderTeamAsync(order));
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
         if (!preview) _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
@@ -147,6 +149,7 @@ public sealed class MainForm : Form
         _completedPanel.ApplySnapshot(completed);
         _connection.Text = "●  PREVIEW / DATA CONTOH";
         _appStatus.Text = "Pratinjau desain • Data contoh • Tidak terhubung ke akun atau Telegram";
+        if (page == "Aktivitas Lokal") _history.Text = "31 Oktober 2026 · 08:30:00  DAVA3\nREADY → WORK  •  TAKE X4901 terkonfirmasi (data contoh)\n\n31 Oktober 2026 · 09:10:00  RIKI3\nREADY → WORK  •  Bergabung ke tim X4888 (data contoh)\n\n31 Oktober 2026 · 12:00:00  AJI3\nWORK → SLEEP  •  Mulai tidur (lokal PC, data contoh)";
     }
     internal void LoadAdminPreview(ManagementSnapshot orders, BookSnapshot books, List<Employee> people, string page)
     {
@@ -183,6 +186,10 @@ public sealed class MainForm : Form
         _connection.Text = "Mode Karyawan • Menghubungkan";
         _connection.Margin = new Padding(12, 0, 0, 0);
         _nav.Controls.Add(_connection);
+        _nav.Paint += (_, e) => {
+            using var line = new Pen(LuxuryPalette.SidebarBorder);
+            e.Graphics.DrawLine(line, _nav.ClientSize.Width - 1, 0, _nav.ClientSize.Width - 1, _nav.ClientSize.Height);
+        };
 
         var header = new Panel { Dock = DockStyle.Top, Height = 119,
             Padding = new Padding(22, 14, 22, 4), BackColor = Background };
@@ -405,6 +412,9 @@ public sealed class MainForm : Form
         var testAlert = ActionButton("Tes notifikasi", false); testAlert.SetBounds(22, 356, 210, 38);
         testAlert.Click += (_, _) => ShowOrderNotification(new[] { "Contoh notifikasi order" }, demonstration: true);
         card.Controls.Add(testAlert);
+        var theme = MakeLabel($"Tema: {LuxuryPalette.ThemeName} • v2.4.0", 10, 252, 362, false, Muted);
+        theme.Name = "CurrentTheme"; card.Controls.Add(theme);
+        page.SizeChanged += (_, _) => card.Width = Math.Min(860, Math.Max(620, page.ClientSize.Width - page.Padding.Horizontal - 8));
         page.Controls.Add(card);
         return page;
     }
@@ -464,11 +474,26 @@ public sealed class MainForm : Form
             throw new InvalidOperationException(
                 $"Karyawan {employee.Name} masih berstatus {employee.DisplayLocalStatus}. " +
                 "Ubah ke Ready Boosting terlebih dahulu sebelum TAKE ORDER.");
+        List<OrderParticipant>? participants = null;
+        if (_api.IsAdmin)
+        {
+            using var dialog = new OrderTeamDialog(order.OrderRef, _employees, employee.Code,
+                new[] { new OrderParticipant { EmployeeId = employee.Id, EmployeeCode = employee.Code, EmployeeName = employee.Name, ShareBps = 10000 } }, true);
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            participants = dialog.Participants;
+            foreach (var participant in participants)
+            {
+                var worker = _employees.SingleOrDefault(e => e.Code == participant.EmployeeCode && e.Active && e.Team == "FH3");
+                if (worker is null || worker.LocalStatus is "SLEEP" or "BREAK" or "OFFLINE")
+                    throw new InvalidOperationException($"Karyawan {participant.EmployeeName} belum siap. Periksa daftar dan status karyawan.");
+            }
+        }
         _takePanel.SetWorking(true);
         try
         {
-            var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code);
-            var statusWarning = MarkWorkingAfterTake(employee, order.OrderRef);
+            var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code, participants);
+            var statusWarning = participants is null ? MarkWorkingAfterTake(employee, order.OrderRef)
+                : string.Join("", participants.Select(p => MarkWorkingAfterTake(_employees.Single(e => e.Code == p.EmployeeCode), order.OrderRef)));
             _takePanel.ClearChoices();
             _pending.RemoveAll(item => item.OrderRef == order.OrderRef);
             BindTables();
@@ -478,6 +503,20 @@ public sealed class MainForm : Form
         finally {
             _takePanel.SetWorking(false);
         }
+    }
+
+    private async Task EditOrderTeamAsync(PayrollOrder selected)
+    {
+        if (!_api.IsAdmin || !selected.TeamSupported || selected.DeliveryUncertain) return;
+        var snapshot = await _api.TeamAsync(selected.OrderRef);
+        if (!_api.IsAdmin) return;
+        using var dialog = new OrderTeamDialog(selected.OrderRef, _employees, selected.EmployeeCode, snapshot.Participants, false);
+        if (dialog.ShowDialog(this) != DialogResult.OK) return;
+        // Keep the reviewed revision. A conflict is shown to the operator and never replayed.
+        await _api.SaveTeamAsync(selected.OrderRef, snapshot.TeamVersion, selected.EmployeeCode,
+            dialog.Participants, snapshot.Participants.Select(p => p.EmployeeCode));
+        _refreshNeeded = true;
+        FinishAction($"Tim {selected.OrderRef} diperbarui: {TeamAllocation.Summary(dialog.Participants)}.");
     }
 
     private async Task CheckOrSendTakeAsync(PayrollOrder task)
@@ -804,8 +843,8 @@ public sealed class MainForm : Form
         if (_pages.TryGetValue(name, out var active)) active.BringToFront();
         foreach (var entry in _navigation)
         {
-            entry.Value.BackColor = entry.Key == name ? PanelColor : Sidebar;
-            entry.Value.ForeColor = Fore;
+            entry.Value.BackColor = entry.Key == name ? Accent : Sidebar;
+            entry.Value.ForeColor = entry.Key == name ? Color.White : LuxuryPalette.SidebarText;
         }
         _headline.Text = name == "Login" ? "Login Admin" : name;
         if(name=="Kelola Order") _metrics.Text="Penugasan, status order, upah bersih, dan Tutup Buku";
@@ -884,7 +923,7 @@ public sealed class MainForm : Form
     {
         Navigation = true, Text = title, Width = 216, Height = 55,
         Margin = new Padding(0, 2, 0, 8),
-        BackColor = Sidebar, ForeColor = Fore,
+        BackColor = Sidebar, ForeColor = LuxuryPalette.SidebarText,
         TextAlign = ContentAlignment.MiddleLeft,
     };
 
@@ -895,7 +934,7 @@ public sealed class MainForm : Form
             Primary = primary, Text = label, Height = 43,
             Width = Math.Max(152, label.Length * 8 + 28),
             BackColor = primary ? Accent : LuxuryPalette.SurfaceRaised,
-            ForeColor = primary ? Background : Fore,
+            ForeColor = primary ? Color.White : Fore,
             Font = new Font("Segoe UI Semibold", 10f, FontStyle.Bold),
             Margin = new Padding(5, 4, 9, 4),
         };
@@ -974,3 +1013,4 @@ public sealed class MainForm : Form
         }
     }
 }
+

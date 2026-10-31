@@ -1,5 +1,7 @@
 using CPBoostMonitor;
 
+if (args.Contains("--team-only")) { await TeamAssignmentTests.Run(); return; }
+
 static void Assert(bool check, string name)
 {
     if (!check) throw new Exception("FAIL: " + name);
@@ -123,7 +125,9 @@ finally
 Console.WriteLine("All EVOGAMING single-page worker sleep tests passed.");
 
 AutoWorkStatusTests.Run();
+await TeamAssignmentTests.Run();
 await ApiContractTests.Run();
 await ConnectionRecoveryTests.Run();
 
 await OpenWorkspaceTests.Run();
+

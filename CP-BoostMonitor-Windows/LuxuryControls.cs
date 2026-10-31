@@ -4,26 +4,27 @@ using System.Windows.Forms;
 
 namespace CPBoostMonitor;
 
-/// <summary>Telegram-inspired light surfaces, blue actions and a dark navigation rail.</summary>
+/// <summary>Pearl Blue: white navigation and surfaces with clear blue actions.</summary>
 internal static class LuxuryPalette
 {
-    public static readonly Color Background = Color.FromArgb(234, 239, 243);
-    public static readonly Color Sidebar = Color.FromArgb(39, 58, 75);
-    public static readonly Color SidebarText = Color.FromArgb(235, 244, 251);
-    public static readonly Color SidebarMuted = Color.FromArgb(180, 199, 214);
-    public static readonly Color SidebarBorder = Color.FromArgb(65, 85, 103);
+    public const string ThemeName = "Pearl Blue";
+    public static readonly Color Background = Color.FromArgb(241, 245, 250);
+    public static readonly Color Sidebar = Color.White;
+    public static readonly Color SidebarText = Color.FromArgb(52, 68, 92);
+    public static readonly Color SidebarMuted = Color.FromArgb(94, 112, 133);
+    public static readonly Color SidebarBorder = Color.FromArgb(220, 228, 238);
     public static readonly Color Surface = Color.White;
-    public static readonly Color SurfaceRaised = Color.FromArgb(242, 245, 247);
-    public static readonly Color Border = Color.FromArgb(218, 226, 232);
-    public static readonly Color Accent = Color.FromArgb(22, 120, 184);
-    public static readonly Color AccentHover = Color.FromArgb(17, 101, 156);
+    public static readonly Color SurfaceRaised = Color.FromArgb(246, 248, 252);
+    public static readonly Color Border = Color.FromArgb(220, 228, 238);
+    public static readonly Color Accent = Color.FromArgb(37, 99, 235);
+    public static readonly Color AccentHover = Color.FromArgb(29, 78, 216);
     public static readonly Color Violet = Accent;
     public static readonly Color Gold = Accent; // Compatibility aliases for older views
     public static readonly Color GoldBright = AccentHover;
-    public static readonly Color Text = Color.FromArgb(29, 45, 58);
-    public static readonly Color Muted = Color.FromArgb(98, 117, 132);
-    public static readonly Color Success = Accent;
-    public static readonly Color Selection = Color.FromArgb(218, 237, 250);
+    public static readonly Color Text = Color.FromArgb(26, 43, 67);
+    public static readonly Color Muted = Color.FromArgb(94, 112, 133);
+    public static readonly Color Success = Color.FromArgb(21, 123, 87);
+    public static readonly Color Selection = Color.FromArgb(233, 240, 255);
 
     public static GraphicsPath Round(Rectangle bounds, float radius)
     {
@@ -42,7 +43,7 @@ internal static class LuxuryPalette
 internal sealed class LuxuryCard : Panel
 {
     public bool Hero { get; init; }
-    public int Radius { get; init; } = 21;
+    public int Radius { get; init; } = 17;
     public LuxuryCard()
     {
         DoubleBuffered = true;
@@ -57,19 +58,13 @@ internal sealed class LuxuryCard : Panel
         e.Graphics.Clear(Parent?.BackColor ?? LuxuryPalette.Background);
         if (Width < 12 || Height < 12) return;
         var bounds = new Rectangle(1, 1, Width - 8, Height - 9);
-        for (int depth = 6; depth >= 1; depth--) {
-            using var shadow = LuxuryPalette.Round(new Rectangle(bounds.X + depth / 2, bounds.Y + depth, bounds.Width, bounds.Height), Radius);
-            using var shade = new SolidBrush(Color.FromArgb(3, 0, 0, 0));
-            e.Graphics.FillPath(shade, shadow);
-        }
+        using (var shadow = LuxuryPalette.Round(new Rectangle(bounds.X, bounds.Y + 2, bounds.Width, bounds.Height), Radius))
+        using (var shade = new SolidBrush(Color.FromArgb(8, LuxuryPalette.Text))) e.Graphics.FillPath(shade, shadow);
         using var path = LuxuryPalette.Round(bounds, Radius);
-        using var gradient = new LinearGradientBrush(bounds,
-            Color.White, BackColor, LinearGradientMode.ForwardDiagonal);
-        e.Graphics.FillPath(gradient, path);
+        using var fill = new SolidBrush(BackColor);
+        e.Graphics.FillPath(fill, path);
         using var border = new Pen(LuxuryPalette.Border, 1.0f);
         e.Graphics.DrawPath(border, path);
-        using var highlight = new Pen(Color.FromArgb(180, Color.White));
-        e.Graphics.DrawLine(highlight, bounds.Left + Radius, bounds.Top + 1, bounds.Right - Radius, bounds.Top + 1);
     }
 }
 
@@ -110,35 +105,19 @@ internal sealed class LuxuryButton : Button
         e.Graphics.Clear(Parent?.BackColor ?? LuxuryPalette.Background);
         if (Width < 24 || Height < 12) return;
         var bounds = new Rectangle(1, 1, Width - 4, Height - 6);
-        using (var shadow = LuxuryPalette.Round(new Rectangle(2, 4, Width - 4, Height - 5), 13))
-        using (var brush = new SolidBrush(Color.FromArgb(12, 0, 0, 0))) e.Graphics.FillPath(brush, shadow);
         using var path = LuxuryPalette.Round(bounds, Navigation ? 11 : 13);
         bool active = Navigation && BackColor != LuxuryPalette.Sidebar;
-        var fill = !Enabled ? Color.FromArgb(232, 232, 232)
-            : Primary ? LuxuryPalette.Accent
-            : active ? LuxuryPalette.Accent
+        var fill = !Enabled ? LuxuryPalette.SurfaceRaised
+            : Primary || active ? _hover ? LuxuryPalette.AccentHover : LuxuryPalette.Accent
             : Navigation ? LuxuryPalette.Sidebar : BackColor;
-        if (Enabled && !Primary) fill = Color.FromArgb(Math.Max(0, fill.R - (int)(_glow * 12)),
-            Math.Max(0, fill.G - (int)(_glow * 12)), Math.Max(0, fill.B - (int)(_glow * 12)));
-        if (Primary && Enabled)
-        {
-            using var grad = new LinearGradientBrush(bounds,
-                _hover ? LuxuryPalette.AccentHover : LuxuryPalette.Accent,
-                LuxuryPalette.AccentHover,
-                LinearGradientMode.ForwardDiagonal);
-            e.Graphics.FillPath(grad, path);
-        }
-        else
-        {
-            using var brush = new SolidBrush(fill);
-            e.Graphics.FillPath(brush, path);
-        }
-        var stroke = Primary || active ? LuxuryPalette.Accent
-            : Navigation ? LuxuryPalette.SidebarBorder : LuxuryPalette.Border;
+        if (Enabled && !Primary && !active && _glow > 0)
+            fill = Color.FromArgb((int)(fill.R + (LuxuryPalette.Selection.R - fill.R) * _glow),
+                (int)(fill.G + (LuxuryPalette.Selection.G - fill.G) * _glow), (int)(fill.B + (LuxuryPalette.Selection.B - fill.B) * _glow));
+        using (var brush = new SolidBrush(fill)) e.Graphics.FillPath(brush, path);
+        var stroke = !Enabled ? LuxuryPalette.Border : Primary || active ? fill
+            : Navigation ? fill : LuxuryPalette.Border;
         using var border = new Pen(stroke, 1.0f);
         e.Graphics.DrawPath(border, path);
-        using (var bevel = new Pen(Color.FromArgb(50, Color.White)))
-            e.Graphics.DrawLine(bevel, bounds.Left + 12, bounds.Top + 1, bounds.Right - 12, bounds.Top + 1);
         if (active) {
             using var rail = new SolidBrush(Color.White);
             e.Graphics.FillRectangle(rail, 5, bounds.Top + 12, 3, Math.Max(1, bounds.Height - 24));
@@ -154,10 +133,11 @@ internal sealed class LuxuryButton : Button
             (Navigation ? TextFormatFlags.Left : TextFormatFlags.HorizontalCenter));
         if (Focused && ShowFocusCues)
         {
-            using var focus = new Pen(LuxuryPalette.Accent);
+            using var focus = new Pen(Primary || active ? Color.White : LuxuryPalette.Accent);
             var inner = Rectangle.Inflate(bounds, -4, -4);
             using var path2 = LuxuryPalette.Round(inner, Navigation ? 9 : 11);
             e.Graphics.DrawPath(focus, path2);
         }
     }
 }
+

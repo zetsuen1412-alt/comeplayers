@@ -354,16 +354,26 @@ public sealed class PayrollApi : IDisposable
             : "EVO Ilham FH3";
     }
 
-    public async Task<string> AssignAsync(string orderRef, string employeeCode)
+    public async Task<string> AssignAsync(string orderRef, string employeeCode, IReadOnlyCollection<OrderParticipant>? participants = null)
     {
         int version = Volatile.Read(ref _sessionVersion);
         if (string.IsNullOrWhiteSpace(orderRef) || string.IsNullOrWhiteSpace(employeeCode))
             throw new InvalidOperationException("Order dan karyawan wajib dipilih.");
+        if (participants is not null)
+        {
+            if (!IsAdmin) throw new UnauthorizedAccessException("Hanya admin yang dapat mengatur tim dan pembagian hasil.");
+            TeamAllocation.Validate(participants, employeeCode);
+        }
+        object command = participants is null ? new { orderRef, employeeCode } : new
+        {
+            orderRef, employeeCode, teamVersion = 0,
+            participants = participants.Select(p => new { p.EmployeeCode, p.ShareBps }).ToArray(),
+        };
         var token = await TokenAsync();
         EnsureCurrentSession(version);
         using var request = new HttpRequestMessage(HttpMethod.Post, "assign")
         {
-            Content = JsonContent.Create(new { orderRef, employeeCode }, options: _json),
+            Content = JsonContent.Create(command, options: _json),
         };
         ApplyCredential(request, token);
         // Deliberately no retry for server-side assignments; manual refresh resolves uncertain results.
@@ -373,6 +383,27 @@ public sealed class PayrollApi : IDisposable
         RequireTakeConfirmed(result);
         return result.TryGetProperty("employeeName", out var name)
             ? name.GetString() ?? employeeCode : employeeCode;
+    }
+
+    public async Task<TeamSnapshot> TeamAsync(string orderRef)
+    {
+        if (!IsAdmin) throw new UnauthorizedAccessException("Hanya admin yang dapat mengatur tim dan pembagian hasil.");
+        var snapshot = await GetAsync<TeamSnapshot>("team?orderRef=" + Uri.EscapeDataString(orderRef));
+        if (snapshot.Participants is null || snapshot.Participants.Count is < 1 or > 4 || snapshot.TeamVersion < 0)
+            throw new InvalidOperationException("Data pembagian order belum lengkap. Perbarui data.");
+        TeamAllocation.Validate(snapshot.Participants, snapshot.Participants[0].EmployeeCode);
+        return snapshot;
+    }
+
+    public async Task SaveTeamAsync(string orderRef, long version, string leadCode,
+        IReadOnlyCollection<OrderParticipant> participants, IEnumerable<string> existingCodes)
+    {
+        if (!IsAdmin) throw new UnauthorizedAccessException("Hanya admin yang dapat mengatur tim dan pembagian hasil.");
+        if (version < 0) throw new InvalidOperationException("Versi pembagian order tidak valid.");
+        TeamAllocation.Validate(participants, leadCode, existingCodes);
+        await MutateAsync("team", new {
+            orderRef, version, participants = participants.Select(p => new { p.EmployeeCode, p.ShareBps }).ToArray(),
+        });
     }
 
     /// <summary>Idempotent TAKE proof. The backend responds alreadySent without duplicate message.</summary>
@@ -497,3 +528,4 @@ public sealed class PayrollApi : IDisposable
 }
 
 internal sealed class MonitorReadException(string message, Exception inner) : HttpRequestException(message, inner) { }
+

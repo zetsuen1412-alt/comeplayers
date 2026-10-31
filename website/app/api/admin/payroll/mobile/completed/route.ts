@@ -7,6 +7,7 @@ import { buildMobileCompleted } from "@/lib/payrollMobileCompleted";
 import { loadCompletedMonitorEvidence } from "@/lib/fh3MonitorCompletedData";
 import { loadFH3MonitorJobs } from "@/lib/fh3MonitorJobs";
 import { loadMonitorWorkspace } from '@/lib/monitorWorkspaceSnapshot';
+import { loadMonitorTeams } from '@/lib/monitorTeams';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +28,9 @@ export async function GET(request: Request) {
       workspaceSnapshot ?? loadMonitorWorkspace(supabaseAdmin),
       loadCompletedMonitorEvidence(supabaseAdmin), loadFH3MonitorJobs(supabaseAdmin), loadMonitorControls(supabaseAdmin),
     ]);
-    const history = buildMobileCompleted(workspace.payload, evidence.receipts, evidence.proofs, [...jobs.values()], code, offset, [...controls.values()]);
+    const teams = await loadMonitorTeams(supabaseAdmin, evidence.receipts.map(receipt => receipt.order_ref));
+    const history = buildMobileCompleted(workspace.payload, evidence.receipts, evidence.proofs, [...jobs.values()], code, offset,
+      [...controls.values()], false, false, [...teams.teams.values()]);
     return respond({ schema: 1, scope: "FH3", sourceOfTruth: "telegram_fh3_manual",
       completionRule: "telegram_done_confirmed", complete: true,
       revision: workspace.revision, updatedAt: workspace.updated_at,
@@ -41,3 +44,4 @@ export async function GET(request: Request) {
       : "Riwayat order selesai belum dapat dimuat. Coba perbarui." }, [401, 403, 404, 429].includes(status) ? status : 503);
   }
 }
+

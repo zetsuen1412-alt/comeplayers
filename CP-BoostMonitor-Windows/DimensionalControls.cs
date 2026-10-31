@@ -5,6 +5,8 @@ namespace CPBoostMonitor;
 internal sealed class LuxuryGrid : DataGridView
 {
     private readonly SlimGridScroll _scroll;
+    internal bool PreserveEmptySelectionOnFocus { get; init; }
+    internal bool RestoringEmptySelection { get; private set; }
     public LuxuryGrid()
     {
         DoubleBuffered = true; Dock = DockStyle.Fill; ReadOnly = true; MultiSelect = false;
@@ -34,6 +36,15 @@ internal sealed class LuxuryGrid : DataGridView
         if (_scroll is null || IsDisposed) return;
         _scroll.SetBounds(Math.Max(0, ClientSize.Width - 11), ColumnHeadersHeight + 4, 8, Math.Max(0, ClientSize.Height - ColumnHeadersHeight - 9));
         _scroll.Visible = RowCount > Math.Max(1, DisplayedRowCount(false)); _scroll.BringToFront(); _scroll.Invalidate();
+    }
+    protected override void OnEnter(EventArgs e)
+    {
+        if (!PreserveEmptySelectionOnFocus || CurrentCell is not null) { base.OnEnter(e); return; }
+        // DataGridView normally activates its first cell when focus arrives. Empty
+        // dispatch choices must remain empty until a click or navigation key selects a row.
+        RestoringEmptySelection = true;
+        try { base.OnEnter(e); CurrentCell = null; ClearSelection(); }
+        finally { RestoringEmptySelection = false; }
     }
     protected override void OnMouseWheel(MouseEventArgs e)
     {
@@ -111,15 +122,10 @@ internal sealed class MetricCard : Control
         g.Clear(Parent?.BackColor ?? LuxuryPalette.Background);
         if (Width < 30 || Height < 30) return;
         var r = new Rectangle(1, 1, Width - 9, Height - 10);
-        for (int d = 7; d >= 1; d--) {
-            using var shadow = LuxuryPalette.Round(new Rectangle(r.X + d / 2, r.Y + d, r.Width, r.Height), 20);
-            using var shade = new SolidBrush(Color.FromArgb(3, 0, 0, 0)); g.FillPath(shade, shadow);
-        }
-        using var path = LuxuryPalette.Round(r, 20);
-        using var fill = new LinearGradientBrush(r, Color.White, LuxuryPalette.SurfaceRaised, 55);
+        using var path = LuxuryPalette.Round(r, 17);
+        using var fill = new SolidBrush(LuxuryPalette.Surface);
         g.FillPath(fill, path);
-        using var stroke = new Pen(Color.FromArgb(70, Accent)); g.DrawPath(stroke, path);
-        using var top = new Pen(Color.White); g.DrawLine(top, 22, 2, r.Right - 22, 2);
+        using var stroke = new Pen(LuxuryPalette.Border); g.DrawPath(stroke, path);
         using var small = new Font("Segoe UI", 8.5f, FontStyle.Bold);
         using var number = new Font("Segoe UI", 25, FontStyle.Bold);
         TextRenderer.DrawText(g, Caption, small, new Rectangle(20, 14, r.Width - 40, 20), LuxuryPalette.Muted, TextFormatFlags.EndEllipsis);
@@ -146,3 +152,4 @@ internal sealed class BrandMark : Control
         TextRenderer.DrawText(g, "WORKSPACE", caption, new Point(10, 90), LuxuryPalette.SidebarMuted);
     }
 }
+

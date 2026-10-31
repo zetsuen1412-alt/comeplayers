@@ -3,7 +3,7 @@ namespace CPBoostMonitor;
 internal sealed class ArchiveOrderDialog : Form
 {
     private readonly TextBox _reason = new() { Name = "ArchiveReason", Dock = DockStyle.Fill, Multiline = true, MaxLength = 500,
-        PlaceholderText = "Alasan menghapus order (minimal 3 karakter)" };
+        PlaceholderText = "Alasan menghapus order (minimal 3 karakter)", BackColor = LuxuryPalette.SurfaceRaised, ForeColor = LuxuryPalette.Text };
     public string Reason => _reason.Text.Trim();
 
     public ArchiveOrderDialog(ManagedOrder order)
@@ -33,3 +33,4 @@ internal sealed class ArchiveOrderDialog : Form
         Shown += (_, _) => _reason.Focus();
     }
 }
+

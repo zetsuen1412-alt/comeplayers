@@ -1,6 +1,7 @@
 import { requireMonitorAccess, requireOwnEmployee } from "@/lib/monitorAccess";
 import { adminErrorStatus } from "@/lib/adminSecurity";
 import { deliverTakeNotice, TakeNoticeError } from "@/lib/payrollMobileTake";
+import { parseMonitorTeamInput } from '@/lib/monitorTeams';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     const { actor, supabaseAdmin } = context;
     const raw = await request.text();
     if (raw.length > 4096) return respond({ error: "Permintaan terlalu besar." }, 413);
-    const body = JSON.parse(raw) as { orderRef?: unknown; employeeCode?: unknown };
+    const body = JSON.parse(raw) as { orderRef?: unknown; employeeCode?: unknown; participants?: unknown; teamVersion?: unknown };
     const ref = typeof body?.orderRef === "string" ? body.orderRef.trim() : "";
     const code = typeof body?.employeeCode === "string" ? body.employeeCode.trim() : "";
     if (!ref || ref.length > 180 || /[\u0000-\u001f\u007f]/.test(ref)
@@ -25,6 +26,12 @@ export async function POST(request: Request) {
       return respond({ error: "Order atau kode karyawan tidak valid." }, 400);
     }
     requireOwnEmployee(context, code);
+    const participants = body.participants === undefined ? undefined : parseMonitorTeamInput(body.participants);
+    if (participants) {
+      if (!actor.isAdmin) return respond({ error: 'Pembagian hasil hanya dapat diatur admin.' }, 403);
+      if (!Number.isSafeInteger(body.teamVersion) || Number(body.teamVersion) < 0 || participants[0].employeeCode !== code)
+        return respond({ error: 'Pilih penanggung jawab dan perbarui versi tim.' }, 400);
+    }
     // The Windows/Android queue may be stale or a caller may submit an
     // unseen Payroll ref directly. TAKE must independently verify Telegram.
     const [{ data: group, error: groupError }, { data: manual, error: manualError }] = await Promise.all([
@@ -40,9 +47,10 @@ export async function POST(request: Request) {
       || Number(manual.admin_user_id) !== Number(group.fh3_order_sender_id)) {
       return respond({ error: "Order tidak tercatat dari pesan admin di grup Telegram FH3. Refresh daftar order." }, 409);
     }
-    const { data, error } = await supabaseAdmin.rpc("cp_mobile_assign_fh3", {
-      p_order_ref: ref, p_employee_code: code, p_actor_id: actor.id,
-    });
+    const { data, error } = participants
+      ? await supabaseAdmin.rpc('cp_monitor_assign_team', { p_order_ref: ref, p_expected_version: body.teamVersion,
+        p_participants: participants, p_actor_user_id: actor.id })
+      : await supabaseAdmin.rpc("cp_mobile_assign_fh3", { p_order_ref: ref, p_employee_code: code, p_actor_id: actor.id });
     if (error) {
       if (/order tidak ditemukan/i.test(String(error.message ?? ""))) {
         return respond({ error: "Order ada di Telegram FH3, tetapi belum dicatat di Payroll. Input order ke Payroll sebelum TAKE." }, 409);
@@ -76,3 +84,4 @@ export async function POST(request: Request) {
       status === 400 || status === 401 || status === 403 || status === 429 ? status : 503);
   }
 }
+
