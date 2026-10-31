@@ -13,6 +13,17 @@ on:
       - 'CP-BoostMonitor-Windows.Preview/**'
       - '.github/workflows/cp-boost-monitor-windows.yml'
   workflow_dispatch:
+    inputs:
+      database_migration_verified:
+        description: 'Confirm Monitor teams DB migration and production API are verified'
+        required: true
+        type: boolean
+        default: false
+      publish_to_production:
+        description: 'Approve publishing Windows 2.4.0 to the website and GitHub Release'
+        required: true
+        type: boolean
+        default: false
 
 concurrency:
   group: monitor-native-${{ github.ref }}
@@ -63,8 +74,11 @@ jobs:
           Compress-Archive -LiteralPath $exe -DestinationPath "dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip" -Force
           Get-FileHash -Algorithm SHA256 $exe | Format-Table
           Get-FileHash -Algorithm SHA256 "dist/EVOGAMING-Monitor-Windows-v2.4.0-x64.zip" | Format-Table
+      # A push to main only builds and uploads a review artifact. Database-backed
+      # team builds must never be distributed until the additive migration and
+      # production API deployment have been verified by the owner.
       - name: Publish Windows internal release from main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.database_migration_verified == true && inputs.publish_to_production == true
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -90,7 +104,7 @@ jobs:
           gh release view $tag --json assets --jq '.assets[].name'
           if ($LASTEXITCODE -ne 0) { throw "Failed to verify GitHub preview assets" }
       - name: Publish the same Windows binaries to website downloads
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.database_migration_verified == true && inputs.publish_to_production == true
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -128,7 +142,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Cannot publish Windows downloads; keep existing site files" }
           }
       - name: Verify public website Windows downloads without GitHub login
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.database_migration_verified == true && inputs.publish_to_production == true
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
