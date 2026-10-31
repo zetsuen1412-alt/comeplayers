@@ -3,6 +3,7 @@ import { workspaceKeys, type WorkspaceState } from "@/features/payroll/lib/works
 import { getOrderAssignments } from "@/features/payroll/lib/order-workers";
 import type { FH3MonitorJob } from "@/lib/fh3MonitorJobs";
 import type { MonitorControl } from "@/lib/monitorManagement";
+import { allocateMonitorWage, type MonitorTeam } from './monitorTeams';
 
 export type CompletedReceipt = { order_ref: string; chat_id: string | number; game: string; duration: string; discord?: string; task: string; active: boolean };
 export type CompletedProof = { order_ref: string; employee_code: string; chat_id: string | number;
@@ -13,7 +14,8 @@ const stamp = (value: unknown) => typeof value === "string" && Number.isFinite(D
 
 /** Count actual confirmed DONE reports once per order, without reading any salary fields. */
 export function buildMobileCompleted(state: WorkspaceState, receipts: CompletedReceipt[], proofs: CompletedProof[],
-  jobs: FH3MonitorJob[], employeeCode = "", offset = 0, controls: MonitorControl[] = [], includeAll = false, includeArchived = false) {
+  jobs: FH3MonitorJob[], employeeCode = "", offset = 0, controls: MonitorControl[] = [], includeAll = false, includeArchived = false,
+  teams: MonitorTeam[] = []) {
   const employees = (Array.isArray(state[workspaceKeys.employees]) ? state[workspaceKeys.employees] : []) as Employee[];
   const orders = (Array.isArray(state[workspaceKeys.orders]) ? state[workspaceKeys.orders] : []) as Order[];
   const roster = employees.filter(employee => employee.team === "FH3");
@@ -61,7 +63,23 @@ export function buildMobileCompleted(state: WorkspaceState, receipts: CompletedR
       archived: !source.active, monitorArchived: control?.archived ?? false, adminState: control?.state ?? "normal",
       wageRupiah: control?.wage_rupiah == null ? null : Number(control.wage_rupiah), version: control?.version ?? 0 });
   }
-  const work = [...completed.values()].sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt) || a.orderRef.localeCompare(b.orderRef));
+  const teamByRef = new Map(teams.map(team => [team.orderRef, team]));
+  const work = [...completed.values()].flatMap(item => {
+    const team = teamByRef.get(item.orderRef);
+    if (!team) return [{ ...item, shareBps: 10000, orderWageRupiah: item.wageRupiah, teamVersion: 0, participants: [] }];
+    const job = journal.get(item.orderRef);
+    if (job && team.primaryEmployeeCode !== job.employee_code) throw new Error('Penanggung jawab order berubah.');
+    const participants = team.participants.map(member => {
+      const employee = byCode.get(member.employeeCode);
+      if (!employee || employee.id !== member.employeeId) throw new Error('Identitas anggota tim tidak ditemukan.');
+      return { ...member, employeeName: clean(employee.name) };
+    });
+    const wages = allocateMonitorWage(item.wageRupiah, participants);
+    return participants.map((member, index) => ({ ...item, employeeId: member.employeeId,
+      employeeCode: member.employeeCode, employeeName: member.employeeName, shareBps: member.shareBps,
+      wageRupiah: wages[index], orderWageRupiah: item.wageRupiah, teamVersion: team.teamVersion, participants }));
+  }).sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt)
+    || a.orderRef.localeCompare(b.orderRef) || a.employeeCode.localeCompare(b.employeeCode));
   const counts = new Map<string, { count: number; last: string }>();
   for (const item of work) {
     const count = counts.get(item.employeeCode) ?? { count: 0, last: item.completedAt };
@@ -72,10 +90,11 @@ export function buildMobileCompleted(state: WorkspaceState, receipts: CompletedR
   })).sort((a, b) => b.completedCount - a.completedCount || a.employeeName.localeCompare(b.employeeName, "id") || a.employeeCode.localeCompare(b.employeeCode));
   const selected = employeeCode ? work.filter(item => item.employeeCode === employeeCode) : includeAll ? work : [];
   return { employees: people, selectedEmployeeCode: employeeCode || null,
-    totals: { completedCount: work.length, employeeCount: people.length, contributors: counts.size,
+    totals: { completedCount: completed.size, employeeCount: people.length, contributors: counts.size,
       lastCompletedAt: stamp(work[0]?.completedAt) },
     work: includeAll ? selected : selected.slice(offset, offset + 50), workTotal: selected.length,
     nextOffset: offset + 50 < selected.length ? offset + 50 : null,
     notice: "Jumlah dihitung dari order Telegram FH3 dengan laporan DONE terkonfirmasi. Pilih nama untuk membuka daftar order selesai.",
   };
 }
+

@@ -6,24 +6,37 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        if (args.Length != 1) throw new ArgumentException("Supply the preview output directory.");
+        bool teamOnly = args.Length == 2 && args[1] == "--team-only";
+        if (args.Length != 1 && !teamOnly) throw new ArgumentException("Supply the preview output directory, optionally --team-only.");
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
-        PendingArchiveChecks.Run();
-        ActiveArchiveChecks.Run();
+        if (!teamOnly) { PendingArchiveChecks.Run(); ActiveArchiveChecks.Run(); }
+        TeamUiChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
+        if (!teamOnly) {
         DailyDurationChecks.Run(output);
         OrderNotificationChecks.Run(output);
         PauseChecks.Run(output);
         ConnectionRecoveryChecks.Run(output);
         OpenWorkspaceChecks.Run(output);
         FastActionChecks.Run(output);
+        }
         var names = new[] { "ADIT3", "AJI3", "RIKI3", "STAYLIN3", "DAVA3", "TEGUH3", "AHMAD3", "TATANG3" };
         var people = names.Select((name, i) => new Employee { Id = $"demo:{i}", Code = $"EMP-{105 + i:0000}", Name = name,
             Team = "FH3", Active = true, LocalStatus = i % 3 == 0 ? "WORK" : "READY" }).ToList();
         people[1].LocalStatus = "SLEEP";
         people[1].SleepStartedAt = DateTimeOffset.UtcNow.AddHours(-2).AddMinutes(-13).AddSeconds(-7);
+        var team = new List<OrderParticipant> {
+            new() {EmployeeId=people[5].Id,EmployeeCode=people[5].Code,EmployeeName=people[5].Name,ShareBps=6000},
+            new() {EmployeeId=people[2].Id,EmployeeCode=people[2].Code,EmployeeName=people[2].Name,ShareBps=4000},
+        };
+        using (var editor = new OrderTeamDialog("X4888", people, people[5].Code, team, false) {ShowInTaskbar=false,Opacity=0}) {
+            editor.Show(); editor.PerformLayout();
+            using var screen = new Bitmap(editor.Width, editor.Height);
+            editor.DrawToBitmap(screen, new Rectangle(Point.Empty, editor.Size));
+            screen.Save(Path.Combine(output,"monitor-team-editor.png"),ImageFormat.Png);
+        }
         var snapshot = new CompletedSnapshot { Schema = 1, Scope = "FH3", Complete = true,
             SelectedEmployeeCode = people[0].Code, WorkTotal = 24,
             Employees = people.Select((p, i) => new EmployeeCompletion { EmployeeCode = p.Code, EmployeeName = p.Name, CompletedCount = 24 - i * 3 }).ToList(),
@@ -36,7 +49,8 @@ internal static class Program
             Discord = "FH3 Demo", Task = "Leveling dan misi harian", OrderName = "12H", CanTake = true }).ToList();
         var active = new List<PayrollOrder> { new() { OrderRef = "X4888", Game = "AION", Discord = "FH3 Demo",
             EmployeeName = "TEGUH3", EmployeeCode = people[5].Code, Status = "in_progress", CanDone = true,
-            TakeStatus = "sent", StartStatus = "sent", ActionMessage = "START terkonfirmasi. Unggah screenshot DONE setelah selesai." } };
+            TakeStatus = "sent", StartStatus = "sent", TeamSupported=true,TeamVersion=1,Participants=team,
+            ActionMessage = "START terkonfirmasi. Unggah screenshot DONE setelah selesai." } };
         using (var accounts = new MonitorAccountDialog(people, _ => Task.CompletedTask) { ShowInTaskbar = false, Opacity = 0 }) {
             accounts.Show(); accounts.PerformLayout();
             if (accounts.Settings.AccessScope != "employee" || accounts.Settings.EmployeeCode != people[0].Code) throw new Exception("Personal account defaults changed");
@@ -90,3 +104,4 @@ internal static class Program
         confirmation.Save(Path.Combine(output, "monitor-delete-confirmation.png"), ImageFormat.Png);
     }
 }
+

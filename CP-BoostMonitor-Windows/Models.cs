@@ -1,5 +1,43 @@
 namespace CPBoostMonitor;
 
+public sealed class OrderParticipant
+{
+    public string EmployeeId { get; set; } = "";
+    public string EmployeeCode { get; set; } = "";
+    public string EmployeeName { get; set; } = "";
+    public int ShareBps { get; set; }
+    public string? JoinedAt { get; set; }
+    public string ShareDisplay => TeamAllocation.Percent(ShareBps);
+}
+
+public sealed class TeamSnapshot
+{
+    public long TeamVersion { get; set; }
+    public List<OrderParticipant> Participants { get; set; } = new();
+}
+
+public static class TeamAllocation
+{
+    public static string Percent(int basisPoints) => (basisPoints / 100m).ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("id-ID")) + "%";
+    public static string Summary(IEnumerable<OrderParticipant> participants) => string.Join(" • ",
+        participants.Select(p => $"{p.EmployeeName} ({p.ShareDisplay})"));
+
+    public static void Validate(IReadOnlyCollection<OrderParticipant> participants, string leadCode, IEnumerable<string>? existingCodes = null)
+    {
+        if (participants.Count is < 1 or > 4)
+            throw new InvalidOperationException("Satu order harus memiliki 1–4 karyawan.");
+        if (participants.Any(p => string.IsNullOrWhiteSpace(p.EmployeeCode)) ||
+            participants.Select(p => p.EmployeeCode).Distinct(StringComparer.OrdinalIgnoreCase).Count() != participants.Count)
+            throw new InvalidOperationException("Pilih karyawan yang berbeda untuk setiap bagian.");
+        if (participants.Any(p => p.ShareBps is < 1 or > 10000) || participants.Sum(p => p.ShareBps) != 10000)
+            throw new InvalidOperationException("Bagian setiap karyawan harus lebih dari 0% dan total harus tepat 100%.");
+        if (!participants.Any(p => p.EmployeeCode.Equals(leadCode, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Penanggung jawab order harus tetap berada dalam tim.");
+        if (existingCodes is not null && existingCodes.Any(code => !participants.Any(p => p.EmployeeCode.Equals(code, StringComparison.OrdinalIgnoreCase))))
+            throw new InvalidOperationException("Karyawan yang sudah bergabung tidak boleh dihapus dari pembagian order.");
+    }
+}
+
 public sealed class Employee
 {
     public string Id { get; set; } = "";
@@ -51,6 +89,10 @@ public sealed class PayrollOrder
     public string EmployeeCode { get; set; } = "";
     public string EmployeeId { get; set; } = "";
     public string EmployeeName { get; set; } = "";
+    public List<OrderParticipant> Participants { get; set; } = new();
+    public long TeamVersion { get; set; }
+    public bool TeamSupported { get; set; }
+    public string DisplayParticipants => Participants.Count > 0 ? TeamAllocation.Summary(Participants) : EmployeeName;
     public string Status { get; set; } = "";
     public bool CanTake { get; set; }
     public bool UnlinkedPayroll { get; set; }
@@ -120,6 +162,9 @@ public sealed class CompletedOrder
     public string EmployeeId { get; set; } = "";
     public string EmployeeCode { get; set; } = "";
     public string EmployeeName { get; set; } = "";
+    public int ShareBps { get; set; } = 10000;
+    public List<OrderParticipant> Participants { get; set; } = new();
+    public string ShareDisplay => TeamAllocation.Percent(ShareBps);
     public string OrderRef { get; set; } = "";
     public string Game { get; set; } = "";
     public string Discord { get; set; } = "";
@@ -143,6 +188,8 @@ public sealed class ManagedOrder
     public string Game { get; set; } = "";
     public string Discord { get; set; } = "";
     public string EmployeeName { get; set; } = "";
+    public List<OrderParticipant> Participants { get; set; } = new();
+    public string DisplayParticipants => Participants.Count > 0 ? TeamAllocation.Summary(Participants) : EmployeeName;
     public string Status { get; set; } = "";
     public string AdminState { get; set; } = "normal";
     public bool MonitorArchived { get; set; }
@@ -186,3 +233,4 @@ public sealed class BookSnapshot
     public List<MonitorBook> Closings { get; set; } = new();
     public string Notice { get; set; } = "";
 }
+

@@ -102,6 +102,8 @@ public sealed class MainForm : Form
             await RunBusyAsync(() => CheckOrSendTakeAsync(task));
         _takePanel.ArchiveRequested += async (_, order) =>
             await RunBusyAsync(() => ArchiveOrderAsync(order));
+        _takePanel.TeamRequested += async (_, order) =>
+            await RunBusyAsync(() => EditOrderTeamAsync(order));
         _sleepClock.Tick += (_, _) => RefreshSleepTimers();
         if (!preview) _sleepClock.Start();
         _poll.Tick += async (_, _) => await RunBusyAsync(RefreshDataAsync, quiet: true);
@@ -464,11 +466,26 @@ public sealed class MainForm : Form
             throw new InvalidOperationException(
                 $"Karyawan {employee.Name} masih berstatus {employee.DisplayLocalStatus}. " +
                 "Ubah ke Ready Boosting terlebih dahulu sebelum TAKE ORDER.");
+        List<OrderParticipant>? participants = null;
+        if (_api.IsAdmin)
+        {
+            using var dialog = new OrderTeamDialog(order.OrderRef, _employees, employee.Code,
+                new[] { new OrderParticipant { EmployeeId = employee.Id, EmployeeCode = employee.Code, EmployeeName = employee.Name, ShareBps = 10000 } }, true);
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            participants = dialog.Participants;
+            foreach (var participant in participants)
+            {
+                var worker = _employees.SingleOrDefault(e => e.Code == participant.EmployeeCode && e.Active && e.Team == "FH3");
+                if (worker is null || worker.LocalStatus is "SLEEP" or "BREAK" or "OFFLINE")
+                    throw new InvalidOperationException($"Karyawan {participant.EmployeeName} belum siap. Periksa daftar dan status karyawan.");
+            }
+        }
         _takePanel.SetWorking(true);
         try
         {
-            var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code);
-            var statusWarning = MarkWorkingAfterTake(employee, order.OrderRef);
+            var assignedName = await _api.AssignAsync(order.OrderRef, employee.Code, participants);
+            var statusWarning = participants is null ? MarkWorkingAfterTake(employee, order.OrderRef)
+                : string.Join("", participants.Select(p => MarkWorkingAfterTake(_employees.Single(e => e.Code == p.EmployeeCode), order.OrderRef)));
             _takePanel.ClearChoices();
             _pending.RemoveAll(item => item.OrderRef == order.OrderRef);
             BindTables();
@@ -478,6 +495,20 @@ public sealed class MainForm : Form
         finally {
             _takePanel.SetWorking(false);
         }
+    }
+
+    private async Task EditOrderTeamAsync(PayrollOrder selected)
+    {
+        if (!_api.IsAdmin || !selected.TeamSupported || selected.DeliveryUncertain) return;
+        var snapshot = await _api.TeamAsync(selected.OrderRef);
+        if (!_api.IsAdmin) return;
+        using var dialog = new OrderTeamDialog(selected.OrderRef, _employees, selected.EmployeeCode, snapshot.Participants, false);
+        if (dialog.ShowDialog(this) != DialogResult.OK) return;
+        // Keep the reviewed revision. A conflict is shown to the operator and never replayed.
+        await _api.SaveTeamAsync(selected.OrderRef, snapshot.TeamVersion, selected.EmployeeCode,
+            dialog.Participants, snapshot.Participants.Select(p => p.EmployeeCode));
+        _refreshNeeded = true;
+        FinishAction($"Tim {selected.OrderRef} diperbarui: {TeamAllocation.Summary(dialog.Participants)}.");
     }
 
     private async Task CheckOrSendTakeAsync(PayrollOrder task)
@@ -974,3 +1005,4 @@ public sealed class MainForm : Form
         }
     }
 }
+

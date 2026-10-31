@@ -12,7 +12,9 @@ export async function GET(request: Request) {
     const orders = data.evidence.receipts.map(receipt=> {
       const c=data.controls.get(receipt.order_ref),job=data.jobs.get(receipt.order_ref),complete=done.get(receipt.order_ref),closed=data.closed.get(receipt.order_ref);
       return { orderRef:receipt.order_ref,game:receipt.game,discord:receipt.discord ?? "",task:receipt.task,
-        employeeName:closed?.employee_name ?? complete?.employeeName ?? job?.employee_name ?? "—",
+        participants:data.teams?.get(receipt.order_ref)?.participants ?? [],
+        employeeName:closed?.employee_name ?? (complete?.participants.length
+          ? complete.participants.map(member => member.employeeName).join(' + ') : complete?.employeeName) ?? job?.employee_name ?? "—",
         status:closed ? "Tutup Buku" : complete ? "Selesai" : job?.status ?? (receipt.active ? "Order baru":"Sumber nonaktif"),
         adminState:c?.state ?? "normal",monitorArchived:c?.archived ?? false,version:c?.version ?? 0,
         wageRupiah:closed ? Number(closed.wage_rupiah) : c?.wage_rupiah == null ? null:Number(c.wage_rupiah),
@@ -41,3 +43,4 @@ export async function POST(request: Request) {
     if(error) throw error; return monitorReply(data);
   } catch(e) { return monitorError(e); }
 }
+

@@ -3,6 +3,17 @@
 Native WinForms application for Windows 10/11 x64, packaged with .NET 8.
 Current notifications: [10-second music and corner popup](../docs/monitor-order-notifications.md).
 
+Windows 2.3.0 adds teams of 1–4 employees. After admin sign-in from Settings,
+**TAKE + ATUR TIM** opens the team and percentage editor. **Tambah Karyawan**
+(**Atur Tim** in a compact window) on an active order loads its latest team before editing. Percentages must total 100%;
+they divide the whole order's final net wage, including when someone joins mid-order.
+The original lead remains responsible for TAKE/START/PAUSE/CONTINUE/DONE and existing
+proof history is retained. Existing members cannot be removed through this editor.
+Non-admin TAKE continues to assign one worker. Apply the team API/database update
+before distributing this Windows build. A stale team edit is rejected for review,
+never retried automatically. Completed work and Tutup Buku show each worker's share;
+the order's overall valuation remains a single amount.
+
 ## Use
 
 Download the current **EXE** or **ZIP** at
@@ -99,3 +110,4 @@ the private GitHub repository inaccessible to app users. Both files stay below
 95 MB, use attachment headers and publish with source commit/SHA-256 metadata.
 CI then downloads them anonymously from production and checks their bytes.
 Earlier design notes remain in `docs/` as historical documentation.
+

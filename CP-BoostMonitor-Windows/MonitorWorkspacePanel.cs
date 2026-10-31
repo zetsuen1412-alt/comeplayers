@@ -38,10 +38,10 @@ internal sealed class MonitorWorkspacePanel : UserControl
             AddButton(edits,"Tutup Buku",CloseBookAsync);
         }
         _orders.Dock=DockStyle.Fill;
-        Column(_orders,"ORDER","OrderRef",90); Column(_orders,"KARYAWAN","EmployeeName",150);
+        Column(_orders,"ORDER","OrderRef",90); Column(_orders,"KARYAWAN",admin ? "DisplayParticipants" : "EmployeeName",150);
         Column(_orders,"GAME","Game",110); Column(_orders,"UPAH BERSIH","WageDisplay",140);
         if (admin) Column(_orders,"STATUS","StateDisplay",170);
-        else { Column(_orders,"SELESAI","CompletedDisplay",150);Column(_orders,"STATUS","BookStatus",130); }
+        else { Column(_orders,"BAGIAN","ShareDisplay",80);Column(_orders,"SELESAI","CompletedDisplay",150);Column(_orders,"STATUS","BookStatus",130); }
         _books.Dock=DockStyle.Top; _books.Height=190; _books.Visible=!admin;
         Column(_books,"DATA TUTUP BUKU","Title",260); Column(_books,"TANGGAL","DateDisplay",180);
         Column(_books,"ORDER","OrderCount",75); Column(_books,"TOTAL TIM","TotalDisplay",160);
@@ -129,3 +129,4 @@ internal sealed class MonitorWorkspacePanel : UserControl
     }
     public void Clear() { _generation++;_data=new();_bookData=new();_orders.DataSource=null;_books.DataSource=null;_bookWorker.DataSource=null;_bookWorker.Enabled=false;_closingId=Guid.NewGuid(); }
 }
+
