@@ -6,13 +6,14 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        bool teamOnly = args.Length == 2 && args[1] == "--team-only";
-        if (args.Length != 1 && !teamOnly) throw new ArgumentException("Supply the preview output directory, optionally --team-only.");
+        bool teamOnly = args.Length == 2 && args[1] is "--team-only" or "--selection-only";
+        if (args.Length != 1 && !teamOnly) throw new ArgumentException("Supply the preview output directory, optionally --team-only or --selection-only.");
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         if (!teamOnly) { PendingArchiveChecks.Run(); ActiveArchiveChecks.Run(); }
         TeamUiChecks.Run();
+        SelectionCancellationChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
         if (!teamOnly) {
         DailyDurationChecks.Run(output);
@@ -96,6 +97,12 @@ internal static class Program
             operations.DrawToBitmap(screen, new Rectangle(Point.Empty, operations.Size));
             screen.Save(Path.Combine(output, $"monitor-operations-{size.Width}.png"), ImageFormat.Png);
             Console.WriteLine($"Rendered Take Order at {size.Width}x{size.Height} with an elapsed sleep clock.");
+            foreach (var name in new[] {"ClearSelectedWorker", "ClearSelectedOrder", "ClearActiveTaskSelection"})
+                ((Button)operations.Controls.Find(name, true).Single()).PerformClick();
+            operations.PerformLayout();
+            using var deselected = new Bitmap(operations.Width, operations.Height);
+            operations.DrawToBitmap(deselected, new Rectangle(Point.Empty, operations.Size));
+            deselected.Save(Path.Combine(output, $"monitor-deselected-{size.Width}.png"), ImageFormat.Png);
         }
         using var archive = new ArchiveOrderDialog(new ManagedOrder { OrderRef = "X4901", Game = "AION", Discord = "FH3 Demo", EmployeeName = "Belum ditugaskan", Status = "Order baru" }) { ShowInTaskbar = false, Opacity = 0 };
         archive.Show(); archive.PerformLayout();

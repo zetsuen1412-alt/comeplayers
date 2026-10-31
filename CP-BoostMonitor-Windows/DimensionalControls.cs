@@ -5,6 +5,8 @@ namespace CPBoostMonitor;
 internal sealed class LuxuryGrid : DataGridView
 {
     private readonly SlimGridScroll _scroll;
+    internal bool PreserveEmptySelectionOnFocus { get; init; }
+    internal bool RestoringEmptySelection { get; private set; }
     public LuxuryGrid()
     {
         DoubleBuffered = true; Dock = DockStyle.Fill; ReadOnly = true; MultiSelect = false;
@@ -34,6 +36,15 @@ internal sealed class LuxuryGrid : DataGridView
         if (_scroll is null || IsDisposed) return;
         _scroll.SetBounds(Math.Max(0, ClientSize.Width - 11), ColumnHeadersHeight + 4, 8, Math.Max(0, ClientSize.Height - ColumnHeadersHeight - 9));
         _scroll.Visible = RowCount > Math.Max(1, DisplayedRowCount(false)); _scroll.BringToFront(); _scroll.Invalidate();
+    }
+    protected override void OnEnter(EventArgs e)
+    {
+        if (!PreserveEmptySelectionOnFocus || CurrentCell is not null) { base.OnEnter(e); return; }
+        // DataGridView normally activates its first cell when focus arrives. Empty
+        // dispatch choices must remain empty until a click or navigation key selects a row.
+        RestoringEmptySelection = true;
+        try { base.OnEnter(e); CurrentCell = null; ClearSelection(); }
+        finally { RestoringEmptySelection = false; }
     }
     protected override void OnMouseWheel(MouseEventArgs e)
     {
@@ -146,3 +157,4 @@ internal sealed class BrandMark : Control
         TextRenderer.DrawText(g, "WORKSPACE", caption, new Point(10, 90), LuxuryPalette.SidebarMuted);
     }
 }
+

@@ -3,6 +3,12 @@
 Native WinForms application for Windows 10/11 x64, packaged with .NET 8.
 Current notifications: [10-second music and corner popup](../docs/monitor-order-notifications.md).
 
+Windows 2.3.1 adds **×** beside the selected employee and new order in the footer,
+plus **×** in the active-task header. Each cancels only that screen selection;
+the other choices and the order itself remain intact. Refresh, filtering or tabbing
+back into a list does not restore a cancelled choice. Select a row again to continue.
+Selection cancellation is disabled while an operation is sending.
+
 Windows 2.3.0 adds teams of 1–4 employees. After admin sign-in from Settings,
 **TAKE + ATUR TIM** opens the team and percentage editor. **Tambah Karyawan**
 (**Atur Tim** in a compact window) on an active order loads its latest team before editing. Percentages must total 100%;

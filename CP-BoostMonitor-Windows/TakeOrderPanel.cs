@@ -75,6 +75,10 @@ internal sealed class TakeOrderPanel : UserControl
     private readonly Label _orderCount = Label("0 order", 10, LuxuryPalette.Muted);
     private readonly Label _workerChoice = Label("Belum memilih karyawan", 11, LuxuryPalette.Text);
     private readonly Label _orderChoice = Label("Belum memilih order", 11, LuxuryPalette.Text);
+    private readonly Button _clearWorker = ClearButton("ClearSelectedWorker", "Batalkan pilihan karyawan");
+    private readonly Button _clearOrder = ClearButton("ClearSelectedOrder", "Batalkan pilihan order baru");
+    private readonly Button _clearTask = ClearButton("ClearActiveTaskSelection", "Batalkan pilihan tugas aktif");
+    private readonly ToolTip _choiceTips = new();
     private readonly Button _take = new LuxuryButton
     {
         Text = "TAKE ORDER  →", Primary = true,
@@ -99,6 +103,11 @@ internal sealed class TakeOrderPanel : UserControl
     {
         DoubleBuffered = true;
         _orderSearch.Name = "PendingOrderSearch";
+        _workerSearch.Name = "WorkerSearch";
+        _workers.Name = "WorkerList";
+        _workerFilter.Name = "WorkerStatusFilter";
+        _statusSave.Name = "SaveWorkerStatus";
+        _take.Name = "TakeSelectedOrder";
         _tasks.Name = "ActiveTasks";
         BackColor = LuxuryPalette.Background;
         Dock = DockStyle.Fill;
@@ -171,9 +180,9 @@ internal sealed class TakeOrderPanel : UserControl
                 e.ToolTipText = $"{order.OrderRef} • {order.Game}\n{order.DisplayParticipants}\nDuration: {order.DisplayDuration}\nDiscord: {order.DisplayDiscord}\n{order.Task}\n{order.ActionMessage}";
         };
 
-        _workers.SelectionChanged += (_, _) =>
+        _workers.CurrentCellChanged += (_, _) =>
         {
-            if (_binding) return;
+            if (BindingSelection(_workers)) return;
             _employeeCode = (_workers.CurrentRow?.DataBoundItem as Employee)?.Code;
             var selected = SelectedWorker;
             if (selected != null)
@@ -186,7 +195,7 @@ internal sealed class TakeOrderPanel : UserControl
         };
         _orders.CurrentCellChanged += (_, _) =>
         {
-            if (_binding) return;
+            if (BindingSelection(_orders)) return;
             _orderRef = (_orders.CurrentRow?.DataBoundItem as PayrollOrder)?.OrderRef;
             UpdateSelection();
         };
@@ -197,7 +206,7 @@ internal sealed class TakeOrderPanel : UserControl
         };
         _tasks.CurrentCellChanged += (_, _) =>
         {
-            if (_binding) return;
+            if (BindingSelection(_tasks)) return;
             _taskRef = (_tasks.CurrentRow?.DataBoundItem as PayrollOrder)?.OrderRef;
             UpdateSelection();
         };
@@ -264,12 +273,29 @@ internal sealed class TakeOrderPanel : UserControl
         footerGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         footerGrid.Controls.Add(Label("KARYAWAN TERPILIH", 9, LuxuryPalette.Accent), 0, 0);
         footerGrid.Controls.Add(Label("ORDER TERPILIH", 9, LuxuryPalette.Accent), 1, 0);
-        footerGrid.Controls.Add(_workerChoice, 0, 1);
-        footerGrid.Controls.Add(_orderChoice, 1, 1);
+        footerGrid.Controls.Add(ChoiceWithCancel(_workerChoice, _clearWorker), 0, 1);
+        footerGrid.Controls.Add(ChoiceWithCancel(_orderChoice, _clearOrder), 1, 1);
         footerGrid.Controls.Add(_take, 2, 0);
         footerGrid.SetRowSpan(_take, 2);
         footer.Controls.Add(footerGrid);
         layout.Controls.Add(footer, 0, 1);
+
+        _clearWorker.Click += (_, _) => {
+            if (_working) return;
+            _employeeCode = null; ClearGridChoice(_workers); UpdateSelection();
+        };
+        _clearOrder.Click += (_, _) => {
+            if (_working) return;
+            _orderRef = null; ClearGridChoice(_orders); UpdateSelection();
+        };
+        _clearTask.Click += (_, _) => {
+            if (_working) return;
+            _taskRef = null; ClearGridChoice(_tasks); UpdateSelection();
+        };
+        _choiceTips.SetToolTip(_clearWorker, "Batalkan pilihan karyawan. Pilihan order tetap disimpan.");
+        _choiceTips.SetToolTip(_clearOrder, "Batalkan pilihan order baru. Order tidak dihapus.");
+        _choiceTips.SetToolTip(_clearTask, "Batalkan pilihan tugas aktif. Pekerjaan dan laporannya tetap tersimpan.");
+        Disposed += (_, _) => _choiceTips.Dispose();
 
         _take.Click += (_, _) =>
         {
@@ -308,6 +334,16 @@ internal sealed class TakeOrderPanel : UserControl
         _employeeCode = null;
         _orderRef = null;
         RenderLists();
+    }
+
+    private bool BindingSelection(DataGridView grid) => _binding || grid is LuxuryGrid { RestoringEmptySelection: true };
+
+    private void ClearGridChoice(DataGridView grid)
+    {
+        bool wasBinding = _binding;
+        _binding = true;
+        try { grid.CurrentCell = null; grid.ClearSelection(); }
+        finally { _binding = wasBinding; }
     }
 
     public void SetWorking(bool working)
@@ -369,13 +405,14 @@ internal sealed class TakeOrderPanel : UserControl
         body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         var title = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill, ColumnCount = 4,
+            Dock = DockStyle.Fill, ColumnCount = 5,
             BackColor = LuxuryPalette.Surface,
         };
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         title.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0));
         title.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0));
+        title.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 34));
         _taskToolbar = title;
         title.Controls.Add(Label("Tugas Aktif", 13, LuxuryPalette.Text, true), 0, 0);
         _taskCount.TextAlign = ContentAlignment.MiddleRight;
@@ -383,6 +420,7 @@ internal sealed class TakeOrderPanel : UserControl
         title.Controls.Add(_taskCount, 1, 0);
         title.Controls.Add(_deleteTask, 2, 0);
         title.Controls.Add(_team, 3, 0);
+        title.Controls.Add(_clearTask, 4, 0);
         body.Controls.Add(title, 0, 0);
         body.Controls.Add(_tasks, 0, 1);
         var actions = new TableLayoutPanel
@@ -547,7 +585,10 @@ internal sealed class TakeOrderPanel : UserControl
         _deleteOrder.Enabled = _isAdmin && !blocked && order is not null;
         _take.Enabled = !blocked && worker != null && order?.TakeAllowed == true;
         _statusSave.Enabled = !_working && worker != null;
+        _clearWorker.Enabled = !_working && worker is not null;
+        _clearOrder.Enabled = !_working && order is not null;
         var task = SelectedTask;
+        _clearTask.Enabled = !_working && task is not null;
         _deleteTask.Enabled = _isAdmin && !blocked && task is { DeliveryUncertain: false };
         _team.Enabled = _isAdmin && !blocked && task is { TeamSupported: true, DeliveryUncertain: false };
         _takeTelegram.Enabled = !blocked && task?.CanTake == true;
@@ -567,6 +608,27 @@ internal sealed class TakeOrderPanel : UserControl
         Font = new Font("Segoe UI", 10), Margin = new Padding(2, 2, 4, 1),
     };
 
+    private static Button ClearButton(string name, string accessibleName) => new()
+    {
+        Name = name, Text = "×", AccessibleName = accessibleName,
+        AccessibleDescription = "Hanya membatalkan pilihan di layar; tidak menghapus atau mengubah order.",
+        Dock = DockStyle.Fill, FlatStyle = FlatStyle.Flat, FlatAppearance = { BorderSize = 0 },
+        BackColor = LuxuryPalette.Surface, ForeColor = LuxuryPalette.Muted,
+        Font = new Font("Segoe UI", 15), Margin = new Padding(2, 0, 2, 0),
+        Cursor = Cursors.Hand, Enabled = false,
+    };
+
+    private static Control ChoiceWithCancel(Label choice, Button cancel)
+    {
+        choice.AutoEllipsis = true;
+        var row = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = Padding.Empty };
+        row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 34));
+        row.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        row.Controls.Add(choice, 0, 0); row.Controls.Add(cancel, 1, 0);
+        return row;
+    }
+
     private static Label Label(string label, float size, Color color, bool bold = false) => new()
     {
         Text = label, AutoSize = false, Dock = DockStyle.Fill,
@@ -578,6 +640,7 @@ internal sealed class TakeOrderPanel : UserControl
     {
         var grid = new LuxuryGrid
         {
+            PreserveEmptySelectionOnFocus = true,
             Dock = DockStyle.Fill, ReadOnly = true, MultiSelect = false,
             AllowUserToAddRows = false, AllowUserToDeleteRows = false,
             RowHeadersVisible = false, AutoGenerateColumns = false,
