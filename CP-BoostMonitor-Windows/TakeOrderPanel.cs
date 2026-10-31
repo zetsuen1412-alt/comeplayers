@@ -83,7 +83,7 @@ internal sealed class TakeOrderPanel : UserControl
     {
         Text = "TAKE ORDER  →", Primary = true,
         Dock = DockStyle.Fill, MinimumSize = new Size(170, 48),
-        BackColor = LuxuryPalette.Accent, ForeColor = LuxuryPalette.Text,
+        BackColor = LuxuryPalette.Accent, ForeColor = Color.White,
     };
 
     private List<Employee> _roster = new();

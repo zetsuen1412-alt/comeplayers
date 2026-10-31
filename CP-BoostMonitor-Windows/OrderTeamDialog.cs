@@ -64,13 +64,15 @@ internal sealed class OrderTeamDialog : Form
     {
         var row = new Panel { Width = 644, Height = 52, Margin = new Padding(0, 3, 0, 3) };
         var worker = new ComboBox { Name = "TeamWorker", Left = 0, Top = 8, Width = 310, DropDownStyle = ComboBoxStyle.DropDownList,
-            DisplayMember = "Name", BindingContext = new BindingContext(), Enabled = !existing };
+            DisplayMember = "Name", BindingContext = new BindingContext(), Enabled = !existing,
+            BackColor = LuxuryPalette.SurfaceRaised, ForeColor = LuxuryPalette.Text };
         var choices = _roster.ToList();
         if (participant is not null && !choices.Any(e => e.Code.Equals(participant.EmployeeCode, StringComparison.OrdinalIgnoreCase)))
             choices.Add(new Employee { Code = participant.EmployeeCode, Name = participant.EmployeeName, Id = participant.EmployeeId });
         worker.DataSource = choices;
         worker.SelectedItem = participant is null ? null : choices.FirstOrDefault(e => e.Code.Equals(participant.EmployeeCode, StringComparison.OrdinalIgnoreCase));
-        var share = new NumericUpDown { Left = 326, Top = 8, Width = 100, DecimalPlaces = 2, Increment = .01m, Maximum = 100, Value = participant?.ShareBps / 100m ?? 0 };
+        var share = new NumericUpDown { Left = 326, Top = 8, Width = 100, DecimalPlaces = 2, Increment = .01m, Maximum = 100, Value = participant?.ShareBps / 100m ?? 0,
+            BackColor = LuxuryPalette.Surface, ForeColor = LuxuryPalette.Text };
         row.Controls.Add(worker); row.Controls.Add(share);
         row.Controls.Add(new Label { Text = "%", Left = 432, Top = 12, Width = 25 });
         if (existing) row.Controls.Add(new Label { Text = participant?.EmployeeCode.Equals(_leadCode, StringComparison.OrdinalIgnoreCase) == true ? "Penanggung jawab" : "Sudah bergabung", Left = 464, Top = 12, Width = 175, ForeColor = LuxuryPalette.Muted });

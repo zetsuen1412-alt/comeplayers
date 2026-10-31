@@ -122,15 +122,10 @@ internal sealed class MetricCard : Control
         g.Clear(Parent?.BackColor ?? LuxuryPalette.Background);
         if (Width < 30 || Height < 30) return;
         var r = new Rectangle(1, 1, Width - 9, Height - 10);
-        for (int d = 7; d >= 1; d--) {
-            using var shadow = LuxuryPalette.Round(new Rectangle(r.X + d / 2, r.Y + d, r.Width, r.Height), 20);
-            using var shade = new SolidBrush(Color.FromArgb(3, 0, 0, 0)); g.FillPath(shade, shadow);
-        }
-        using var path = LuxuryPalette.Round(r, 20);
-        using var fill = new LinearGradientBrush(r, Color.White, LuxuryPalette.SurfaceRaised, 55);
+        using var path = LuxuryPalette.Round(r, 17);
+        using var fill = new SolidBrush(LuxuryPalette.Surface);
         g.FillPath(fill, path);
-        using var stroke = new Pen(Color.FromArgb(70, Accent)); g.DrawPath(stroke, path);
-        using var top = new Pen(Color.White); g.DrawLine(top, 22, 2, r.Right - 22, 2);
+        using var stroke = new Pen(LuxuryPalette.Border); g.DrawPath(stroke, path);
         using var small = new Font("Segoe UI", 8.5f, FontStyle.Bold);
         using var number = new Font("Segoe UI", 25, FontStyle.Bold);
         TextRenderer.DrawText(g, Caption, small, new Rectangle(20, 14, r.Width - 40, 20), LuxuryPalette.Muted, TextFormatFlags.EndEllipsis);

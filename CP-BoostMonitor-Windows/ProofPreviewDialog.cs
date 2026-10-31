@@ -52,7 +52,7 @@ public static class ProofPreviewDialog
             Primary = true,
             Text = "Kirim Bukti " + action.ToUpperInvariant(), Width = 190, Height = 44,
             Location = new Point(585, 21), DialogResult = DialogResult.OK,
-            BackColor = LuxuryPalette.Gold, ForeColor = LuxuryPalette.Text,
+            BackColor = LuxuryPalette.Accent, ForeColor = Color.White,
             FlatStyle = FlatStyle.Flat, Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
         };
         toolbar.Controls.Add(cancel);
@@ -81,3 +81,4 @@ public static class ProofPreviewDialog
         return dialog.ShowDialog(owner) == DialogResult.OK;
     }
 }
+

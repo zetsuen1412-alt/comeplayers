@@ -18,7 +18,10 @@ internal sealed class MonitorWorkspacePanel : UserControl
     private int _generation;
     public MonitorWorkspacePanel(PayrollApi api, bool admin)
     {
-        _api = api; _admin = admin; Dock = DockStyle.Fill; Padding = new Padding(22); BackColor = LuxuryPalette.Background;
+        _api = api; _admin = admin; Dock = DockStyle.Fill; Padding = new Padding(22); BackColor = LuxuryPalette.Background; ForeColor = LuxuryPalette.Text;
+        foreach (var input in new Control[] {_search, _reason, _worker, _bookWorker, _wage}) {
+            input.BackColor = LuxuryPalette.SurfaceRaised; input.ForeColor = LuxuryPalette.Text;
+        }
         var actions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true, Padding = new Padding(0, 8, 0, 8) };
         actions.Controls.Add(_search); AddButton(actions,"↻ Perbarui",RefreshAsync);
         if(!admin)actions.Controls.Add(_bookWorker);
@@ -123,8 +126,9 @@ internal sealed class MonitorWorkspacePanel : UserControl
         form.ShowDialog(this);
     }
     private string? Prompt(string title,string value) {
-        using var f=new Form {Text=title,Width=470,Height=180,StartPosition=FormStartPosition.CenterParent};
-        var t=new TextBox {Left=20,Top=20,Width=410,Text=value};var ok=new Button {Text="Lanjut",Left=310,Top=65,Width=120,DialogResult=DialogResult.OK};
+        using var f=new Form {Text=title,Width=470,Height=180,StartPosition=FormStartPosition.CenterParent,BackColor=LuxuryPalette.Background,ForeColor=LuxuryPalette.Text,Font=new Font("Segoe UI",10)};
+        var t=new TextBox {Left=20,Top=20,Width=410,Text=value,BackColor=LuxuryPalette.SurfaceRaised,ForeColor=LuxuryPalette.Text};
+        var ok=new LuxuryButton {Text="Lanjut",Left=310,Top=65,Width=120,Height=38,Primary=true,DialogResult=DialogResult.OK};
         f.Controls.Add(t);f.Controls.Add(ok);f.AcceptButton=ok;return f.ShowDialog(this)==DialogResult.OK?t.Text.Trim():null;
     }
     public void Clear() { _generation++;_data=new();_bookData=new();_orders.DataSource=null;_books.DataSource=null;_bookWorker.DataSource=null;_bookWorker.Enabled=false;_closingId=Guid.NewGuid(); }

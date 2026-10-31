@@ -9,7 +9,7 @@
     <ApplicationIcon>Assets/fh3.ico</ApplicationIcon>
     <AssemblyName>EVOGAMINGMonitor</AssemblyName>
     <RootNamespace>CPBoostMonitor</RootNamespace>
-    <Version>2.3.1</Version>
+    <Version>2.4.0</Version>
     <PublishSingleFile>true</PublishSingleFile>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <SelfContained>true</SelfContained>

@@ -42,7 +42,7 @@ public sealed class MainForm : Form
     private static readonly Color PanelLine = LuxuryPalette.Border;
     private static readonly Color Fore = LuxuryPalette.Text;
     private static readonly Color Muted = LuxuryPalette.Muted;
-    private static readonly Color Accent = LuxuryPalette.Gold;
+    private static readonly Color Accent = LuxuryPalette.Accent;
     private static readonly Color Success = LuxuryPalette.Success;
 
     private readonly Panel _content = new() { Dock = DockStyle.Fill, BackColor = Background };
@@ -149,6 +149,7 @@ public sealed class MainForm : Form
         _completedPanel.ApplySnapshot(completed);
         _connection.Text = "●  PREVIEW / DATA CONTOH";
         _appStatus.Text = "Pratinjau desain • Data contoh • Tidak terhubung ke akun atau Telegram";
+        if (page == "Aktivitas Lokal") _history.Text = "31 Oktober 2026 · 08:30:00  DAVA3\nREADY → WORK  •  TAKE X4901 terkonfirmasi (data contoh)\n\n31 Oktober 2026 · 09:10:00  RIKI3\nREADY → WORK  •  Bergabung ke tim X4888 (data contoh)\n\n31 Oktober 2026 · 12:00:00  AJI3\nWORK → SLEEP  •  Mulai tidur (lokal PC, data contoh)";
     }
     internal void LoadAdminPreview(ManagementSnapshot orders, BookSnapshot books, List<Employee> people, string page)
     {
@@ -185,6 +186,10 @@ public sealed class MainForm : Form
         _connection.Text = "Mode Karyawan • Menghubungkan";
         _connection.Margin = new Padding(12, 0, 0, 0);
         _nav.Controls.Add(_connection);
+        _nav.Paint += (_, e) => {
+            using var line = new Pen(LuxuryPalette.SidebarBorder);
+            e.Graphics.DrawLine(line, _nav.ClientSize.Width - 1, 0, _nav.ClientSize.Width - 1, _nav.ClientSize.Height);
+        };
 
         var header = new Panel { Dock = DockStyle.Top, Height = 119,
             Padding = new Padding(22, 14, 22, 4), BackColor = Background };
@@ -407,6 +412,9 @@ public sealed class MainForm : Form
         var testAlert = ActionButton("Tes notifikasi", false); testAlert.SetBounds(22, 356, 210, 38);
         testAlert.Click += (_, _) => ShowOrderNotification(new[] { "Contoh notifikasi order" }, demonstration: true);
         card.Controls.Add(testAlert);
+        var theme = MakeLabel($"Tema: {LuxuryPalette.ThemeName} • v2.4.0", 10, 252, 362, false, Muted);
+        theme.Name = "CurrentTheme"; card.Controls.Add(theme);
+        page.SizeChanged += (_, _) => card.Width = Math.Min(860, Math.Max(620, page.ClientSize.Width - page.Padding.Horizontal - 8));
         page.Controls.Add(card);
         return page;
     }
@@ -835,8 +843,8 @@ public sealed class MainForm : Form
         if (_pages.TryGetValue(name, out var active)) active.BringToFront();
         foreach (var entry in _navigation)
         {
-            entry.Value.BackColor = entry.Key == name ? PanelColor : Sidebar;
-            entry.Value.ForeColor = Fore;
+            entry.Value.BackColor = entry.Key == name ? Accent : Sidebar;
+            entry.Value.ForeColor = entry.Key == name ? Color.White : LuxuryPalette.SidebarText;
         }
         _headline.Text = name == "Login" ? "Login Admin" : name;
         if(name=="Kelola Order") _metrics.Text="Penugasan, status order, upah bersih, dan Tutup Buku";
@@ -915,7 +923,7 @@ public sealed class MainForm : Form
     {
         Navigation = true, Text = title, Width = 216, Height = 55,
         Margin = new Padding(0, 2, 0, 8),
-        BackColor = Sidebar, ForeColor = Fore,
+        BackColor = Sidebar, ForeColor = LuxuryPalette.SidebarText,
         TextAlign = ContentAlignment.MiddleLeft,
     };
 
@@ -926,7 +934,7 @@ public sealed class MainForm : Form
             Primary = primary, Text = label, Height = 43,
             Width = Math.Max(152, label.Length * 8 + 28),
             BackColor = primary ? Accent : LuxuryPalette.SurfaceRaised,
-            ForeColor = primary ? Background : Fore,
+            ForeColor = primary ? Color.White : Fore,
             Font = new Font("Segoe UI Semibold", 10f, FontStyle.Bold),
             Margin = new Padding(5, 4, 9, 4),
         };

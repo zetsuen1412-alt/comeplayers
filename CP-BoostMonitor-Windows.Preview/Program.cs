@@ -6,14 +6,15 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        bool teamOnly = args.Length == 2 && args[1] is "--team-only" or "--selection-only";
-        if (args.Length != 1 && !teamOnly) throw new ArgumentException("Supply the preview output directory, optionally --team-only or --selection-only.");
+        bool teamOnly = args.Length == 2 && args[1] is "--team-only" or "--selection-only" or "--theme-only";
+        if (args.Length != 1 && !teamOnly) throw new ArgumentException("Supply the preview output directory, optionally --team-only, --selection-only or --theme-only.");
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("id-ID");
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
         if (!teamOnly) { PendingArchiveChecks.Run(); ActiveArchiveChecks.Run(); }
         TeamUiChecks.Run();
         SelectionCancellationChecks.Run();
+        PearlBlueChecks.Run();
         string output = Path.GetFullPath(args[0]); Directory.CreateDirectory(output);
         if (!teamOnly) {
         DailyDurationChecks.Run(output);
@@ -103,6 +104,18 @@ internal static class Program
             using var deselected = new Bitmap(operations.Width, operations.Height);
             operations.DrawToBitmap(deselected, new Rectangle(Point.Empty, operations.Size));
             deselected.Save(Path.Combine(output, $"monitor-deselected-{size.Width}.png"), ImageFormat.Png);
+        }
+        foreach (var page in new[] {"Aktivitas Lokal", "Pengaturan", "Login"}) foreach (var size in new[] {new Size(1460,900),new Size(1120,740)}) {
+            using var form = new MainForm(preview:true) {ClientSize=size,ShowInTaskbar=false,Opacity=0};
+            form.Show(); form.LoadPreview(snapshot, people, pending, page, isAdmin:true, tasks:active); form.PerformLayout();
+            using var pageImage = new Bitmap(form.Width,form.Height); form.DrawToBitmap(pageImage,new Rectangle(Point.Empty,form.Size));
+            var slug = page == "Aktivitas Lokal" ? "history" : page == "Pengaturan" ? "settings" : "login";
+            pageImage.Save(Path.Combine(output,$"monitor-{slug}-{size.Width}.png"),ImageFormat.Png);
+        }
+        using (var toast = new OrderNotificationToast(new[]{"X4901","X4902"}, () => {}, preview:true) {Opacity=0}) {
+            toast.Show(); toast.PerformLayout();
+            using var popup = new Bitmap(toast.Width,toast.Height); toast.DrawToBitmap(popup,new Rectangle(Point.Empty,toast.Size));
+            popup.Save(Path.Combine(output,"monitor-notification-pearl-blue.png"),ImageFormat.Png);
         }
         using var archive = new ArchiveOrderDialog(new ManagedOrder { OrderRef = "X4901", Game = "AION", Discord = "FH3 Demo", EmployeeName = "Belum ditugaskan", Status = "Order baru" }) { ShowInTaskbar = false, Opacity = 0 };
         archive.Show(); archive.PerformLayout();
