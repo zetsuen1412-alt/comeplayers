@@ -1,4 +1,4 @@
-# ComePlayers Lowongan — browser bridge v1.3
+# ComePlayers Lowongan — browser bridge v1.3.6
 
 Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia memakai tab Facebook yang sudah login dan tidak meminta password atau cookie Facebook.
 
@@ -16,3 +16,17 @@ Ekstensi ini dipakai bersama `https://www.comeplayers.com/admin/lowongan`. Ia me
 Scan bersifat read-only: tidak ada komentar yang dikirim sebelum admin menekan KIRIM KOMENTAR. Satu posting dideduplikasi dalam kampanye yang sama. Jika Facebook menampilkan checkpoint/pembatasan atau hasil pengiriman tidak dapat diverifikasi, sistem meminta pemeriksaan dan tidak melakukan retry buta.
 
 Foto lowongan dapat berukuran sampai 5 MB (PNG/JPG/WebP).
+
+## Pemeriksaan versi dan pengiriman
+
+Setelah memuat ulang ekstensi, muat ulang halaman Admin Lowongan. Status Facebook harus menampilkan **ekstensi v1.3.6**. Jika masih versi lama, pastikan hanya satu salinan ComePlayers Lowongan yang aktif dan folder yang dimuat adalah folder versi ini.
+
+Versi 1.3.6 juga mengenali postingan feed dalam container DIV biasa, apabila ada penanda isi postingan dan tautan header yang jelas. Tautan komentar/balasan dan tautan yang hanya disebut di isi postingan tidak digunakan sebagai bukti target. Untuk postingan yang disetujui, ekstensi dapat memakai feed grup yang sudah terbuka jika hanya ada satu postingan dengan tautan target dan kolom komentar utama yang cocok. Jika pemeriksaan ini tidak terpenuhi, ekstensi membuka tautan postingan secara langsung seperti sebelumnya.
+
+STOP tetap diperiksa sebelum dan setelah pemeriksaan feed serta sebelum klik kirim. Foto milik tugas yang belum dikirim dapat dibersihkan di feed yang sama; apabila tautan target berubah atau kepemilikan draf tidak jelas, sistem meminta pemeriksaan.
+
+Uji satu postingan biasa terlebih dahulu, lalu satu postingan modal. Pastikan komentar gambar tetap terlihat setelah memuat ulang post sebelum mencoba batch kecil 2–3 postingan. Jangan mengirim ulang tugas berstatus **perlu diperiksa** sampai hasil sebelumnya diperiksa langsung di Facebook.
+
+Composer bertuliskan `Tulis jawaban...` hanya boleh dipakai jika struktur halaman menunjukkan composer milik post. Composer balasan di dalam komentar ditolak. Riwayat menampilkan tahap terakhir tanpa menyimpan isi post atau identitas Facebook. Target yang tidak mendukung komentar gambar dilewati sebelum kirim; hasil ambigu sesudah kirim menghentikan batch untuk diperiksa.
+
+Preview kecil di samping form dideteksi dalam container composer yang sama. Jika tugas berhenti sebelum kirim, ekstensi menghapus hanya foto yang baru dipasangnya sendiri. Draf yang sudah ada atau foto yang tidak terbukti bersih menghentikan antrean agar tidak meninggalkan draf saat pindah post.

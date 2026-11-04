@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { EMPTY_CONFIG, normalizePhone, whatsappLink, facebookTarget, validateConfig, publicationText, replyText, isJobSeekerPost, validateImage, readLimited, LokerError, type Config } from '../lib/loker/model';
+import { runInNewContext } from 'node:vm';
+import { PGlite } from '@electric-sql/pglite';
+import { EMPTY_CONFIG, normalizePhone, whatsappLink, facebookTarget, validateConfig, publicationText, replyText, isJobSeekerPost, validateImage, readLimited, browserStage, browserResultNote, browserNoteStage, LokerError, type Config } from '../lib/loker/model';
 import { validSignature, seal, unseal, subjectHash, equalSecret } from '../lib/loker/security';
 import { graph } from '../lib/loker/server';
 const config = (): Config => ({ ...EMPTY_CONFIG, title: 'Game House', text: 'Lowongan resmi', comment: 'Ada lowongan Game House.', whatsapp: '081234567890', bannerId: '11111111-1111-1111-1111-111111111111', groups: ['https://web.facebook.com/groups/example/'], publishGroups: true, groupsAuthorized: true, faqs: [{ keywords: ['lokasi'], answer: 'Lokasi sesuai alamat yang diisi admin.' }] });
@@ -62,9 +64,231 @@ test('latest STOP migration cancels all queued or leased loker tasks', () => {
   assert.match(s,/w\.state='stopped'/);
 });
 
-test('unsupported reviewed posts are skipped before dispatch', () => {
-  const source=readFileSync(resolve(process.cwd(),'../tools/comeplayers-loker-extension/facebook.js'),'utf8');
-  assert.match(source,/status: 'skipped'/);
-  assert.match(source,/Dilewati sebelum kirim/);
-  assert.match(source,/await dispatch\(job\);\s*send\.click\(\)/);
+test('history retains an allowlisted final stage within the database note limit', () => {
+  const note = browserResultNote('[stage:send_clicked] '+ 'x'.repeat(400), 'verification_inconclusive');
+  assert.equal(note.length, 250);
+  assert.equal(browserNoteStage(note), 'verification_inconclusive');
+  assert.equal((note.match(/\[stage:/g)||[]).length, 1);
+  assert.equal(browserStage('post_context_found:modal'), 'post_context_found:modal');
+  assert.equal(browserStage('composer_candidates:3'), 'composer_candidates:3');
+  for (const stage of ['username:Private Person', 'send_clicked\nCookie:secret', 'composer_candidates:secret', 'https://facebook.com/private']) {
+    assert.equal(browserStage(stage), '');
+    assert.equal(browserResultNote('Pesan aman', stage), 'Pesan aman');
+  }
+  assert.equal(browserResultNote('Pesan\u0000aman', 'cancelled'), '[stage:cancelled] Pesan aman');
+});
+
+test('draft safeguards retain only the exact safe stage in persisted history', () => {
+  for (const stage of ['composer_draft_present', 'attachment_cleanup_blocked']) {
+    const note = browserResultNote('[stage:attachment_preview_missing] Draft perlu diperiksa.\n'+ 'x'.repeat(400), stage);
+    assert.equal(note.length, 250);
+    assert.equal(browserNoteStage(note), stage);
+    assert.ok(note.startsWith(`[stage:${stage}] Draft perlu diperiksa. `));
+    assert.equal((note.match(/\[stage:/g)||[]).length, 1);
+    for (const unsafe of [`${stage}:private`, `${stage}\nCookie:secret`, `${stage} `]) {
+      assert.equal(browserStage(unsafe), '');
+      assert.equal(browserResultNote('Draft perlu diperiksa.', unsafe), 'Draft perlu diperiksa.');
+      assert.equal(browserNoteStage(`[stage:${unsafe}] Draft perlu diperiksa.`), '');
+    }
+  }
+});
+
+type WorkerResult = {status?:string;stage?:string;dispatched?:boolean;stopped?:boolean;handled?:boolean;groupsScanned?:number;items?:unknown[]};
+type WorkerMessage = {type:string;id?:string;lease?:string;dispatch?:boolean;job?:Record<string,unknown>;group?:string};
+type WorkerSender = {id:string;tab?:{id:number};url?:string};
+function workerHarness(options:{get?: (keys:string|string[])=>Promise<void>;send?: (tab:number,message:WorkerMessage,check:()=>Promise<{allowed:boolean}>)=>Promise<WorkerResult|{allowed:boolean}>} = {}) {
+  const state:Record<string,unknown> = {facebookTab:2,cancelled:false};
+  const navigations:string[] = [];
+  let listener:(m:WorkerMessage,sender:WorkerSender,respond:(value:{allowed:boolean})=>void)=>unknown;
+  const job = {id:'test-job',lease:'test-lease',target:'https://www.facebook.com/groups/test/posts/100/',kind:'group_comment',text:'',expiresAt:Date.now()+120000};
+  const check = () => new Promise<{allowed:boolean}>(resolveCheck=>listener({type:'CP_LOKER_CHECK',id:job.id,lease:job.lease,dispatch:true},{id:'extension-test',tab:{id:2}},resolveCheck));
+  const chrome = {
+    runtime:{id:'extension-test',getManifest:()=>({version:'test'}),getURL:(path:string)=>`chrome-extension://extension-test/${path}`,onMessage:{addListener:(fn:typeof listener)=>{listener=fn;}},onStartup:{addListener:()=>undefined}},
+    storage:{local:{get:async(keys:string|string[])=>{await options.get?.(keys);return Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(key=>[key,structuredClone(state[key])]));},set:async(value:Record<string,unknown>)=>{Object.assign(state,structuredClone(value));},remove:async(key:string)=>{delete state[key];}}},
+    tabs:{get:async()=>({url:navigations.at(-1)||'https://www.facebook.com/groups/test/',status:'complete'}),query:async()=>[{id:1,url:'https://www.comeplayers.com/admin/lowongan'}],update:async(_tab:number,{url}:{url:string})=>{navigations.push(url);},reload:async()=>undefined,sendMessage:async(tab:number,message:WorkerMessage)=>options.send?options.send(tab,message,check):{status:'skipped',stage:'composer_missing',dispatched:false}},
+    scripting:{executeScript:async()=>undefined},
+  };
+  const source = readFileSync(resolve(process.cwd(),'../tools/comeplayers-loker-extension/worker.js'),'utf8');
+  const context = {chrome,URL,Date,setTimeout:(fn:()=>void)=>setTimeout(fn,0),structuredClone,workerApi:null as unknown as {run:(job:Record<string,unknown>,controller:number)=>Promise<WorkerResult>;stop:(notifyAdmin?:boolean)=>Promise<{stopped:boolean;adminStopRequested:boolean}>;resumeReviewed:()=>Promise<{resumed:boolean}>;scan:(groups:string[])=>Promise<WorkerResult>}};
+  runInNewContext(source+'\nglobalThis.workerApi = {run,stop,scan,resumeReviewed};',context);
+  return {...context.workerApi,job,state,navigations,check};
+}
+function deferred<T>() {
+  let resolvePromise!:(value:T)=>void;
+  const promise = new Promise<T>(resolveDeferred=>{resolvePromise=resolveDeferred;});
+  return {promise,resolve:resolvePromise};
+}
+
+test('STOP during worker startup cannot be overwritten by cancelled:false', async () => {
+  const entered=deferred<void>(),release=deferred<void>();
+  const worker=workerHarness({get:async keys=>{if(Array.isArray(keys)&&keys.includes('active')){entered.resolve();await release.promise;}}});
+  const running=worker.run(worker.job,1);
+  await entered.promise;
+  await worker.stop();
+  release.resolve();
+  assert.equal((await running).status,'cancelled');
+  assert.equal(worker.navigations.length,0);
+  assert.equal(worker.state.cancelled,true);
+});
+
+test('STOP while server preflight is pending prevents the send', async () => {
+  const entered=deferred<void>(),release=deferred<void>();let clicks=0,preflights=0;
+  const worker=workerHarness({send:async(tab,m,check)=>{
+    if(tab===1&&m.type==='CP_LOKER_PREFLIGHT'){preflights++;entered.resolve();await release.promise;return {allowed:true};}
+    if(m.type==='CP_LOKER_RUN'){const result=await check();if(result.allowed)clicks++;return {status:result.allowed?'sent':'cancelled',dispatched:result.allowed};}
+    return {stopped:true};
+  }});
+  const running=worker.run(worker.job,1);
+  await entered.promise;await worker.stop();release.resolve();
+  assert.equal((await running).status,'cancelled');
+  assert.equal(preflights,1);assert.equal(clicks,0);
+});
+
+test('lost acknowledgement after preflight is uncertain and never replayed', async () => {
+  let attempts=0;
+  const worker=workerHarness({send:async(tab,m,check)=>{
+    if(tab===1&&m.type==='CP_LOKER_PREFLIGHT')return {allowed:true};
+    if(m.type==='CP_LOKER_RUN'){attempts++;assert.equal((await check()).allowed,true);throw new Error('lost result');}
+    return {stopped:true};
+  }});
+  const result=await worker.run(worker.job,1);
+  assert.equal(result.status,'uncertain');assert.equal(result.dispatched,true);assert.equal(attempts,1);
+});
+
+test('worker reserves one task before asynchronous startup', async () => {
+  const entered=deferred<void>(),release=deferred<void>();
+  const worker=workerHarness({get:async keys=>{if(Array.isArray(keys)&&keys.includes('active')){entered.resolve();await release.promise;}}});
+  const running=worker.run(worker.job,1);await entered.promise;
+  await assert.rejects(()=>worker.run({...worker.job,id:'second'},1),/Masih ada tugas/);
+  release.resolve();assert.equal((await running).status,'skipped');assert.equal(worker.navigations.length,1);
+});
+
+test('STOP during a group scan prevents navigation to the next group', async () => {
+  const worker:ReturnType<typeof workerHarness>=workerHarness({send:async(_tab,m)=>{if(m.type==='CP_LOKER_SCAN_ALL'){await worker.stop();return {items:[]};}return {stopped:true};}});
+  const result=await worker.scan(['https://www.facebook.com/groups/test/','https://www.facebook.com/groups/next/']);
+  assert.equal(result.stopped,true);assert.equal(result.groupsScanned,1);assert.equal(worker.navigations.length,1);
+});
+
+test('STOP remains latched across automatic jobs until explicit reviewed resume', async () => {
+  const worker=workerHarness();await worker.stop();
+  assert.equal((await worker.run(worker.job,1)).status,'cancelled');
+  assert.equal((await worker.run({...worker.job,id:'next-job'},1)).status,'cancelled');
+  assert.equal(worker.navigations.length,0);
+  assert.equal((await worker.resumeReviewed()).resumed,true);
+  assert.equal((await worker.run(worker.job,1)).status,'skipped');assert.equal(worker.navigations.length,1);
+});
+
+test('popup STOP forwards cancellation to Admin and keeps browser latch', async () => {
+  let adminRequests=0;
+  const worker=workerHarness({send:async(tab,m)=>{
+    if(tab===1&&m.type==='CP_LOKER_STOP_CAMPAIGN'){adminRequests++;return {handled:true};}
+    return {stopped:true};
+  }});
+  const result=await worker.stop(true);
+  assert.equal(result.adminStopRequested,true);assert.equal(adminRequests,1);
+  assert.equal(worker.state.stopLatched,true);assert.equal((await worker.run(worker.job,1)).status,'cancelled');
+});
+
+function bridgeHarness(resume?:()=>Promise<{resumed:boolean}>) {
+  class Button {
+    disabled=false;clicks=0;
+    constructor(public textContent:string) {}
+    closest(){return this;}
+    getClientRects(){return [{}];}
+    click(){this.clicks++;}
+  }
+  const stopButton=new Button('STOP'),sendButton=new Button('KIRIM KOMENTAR (2)');
+  const sent:string[]=[];const results:Record<string,unknown>[]=[];
+  let onClick:(event:{isTrusted:boolean;target:Button})=>void;
+  let onWindowMessage:(event:{source:unknown;origin:string;data:Record<string,unknown>})=>Promise<void>;
+  let onRuntimeMessage:(message:{type:string},sender:{id:string},respond:(value:{handled:boolean})=>void)=>unknown;
+  const window={addEventListener:(_name:string,fn:typeof onWindowMessage)=>{onWindowMessage=fn;},postMessage:(message:Record<string,unknown>)=>{results.push(message);}};
+  const document={addEventListener:(_name:string,fn:typeof onClick)=>{onClick=fn;},querySelectorAll:()=>[stopButton]};
+  const chrome={runtime:{id:'extension-test',onMessage:{addListener:(fn:typeof onRuntimeMessage)=>{onRuntimeMessage=fn;}},sendMessage:async(message:{command:string})=>{
+    sent.push(message.command);
+    return message.command==='resume_reviewed'?(resume?await resume():{resumed:true}):{status:'skipped'};
+  }}};
+  const context={window,document,chrome,Element:Button,location:{origin:'https://www.comeplayers.com'},setTimeout,clearTimeout,crypto};
+  runInNewContext(readFileSync(resolve(process.cwd(),'../tools/comeplayers-loker-extension/bridge.js'),'utf8'),context);
+  return {sent,results,stopButton,approve:(trusted=true)=>onClick({isTrusted:trusted,target:sendButton}),
+    command:(command:string)=>onWindowMessage({source:window,origin:context.location.origin,data:{source:'cp-loker-ui',kind:'command',requestId:'request',command}}),
+    popupStop:()=>{let handled=false;onRuntimeMessage({type:'CP_LOKER_STOP_CAMPAIGN'},{id:'extension-test'},result=>{handled=result.handled;});return handled;}};
+}
+
+test('older Admin review click resumes only the first run after campaign preparation STOP', async () => {
+  const bridge=bridgeHarness();bridge.approve();await bridge.command('stop');await bridge.command('run');await bridge.command('run');
+  assert.deepEqual(bridge.sent,['stop','resume_reviewed','run','run']);
+});
+
+test('popup STOP invokes existing Admin handler and revokes old review approval', async () => {
+  const bridge=bridgeHarness();bridge.approve();assert.equal(bridge.popupStop(),true);await bridge.command('run');
+  assert.equal(bridge.stopButton.clicks,1);assert.deepEqual(bridge.sent,['run']);
+  const untrusted=bridgeHarness();untrusted.approve(false);await untrusted.command('run');assert.deepEqual(untrusted.sent,['run']);
+});
+
+test('popup STOP while reviewed resume is pending never starts the browser job', async () => {
+  const entered=deferred<void>(),release=deferred<void>();
+  const bridge=bridgeHarness(async()=>{entered.resolve();await release.promise;return {resumed:true};});
+  bridge.approve();const running=bridge.command('run');await entered.promise;bridge.popupStop();release.resolve();await running;
+  assert.deepEqual(bridge.sent,['resume_reviewed']);
+  assert.equal((bridge.results.at(-1)?.result as WorkerResult).status,'cancelled');
+});
+
+test('deployed queue SQL serializes jobs, skips safely, cancels STOP and pauses unsafe sends', async t => {
+  const db=new PGlite();
+  const actor='11111111-1111-1111-1111-111111111111';
+  type LeasedJob={id:string;lease:string;status:string};
+  const claimJob=async()=> (await db.query<{job:LeasedJob|null}>("select cp_loker_claim('browser') as job")).rows[0].job;
+  const preflightJob=async(job:LeasedJob)=> (await db.query<{allowed:boolean}>('select cp_loker_preflight($1,$2) as allowed',[job.id,job.lease])).rows[0].allowed;
+  const finishJob=async(job:LeasedJob,status:string)=>db.query("select cp_loker_finish($1,$2,$3,'','fixture result')",[job.id,job.lease,status]);
+  const seed=async()=>{
+    await db.exec("truncate cp_loker_jobs; update cp_loker_workspace set state='running',revision=0,config='{\"dailyLimit\":1}';");
+    for(let i=0;i<3;i++)await db.query("insert into cp_loker_jobs(dedupe_key,generation,kind,channel,target,payload,created_at) select $1,generation,'group_comment','browser',$2,'{\"adminSelected\":true}',now()+($3::integer * interval '1 second') from cp_loker_workspace where id=1",[`post-${i}`,`https://www.facebook.com/groups/test/posts/${i+100}/`,i]);
+  };
+  try{
+    await db.exec(`create role anon;create role authenticated;create role service_role;create table profiles(id uuid primary key,role text);insert into profiles values('${actor}','admin');`);
+    for(const file of ['20261001093000_loker_automation.sql','20261001104000_loker_banner_5mb.sql','20261001110500_loker_unlimited_relevant_comments.sql','20261001113000_loker_stop_all_queued.sql'])await db.exec(readFileSync(resolve(process.cwd(),'supabase/migrations',file),'utf8'));
+    await t.test('pre-dispatch skipped target advances to next selected post',async()=>{
+      await seed();const first=await claimJob();assert.ok(first);assert.equal(await claimJob(),null);
+      await finishJob(first,'skipped');const second=await claimJob();assert.ok(second);assert.notEqual(second.id,first.id);
+      assert.equal(await preflightJob(second),true);assert.equal(await preflightJob(second),false);
+      await finishJob(second,'sent');const third=await claimJob();assert.ok(third);assert.equal(await preflightJob(third),true);
+    });
+    for (const stage of ['composer_draft_present', 'attachment_cleanup_blocked']) {
+      await t.test(`${stage} pauses the selected batch before dispatch without retry`,async()=>{
+        await seed();const first=await claimJob();assert.ok(first);
+        const note=browserResultNote('Draft perlu diperiksa sebelum melanjutkan.',stage);
+        assert.equal((await db.query<{finished:boolean}>("select cp_loker_finish($1,$2,'failed','',$3) as finished",[first.id,first.lease,note])).rows[0].finished,true);
+        const saved=(await db.query<{status:string;started_at:string|null;note:string;payload:Record<string,unknown>}>('select status,started_at,note,payload from cp_loker_jobs where id=$1',[first.id])).rows[0];
+        assert.equal(saved.status,'failed');assert.equal(saved.started_at,null);
+        assert.equal(saved.note,note);assert.equal(browserNoteStage(saved.note),stage);assert.deepEqual(saved.payload,{});
+        assert.equal((await db.query<{state:string}>('select state from cp_loker_workspace')).rows[0].state,'paused');
+        assert.equal(await preflightJob(first),false);assert.equal(await claimJob(),null);assert.equal(await claimJob(),null);
+        assert.equal((await db.query<{n:number}>("select count(*)::int as n from cp_loker_jobs where status='queued' and started_at is null")).rows[0].n,2);
+        await db.query("select cp_loker_control(1,'start','{}',$1)",[actor]);
+        const next=await claimJob();assert.ok(next);assert.notEqual(next.id,first.id);
+        assert.equal((await db.query<{status:string}>('select status from cp_loker_jobs where id=$1',[first.id])).rows[0].status,'failed');
+      });
+    }
+    await t.test('STOP cancels every queued and leased target before dispatch',async()=>{
+      await seed();const first=await claimJob();assert.ok(first);
+      await db.query("select cp_loker_control(0,'stop','{}',$1)",[actor]);
+      assert.equal(await preflightJob(first),false);assert.equal(await claimJob(),null);
+      assert.equal((await db.query<{n:number}>("select count(*)::int as n from cp_loker_jobs where status='cancelled'")).rows[0].n,3);
+    });
+    await t.test('uncertain dispatch pauses batch and never leases that job again',async()=>{
+      await seed();const first=await claimJob();assert.ok(first);assert.equal(await preflightJob(first),true);
+      await finishJob(first,'uncertain');assert.equal(await claimJob(),null);
+      assert.equal((await db.query<{state:string}>('select state from cp_loker_workspace')).rows[0].state,'paused');
+      await db.query("select cp_loker_control(1,'start','{}',$1)",[actor]);
+      const next=await claimJob();assert.ok(next);assert.notEqual(next.id,first.id);
+    });
+    await t.test('worker crash after dispatch becomes uncertain without automatic retry',async()=>{
+      await seed();const first=await claimJob();assert.ok(first);assert.equal(await preflightJob(first),true);
+      await db.query("update cp_loker_jobs set leased_at=now()-interval '4 minutes' where id=$1",[first.id]);
+      assert.equal(await claimJob(),null);
+      assert.equal((await db.query<{status:string}>('select status from cp_loker_jobs where id=$1',[first.id])).rows[0].status,'uncertain');
+      assert.equal((await db.query<{state:string}>('select state from cp_loker_workspace')).rows[0].state,'paused');
+    });
+  }finally{await db.close();}
 });

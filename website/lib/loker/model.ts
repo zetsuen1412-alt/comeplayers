@@ -18,6 +18,28 @@ export const EMPTY_CONFIG: Config = {
 export class LokerError extends Error {
   constructor(message: string, public status = 400) { super(message); this.name = 'LokerError'; }
 }
+const BROWSER_STAGES = new Set([
+  'navigated', 'composer_selected:post_root', 'photo_control_found', 'attachment_preview_found',
+  'send_control_found', 'preflight_allowed', 'send_clicked', 'verified_new_comment',
+  'context_unavailable', 'composer_missing', 'composer_nested_reply', 'composer_ambiguous',
+  'composer_draft_present', 'attachment_cleanup_blocked',
+  'photo_control_unavailable', 'attachment_preview_missing', 'send_control_unavailable',
+  'preflight_denied', 'cancelled', 'verification_inconclusive', 'security_restriction',
+  'navigation_unavailable', 'browser_interrupted',
+  'banner_invalid', 'target_changed', 'approval_required',
+]);
+export function browserStage(value: unknown): string {
+  return typeof value === 'string' && (BROWSER_STAGES.has(value) || /^(?:post_context_found:(?:modal|feed)|composer_candidates:\d{1,3})$/.test(value)) ? value : '';
+}
+/** Keep the final diagnostic first: the database caps notes at 250 characters. */
+export function browserResultNote(note: unknown, stage: unknown): string {
+  const finalStage = browserStage(stage);
+  const message = typeof note === 'string' ? note.replace(/^\[stage:[^\]]+\]\s*/, '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim() : '';
+  return `${finalStage ? `[stage:${finalStage}] ` : ''}${message}`.slice(0, 250);
+}
+export function browserNoteStage(note: string): string {
+  return browserStage(note.match(/^\[stage:([^\]]+)\]/)?.[1]);
+}
 function text(value: unknown, max: number, name: string): string {
   if (typeof value !== 'string' || value.length > max || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(value)) throw new LokerError(`${name} tidak valid (maksimal ${max} karakter).`);
   return value.trim();

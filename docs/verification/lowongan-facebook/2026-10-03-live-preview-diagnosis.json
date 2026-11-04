@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-03",
+  "observedAdminExtensionVersion": "1.3.4",
+  "automatedQueueStopped": true,
+  "failedTargetHistory": {
+    "status": "skipped",
+    "stage": "attachment_preview_missing",
+    "dispatchReached": false
+  },
+  "reproduction": {
+    "sameAdminSelectedBannerReattached": true,
+    "commentSubmitted": false,
+    "diagnosticAttachmentRemoved": true,
+    "emptyComposerConfirmed": true
+  },
+  "composer": {
+    "label": "Tulis komentar publik…",
+    "editorCount": 1,
+    "formAncestorDepth": 7,
+    "formRole": "presentation",
+    "previewCommonAncestorDepth": 8,
+    "composerTableAncestorDepth": 12,
+    "postBoundaryAncestorDepth": 23,
+    "dialogAncestorDepth": 26,
+    "previewWithinForm": false,
+    "previewWithinComposer": true,
+    "previewRenderedWidth": 64,
+    "previewRenderedHeight": 80,
+    "previewNaturalWidth": 64,
+    "previewComplete": true,
+    "previewSourceFamily": "https",
+    "removeControlLabel": "Hapus foto",
+    "progressbarCount": 0,
+    "sendControlAppearsAfterEditorFocus": true,
+    "sendControlLabel": "Posting komentar",
+    "sendControlRole": "button",
+    "sendControlWithinForm": true,
+    "sendControlRenderedWidth": 16,
+    "sendControlRenderedHeight": 16
+  },
+  "navigation": {
+    "unsentDraftLeaveSiteDialogObserved": true,
+    "dialogCancelled": true,
+    "domInspectionRecovered": true
+  },
+  "liveImageSendAcceptancePassed": false,
+  "mergeAllowed": false,
+  "privacy": "No target identifiers, actor identity, post text, image bytes, credentials, cookies, or profile data recorded."
+}

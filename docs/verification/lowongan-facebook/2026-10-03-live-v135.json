@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-03",
+  "extensionVersion": "1.3.5",
+  "authenticatedLocalBrowser": "Edge",
+  "adminVersionMatches": true,
+  "sourceSha256": "1d5bbce08f831e3ff9ed3369254c411c76bd8e2fd4df1ebc44fa9b882ce32239",
+  "connection": {
+    "actualToolbarPopupUsed": true,
+    "connectedConfirmationVisible": true,
+    "permissionExpansion": false
+  },
+  "scan": { "discovered": 29, "selectedByDefault": 29, "groupStatusPostingEnabled": false },
+  "oldSkippedTarget": {
+    "reviewedSelections": 1,
+    "queueReviewClicks": 1,
+    "newJobCreated": false,
+    "deduplicatedSameGeneration": true,
+    "oldStage": "attachment_preview_missing",
+    "newDispatchOccurred": false
+  },
+  "modal": {
+    "targetHadNoPreviousHistory": true,
+    "reviewedSelections": 1,
+    "queueReviewClicks": 1,
+    "visibleComposerLabel": "Tulis jawaban...",
+    "status": "sent",
+    "stage": "verified_new_comment",
+    "publishedRecruitmentImageVisuallyConfirmed": true,
+    "publishedImageLoaded": true,
+    "publishedImageWidth": 168,
+    "publishedImageHeight": 210,
+    "composerTextEmpty": true,
+    "attachmentRemovalControlCount": 0,
+    "reloaded": true,
+    "sameCommentIdentityAfterReload": true,
+    "sameMediaPathAfterReload": true,
+    "visibleImageAfterReload": true,
+    "imageWidthAfterReload": 168,
+    "imageHeightAfterReload": 210
+  },
+  "stop": { "confirmedBeforeNewJob": true, "confirmedAfterSuccessfulModal": true },
+  "normalPost": { "status": "pending" },
+  "reviewedBatch": { "status": "pending" },
+  "unsupportedThenNext": { "status": "pending" },
+  "uncertainTargetsRetried": 0,
+  "facebookIdentityOrPostTextSaved": false,
+  "privateFacebookScreenshotSaved": false,
+  "mergeAllowed": false
+}

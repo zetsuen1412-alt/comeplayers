@@ -2,12 +2,12 @@
 /* eslint-disable @next/next/no-img-element -- private banner is loaded through authenticated API */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { authenticatedFetch, authenticatedFetchJson } from '@/lib/authenticatedFetch';
-import { EMPTY_CONFIG, type Config, type RunState } from '@/lib/loker/model';
+import { EMPTY_CONFIG, browserNoteStage, type Config, type RunState } from '@/lib/loker/model';
 import './lowongan.css';
 
 type Log = { id:string; kind:string; status:string; target:string; note:string; external_ref?:string; created_at:string };
 type Snapshot = { config:Config; state:RunState; revision:number; generation:string; jobs:Log[]; connection:{ enabled:boolean } };
-type BridgeStatus = { installed?:boolean; version?:string; attached?:boolean; busy?:boolean; interrupted?:{ id:string; lease:string }; error?:string };
+type BridgeStatus = { installed?:boolean; version?:string; attached?:boolean; busy?:boolean; stopped?:boolean; interrupted?:{ id:string; lease:string }; error?:string };
 type Task = { id:string; lease:string; kind:string; target:string };
 type ScanItem = { url:string; preview:string; group:string };
 
@@ -37,6 +37,7 @@ export default function LowonganPage(){
   const [error,setError]=useState('');
   const [notice,setNotice]=useState('');
   const [working,setWorking]=useState(false);
+  const [stopping,setStopping]=useState(false);
   const [scanning,setScanning]=useState(false);
   const [bridgeStatus,setBridgeStatus]=useState<BridgeStatus>({});
   const [bannerUrl,setBannerUrl]=useState('');
@@ -46,11 +47,14 @@ export default function LowonganPage(){
   const active=useRef<Task|null>(null);
   const pumping=useRef(false);
   const mounted=useRef(true);
+  const stopRequested=useRef(false);
+  const campaignSetup=useRef<Promise<void>|null>(null);
+  const queuePending=useRef<Promise<{accepted:number}>|null>(null);
 
   const bridge=useCallback((name:string,data?:unknown,timeout=8000)=>new Promise<Record<string,unknown>>((resolve,reject)=>{
     const requestId=crypto.randomUUID();
     const timer=setTimeout(()=>{requests.current.delete(requestId);reject(new Error('Ekstensi tidak merespons.'));},timeout);
-    requests.current.set(requestId,result=>{clearTimeout(timer);result?.error?reject(new Error(String(result.error))):resolve(result);});
+    requests.current.set(requestId,result=>{clearTimeout(timer);if(result?.error)reject(new Error(String(result.error)));else resolve(result);});
     window.postMessage({source:'cp-loker-ui',kind:'command',requestId,command:name,data},location.origin);
   }),[]);
 
@@ -79,10 +83,10 @@ export default function LowonganPage(){
       }
       if(m.kind==='preflight'){
         const task=active.current;
-        const op=task&&task.id===m.id&&task.lease===m.lease
+        const op=!stopRequested.current&&task&&task.id===m.id&&task.lease===m.lease
           ?command<{allowed:boolean}>({action:'preflight',id:m.id,lease:m.lease})
           :Promise.resolve({allowed:false});
-        op.catch(()=>({allowed:false})).then(r=>window.postMessage({source:'cp-loker-ui',kind:'preflight-result',requestId:m.requestId,allowed:r.allowed},location.origin));
+        op.catch(()=>({allowed:false})).then(r=>window.postMessage({source:'cp-loker-ui',kind:'preflight-result',requestId:m.requestId,allowed:r.allowed&&!stopRequested.current},location.origin));
       }
     };
     window.addEventListener('message',receive);
@@ -102,22 +106,26 @@ export default function LowonganPage(){
 
   useEffect(()=>{
     async function pump(){
-      if(pumping.current||scanning)return;
+      if(pumping.current||scanning||stopRequested.current)return;
       pumping.current=true;
       try{
         const status=await bridge('ping') as BridgeStatus;
         if(mounted.current)setBridgeStatus(status);
         if(status.interrupted){
-          await command({action:'result',...status.interrupted,status:'uncertain',note:'Browser/ekstensi terputus. Periksa Facebook sebelum melanjutkan.'});
+          await command({action:'result',...status.interrupted,status:'uncertain',stage:'browser_interrupted',note:'Browser/ekstensi terputus. Periksa Facebook sebelum melanjutkan.'});
           await refresh();return;
         }
-        if(snapshot?.state!=='running'||!status.attached||status.busy)return;
+        if(snapshot?.state!=='running'||!status.attached||status.busy||status.stopped)return;
         const {job}=await command<{job:Task|null}>({action:'next'});
         if(!job)return;
+        if(stopRequested.current){
+          await command({action:'result',id:job.id,lease:job.lease,status:'cancelled',stage:'cancelled',note:'STOP aktif sebelum tugas browser dimulai.'});
+          return;
+        }
         active.current=job;
         let result:Record<string,unknown>;
         try{result=await bridge('run',job,160000);}
-        catch(e){result={status:'uncertain',note:e instanceof Error?e.message:'Browser terputus.'};}
+        catch(e){result={status:'uncertain',stage:'browser_interrupted',note:e instanceof Error?e.message:'Browser terputus.'};}
         await command({action:'result',...result,id:job.id,lease:job.lease});
         await refresh();
       }catch(e){
@@ -180,6 +188,7 @@ export default function LowonganPage(){
     setError('');setNotice('');
     try{validateBasics();}catch(e){setError(e instanceof Error?e.message:'Pengaturan belum lengkap.');return;}
     setScanning(true);setWorking(true);
+    stopRequested.current=false;
     try{
       await stopRunning();
       const targetGroups=groups();
@@ -187,16 +196,18 @@ export default function LowonganPage(){
       const failures:string[]=[];
       setScanned([]);setSelected(new Set());
       for(let index=0;index<targetGroups.length;index++){
+        if(stopRequested.current)break;
         const group=targetGroups[index];
         setNotice(`Memindai grup ${index+1}/${targetGroups.length}… hasil yang sudah ditemukan akan langsung disimpan di layar.`);
         try{
-          const result=await bridge('scan',{groups:[group]},90000) as {items?:ScanItem[]};
+          const result=await bridge('scan',{groups:[group]},90000) as {items?:ScanItem[];stopped?:boolean};
           for(const item of Array.isArray(result.items)?result.items:[]){
             if(item?.url) found.set(item.url,item);
           }
           const items=[...found.values()];
           setScanned(items);
           setSelected(new Set(items.map(item=>item.url)));
+          if(result.stopped){stopRequested.current=true;break;}
         }catch(e){
           failures.push(`Grup ${index+1}: ${e instanceof Error?e.message:'gagal dipindai'}`);
           if(e instanceof Error && /Ekstensi tidak merespons|Extension context invalidated|Receiving end does not exist/i.test(e.message)) throw e;
@@ -205,7 +216,7 @@ export default function LowonganPage(){
       const items=[...found.values()];
       setScanned(items);
       setSelected(new Set(items.map(item=>item.url)));
-      setNotice(`${items.length} postingan/status ditemukan dan otomatis ditandai semua.${failures.length?` ${failures.length} grup gagal dipindai.`:''} Periksa daftar lalu tekan KIRIM KOMENTAR.`);
+      setNotice(stopRequested.current?`Scan dihentikan. ${items.length} postingan/status yang sudah ditemukan tetap tersedia untuk diperiksa.`:`${items.length} postingan/status ditemukan dan otomatis ditandai semua.${failures.length?` ${failures.length} grup gagal dipindai.`:''} Periksa daftar lalu tekan KIRIM KOMENTAR.`);
       if(failures.length) setError(failures.join(' · '));
     }catch(e){
       setError(e instanceof Error?`${e.message} Muat ulang halaman Admin dan ekstensi, lalu hubungkan kembali tab Facebook.`:'Scan Facebook gagal.');
@@ -214,11 +225,14 @@ export default function LowonganPage(){
   }
 
   async function ensureCampaignRunning(){
-    let expected=await stopRunning();
+    const expected=await stopRunning();
+    if(stopRequested.current)return;
     const saved=await command<{revision:number}>({action:'save',expectedRevision:expected,config:config()});
     revisionRef.current=saved.revision;
+    if(stopRequested.current)return;
     const started=await command<{revision:number}>({action:'start',expectedRevision:saved.revision});
     revisionRef.current=started.revision;
+    if(stopRequested.current)return;
     dirtyRef.current=false;setDirty(false);
     await refresh(true);
   }
@@ -229,33 +243,51 @@ export default function LowonganPage(){
     if(!urls.length){setError('Belum ada postingan yang ditandai.');return;}
     try{validateBasics();}catch(e){setError(e instanceof Error?e.message:'Pengaturan belum lengkap.');return;}
     setWorking(true);
+    stopRequested.current=false;
     try{
-      await ensureCampaignRunning();
+      const setup=ensureCampaignRunning();
+      campaignSetup.current=setup;
+      try{await setup;}finally{if(campaignSetup.current===setup)campaignSetup.current=null;}
+      if(!stopRequested.current)await bridge('resume_reviewed');
       let accepted=0;
       for(let i=0;i<urls.length;i+=400){
-        const result=await command<{accepted:number}>({action:'queue_selected',posts:urls.slice(i,i+400)});
+        if(stopRequested.current)break;
+        const queued=command<{accepted:number}>({action:'queue_selected',posts:urls.slice(i,i+400)});
+        queuePending.current=queued;
+        let result:{accepted:number};
+        try{result=await queued;}finally{if(queuePending.current===queued)queuePending.current=null;}
         accepted+=result.accepted;
       }
-      setNotice(`${accepted} postingan ditambahkan ke antrean komentar. Biarkan tab Admin dan Facebook tetap terbuka sampai selesai, atau tekan STOP.`);
+      setNotice(stopRequested.current?'STOP aktif. Antrean berikutnya dihentikan.':`${accepted} postingan ditambahkan ke antrean komentar. Biarkan tab Admin dan Facebook tetap terbuka sampai selesai, atau tekan STOP.`);
     }catch(e){setError(e instanceof Error?e.message:'Komentar gagal diantrikan.');}
     finally{setWorking(false);}
   }
 
   async function stop(){
     if(!snapshot)return;
-    setWorking(true);setError('');setNotice('');
+    stopRequested.current=true;
+    setStopping(true);setError('');setNotice('');
     try{
       void bridge('stop').catch(()=>undefined);
-      const stopped=await command<{revision:number}>({action:'stop',expectedRevision:snapshot.revision});
+      await campaignSetup.current?.catch(()=>undefined);
+      await queuePending.current?.catch(()=>undefined);
+      const current=await authenticatedFetchJson<Snapshot>(API);
+      let stopped:{revision:number};
+      try{stopped=await command<{revision:number}>({action:'stop',expectedRevision:current.revision});}
+      catch(e){
+        if(!(e instanceof Error)||!/Data berubah di tab lain/.test(e.message))throw e;
+        const latest=await authenticatedFetchJson<Snapshot>(API);
+        stopped=await command<{revision:number}>({action:'stop',expectedRevision:latest.revision});
+      }
       revisionRef.current=stopped.revision;
       await refresh(true);
       setNotice('STOP aktif. Pengiriman berikutnya dihentikan.');
     }catch(e){setError(e instanceof Error?e.message:'STOP gagal.');}
-    finally{setWorking(false);}
+    finally{setStopping(false);}
   }
 
   function toggle(url:string){
-    setSelected(prev=>{const next=new Set(prev);next.has(url)?next.delete(url):next.add(url);return next;});
+    setSelected(prev=>{const next=new Set(prev);if(next.has(url))next.delete(url);else next.add(url);return next;});
   }
 
   const jobCounts=(snapshot?.jobs||[]).reduce((acc,j)=>{acc[j.status]=(acc[j.status]||0)+1;return acc;},{} as Record<string,number>);
@@ -278,6 +310,7 @@ export default function LowonganPage(){
       <span>Antrean: {queuedCount}</span>
       <span>Dilewati: {jobCounts.skipped||0}</span>
       {(jobCounts.uncertain||jobCounts.failed)?<span>Perlu diperiksa: {(jobCounts.uncertain||0)+(jobCounts.failed||0)}</span>:null}
+      <button className="danger" disabled={stopping||!snapshot} onClick={()=>void stop()}>{stopping?'MENGHENTIKAN…':'STOP'}</button>
     </div>
 
     <div className="lkr-grid"><div>
@@ -308,7 +341,6 @@ export default function LowonganPage(){
         </div>
         <div className="lkr-buttons" style={{marginTop:18}}>
           <button className="primary" style={{minWidth:220,minHeight:48}} disabled={working||selected.size===0} onClick={()=>void sendSelected()}>KIRIM KOMENTAR ({selected.size})</button>
-          <button className="danger" style={{minWidth:140,minHeight:48}} disabled={working||!snapshot} onClick={()=>void stop()}>STOP</button>
         </div>
         <p className="lkr-help">Scan hanya menampilkan postingan yang ditemukan pada sesi scan. Tidak ada komentar yang dikirim sampai kamu menekan KIRIM KOMENTAR.</p>
       </div>}
@@ -316,7 +348,7 @@ export default function LowonganPage(){
       <details className="lkr-card">
         <summary style={{cursor:'pointer',fontWeight:700}}>Riwayat pengiriman ({snapshot?.jobs.length||0})</summary>
         <div className="lkr-table-scroll" style={{marginTop:16}}>
-          {!snapshot?.jobs.length?<p>Belum ada pengiriman.</p>:<table><thead><tr><th>Aktivitas</th><th>Status</th><th>Tujuan / catatan</th></tr></thead><tbody>{snapshot.jobs.map(j=><tr key={j.id}><td><strong>{labels[j.kind]||j.kind}</strong><small>{new Date(j.created_at).toLocaleString('id-ID')}</small></td><td><span className={`lkr-result ${j.status}`}>{labels[j.status]||j.status}</span></td><td><small>{j.target}</small>{j.note||'Menunggu.'}{j.external_ref?.startsWith('https://www.facebook.com/groups/')&&<a href={j.external_ref} target="_blank" rel="noreferrer">Buka Facebook</a>}</td></tr>)}</tbody></table>}
+          {!snapshot?.jobs.length?<p>Belum ada pengiriman.</p>:<table><thead><tr><th>Aktivitas</th><th>Status</th><th>Tujuan / catatan</th></tr></thead><tbody>{snapshot.jobs.map(j=><tr key={j.id}><td><strong>{labels[j.kind]||j.kind}</strong><small>{new Date(j.created_at).toLocaleString('id-ID')}</small></td><td><span className={`lkr-result ${j.status}`}>{labels[j.status]||j.status}</span></td><td><small>{j.target}</small>{browserNoteStage(j.note)&&<strong style={{display:'block'}}>Tahap terakhir: <code>{browserNoteStage(j.note)}</code></strong>}{j.note.replace(/^\[stage:[^\]]+\]\s*/,'')||'Menunggu.'}{j.external_ref?.startsWith('https://www.facebook.com/groups/')&&<a href={j.external_ref} target="_blank" rel="noreferrer">Buka Facebook</a>}</td></tr>)}</tbody></table>}
         </div>
       </details>
     </div>
